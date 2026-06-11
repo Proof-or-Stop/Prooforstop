@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "命令状态是流程事实，必须由代码内策略表机械表达。",
+    "phase gate 负责即时用户引导，静态验证负责发布前防漂移。",
+    "旧 destructive/legacy test fixture 入口保守处理，默认不给无限制放行。",
+    "process-fact level、phaseTools 和 handler runtime 不能各自发明命令语义。"
+  ],
+  "drivers": [
+    "避免本地其他项目继续遇到“命令不可用但不知道下一步”的低质量错误。",
+    "防止 L4 gate evidence 命令没有生产阶段或替代路径。",
+    "保留 test_auto 等旧命令的 destructive guard，不为兼容性牺牲安全。"
+  ],
+  "options": [
+    {
+      "name": "A: 只补 phaseTools 白名单",
+      "pros": [
+        "改动小",
+        "能快速消除部分命令不可用报错"
+      ],
+      "cons": [
+        "无法解释 rootOnly/retired/replacement",
+        "可能放开 destructive legacy 命令",
+        "不能防止后续新增命令漂移"
+      ]
+    },
+    {
+      "name": "B: 新增 command lifecycle policy 表并让 phase gate 与验证脚本消费",
+      "pros": [
+        "同一事实源解释命令状态",
+        "能区分支持、root-only、legacy、replacement 和 destructive risk",
+        "可以用 contract test 防止漂移"
+      ],
+      "cons": [
+        "需要补全所有已注册命令 policy",
+        "phase gate 输出和验证脚本都要调整"
+      ]
+    },
+    {
+      "name": "C: 只更新 prompt/docs，保留代码行为",
+      "pros": [
+        "最少代码改动",
+        "文案能提醒 agent 少用旧命令"
+      ],
+      "cons": [
+        "不能阻止实际命令误用",
+        "遇到错 phase 仍然是低质量报错",
+        "违反流程事实双层契约"
+      ]
+    }
+  ],
+  "chosen": "B: 新增 command lifecycle policy 表并让 phase gate 与验证脚本消费",
+  "rationale": "B 是唯一同时满足用户可见引导、legacy destructive 安全分流和发布前漂移防护的方案；A 会过度放开命令，C 只靠 prompt，都会重复 B-8bb5 这类问题。",
+  "preMortem": [
+    {
+      "scenario": "policy 表覆盖不完整，新增 CLI 命令没有分类仍能发布。",
+      "trigger": "TOOLS 增加命令但未更新 lifecycle policy。",
+      "consequence": "phase gate 又只能输出泛化不可用报错，用户不知道下一步。",
+      "mitigation": "process-fact contract 检查 TOOLS、phaseTools、PROCESS_FACT_LEVELS 和 policy 的覆盖一致性。"
+    },
+    {
+      "scenario": "为了兼容旧流程把 test_auto/test_story 全部放开。",
+      "trigger": "只用 phaseTools 白名单解决不可用问题。",
+      "consequence": "destructive cleanup 或旧 lifecycle 假设伤到 active story 工作区。",
+      "mitigation": "test/fixture 家族声明 legacy/replacement/destructiveRisk，phase gate 给替代路径而不是盲目放行。"
+    },
+    {
+      "scenario": "静态验证变成内部自嗨，不能保护终端用户体验。",
+      "trigger": "验证只检查文件存在，不检查 replacement hint 或 workflow family 完整性。",
+      "consequence": "未来新增命令又让用户看到不可行动的错误。",
+      "mitigation": "CHK-003 验证必须点名用户可见策略缺口：缺 policy、缺 producer phase、缺 replacement、family 半开半关。"
+    },
+    {
+      "scenario": "项目级 phaseTools override 被 policy 逻辑错误绕过。",
+      "trigger": "isCommandAllowed 改动忽略用户配置或 malformed config fallback。",
+      "consequence": "已有项目自定义阶段可用命令被破坏。",
+      "mitigation": "保持 isCommandAllowed 判定语义，policy 只增强拒绝说明和 contract，flow-stability-smoke 覆盖 override 行为。"
+    }
+  ],
+  "timestamp": "2026-05-12T00:45:26.291Z"
+}

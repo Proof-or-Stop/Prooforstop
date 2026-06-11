@@ -1,0 +1,59 @@
+{
+  "storyId": "B-1715",
+  "checkedAt": "2026-05-12T16:09:53.811Z",
+  "features": [
+    {
+      "feature": "typed runtime fact registry stays separate from process-fact registry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".koala/story/actives/B-1715/plan.md:11-16"
+    },
+    {
+      "feature": "doctor exposes runtime drift facts for cli entrypoint/global core/project-local-bin/node/package with actual/expected/status",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".koala/story/actives/B-1715/plan.md:22-27"
+    },
+    {
+      "feature": "validate-source runtime fact distinguishes configured/fallback/missing in doctor text and json",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".koala/story/actives/B-1715/checklist.json CHK-003 userSees + verificationIntent"
+    },
+    {
+      "feature": "external-reference-policy now has a bounded scan scope and explicit health-command heuristic that avoids false positives on internal localhost examples",
+      "covered_by": "CHK-003 + OQ-001 resolution",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".koala/story/actives/B-1715/checklist.json CHK-003 userSees + verificationIntent; .koala/story/actives/B-1715/scope-check.json OQ-001 resolution"
+    },
+    {
+      "feature": "runtime fact contract verifier and npm scripts guard required fact ids, output keys, and doctor runtime rendering",
+      "covered_by": "CHK-004 + OQ-002 resolution",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".koala/story/actives/B-1715/plan.md:44-49; .koala/story/actives/B-1715/scope-check.json OQ-002 resolution; package.json; packages/main/package.json"
+    },
+    {
+      "feature": "v1 keeps doctor as the only user-visible runtime entrypoint and does not add env_check in this story",
+      "covered_by": "understanding/decision/plan + OQ-002 resolution",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".koala/story/actives/B-1715/understanding.json; .koala/story/actives/B-1715/decision.json; .koala/story/actives/B-1715/plan.md; .koala/story/actives/B-1715/scope-check.json OQ-002 resolution"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "35dd0d9ac7543d2c5fb62d38c31c3808d1752752bd256f0eed8d8a7e10af6df3",
+  "openQuestions": []
+}

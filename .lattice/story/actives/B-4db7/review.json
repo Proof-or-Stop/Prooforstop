@@ -1,0 +1,112 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-15T11:47:58.925Z",
+      "issueCount": 7,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001「区分 primary truth docs 与 extracted reference docs」缺少 testIntent"
+        },
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002「让 gap_analyze 的 uncovered_requirement 只对 primary truth 生效」缺少 testIntent"
+        },
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003「补回归验证，锁住 extracted 不再制造 high requirement 误报」缺少 testIntent"
+        },
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: 是让 scanTruth 给 entry 标 source tier，还是让 gap_analyze 自己按路径过滤。; derived entries 在完整 truth_scan 输出里是否仍保留 type=requirement，还是降级成另一类 metadata 更稳。"
+        }
+      ],
+      "_hash": "0a09ae7184bca565a5af890ee61b07a97de3d2f35303b3222ab638ced04f4d33"
+    },
+    {
+      "timestamp": "2026-04-15T11:48:22.444Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002「让 gap_analyze 的 uncovered_requirement 只对 primary truth 生效」缺少 testIntent"
+        },
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: 是让 scanTruth 给 entry 标 source tier，还是让 gap_analyze 自己按路径过滤。; derived entries 在完整 truth_scan 输出里是否仍保留 type=requirement，还是降级成另一类 metadata 更稳。"
+        }
+      ],
+      "_hash": "69078fff2315deefbb9960439972810e370c875abe2b06c787b42724f3bd3e46"
+    },
+    {
+      "timestamp": "2026-04-15T11:48:37.592Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: 是让 scanTruth 给 entry 标 source tier，还是让 gap_analyze 自己按路径过滤。; derived entries 在完整 truth_scan 输出里是否仍保留 type=requirement，还是降级成另一类 metadata 更稳。"
+        }
+      ],
+      "_hash": "675d1e9f38651f5c3363a3db4573727aab7152da1131e917db061671d90a4fd8"
+    }
+  ]
+}

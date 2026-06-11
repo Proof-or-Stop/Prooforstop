@@ -1,0 +1,43 @@
+{
+  "storyId": "B-9e48",
+  "checkedAt": "2026-05-12T18:51:16.588Z",
+  "reviewRound": "2026-05-12T18:36:45.641Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#Worktree 自动管理",
+      "promise": "DONE may be invoked from a story worktree subdirectory, while merge and cleanup still target the canonical git top-level story worktree rather than the nested cwd.",
+      "status": "verified",
+      "verifiedBy": "git diff review plus npm run test:worktree-authority-smoke",
+      "evidence": "CLAUDE.md documents nested DONE invocation; worktree-authority smoke passed and asserts output/cleanup do not target PVSC/child."
+    },
+    {
+      "docPath": "CLAUDE.md#DONE 门禁",
+      "promise": "DONE must run in the expected story/<storyId> linked worktree; mismatched or non-story linked branches are refused before DONE state mutation, merge, branch deletion, or worktree cleanup.",
+      "status": "verified",
+      "verifiedBy": "git diff review plus npm run test:worktree-authority-smoke",
+      "evidence": "story-advance guards detected branch before main auto-sync; smoke passed for wrong story branch and feature/not-story rejection without mutation or cleanup."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "build",
+      "transcript": "2026-05-12 reviewer run: npm --prefix packages/main run build exited 0 after tsc completed."
+    },
+    {
+      "featureId": "worktree-authority-smoke",
+      "transcript": "2026-05-12 reviewer run: npm run test:worktree-authority-smoke exited 0 with output: ✓ worktree authority smoke passed. Covers nested DONE cleanup, wrong story branch, and non-story linked worktree rejection."
+    },
+    {
+      "featureId": "koala-validate-coverage",
+      "transcript": "2026-05-12 reviewer run: koala validate --story=B-9e48 exited 0. Project fallback npm test passed, and verification intent coverage was 6/6 covered with 0 required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted: implementation diff, docs promise, focused smoke, build, and koala validate coverage all support the user-visible outcome. Remaining dirty files are process artifacts to commit before DONE, not source defects."
+  },
+  "_hash": "0bea9c87dfe3930044028b705a4fc03b16fbcb1e521bba5781a9eec10462f69a"
+}

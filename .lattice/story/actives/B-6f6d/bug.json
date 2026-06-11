@@ -1,0 +1,124 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-7c31cc25",
+      "title": "[auto] role-telemetry.json:CHK-001 happy: codex command writes reviewer role — Invalid or unexpected token",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.693Z",
+      "fixedAt": "2026-04-14T15:57:11.610Z",
+      "fixtureId": "7c31cc25-7908-4f78-9e77-a90ea2f64461",
+      "diagnose": {
+        "rootCause": [
+          "Invalid or unexpected token"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-f259a0a8",
+      "title": "[auto] role-telemetry.json:CHK-001 edge: missing role normalizes to unknown label — Unexpected token ':'",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.693Z",
+      "fixedAt": "2026-04-14T15:56:37.025Z",
+      "fixtureId": "f259a0a8-953d-4af5-9ef9-d638468b7b84",
+      "diagnose": {
+        "rootCause": [
+          "Unexpected token ':'"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-597f4584",
+      "title": "[auto] role-telemetry.json:CHK-001 adversarial: source and role stay distinct — Invalid or unexpected token",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.693Z",
+      "fixedAt": "2026-04-14T15:57:11.610Z",
+      "fixtureId": "597f4584-38fe-47a7-ad7f-9c807bceaf24",
+      "diagnose": {
+        "rootCause": [
+          "Invalid or unexpected token"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-5bcf86d9",
+      "title": "[auto] role-telemetry.json:CHK-002 happy: tool_status aggregates reviewer role — Unexpected token ':'",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.693Z",
+      "fixedAt": "2026-04-14T15:56:37.025Z",
+      "fixtureId": "5bcf86d9-8c6a-4a05-ba39-5e84526fccc4",
+      "diagnose": {
+        "rootCause": [
+          "Unexpected token ':'"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-4f142693",
+      "title": "[auto] role-telemetry.json:CHK-002 edge: mixed old and new records keep unknown plus reviewer — Invalid or unexpected token",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.693Z",
+      "fixedAt": "2026-04-14T15:56:37.025Z",
+      "fixtureId": "4f142693-4a6d-4cc3-ae45-acd124763f1d",
+      "diagnose": {
+        "rootCause": [
+          "Invalid or unexpected token"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-8d3a4230",
+      "title": "[auto] role-telemetry.json:CHK-002 adversarial: role filter does not misclassify source-only records — Invalid or unexpected token",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.694Z",
+      "fixedAt": "2026-04-14T15:56:37.025Z",
+      "fixtureId": "8d3a4230-317e-4c5b-878c-353b2a975534",
+      "diagnose": {
+        "rootCause": [
+          "Invalid or unexpected token"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-c5fbc445",
+      "title": "[auto] role-telemetry.json:CHK-003 edge: stale detector tolerates old records without role — Invalid or unexpected token",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.694Z",
+      "fixedAt": "2026-04-14T15:56:37.025Z",
+      "fixtureId": "c5fbc445-9441-4e51-9a51-7a386fe2cf7f",
+      "diagnose": {
+        "rootCause": [
+          "Invalid or unexpected token"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-2d3cd05d",
+      "title": "[auto] role-telemetry.json:CHK-003 adversarial: stale detector surfaces last active role when present — Unexpected token ':'",
+      "status": "fixed",
+      "foundAt": "2026-04-14T15:54:02.694Z",
+      "fixedAt": "2026-04-14T15:56:37.025Z",
+      "fixtureId": "2d3cd05d-e3b3-463f-944c-0b136f7edb09",
+      "diagnose": {
+        "rootCause": [
+          "Unexpected token ':'"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

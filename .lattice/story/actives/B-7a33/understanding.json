@@ -1,0 +1,23 @@
+{
+  "task": "修复 DONE evidence freshness 对 runtime activity-only commit 的误判",
+  "outcome": "用户在 TEST 阶段跑完 test_story 并提交 evidence 后，如果后续 commit 只包含 .koala/activity.jsonl、legacy docs/story/activity.jsonl 或当前 story metadata，DONE gate 会显示 Test evidence fresh/metadata-only 并允许继续；如果后续 commit 改了源码、demo、tests 等真实业务文件，DONE gate 仍会提示 stale 并要求重跑 test_story。",
+  "facts": [
+    "getEvidenceFreshness 当前只把 config.storyDir/<storyId>/ 下的变化视为 metadataOnly。",
+    "activity 已迁到 .koala/activity.jsonl，但 getEvidenceFreshness 未忽略该路径。",
+    "Prodenovo B-ac3e 复现 commit evidence/activity 后 current HEAD 只因 .koala/activity 和 story metadata 变化导致 stale。",
+    "DONE gate 仍必须对真实代码变化保持严格。"
+  ],
+  "constraints": [
+    "不能把整个 .koala/ 都当作 metadata-only，因为 .koala/story 以外可能有未来状态。",
+    "只允许明确 runtime activity paths 和当前 story metadata paths。",
+    "legacy docs/story/activity.jsonl 仍需兼容。",
+    "需要 fixture 覆盖 old/new storyDir 两种配置。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/activity-log.ts",
+    "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json"
+  ],
+  "timestamp": "2026-04-20T10:17:14.445Z"
+}

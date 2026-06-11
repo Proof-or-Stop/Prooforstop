@@ -1,0 +1,31 @@
+{
+  "storyId": "B-6c80",
+  "checkedAt": "2026-05-04T22:59:26.355Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-04T22:58:36.720Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "medium",
+          "desc": "Background says koala init currently hard-creates src/core, src/shells, and tests, but CHK-001/CHK-003 only scope the src starter files. Clarify whether default tests/ and tests/fixtures remain Koala-managed assets or should also become opt-in; otherwise the init filesystem contract and verify-entrypoints assertions can drift."
+        },
+        {
+          "id": "I-2",
+          "severity": "low",
+          "desc": "CHK-001 names --starter / --with-template for opt-in starter generation but does not define the CLI contract: are both spellings required aliases, and which one is canonical in help/README/output examples? Decide this before implementation to avoid mismatched docs and smoke coverage."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-04T22:59:26.355Z",
+      "issues": []
+    }
+  ],
+  "_hash": "c24c59bce0726787c8f7cd81c2b73e2eb60e786c645dd748f265af4ada7ef3d6"
+}

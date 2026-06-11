@@ -13,8 +13,10 @@ export interface RuntimeArtifactRegistryEntry {
   repairableTrackedArtifact: boolean;
 }
 
-export const KOALA_RUNTIME_IGNORE_BLOCK_START = '# koala runtime artifacts (managed)';
-export const KOALA_RUNTIME_IGNORE_BLOCK_END = '# /koala runtime artifacts (managed)';
+export const LATTICE_RUNTIME_IGNORE_BLOCK_START = '# lattice runtime artifacts (managed)';
+export const LATTICE_RUNTIME_IGNORE_BLOCK_END = '# /lattice runtime artifacts (managed)';
+export const KOALA_RUNTIME_IGNORE_BLOCK_START = LATTICE_RUNTIME_IGNORE_BLOCK_START;
+export const KOALA_RUNTIME_IGNORE_BLOCK_END = LATTICE_RUNTIME_IGNORE_BLOCK_END;
 
 function rx(value: string): RegExp {
   return new RegExp(value);
@@ -30,13 +32,16 @@ export function isForbiddenOmxPath(path: string): boolean {
 
 export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
-    id: 'koala-runtime-root-ignore',
-    description: 'Ignore runtime state under .koala/ while keeping tracked story evidence visible.',
+    id: 'lattice-runtime-root-ignore',
+    description: 'Ignore runtime state under .lattice/ while keeping tracked story evidence visible.',
     matchers: [],
     ignorePatterns: [
-      '.koala/*',
-      '!.koala/story/',
-      '!.koala/story/**',
+      '.lattice/*',
+      '!.lattice/story/',
+      '.lattice/story/*',
+      '!.lattice/story/actives/',
+      '!.lattice/story/actives/**',
+      '.lattice/story/actives/**/activity.jsonl',
     ],
     materialHash: 'include',
     volatile: false,
@@ -44,9 +49,12 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'runtime-activity-log',
-    description: 'Primary runtime activity log written by Koala CLI wrappers.',
-    matchers: [{ kind: 'exact', value: '.koala/activity.jsonl' }],
-    ignorePatterns: ['**/activity.jsonl'],
+    description: 'Primary Lattice runtime activity log plus migrated legacy Koala activity archive.',
+    matchers: [
+      { kind: 'exact', value: '.lattice/activity.jsonl' },
+      { kind: 'exact', value: '.lattice/activity.legacy-koala.jsonl' },
+    ],
+    ignorePatterns: ['**/activity.jsonl', '.lattice/activity.legacy-koala.jsonl'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
@@ -54,13 +62,13 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     // B-c55d CHK-001: the per-story owner lease (`owner-lease.json`) is process
     // metadata, not story evidence. It lives under the git-tracked
-    // `.koala/story/actives/<id>/` subtree, so it MUST be ignored — an
+    // `.lattice/story/actives/<id>/` subtree, so it MUST be ignored — an
     // un-ignored lease file would surface as a dirty write and could block the
     // DONE `git merge story/<id>` (the F-008 failure mode). The `**/` ignore
     // pattern mirrors `runtime-activity-log` above, which ignores the equally
     // story-scoped `activity.jsonl`.
     id: 'runtime-story-owner-lease',
-    description: 'Per-story owner lease (local session ownership) written under .koala/story/actives/<id>/.',
+    description: 'Per-story owner lease (local session ownership) written under .lattice/story/actives/<id>/.',
     matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)owner-lease\.json$`) }],
     ignorePatterns: ['**/owner-lease.json'],
     materialHash: 'exclude',
@@ -78,27 +86,33 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'runtime-cache',
-    description: 'Mutable runtime cache and trigger state under .koala/runtime/.',
-    matchers: [{ kind: 'prefix', value: '.koala/runtime/' }],
-    ignorePatterns: ['.koala/runtime/'],
+    description: 'Mutable runtime cache and trigger state under .lattice/runtime/.',
+    matchers: [
+      { kind: 'prefix', value: '.lattice/runtime/' },
+    ],
+    ignorePatterns: ['.lattice/runtime/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
   },
   {
     id: 'runtime-traces',
-    description: 'Trace artifacts emitted under .koala/traces/.',
-    matchers: [{ kind: 'prefix', value: '.koala/traces/' }],
-    ignorePatterns: ['.koala/traces/'],
+    description: 'Trace artifacts emitted under .lattice/traces/.',
+    matchers: [
+      { kind: 'prefix', value: '.lattice/traces/' },
+    ],
+    ignorePatterns: ['.lattice/traces/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
   },
   {
     id: 'runtime-locks',
-    description: 'Main write lock and other mkdir-style coordination locks under .koala/locks/.',
-    matchers: [{ kind: 'prefix', value: '.koala/locks/' }],
-    ignorePatterns: ['.koala/locks/'],
+    description: 'Main write lock and other mkdir-style coordination locks under .lattice/locks/.',
+    matchers: [
+      { kind: 'prefix', value: '.lattice/locks/' },
+    ],
+    ignorePatterns: ['.lattice/locks/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
@@ -139,8 +153,8 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'runtime-temp',
     description: 'Temporary runtime scratch files and directories.',
-    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.koala-tmp-[^/]+(?:/.*)?$`) }],
-    ignorePatterns: ['.koala-tmp-*'],
+    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.(?:lattice|koala)-tmp-[^/]+(?:/.*)?$`) }],
+    ignorePatterns: ['.lattice-tmp-*', '.koala-tmp-*'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
@@ -148,8 +162,11 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'debug-log',
     description: 'CLI debug log emitted in the repo root.',
-    matchers: [{ kind: 'exact', value: 'koala-debug.log' }],
-    ignorePatterns: ['koala-debug.log'],
+    matchers: [
+      { kind: 'exact', value: 'lattice-debug.log' },
+      { kind: 'exact', value: 'koala-debug.log' },
+    ],
+    ignorePatterns: ['lattice-debug.log', 'koala-debug.log'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,

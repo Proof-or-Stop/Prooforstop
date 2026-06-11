@@ -1,0 +1,42 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-14T14:17:47.829Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001「让初始化流程原生生成 Codex 所需产物」缺少 testIntent"
+        },
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003「补齐仓库首页和 Codex 侧入口说明」缺少 testIntent"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: Codex agent 模板是否需要独立 source-of-truth，还是继续从 Claude 模板做 transform 就足够。; 未来如果增加更多 Codex 专用 agent，当前 init 复制策略是否会变得太脆。"
+        }
+      ],
+      "_hash": "b8f36ec5efbec7ed4d55b892cd2e7b4c85f704be68e392c55dbe3c07075d6e85"
+    },
+    {
+      "timestamp": "2026-04-14T14:17:57.390Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: Codex agent 模板是否需要独立 source-of-truth，还是继续从 Claude 模板做 transform 就足够。; 未来如果增加更多 Codex 专用 agent，当前 init 复制策略是否会变得太脆。"
+        }
+      ],
+      "_hash": "bf6de689391fd66170871469674c1e35e1cfc3cb947c56477f73f9a8f01744ba"
+    }
+  ]
+}

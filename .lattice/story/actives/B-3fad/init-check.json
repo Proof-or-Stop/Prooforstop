@@ -1,0 +1,52 @@
+{
+  "storyId": "B-3fad",
+  "checkedAt": "2026-05-16T23:45:05.976Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md 方案取舍段写「现有 finding_add 是 reviewer-finding 形状，要 reviewRunId」，但 cli-engine.ts:560 的 schema 中 reviewRunId 是 z.string().optional()（可选字段），并非必填。overstates 当前约束；真正的问题是 category enum 强制与 reviewer-语义设计，不是 reviewRunId 必填。"
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md 触发事件段写「B-META-framework-audit 容器根本不存在」，但 packages/main/src/core/audit-meta-store.ts 有完整的容器机制（ensureMetaStory 幂等创建）。实际状态是容器 data file 尚未实例化（story file 不存在），「根本不存在」表述误导读者认为该机制不存在。"
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "background.md 方案取舍段写「不碰 B-4622」，但全文未解释 B-4622 是什么 story，独立读者无法判断该 scope 排除的含义。"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-16T23:43:24.298Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-16T23:45:05.976Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md 方案取舍段写「现有 finding_add 是 reviewer-finding 形状，要 reviewRunId」，但 cli-engine.ts:560 的 schema 中 reviewRunId 是 z.string().optional()（可选字段），并非必填。overstates 当前约束；真正的问题是 category enum 强制与 reviewer-语义设计，不是 reviewRunId 必填。"
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md 触发事件段写「B-META-framework-audit 容器根本不存在」，但 packages/main/src/core/audit-meta-store.ts 有完整的容器机制（ensureMetaStory 幂等创建）。实际状态是容器 data file 尚未实例化（story file 不存在），「根本不存在」表述误导读者认为该机制不存在。"
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "background.md 方案取舍段写「不碰 B-4622」，但全文未解释 B-4622 是什么 story，独立读者无法判断该 scope 排除的含义。"
+        }
+      ]
+    }
+  ],
+  "_hash": "f37a67254f5218cb02292695f1451e2c19c1390b80e7484223f2937468814e89"
+}

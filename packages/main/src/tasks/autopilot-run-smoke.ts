@@ -172,7 +172,7 @@ function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
   }, null, 2) + '\n');
 }
 
@@ -802,7 +802,7 @@ try {
   assert.equal(conservative.delegation?.receiptRequired, true);
   assert.equal(conservative.delegation?.transcriptRequired, true);
   assertAuthorityFalse(conservative, 'conservative');
-  const conservativeRunPath = join(root, '.koala', 'autopilot-runs', conservative.runId, 'run.json');
+  const conservativeRunPath = join(root, '.lattice', 'autopilot-runs', conservative.runId, 'run.json');
 
   const conservativeStatus = run<AutopilotStatusResult>('autopilot_status', {
     runId: conservative.runId,
@@ -1049,7 +1049,7 @@ try {
   assert.equal(conflictStop.iterations[0]?.stopReason, 'conflict');
   assert.match(conflictStop.nextAction ?? '', /Manual repair|required|resolve/i);
   assert.match((conflictStop.errors ?? []).join('\n'), /maxParallel|active dispatch|conflict/i);
-  const conflictRunPath = join(root, '.koala', 'autopilot-runs', conflictStop.runId, 'run.json');
+  const conflictRunPath = join(root, '.lattice', 'autopilot-runs', conflictStop.runId, 'run.json');
   assert.equal(existsSync(conflictRunPath), true, 'conflict stop must persist run.json evidence');
   const conflictRecord = JSON.parse(readFileSync(conflictRunPath, 'utf8')) as AutopilotRunResult & { events?: Array<{ type?: string; stopReason?: string }> };
   assert.equal(conflictRecord.status, 'failed', 'conflict run.json preserves failed status');
@@ -1082,7 +1082,7 @@ try {
   assert.ok(cancellable.dispatch?.watch, 'cancellable run must preserve dispatch watch evidence before cancel');
   assert.ok(cancellable.dispatch?.review, 'cancellable run must preserve dispatch review evidence before cancel');
   assert.ok(cancellable.dispatch?.mergePlan, 'cancellable run must preserve dispatch merge-plan evidence before cancel');
-  const cancellableRunPath = join(root, '.koala', 'autopilot-runs', cancellable.runId, 'run.json');
+  const cancellableRunPath = join(root, '.lattice', 'autopilot-runs', cancellable.runId, 'run.json');
   assert.equal(existsSync(cancellableRunPath), true, 'cancellable run.json must exist before cancel');
   assertAuthorityFalse(cancellable, 'cancellable');
 

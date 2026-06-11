@@ -1,0 +1,76 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-04T16:57:06.235Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Generate a Koala-managed Codex adapter manifest + Harden the Codex wrapper and entrypoint verification 同时操作会怎样？）"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "741d61cdec224e35788cede7ead30908f695f6f9c69b947abf58a6d2b27f98b0"
+    },
+    {
+      "timestamp": "2026-05-04T16:57:44.453Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Generate a Koala-managed Codex adapter manifest + Harden the Codex wrapper and entrypoint verification 同时操作会怎样？）"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "87a091b57a6da1e4aafb8eec4fe942d853e893b4e8eeb86d2a758da274d1495f"
+    },
+    {
+      "timestamp": "2026-05-04T16:58:10.438Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Generate a Koala-managed Codex adapter manifest + Harden the Codex wrapper and entrypoint verification 同时操作会怎样？）"
+        },
+        {
+          "type": "scope_excluded_info",
+          "severity": "advisory",
+          "message": "1 个功能点已显式 exclude: .Codex/hooks and .Codex/settings.json remain explicitly out of scope"
+        }
+      ],
+      "_hash": "1ad56031bd85412d02a2c0f24b55846d4de4a0f725ee04156c62a4d2c3f1f12b"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "principles": [
+    "优先修正 coverage 断层而不是重复发明已有能力",
+    "让高优先级 requirement 的语义直接体现在结构化注释里",
+    "回归验证要直接看 gap_analyze 结果而不是只看源码文本"
+  ],
+  "drivers": [
+    "快速减少 false high gap",
+    "保留现有 anti-stall/testIntent 机制",
+    "让后续 gap 分析更可信"
+  ],
+  "options": [
+    {
+      "name": "A: 主要改结构化注释并补针对性的 gap 回归",
+      "pros": [
+        "改动小",
+        "直接命中 gap_analyze 的判定依据"
+      ],
+      "cons": [
+        "如果实现语义本身有漂移，可能只修覆盖不修行为"
+      ]
+    },
+    {
+      "name": "B: 重构 anti-stall 与 test-intent-review 行为再顺带补注释",
+      "pros": [
+        "有机会顺手统一更多逻辑"
+      ],
+      "cons": [
+        "范围大，容易把已有稳定能力改坏"
+      ]
+    }
+  ],
+  "chosen": "A: 主要改结构化注释并补针对性的 gap 回归",
+  "rationale": "当前 4 条 high 更像 gap_analyze 没把现有能力接到元数据上，而不是实现缺失。先把注释与回归接上，能最稳地把 false high 降下去。",
+  "preMortem": [
+    {
+      "scenario": "只堆关键词到注释里，但实际行为已经和文档不一致",
+      "trigger": "注释更新了，回归只看 gap 结果不看实现痕迹",
+      "consequence": "high gap 消失但能力实际漂移",
+      "mitigation": "回归同时断言 anti-stall/test-intent-review 关键实现符号仍存在"
+    },
+    {
+      "scenario": "一个脚本覆盖 4 条 requirement 但断言过于模糊",
+      "trigger": "只检查字符串消失，不检查具体 source 与 high 数量",
+      "consequence": "以后类似误报可能换个文案又回来",
+      "mitigation": "脚本明确断言 4 条 source.file+line 对应 high gap 不再出现"
+    },
+    {
+      "scenario": "改动了注释后触发 validate/drift 额外问题",
+      "trigger": "@task 内容和现有函数边界不匹配",
+      "consequence": "为了降 high gap 反而引入注释错误",
+      "mitigation": "优先在已有注释块上补 description/changes，改后先跑 build 和 gap 脚本"
+    }
+  ],
+  "timestamp": "2026-04-15T12:10:15.798Z"
+}

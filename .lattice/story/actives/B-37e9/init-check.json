@@ -1,0 +1,25 @@
+{
+  "storyId": "B-37e9",
+  "checkedAt": "2026-05-15T23:30:43.777Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-15T23:30:28.899Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Checklist items lack userSees fields. For a refactor story the observable outcome is koala validate green + contract test pass, which is implicit but not explicitly stated. Consider adding userSees like: CHK-001 \"koala validate --lint passes; done-oracle.ts exists at core/done-oracle.ts\", CHK-003 \"contract test in validate output shows DONE gate and session_brief consume same buildDoneChecklist\". Advisory only — the outcome is clear enough from context."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-15T23:30:43.777Z",
+      "issues": []
+    }
+  ],
+  "_hash": "119ce5907a0e020bebd4bdeaeab74481cc4208aed0be6f8b422591bf8fb89308"
+}

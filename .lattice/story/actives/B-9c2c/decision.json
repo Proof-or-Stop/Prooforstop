@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "fixture 映射必须精确匹配 intentRef。",
+    "展示增强不能污染真实 reviewer 证据。",
+    "兼容带 storyId 前缀和不带前缀两种 intentRef。"
+  ],
+  "drivers": [
+    "story_get detail 当前显示误导性 fixture。",
+    "reviewer note 本身正确，问题集中在展示映射层。",
+    "修复应尽量小，不影响 fixture 执行。"
+  ],
+  "options": [
+    {
+      "name": "A: 修复 story_get detail 的 fixture lookup 规则",
+      "pros": [
+        "改动范围小。",
+        "直接修复用户看到的误配。",
+        "不影响 test_story runner。"
+      ],
+      "cons": [
+        "仍需保留对旧 intentRef 格式的兼容。"
+      ]
+    },
+    {
+      "name": "B: 移除 story_get 中 fixture 自动映射展示",
+      "pros": [
+        "彻底避免误配。"
+      ],
+      "cons": [
+        "丢失有用的 detail 信息，用户要手动查 fixture。"
+      ]
+    }
+  ],
+  "chosen": "A: 修复 story_get detail 的 fixture lookup 规则",
+  "rationale": "误配来自展示层的匹配规则，不是 fixture 数据本身。精确匹配 intentRef 能保留有用信息并避免误导。",
+  "preMortem": [
+    {
+      "scenario": "只支持带 storyId 前缀导致旧 fixture 不显示",
+      "trigger": "匹配规则只接受 B-x:CHK-y:lane:i",
+      "consequence": "旧格式 CHK-y:lane:i 全部丢失映射",
+      "mitigation": "同时支持 exact with storyId 和 legacy without storyId"
+    },
+    {
+      "scenario": "继续 fuzzy 匹配导致误配",
+      "trigger": "按 lane/index 或文本模糊找 fixture",
+      "consequence": "zombie-linked-worktree 之类无关 case 被显示",
+      "mitigation": "只用 intentRef 精确匹配，不做名称/text fuzzy"
+    },
+    {
+      "scenario": "扫描 fixture 失败影响 story_get",
+      "trigger": "某个 fixture JSON 损坏",
+      "consequence": "story_get 整体失败",
+      "mitigation": "坏 fixture 跳过或记录空映射，不阻塞 story_get"
+    }
+  ],
+  "timestamp": "2026-04-19T10:18:55.204Z"
+}

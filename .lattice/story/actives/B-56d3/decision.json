@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Behavior freeze: gate decisions, fail-closed semantics, error wording, and evidence-write timing are byte-identical before and after — this is a relocation, not a redesign",
+    "Risk-ascending sequencing: 3a takes only the low/medium-risk decoupled concerns (gate runner + non-DONE effects); DONE merge ordering (3b) and orchestrator coupling (3c) are deliberately deferred",
+    "Layering correctness: new core modules must not import upward into handlers; any handler-only dependency stays behind a thin adapter"
+  ],
+  "drivers": [
+    "story-advance.ts is a 944-line handler with gate logic and side effects tangled into the transition body",
+    "Lifecycle Phase 2 needs story_advance decomposed before the orchestrator (3c) can coordinate cleanly",
+    "review-preflight.ts already proves the partial-gate-helper pattern; 3a completes the gate-runner extraction"
+  ],
+  "options": [
+    {
+      "name": "A: Extract phase-gates.ts (gate runner) + transition-effects.ts (non-DONE effects), story_advance delegates inline",
+      "pros": [
+        "Two genuinely decoupled concern groups extracted with the lowest risk first",
+        "story_advance shrinks; gate runner and effects become independently testable",
+        "Each module is behavior-preserving and independently reviewable",
+        "Sets up Story 3c orchestrator cleanly without touching DONE merge"
+      ],
+      "cons": [
+        "story_advance still inlines the coordination flow until 3c — partial decomposition, intentional"
+      ]
+    },
+    {
+      "name": "B: Extract everything (gates + effects + done-effects + orchestrator) in one story",
+      "pros": [
+        "One pass, fully decomposed"
+      ],
+      "cons": [
+        "Bundles the high-risk DONE merge ordering with low-risk effects — review focus diluted, exactly the combination-review hazard",
+        "4x the diff of a single B-37e9-style extraction which already took 4 review rounds",
+        "Violates the agreed 3a/3b/3c risk-ascending split"
+      ]
+    },
+    {
+      "name": "C: Extract only phase-gates.ts this story, defer transition-effects to its own story",
+      "pros": [
+        "Even smaller diff per story"
+      ],
+      "cons": [
+        "transition-effects (metrics/hooks/auto-commit/hint) is low-risk and decoupled from gates — splitting it adds a 4th story with no risk-isolation benefit",
+        "Over-fragmentation; the gate runner and non-DONE effects can be safely co-extracted and co-reviewed"
+      ]
+    }
+  ],
+  "chosen": "A: Extract phase-gates.ts (gate runner) + transition-effects.ts (non-DONE effects), story_advance delegates inline",
+  "rationale": "Choose A because phase-gates and transition-effects are two genuinely decoupled concern groups at the low/medium-risk end — co-extracting and co-reviewing them is safe, while the high-risk DONE merge ordering stays isolated for Story 3b. Reject B because bundling DONE merge with low-risk effects dilutes review focus on the phase-ordering invariant — the exact combination-review hazard B-da14 codified — and a 4x B-37e9-sized diff is unreviewable as one unit. Reject C because transition-effects is low-risk and decoupled from gates; splitting it into a 4th story adds process overhead with no risk-isolation gain. A keeps story_advance inlining the coordination flow until Story 3c, which is the intended staged decomposition.",
+  "preMortem": [
+    {
+      "scenario": "The gate runner extraction silently flips a fail-open vs fail-closed branch",
+      "trigger": "A try/catch or early-return is reshaped during the move so a preflight import failure no longer blocks TEST",
+      "consequence": "REVIEW->TEST can pass when a CLI gate should have blocked it — a silent gate bypass",
+      "mitigation": "Move the gate runner verbatim — same try/catch structure, same fail-closed default. Add a regression test that forces a preflight import failure / a validate throw / a validate JSON-parse failure and asserts each still blocks TEST. story_advance keeps the exact same call site."
+    },
+    {
+      "scenario": "A circular import appears between phase-gates.ts / transition-effects.ts and story-advance.ts",
+      "trigger": "A gate or effect uses a helper still defined in story-advance.ts, or the new core module imports a handler",
+      "consequence": "Module load fails, tsc errors, or a partially-initialized import yields undefined at runtime",
+      "mitigation": "Move every helper the extracted code depends on; new core modules must not import handlers/story-advance.js. If a gate genuinely needs a handler-only dependency, keep a thin adapter in handlers/ and pass it in. Build + a static import-check assertion confirm no cycle."
+    },
+    {
+      "scenario": "transition-effects extraction changes effect ordering or output text",
+      "trigger": "writeProcessMetrics / onPhaseChange hooks / autoCommitStoryMetadata / relatedDocs hint / nextSteps run in a different order or emit reworded output after the move",
+      "consequence": "A no-behavior-change story alters metrics timing, hook firing order, or user-visible hint text",
+      "mitigation": "Preserve the exact call order in the delegating site. Add a regression snapshot of the transition output (metrics written, hook stage sequence, auto-commit report, hint text, next-step text) for representative transitions and assert byte-identical before vs after."
+    }
+  ],
+  "timestamp": "2026-05-16T01:41:26.398Z"
+}

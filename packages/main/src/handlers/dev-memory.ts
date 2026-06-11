@@ -26,6 +26,8 @@ import {
 } from '../core/dev-memory.js';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import { loadConfig } from '../core/config.js';
+import { assertNoLegacyKoalaWritePath } from '../core/lattice-paths.js';
 
 // ---------------------------------------------------------------------------
 // dev_memory_capture
@@ -238,10 +240,11 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       ].join('\n');
     }
 
-    // With storyId: write story candidate copies under .koala/story/actives/<storyId>/.
+    // With storyId: write story candidate copies under the configured storyDir.
     const storyDir = args.storyDir
       ? args.storyDir
-      : join(root, '.koala', 'story', 'actives');
+      : join(root, loadConfig(root).storyDir);
+    assertNoLegacyKoalaWritePath(storyDir, 'storyDir');
     const candidatePath = resolveStoryCandidatePath(storyDir, args.storyId);
 
     if (relevant.length === 0) {

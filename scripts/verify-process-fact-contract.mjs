@@ -2490,7 +2490,8 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
  * lifecycle-artifact classifier
  *   (a) accepts known story-scoped lifecycle artifacts under the story id,
  *   (a2) accepts the narrow TEST transcript evidence relative path,
- *   (b) rejects arbitrary `.koala/foo.json` (i.e. no blanket `.koala/` pass),
+ *   (b) rejects arbitrary `.koala/foo.json` and `.koala/story/...` writes
+ *       after the `.lattice` migration,
  *   (c) rejects ordinary product source files when unacknowledged,
  *   (d) still passes runtime artifacts via the runtime-artifact registry.
  * The policy doc lives at docs/requirements/decisions/lifecycle-artifact-scope.md.
@@ -2562,13 +2563,13 @@ async function assertLifecycleArtifactScopePolicy() {
     Array.isArray(result.violations)
       && result.violations.some((v) => v.path === path && v.rule === 'out_of_scope');
   const isClean = (result) => result.violations.length === 0;
-  const transcriptOnlyFile = '.koala/story/actives/B-scope/evidence/transcript-diff.md';
+  const transcriptOnlyFile = '.lattice/story/actives/B-scope/evidence/transcript-diff.md';
 
   const lifecycleAccept = [
-    '.koala/story/actives/B-scope/delivery-check.json',
-    '.koala/story/actives/B-scope/summary.json',
-    '.koala/story/actives/B-scope/scope-contract.json',
-    '.koala/story/actives/B-scope/process-events.jsonl',
+    '.lattice/story/actives/B-scope/delivery-check.json',
+    '.lattice/story/actives/B-scope/summary.json',
+    '.lattice/story/actives/B-scope/scope-contract.json',
+    '.lattice/story/actives/B-scope/process-events.jsonl',
     transcriptOnlyFile,
     'docs/story/actives/B-scope/plan.md',
   ];
@@ -2584,11 +2585,11 @@ async function assertLifecycleArtifactScopePolicy() {
   }
 
   const runtimeAccept = [
-    '.koala/activity.jsonl',
-    '.koala/runtime/cache.json',
-    '.koala/traces/abc.json',
-    '.koala/locks/main-write.lock/owner',
-    '.koala/story/actives/B-other/owner-lease.json',
+    '.lattice/activity.jsonl',
+    '.lattice/runtime/cache.json',
+    '.lattice/traces/abc.json',
+    '.lattice/locks/main-write.lock/owner',
+    '.lattice/story/actives/B-other/owner-lease.json',
     'docs/story/activity.jsonl',
   ];
   for (const file of runtimeAccept) {
@@ -2606,6 +2607,8 @@ async function assertLifecycleArtifactScopePolicy() {
     '.koala/story/actives/B-scope/evidence/summary.json',
     '.koala/story/actives/B-scope/evidence/test-evidence.json',
     '.koala/story/actives/B-scope/evidence/transcript-diff.txt',
+    '.koala/story/actives/B-scope/evidence/transcript-diff.md',
+    '.koala/story/actives/B-scope/delivery-check.json',
     'packages/main/src/handlers/unrelated.ts',
     'src/handlers/random.ts',
   ];
@@ -2619,7 +2622,7 @@ async function assertLifecycleArtifactScopePolicy() {
   // unknown filenames under a story dir must still fall through scope —
   // the lifecycle classifier is filename-aware (closed set), not a
   // blanket pass on the story dir.
-  const unknownFilenameUnderStory = '.koala/story/actives/B-scope/secrets.json';
+  const unknownFilenameUnderStory = '.lattice/story/actives/B-scope/secrets.json';
   const unknownResult = probe([unknownFilenameUnderStory]);
   if (!isOop(unknownResult, unknownFilenameUnderStory)) {
     fail(`unknown filename under story dir unexpectedly accepted: ${unknownFilenameUnderStory} → ${JSON.stringify(unknownResult.violations)}`);

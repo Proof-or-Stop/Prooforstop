@@ -1,0 +1,200 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-2522:RR-001",
+      "storyId": "B-2522",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "startedAt": "2026-06-02T22:41:22.602Z",
+      "headHash": "39ad2e4d2582f7cc479b7c78703993231a0bcda5",
+      "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+      "promptHash": "e4d9389853bcb86209b27ca7e687b9fc18359d3d30e3120e6ed0b70e0acdfb05",
+      "scopeBinding": {
+        "scopeContractHash": "14a9f4cccb30131af5598510ccccd3866666f5cd5f9c774ba4865771bc5e51d7",
+        "diffPackHash": "e6ad9cfa1c500315d92b0b9ffdd70efde31b9f1aebfb24d007a0c6fd5ed7614d",
+        "reviewedChangedFiles": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/authority-receipt-classification.ts",
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "05439cdb07d4c028fab9c329b36eb079152d6d906d83b546c46a1ddda45e0e86",
+          "19c76d2fe0e157396115a211a69321c8702930b756b2ea29629f02090d8633c9",
+          "27ab40cf322f505ae04aefd7bd88d4bb0cc7c5a901e1b1fc24838b8fa9aba5fb",
+          "4d01bc91c884be9a4c67d65e34f273fee04daf8f54e7dbed1c9150bd6a212fc3",
+          "625a2d5a968902f05d3c2722c7cf963e136865db7bd8cd2923f08e2e7c6c5762",
+          "7bfe51c409211a3e0d294d42f7d2f6915302134448803a88dfb0b36f81dc2b27",
+          "98d32784f3c831348873933f2f0e7edd24222be7ae642a9359fc7914c548cde4",
+          "c16d7f654b59936da97954a5683aa92544260e1c7e21daa375cfd77ebefcc0df",
+          "dfbc8c9bd8cbc786a461bda2bc4ad173796a576cc3725d979ad0b00e904036da",
+          "f8142efa0db92a0ff384b1aa509456cf6f38909a4bd140b9ac032554c6ef1bd9"
+        ],
+        "bindingHash": "b8ebcd3d35d7c5508fc70e18100832a34cc805dbcfa0d703a64b44f3c195bb28"
+      },
+      "_hash": "7d280c5d63f11d22beae82afc4bea46e98a0d213b11029a9695e2c1b98afffd2"
+    },
+    {
+      "reviewRunId": "B-2522:RR-002",
+      "storyId": "B-2522",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "startedAt": "2026-06-02T22:41:22.687Z",
+      "headHash": "39ad2e4d2582f7cc479b7c78703993231a0bcda5",
+      "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+      "promptHash": "c7a0fa93949dea32883e10e3b49458f81a97ba67d55950485cd369b3293179d6",
+      "scopeBinding": {
+        "scopeContractHash": "14a9f4cccb30131af5598510ccccd3866666f5cd5f9c774ba4865771bc5e51d7",
+        "diffPackHash": "e6ad9cfa1c500315d92b0b9ffdd70efde31b9f1aebfb24d007a0c6fd5ed7614d",
+        "reviewedChangedFiles": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/authority-receipt-classification.ts",
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "05439cdb07d4c028fab9c329b36eb079152d6d906d83b546c46a1ddda45e0e86",
+          "19c76d2fe0e157396115a211a69321c8702930b756b2ea29629f02090d8633c9",
+          "27ab40cf322f505ae04aefd7bd88d4bb0cc7c5a901e1b1fc24838b8fa9aba5fb",
+          "4d01bc91c884be9a4c67d65e34f273fee04daf8f54e7dbed1c9150bd6a212fc3",
+          "625a2d5a968902f05d3c2722c7cf963e136865db7bd8cd2923f08e2e7c6c5762",
+          "7bfe51c409211a3e0d294d42f7d2f6915302134448803a88dfb0b36f81dc2b27",
+          "98d32784f3c831348873933f2f0e7edd24222be7ae642a9359fc7914c548cde4",
+          "c16d7f654b59936da97954a5683aa92544260e1c7e21daa375cfd77ebefcc0df",
+          "dfbc8c9bd8cbc786a461bda2bc4ad173796a576cc3725d979ad0b00e904036da",
+          "f8142efa0db92a0ff384b1aa509456cf6f38909a4bd140b9ac032554c6ef1bd9"
+        ],
+        "bindingHash": "b8ebcd3d35d7c5508fc70e18100832a34cc805dbcfa0d703a64b44f3c195bb28"
+      },
+      "_hash": "2a115384eb79c39ce061db6a630645de9d1013c56de82653a065e431f6155964"
+    },
+    {
+      "reviewRunId": "B-2522:RR-003",
+      "storyId": "B-2522",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "startedAt": "2026-06-02T22:41:22.703Z",
+      "headHash": "39ad2e4d2582f7cc479b7c78703993231a0bcda5",
+      "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+      "promptHash": "eb5c5c4377678d029eb13fb8e4c9d99cfc8bfa6c93448ced281a96e304250d81",
+      "scopeBinding": {
+        "scopeContractHash": "14a9f4cccb30131af5598510ccccd3866666f5cd5f9c774ba4865771bc5e51d7",
+        "diffPackHash": "e6ad9cfa1c500315d92b0b9ffdd70efde31b9f1aebfb24d007a0c6fd5ed7614d",
+        "reviewedChangedFiles": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/authority-receipt-classification.ts",
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "05439cdb07d4c028fab9c329b36eb079152d6d906d83b546c46a1ddda45e0e86",
+          "19c76d2fe0e157396115a211a69321c8702930b756b2ea29629f02090d8633c9",
+          "27ab40cf322f505ae04aefd7bd88d4bb0cc7c5a901e1b1fc24838b8fa9aba5fb",
+          "4d01bc91c884be9a4c67d65e34f273fee04daf8f54e7dbed1c9150bd6a212fc3",
+          "625a2d5a968902f05d3c2722c7cf963e136865db7bd8cd2923f08e2e7c6c5762",
+          "7bfe51c409211a3e0d294d42f7d2f6915302134448803a88dfb0b36f81dc2b27",
+          "98d32784f3c831348873933f2f0e7edd24222be7ae642a9359fc7914c548cde4",
+          "c16d7f654b59936da97954a5683aa92544260e1c7e21daa375cfd77ebefcc0df",
+          "dfbc8c9bd8cbc786a461bda2bc4ad173796a576cc3725d979ad0b00e904036da",
+          "f8142efa0db92a0ff384b1aa509456cf6f38909a4bd140b9ac032554c6ef1bd9"
+        ],
+        "bindingHash": "b8ebcd3d35d7c5508fc70e18100832a34cc805dbcfa0d703a64b44f3c195bb28"
+      },
+      "_hash": "014d69504ca8bbd8e76cfec7a9d958964208461d630c81e23be5e79d8c011bb9"
+    },
+    {
+      "reviewRunId": "B-2522:RR-004",
+      "storyId": "B-2522",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "startedAt": "2026-06-02T22:41:22.594Z",
+      "headHash": "39ad2e4d2582f7cc479b7c78703993231a0bcda5",
+      "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+      "promptHash": "c2f1b04ad6b23b18eaedf297e4aa91249894d944b6a214fb90b02c25f940c9ee",
+      "scopeBinding": {
+        "scopeContractHash": "14a9f4cccb30131af5598510ccccd3866666f5cd5f9c774ba4865771bc5e51d7",
+        "diffPackHash": "e6ad9cfa1c500315d92b0b9ffdd70efde31b9f1aebfb24d007a0c6fd5ed7614d",
+        "reviewedChangedFiles": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/authority-receipt-classification.ts",
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "05439cdb07d4c028fab9c329b36eb079152d6d906d83b546c46a1ddda45e0e86",
+          "19c76d2fe0e157396115a211a69321c8702930b756b2ea29629f02090d8633c9",
+          "27ab40cf322f505ae04aefd7bd88d4bb0cc7c5a901e1b1fc24838b8fa9aba5fb",
+          "4d01bc91c884be9a4c67d65e34f273fee04daf8f54e7dbed1c9150bd6a212fc3",
+          "625a2d5a968902f05d3c2722c7cf963e136865db7bd8cd2923f08e2e7c6c5762",
+          "7bfe51c409211a3e0d294d42f7d2f6915302134448803a88dfb0b36f81dc2b27",
+          "98d32784f3c831348873933f2f0e7edd24222be7ae642a9359fc7914c548cde4",
+          "c16d7f654b59936da97954a5683aa92544260e1c7e21daa375cfd77ebefcc0df",
+          "dfbc8c9bd8cbc786a461bda2bc4ad173796a576cc3725d979ad0b00e904036da",
+          "f8142efa0db92a0ff384b1aa509456cf6f38909a4bd140b9ac032554c6ef1bd9"
+        ],
+        "bindingHash": "b8ebcd3d35d7c5508fc70e18100832a34cc805dbcfa0d703a64b44f3c195bb28"
+      },
+      "_hash": "d7ff4ceb4bee48444a4a78514e0ac9caefab2b58ccf070ff4b35a758c2befee8"
+    }
+  ]
+}

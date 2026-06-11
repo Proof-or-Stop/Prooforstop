@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "runtime telemetry 不应存放在 story metadata 树",
+    "新写入与旧读取必须兼容",
+    "read-only/status 命令继续保持无副作用",
+    "工具统计不能因迁移断档"
+  ],
+  "drivers": [
+    "根除 activity log 参与 DONE merge/baseline 的结构性风险",
+    "保留历史 docs/story/activity.jsonl 可读性",
+    "让 .koala 作为 gitignored runtime state 承载日志",
+    "减少后续对 docs/story/activity.jsonl 的特殊 case"
+  ],
+  "options": [
+    {
+      "name": "A: 新增 activity-log helper，新写 .koala/activity.jsonl，读新旧两处",
+      "pros": [
+        "迁移平滑",
+        "改动集中",
+        "旧历史可继续用于 session/stale/tool_status"
+      ],
+      "cons": [
+        "一段时间内需要维护新旧双读逻辑"
+      ]
+    },
+    {
+      "name": "B: 直接移动旧文件并只读 .koala/activity.jsonl",
+      "pros": [
+        "实现更干净"
+      ],
+      "cons": [
+        "会改变用户工作区和历史文件，迁移风险高"
+      ]
+    },
+    {
+      "name": "C: 继续写 docs/story/activity.jsonl，只加强忽略规则",
+      "pros": [
+        "改动最少"
+      ],
+      "cons": [
+        "结构问题继续存在，merge/baseline 仍依赖特殊处理"
+      ]
+    }
+  ],
+  "chosen": "A: 新增 activity-log helper，新写 .koala/activity.jsonl，读新旧两处",
+  "rationale": "选 A，因为它最小化破坏性并真正把未来写入迁出 docs/story，同时不丢旧日志历史。",
+  "preMortem": [
+    {
+      "scenario": "tool_status 迁移后显示无数据",
+      "trigger": "utils 只读新路径而旧项目没有 .koala/activity.jsonl",
+      "consequence": "历史统计断档",
+      "mitigation": "tool_status 使用 main activity-log helper 同时读新旧日志"
+    },
+    {
+      "scenario": "stale detector 忽略旧日志导致误报 idle",
+      "trigger": "只读 .koala，新日志尚未产生",
+      "consequence": "刚迁移后 session 出现错误 stale warning",
+      "mitigation": "readLatestActivityLogEntry 合并新旧按时间排序"
+    },
+    {
+      "scenario": "新日志写入在 DONE worktree 被移除后重建 ghost 目录",
+      "trigger": "effectiveRoot fallback 逻辑失效",
+      "consequence": "再次出现 ghost worktree docs/.koala 目录",
+      "mitigation": "保留 koala.config.json 存在性检查；无有效 root 时跳过 writeLog"
+    }
+  ],
+  "timestamp": "2026-04-20T00:00:26.004Z"
+}

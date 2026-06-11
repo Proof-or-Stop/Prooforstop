@@ -1,0 +1,29 @@
+{
+  "task": "为 Koala 新增独立的 koala-lab 离线优化模块，先搭建实验配置 schema、CLI 骨架、隔离 worktree、结果落盘与 patch 白名单拦截。",
+  "outcome": "$ koala lab create --target test-case-reviewer --profile reviewer-quality-v1\nCreated experiment lab-reviewer-prompt-v1\nConfig: experiments/configs/lab-reviewer-prompt-v1.json\nNext: koala lab run --config experiments/configs/lab-reviewer-prompt-v1.json\n\n$ koala lab run --config experiments/configs/lab-reviewer-prompt-v1.json --dry-run\n[lab] sandbox ready at .worktrees/lab-reviewer-prompt-v1-run-001\n[lab] patch policy: only .Codex/agents/test-case-reviewer.md is editable\n[lab] would write: config.snapshot.json, metrics.json, result.json, summary.md\n✓ Dry run complete. No project files outside the sandbox were modified.",
+  "facts": [
+    "Koala 当前通过 repo-local bootstrap 把 packages/main 和 packages/utils 拼接成完整 CLI。",
+    "现有 CLI 命令注册是扁平工具名，runCli 目前按 argv[0] 取命令名，因此需要显式增加 lab 子命令路由。",
+    "现有 worktree 机制已支持可配置的 worktreeDir，默认 .worktrees，可直接复用于 lab 沙箱命名与清理。",
+    "docs/story 和 tests/fixtures 受流程约束，lab 不能直接改这些正式数据。",
+    "bootstrap-runner 已经负责可选拼装外部工具包，适合为 packages/lab 增加 optional register。"
+  ],
+  "constraints": [
+    "koala-lab 必须默认离线运行，不能污染主 story 流程。",
+    "主系统没有 lab 时仍要能正常工作，lab 只能作为增强模块被 bootstrap 进来。",
+    "第一版必须限制改动范围并拦住越权文件写入。",
+    "CLI 需要支持用户期望的 koala lab create 这类子命令体验，而不是只暴露内部扁平命令。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "bin/bootstrap-runner.js",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/core/config.ts",
+    "packages/lab/package.json",
+    "packages/lab/src/index.ts",
+    "packages/lab/src/register.ts",
+    "packages/lab/src/tool-defs.ts"
+  ],
+  "timestamp": "2026-04-18T00:09:08.897Z"
+}

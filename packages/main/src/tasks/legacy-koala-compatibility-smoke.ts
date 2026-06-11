@@ -22,6 +22,8 @@ import {
   AGENTS_MD_TEMPLATE,
   KOALA_MD_TEMPLATE,
   renderCodexAdapterManifest,
+  renderCodexHooksJson,
+  renderCodexPretoolScopeHookScript,
   renderCodexReadmeTemplate,
   renderCodexWrapperScript,
   renderKoalaBootstrapScript,
@@ -50,7 +52,14 @@ function seedLegacyKoalaCodex(root: string, promptMode: 'legacy-mirror' | 'regis
   writeText(root, 'bin/koala-codex.js', renderCodexWrapperScript());
   writeText(root, '.Codex/README.md', renderCodexReadmeTemplate(promptMode === 'registry' ? 'thin' : 'full', 'koala'));
   writeText(root, '.Codex/koala.json', renderCodexAdapterManifest(promptMode === 'registry' ? { promptMode: 'registry' } : {}));
+  writeText(root, '.codex/hooks.json', renderCodexHooksJson());
+  writeText(root, '.codex/hooks/lattice-scope-pretool.cjs', renderCodexPretoolScopeHookScript());
   writeText(root, '.gitignore', `${listRuntimeArtifactIgnorePatterns().join('\n')}\n`);
+}
+
+function seedCodexNativeHooks(root: string): void {
+  writeText(root, '.codex/hooks.json', renderCodexHooksJson());
+  writeText(root, '.codex/hooks/lattice-scope-pretool.cjs', renderCodexPretoolScopeHookScript());
 }
 
 function checkById(result: ReturnType<typeof runCodexAdapterChecks>, id: string) {
@@ -96,16 +105,17 @@ try {
 }
 
 // ─── Global-thin project: local-wrapper not required ─────────────────────────
-// A project with only .Lattice/lattice.json (global-thin) should pass codex verify
+// A project with only .lattice/lattice.json (global-thin) should pass codex verify
 // without any bin/ shim or .Codex/ manifest.
 const globalThinRoot = makeRoot('global-thin-compat');
 try {
-  writeText(globalThinRoot, '.Lattice/lattice.json', JSON.stringify({
+  writeText(globalThinRoot, '.lattice/lattice.json', JSON.stringify({
     latticeVersion: 1,
     assetMode: 'global-thin',
     description: 'test global-thin project',
     generatedAt: new Date().toISOString(),
   }, null, 2) + '\n');
+  seedCodexNativeHooks(globalThinRoot);
   writeText(globalThinRoot, '.gitignore', '# minimal\n');
   const gtResult = runCodexAdapterChecks(globalThinRoot, { executeHeartbeats: false });
   assert.equal(gtResult.ok, true, `global-thin project should pass codex checks: ${JSON.stringify(gtResult.checks.filter(c => c.status === 'fail'), null, 2)}`);
@@ -117,18 +127,19 @@ try {
   rmSync(globalThinRoot, { recursive: true, force: true });
 }
 
-// ─── Mixed project: .Lattice/ present alongside .Codex/koala.json AND .Codex/lattice.json ────
-// When .Lattice/lattice.json exists alongside legacy .Codex/koala.json and .Codex/lattice.json,
-// the resolver must select .Lattice/ (global-thin) and not fail on the .Codex/ entries.
+// ─── Mixed project: .lattice/ present alongside .Codex/koala.json AND .Codex/lattice.json ────
+// When .lattice/lattice.json exists alongside legacy .Codex/koala.json and .Codex/lattice.json,
+// the resolver must select .lattice/ (global-thin) and not fail on the .Codex/ entries.
 const mixedGlobalRoot = makeRoot('mixed-global-thin');
 try {
-  writeText(mixedGlobalRoot, '.Lattice/lattice.json', JSON.stringify({
+  writeText(mixedGlobalRoot, '.lattice/lattice.json', JSON.stringify({
     latticeVersion: 1,
     assetMode: 'global-thin',
     description: 'test mixed project',
     generatedAt: new Date().toISOString(),
   }, null, 2) + '\n');
-  // Also seed legacy .Codex/ manifests to prove .Lattice/ takes priority
+  seedCodexNativeHooks(mixedGlobalRoot);
+  // Also seed legacy .Codex/ manifests to prove .lattice/ takes priority
   writeText(mixedGlobalRoot, '.Codex/koala.json', renderCodexAdapterManifest({ promptMode: 'registry' }));
   writeText(mixedGlobalRoot, '.Codex/lattice.json', renderCodexAdapterManifest({ promptMode: 'registry' }));
   writeText(mixedGlobalRoot, 'KOALA.md', KOALA_MD_TEMPLATE);
@@ -137,8 +148,8 @@ try {
   const mixedResult = runCodexAdapterChecks(mixedGlobalRoot, { executeHeartbeats: false });
   assert.equal(mixedResult.ok, true, `mixed global-thin project should pass: ${JSON.stringify(mixedResult.checks.filter(c => c.status === 'fail'), null, 2)}`);
   // The manifest detail must reflect global-thin selection, not .Codex/ selection
-  assert.match(checkById(mixedResult, 'manifest').detail, /global-thin/, '.Lattice/ global-thin must be selected over .Codex/ manifests');
-  assert.doesNotMatch(checkById(mixedResult, 'manifest').detail, /\.Codex\/lattice\.json.*fail|fail.*\.Codex\/lattice\.json/, '.Codex/lattice.json must not cause failure when .Lattice/ is present');
+  assert.match(checkById(mixedResult, 'manifest').detail, /global-thin/, '.lattice/ global-thin must be selected over .Codex/ manifests');
+  assert.doesNotMatch(checkById(mixedResult, 'manifest').detail, /\.Codex\/lattice\.json.*fail|fail.*\.Codex\/lattice\.json/, '.Codex/lattice.json must not cause failure when .lattice/ is present');
 } finally {
   rmSync(mixedGlobalRoot, { recursive: true, force: true });
 }
@@ -149,13 +160,14 @@ try {
 const codexDoctorRoot = makeRoot('codex-doctor-global-thin');
 try {
   writeFileSync(join(codexDoctorRoot, '.gitignore'), '');
-  mkdirSync(join(codexDoctorRoot, '.Lattice'), { recursive: true });
-  writeFileSync(join(codexDoctorRoot, '.Lattice', 'lattice.json'), JSON.stringify({
+  mkdirSync(join(codexDoctorRoot, '.lattice'), { recursive: true });
+  writeFileSync(join(codexDoctorRoot, '.lattice', 'lattice.json'), JSON.stringify({
     latticeVersion: 1,
     assetMode: 'global-thin',
     description: 'codex doctor smoke',
     generatedAt: new Date().toISOString(),
   }, null, 2) + '\n');
+  seedCodexNativeHooks(codexDoctorRoot);
   let doctorOutput = '';
   try {
     doctorOutput = execFileSync(process.execPath, [cliPath, '--root', codexDoctorRoot, 'codex', 'doctor'], {

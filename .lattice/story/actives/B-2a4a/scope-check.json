@@ -1,0 +1,59 @@
+{
+  "storyId": "B-2a4a",
+  "checkedAt": "2026-05-12T22:16:43.116Z",
+  "features": [
+    {
+      "feature": "Problem scope separates story_review numeric PLAN review count from signed artifact ISO reviewRound semantics.",
+      "covered_by": "understanding.task/outcome; background.md key insight; CHK-001 + CHK-002 verificationIntent",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description/background"
+    },
+    {
+      "feature": "Implementation scope includes story_review response field naming while preserving signed finding/pass reviewRound semantics.",
+      "covered_by": "CHK-001 modifies packages/main/src/handlers/story-review.ts and docs; CHK-002 tests signed finding/pass ISO behavior",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist/files"
+    },
+    {
+      "feature": "Compatibility decision is explicit: add unambiguous numeric alias while retaining legacy reviewRound temporarily.",
+      "covered_by": "decision option A chosen with compatibility rationale and preMortem",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision"
+    },
+    {
+      "feature": "Verification intent covers happy/edge/adversarial expectations for numeric story_review field, legacy alias documentation, signed ISO artifact distinction, and contract regression.",
+      "covered_by": "CHK-001 and CHK-002 verificationIntent lanes",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist/verificationIntent"
+    },
+    {
+      "feature": "Files mapping covers runtime handler, user-facing docs, structured-output smoke, and process-fact contract verifier needed for a process-fact schema distinction.",
+      "covered_by": "checklist files.modify/test and plan touchpoints: story-review.ts, CLAUDE.md, story-lifecycle.md, testing-infra.md, verify-story-review-structured-output.mjs, verify-process-fact-contract.mjs",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist/files + plan.md"
+    },
+    {
+      "feature": "Normal-channel PLAN execution plan exists and maps every checklist item to execution intent before story_review/DEV.",
+      "covered_by": "plan_get shows plan.md with sections for CHK-001 and CHK-002; CHK-001 names implementation/docs touchpoints and CHK-002 names regression/contract coverage path",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7302f7a4acaa91c6e8eadcee7797d09e14f5cfe02ae68cb6f66551d5e7b91692",
+  "openQuestions": []
+}

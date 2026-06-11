@@ -489,7 +489,7 @@ try {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -506,9 +506,9 @@ try {
         command: 'node',
         args: ['-e', [
           "const fs = require('fs');",
-          "for (const dir of ['.koala/story/actives/B-smoke', '.koala', 'packages/main/src/core', 'packages/main/tests/fixtures', 'packages/main/tests/output/bl21_lacz_ecoli_minicell']) fs.mkdirSync(dir, { recursive: true });",
-          "fs.writeFileSync('.koala/story/actives/B-smoke/checklist.json', '{}\\n');",
-          "fs.writeFileSync('.koala/activity.jsonl', '{}\\n');",
+          "for (const dir of ['.lattice/story/actives/B-smoke', '.lattice', 'packages/main/src/core', 'packages/main/tests/fixtures', 'packages/main/tests/output/bl21_lacz_ecoli_minicell']) fs.mkdirSync(dir, { recursive: true });",
+          "fs.writeFileSync('.lattice/story/actives/B-smoke/checklist.json', '{}\\n');",
+          "fs.writeFileSync('.lattice/activity.jsonl', '{}\\n');",
           "fs.writeFileSync('packages/main/src/core/dirty-product.ts', 'export const dirty = true;\\n');",
           "fs.writeFileSync('packages/main/tests/fixtures/dirty-owner.json', '{}\\n');",
           "fs.writeFileSync('packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json', '{}\\n');",
@@ -545,14 +545,14 @@ try {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    mkdirSync(join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass'), { recursive: true });
-    writeFileSync(join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
+    mkdirSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass'), { recursive: true });
+    writeFileSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
     execFileSync('git', ['add', '.'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed passing pollution smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     resetConfigCache();
@@ -564,10 +564,10 @@ try {
         command: 'node',
         args: ['-e', [
           "const fs = require('fs');",
-          "fs.mkdirSync('.koala/story/actives/B-pass', { recursive: true });",
-          "fs.mkdirSync('.koala', { recursive: true });",
-          "fs.writeFileSync('.koala/story/actives/B-pass/checklist.json', '{}\\n');",
-          "fs.writeFileSync('.koala/activity.jsonl', '{}\\n');",
+          "fs.mkdirSync('.lattice/story/actives/B-pass', { recursive: true });",
+          "fs.mkdirSync('.lattice', { recursive: true });",
+          "fs.writeFileSync('.lattice/story/actives/B-pass/checklist.json', '{}\\n');",
+          "fs.writeFileSync('.lattice/activity.jsonl', '{}\\n');",
         ].join(' ')],
       }],
     }, passingPollutionRoot, undefined, 'B-pass');
@@ -581,7 +581,7 @@ try {
     assert.match(details, /koala_metadata_changes=1/);
     assert.match(details, /runtime_artifact_changes=1/);
     // Audit JSONL must be persisted in the per-story process-events file.
-    const auditPath = join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass', 'process-events.jsonl');
+    const auditPath = join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'process-events.jsonl');
     assert.ok(existsSync(auditPath), 'audit log must be appended to per-story process-events.jsonl');
     const auditLines = readFileSync(auditPath, 'utf-8').trim().split('\n').filter(Boolean);
     assert.equal(auditLines.length, 2, 'one audit line per passing category (koala_metadata + runtime_artifact)');
@@ -607,7 +607,7 @@ try {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -710,7 +710,7 @@ try {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -785,7 +785,7 @@ try {
     assert.match(e2eDetails, /declared_artifact_changes/, 'F-004: details must mention declared_artifact_changes');
     assert.doesNotMatch(e2eDetails, /unexpected_dirty_files/, 'F-004: declared BL21 must NOT appear as unexpected_dirty_files');
     // Audit trail must exist for the declared artifact pass.
-    const e2eAuditPath = join(declaredE2eRoot, '.koala', 'story', 'actives', e2eStoryId, 'process-events.jsonl');
+    const e2eAuditPath = join(declaredE2eRoot, '.lattice', 'story', 'actives', e2eStoryId, 'process-events.jsonl');
     assert.ok(existsSync(e2eAuditPath), 'F-004: audit log must be written for declared artifact pass');
     const e2eAuditLines = readFileSync(e2eAuditPath, 'utf-8').trim().split('\n').filter(Boolean);
     const declaredAudit = e2eAuditLines.find(l => JSON.parse(l).category === 'declared_artifact_changes');
@@ -807,7 +807,7 @@ try {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     mkdirSync(join(attackChainRoot, 'packages/main/src/core'), { recursive: true });
@@ -872,7 +872,7 @@ try {
 
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
   const env = { ...process.env };
-  delete env.KOALA_PROJECT_ROOT;
+  delete env.LATTICE_PROJECT_ROOT;
   const invalidVerificationIntent = spawnSync(process.execPath, [
     cliPath,
     'checklist_update',
@@ -893,7 +893,7 @@ try {
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
-  assert.equal(existsSync(join(invalidArgCwd, '.koala')), false, 'schema failure should happen before metadata mutation');
+  assert.equal(existsSync(join(invalidArgCwd, '.lattice')), false, 'schema failure should happen before metadata mutation');
   rmSync(invalidArgCwd, { recursive: true, force: true });
 
   const malformedJsonCwd = mkdtempSync(join(tmpdir(), 'koala-validation-malformed-json-'));
@@ -909,7 +909,7 @@ try {
   assert.notEqual(malformedJson.status, 0, 'malformed JSON body should fail');
   assert.match(malformedJson.stderr, /JSON parse failed|JSON parse|Unexpected end of JSON input/);
   assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON parse failed|JSON parse/);
-  assert.equal(existsSync(join(malformedJsonCwd, '.koala')), false, 'malformed JSON should not create project metadata');
+  assert.equal(existsSync(join(malformedJsonCwd, '.lattice')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
   const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-local-'));
@@ -1187,12 +1187,12 @@ try {
   execFileSync('git', ['init'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
-  mkdirSync(join(tmp, '.koala', 'story', 'actives', 'B-demo'), { recursive: true });
-  mkdirSync(join(tmp, '.koala', 'runtime'), { recursive: true });
-  writeFileSync(join(tmp, '.koala', 'activity.jsonl'), '{}\n');
-  const shellMetaArtifactPath = ".koala/runtime/$USER $(echo hi) `uname` 'artifact'.json";
+  mkdirSync(join(tmp, '.lattice', 'story', 'actives', 'B-demo'), { recursive: true });
+  mkdirSync(join(tmp, '.lattice', 'runtime'), { recursive: true });
+  writeFileSync(join(tmp, '.lattice', 'activity.jsonl'), '{}\n');
+  const shellMetaArtifactPath = ".lattice/runtime/$USER $(echo hi) `uname` 'artifact'.json";
   writeFileSync(join(tmp, shellMetaArtifactPath), '{}\n');
-  writeFileSync(join(tmp, '.koala', 'story', 'actives', 'B-demo', 'index.json'), '{}\n');
+  writeFileSync(join(tmp, '.lattice', 'story', 'actives', 'B-demo', 'index.json'), '{}\n');
   execFileSync('git', ['add', '.'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['commit', '-m', 'seed doctor runtime artifact smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   resetConfigCache();
@@ -1228,16 +1228,16 @@ try {
   assert.ok(Array.isArray(doctorJson.storyOwnerLeases.stale), 'storyOwnerLeases.stale should be an array');
   assert.ok(Array.isArray(doctorJson.storyOwnerLeases.terminalStale), 'storyOwnerLeases.terminalStale should be an array');
   assert.equal(doctorJson.storyOwnerLeases.hasTerminalStale, false, 'no terminal stale lease in the clean doctor fixture');
-  const activityArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === '.koala/activity.jsonl');
-  assert.ok(activityArtifact, 'doctor should include .koala/activity.jsonl');
+  const activityArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === '.lattice/activity.jsonl');
+  assert.ok(activityArtifact, 'doctor should include .lattice/activity.jsonl');
   assert.equal(activityArtifact.repairable, true);
-  assert.equal(activityArtifact.repairCommand, "git rm --cached -- '.koala/activity.jsonl'");
+  assert.equal(activityArtifact.repairCommand, "git rm --cached -- '.lattice/activity.jsonl'");
   const shellMetaArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === shellMetaArtifactPath);
   assert.ok(shellMetaArtifact, 'doctor should include tracked runtime artifacts with shell metacharacters');
   assert.equal(shellMetaArtifact.repairable, true);
   assert.equal(
     shellMetaArtifact.repairCommand,
-    "git rm --cached -- '.koala/runtime/$USER $(echo hi) `uname` '\"'\"'artifact'\"'\"'.json'",
+    "git rm --cached -- '.lattice/runtime/$USER $(echo hi) `uname` '\"'\"'artifact'\"'\"'.json'",
   );
 
   const doctorText = doctor() as string;
@@ -1245,9 +1245,9 @@ try {
   assert.match(doctorText, /Project-local JavaScript runtime required: (yes|no)/);
   assert.match(doctorText, /Next action: /);
   assert.match(doctorText, /Runtime artifacts:/);
-  assert.match(doctorText, /\.koala\/activity\.jsonl/);
-  assert.match(doctorText, /git rm --cached -- '\.koala\/activity\.jsonl'/);
-  assert.match(doctorText, /git rm --cached -- '\.koala\/runtime\/\$USER \$\(echo hi\) `uname` '"'"'artifact'"'"'\.json'/);
+  assert.match(doctorText, /\.lattice\/activity\.jsonl/);
+  assert.match(doctorText, /git rm --cached -- '\.lattice\/activity\.jsonl'/);
+  assert.match(doctorText, /git rm --cached -- '\.lattice\/runtime\/\$USER \$\(echo hi\) `uname` '"'"'artifact'"'"'\.json'/);
   assert.doesNotMatch(doctorText, /git rm --cached -- ".*activity\.jsonl"/);
   assert.match(doctorText, /Runtime scan:/);
   assert.match(doctorText, /cli-entrypoint/);
@@ -1263,10 +1263,10 @@ try {
   assert.equal(repairedDoctorJson.runtimeArtifacts.tracked.length, 0, 'doctor --repair should untrack repairable runtime artifacts');
   assert.deepEqual(
     [...repairedDoctorJson.runtimeArtifacts.repaired].sort(),
-    ['.koala/activity.jsonl', shellMetaArtifactPath].sort(),
+    ['.lattice/activity.jsonl', shellMetaArtifactPath].sort(),
   );
-  assert.notEqual(execFileSync('git', ['ls-files', '--', '.koala/story/actives/B-demo/index.json'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should not untrack story evidence');
-  assert.equal(execFileSync('git', ['ls-files', '--', '.koala/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
+  assert.notEqual(execFileSync('git', ['ls-files', '--', '.lattice/story/actives/B-demo/index.json'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should not untrack story evidence');
+  assert.equal(execFileSync('git', ['ls-files', '--', '.lattice/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
   assert.equal(execFileSync('git', ['ls-files', '--', shellMetaArtifactPath], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack metacharacter runtime artifacts');
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
@@ -1371,7 +1371,7 @@ try {
     rmSync(storyFlagRoot, { recursive: true, force: true });
   }
 
-  // 4. No-story validate is diagnostic/read-only: must not write any .koala/ state
+  // 4. No-story validate is diagnostic/read-only: must not write any .lattice/ state
   const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'koala-validate-no-story-'));
   try {
     resetConfigCache();
@@ -1383,7 +1383,7 @@ try {
     }).validate({ json: true });
     const noStoryResult = JSON.parse(noStoryJson);
     assert.equal(noStoryResult.provider, 'koala-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
-    assert.equal(existsSync(join(noStoryReadOnlyRoot, '.koala')), false, 'no-story validate must not create any .koala/ state (read-only)');
+    assert.equal(existsSync(join(noStoryReadOnlyRoot, '.lattice')), false, 'no-story validate must not create any .lattice/ state (read-only)');
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }

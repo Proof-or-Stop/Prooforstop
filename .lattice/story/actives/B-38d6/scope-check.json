@@ -1,0 +1,52 @@
+{
+  "storyId": "B-38d6",
+  "checkedAt": "2026-06-03T18:33:42.829Z",
+  "features": [
+    {
+      "feature": "CHK-001 Remove Swift from automatic validation fallback discovery",
+      "covered_by": "packages/main/src/handlers/verifier.ts; packages/main/src/core/runtime-environment-checks.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN CHK-001 covers verifier fallback discovery, runtime fact fallback labels, and validation protocol regression tests."
+    },
+    {
+      "feature": "CHK-002 lattice.config.json canonical + koala.config.json legacy fallback across config loading and project-root surfaces",
+      "covered_by": "packages/main/src/core/config.ts; packages/main/src/handlers/verifier.ts; packages/main/src/core/runtime-environment-checks.ts; packages/main/src/cli-engine.ts; packages/main/src/core/dev-memory.ts; packages/main/src/handlers/dev-memory.ts; packages/main/src/dashboard.ts; packages/main/src/cli-init.ts; packages/main/src/core/dirty-worktree.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Resolved OQ-1/OQ-2: canonical lattice.config.json must cover loadConfig, root marker detection, init scaffold output, dashboard/dev-memory guidance, and dirty classifier while koala.config.json remains a legacy fallback."
+    },
+    {
+      "feature": "CHK-003 Lattice-first validation docs, prompts, and doctor guidance",
+      "covered_by": "docs/requirements/decisions/testing-infra.md; README.md; packages/main/src/cli-prompts.ts; packages/main/src/handlers/doctor.ts; packages/main/src/cli-init.ts; packages/main/src/dashboard.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN CHK-003 covers long-form docs, maintainer prompts, doctor/UX text, and regression tests for user-visible validation guidance."
+    },
+    {
+      "feature": "Historical Swift sources/tests and historical story evidence preserved",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision.json and scope-contract.json: do not remove historical Swift source/tests or old story evidence; fixture executor swift.test may remain explicit opt-in, not an automatic validate fallback.",
+      "source": "Decision preMortem + scope contract protected/excluded areas."
+    },
+    {
+      "feature": "Generated artifacts and dependency trees",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.json excludes packages/main/dist/**, node_modules/**, .koala/runtime/**, and .koala/traces/**.",
+      "source": "scope-contract explicitExcludes."
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "76bdb48abff09678d01652ecd59fa3a2962d80eb35804c6def376c537f72a34d",
+  "openQuestions": []
+}

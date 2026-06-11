@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Preserve the existing workflow CLI trust boundary; ordinary koala evidence remains local or transport-only unless server receipt verification exists.",
+    "Introduce authority-enforce capability as an isolated opt-in subsystem, not a global CLI role change.",
+    "Mechanically test anti-overclaim behavior before adding any runner execution capability.",
+    "Keep Mac Runner and Python authority roles explicit so future agents do not treat colocation or naming as authority."
+  ],
+  "drivers": [
+    "Existing PD-1 docs currently defer enforce-mode CLI authority work until a product decision exists.",
+    "User wants a path to headless/CI authority execution without weakening anti-forgery guarantees.",
+    "Milestone 0 must be safe to merge before actor keys, job claim, provider execution, full envelopes, and receipt verification are implemented."
+  ],
+  "options": [
+    {
+      "name": "A: mutate ordinary koala into enforce authority client",
+      "pros": [
+        "Fewer command namespaces",
+        "Potentially faster direct integration with existing authority-submit code"
+      ],
+      "cons": [
+        "Expands the trusted computing base too far",
+        "Risks local/shadow evidence being misread as production authority",
+        "Conflicts with the PD-1 thin-client boundary"
+      ]
+    },
+    {
+      "name": "B: add isolated koala authority enforce subsystem",
+      "pros": [
+        "Keeps workflow CLI and production runner authority separate",
+        "Allows headless/CI runner work to progress with explicit opt-in",
+        "Lets tests enforce that ordinary local/shadow evidence is still not L2+"
+      ],
+      "cons": [
+        "Requires a little more command/catalog design",
+        "Later milestones must bridge policy discovery, actor keys, jobs, envelopes, and receipts carefully"
+      ]
+    },
+    {
+      "name": "C: do nothing until Mac Runner covers all headless scenarios",
+      "pros": [
+        "Lowest immediate engineering cost",
+        "No new authority surface"
+      ],
+      "cons": [
+        "Does not address CI/Linux/no-UI use cases",
+        "Leaves the product decision unresolved and future agents will keep re-opening the same discussion"
+      ]
+    }
+  ],
+  "chosen": "B: add isolated koala authority enforce subsystem",
+  "rationale": "Choose an isolated authority-enforce subsystem because it gives the user a path to headless production authority while preserving the existing anti-forgery trust boundary for ordinary Koala workflow commands.",
+  "preMortem": [
+    {
+      "scenario": "Future agent claims ordinary koala verification_evidence_add is now production L2+ because PD-2 mentions enforce mode.",
+      "trigger": "Docs use broad wording like Koala CLI is authority-capable without isolating the enforce namespace.",
+      "consequence": "Local JSON or accepted true transport results can be mistaken for server-backed authority evidence.",
+      "mitigation": "PD-2 wording must separate ordinary koala workflow client from future koala authority enforce runner, and boundary smoke tests must keep thin transport classification distinct from receipt-backed L2+."
+    },
+    {
+      "scenario": "Milestone 0 accidentally implements partial runner behavior without actor key or receipt verification.",
+      "trigger": "A command placeholder submits evidence or reuses existing authority-submit enforce mode as if it were production authority.",
+      "consequence": "The system gains a confusing half-authority path that can fail open or mislead future reviewers.",
+      "mitigation": "Milestone 0 is limited to docs and classification tests; actor key, job claim, provider execution, full envelope, and receipt verification are explicitly forbidden until later stories."
+    },
+    {
+      "scenario": "The new subsystem is treated as replacing Mac Runner.",
+      "trigger": "Docs say CLI runner is canonical or omit Mac Runner from the role table.",
+      "consequence": "Mac-side live E2E and actor-key responsibilities become ambiguous, increasing cross-end drift.",
+      "mitigation": "PD-2 must say Mac Runner remains an execution plane and Python authority remains the receipt authority; TS enforce runner is an additional headless path only."
+    },
+    {
+      "scenario": "Tests pass while the important anti-overclaim path is untested.",
+      "trigger": "Only happy-path complete envelope fixtures are added, with no accepted true/no receipt or same-run negative fixture.",
+      "consequence": "Regression can reclassify weak or self-verified evidence as L2+ later.",
+      "mitigation": "Add happy, edge, and adversarial boundary fixtures: complete signed+receipt case, accepted-without-receipt case, same-run/missing-signature cases."
+    }
+  ],
+  "timestamp": "2026-05-27T17:49:47.017Z"
+}

@@ -1,0 +1,43 @@
+{
+  "storyId": "B-7fc2",
+  "checkedAt": "2026-06-03T21:45:51.986Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "命名一致性：background 用 \"Lattice CLI JSON surface\"，CHK-002 userSees 写 \"lattice validate --json\"，但 CLAUDE.md / koala CLI / .koala/ 目录全部是 koala。PLAN 阶段统一术语，避免 delivery gate 对 user-facing 输出 grep 时模糊匹配。"
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-004 与 koala 自带 DONE gate（delivery_check_set / summary_set / DONE merge）职责重叠。建议 PLAN 阶段把 CHK-004 明确为承载用户指定的三-Claude-agent + Codex 独立审核证据这一 framework 默认不强制的部分，避免双轨记账。"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-03T21:45:22.757Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 的矩阵建议显式列出所有 --json / --format=json 命令（不只 validate），避免修完 validate 后其它命令仍在 stdout 拼 hint 形成隐藏回归。当前 CHK-002 的 cli-engine 统一判断写法已能覆盖，但 audit 矩阵若漏列命令，CHK-003 的 regression smoke 也可能跟着漏。advisory，不阻塞 INIT_CHECK。"
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-03T21:45:51.986Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "命名一致性：background 用 \"Lattice CLI JSON surface\"，CHK-002 userSees 写 \"lattice validate --json\"，但 CLAUDE.md / koala CLI / .koala/ 目录全部是 koala。PLAN 阶段统一术语，避免 delivery gate 对 user-facing 输出 grep 时模糊匹配。"
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-004 与 koala 自带 DONE gate（delivery_check_set / summary_set / DONE merge）职责重叠。建议 PLAN 阶段把 CHK-004 明确为承载用户指定的三-Claude-agent + Codex 独立审核证据这一 framework 默认不强制的部分，避免双轨记账。"
+        }
+      ]
+    }
+  ],
+  "_hash": "7dc4d8fba84dec29938de31c850456d84d1b743e30e8bafefa471731eb39b3de"
+}

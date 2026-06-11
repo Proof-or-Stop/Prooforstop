@@ -1,0 +1,87 @@
+{
+  "storyId": "B-6c80",
+  "name": "init-template-opt-in",
+  "title": "Make koala init business template opt-in",
+  "description": "User observed that every koala init creates a fresh src/ folder. In existing projects this template directory is usually unused and can mislead scanRoot detection, especially because init creates src before writing koala.config.json. Change default init behavior so Koala management assets are created by default, while starter business code under src/core and src/shells is created only when explicitly requested.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-05-04T22:51:42.070Z",
+  "startedAt": "2026-05-04T22:51:42.070Z",
+  "endedAt": "2026-05-04T23:41:11.001Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-04T22:51:42.071Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-04T22:59:35.845Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-04T22:59:44.303Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-04T23:04:41.651Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-04T23:15:48.481Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-04T23:20:27.198Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-04T23:24:21.330Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-04T23:36:59.472Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-04T23:41:11.001Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-05-04T23:24:21.330Z"
+}

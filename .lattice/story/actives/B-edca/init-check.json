@@ -1,0 +1,47 @@
+{
+  "storyId": "B-edca",
+  "checkedAt": "2026-06-01T13:59:46.182Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "PLAN phase should populate userSees for each checklist item before story_review (CLAUDE.md requires it, INIT skipped — acceptable but flag for PLAN)."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-002 (policy/scope decision for test-evidence.json) overlaps with PLAN decision_set deliverable; ensure it feeds decision_set.options/chosen/rationale rather than producing an orphan policy doc."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-01T13:59:30.362Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Checklist items lack userSees fields. Per CLAUDE.md spec, each item should declare the precise user-observable text post-completion. Activities are listed (reproduce/define/implement/test/validate) but no item pins the visible end-state."
+        },
+        {
+          "severity": "medium",
+          "desc": "End-state acceptance is not crystallized in checklist. Background.md implies success = after DONE commit, `koala session_brief` shows no stale advisory for test-evidence.json. Recommend adding an explicit observable to CHK-005 (e.g., transcript showing session_brief output WITHOUT stale block AND a separate transcript showing a genuine material drift IS still flagged) so implementer cannot narrowly pass without confirming the user-visible loop is gone."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-01T13:59:46.182Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "PLAN phase should populate userSees for each checklist item before story_review (CLAUDE.md requires it, INIT skipped — acceptable but flag for PLAN)."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-002 (policy/scope decision for test-evidence.json) overlaps with PLAN decision_set deliverable; ensure it feeds decision_set.options/chosen/rationale rather than producing an orphan policy doc."
+        }
+      ]
+    }
+  ],
+  "_hash": "eeaa8624f763f79ebd852eb53ae1bc8efad80decf67949a472ef1e7e5d9de85b"
+}

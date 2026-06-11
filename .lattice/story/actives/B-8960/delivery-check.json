@@ -1,0 +1,58 @@
+{
+  "storyId": "B-8960",
+  "checkedAt": "2026-05-12T23:45:13.818Z",
+  "reviewRound": "2026-05-12T23:37:20.618Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-8960/evidence/transcript-diff.md",
+      "promise": "Product transcript says runtime path drift, reviewRound prompt drift, silent-catch baseline gating, and verification coverage all have observable command evidence.",
+      "status": "verified",
+      "verifiedBy": "sed transcript review plus command reruns",
+      "evidence": "runtime reviewer contract verified; main branch runtime health verified; Process fact contract verified; audit:silent-catches status silent catch audit passed with baseline version 2 and newUncategorized 0; koala validate test-evidence reports 15/15 covered."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "Process/runtime facts must be protected by hard-coded CLI/handler/gate contracts, and prompt-only worker or user-value claims are not mechanical evidence.",
+      "status": "verified",
+      "verifiedBy": "rg plus npm run test:process-fact-contract",
+      "evidence": "rg found required boundary language; npm run test:process-fact-contract passed and reports Process fact contract verified."
+    },
+    {
+      "docPath": "CLAUDE.md and agent templates/mirrors",
+      "promise": "Reviewer prompt schema uses signed reviewRound as ISO string and records fresh-worker/user-value evidence boundaries instead of accepting prompt-only proof.",
+      "status": "verified",
+      "verifiedBy": "rg prompt scan plus process fact contract",
+      "evidence": "rg found reviewRound:string in active templates/mirrors and boundary language; numeric reviewRound appears only in synthetic negative checks in scripts/verify-process-fact-contract.mjs."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:runtime-reviewer-contract -> runtime reviewer contract verified; node scripts/verify-main-branch-runtime-health.mjs -> main branch runtime health verified; runtime scanner includes synthetic coverage for direct hardcoded CLI path and split worktreeRoot plus join packages/main/dist/cli.js regression."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:process-fact-contract -> Process fact contract verified; rg prompt scan shows active templates/mirrors use reviewRound:string, while reviewRound:number and numeric JSON forms are confined to synthetic negative tests in the contract."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run audit:silent-catches -> status silent catch audit passed, baseline version 2, uncategorizedDebt 501, newUncategorized 0, lineStableBaselineKey passed; test evidence records a temporary new uncategorized catch failing with status silent catch audit failed and newUncategorized 1."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run test:process-fact-contract -> Process fact contract verified; rg shows prompt-only worker claims are not mechanical evidence and Koala cannot mechanically prove true subagent context isolation, only observable assignment evidence."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm run test:process-fact-contract -> Process fact contract verified; rg shows transcript/delivery evidence is required and prompt-only user-value claims are not enough. Summary and transcript-diff record accepted product outcome with limitation boundary."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery PASS. Current HEAD reran runtime reviewer contract, main branch runtime health, process fact contract, silent catch audit, and git diff --check successfully. Findings B-8960:F-001/F-002 are resolved. Transcript and summary match actual outputs. Remaining limitations are explicit boundaries: true subagent context isolation and subjective user approval cannot be fully mechanical, so Koala now requires observable dispatch/process/commit or transcript/delivery evidence instead of prompt-only claims."
+  },
+  "_hash": "e40ef58af1f73a93b674d335969c42b5be9d26009217a73511860e630732033c"
+}

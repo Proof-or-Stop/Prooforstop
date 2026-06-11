@@ -54,7 +54,7 @@ function allowEmptyCommit(cwd: string, message: string, author = 'koala-implemen
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
-function initRepo(prefix: string, storyDir = '.koala/story/actives'): string {
+function initRepo(prefix: string, storyDir = '.lattice/story/actives'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -70,9 +70,9 @@ function initRepo(prefix: string, storyDir = '.koala/story/actives'): string {
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
-    '.koala/*',
-    '!.koala/story/',
-    '!.koala/story/**',
+    '.lattice/*',
+    '!.lattice/story/',
+    '!.lattice/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'field regression CLI smoke\n');
@@ -86,7 +86,7 @@ function runKoalaRaw(cwd: string, command: string, args: Record<string, unknown>
   return new Promise((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd,
-      env: { ...process.env, KOALA_PROJECT_ROOT: cwd },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: cwd },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -1082,12 +1082,12 @@ async function assertDoneMergeCleansMainUntrackedReviewPasses(): Promise<void> {
     writeDoneReadyStory(worktree, storyId);
     commit(worktree, 'prepare done story', 'koala-implementer');
 
-    write(root, `.koala/story/actives/${storyId}/review-passes.json`, '{"passes":[]}\n');
+    write(root, `.lattice/story/actives/${storyId}/review-passes.json`, '{"passes":[]}\n');
     const output = await runKoala(worktree, 'story_advance', { storyId, phase: 'DONE' });
 
     assert.match(output, /Cleaned untracked copy in main repo: .*review-passes\.json/);
     assert.match(output, /advanced to DONE/);
-    assert.equal(git(root, ['status', '--porcelain', '--', `.koala/story/actives/${storyId}/review-passes.json`]), '');
+    assert.equal(git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}/review-passes.json`]), '');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(existsSync(worktree), false);
   } finally {

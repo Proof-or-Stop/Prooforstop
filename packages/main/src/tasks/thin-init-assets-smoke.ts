@@ -9,10 +9,10 @@
  * Exercises the real init CLI with global-thin defaults (the new default) and
  * verifies legacy full/thin modes remain available as explicit opt-in.
  * @changes
- * - [CHK-002] Assert fresh default init creates .Lattice/ assets and not bin/lattice*.js or .Codex/.
+ * - [CHK-002] Assert fresh default init creates .lattice/ assets and not bin/lattice*.js or .Codex/.
  * - [CHK-003] Assert global codex verify/doctor passes in a global-thin project.
  * - [CHK-004] Assert legacy assets survive init (no deletion).
- * - [B-4ee0] Global-thin: .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md are canonical defaults.
+ * - [B-4ee0] Global-thin: .lattice/Lattice.md, .lattice/lattice.json, AGENTS.md are canonical defaults.
  * - [B-38d6] Fresh init writes lattice.config.json as canonical config; koala.config.json remains legacy fallback only.
  */
 
@@ -65,34 +65,34 @@ function assertCodexOk(root: string): void {
 }
 
 // ─── Test 1: Fresh default (global-thin) ─────────────────────────────────────
-// No --profile or --asset-mode flags: should produce .Lattice/ dir with minimal assets.
+// No --profile or --asset-mode flags: should produce .lattice/ dir with minimal assets.
 // Forbidden assets: bin/lattice.js, bin/lattice-codex.js, .Codex/README.md, .Codex/lattice.json, KOALA.md.
 const globalThinRoot = makeRoot('global-thin-default');
 try {
   const output = runInit(globalThinRoot, []);
   assert.match(output, /global-thin/i, 'init output should mention global-thin mode');
-  assert.match(output, /\.Lattice\/Lattice\.md/i, 'init output should mention .Lattice/Lattice.md');
+  assert.match(output, /\.lattice\/Lattice\.md/i, 'init output should mention .lattice/Lattice.md');
 
   // Required canonical assets
-  assertExists(globalThinRoot, '.Lattice/Lattice.md');
-  assertExists(globalThinRoot, '.Lattice/lattice.json');
+  assertExists(globalThinRoot, '.lattice/Lattice.md');
+  assertExists(globalThinRoot, '.lattice/lattice.json');
   assertExists(globalThinRoot, 'AGENTS.md');
   assertExists(globalThinRoot, 'lattice.config.json');
   assertAbsent(globalThinRoot, 'koala.config.json');
 
   // AGENTS.md should reference global lattice, not node bin/lattice.js
   const agentsMd = readFileSync(join(globalThinRoot, 'AGENTS.md'), 'utf8');
-  assert.match(agentsMd, /\.Lattice\/Lattice\.md/, 'AGENTS.md should reference .Lattice/Lattice.md');
+  assert.match(agentsMd, /\.lattice\/Lattice\.md/, 'AGENTS.md should reference .lattice/Lattice.md');
   assert.match(agentsMd, /lattice codex verify/, 'AGENTS.md should reference lattice codex verify');
   assert.doesNotMatch(agentsMd, /node bin\/lattice\.js/, 'AGENTS.md must not reference node bin/lattice.js in global-thin mode');
 
-  // .Lattice/Lattice.md should reference global lattice CLI
-  const latticeMd = readFileSync(join(globalThinRoot, '.Lattice/Lattice.md'), 'utf8');
-  assert.match(latticeMd, /lattice session_brief/, '.Lattice/Lattice.md should reference lattice session_brief');
-  assert.match(latticeMd, /lattice codex verify/, '.Lattice/Lattice.md should reference lattice codex verify');
+  // .lattice/Lattice.md should reference global lattice CLI
+  const latticeMd = readFileSync(join(globalThinRoot, '.lattice/Lattice.md'), 'utf8');
+  assert.match(latticeMd, /lattice session_brief/, '.lattice/Lattice.md should reference lattice session_brief');
+  assert.match(latticeMd, /lattice codex verify/, '.lattice/Lattice.md should reference lattice codex verify');
 
-  // .Lattice/lattice.json should declare global-thin mode
-  const latticeConfig = JSON.parse(readFileSync(join(globalThinRoot, '.Lattice/lattice.json'), 'utf8'));
+  // .lattice/lattice.json should declare global-thin mode
+  const latticeConfig = JSON.parse(readFileSync(join(globalThinRoot, '.lattice/lattice.json'), 'utf8'));
   assert.equal(latticeConfig.assetMode, 'global-thin');
 
   // Forbidden default assets must not exist
@@ -118,9 +118,9 @@ try {
 const globalThinCodexRoot = makeRoot('global-thin-codex');
 try {
   runInit(globalThinCodexRoot, ['--profile=codex']);
-  // Still global-thin (default mode), so .Lattice/ should exist, no .Codex/ assets
-  assertExists(globalThinCodexRoot, '.Lattice/Lattice.md');
-  assertExists(globalThinCodexRoot, '.Lattice/lattice.json');
+  // Still global-thin (default mode), so .lattice/ should exist, no .Codex/ assets
+  assertExists(globalThinCodexRoot, '.lattice/Lattice.md');
+  assertExists(globalThinCodexRoot, '.lattice/lattice.json');
   assertExists(globalThinCodexRoot, 'AGENTS.md');
   assertAbsent(globalThinCodexRoot, 'bin/lattice.js');
   assertAbsent(globalThinCodexRoot, '.Codex/lattice.json');
@@ -141,7 +141,7 @@ try {
   for (const relPath of ['KOALA.md', '.Codex/koala.json', 'bin/koala.js', 'bin/koala-codex.js']) {
     assertAbsent(fullRoot, relPath);
   }
-  assertAbsent(fullRoot, '.Lattice/lattice.json');
+  assertAbsent(fullRoot, '.lattice/lattice.json');
   assertManagedOk(fullRoot, 'full');
 } finally {
   rmSync(fullRoot, { recursive: true, force: true });
@@ -159,7 +159,7 @@ try {
   const manifest = JSON.parse(readFileSync(join(thinRoot, '.Codex', 'lattice.json'), 'utf8'));
   assert.equal(manifest.adapterOwner, 'lattice');
   assert.equal(manifest.promptMode, 'registry');
-  assertAbsent(thinRoot, '.Lattice/lattice.json');
+  assertAbsent(thinRoot, '.lattice/lattice.json');
   assertManagedOk(thinRoot, 'thin');
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
@@ -182,9 +182,9 @@ try {
   for (const [relPath, content] of legacyFiles) {
     assert.equal(readFileSync(join(preserveRoot, relPath), 'utf-8'), content, `${relPath} must survive when user-owned`);
   }
-  // New .Lattice/ assets should still be created
-  assertExists(preserveRoot, '.Lattice/Lattice.md');
-  assertExists(preserveRoot, '.Lattice/lattice.json');
+  // New .lattice/ assets should still be created
+  assertExists(preserveRoot, '.lattice/Lattice.md');
+  assertExists(preserveRoot, '.lattice/lattice.json');
   // Codex verify should pass (global-thin project)
   assertCodexOk(preserveRoot);
 } finally {

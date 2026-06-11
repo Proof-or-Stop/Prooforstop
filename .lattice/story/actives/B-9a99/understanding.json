@@ -1,0 +1,25 @@
+{
+  "task": "给危险命令补 dry-run 与 confirm 护栏，减少误操作和高成本回滚。",
+  "outcome": "$ koala story_discard --storyId=B-test\n错误: story_discard 是危险命令，先用 --dry-run 预览或加 --confirm 明确执行\n\n$ koala story_discard --storyId=B-test --dry-run\n[DRY-RUN] story_discard B-test would:\n- remove linked worktree if present\n- delete story branch if present\n- mark story phase as DISCARDED\n- write discard event\n\n$ koala story_discard --storyId=B-test --confirm\n✓ Story B-test 已标记为 DISCARDED\n...",
+  "facts": [
+    "cc-learnings 明确要求危险命令支持 --dry-run，并且 irreversible 命令默认要求 --confirm。",
+    "story_discard 当前是公开 CLI 命令，且会删 worktree/分支并改 story phase。",
+    "fixture_batch_add 是公开 CLI 命令，批量写入 fixture 文件，属于批量破坏性/高成本误操作。",
+    "dev_merge 仍在 handler 中存在，但当前主要完成路径已走 story_advance DONE 自动合并，需要先确认它是否仍作为公开入口存在。"
+  ],
+  "constraints": [
+    "首批实现优先覆盖当前公开、风险最高的命令。",
+    "dry-run 必须不落盘、不改 git/worktree/store。",
+    "confirm 缺失时的拒绝文案要给出下一步，而不是只报 schema 错。"
+  ],
+  "unknowns": [
+    "dev_merge 现在是否仍然通过 CLI 对外暴露。",
+    "fixture_batch_add 应该始终要求 confirm，还是只在大批量 cases 时要求。"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/fixture.ts"
+  ],
+  "timestamp": "2026-04-15T18:34:49.877Z"
+}

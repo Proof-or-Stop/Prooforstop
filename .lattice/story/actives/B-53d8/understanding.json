@@ -1,0 +1,27 @@
+{
+  "task": "补齐 real-story replay 的历史证据质量并解释 backfill 来源",
+  "outcome": "> npm run test:real-story-replay\nok evidence-quality\nok backfilled-story-score\n> node scripts/real-story-replay-benchmark.mjs\n| Story | Score | Evidence Quality | Why | Explain |\n| B-e452 | 0.83 | backfilled | PASS evidence + backfilled summary + backfilled fixture evidence + 0 open bugs | score uses explicit replay metadata because historical summary artifact is missing; report explains artifact gap instead of hiding it |\n用户能看到 B-e452 分数为什么提升，以及哪些证据是 backfilled。",
+  "facts": [
+    "B-e452 是 DONE/PASS 的真实 story，但 summary_get 返回 _empty",
+    "B-e452 story_get 显示 checklist/testIntent/test evidence 存在，但 reviewer/implementation/summary artifact 缺失",
+    "当前 replay benchmark 对 B-e452 评分 0.43，主要因 summary 和 fixture case count 缺失",
+    "用户要求提升证据质量，不是硬改分数"
+  ],
+  "constraints": [
+    "不直接读写 docs/story JSON，历史 story 证据补充通过独立 replay metadata 或 Koala CLI",
+    "score 必须继续由确定性字段计算",
+    "报告必须保留 Score/Why/Explain，并新增 evidenceQuality",
+    "backfilled metadata 必须在 why/explain 中显式暴露，不能伪装成原生 summary"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/replay-artifacts/real-story-replay-v1.json",
+    "scripts/real-story-replay-benchmark.mjs",
+    "scripts/verify-real-story-replay-benchmark.mjs",
+    "experiments/reports/real-story-replay-v1.md",
+    "experiments/reports/real-story-replay-v1.json",
+    "packages/main/tests/fixtures/real-story-replay-benchmark.json",
+    "README.md"
+  ],
+  "timestamp": "2026-04-19T16:21:11.939Z"
+}

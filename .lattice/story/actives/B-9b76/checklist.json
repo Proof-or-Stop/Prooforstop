@@ -1,0 +1,404 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document asset layering and compatibility contract",
+      "context": "Define project-local required assets versus package registry prompt templates versus generated/cache materialization, including legacy mirror compatibility and no-overwrite rules.",
+      "status": "done",
+      "startTime": "2026-06-02T21:05:11.151Z",
+      "endTime": "2026-06-02T21:05:54.013Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "AGENTS.md"
+      ],
+      "userSees": "用户运行 `rg -n \"registry-backed prompt assets|project-local required|legacy mirror compatibility|STALE_LOCAL_EDIT\" docs/requirements/decisions/lifecycle-artifact-scope.md` 后看到四个命中行。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs define project-local required assets, package registry prompt templates, generated/materialized caches, and legacy mirror compatibility.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explicitly preserve legacy full-mode .Codex/.claude mirrors and explain thin mode is opt-in, not a silent default migration.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs state migration must not overwrite or delete local edits unless Koala can prove STALE_SAFE ownership.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "rg -n \"registry-backed prompt assets|project-local required assets|legacy mirror compatibility|STALE_LOCAL_EDIT|production authority\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs define project-local assets, package registry prompt templates, materialized prompt caches, and legacy mirror compatibility.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "rg -n \"legacy mirror compatibility|Thin-mode repositories may omit|Legacy full-mode repositories may keep\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs preserve legacy full-mode mirrors and state thin mode omits prompt copies only when manifest selects registry prompts.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "rg -n \"STALE_LOCAL_EDIT|report-only|must not overwrite or delete local edits\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs require report-only handling for local edits, case mismatch, and incompatible prompt files during thin migration.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement package prompt registry and host renderer",
+      "context": "Expose versioned agent prompt metadata, template hashes, and host-specific rendering for Claude and Codex without changing legacy prompt files yet.",
+      "status": "done",
+      "startTime": "2026-06-02T21:04:23.460Z",
+      "endTime": "2026-06-02T21:05:04.691Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "AGENTS.md"
+      ],
+      "userSees": "用户运行 `npm --prefix packages/main run test:prompt-registry-smoke` 后看到 `✓ prompt registry smoke passed: 16 agents rendered for claude and codex`。",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/templates/agents"
+        ],
+        "create": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registry enumerates every package template agent with stable id, path, sha256 hash, and host render outputs.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Registry behaves deterministically when template directory exists through package templates rather than repo-local .claude symlinks.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex rendered output remains byte-compatible with the legacy renderCodexAgentContent transform so legacy mirrors are not silently changed.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Prompt registry smoke enumerated 16 package agents with stable metadata and host render outputs.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Smoke used the package templates/agents registry root and did not depend on repo-local .claude symlink materialization.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Smoke compared Codex registry rendering against the legacy renderCodexAgentContent transform for every prompt.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make Codex verification and managed asset checks registry-aware",
+      "context": "Allow legacy mirror mode and new registry mode to pass hard verification, preserving existing process-event gate evidence and clear drift diagnostics.",
+      "status": "done",
+      "startTime": "2026-06-02T21:06:10.761Z",
+      "endTime": "2026-06-02T21:12:34.103Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "AGENTS.md"
+      ],
+      "userSees": "用户运行 `node packages/main/dist/tasks/codex-registry-mode-smoke.js` 后看到 `✓ codex registry mode smoke passed: legacy mirror and thin registry verification are both covered`。",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Legacy manifest or absent promptMode keeps existing .claude/.Codex mirror hard check behavior.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Registry promptMode verifies registry version/hash/renderability without requiring local prompt mirror directories.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Registry hash mismatch or missing registry capability fails clearly and still preserves hard Codex adapter verification semantics.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
+          "result": "pass",
+          "note": "Codex registry mode smoke verified the legacy manifest path still uses the hard agents-mirror check.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
+          "result": "pass",
+          "note": "Codex registry mode smoke verified promptMode=registry passes without .Codex/agents or .claude/agents prompt mirror directories.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
+          "result": "pass",
+          "note": "Codex registry mode smoke tampered promptRegistry.materialHash and observed a hard manifest failure while registry renderability remained separately checked.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add opt-in thin init asset mode",
+      "context": "Support init/check paths that keep project assets lightweight by writing manifests and launchers while avoiding default prompt copies when registry mode is selected.",
+      "status": "done",
+      "startTime": "2026-06-02T21:12:45.092Z",
+      "endTime": "2026-06-02T21:15:24.029Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "README.md"
+      ],
+      "userSees": "用户运行 `lattice init --asset-mode=thin --profile=codex` 后，初始化输出说明 thin/registry mode，项目中没有 .Codex/agents prompt copies，但 check 和 verify 仍能通过。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Thin codex init writes manifest/launcher/docs and omits .Codex/agents prompt copies.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full init remains the default compatibility behavior and still materializes legacy prompt assets.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Thin check/apply does not delete user-owned local prompt files or overclaim production authority.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Thin init smoke ran real init with --profile=codex --asset-mode=thin, verified registry manifest/README, absence of .Codex/agents, managed asset check, and Codex adapter verification.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Thin init smoke ran default full Codex init and verified it still materializes the package prompt copies in .Codex/agents with a legacy manifest.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Thin init smoke seeded a user-owned .Codex/agents/user-owned.md before --asset-mode thin and verified init/check/verify left it in place.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Validate legacy compatibility and thin mode behavior",
+      "context": "Run focused smoke tests, build/type checks, init fixtures, managed asset checks, and Codex adapter verification proving existing full mode is unaffected.",
+      "status": "done",
+      "startTime": "2026-06-02T21:15:34.935Z",
+      "endTime": "2026-06-02T21:17:42.589Z",
+      "relatedDocs": [
+        "AGENTS.md",
+        "README.md"
+      ],
+      "userSees": "用户看到验证摘要包含 `✓ prompt registry smoke passed`、`✓ codex registry mode smoke passed`、`✓ thin init assets smoke passed`、`✓ build passed` 和 `✓ Codex adapter checks passed`。",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke commands and TypeScript build pass in the story worktree.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy full-mode check/verify behavior remains covered after registry mode additions.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex adapter verification process-event evidence is refreshed after touching Codex adapter material paths.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:prompt-registry-smoke && npm --prefix packages/main run test:codex-registry-mode-smoke && npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "TypeScript build and all three focused smoke commands passed in the story worktree after the thin/full init changes.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke && npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Registry-mode smoke covers legacy mirror verification, while thin-init smoke proves full init remains the default and still materializes .Codex/agents prompt copies.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-9b76/process-events.jsonl",
+          "command": "npm --prefix packages/utils run build && KOALA_SESSION_ID=sess-984e0c8ad2c9b71f node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "Codex adapter verification passed 6/7 checks with manifest, 16 mirrored prompts, local wrapper heartbeat, exclusions, and aux availability; the only warning was that global koala points at the main checkout and is heartbeat-only.",
+          "headHash": "de64f3b8bf53a6d025f3c0f7195d29ce874e0364",
+          "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4",
+          "timestamp": "2026-06-02T21:21:15.697Z"
+        }
+      ]
+    }
+  ]
+}

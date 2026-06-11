@@ -1,0 +1,55 @@
+{
+  "storyId": "B-1123",
+  "checkedAt": "2026-06-02T18:02:27.428Z",
+  "reviewRound": "2026-06-02T17:46:40.609Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "package.json#scripts.test:authority-runner-contracts",
+      "promise": "Root npm script test:authority-runner-contracts exposes the focused authority runner contract/signing smoke command",
+      "verifiedBy": "diff+test",
+      "evidence": "git diff main...HEAD on package.json adds test:authority-runner-contracts delegating to packages/main; npm run test:authority-runner-contracts prints \"authority runner contracts smoke passed: deterministic canonicalization, sign/verify, and L2+ boundary preserved\""
+    },
+    {
+      "docPath": "package.json#scripts.test:authority-runner-client",
+      "promise": "Root npm script test:authority-runner-client exposes the focused authority runner client smoke command",
+      "verifiedBy": "diff+test",
+      "evidence": "git diff main...HEAD on package.json adds test:authority-runner-client delegating to packages/main; npm run test:authority-runner-client prints \"authority runner client smoke passed: 7 runner endpoints hit, off-mode performs zero network calls\""
+    },
+    {
+      "docPath": "packages/main/src/core/authority-runner-contracts.ts",
+      "promise": "Authority runner contract/signing primitives (envelopes, JobSpec, receipts, Ed25519 sign/verify with deterministic canonical JSON) are covered by npm run test:authority-runner-contracts",
+      "verifiedBy": "test",
+      "evidence": "tasks/authority-runner-contracts-smoke.ts asserts deterministic canonicalization, sign/verify roundtrip, all runner envelope shapes, JobSpec/receipt signing, invalid signature rejection, missing actorId/nonce/createdAt rejection, and same producer/verifier run binding collapse"
+    },
+    {
+      "docPath": "packages/main/src/core/authority-client.ts",
+      "promise": "AuthorityClient runner endpoints (actor keys, runner register/heartbeat, job claim/heartbeat/release, provider events) plus off-mode zero-network behavior are covered by npm run test:authority-runner-client",
+      "verifiedBy": "test",
+      "evidence": "tasks/authority-runner-client-smoke.ts spins a fake authority server that captures all 7 expected runner endpoints exactly once with signed bodies; off-mode and missing/whitespace KOALA_AUTHORITY_URL refuse to POST; policy discovery remains a single GET with zero mutating POSTs"
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#L2-boundary",
+      "promise": "Adding signing primitives must not promote ordinary local/shadow runner evidence to receipt-backed L2+",
+      "verifiedBy": "test",
+      "evidence": "authority-runner-contracts-smoke adversarial case asserts missingRunnerL2Requirements still demands run bindings, provider/model/vendor, command/transcript/diff hashes, and a verified authority receipt; transcript-diff.md notes ordinary lattice authority status --json still shows receiptVerified:false unless a verified receipt path is used"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Command: npm run test:authority-runner-contracts → \"✓ authority runner contracts smoke passed: deterministic canonicalization, sign/verify, and L2+ boundary preserved\" (captured in .koala/story/actives/B-1123/evidence/transcript-diff.md). Verified at HEAD dc4230795e077b982c45da62656125b75ffb46a0 by re-running during delivery review."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Command: npm run test:authority-runner-client → \"✓ authority runner client smoke passed: 7 runner endpoints hit, off-mode performs zero network calls\" (captured in .koala/story/actives/B-1123/evidence/transcript-diff.md). Verified at HEAD dc4230795e077b982c45da62656125b75ffb46a0 by re-running during delivery review."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both focused smoke commands pass at HEAD and cover happy/edge/adversarial intents for runner contracts, signing, client endpoints, and off-mode zero-network behavior; ordinary local/shadow evidence stays non-L2+. No delivery blocker remains for the M1-M2 TypeScript foundation."
+  },
+  "_hash": "6721f2f44df217e67f38a9c2d154967b9189a31444e00d9cad7f44b550bc07c1"
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5d29",
+  "changes": "新增 Process Fact Contract 原则到 CLAUDE.md、AGENTS.md、story-lifecycle 和三套 koala-review prompt；新增 npm run test:process-fact-contract；加固 finding_add runtime category 拒绝、pass-only review pass 转换、多行 prompt drift 扫描和流程事实入口 inventory。",
+  "usage": "开发者修改 reviewer prompt、finding/review/evidence/phase gate 或新增流程事实命令后运行 npm run test:process-fact-contract；必要时继续运行 npm run test:codex-assets、node bin/koala-codex.js verify_codex 和 koala validate。",
+  "expectedOutcome": "用户运行 npm run test:process-fact-contract 时看到 Process Fact Contract、Prompt guides; CLI/handler/gate decides、Process Fact Inventory，并最终看到 Process fact contract verified；如果 prompt 路径/命令语义漂移或多行 pass-only finding_add 出现，脚本应失败。",
+  "actualTranscript": "npm run test:process-fact-contract 输出 Process Fact Contract、Prompt guides; CLI/handler/gate decides、Prompt drift scan: 27 reviewer prompt files checked、Process Fact Inventory 覆盖 phase advance/finding_add/review_pass_set/verification evidence/init check/scope check/delivery check/REVIEW TEST DONE gates/CLI schema，最后输出 Process fact contract verified。quality reviewer 还用临时副本验证 path drift 和多行 bad finding_add 会 exit 1。",
+  "outcomeDiff": "实际输出与预期一致；第二轮 reviewer 发现的 warning-only drift 和 multiline bypass 已修复为硬失败。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered; 当前 inventory 是显式 allowlist，新流程事实命令需要同步加入 verifier。",
+  "pitfalls": "第一次 verifier 规则过宽且把 path drift 降级为 warning，被 reviewer 抓到后改成 path/cmd drift 都 fail；提交后 evidence 会因 HEAD 改变 stale，需要 refresh_stale 再 validate。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 793419
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10734
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 482880
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1258200
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 443765
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 47021
+    }
+  },
+  "totalDurationMs": 3036023,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-11T13:48:51.692Z",
+  "updatedAt": "2026-05-11T13:48:51.692Z"
+}

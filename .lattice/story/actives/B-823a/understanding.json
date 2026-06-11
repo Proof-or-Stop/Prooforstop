@@ -1,0 +1,25 @@
+{
+  "task": "为真实 Koala 任务生成可复跑 replay 评分对比报告",
+  "outcome": "> node scripts/real-story-replay-benchmark.mjs\nReal Story Replay Benchmark v1\n| Story | Score | Why | Explain |\n| B-9c2c | 0.92 | PASS evidence + bug reproduction fixed | story_get fixture mapping now rejects cross-story leakage and keeps legacy compatibility explicit |\nReport written: experiments/reports/real-story-replay-v1.md\n用户看到 score、why、explain 后能判断 Koala Lab 对真实任务是否有效。",
+  "facts": [
+    "已有真实 DONE story 包括 B-7670/B-8d6a/B-57e7/B-9c2c/B-990d/B-e452/B-78d2/B-6bee/B-8bcf",
+    "部分旧 story 缺 summary artifact，例如 B-e452",
+    "summary_get 可提供 changes/usage/phaseStats/fixtureStats/bugStats",
+    "用户明确要求表格必须包含分数、Why 和 explain",
+    "decision 已选择先实现独立脚本入口，后续再考虑包装成 koala lab 子命令"
+  ],
+  "constraints": [
+    "不修改 docs/story 或 tests/fixtures JSON，story/fixture 操作走 Koala CLI",
+    "报告必须可复跑生成，不能只是聊天里的手写表格",
+    "score 必须可解释且稳定，不依赖随机 LLM 评判",
+    "不触碰现有 .omx 和其它 unrelated dirty 文件"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "scripts/real-story-replay-benchmark.mjs",
+    "experiments/reports/real-story-replay-v1.md",
+    "experiments/reports/real-story-replay-v1.json",
+    "packages/main/tests/fixtures/real-story-replay-benchmark.json"
+  ],
+  "timestamp": "2026-04-19T16:09:59.199Z"
+}

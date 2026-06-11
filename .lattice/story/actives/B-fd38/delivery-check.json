@@ -1,0 +1,27 @@
+{
+  "storyId": "B-fd38",
+  "checkedAt": "2026-05-17T02:33:37.461Z",
+  "reviewRound": "2026-05-17T02:25:03.650Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md#subagent-定义",
+      "promise": "subagent prompt 文件放在 .Codex/agents/ 下被准确描述为 Koala adapter 约定（大写 .Codex 目录、Markdown+YAML frontmatter、由 Koala tooling 读取），并明确标注不是 Codex 官方约定；Codex 官方约定是小写 .codex/ + TOML",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff 显示旧括注「（Codex 官方约定）」已删除，新文本含「这是 **Koala adapter 约定**」和「**不是 Codex 官方约定**」；grep -c 旧误述 = 0；.Codex/koala.json 原文 read by Koala tooling, not by the Codex runtime 与引文逐字匹配"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transcript-diff.md 三项检查全通过：[检查1] grep -c 旧误述 = 0；[检查2] AGENTS.md:185 含 Koala adapter 约定 + 不是 Codex 官方约定 + 小写 .codex/ + TOML；[检查3] .Codex/koala.json grep 原文与 AGENTS.md 引文一致。koala validate 全绿。"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "纯文档单行改动：AGENTS.md 误述已清除，Koala adapter 约定与 Codex 官方约定对比明确可查，三项 grep 断言全部通过，无代码改动无 TODO 残留。"
+  },
+  "_hash": "72bf1444a23eeae9c64b2f23b66af84ac81b061119ed7f355a766986c04b3277"
+}

@@ -1,0 +1,32 @@
+{
+  "storyId": "B-f3db",
+  "checkedAt": "2026-06-02T13:18:07.703Z",
+  "reviewRound": "2026-06-02T13:08:01.667Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "Only story-scoped evidence/transcript-diff.md is allowed as nested TEST lifecycle evidence; arbitrary sibling evidence such as evidence/summary.json, evidence/test-evidence.json, evidence/notes.md, and evidence/transcript-diff.txt stays out of scope.",
+      "status": "verified",
+      "verifiedBy": "manual inspection plus local CLI scope_contract_check, validate, and npm run test:process-fact-contract",
+      "evidence": "Local scope gate PASS: 19 changed files, 0 unacknowledged violations. validate PASS with verification coverage 6/6. process-fact contract PASS confirms transcript-only scope pass, sibling evidence rejection, reviewer scope binding freshness for transcript-only evidence, and stale binding for ordinary product diff."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reran node packages/main/dist/cli.js scope_contract_check --storyId=B-f3db: PASS, 19 changed files, 0 unacknowledged violations, including .koala/story/actives/B-f3db/evidence/transcript-diff.md. Inspected lifecycle-registry.ts: evidence/transcript-diff.md is in LIFECYCLE_ARTIFACTS/TEST.produces and nested matching uses KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS, so sibling evidence is not allowed by basename."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reran node packages/main/dist/cli.js validate --story=B-f3db --json: PASS with verification coverage 6/6. Reran npm run test:process-fact-contract: PASS; it asserts transcript-only scope pass, reviewer scope binding remains fresh for transcript-only evidence, ordinary product diff stales binding, and evidence/notes.md, evidence/summary.json, evidence/test-evidence.json, and evidence/transcript-diff.txt remain out_of_scope."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted after main merge refresh. Local CLI session_brief shows TEST with branch synced and only delivery-check missing before this signature; scope, validate, and process-fact contract are green, and inspected docs/code/tests match the narrow lifecycle artifact policy."
+  },
+  "_hash": "f9805a4525f1626bb75342730d6160b66cc6723fa13939dbea0808b3f2a775a1"
+}

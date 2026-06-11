@@ -1,0 +1,91 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "ChecklistItem 类型增加 testIntent 字段",
+      "context": "types.ts 的 ChecklistItem 接口加 testIntent?: { happy: string[], edge: string[], adversarial: string[] }，可选字段向后兼容",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T15:45:24.335Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "story_create/story_quick 支持传入 testIntent",
+      "context": "checklist 数组的每项支持 testIntent 字段，Zod schema 同步更新",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T15:45:24.961Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "checklist_get 输出包含 testIntent",
+      "context": "读取时原样返回 testIntent，无需额外处理",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T15:45:25.574Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "新增 story_review 命令",
+      "context": "输入 storyId，读取 truth + checklist + testIntent，输出遗漏报告：意图弱项、交叉场景遗漏、truth 未覆盖的约束",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T15:45:26.186Z"
+    },
+    {
+      "id": "CHK-005",
+      "title": "story_review 注册到 CLI 路由",
+      "context": "cli.ts TOOLS 数组新增 story_review，schema 为 storyId 必填",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T15:45:26.810Z"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-03T15:45:24.335Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "types.ts 增加 TestIntent 接口和 ChecklistItem.testIntent 字段"
+    },
+    {
+      "timestamp": "2026-04-03T15:45:24.961Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "cli.ts Zod schema + story.ts handler args 均支持 testIntent，创建时持久化到 checklist.json"
+    },
+    {
+      "timestamp": "2026-04-03T15:45:25.574Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "store 原样读写 JSON，testIntent 自动包含在 checklist_get 输出中"
+    },
+    {
+      "timestamp": "2026-04-03T15:45:26.186Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "story_review handler 实现：检查缺失 intent、弱 intent、交叉场景遗漏，输出 _reviewPrompt 含真相源对照"
+    },
+    {
+      "timestamp": "2026-04-03T15:45:26.810Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "cli.ts TOOLS 数组新增 story_review，help 分组为 Review"
+    }
+  ]
+}

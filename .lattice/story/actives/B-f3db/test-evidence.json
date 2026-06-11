@@ -1,0 +1,136 @@
+{
+  "command": "koala validate --story=B-f3db --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (scripts/verify-process-fact-contract.mjs) — story-scoped evidence/transcript-diff.md is classified as a lifecycle artifact and does not produce OUT_OF_SCOPE.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/lifecycle-registry.ts) — the allowed transcript artifact must still require a valid story-scoped path and story id.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (scripts/verify-process-fact-contract.mjs) — arbitrary evidence files and unknown .koala files remain out of scope unless explicitly allowed.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — policy docs state evidence/transcript-diff.md is TEST delivery evidence and does not need scope acknowledgement.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test (scripts/verify-process-fact-contract.mjs) — a TEST-phase story whose only new diff is .koala/story/actives/<storyId>/evidence/transcript-diff.md can run scope_contract_check without OUT_OF_SCOPE, without scope_contract_acknowledge, and without invalidating reviewer scope binding.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (scripts/verify-process-fact-contract.mjs) — delivery-check remains required, arbitrary evidence files remain out of scope, and ordinary product/docs/test scope expansions still need normal scope handling.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T13:17:04.710Z\",\"headSha\":\"da326ea84fb53561319f363a280c91ea2e4642c0\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1363}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"story-scoped evidence/transcript-diff.md is classified as a lifecycle artifact and does not produce OUT_OF_SCOPE.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Contract test accepts only .koala/story/actives/B-scope/evidence/transcript-diff.md as the nested lifecycle evidence path and reports Scope gate: pass for the transcript-only diff.\",\"headHash\":\"1e4da36b3202e4cc0406f9de1dd7efd891daf833\",\"materialHash\":\"c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb\",\"timestamp\":\"2026-06-02T13:16:17.148Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"the allowed transcript artifact must still require a valid story-scoped path and story id.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/lifecycle-registry.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:process-fact-contract && npm run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Classifier now treats top-level lifecycle filenames and nested relative lifecycle paths separately, requiring valid story-scoped prefix/storyId and preserving lifecycle registry projection stability.\",\"headHash\":\"1e4da36b3202e4cc0406f9de1dd7efd891daf833\",\"materialHash\":\"c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb\",\"timestamp\":\"2026-06-02T13:16:17.148Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"arbitrary evidence files and unknown .koala files remain out of scope unless explicitly allowed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Regression asserts .koala/foo.json, evidence/notes.md, evidence/summary.json, evidence/test-evidence.json, evidence/transcript-diff.txt, and unrelated source files remain out_of_scope.\",\"headHash\":\"1e4da36b3202e4cc0406f9de1dd7efd891daf833\",\"materialHash\":\"c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb\",\"timestamp\":\"2026-06-02T13:16:17.148Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"policy docs state evidence/transcript-diff.md is TEST delivery evidence and does not need scope acknowledgement.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"command\":\"npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Policy doc now states only top-level lifecycle filenames use filename matching and the only nested evidence allowance is evidence/transcript-diff.md, not evidence/summary.json.\",\"headHash\":\"1e4da36b3202e4cc0406f9de1dd7efd891daf833\",\"materialHash\":\"c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb\",\"timestamp\":\"2026-06-02T13:16:17.148Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"a TEST-phase story whose only new diff is .koala/story/actives/<storyId>/evidence/transcript-diff.md can run scope_contract_check without OUT_OF_SCOPE, without scope_contract_acknowledge, and without invalidating reviewer scope binding.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"npm run test:process-fact-contract && koala scope_contract_check --storyId=B-f3db\",\"result\":\"pass\",\"note\":\"Regression builds a transcript-only diff pack and proves Scope gate: pass plus compareScopeBinding remains fresh for transcript-only evidence while ordinary product diff makes the binding stale.\",\"headHash\":\"1e4da36b3202e4cc0406f9de1dd7efd891daf833\",\"materialHash\":\"c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb\",\"timestamp\":\"2026-06-02T13:16:17.148Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"delivery-check remains required, arbitrary evidence files remain out of scope, and ordinary product/docs/test scope expansions still need normal scope handling.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"npm run test:process-fact-contract && npm run lint:tasks\",\"result\":\"pass\",\"note\":\"Delivery/scope semantics stay separate: process fact contract keeps signed delivery artifacts/gates registered, rejects arbitrary evidence files, and task annotation lint reports PASSED.\",\"headHash\":\"1e4da36b3202e4cc0406f9de1dd7efd891daf833\",\"materialHash\":\"c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb\",\"timestamp\":\"2026-06-02T13:16:17.148Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-02T13:17:05.029Z",
+  "headHash": "da326ea84fb53561319f363a280c91ea2e4642c0",
+  "materialHash": "c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "story-scoped evidence/transcript-diff.md is classified as a lifecycle artifact and does not produce OUT_OF_SCOPE.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract test accepts only .koala/story/actives/B-scope/evidence/transcript-diff.md as the nested lifecycle evidence path and reports Scope gate: pass for the transcript-only diff.",
+          "headHash": "1e4da36b3202e4cc0406f9de1dd7efd891daf833",
+          "materialHash": "c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb",
+          "timestamp": "2026-06-02T13:16:17.148Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "the allowed transcript artifact must still require a valid story-scoped path and story id.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Classifier now treats top-level lifecycle filenames and nested relative lifecycle paths separately, requiring valid story-scoped prefix/storyId and preserving lifecycle registry projection stability.",
+          "headHash": "1e4da36b3202e4cc0406f9de1dd7efd891daf833",
+          "materialHash": "c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb",
+          "timestamp": "2026-06-02T13:16:17.148Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "arbitrary evidence files and unknown .koala files remain out of scope unless explicitly allowed.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Regression asserts .koala/foo.json, evidence/notes.md, evidence/summary.json, evidence/test-evidence.json, evidence/transcript-diff.txt, and unrelated source files remain out_of_scope.",
+          "headHash": "1e4da36b3202e4cc0406f9de1dd7efd891daf833",
+          "materialHash": "c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb",
+          "timestamp": "2026-06-02T13:16:17.148Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "policy docs state evidence/transcript-diff.md is TEST delivery evidence and does not need scope acknowledgement.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Policy doc now states only top-level lifecycle filenames use filename matching and the only nested evidence allowance is evidence/transcript-diff.md, not evidence/summary.json.",
+          "headHash": "1e4da36b3202e4cc0406f9de1dd7efd891daf833",
+          "materialHash": "c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb",
+          "timestamp": "2026-06-02T13:16:17.148Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "a TEST-phase story whose only new diff is .koala/story/actives/<storyId>/evidence/transcript-diff.md can run scope_contract_check without OUT_OF_SCOPE, without scope_contract_acknowledge, and without invalidating reviewer scope binding.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract && koala scope_contract_check --storyId=B-f3db",
+          "result": "pass",
+          "note": "Regression builds a transcript-only diff pack and proves Scope gate: pass plus compareScopeBinding remains fresh for transcript-only evidence while ordinary product diff makes the binding stale.",
+          "headHash": "1e4da36b3202e4cc0406f9de1dd7efd891daf833",
+          "materialHash": "c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb",
+          "timestamp": "2026-06-02T13:16:17.148Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "delivery-check remains required, arbitrary evidence files remain out of scope, and ordinary product/docs/test scope expansions still need normal scope handling.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract && npm run lint:tasks",
+          "result": "pass",
+          "note": "Delivery/scope semantics stay separate: process fact contract keeps signed delivery artifacts/gates registered, rejects arbitrary evidence files, and task annotation lint reports PASSED.",
+          "headHash": "1e4da36b3202e4cc0406f9de1dd7efd891daf833",
+          "materialHash": "c44e0ef652cb43c410da6a58c526e8f779e6bbef92e88872185113e60a4d14bb",
+          "timestamp": "2026-06-02T13:16:17.148Z"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-15T06:04:28.449Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "parallel_policy_conflict",
+          "severity": "advisory",
+          "message": "并行风险：shares hotspots with B-8fb2: packages/main/src/handlers/story-review.ts"
+        },
+        {
+          "type": "parallel_policy_conflict",
+          "severity": "advisory",
+          "message": "并行风险：shares hotspots with B-e452: packages/main/src/handlers/story-advance.ts"
+        },
+        {
+          "type": "parallel_policy_conflict",
+          "severity": "advisory",
+          "message": "并行风险：shares hotspots with B-e98c: packages/main/src/handlers/story-review.ts"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: invariant 是集中定义在单文件，还是贴近各 handler 定义更稳。; 历史失败路径需要回填多少 reason code。"
+        }
+      ],
+      "_hash": "a4df1fdcf10f76582a6bec4d57d92ac7f75c44f98a4fec4170632855575bad32"
+    }
+  ]
+}

@@ -5,7 +5,7 @@
  *   - Can be called at any PLAN/DEV/REVIEW/TEST stage to declare a generated artifact path as the expected output
  *     of this story, so the dirty-worktree classifier categorizes it as declared_artifact_changes
  *     instead of unexpected_dirty_files.
- *   - Writes to .koala/story/actives/<storyId>/declared-artifacts.json (store interface).
+ *   - Writes to the configured storyDir/<storyId>/declared-artifacts.json (store interface).
  *   - After writing, calls autoCommitStoryMetadata(B-3506) to automatically commit metadata.
  *
  * Three-layer validation (packages/koala/CLAUDE.md "Handler coding conventions"):

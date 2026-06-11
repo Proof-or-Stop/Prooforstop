@@ -1,0 +1,44 @@
+{
+  "passes": [
+    {
+      "id": "B-3a3b:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept fit reviewed: implementation mirrors all Claude agent prompts into Codex prompts, preserves Claude-only hooks/settings/skills boundary, and verification covers drift/stale prompt regressions. No blocking findings.",
+      "createdAt": "2026-05-03T20:24:45.775Z",
+      "reviewRound": "2026-05-03T20:23:40.396Z",
+      "_hash": "2366a44769cad4a7978a0fe0d7ec05b1fca527720473e9b098075c1579f4b922"
+    },
+    {
+      "id": "B-3a3b:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed init asset mirroring implementation, stale prompt cleanup, drift verification, docs boundary, and reran build plus codex asset entrypoint reviewer tests; no blocking quality or failure-mode findings.",
+      "createdAt": "2026-05-03T20:24:51.506Z",
+      "reviewRound": "2026-05-03T20:23:40.396Z",
+      "_hash": "0c5d0bdb9cc63a17000237e489c8ebb24dd120b23e1c620fe3dbf4823142c781"
+    },
+    {
+      "id": "B-3a3b:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Reviewed README.md, AGENTS.md, .Codex/README.md output/template intent, and main...HEAD documentation diff for Codex agent prompt mirror. No blocking docs finding: docs correctly explain full .claude/agents to .Codex/agents mirror and Claude-only hooks/settings/skills. Low advisory recorded separately for lowercase .codex path typo in .Codex/README.md.",
+      "createdAt": "2026-05-03T20:25:03.607Z",
+      "reviewRound": "2026-05-03T20:23:40.396Z",
+      "_hash": "e9573bcfc0795abbad64b1fe639dc21721dd6508e5ef9043c903235665831cca"
+    },
+    {
+      "id": "B-3a3b:RP-004",
+      "agent": "koala-review-channel",
+      "note": "Channel discipline reviewed: process-events show dispatch/subagent_result for CHK-001..003, implementation and metadata are separated into commits, scope excludes Claude-only hooks/settings/skills, and no main-agent-only coding or scope bypass blocker was found.",
+      "createdAt": "2026-05-03T20:25:21.835Z",
+      "reviewRound": "2026-05-03T20:23:40.396Z",
+      "_hash": "7084a52f0d363d88ccacf87be5877bafaba15fd363eec597cf597bfa45e48261"
+    },
+    {
+      "id": "B-3a3b:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed all 9 verificationIntent entries across CHK-001..CHK-003 against recorded evidence, implementation diff, Codex asset verification scripts, fresh koala init entrypoint test, docs checks, and reran build/test commands. Evidence is meaningful and covers prompt mirroring, stale Codex-only rejection, and Claude-only hooks/settings/skills boundary with no blocking gaps.",
+      "createdAt": "2026-05-03T20:25:26.266Z",
+      "reviewRound": "2026-05-03T20:23:40.396Z",
+      "_hash": "16cc42a173c3674aa9dcc9064abde3503383f6c8297113a0058f70355c240ba8"
+    }
+  ]
+}

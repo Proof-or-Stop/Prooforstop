@@ -1,0 +1,45 @@
+{
+  "tests": [
+    {
+      "id": "TE-001",
+      "scenario": "truth_scan 扫描反向提取的真相源文档",
+      "command": "truth_scan()",
+      "output": "filesScanned: 5, entries: 14, topics: 5 (结构化注释系统/项目愿景与定位/Story生命周期/测试基础设施/真相源管理)",
+      "expected": "扫描到 5 个文件，提取出需求/决策/约束条目",
+      "result": "PASS",
+      "timestamp": "2026-04-01T02:58:10.832Z"
+    },
+    {
+      "id": "TE-002",
+      "scenario": "truth_nav 生成导航索引",
+      "command": "truth_nav()",
+      "output": "生成 NAV.md，包含 5 个文件链接，按 extracted 目录分类",
+      "expected": "NAV.md 正确生成，列出所有真相源文件",
+      "result": "PASS",
+      "timestamp": "2026-04-01T02:58:13.066Z"
+    },
+    {
+      "id": "TE-003",
+      "scenario": "truth_analyze 分析真相源健康度",
+      "command": "truth_analyze()",
+      "output": "totalEntries: 14, requirements: 12, decisions: 1, constraints: 1, issues: 4 (all low severity ambiguity), healthy: true",
+      "expected": "分析结果健康，无严重问题",
+      "result": "PASS",
+      "timestamp": "2026-04-01T02:58:15.733Z"
+    },
+    {
+      "id": "TE-004",
+      "scenario": "npm run build 编译通过",
+      "command": "npm run build",
+      "output": "tsc 编译成功，无错误",
+      "expected": "编译通过",
+      "result": "PASS",
+      "timestamp": "2026-04-01T02:58:17.008Z"
+    }
+  ],
+  "environment": {
+    "node": "v22.13.0",
+    "os": "win32 x64",
+    "timestamp": "2026-04-01T02:58:10.832Z"
+  }
+}

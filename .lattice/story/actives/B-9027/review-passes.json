@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-9027:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 审查 32 条 verificationIntent 与 verificationEvidence 覆盖关系。23/32 covered，0 required (must) missing，9 missing 全为 should 优先级可接受为 advisory。6 个新增 smoke 用例（assertDoneSuccessPathOutputAndOrdering / assertDoneOracleGateFailureKeepsStoryTest / assertStrayFileOffenderKeepsStoryTest / assertMergeConflictPreMergeGateKeepsStoryTest / assertRealMergeFailureMarksDoneAndThrows / assertWorktreeCleanupFailureMarksDoneMergedAndThrows）的断言与对应 intent 描述一一匹配，evidence 具体有效，不含宽泛描述。无 blocker。",
+      "createdAt": "2026-05-17T03:01:30.154Z",
+      "reviewRound": "2026-05-17T02:59:46.197Z",
+      "reviewRunId": "B-9027:RR-002",
+      "_hash": "d7131481a86e4ec34036ea963b92e8ad6429d58d2682e171bec6c797ff20b0bb"
+    },
+    {
+      "id": "B-9027:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed done-effects.ts (new), story-advance.ts (delta), phase-gates.ts (comment-only delta), worktree-authority-smoke.ts (new smoke tests). No dead code, no unnecessary as-any, no empty-swallow catches, no I/O isolation violations, no circular imports. Dynamic import of STRAY_FILE_WHITELIST at done-effects.ts:245 is a minor style inconsistency (static import already at line 46) but it is preserved behavior from the inline original and has zero runtime cost due to module caching. Behavior-preserving extraction is clean — step order, return values, and failure semantics are byte-identical.",
+      "createdAt": "2026-05-17T03:02:01.973Z",
+      "reviewRound": "2026-05-17T02:59:46.197Z",
+      "reviewRunId": "B-9027:RR-003",
+      "_hash": "bb8c298832c93e6517b46dbdac91aca7b6b659a69c36e124ff985c1797975e61"
+    },
+    {
+      "id": "B-9027:RP-003",
+      "agent": "koala-review-behavior",
+      "note": "All 4 behavior-preservation checks verified: (1) runDonePreMergeGate at story-advance.ts:215, before actor.send at line 218 — confirmed. Any throw keeps story in TEST (proven by tests at smoke.ts:821-826, 854-858, 903-907). (2) applyDoneMergeEffects at story-advance.ts:300, after writeStory at line 251 — confirmed. Real merge failure throws with 已标记为 DONE + full cd/git merge/worktree remove/branch -d guidance (proven by smoke test at :954-962, not swallowed). (3) maybeTriggerAudit wrapped in try/catch at done-effects.ts:488-495 — audit exception prints console.warn and does not interrupt DONE success message. (4) PVSC/ fix is scoped only to test .gitignore (done-effects.ts:502) with explicit comment that it does NOT touch dirty gate / runtime-artifact-registry / any allowlist (done-effects.ts:498-499). No behavioral regressions found.",
+      "createdAt": "2026-05-17T03:02:10.410Z",
+      "reviewRound": "2026-05-17T02:59:46.197Z",
+      "reviewRunId": "B-9027:RR-001",
+      "_hash": "ea1e309cc2ccacb4139d67dbdf8a85a6af805977e974afe7cab4ca7aaee3bab6"
+    },
+    {
+      "id": "B-9027:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete. Key findings: (1) __koalaDoneChecklistRendered — zero source code residuals in packages/main/src/; references in .koala/story/actives/B-9027/ are legitimate context docs (checklist, plan, understanding, decision, test-evidence), not code. The variable is fully eliminated from story-advance.ts and done-effects.ts. (2) Inline DONE merge/cleanup code — completely removed from story-advance.ts; all helpers (autoSyncMain, detectDoneStoryWorktreeContext, assertDoneStoryBranchMatches, assertSafeResidualWorktreeRm, assertDoneMergeCanApplyBeforeStateMutation, isRegisteredWorktree, pruneWorktreeRegistry) now live in done-effects.ts. (3) Import chain — story-advance.ts correctly imports autoSyncMain/detectDoneStoryWorktreeContext/assertDoneStoryBranchMatches/runDonePreMergeGate/applyDoneMergeEffects from done-effects.js; done-effects.ts correctly imports runDoneOracleGate from phase-gates.js. (4) phase-gates.ts comment updated to reflect no-globalThis architecture. (5) globalThis references in story-advance.ts are comment-only (explaining old vs new design), no live usage. (6) cleanStrayWorktreeFiles/STRAY_FILE_WHITELIST re-export in story-advance.ts preserved; review-pass-discard-smoke.ts imports directly from stray-file-cleanup.ts (correct). No residual concept blocker found.",
+      "createdAt": "2026-05-17T03:03:40.235Z",
+      "reviewRound": "2026-05-17T02:59:46.197Z",
+      "reviewRunId": "B-9027:RR-004",
+      "_hash": "bd79c4f1ff2e6efcfe427525323ad27e22f83db6c356acf396bd18713a78e186"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "storyId": "B-2522",
+  "checkedAt": "2026-06-02T21:42:58.503Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-002 bundles 4 distinct verification scenarios (local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server fail-closed) plus the Lattice parallel_report non-authoritative claim into one checklist item. userSees enumerates them clearly so the user-facing transcript is concrete, but completion judgment becomes ambiguous if any one of the four scenarios partial-passes. Consider whether the DEV-phase tests should produce a single summary line the user can quote when saying \"好了\", or accept the bundle as inherent to the closing-integration nature of the story."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-02T21:42:52.794Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 userSees claims E2E smoke shows receiptVerified:true and klass:receipt-backed-l2-plus, but the fake-authority server harness that produces that smoke output is owned by CHK-002. Either restate CHK-001 userSees in terms of an integration test that CHK-001 itself ships (envelope construction + receipt parse against an in-process stub), or explicitly note CHK-002 must land first as a dependency. Otherwise CHK-001 cannot be marked done in isolation and the two items will be double-counted on the same observable."
+        },
+        {
+          "severity": "low",
+          "desc": "background.md is terse and uses domain jargon (L2, klass, receipt-backed-l2-plus, shadow warning, producerRunId/verifierRunId) without inline definition. The relatedDocs (authority-client-role / verification-context-pack / lattice-parallel-wave) define these, but background is supposed to be standalone-readable. Add a one-line glossary or explicit doc:anchor pointer (e.g. \"definitions: verification-context-pack.md §evidence-envelope\") so a fresh reviewer does not need to traverse 3 decisions to parse the insight."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-02T21:42:58.503Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 bundles 4 distinct verification scenarios (local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server fail-closed) plus the Lattice parallel_report non-authoritative claim into one checklist item. userSees enumerates them clearly so the user-facing transcript is concrete, but completion judgment becomes ambiguous if any one of the four scenarios partial-passes. Consider whether the DEV-phase tests should produce a single summary line the user can quote when saying \"好了\", or accept the bundle as inherent to the closing-integration nature of the story."
+        }
+      ]
+    }
+  ],
+  "_hash": "3c2e272f95c253a211aa5d4e6631548d40faad9754e6cc87ecd6d67f17fa9a04"
+}

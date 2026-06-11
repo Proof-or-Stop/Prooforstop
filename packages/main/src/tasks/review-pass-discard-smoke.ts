@@ -37,16 +37,16 @@ function initRepo(prefix: string): string {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
     '**/activity.jsonl',
-    '.koala/*',
-    '!.koala/story/',
-    '!.koala/story/**',
+    '.lattice/*',
+    '!.lattice/story/',
+    '!.lattice/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'smoke\n');
@@ -119,7 +119,7 @@ async function runKoala(root: string, command: string, args: Record<string, unkn
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, KOALA_PROJECT_ROOT: root },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -147,7 +147,7 @@ async function startReviewRun(root: string, storyId: string, agent: string): Pro
 async function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const env = { ...process.env };
-    delete env.KOALA_PROJECT_ROOT;
+    delete env.LATTICE_PROJECT_ROOT;
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd,
       env,
@@ -417,7 +417,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
       },
     });
     store.writeChecklist(storyId, { items: [] });
-    git(root, ['add', '.koala/story/actives']);
+    git(root, ['add', '.lattice/story/actives']);
     git(root, ['commit', '-m', `koala: story ${storyId} init`]);
     git(root, ['branch', `story/${storyId}`]);
     const worktreePath = join(root, '.worktrees', storyId);
@@ -487,14 +487,14 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
     const before = git(root, ['rev-parse', 'HEAD']);
     const storyId = 'B-purge';
     writeReviewStory(root, storyId);
-    git(root, ['add', '.koala/story/actives/B-purge']);
+    git(root, ['add', '.lattice/story/actives/B-purge']);
     git(root, ['commit', '-m', `koala: story ${storyId} init`]);
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
     assert.match(output, /main init commit has been safely rolled back/, 'purge should report a safe reset');
     assert.equal(git(root, ['rev-parse', 'HEAD']), before, 'safe init commit should be reset');
-    assert.equal(existsSync(join(root, '.koala', 'story', 'actives', storyId)), false);
+    assert.equal(existsSync(join(root, '.lattice', 'story', 'actives', storyId)), false);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -543,7 +543,7 @@ function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
         endTime: now,
       })),
     });
-    write(root, '.koala/story/actives/B-channel/plan.md', [
+    write(root, '.lattice/story/actives/B-channel/plan.md', [
       '# Plan: B-channel',
       ...ids.flatMap(id => [
         '',
@@ -687,7 +687,7 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
         events: [],
       });
     }
-    git(root, ['add', '.koala/story/actives']);
+    git(root, ['add', '.lattice/story/actives']);
     git(root, ['commit', '-m', 'add terminal story metadata']);
 
     git(root, ['branch', 'story/B-termreg']);
@@ -738,13 +738,13 @@ function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
       endedAt: null,
       events: [],
     });
-    git(root, ['add', '.koala/story/actives']);
+    git(root, ['add', '.lattice/story/actives']);
     git(root, ['commit', '-m', 'add story metadata']);
 
     assert(STRAY_FILE_WHITELIST.includes('init-self-check.json'), 'init-self-check.json should be a precise whitelist entry');
     assert(STRAY_FILE_WHITELIST.includes('review-passes.json'), 'review-passes.json should be a precise whitelist entry');
-    const initSelfCheckPath = join(root, '.koala/story/actives', storyId, 'init-self-check.json');
-    const reviewPassesPath = join(root, '.koala/story/actives', storyId, 'review-passes.json');
+    const initSelfCheckPath = join(root, '.lattice/story/actives', storyId, 'init-self-check.json');
+    const reviewPassesPath = join(root, '.lattice/story/actives', storyId, 'review-passes.json');
     writeFileSync(initSelfCheckPath, '{"reviewers":[]}\n');
     writeFileSync(reviewPassesPath, '{"passes":[]}\n');
     const report = cleanStrayWorktreeFiles(root, storyId, join(root, '.worktrees', storyId));
@@ -753,7 +753,7 @@ function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
     assert(report.some(line => line.includes('init-self-check.json')), 'cleanup report should name init-self-check.json');
     assert(report.some(line => line.includes('review-passes.json')), 'cleanup report should name review-passes.json');
 
-    const draftPath = join(root, '.koala/story/actives', storyId, 'operator-note.txt');
+    const draftPath = join(root, '.lattice/story/actives', storyId, 'operator-note.txt');
     writeFileSync(draftPath, 'manual draft\n');
     assert.throws(
       () => cleanStrayWorktreeFiles(root, storyId, join(root, '.worktrees', storyId)),

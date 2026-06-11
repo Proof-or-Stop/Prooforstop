@@ -1,0 +1,27 @@
+{
+  "task": "为已落地的高优先级能力补 @task 元数据回链，让 gap_analyze 能识别已有实现。",
+  "outcome": "$ node packages/main/dist/cli.js gap_analyze\n...\n高优先级差距里，不再把 dry-run/confirm/test_auto 护栏与 flow step 说明能力一概报成完全未覆盖。相应需求至少能从实现文件的 @task/@changes 注释追溯到具体代码位置。",
+  "facts": [
+    "当前 dangerous command guardrails 与 flow step description contract 已经在代码和 fixture 层落地。",
+    "gap_analyze 仍把这些需求报成 uncovered_requirement，因为相关实现文件缺少 @task/@changes 注释。",
+    "scan()/gap_analyze 的覆盖识别依赖任务注释元数据，而不是只看运行结果或 commit 历史。"
+  ],
+  "constraints": [
+    "优先回填最少量的注释块，不改动既有业务行为。",
+    "新增注释必须遵守 annotation-system 的必填字段和函数级精度原则。",
+    "至少要有一条回归证明 gap_analyze 的误报下降，而不是只靠人工观察。"
+  ],
+  "unknowns": [
+    "回填后 gap_analyze 对需求摘要做关键词匹配，是否足以消除对应 high gap，还是还需要补更贴近需求原文的 title/description。"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/fixture.ts",
+    "packages/main/src/handlers/test-auto.ts",
+    "packages/main/src/tasks/types.ts",
+    "packages/main/src/tasks/extract.ts",
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "timestamp": "2026-04-16T20:35:03.713Z"
+}

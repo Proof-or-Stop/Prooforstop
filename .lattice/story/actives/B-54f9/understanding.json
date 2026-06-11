@@ -1,0 +1,37 @@
+{
+  "task": "修复 Koala 阶段门禁、fixture 验证、session_brief 状态与工具入口提示的不一致问题。",
+  "outcome": "> koala session_brief\n## Active stories (1)\n  B-54f9 PLAN (worktree phase: DEV) ...\n  ⚠ phase drift: main metadata says PLAN, linked worktree says DEV. Resume: cd .worktrees/B-54f9\n\n> koala checklist_update {\"storyId\":\"B-54f9\",\"itemId\":\"CHK-001\",\"status\":\"done\"}\nChecklist CHK-001: status → done\n→ DEV done checks implementation status only. Fixture coverage is checked in TEST_CASE_REVIEW.\n\n> koala fixture_batch_add ...\nAdded 3/3 cases...\n→ Run test_story --storyId=B-54f9 now to verify the new fixture cases before review.",
+  "facts": [
+    "B-54f9 是高风险 gate/phase 修复 story。",
+    "当前 config 已有 TEST_CASE phase，但 story-lifecycle 文档仍有旧的 DEV 合并写测试描述。",
+    "DEFAULT_PHASE_TOOLS 目前 DEV 允许 fixture_batch_add/test_story，TEST_CASE 允许 fixture_batch_add 但不允许 test_story。",
+    "checklist_update done 当前会扫描 fixture intentRef coverage，导致 DEV done 与 TEST_CASE 进入条件形成循环。",
+    "session_brief 主目录视角主要读当前 checkout 的 story metadata，linked worktree 真实 phase 可能不同。",
+    "全局 core koala 不加载 utils aux_doc_list，本地 bin/koala.js bootstrap 可加载。",
+    "baseline-risk 提示已经在 main 分支实现并可显示。"
+  ],
+  "constraints": [
+    "禁止直接读写 docs/story 和 tests/fixtures 下 JSON，story/fixture 操作走 koala CLI。",
+    "Koala 自身禁止全量 test_auto，使用 build、脚本、test_story/test_fixture 或临时仓库验证。",
+    "不能破坏现有 phase-aware 工具过滤；只放开本 story 需要的只读验证路径。",
+    "保持 dirty 用户文件不回滚。",
+    "新增行为要有确定性脚本覆盖。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/fixture.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/reviewer-status.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/handlers/hints.ts",
+    "packages/main/src/cli-engine.ts",
+    "scripts/verify-*.mjs",
+    "README.md",
+    "AGENTS.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/test-fixture-spec.md"
+  ],
+  "timestamp": "2026-04-19T16:47:22.983Z"
+}

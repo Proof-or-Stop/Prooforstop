@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "id": "B-6bfd:F-001",
+      "desc": "quality-cleanup: command-policy.ts:209 guard_session_check is classified ownershipClass=readOnly with reason \"without mutating story metadata\" but the handler calls store.writeGuardSession() on every invocation (writes guard-session.json in the story directory). The reason text is factually incorrect and contradicts process-fact-levels.ts which accurately states \"records forbidden writes\". This metadata inconsistency means the ownership enforcement gate treats guard_session_check as a read-only command while it is a story-scoped write, potentially misleading maintainers and allowing non-owner sessions to overwrite guard session state.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-24T00:44:03.908Z",
+      "reviewRound": "2026-05-24T00:28:24.635Z",
+      "reviewRunId": "B-6bfd:RR-002",
+      "_hash": "1da07006fdfb4247de607687f37a6593428f315e8b06beaa307c128ab213c2b3",
+      "files": [
+        "packages/main/src/core/command-policy.ts"
+      ]
+    },
+    {
+      "id": "B-6bfd:F-002",
+      "desc": "quality-cleanup: handlers/session.ts:862-863 when a guard session is active, session_brief renders the guard state twice: (1) guard mode: <label> inside the scope protection summary block via renderScopeProtectionSummary, and (2) guard session: <label> from the separately appended renderGuardSessionLine. Both lines call guardSessionStateLabel() on the same session producing identical values; only the key prefix differs (guard mode vs guard session). The redundant line adds noise without new information.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-24T00:44:09.765Z",
+      "reviewRound": "2026-05-24T00:28:24.635Z",
+      "reviewRunId": "B-6bfd:RR-002",
+      "_hash": "07fcaf2ec96d614cee327167c6067cb6f2e3c97c0e1acb1ed523f7522aab3020",
+      "files": [
+        "packages/main/src/handlers/session.ts"
+      ]
+    },
+    {
+      "id": "B-6bfd:F-003",
+      "desc": "quality-cleanup: handlers/scope-contract.ts:233-234 scope_contract_acknowledge sets both hunkDigest (singular) and hunkDigests:[digest] (array) when exactly 1 hunk digest is provided. The two spread conditions — hunkDigests.length===1 → {hunkDigest} and hunkDigests.length>0 → {hunkDigests} — are non-exclusive, so a single-digest acknowledgement always persists both fields. Functionally harmless (ackCoversHunk merges both into a Set), but the stored JSON carries redundant data that misrepresents the hunkDigest=singular vs hunkDigests=multiple semantic split and may confuse future readers/auditors.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-24T11:34:08.745Z",
+      "reviewRound": "2026-05-24T00:54:26.432Z",
+      "reviewRunId": "B-6bfd:RR-005",
+      "_hash": "3c19804d34a4556f1cd34b3e558bb122dd36b2f3df9a50056627266effd574e0",
+      "files": [
+        "packages/main/src/handlers/scope-contract.ts"
+      ]
+    },
+    {
+      "id": "B-6bfd:F-004",
+      "desc": "quality-cleanup: core/config.ts:132 guard_session_check (storyScopedMutating, writes guard-session.json + process event) is listed alongside guard_session_status in the global always-available phase-tool list with comment 'read/check guard session projection; start is phase-scoped below', following the same pattern as scope_contract_show/scope_contract_check whose parallel comment 'read/check scope contract; mutating commands are phase-scoped below' correctly describes both as non-mutating. The comment implies guard_session_check is also non-mutating, but unlike scope_contract_check (ownershipClass readOnly, destructiveRisk none), guard_session_check is storyScopedMutating and is also in the global always-available list (which would normally only hold reads/checks). While the actual ownership enforcement (command-policy.ts) is correct and the gate still rejects non-owner calls, the config.ts comment could mislead future maintainers reviewing why a write command is in the global-all-phases list.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-24T11:50:06.164Z",
+      "reviewRound": "2026-05-24T11:39:36.866Z",
+      "reviewRunId": "B-6bfd:RR-009",
+      "_hash": "2c85570edb575a2dfaa444302d17d8f3695de03d572f0b3aba6148a13cdf30ad",
+      "files": [
+        "packages/main/src/core/config.ts"
+      ]
+    }
+  ]
+}

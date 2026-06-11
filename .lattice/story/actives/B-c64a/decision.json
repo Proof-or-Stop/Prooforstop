@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "用实体文件状态判断 evidence 新鲜度",
+    "兼容旧 headHash evidence",
+    "metadata-only commit 不制造重复劳动"
+  ],
+  "drivers": [
+    "减少重复 verification_evidence_add",
+    "避免真实代码变更漏检",
+    "保持当前 DONE gate 和 validate 输出兼容"
+  ],
+  "options": [
+    {
+      "name": "A: evidence 记录 material tree hash",
+      "pros": [
+        "metadata-only commit 后 hash 不变",
+        "不依赖旧 head 是否可 diff",
+        "可兼容旧 evidence fallback"
+      ],
+      "cons": [
+        "需要扩展 evidence schema 和 smoke"
+      ]
+    },
+    {
+      "name": "B: 扩大 metadata path allowlist",
+      "pros": [
+        "改动更小"
+      ],
+      "cons": [
+        "仍依赖 headHash diff；rebase 或旧 head 不可比较时继续 stale"
+      ]
+    }
+  ],
+  "chosen": "A: evidence 记录 material tree hash",
+  "rationale": "选择 material tree hash，因为用户遇到的是流程 metadata commit 导致重复重录，hash 直接表达被验证实体内容是否变化，比继续修补路径 allowlist 更稳。",
+  "preMortem": [
+    {
+      "scenario": "真实代码变化被误判 fresh",
+      "trigger": "material hash 排除了过多路径",
+      "consequence": "stale gate 失效",
+      "mitigation": "只排除 story metadata/framework audit，保留 src/tests/config/docs requirements 等 material 路径"
+    },
+    {
+      "scenario": "旧 evidence 全部失效",
+      "trigger": "验证逻辑强制要求 materialHash",
+      "consequence": "历史 story validate 失败",
+      "mitigation": "materialHash 缺失时继续走现有 headHash diff fallback"
+    },
+    {
+      "scenario": "非 git 项目报错",
+      "trigger": "计算 git tree hash 失败",
+      "consequence": "verification_evidence_add 或 validate 阻塞",
+      "mitigation": "计算失败时省略 materialHash 并沿用旧 freshness 行为"
+    }
+  ],
+  "timestamp": "2026-04-27T14:15:14.466Z"
+}

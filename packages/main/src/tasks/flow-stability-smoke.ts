@@ -189,7 +189,7 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }));
@@ -256,7 +256,7 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -268,9 +268,9 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
     assert.equal(rename?.originalPath, 'packages/main/src/old.ts');
 
     const classification = classifyGitStatusRows([
-      ' M .koala/story/actives/B-smoke/checklist.json',
+      ' M .lattice/story/actives/B-smoke/checklist.json',
       ' M Docs/story/actives/B-smoke/test-evidence.json',
-      '?? .koala/activity.jsonl',
+      '?? .lattice/activity.jsonl',
       ' M package.json',
       ' D koala.config.json',
       'R  packages/main/src/old.ts -> ./packages/main/src/new.ts',
@@ -286,9 +286,9 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
     assert.equal(classification.groups.fixture_changes.length, 1);
     assert.equal(classification.groups.unexpected_dirty_files.length, 1);
     assert.equal(classification.groups.unexpected_dirty_files[0].path, 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json');
-    assert.equal(classification.groups.runtime_artifact_changes[0].raw, '?? .koala/activity.jsonl');
+    assert.equal(classification.groups.runtime_artifact_changes[0].raw, '?? .lattice/activity.jsonl');
     assert.equal(classification.groups.runtime_artifact_changes[0].statusCode, '??');
-    assert.equal(classification.groups.runtime_artifact_changes[0].rawPath, '.koala/activity.jsonl');
+    assert.equal(classification.groups.runtime_artifact_changes[0].rawPath, '.lattice/activity.jsonl');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -364,8 +364,8 @@ function assertDirtyGatePolicyAcrossGates(): void {
 
   // (3) passing 3 categories coexist → allPass=true with 3 audit events.
   const passingFixture = buildClassification([
-    { category: 'koala_metadata_changes', path: '.koala/story/actives/B-x/index.json' },
-    { category: 'runtime_artifact_changes', path: '.koala/activity.jsonl' },
+    { category: 'koala_metadata_changes', path: '.lattice/story/actives/B-x/index.json' },
+    { category: 'runtime_artifact_changes', path: '.lattice/activity.jsonl' },
     { category: 'declared_artifact_changes', path: 'packages/main/tests/output/declared.json' },
   ]);
   const passingCapture: AuditEvent[] = [];
@@ -411,7 +411,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   // with exactly one audit row, category=runtime_artifact_changes"). Distinct
   // from (5) which covers declared_artifact_changes, and from (3) which mixes
   // all three passing categories.
-  const runtimeOnlyPath = '.koala/activity.jsonl';
+  const runtimeOnlyPath = '.lattice/activity.jsonl';
   const runtimeOnlyResult = evaluateDirtyGate(
     buildClassification([{ category: 'runtime_artifact_changes', path: runtimeOnlyPath }]),
     { storyId: STORY, gate: 'done-gate', writer: null, now: fixedNow },
@@ -486,7 +486,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   // (8) defaultAuditWriter happy path — actually append to a tmp file.
   const tmpRoot = mkdtempSync(join(tmpdir(), 'koala-dirty-audit-'));
   try {
-    const storyDirRel = '.koala/story/actives';
+    const storyDirRel = '.lattice/story/actives';
     mkdirSync(join(tmpRoot, storyDirRel, STORY), { recursive: true });
     const writer = defaultAuditWriter(tmpRoot, storyDirRel, STORY);
     const result = evaluateDirtyGate(passingFixture, {
@@ -514,7 +514,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
 
   // (9) path truncation — >5 paths in a passing category truncate to 5 with
   // pathCount preserved.
-  const manyPaths = Array.from({ length: 8 }, (_, i) => `.koala/story/actives/B-x/file-${i}.json`);
+  const manyPaths = Array.from({ length: 8 }, (_, i) => `.lattice/story/actives/B-x/file-${i}.json`);
   const manyFixture = buildClassification(
     manyPaths.map((p) => ({ category: 'koala_metadata_changes', path: p })),
   );
@@ -735,7 +735,7 @@ function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<st
   const config = {
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
     ...configPatch,
@@ -1860,7 +1860,7 @@ function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       validate: { command: 'node validate-smoke.js' },
       workflow: { profile: 'balanced' },
@@ -2141,8 +2141,8 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     };
     store.writeTestEvidence(storyId, evidence);
     write(root, 'packages/main/src/core/dirty.ts', 'export const dirty = true;\n');
-    write(root, '.koala/activity.jsonl', '{"event":"runtime"}\n');
-    write(root, '.koala/story/actives/B-smoke/dirty-owner.json', '{}\n');
+    write(root, '.lattice/activity.jsonl', '{"event":"runtime"}\n');
+    write(root, '.lattice/story/actives/B-smoke/dirty-owner.json', '{}\n');
     write(root, 'packages/main/tests/fixtures/dirty-owner.json', '{}\n');
     write(root, 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json', '{}\n');
 
@@ -2292,7 +2292,7 @@ function setupAutoCommitFixture(): { root: string; storyId: string } {
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
   }));
   resetConfigCache();
@@ -2302,7 +2302,7 @@ function setupAutoCommitFixture(): { root: string; storyId: string } {
 }
 
 function writeFakeMetadata(root: string, storyId: string, content = '{"x":1}'): void {
-  write(root, `.koala/story/actives/${storyId}/findings.json`, content);
+  write(root, `.lattice/story/actives/${storyId}/findings.json`, content);
 }
 
 function writeMaterialFile(root: string, content = 'export const X = 1;\n'): void {
@@ -2581,7 +2581,7 @@ function assertDeclaredArtifactsChannel(): void {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -2761,7 +2761,7 @@ function assertDeclaredArtifactsChannel(): void {
         rootDir: 'src',
         testsDir: 'packages/main/tests',
         fixturesDir: 'packages/main/tests/fixtures',
-        storyDir: '.koala/story/actives',
+        storyDir: '.lattice/story/actives',
         requirementsDir: 'docs/requirements',
       }));
       resetConfigCache();
@@ -2823,7 +2823,7 @@ function assertDeclaredArtifactGateHotfix(): void {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     resetConfigCache();
@@ -2889,7 +2889,7 @@ function assertDeclaredArtifactGateHotfix(): void {
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
-        path: '.koala/story/actives/B-hotfix/index.json',
+        path: '.lattice/story/actives/B-hotfix/index.json',
         reason: 'attacker tries to declare koala metadata',
         relatedIntent: 'CHK-001:happy:0',
       }),
@@ -2900,22 +2900,22 @@ function assertDeclaredArtifactGateHotfix(): void {
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
-        path: '.koala/activity.jsonl',
+        path: '.lattice/activity.jsonl',
         reason: 'attacker tries to declare a runtime activity log',
         relatedIntent: 'CHK-001:happy:0',
       }),
       /is a runtime artifact, already handled by runtime-artifact-registry/,
-      'artifact_declare must reject a runtime artifact path (.koala/activity.jsonl)',
+      'artifact_declare must reject a runtime artifact path (.lattice/activity.jsonl)',
     );
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
-        path: '.koala-serve.json',
+        path: '.lattice-serve.json',
         reason: 'attacker tries to declare the dev-server handshake file',
         relatedIntent: 'CHK-001:happy:0',
       }),
       /is a runtime artifact, already handled by runtime-artifact-registry/,
-      'artifact_declare must reject a runtime artifact path (.koala-serve.json)',
+      'artifact_declare must reject a runtime artifact path (.lattice-serve.json)',
     );
     // === CHK-002 happy: a tests/output/ generated path is declarable ===
     handlers.artifact_declare({
@@ -3000,7 +3000,7 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }));
     git(root, ['add', '.']);
@@ -3203,7 +3203,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     write(failRoot, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       validate: { commands: [{ label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] }] },
       workflow: { profile: 'balanced' },
@@ -3568,7 +3568,7 @@ function assertProductionHelperPassesProjectRootToClassifier(): void {
  * not unexpected_dirty_files. Verifies three cases:
  *   1. Custom storyDir sub-path → koala_metadata_changes
  *   2. Same-prefix-but-not-storyDir path → unexpected_dirty_files
- *   3. Default .koala/story/ paths still work with projectRoot set
+ *   3. Default .lattice/story/ paths still work with projectRoot set
  * Also verifies that declared/fixture/material precedence rules are not weakened.
  */
 function assertCustomStoryDirDirtyWorktreeClassification(): void {
@@ -3611,14 +3611,14 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
       'workflow/notes.md must be unexpected_dirty_files',
     );
 
-    // 3. Default .koala/story/ paths still work even with projectRoot set.
+    // 3. Default .lattice/story/ paths still work even with projectRoot set.
     const defaultMeta = classifyGitStatusRows(
-      [' M .koala/story/actives/B-xxx/checklist.json'],
+      [' M .lattice/story/actives/B-xxx/checklist.json'],
       opts,
     );
     assert.equal(
       defaultMeta.groups.koala_metadata_changes.length, 1,
-      '.koala/story/ default prefix must still be koala_metadata_changes',
+      '.lattice/story/ default prefix must still be koala_metadata_changes',
     );
 
     // 4. Material source path is NOT reclassified as koala_metadata even if

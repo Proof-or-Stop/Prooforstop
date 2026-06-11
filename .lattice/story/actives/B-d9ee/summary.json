@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d9ee",
+  "changes": "新增 Koala-native grill planning artifact：grill_start/grill_record/grill_close 在 PLAN 写 grill.json，grill_get 全阶段只读；story_review 只 advisory 展示 open/unresolved grill 状态；Store 对 malformed grill.json fail-fast；handler 按目标 story phase 阻止非 PLAN mutation；docs 明确 Grill clarifies intent; evidence proves behavior。",
+  "usage": "在 PLAN 阶段使用本地 CLI：koala grill_start {\"storyId\":\"B-xxx\",\"topic\":\"...\"}，随后 grill_record 记录 answered/unresolved question，grill_close 查看 remainingUnknowns，任意阶段用 grill_get 只读查看。grill transcript 不能替代 verificationEvidence 或 koala validate。",
+  "expectedOutcome": "用户能在 PLAN 中记录澄清问题并关闭 session；未解决问题以 remainingUnknowns 显示；REVIEW/TEST/DONE 等非 PLAN 阶段不能通过 mutating grill command 写入 planning artifact；grill_get 仍可只读查看。",
+  "actualTranscript": "本地 worktree CLI 真机验证：PLAN story B-21e6 的 grill_start 返回 Grill session started: GRILL-001，grill_record 返回 GQ-001/GQ-002，grill_close 返回 status closed 和 remainingUnknowns；TEST story B-ccf7 的 grill_get 返回 empty，grill_start 失败：current phase is TEST, expected PLAN。详见 .koala/story/actives/B-d9ee/evidence/transcript-diff.md。",
+  "outcomeDiff": "accepted: 初次真机验收发现 TEST-phase grill_start 可写入，已在 commit 9fc8f12f 修复为目标 story phase 硬门禁；最终 transcript 与 expected 一致。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for Koala CLI lifecycle/evidence boundaries in this story; grill remains planning context, not a new gate or validation channel.",
+  "pitfalls": "关键坑是不能只依赖 command policy/tool list 说明 PLAN-only；handler 必须按目标 storyId 读取实际 phase 做机械门禁，否则指定 --root 或非 active story 时会绕过生命周期边界。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 209050
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19822
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 312400
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1477007
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 917290
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 192554
+    }
+  },
+  "totalDurationMs": 3128127,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-15T12:18:15.808Z",
+  "updatedAt": "2026-05-15T12:18:15.808Z"
+}

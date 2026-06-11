@@ -1,0 +1,357 @@
+{
+  "command": "koala validate --story=B-6326 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 18/18 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test — Given git status rows for current Koala story metadata such as .koala/story/actives/B-6326/checklist.json, runtime artifacts registered by the runtime artifact registry such as .koala/activity.jsonl or .koala/runtime files, material source and config files such as packages/main/src/core/dirty-worktree.ts and koala.config.json, fixture dirt under packages/main/tests/fixtures, and the undeclared product output packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json, the classifier returns stable typed categories: koala_metadata_changes, runtime_artifact_changes, material_source_changes, fixture_changes, and unexpected_dirty_files.\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via logic_test — The classifier uses existing story metadata and runtime artifact registry knowledge rather than duplicated broad path heuristics, so each returned category includes the original git status row and the path that caused the category.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — Current .koala/story metadata and legacy docs/story metadata paths classify as Koala metadata without being counted as material source changes or material hash drift; runtime paths only classify as runtime artifacts when covered by runtime-artifact-registry semantics.\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via logic_test — Declared product artifacts, if explicitly declared by project config or a later registry, are separated from unexpected dirty files, while undeclared product output under tests/output remains unexpected in this story.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test — The classifier must not silently ignore or downgrade material source/config changes, fixture changes, or unexpected files; classification is explanatory and must not relax the blocking strategy.\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via logic_test — The BL21 lacZ viewer path packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json remains unexpected_dirty_files when it has not been explicitly declared, even though it looks like a generated product output.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test — When TEST or DONE pre-check, or koala validate validation-executor side-effect guard, sees mixed dirty rows, the git working tree detail and hint surface group paths by the shared dirty classifier vocabulary, including koala_metadata_changes, runtime_artifact_changes, material_source_changes, fixture_changes, and unexpected_dirty_files, instead of showing only an undifferentiated raw git status list.\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via integration_test — The user-visible hint makes self-written Koala evidence and runtime files distinguishable from product artifacts and material source drift while still showing the original dirty paths needed to act, and validation-executor worktree pollution details reuse those same category labels.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test — A dirty set containing both safe-looking Koala metadata and a real unexpected file still renders every category and still highlights unexpected_dirty_files as requiring cleanup or declaration before progression, including in koala validate side-effect guard output.\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via integration_test — TEST, DONE, and koala validate hint formatting handles empty categories, single-item categories, and multi-item categories without hiding source/config or fixture dirt behind metadata rows.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test — This story does not loosen the existing TEST, DONE, or validation-executor side-effect guard blocking strategy: categorized material source/config changes, fixture changes, and unexpected dirty files remain blockers wherever the previous gate policy blocked dirty state, and side-effect guard failure must remain a failure.\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via integration_test — The DONE gate and koala validate side-effect guard hint must not imply that undeclared product outputs are acceptable; packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json must appear under unexpected_dirty_files and the hint must tell the user it is still blocking until declared or removed.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — Focused smoke coverage exercises concrete examples for Koala metadata, runtime artifacts from runtime-artifact-registry, material source/config dirt, fixture dirt, and the undeclared BL21 lacZ product output path, asserting both classifier category results and user-facing gate hint text.\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via integration_test — Smoke evidence covers the dirty ownership classifier, lifecycle gate surfaces, and koala validate validation-executor side-effect guard together, so TEST/DONE output and validation-executor worktree pollution details are proven to consume the typed categories rather than reimplementing raw path grouping.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test — Smoke cases include representative git status row shapes such as modified, untracked, deleted, and nested paths so category assignment is driven by normalized paths rather than a single happy-path status code.\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via logic_test — Runtime artifact examples are derived from registry-backed paths, while source/config and fixture examples prove those categories are not accidentally swallowed by runtime or Koala metadata patterns, and validate pollution detail output keeps the same dirty classifier vocabulary.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test — A regression test fails if packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json is treated as declared, runtime, fixture, or ignored output before an explicit declaration exists; it must remain unexpected_dirty_files in this story.\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via integration_test — A regression test fails if categorized dirty output makes TEST, DONE, or koala validate side-effect guard pass by relaxing blockers instead of only improving explanation and remediation hints; side-effect guard failure must not be downgraded.\"],\"warnings\":[],\"timestamp\":\"2026-05-15T12:48:52.949Z\",\"headSha\":\"32e0f3b4da641e36d38b1d0e02c6f73d0b4fec8c\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":909}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":18,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Given git status rows for current Koala story metadata such as .koala/story/actives/B-6326/checklist.json, runtime artifacts registered by the runtime artifact registry such as .koala/activity.jsonl or .koala/runtime files, material source and config files such as packages/main/src/core/dirty-worktree.ts and koala.config.json, fixture dirt under packages/main/tests/fixtures, and the undeclared product output packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json, the classifier returns stable typed categories: koala_metadata_changes, runtime_artifact_changes, material_source_changes, fixture_changes, and unexpected_dirty_files.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Flow stability smoke asserts classifier categories for .koala/story metadata, registry-backed .koala/activity runtime artifact, material package/source/rename rows, fixture rows, and packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json as unexpected_dirty_files.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The classifier uses existing story metadata and runtime artifact registry knowledge rather than duplicated broad path heuristics, so each returned category includes the original git status row and the path that caused the category.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Classifier smoke asserts parseGitPorcelainRow preserves raw row, statusCode, rawPath and normalized rename path while using isStoryMetadataPath and runtime artifact registry classification.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Current .koala/story metadata and legacy docs/story metadata paths classify as Koala metadata without being counted as material source changes or material hash drift; runtime paths only classify as runtime artifacts when covered by runtime-artifact-registry semantics.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers .koala/story metadata separately from registry runtime artifacts, so metadata is not material source and runtime paths depend on runtime-artifact-registry semantics.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Declared product artifacts, if explicitly declared by project config or a later registry, are separated from unexpected dirty files, while undeclared product output under tests/output remains unexpected in this story.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Declared artifact group is asserted empty by default, while the undeclared BL21 lacZ tests/output product path remains unexpected_dirty_files.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The classifier must not silently ignore or downgrade material source/config changes, fixture changes, or unexpected files; classification is explanatory and must not relax the blocking strategy.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Classifier smoke asserts material_source_changes, fixture_changes, and unexpected_dirty_files are retained as explicit categories instead of ignored or downgraded.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The BL21 lacZ viewer path packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json remains unexpected_dirty_files when it has not been explicitly declared, even though it looks like a generated product output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json is asserted under unexpected_dirty_files when no declaration exists.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"When TEST or DONE pre-check, or koala validate validation-executor side-effect guard, sees mixed dirty rows, the git working tree detail and hint surface group paths by the shared dirty classifier vocabulary, including koala_metadata_changes, runtime_artifact_changes, material_source_changes, fixture_changes, and unexpected_dirty_files, instead of showing only an undifferentiated raw git status list.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Flow stability smoke covers DONE git-working-tree detail and hint grouped by dirty classifier vocabulary; validation protocol smoke covers validation-executor side-effect guard details using the same vocabulary.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The user-visible hint makes self-written Koala evidence and runtime files distinguishable from product artifacts and material source drift while still showing the original dirty paths needed to act, and validation-executor worktree pollution details reuse those same category labels.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"DONE hint and validation pollution details retain original dirty rows and paths while separating Koala metadata/runtime artifacts from source, fixture, and unexpected files.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A dirty set containing both safe-looking Koala metadata and a real unexpected file still renders every category and still highlights unexpected_dirty_files as requiring cleanup or declaration before progression, including in koala validate side-effect guard output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Mixed dirty sets with Koala metadata plus the BL21 lacZ product path render every category and keep unexpected_dirty_files visible as blocking.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"TEST, DONE, and koala validate hint formatting handles empty categories, single-item categories, and multi-item categories without hiding source/config or fixture dirt behind metadata rows.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Renderer tests cover populated multi-category groups, single runtime and fixture groups, and validation fallback output without hiding source/config or fixture dirt.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"This story does not loosen the existing TEST, DONE, or validation-executor side-effect guard blocking strategy: categorized material source/config changes, fixture changes, and unexpected dirty files remain blockers wherever the previous gate policy blocked dirty state, and side-effect guard failure must remain a failure.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"DONE git-working-tree row remains status fail with blocking true, and validation side-effect guard returns status fail/allPass false when categorized pollution exists.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The DONE gate and koala validate side-effect guard hint must not imply that undeclared product outputs are acceptable; packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json must appear under unexpected_dirty_files and the hint must tell the user it is still blocking until declared or removed.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"The exact packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json path is asserted under unexpected_dirty_files in gate and validation pollution output.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Focused smoke coverage exercises concrete examples for Koala metadata, runtime artifacts from runtime-artifact-registry, material source/config dirt, fixture dirt, and the undeclared BL21 lacZ product output path, asserting both classifier category results and user-facing gate hint text.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Focused flow stability smoke exercises concrete Koala metadata, registry runtime artifact, material source/config, fixture, and exact undeclared BL21 lacZ product output examples.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke evidence covers the dirty ownership classifier, lifecycle gate surfaces, and koala validate validation-executor side-effect guard together, so TEST/DONE output and validation-executor worktree pollution details are proven to consume the typed categories rather than reimplementing raw path grouping.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Smoke coverage spans the classifier, DONE lifecycle gate surface, and validation-executor pollution details, proving consumers use typed categories rather than raw-only grouping.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Smoke cases include representative git status row shapes such as modified, untracked, deleted, and nested paths so category assignment is driven by normalized paths rather than a single happy-path status code.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Classifier smoke includes modified, deleted, renamed, untracked, and nested path porcelain rows, with normalized rename destination and original path assertions.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Runtime artifact examples are derived from registry-backed paths, while source/config and fixture examples prove those categories are not accidentally swallowed by runtime or Koala metadata patterns, and validate pollution detail output keeps the same dirty classifier vocabulary.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Runtime examples use registry-backed .koala/activity, source/config and fixture examples remain separate, validation details keep the same vocabulary, and verification freshness still separates story metadata/runtime artifact exclusions from material source/config files.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A regression test fails if packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json is treated as declared, runtime, fixture, or ignored output before an explicit declaration exists; it must remain unexpected_dirty_files in this story.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Regression assertions fail if packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json leaves unexpected_dirty_files before an explicit declaration exists.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A regression test fails if categorized dirty output makes TEST, DONE, or koala validate side-effect guard pass by relaxing blockers instead of only improving explanation and remediation hints; side-effect guard failure must not be downgraded.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"DONE gate remains blocking and validation side-effect guard remains fail/allPass false when categorized dirty output is present.\",\"headHash\":\"9ded533fc6eff456c870897b4bb7a1ca3ea59584\",\"materialHash\":\"348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1\",\"timestamp\":\"2026-05-15T12:28:23.272Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-15T12:48:53.391Z",
+  "headHash": "32e0f3b4da641e36d38b1d0e02c6f73d0b4fec8c",
+  "verificationCoverage": {
+    "total": 18,
+    "required": 18,
+    "covered": 18,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Given git status rows for current Koala story metadata such as .koala/story/actives/B-6326/checklist.json, runtime artifacts registered by the runtime artifact registry such as .koala/activity.jsonl or .koala/runtime files, material source and config files such as packages/main/src/core/dirty-worktree.ts and koala.config.json, fixture dirt under packages/main/tests/fixtures, and the undeclared product output packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json, the classifier returns stable typed categories: koala_metadata_changes, runtime_artifact_changes, material_source_changes, fixture_changes, and unexpected_dirty_files.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Flow stability smoke asserts classifier categories for .koala/story metadata, registry-backed .koala/activity runtime artifact, material package/source/rename rows, fixture rows, and packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json as unexpected_dirty_files.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The classifier uses existing story metadata and runtime artifact registry knowledge rather than duplicated broad path heuristics, so each returned category includes the original git status row and the path that caused the category.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Classifier smoke asserts parseGitPorcelainRow preserves raw row, statusCode, rawPath and normalized rename path while using isStoryMetadataPath and runtime artifact registry classification.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Current .koala/story metadata and legacy docs/story metadata paths classify as Koala metadata without being counted as material source changes or material hash drift; runtime paths only classify as runtime artifacts when covered by runtime-artifact-registry semantics.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke covers .koala/story metadata separately from registry runtime artifacts, so metadata is not material source and runtime paths depend on runtime-artifact-registry semantics.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Declared product artifacts, if explicitly declared by project config or a later registry, are separated from unexpected dirty files, while undeclared product output under tests/output remains unexpected in this story.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Declared artifact group is asserted empty by default, while the undeclared BL21 lacZ tests/output product path remains unexpected_dirty_files.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The classifier must not silently ignore or downgrade material source/config changes, fixture changes, or unexpected files; classification is explanatory and must not relax the blocking strategy.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Classifier smoke asserts material_source_changes, fixture_changes, and unexpected_dirty_files are retained as explicit categories instead of ignored or downgraded.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The BL21 lacZ viewer path packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json remains unexpected_dirty_files when it has not been explicitly declared, even though it looks like a generated product output.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json is asserted under unexpected_dirty_files when no declaration exists.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "When TEST or DONE pre-check, or koala validate validation-executor side-effect guard, sees mixed dirty rows, the git working tree detail and hint surface group paths by the shared dirty classifier vocabulary, including koala_metadata_changes, runtime_artifact_changes, material_source_changes, fixture_changes, and unexpected_dirty_files, instead of showing only an undifferentiated raw git status list.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Flow stability smoke covers DONE git-working-tree detail and hint grouped by dirty classifier vocabulary; validation protocol smoke covers validation-executor side-effect guard details using the same vocabulary.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The user-visible hint makes self-written Koala evidence and runtime files distinguishable from product artifacts and material source drift while still showing the original dirty paths needed to act, and validation-executor worktree pollution details reuse those same category labels.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "DONE hint and validation pollution details retain original dirty rows and paths while separating Koala metadata/runtime artifacts from source, fixture, and unexpected files.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "A dirty set containing both safe-looking Koala metadata and a real unexpected file still renders every category and still highlights unexpected_dirty_files as requiring cleanup or declaration before progression, including in koala validate side-effect guard output.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Mixed dirty sets with Koala metadata plus the BL21 lacZ product path render every category and keep unexpected_dirty_files visible as blocking.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "TEST, DONE, and koala validate hint formatting handles empty categories, single-item categories, and multi-item categories without hiding source/config or fixture dirt behind metadata rows.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Renderer tests cover populated multi-category groups, single runtime and fixture groups, and validation fallback output without hiding source/config or fixture dirt.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "This story does not loosen the existing TEST, DONE, or validation-executor side-effect guard blocking strategy: categorized material source/config changes, fixture changes, and unexpected dirty files remain blockers wherever the previous gate policy blocked dirty state, and side-effect guard failure must remain a failure.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "DONE git-working-tree row remains status fail with blocking true, and validation side-effect guard returns status fail/allPass false when categorized pollution exists.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The DONE gate and koala validate side-effect guard hint must not imply that undeclared product outputs are acceptable; packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json must appear under unexpected_dirty_files and the hint must tell the user it is still blocking until declared or removed.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "The exact packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json path is asserted under unexpected_dirty_files in gate and validation pollution output.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Focused smoke coverage exercises concrete examples for Koala metadata, runtime artifacts from runtime-artifact-registry, material source/config dirt, fixture dirt, and the undeclared BL21 lacZ product output path, asserting both classifier category results and user-facing gate hint text.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Focused flow stability smoke exercises concrete Koala metadata, registry runtime artifact, material source/config, fixture, and exact undeclared BL21 lacZ product output examples.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Smoke evidence covers the dirty ownership classifier, lifecycle gate surfaces, and koala validate validation-executor side-effect guard together, so TEST/DONE output and validation-executor worktree pollution details are proven to consume the typed categories rather than reimplementing raw path grouping.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke coverage spans the classifier, DONE lifecycle gate surface, and validation-executor pollution details, proving consumers use typed categories rather than raw-only grouping.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Smoke cases include representative git status row shapes such as modified, untracked, deleted, and nested paths so category assignment is driven by normalized paths rather than a single happy-path status code.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Classifier smoke includes modified, deleted, renamed, untracked, and nested path porcelain rows, with normalized rename destination and original path assertions.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Runtime artifact examples are derived from registry-backed paths, while source/config and fixture examples prove those categories are not accidentally swallowed by runtime or Koala metadata patterns, and validate pollution detail output keeps the same dirty classifier vocabulary.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Runtime examples use registry-backed .koala/activity, source/config and fixture examples remain separate, validation details keep the same vocabulary, and verification freshness still separates story metadata/runtime artifact exclusions from material source/config files.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A regression test fails if packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json is treated as declared, runtime, fixture, or ignored output before an explicit declaration exists; it must remain unexpected_dirty_files in this story.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Regression assertions fail if packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json leaves unexpected_dirty_files before an explicit declaration exists.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A regression test fails if categorized dirty output makes TEST, DONE, or koala validate side-effect guard pass by relaxing blockers instead of only improving explanation and remediation hints; side-effect guard failure must not be downgraded.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "DONE gate remains blocking and validation side-effect guard remains fail/allPass false when categorized dirty output is present.",
+          "headHash": "9ded533fc6eff456c870897b4bb7a1ca3ea59584",
+          "materialHash": "348d51f4b1d61fa5d01016caa465851b97dc3e342b23bf0163264676d05606d1",
+          "timestamp": "2026-05-15T12:28:23.272Z"
+        }
+      }
+    ]
+  }
+}

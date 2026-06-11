@@ -1,0 +1,46 @@
+{
+  "storyId": "B-c600",
+  "checkedAt": "2026-05-18T00:02:58.077Z",
+  "reviewRound": "2026-05-17T23:55:27.801Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "`npm run package:desktop:host` builds a standalone host binary at `dist/desktop/koala-<platform>-<arch>`.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Reviewer reran npm run package:desktop:host in the story worktree and it recreated dist/desktop/koala-macos-arm64."
+    },
+    {
+      "docPath": "README.md",
+      "promise": "`npm run test:desktop-package` smoke-tests the packaged binary directly.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Reviewer reran npm run test:desktop-package and the packaged executable smoke passed against dist/desktop/koala-macos-arm64."
+    },
+    {
+      "docPath": "README.md",
+      "promise": "README documents the release command and archived pkg caveat for desktop distribution.",
+      "status": "verified",
+      "verifiedBy": "diff",
+      "evidence": "Desktop binary packaging section includes package:desktop:release and states the upstream Vercel pkg project is archived with 5.8.1 as the last release."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run package:desktop:host completed in the story worktree and recreated dist/desktop/koala-macos-arm64 via pkg."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:desktop-package executed the packaged binary directly and printed packaged executable smoke passed for dist/desktop/koala-macos-arm64."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Accepted: the maintainer-facing host packaging flow recreated a standalone Koala binary, the smoke path exercised that packaged binary directly, and the README documents the release command plus the archived pkg caveat."
+  },
+  "_hash": "1bd32f4a627853a2a745e42487dd1ef2a43101ce9017aa9c803c19f3b685b7c0"
+}

@@ -1,0 +1,29 @@
+{
+  "storyId": "B-b95c",
+  "checkedAt": "2026-06-02T21:37:37.423Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-02T21:37:37.423Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-02T21:37:37.423Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Current Codex tool surface in this thread does not expose generic Agent subagent spawning, so I cannot run koala-review-story-init and product-reviewer as independent subagents. I manually inspected the created background/checklist scope: it has four required background sections, concrete Lattice-vs-Koala compatibility goals, docs/code/test checklist items, and no critical/high INIT blocker before worktree creation.",
+    "actor": "Harmonygo",
+    "session": "sess-lattice-brand-init",
+    "attestedAt": "2026-06-02T21:37:37.423Z",
+    "headHash": "c846ce9bc7037eb3454e9c0917b511622c3f9040",
+    "materialHash": "501df1321eda6e1481869639384f34e8e17ec1bbba403decacec9e640585c8e4"
+  },
+  "_hash": "a90f8150c411b26ff6243db741ffcc49a03af76082725761bd5e2582f81f76c7"
+}

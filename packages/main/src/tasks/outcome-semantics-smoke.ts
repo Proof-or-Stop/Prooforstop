@@ -30,7 +30,7 @@ function configureRoot(root: string): void {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   resetConfigCache();

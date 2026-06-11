@@ -1,0 +1,56 @@
+{
+  "storyId": "B-39d9",
+  "changes": "Added a shared runtimeMode contract in runtime-environment-checks, wired check/doctor JSON and plain text to it, added managed asset next-action guidance, and extended validation-protocol smoke coverage for runtimeMode enums, CLI first-screen UX, unsafe managed asset boundaries, and packaged-runtime conflict degradation.",
+  "usage": "Use node packages/main/dist/cli.js check --json or doctor --format=json to read top-level runtimeMode; use plain check/doctor to see the Runtime footprint block before detailed diagnostics. Koala Mac B-3e9a must consume this through node bin/koala.js check/doctor wrapper commands.",
+  "expectedOutcome": "Plain check and doctor first show Runtime footprint, Runtime mode, Project-local JavaScript runtime required, Authority, and Next action. JSON check and doctor expose the same top-level runtimeMode. Project-local JavaScript is required only for project-local-package.",
+  "actualTranscript": "node packages/main/dist/cli.js check --json showed runtimeMode mode=compatibility-launcher source=repo-local-dist requiresProjectJavaScriptRuntime=false authority=local-runtime-diagnostic-only. node packages/main/dist/cli.js doctor --format=json showed matching top-level runtimeMode and runtime.runtimeMode. Plain check and doctor both started with Runtime footprint, Runtime mode: compatibility-launcher, Project-local JavaScript runtime required: no, Authority: local-runtime-diagnostic-only, and Next action. koala validate --story=B-39d9 --json passed with 12/12 verification intents covered.",
+  "outcomeDiff": "Actual matches expected for core CLI. The only intended difference is scope: B-39d9 proves core dist CLI readiness, while Koala Mac wrapper proof is intentionally left to B-3e9a.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Core story only: Koala Mac wrapper commands are not claimed here and remain B-3e9a evidence. RuntimeMode is diagnostic-only and not production authority evidence.",
+  "pitfalls": "Packaged runtime initially short-circuited local-bin conflict detection; reviewer caught it, and the fix now checks project-local bin conflicts before accepting packaged-runtime. Dist CLI evidence was also needed because bare koala resolves to the global/main install on this machine.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 861334
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 15581
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 297330
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1052732
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 778742
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 73269
+    }
+  },
+  "totalDurationMs": 3078993,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-01T17:03:21.523Z",
+  "updatedAt": "2026-06-01T17:03:21.523Z"
+}

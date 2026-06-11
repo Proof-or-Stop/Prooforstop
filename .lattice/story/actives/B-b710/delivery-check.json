@@ -1,0 +1,53 @@
+{
+  "storyId": "B-b710",
+  "checkedAt": "2026-06-02T18:03:18.379Z",
+  "reviewRound": "2026-06-02T17:46:40.609Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md#authority-modes-off--shadow--enforce",
+      "promise": "README documents off/shadow/enforce readiness semantics: off is default free local workflow with zero network; shadow is observational; enforce is reserved for the future runner path and requires Python authority + actor key + runner identity. All three keep localWorkflowUsable=true and never claim productionDone/receiptVerified/canClaimProductionDone.",
+      "status": "verified",
+      "verifiedBy": "diff+grep+smoke",
+      "evidence": "git diff main...HEAD README.md adds 'Authority modes (off / shadow / enforce)' section with mode table, env probe commands, and an 'Important boundary' paragraph saying local JSON output is not authority evidence and productionDone stays false until a signed AuthorityReceipt is verified. Mechanical guarantee: npm run test:authority-status-smoke (assertNoProductionOverclaim covers off/shadow/enforce/full-env)."
+    },
+    {
+      "docPath": "docs/guide.md#authority-模式off--shadow--enforce",
+      "promise": "docs/guide.md mirrors README in Chinese: KOALA_AUTHORITY_MODE off is default free/local workflow; shadow observes; enforce reserved for future runner. Local lifecycle gates (story_advance / verification_evidence_add / DONE) never read server receipts; missing enforce prerequisites are readinessWarnings, not global blockers; productionDone/receiptVerified/canClaimProductionDone stay false even with all env set.",
+      "status": "verified",
+      "verifiedBy": "diff+link-resolve+smoke",
+      "evidence": "git diff main...HEAD docs/guide.md adds Chinese 'Authority 模式：off / shadow / enforce' section consistent with README table and includes a working relative link `[requirements/decisions/authority-client-role.md](requirements/decisions/authority-client-role.md)`; node fs.existsSync confirms the link resolves to docs/requirements/decisions/authority-client-role.md (verified at review time). Same mechanical smoke (npm run test:authority-status-smoke) covers the underlying JSON contract."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#b-b710--enforce-readiness-diagnostics-milestones-3-4",
+      "promise": "PD-1/PD-2 trust-boundary doc explicitly records B-b710 milestones 3-4: local JSON / status output is non-authoritative, productionDone and receiptVerified stay false until a future receipt-backed runner verifies a signed AuthorityReceipt, and missing enforce prerequisites become readinessWarnings, not global blockers. Mechanical guard cited: packages/main/src/tasks/authority-status-smoke.ts.",
+      "status": "verified",
+      "verifiedBy": "diff+grep+smoke",
+      "evidence": "git diff main...HEAD docs/requirements/decisions/authority-client-role.md adds a 'B-b710 — Enforce Readiness Diagnostics (Milestones 3-4)' subsection with the new JSON field table, the four preserved constraints (no overclaim, authorityChanged stays false, local workflow never blocked, env vars are diagnostic only), and a cross-link to README/docs/guide.md. Smoke test name matches the doc and currently passes (✓ authority status readiness smoke passed)."
+    },
+    {
+      "docPath": "package.json#scripts.test:authority-status-smoke",
+      "promise": "npm run test:authority-status-smoke mechanically validates that no production overclaim is possible — assertNoProductionOverclaim walks authority_status / conduit_status / conduit_explain JSON for off/shadow/enforce/full-env states and fails if productionDone, receiptVerified, canClaimProductionDone, or authorityChanged ever flips to true without a verified receipt.",
+      "status": "verified",
+      "verifiedBy": "run-command",
+      "evidence": "Re-ran `npm run test:authority-status-smoke` during delivery review at HEAD; output: '✓ authority status readiness smoke passed'. Diff adds the script at root package.json and packages/main/package.json delegating to dist/tasks/authority-status-smoke.js, which is the same task file referenced by the verificationEvidence entries on CHK-001 and CHK-002."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": ".koala/story/actives/B-b710/evidence/transcript-diff.md captures the CLI transcript: `node packages/main/dist/cli.js --root . authority_status --json` → mode=off, localWorkflowUsable=true, productionDone=false, canClaimProductionDone=false, readinessWarnings=[]; `KOALA_AUTHORITY_MODE=enforce node packages/main/dist/cli.js --root . authority_status --json` → mode=enforce with three readinessWarnings (URL empty, no actor key, runner id empty) while productionDone/receiptVerified/canClaimProductionDone all stay false and localWorkflowUsable=true. Outcome diff section explicitly says 'No user-visible mismatch.'"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same transcript-diff.md plus README/docs/guide.md/authority-client-role.md doc updates: enforce mode shows actionable warnings (KOALA_AUTHORITY_URL empty, missing KOALA_AUTHORITY_ACTOR_KEY/_PATH, KOALA_AUTHORITY_RUNNER_ID empty) and the closing line records `npm run test:authority-status-smoke` → '✓ authority status readiness smoke passed', proving the docs/CLI contract (off=default free local; shadow observes; enforce requires server+actor key+runner identity) is mechanically guarded against silent regression."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-b710 delivers enforce readiness diagnostics with explicit off/shadow/enforce semantics in README, docs/guide.md, and authority-client-role.md; transcript-diff.md captures off-mode and enforce-mode CLI sessions (CHK-001/CHK-002) and the npm run test:authority-status-smoke pass. Doc link to authority-client-role.md resolves; smoke re-run during review still passes. No delivery blocker remains."
+  },
+  "_hash": "5faeae8ab1e72b34f5b25c8e393dce3bfb7395fac2a1e30419727f224da75e68"
+}

@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Fresh project assets should be declarative and minimal; executable adapter behavior belongs to the global lattice CLI.",
+    "Legacy compatibility is a runtime/resolver responsibility, not a reason to keep legacy assets in new projects by default.",
+    "Migration commands must be non-destructive unless the user asks for pruning explicitly.",
+    "Codex/Claude host conventions should remain thin pointers unless a full asset mode is explicitly selected."
+  ],
+  "drivers": [
+    "User wants new projects to stop scattering many Markdown and shim files.",
+    "Existing projects must keep working without forced migration.",
+    "REVIEW/DONE gates need hard evidence from global commands and smoke tests, not prose claims."
+  ],
+  "options": [
+    {
+      "name": "keep-current-lattice-local-shim-default",
+      "pros": [
+        "Smallest code change",
+        "Keeps existing verify_codex assumptions untouched"
+      ],
+      "cons": [
+        "Does not answer the user concern",
+        "Continues to imply every project needs bin/lattice-codex.js",
+        "Leaves product shape cluttered"
+      ]
+    },
+    {
+      "name": "global-thin-default-with-legacy-compat",
+      "pros": [
+        "Fresh init becomes clean and product-aligned",
+        "Global CLI owns execution consistently",
+        "Old local shim projects remain supported",
+        "Tests can prove both minimal and legacy paths"
+      ],
+      "cons": [
+        "Requires resolver and adapter check changes",
+        "Requires careful managed asset migration semantics"
+      ]
+    },
+    {
+      "name": "hard-migrate-and-prune-legacy-assets",
+      "pros": [
+        "End state is very clean",
+        "Reduces long-term support matrix"
+      ],
+      "cons": [
+        "High breakage risk",
+        "Violates non-destructive migration requirement",
+        "Could delete user-edited local assets"
+      ]
+    }
+  ],
+  "chosen": "global-thin-default-with-legacy-compat",
+  "rationale": "This option directly satisfies the user-visible clean file tree while preserving old projects and moving executable behavior to global lattice commands.",
+  "preMortem": [
+    {
+      "scenario": "Fresh init still generates forbidden local shim or .Codex assets.",
+      "trigger": "Init path reuses old wantsCodex/default wrapper branches or managed registry still lists .Codex assets for thin mode.",
+      "consequence": "User still sees the clutter they objected to and the story fails product acceptance.",
+      "mitigation": "Add fresh init smoke with explicit forbidden asset assertions for bin/lattice*.js, .Codex/README.md, .Codex/agents, .Codex/lattice.json and KOALA.md."
+    },
+    {
+      "scenario": "Global lattice codex verify fails in a new minimal project because it requires local wrapper heartbeat.",
+      "trigger": "codex-adapter-checks treats missing bin/lattice-codex.js as hard fail for all modes.",
+      "consequence": "Removing local shim breaks the verification workflow and REVIEW/DONE evidence cannot be produced.",
+      "mitigation": "Make local wrapper heartbeat conditional on legacy/full/local-shim assets, and add a smoke that runs global verify/doctor without local bin wrapper."
+    },
+    {
+      "scenario": "check --apply deletes or overwrites legacy assets.",
+      "trigger": "Managed asset apply path treats legacy Koala/Codex assets as remove-extra or stale-safe in default mode.",
+      "consequence": "Old projects lose user-edited guidance or wrapper behavior, violating non-destructive migration.",
+      "mitigation": "Keep legacy assets as compatibility/advisory by default; require explicit prune option for deletion and test default non-deletion."
+    },
+    {
+      "scenario": "Resolver picks the wrong config when .Lattice and .Codex manifests coexist.",
+      "trigger": "Existing detection order prefers .Codex/lattice.json before .Lattice/lattice.json.",
+      "consequence": "New canonical config is ignored, creating confusing diagnostics and migration drift.",
+      "mitigation": "Set resolver priority to .Lattice/lattice.json first and cover mixed-path cases in legacy smoke."
+    }
+  ],
+  "timestamp": "2026-06-03T18:43:39.978Z"
+}

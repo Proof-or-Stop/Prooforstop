@@ -1,0 +1,56 @@
+{
+  "storyId": "B-69bf",
+  "changes": "Added packages/main/src/core/runtime-artifact-registry.ts as the single source of truth for runtime artifacts; wired evidence freshness, baseline risk, story dirty filtering, koala init .gitignore merge, and doctor tracked-artifact reporting and repair to it; updated validation smokes and docs; hardened doctor repair command shell quoting after F-001.",
+  "usage": "Run koala init in an existing project to merge managed runtime ignore rules. Run koala doctor to see tracked runtime artifacts and koala doctor --repair to untrack repairable artifacts. Standard validation remains koala validate --story=B-69bf plus the npm smoke commands.",
+  "expectedOutcome": "Older projects with tracked .koala/activity.jsonl no longer make every Koala command stale materialHash evidence. Doctor points to safe repair, while real source, config, docs, and package changes still stale evidence.",
+  "actualTranscript": "koala validate --story=B-69bf passed with npm test and 15/15 verification intents covered. test:verification-freshness-smoke, test:validation-protocol, test:entrypoints 23/23, verify-worktree-baseline-risk, runtime-fact-contract, build, and npm test all passed. Reviewer F-001 found an unsafe double-quoted repair snippet; it was fixed with POSIX single-quote escaping and a metacharacter regression.",
+  "outcomeDiff": "No functional gap observed; F-001 was an extra review-discovered hardening issue and was fixed before DONE.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for CLI runtime artifact behavior; doctor --repair is explicit and does not run unless requested.",
+  "pitfalls": "Initial review found shell metacharacter risk in the pasteable git rm command; evidence had to be refreshed after material commits because HEAD changed; runtime artifacts are intentionally separate from process-fact and runtime-fact registries.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 119145
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12030
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 424621
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1783179
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 10124228
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 51708
+    }
+  },
+  "totalDurationMs": 12514922,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-13T13:11:47.740Z",
+  "updatedAt": "2026-05-13T13:11:47.740Z"
+}

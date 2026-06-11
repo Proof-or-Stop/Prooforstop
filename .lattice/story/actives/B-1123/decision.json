@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Contracts mirror authority server semantics but remain host-neutral.",
+    "Cryptographic helpers are deterministic and testable without contacting the server.",
+    "No receipt, no production authority claim.",
+    "Endpoint methods are typed wrappers around existing AuthorityClient configuration."
+  ],
+  "drivers": [
+    "Need Python/Mac/TS convergence for future enforce runner work.",
+    "Need local/off users to remain unblocked.",
+    "Need tests that prove signing and client endpoints without requiring a live server."
+  ],
+  "options": [
+    {
+      "name": "A: extend current AuthorityClient plus small contract/signing modules",
+      "pros": [
+        "Reuses existing authority configuration and error handling",
+        "Keeps implementation reviewable",
+        "Creates reusable primitives for later runner milestones"
+      ],
+      "cons": [
+        "Does not by itself execute provider CLIs or submit verifier evidence"
+      ]
+    },
+    {
+      "name": "B: build a standalone runner package now",
+      "pros": [
+        "Could isolate runner code early",
+        "Might reduce future CLI-engine coupling"
+      ],
+      "cons": [
+        "Larger blast radius",
+        "Duplicates authority URL/mode handling",
+        "Harder to finish with focused smoke tests"
+      ]
+    }
+  ],
+  "chosen": "A: extend current AuthorityClient plus small contract/signing modules",
+  "rationale": "This story is the foundation layer for milestones 1-2, so extending the existing authority client with focused contract/signing modules gives convergence without overclaiming production runner behavior.",
+  "preMortem": [
+    {
+      "scenario": "Signing helper canonicalization differs from server",
+      "trigger": "Objects with reordered keys or nested arrays hash differently",
+      "consequence": "Receipts or envelopes cannot be verified later",
+      "mitigation": "Smoke tests cover deterministic canonical bytes and reordered object equality."
+    },
+    {
+      "scenario": "Client endpoint wrappers silently mutate in off mode",
+      "trigger": "Authority URL is absent but runner method still attempts network I/O",
+      "consequence": "Local users are blocked or confused",
+      "mitigation": "Client smoke covers missing URL/off behavior as controlled failure or zero calls where applicable."
+    },
+    {
+      "scenario": "New helpers accidentally classify local evidence as L2+",
+      "trigger": "Boundary classifier treats signed local envelope as receipt-backed",
+      "consequence": "Fact/process anti-forgery guarantees are overstated",
+      "mitigation": "Adversarial test keeps productionDone/receipt-backed classification false without verified authority receipt."
+    }
+  ],
+  "timestamp": "2026-06-02T17:09:18.474Z"
+}

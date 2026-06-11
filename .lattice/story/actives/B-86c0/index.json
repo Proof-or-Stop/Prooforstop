@@ -1,0 +1,87 @@
+{
+  "storyId": "B-86c0",
+  "name": "activity-log-runtime-store",
+  "title": "将 Koala activity log 迁出 docs/story 运行时目录",
+  "description": "将 Koala 运行时 activity log 从 docs/story/activity.jsonl 迁移到 .koala/activity.jsonl。新命令默认写 .koala/activity.jsonl，session_brief/stale detector/tool_status 等读新旧两处日志以兼容历史；docs/story/activity.jsonl 仅作为 legacy read-only 来源，不再参与写入、DONE、merge、baseline。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/stale-detector.ts",
+    "packages/utils/src/handlers/tool-status.ts",
+    "packages/main/src/core/baseline-risk.ts"
+  ],
+  "createdAt": "2026-04-19T23:56:30.216Z",
+  "startedAt": "2026-04-19T23:56:30.216Z",
+  "endedAt": "2026-04-20T00:05:45.360Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T23:56:30.216Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:56:38.912Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:56:46.222Z",
+      "branch": "story/B-86c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:01:49.075Z",
+      "branch": "story/B-86c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:02:24.983Z",
+      "branch": "story/B-86c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:03:43.218Z",
+      "branch": "story/B-86c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:04:22.148Z",
+      "branch": "story/B-86c0",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:05:45.360Z",
+      "branch": "story/B-86c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

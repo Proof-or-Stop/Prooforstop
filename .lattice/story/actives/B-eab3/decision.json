@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "外部防线必须独立于被防御对象:hook 不依赖 koala,否则 koala 自身翻车时 hook 会一起翻",
+    "文档即契约:CLAUDE.md 与 koala-project-overview.md 对 hook 的描述必须与落地实现逐字一致,不留漂移",
+    "兜底防线的覆盖面不应窄于它兜底的那道 gate:pre-push 兜底 validate --lint(递归扫子包),故 hook 也应递归",
+    "hook 跨 clone 零摩擦:非 koala 仓立即 exit 0,不强加任何成本"
+  ],
+  "drivers": [
+    "B-9bd9 事故根因之一是单根 tsconfig 漏扫子包,单包 hook 会重蹈覆辙",
+    "快速通道 REVIEW→TEST 会 skip lint gate,pre-push 是类型错误进 main 前的唯一兜底",
+    "CLAUDE.md 与 koala-project-overview.md 对 hook 行为(单包 vs 递归)描述已不一致,必须借本 story 收敛"
+  ],
+  "options": [
+    {
+      "name": "A 单包 hook",
+      "pros": [
+        "实现最小,shell 脚本最短",
+        "push 最快",
+        "faithful to CLAUDE.md 917 行字面描述"
+      ],
+      "cons": [
+        "重新引入 B-9bd9 的子包盲区",
+        "与 koala-project-overview.md 141 行的递归描述矛盾",
+        "兜底覆盖面窄于它要兜底的 validate --lint"
+      ]
+    },
+    {
+      "name": "B 递归 hook",
+      "pros": [
+        "覆盖面与 validate --lint 对齐,消除 B-9bd9 盲区",
+        "与 koala-project-overview.md 一致",
+        "作为最后防线覆盖完整"
+      ],
+      "cons": [
+        "shell 脚本略复杂(需 find + 黑名单)",
+        "push 稍慢",
+        "黑名单逻辑与 validate-lint.ts 轻度重复"
+      ]
+    }
+  ],
+  "chosen": "B 递归 hook",
+  "rationale": "选 B。B-5a28 的存在本身就因为单根扫描漏子包酿成 B-9bd9;单包 hook(A)等于知情地重造同一 bug 类。pre-push 作为 validate --lint 的兜底,覆盖面不能更窄。shell 黑名单与 validate-lint.ts 的轻度重复是「hook 不得依赖 koala」硬约束的必然代价,可接受。CLAUDE.md 917 行的单包描述按 B 一并修正,使两份文档收敛到递归。",
+  "preMortem": [
+    {
+      "scenario": "hook 跑 tsc 太慢,开发者嫌烦直接 git push --no-verify 绕过",
+      "trigger": "递归 tsc 在大 monorepo 上耗时数十秒",
+      "consequence": "hook 形同虚设,类型错误照样进 main",
+      "mitigation": "hook 输出每个子包进度与耗时让等待可感知;tsc 用 --noEmit 已是最快模式;实测若超 30s 再考虑增量扫描"
+    },
+    {
+      "scenario": "非 koala 仓库复用了 .githooks,误拦无关项目的 push",
+      "trigger": "koala 自举仓检测逻辑写得太宽或出错",
+      "consequence": "其它仓库 push 被莫名 tsc 拦截",
+      "mitigation": "检测从严:要求 packages/main/package.json 存在且 name 为 @koala-agent/core,任一不满足立即 exit 0,hook 顶部注释写明检测条件"
+    },
+    {
+      "scenario": "hook 文件提交了但没有可执行权限,git 静默不执行",
+      "trigger": "Write 创建的文件默认 644,忘记 chmod +x 或 git update-index --chmod=+x",
+      "consequence": "hook 看似已交付实则永不触发,正是本 story 要修的「配了但不生效」问题复发",
+      "mitigation": "DEV 阶段必须 chmod +x 并用 git ls-files --stage 确认 mode 为 100755;verification 真机构造类型错误验证 push 真被拒"
+    },
+    {
+      "scenario": "CLAUDE.md 改了路径但 koala-project-overview.md 漏改,文档间仍不一致",
+      "trigger": "CHK-002 只盯 CLAUDE.md,忘了 koala-project-overview.md 也描述 hook",
+      "consequence": "doc drift 没真正消除,只是换了地方",
+      "mitigation": "CHK-002 的 files 显式包含 koala-project-overview.md;verificationIntent 加一条 grep 两份文档描述一致性的 adversarial 检查"
+    }
+  ],
+  "timestamp": "2026-05-17T02:53:05.720Z"
+}

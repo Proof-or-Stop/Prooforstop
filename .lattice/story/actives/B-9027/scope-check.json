@@ -1,0 +1,129 @@
+{
+  "storyId": "B-9027",
+  "checkedAt": "2026-05-17T02:22:30.458Z",
+  "features": [
+    {
+      "feature": "把 DONE merge/cleanup pipeline（块 A pre-merge gates + 块 B merge+cleanup + maybeTriggerAudit）抽到 packages/main/src/handlers/done-effects.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "done-effects.ts 放 handlers/ 层（不强行放 core/），两个导出函数：runDonePreMergeGate + applyDoneMergeEffects",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "story-advance.ts 抽取完成后不再含 inline DONE merge 实现",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "pre-merge gate 失败时 phase=DONE 绝不写入（story 保持 TEST）",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "post-merge/worktree cleanup 失败时保持现有语义：story 已 DONE，错误显式抛出附手动收尾指引",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "pre-merge gate 全过后保持现有时序（先写 phase=DONE 再执行真实 merge/cleanup）",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE 成功路径 smoke 证明 Step1-5 顺序不变（metadata commit→merge→worktree remove→branch delete）",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE 成功输出 byte-identical（DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行 + summary）",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "消除 globalThis.__koalaDoneChecklistRendered，改为显式返回值/参数传递",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "cleanStrayWorktreeFiles 与 STRAY_FILE_WHITELIST 的 re-export（~193行）必须保留",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "maybeTriggerAudit 保持 non-blocking try/catch 原样搬迁",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE merge 语义 — DONE 后合并回 main 并清理 worktree",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "pre-merge gate 判定失败时阻止 phase 写入（story-lifecycle.md）",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "smoke 回归证明 DONE 步骤顺序与输出 byte-identical（testing-completeness.md）",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-completeness.md"
+    },
+    {
+      "feature": "改变 DONE 事务时序（先 merge 成功再写 phase=DONE）——Option B",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json 明确选 Option A，排除 Option B：行为变更须单独开 story；understanding.constraints 约束不改 DONE 时序",
+      "source": "description"
+    },
+    {
+      "feature": "只抽块 B、块 A pre-merge gates 留在 story-advance.ts——Option C",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json 明确选 Option A，排除 Option C：done-effects 不完整、pre-merge gate 与 merge 逻辑割裂",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 14,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5ae2990c630e948ce3cb956087f519d551deedcb5b9812f242eee79dacd91f19",
+  "openQuestions": []
+}

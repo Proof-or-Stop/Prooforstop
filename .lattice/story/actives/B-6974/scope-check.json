@@ -1,0 +1,101 @@
+{
+  "storyId": "B-6974",
+  "checkedAt": "2026-05-17T14:39:45.710Z",
+  "features": [
+    {
+      "feature": "Create transition-orchestrator.ts in handlers/ that owns one transition actor lifecycle (create/start/send/stop)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Transition orchestrator owns DONE merge lock scope (acquireDoneMainMergeLock/release in single try/finally)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Transition orchestrator enforces runDonePreMergeGate -> actor.send -> writeStory(phase=DONE) -> applyDoneMergeEffects ordering",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "story_advance.ts reduced to thin handler: only arg parsing + runStoryTransition call + response formatting",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Behavior-preserving refactor: all story_advance external CLI outputs byte-identical after orchestrator introduction",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "No circular imports between transition-orchestrator.ts and coordinated modules (phase-gates / transition-effects / done-effects)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "DONE phase timing unchanged: pre-merge gate fail keeps story in TEST, phase=DONE only written after actor.send",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "DONE merge lock live/stale behavior preserved after orchestrator takeover",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "worktree.ts dev_finish/dev_merge legacy actor lifecycle (actor.start/send/stop in those handlers)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per plan.md Scope Boundary section: worktree.ts dev_finish/dev_merge actor lifecycle is a legacy command cleanup concern separate from story_advance orchestration path; to be handled in a future story if needed",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Regression suite (build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke) all pass",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "No global/shared mutable state (globalThis or module-level mutable) in transition-orchestrator.ts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "story-advance.ts does not contain inline git merge / git worktree remove / gate-runner bodies after refactor",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 11,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "74a6478ad9f2e959249a27f74d4f882e252f781fde858069d62c7600653b90fa",
+  "openQuestions": []
+}

@@ -555,8 +555,8 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // recognized as a Koala-owned lifecycle artifact only when it lives under a
 // known story directory prefix, the segment after that prefix is a valid
 // storyId, AND either the top-level terminal filename or relative story-dir
-// path is in a closed set below. Arbitrary JSON / unknown files under active docs/story/ or
-// .koala/ story dirs no longer pass scope implicitly; legacy
+// path is in a closed set below. Arbitrary JSON / unknown files under active docs/story/
+// story dirs no longer pass scope implicitly; legacy
 // `docs/story/.../<storyId>/...` still resolves for back-compat outside active
 // story prefixes (returns kind 'legacy-metadata').
 
@@ -594,8 +594,8 @@ export const KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new 
 const STORY_ID_RE = /^(?:B-META-[A-Za-z0-9_-]+|B-[A-Za-z0-9_-]+|ADHOC-[A-Za-z0-9_-]+|TOOL-[A-Za-z0-9_-]+|META-[A-Za-z0-9_-]+)$/;
 
 const DEFAULT_STORY_DIR_PREFIXES = [
+  '.lattice/story/actives/',
   'docs/story/actives/',
-  '.koala/story/actives/',
 ] as const;
 
 const LEGACY_STORY_DIR_PREFIX = 'docs/story/';
@@ -676,7 +676,7 @@ export function classifyLifecycleArtifact(
 
   const legacyPrefixes = [
     { prefix: LEGACY_STORY_DIR_PREFIX, storyDir: 'docs/story' },
-    { prefix: '.koala/story/', storyDir: '.koala/story' },
+    { prefix: '.lattice/story/', storyDir: '.lattice/story' },
   ];
   for (const { prefix, storyDir } of legacyPrefixes) {
     if (!normalized.startsWith(prefix)) continue;

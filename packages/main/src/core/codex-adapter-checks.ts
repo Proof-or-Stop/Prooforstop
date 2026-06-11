@@ -205,8 +205,11 @@ interface CodexManifestSelection {
 
 function isGlobalThinProject(root: string): boolean {
   try {
-    const configPath = join(root, '.Lattice', 'lattice.json');
-    if (!existsSync(configPath)) return false;
+    const configPath = [
+      join(root, '.lattice', 'lattice.json'),
+      join(root, '.Lattice', 'lattice.json'),
+    ].find(candidate => existsSync(candidate));
+    if (!configPath) return false;
     const text = readFileSync(configPath, 'utf-8');
     const parsed = JSON.parse(text);
     return isRecord(parsed) && parsed['assetMode'] === 'global-thin';
@@ -236,9 +239,10 @@ function renderExpectedManifest(brand: CodexManifestBrand, options: { promptMode
 }
 
 function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMode | null {
-  // Resolver priority: .Lattice/lattice.json (global-thin) first.
+  // Resolver priority: canonical .lattice/lattice.json first; legacy
+  // .Lattice/lattice.json remains read-only compatible.
   if (isGlobalThinProject(root)) {
-    push(checks, 'manifest', 'Codex manifest', 'pass', true, 'global-thin project: Codex adapter behavior runs from global lattice CLI (.Lattice/lattice.json present)');
+    push(checks, 'manifest', 'Codex manifest', 'pass', true, 'global-thin project: Codex adapter behavior runs from global lattice CLI (.lattice/lattice.json present)');
     return 'registry';
   }
   const selection = resolveCodexManifest(root);

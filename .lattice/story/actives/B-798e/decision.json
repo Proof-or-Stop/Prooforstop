@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Keep the change metadata-only",
+    "Prefer validator-compliant annotation values over changing validator rules",
+    "Preserve current runtime behavior"
+  ],
+  "drivers": [
+    "convergence_check currently fails only because cli-validate reports 10 task annotation errors",
+    "The affected files already have task headers, just incomplete or invalid metadata",
+    "A narrow patch is safer than weakening annotation validation"
+  ],
+  "options": [
+    {
+      "name": "Patch the listed annotation headers",
+      "pros": [
+        "Directly fixes the reported errors",
+        "No runtime behavior change",
+        "Easy to verify with cli-validate"
+      ],
+      "cons": [
+        "Leaves unrelated warnings alone"
+      ]
+    },
+    {
+      "name": "Relax the validator",
+      "pros": [
+        "Could make errors disappear quickly"
+      ],
+      "cons": [
+        "Weakens legacy annotation contract",
+        "Would hide real future annotation mistakes"
+      ]
+    }
+  ],
+  "chosen": "Patch the listed annotation headers",
+  "rationale": "The errors are concrete metadata defects in a small set of files, so patching those headers is the narrowest fix and preserves validator value.",
+  "preMortem": [
+    {
+      "scenario": "The validator still reports errors after metadata patch",
+      "trigger": "Missed one @changes field or invalid type",
+      "consequence": "convergence_check remains red",
+      "mitigation": "Run cli-validate after the patch and inspect exact remaining rows"
+    },
+    {
+      "scenario": "The patch accidentally changes runtime behavior",
+      "trigger": "Editing below the task header",
+      "consequence": "Unnecessary regression risk",
+      "mitigation": "Limit edits to @task comment blocks only and verify git diff"
+    },
+    {
+      "scenario": "DONE reintroduces tracked .koala state",
+      "trigger": "Story metadata forced into git for bootstrap",
+      "consequence": "main dirty or .koala tracked after merge",
+      "mitigation": "Remove B-798e .koala files from index after DONE while preserving local state"
+    }
+  ],
+  "timestamp": "2026-06-04T11:00:35.039Z"
+}

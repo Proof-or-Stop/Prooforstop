@@ -1,0 +1,30 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-05T03:41:54.915Z",
+      "issueCount": 3,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001「创建正向 bug 定位 agent prompt」缺少 testIntent"
+        },
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002「创建反向 bug 定位 agent prompt」缺少 testIntent"
+        },
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003「主 agent 并行启动双 agent 并合并结果」缺少 testIntent"
+        }
+      ],
+      "_hash": "c27bb689cccdea16e5ccd78bac81a8a032db6a3d495cfc4bdf6612377fd20b0d"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Make manual fallback mechanically visible at recovery entrypoints.",
+    "Keep valid init_check_repair fallback usable without adding new hard blockers.",
+    "Pin exact user-visible wording with focused smoke tests."
+  ],
+  "drivers": [
+    "Agents can confuse process analysis with permission to continue an external story.",
+    "init_check_repair is already a signed, audited fallback and must not be weakened.",
+    "session_brief and story_get are the first surfaces agents read after context switches."
+  ],
+  "options": [
+    {
+      "name": "render-warning-only",
+      "pros": [
+        "Low risk and does not alter lifecycle semantics",
+        "Directly addresses the misleading recovery text",
+        "Easy to test in the existing fallback smoke"
+      ],
+      "cons": [
+        "Still relies on the agent reading the warning"
+      ]
+    },
+    {
+      "name": "hard-block-fallback-continuation",
+      "pros": [
+        "Forces explicit action before every fallback story continues"
+      ],
+      "cons": [
+        "Would break legitimate no-subagent environments and overreach beyond the current problem"
+      ]
+    },
+    {
+      "name": "do-nothing",
+      "pros": [
+        "No code churn"
+      ],
+      "cons": [
+        "Leaves the B-4f98 class of cross-project continuation confusion unfixed"
+      ]
+    }
+  ],
+  "chosen": "render-warning-only",
+  "rationale": "A warning-only recovery guard solves the observed UX problem without changing signed init-check semantics or making valid fallback stories harder to use.",
+  "preMortem": [
+    {
+      "scenario": "Warning only appears in story_get but not session_brief.",
+      "trigger": "Agent resumes from session_brief and never calls story_get.",
+      "consequence": "The same B-4f98 confusion can recur.",
+      "mitigation": "Render fallback warning in session_brief active-story and main active-story resume views."
+    },
+    {
+      "scenario": "Warning implies fallback is invalid.",
+      "trigger": "Text says fallback bypassed reviewers without explaining it is a legal manual attestation.",
+      "consequence": "Agents may unnecessarily roll back valid stories.",
+      "mitigation": "Phrase as legal manual fallback that does not replace later gates."
+    },
+    {
+      "scenario": "Tests only check JSON fields.",
+      "trigger": "Smoke coverage misses user-visible next-step text.",
+      "consequence": "Regressions can remove the visible guard while story_get still passes.",
+      "mitigation": "Assert session_brief contains the warning and explicit authorization boundary."
+    }
+  ],
+  "timestamp": "2026-05-27T22:17:05.488Z"
+}

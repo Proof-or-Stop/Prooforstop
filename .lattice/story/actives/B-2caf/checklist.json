@@ -1,0 +1,182 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "新增 checklist_add CLI 命令，支持向已有 story 追加 checklist item",
+      "context": "参数：storyId + item 对象（title, context），自动分配下一个 CHK-xxx ID，写入 checklist.json",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-05T04:13:16.255Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "传入有效 storyId + title + context，命令返回成功，checklist.json 中新增一条 CHK-xxx item，ID 为当前最大 ID +1",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:19:50.409Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:14 — case calls $handlers.checklist_add({storyId,title,context}) and expects pattern CHK-002 added; line 25 follow-up checklist_get verifies the item is persisted with correct id, title, context, status. Covers valid storyId+title+context path, success return, and file write with max-ID+1. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "story 已有 CHK-001、CHK-002，追加新 item 后自动分配 CHK-003，且原有两条不变",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:19:52.793Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:35 — case calls checklist_add then checklist_get and checks ids=CHK-001,CHK-002,CHK-003, confirming new item receives CHK-003 and the two prior items remain unchanged in order. Directly validates both auto-ID-increment and non-mutation of existing items. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story checklist 为空时追加第一条 item，自动分配 CHK-001",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:19:57.544Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:56 — execute uses fs.writeFileSync to overwrite checklist.json with {items:[]}, then calls checklist_add expecting CHK-001 added. This directly exercises the empty-checklist first-item assignment path. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "storyId 对应的 story 处于 DEV/TEST 等非 PLAN 阶段时追加 item，命令仍成功写入（或返回明确的阶段限制错误，不静默失败）",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:20:17.083Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/checklist-add.json:67 — case intentRef CHK-001:edge:1 calls checklist_add on a story that is still in PLAN phase (never advanced). The testIntent specifically requires testing a story in DEV/TEST non-PLAN phase. The fixture does not advance the story phase before calling checklist_add, so the non-PLAN phase behavior is never exercised. The expect CHK-004 added only confirms the call succeeds in PLAN phase, not in DEV/TEST. Missing: story_advance to DEV before the add call. | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T04:26:28.925Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/checklist-add.json:71 — execute is `return await $handlers.checklist_add({storyId:$ctx.storyId,title:\"DEV phase item\",context:\"added during dev\"})` with no preceding story_advance call. $ctx.storyId was created by story_quick (PLAN phase) and never advanced. The testIntent requires a story in DEV/TEST non-PLAN phase to be tested. The fixture still exercises PLAN phase only. Main agent claim of \"story_advance to DEV\" is not present in the execute string. | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T04:32:02.498Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:71 — execute reads index.json, sets idx.phase=DEV, writes it back with fs.writeFileSync, then calls checklist_add. This directly places the story in DEV phase before the call. checklist.ts:48-74 shows the implementation does not check phase at all (only validates story exists and reads/writes checklist), so the command succeeds returning the CHK-xxx added string. The expect pattern added correctly captures this success-in-DEV-phase behavior. The testIntent required testing non-PLAN phase — this case now actually does that. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "title 为最大长度字符串（如 500 字）时，item 被完整写入不被截断",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:20:00.002Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:78 — execute builds a 500-char title with repeat(500), calls checklist_add, then checklist_get and reads back last.title.length and exact equality. Expect pattern len=500 match=true directly verifies no truncation occurred. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "context 字段缺省（只传 storyId + title），命令应报 required 错误或以空字符串写入，行为与文档一致",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:20:28.541Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/checklist-add.json:88 — case omits context and checks last.title equals no context item, but never inspects last.context. The testIntent requires verifying the command either reports a required error OR writes an empty/null context consistently with docs. The fixture neither checks the context field value nor uses throws to verify an error. The two valid outcomes are not distinguished — silent drop vs empty string vs undefined would all pass this test. | severity:medium",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T04:26:34.195Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:93 — execute calls checklist_add without context, then reads back last.context via String(last.context) and returns it in the result string. Expect pattern `title=no context item context=undefined` directly verifies the context field value is undefined (not empty string, not silently dropped). This distinguishes the two possible behaviors (error vs undefined write) and confirms the actual implementation outcome. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "传入不存在的 storyId，命令返回明确错误，不创建新文件或污染已有文件",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:20:06.236Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:100 — case calls checklist_add with storyId=B-nonexistent and uses throws field expecting not found. This verifies a clear error is returned and no file creation or data pollution occurs (since the handler throws before any write). | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "并发两次 checklist_add 到同一 story，两条 item 分别获得不同 CHK-xxx ID，不出现 ID 冲突或数据覆盖",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:20:36.362Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/checklist-add.json — no case with intentRef CHK-001:adversarial:1 exists. The testIntent requires two concurrent checklist_add calls to the same story with different IDs and no data clobber. The main agent claims this cannot be reliably simulated in a single-process fixture runner. While true that Node.js async-concurrent simulation is limited, the case can be approximated: read checklist twice and patch both writes to the same file in the same event-loop tick using Promise.all. No attempt was made. Framework limitation is not fully established — awaiting main agent response. | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T04:26:46.815Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/checklist-add.json:124 — case uses Promise.all to fire two concurrent checklist_add calls, which is the right approach. However the expect pattern is only 'unique=' which matches any output containing that substring including 'total=10 unique=1' (full collision). The assertion never verifies that unique count equals total count. A correct assertion would verify allUnique=true or that unique===total. As written the test would pass even if both concurrent calls received the same CHK-xxx ID. The critical invariant (no ID collision) is not asserted. | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T04:32:14.248Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:124 — execute fires Promise.all with two concurrent checklist_add calls, then builds ids=cl.items.map(i=>i.id) and uniqueIds=new Set(ids), returning allUnique=(ids.length===uniqueIds.size). The expect pattern is allUnique=true. If both concurrent calls received the same CHK-xxx ID, uniqueIds.size would be less than ids.length and the return would be allUnique=false, causing the pattern to not match and the case to fail. The assertion directly verifies the no-collision invariant as required by the testIntent. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "checklist.json 文件在命令执行中途被外部进程删除，命令返回错误而不是静默生成损坏数据",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:20:42.238Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/checklist-add.json — no case with intentRef CHK-001:adversarial:2 exists. The testIntent requires that if checklist.json is deleted mid-execution the command returns an error rather than silently producing corrupt data. The main agent claims this cannot be simulated in single-process runner. However the fixture execute can: (1) write a real checklist.json, (2) monkey-patch fs.writeFileSync to delete the file before the handler writes, or (3) use a spy via import override. The scenario is not inherently untestable in-process. No attempt was made. Framework limitation is not established. | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T04:26:55.788Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/checklist-add.json:135 — case deletes checklist.json before calling checklist_add, then expects throws 'not found'. The scenario tested is pre-execution deletion (file absent at read time), not mid-execution deletion as specified by testIntent ('文件在命令执行中途被外部进程删除'). These are different code paths: pre-deletion exercises the read/parse step failing, while mid-execution deletion would exercise the write step failing after a successful read. The current case does not approximate the testIntent scenario closely enough — it tests a simpler path. The throws assertion 'not found' also may or may not match the actual error message for a missing file. | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T04:32:21.879Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:135 — execute deletes checklist.json then calls checklist_add, catches the error, and checks threw=true and noCorrupt=true (no corrupt checklist file left in the directory). The testIntent requires mid-execution deletion, but checklist.ts:48-74 is synchronous: store.readChecklist (readFileSync) then store.writeChecklist (writeFileSync) with no async gap, making true mid-execution external deletion impossible in a single-process test. Pre-deletion exercises the read-step failure path — the case verifies that the handler throws a clean error (threw=true) and leaves no corrupt data behind (noCorrupt=true). This approximation is the closest achievable test given the synchronous implementation constraint, and it covers the spirit of the testIntent: command fails cleanly on file-system error without producing corrupt data. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "title/context 字段含 JSON 特殊字符（引号、反斜杠、换行符），写入后读回内容与输入完全一致，不发生转义损坏",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T04:20:08.370Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-add.json:109 — execute constructs special string with double-quotes and backslash, calls checklist_add for both title and context, then reads back last item and checks last.title===special && last.context===special. Expect pattern match=true confirms round-trip fidelity for JSON special chars including quotes, backslashes. | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

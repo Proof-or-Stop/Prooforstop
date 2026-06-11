@@ -1,0 +1,548 @@
+{
+  "storyId": "B-54f9",
+  "changes": "Moved fixture intentRef coverage out of DEV checklist done, added shared intent coverage calculation, allowed TEST_CASE to run test_story/test_fixture, made session_brief show linked worktree phase drift, added aux_doc_list fallback guidance, clarified reviewer coverage wording, and documented the updated workflow.",
+  "usage": "Use checklist_update --status=done in DEV without prewriting fixture intentRefs; advance to TEST_CASE, add fixture cases with intentRef, run test_story --storyId=<id>, then let testintent_check verify reviewer pass plus fixture coverage. If global koala lacks aux_doc_list, run node bin/koala.js aux_doc_list --format=json.",
+  "realMachineCoverage": {
+    "ran": [
+      {
+        "name": "arch_trace corrupt file skip",
+        "where": "packages/main/tests/fixtures/arch-trace.json"
+      },
+      {
+        "name": "CHK-007: blindZones detects arrow exports",
+        "where": "packages/main/tests/fixtures/arch-trace.json"
+      },
+      {
+        "name": "CHK-007: inner arrow not detected as export",
+        "where": "packages/main/tests/fixtures/arch-trace.json"
+      },
+      {
+        "name": "edge:0 — empty checklist assigns CHK-001",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "edge:1 — add item in DEV phase succeeds",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "adversarial:2 — deleted checklist file mid-execution throws error",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "CHK-001:edge:0 tsc compiles without server.ts",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:edge:1 no orphan handler modules in mcp/handlers",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:adversarial:0 no TS2307 for server.ts import",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:adversarial:1 tools.ts has no McpServer import",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:happy:1 no @modelcontextprotocol in package.json",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:edge:0 koala init no longer creates .mcp.json",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:edge:1 koala init does not generate .mcp.json",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:adversarial:0 no MCP SDK import in src",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:adversarial:1 no MCP export + no serve script + no SDK import in any src",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-003:happy:0 flow_trace returns unknown command",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-003:happy:1 help has no flow entries",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-003:edge:0 flow handler deleted and cli.ts registration cleaned",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-003:adversarial:0 no import of flow.ts in codebase",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-003:adversarial:1 flow.ts deleted and no orphan imports",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-004:happy:0 help output has no MCP/flow",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-004:happy:1 koala init help no MCP reference",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-004:edge:0 CLAUDE.md CLI commands preserved",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-004:edge:1 help output still lists story/test commands",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-004:adversarial:0 no MCP/flow residue in docs and agent prompts",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-004:adversarial:1 no @flow/flow_trace/MCP server in CLAUDE.md",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001: executeFile happy - valid file",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: batch_add with executeFile",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-003: sandbox false bypasses check",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: edge empty executeFile",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: edge special chars in path",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: adversarial shell injection stored as string",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-003: sandbox blocks import fs in execute",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-003: sandbox blocks require child_process",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "diagnose corrupt lastPass",
+        "where": "packages/main/tests/fixtures/diagnose.json"
+      },
+      {
+        "name": "CHK-007-h0: auto bug has fixtureId",
+        "where": "packages/main/tests/fixtures/fixture-bug-binding.json"
+      },
+      {
+        "name": "CHK-007-e0: same case fail deduplicates bug",
+        "where": "packages/main/tests/fixtures/fixture-bug-binding.json"
+      },
+      {
+        "name": "CHK-006-a1: deleted case fixtureId error",
+        "where": "packages/main/tests/fixtures/fixture-test-commands.json"
+      },
+      {
+        "name": "CHK-001-e1: old case without _id runs fine",
+        "where": "packages/main/tests/fixtures/fixture-uuid.json"
+      },
+      {
+        "name": "CHK-001 happy:2 — 删除 phaseTools 字段后 loadConfig 回退默认值",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-001 adv:2 — JSON 损坏 → 回退默认 phaseTools 仍有约束",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 happy:0 — DEV 白名单命令全部通过过滤",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 happy:1 — main 分支 koala story_list 全量放行",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 happy:2 — PLAN 阶段允许 review 拒绝 test_auto/fixture",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 edge:1 — 非 git 目录 git rev-parse 失败",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-003 happy:0 — DEV 阶段过滤：只含 DEV 命令",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-003 happy:1 — main 分支 koala help 列出全部命令",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-003 happy:2 — PLAN 阶段 getAllowedPatterns 含 review/advance",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-003 edge:3 — help 在 CLI 中位于 phase gate 之前，不被过滤",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-003 adv:1 — phaseTools 删除后 loadConfig 回退默认不崩溃",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-003 adv:2 — git 分支检测不依赖环境变量",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "profiler large nodes no OOM",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler start stop sequence",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profile nodes have fn+file",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler short case still works",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler stop after error",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler concurrent sessions",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler init fail degrades",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler stop timeout safe",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-004: FixtureProfilerSession lifecycle",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-004: multiple cases same session",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-004: session close then new session works",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-005: no anonymous virtual nodes in trace",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-004: single case fixture lifecycle",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-005: multi-child promoted not wrapped",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-005: zero project children returns null path",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-001: failed case does not save trace",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: tampered trace json no crash",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-007: private method not in blindZones",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: chain case load uses pre-save snapshot",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-004: session error recovery",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-005: blindZones no anonymous entries",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-005: impactGraph no anonymous edges",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: load before save returns previous not current",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-004: profiler stop after exception",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-008: restore/clean only affects fixturesDir",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-008: traces outside fixturesDir survive restore",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-008: file outside fixturesDir not deleted",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "branch removed → removed nodes",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "fork A→B→C to A→B→D",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "empty old tree",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "large vs small perf",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "same fn diff file",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "circular ref no hang",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "null fields no crash",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "different roots all swap",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "identical trees no diff",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "new leaf added",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-006: nodeKey includes line number",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-006: same fn different lines not merged",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-001: diffTraces with identical traces returns empty",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-001: first run no history no diff",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-006: line=0 nodeKey dedup",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-006: line move reports added+removed not forked",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-006: different files same name same line not confused",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-006: unchanged line no added/removed",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "save and load trace snapshot",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "trace snapshot overwrite update",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "empty trace array saved",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "auto create fixtures dir",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "special chars in case name",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "corrupt trace json ignored",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "write fail no crash",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "concurrent write safe",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: saveTraceSnapshot writes to .koala/traces/",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: loadTraceSnapshot reads from .koala/traces/",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: trace survives git restore",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: mkdirSync auto-creates .koala/traces/",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: Windows backslash path handled",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: partial corrupt trace still loads",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: Windows backslash path",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-003: same commit dedup overwrites",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-003: malformed key no crash",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-003: load returns newest timestamp across commits",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-003: 3 different commit keys preserved",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-003: 6 keys evicts oldest to keep 5",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-003: N=1 config evicts to single entry",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-001 happy: linked worktree branch is not treated as zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 edge: implementation no longer parses git branch prefixes",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 adversarial: mixed + and * branch display no longer causes false zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 happy: regression script covers linked worktree branch output",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 edge: deleted branch still becomes zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 adversarial: test is not just fuzzy wording smoke",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      }
+    ],
+    "skipped": []
+  },
+  "limitations": "none — fully covered by workflow-phase-consistency and worktree-baseline-risk scripts plus 24 story fixture cases",
+  "pitfalls": "Do not use global koala to validate unmerged worktree code; it points at the main checkout. Fixture cases using fs or child_process require sandbox:false and must be committed before test_fixture/test_story, because fixture cleanup restores uncommitted fixture files.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 132820
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 4504
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 120362
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 435308
+    },
+    "TEST_CASE": {
+      "count": 1,
+      "durationMs": 182448
+    },
+    "TEST_CASE_REVIEW": {
+      "count": 1,
+      "durationMs": 13033
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 45468
+    }
+  },
+  "totalDurationMs": 933944,
+  "fixtureStats": {
+    "totalRuns": 2,
+    "totalCases": 24,
+    "cumulativeCasesRun": 24,
+    "cumulativePassedCases": 24
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-04-19T16:59:22.460Z",
+  "updatedAt": "2026-04-19T16:59:22.460Z"
+}

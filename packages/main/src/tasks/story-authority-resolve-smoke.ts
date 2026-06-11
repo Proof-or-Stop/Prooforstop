@@ -51,7 +51,7 @@ function writeConfig(root: string): void {
       {
         scanRoot: 'packages/main',
         rootDir: 'src',
-        storyDir: '.koala/story/actives',
+        storyDir: '.lattice/story/actives',
         requirementsDir: 'docs/requirements',
         worktreeDir: '.worktrees',
       },
@@ -63,7 +63,7 @@ function writeConfig(root: string): void {
 
 function seedRepo(root: string): void {
   writeConfig(root);
-  writeFileSync(join(root, '.gitignore'), '.worktrees/\n.koala/activity.jsonl\n');
+  writeFileSync(join(root, '.gitignore'), '.worktrees/\n.lattice/activity.jsonl\n');
   writeFileSync(join(root, 'README.md'), 'story-authority-resolve smoke fixture\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);

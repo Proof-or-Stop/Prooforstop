@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2522",
+  "changes": "Implemented B-2522 milestones 7-8: added receipt-backed authority classification helpers and smokes, added authority enforce matrix and live Python self-skip smokes, wired package scripts, refreshed authority docs, recorded verification evidence, reviewer passes, delivery check, and transcript evidence.",
+  "usage": "Run npm run test:authority-receipt-classification for signed receipt classification, npm run test:authority-enforce-matrix for local/shadow/enforce matrix, npm run test:authority-live-python for optional live Python policy discovery, and lattice authority status for local authority readiness.",
+  "expectedOutcome": "Expected transcript shows receipt-backed classification only after signed AuthorityReceipt verification, local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server runner fail-closed PASS, parallel_report productionDone=false PASS, live Python smoke self-skips without env, and lattice validate covers 6/6 intents.",
+  "actualTranscript": "Actual transcript matched: authority receipt classification smoke passed; authority enforce matrix smoke passed with all five PASS cells; live Python smoke skipped due missing KOALA_AUTHORITY_LIVE_URL and KOALA_AUTHORITY_LIVE_PUBLIC_KEY; authority/status/runner/event/evidence/parallel smokes passed; lattice validate reported 6/6 covered and allPass true.",
+  "outcomeDiff": "No material difference. Live Python smoke self-skipped as designed because no live authority env vars were configured.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Live Python smoke only performs real policy discovery when KOALA_AUTHORITY_LIVE_URL and KOALA_AUTHORITY_LIVE_PUBLIC_KEY are configured; local run intentionally self-skips that external dependency. Otherwise none - fully covered by deterministic smokes.",
+  "pitfalls": "First matrix smoke failed because the temporary Parallel Wave repo lacked a seeded B-2522 story; fixed by seeding a minimal StoryInfo before buildParallelReport. First validate failed because CHK-002 tests had passed but verificationEvidence was not yet recorded; fixed by recording all three CHK-002 intent evidence entries and refreshing stale CHK-001 hashes after the code commit.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 16990373
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 27582
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 761405
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 2571573
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1193572
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 312969
+    }
+  },
+  "totalDurationMs": 21857486,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-02T23:04:22.979Z",
+  "updatedAt": "2026-06-02T23:04:22.979Z"
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-30b2",
+  "changes": "Added priorityElevatedFrom tracking for auto-elevated riskSignal stories, rollback logic in story_review_dismiss, CLI guidance for mention-vs-modify false positives, regression fixture/script coverage, and CLAUDE.md guidance.",
+  "usage": "No new workflow is required. When a story is auto-elevated by riskSignals but only mentions the risky area, use story_review_dismiss for the category; once all auto riskSignals are dismissed, the high-risk gate cost rolls back.",
+  "expectedOutcome": "A false-positive riskSignal story can be dismissed without keeping the missing_decision and preMortem gate cost; explicit high or critical stories remain protected from downgrade; CLI output explains the safe dismiss path only when riskSignals exist.",
+  "actualTranscript": "build passed; node scripts/verify-risk-elevation-rollback.mjs all passed with ok all; validate --story=B-30b2 passed with 8/8 verification intents covered; second REVIEW round and delivery check passed.",
+  "outcomeDiff": "No difference between expected and actual; the only review finding was dead test helper cleanup and it was resolved.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by build, rollback guidance smoke, validate coverage, reviewer pass, transcript diff, and delivery check.",
+  "pitfalls": "The first quality review found an unused runExpectFail helper in the verification script, so the story returned to DEV for a small cleanup before reviewers reran.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 795447
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 15980
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 335253
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 824021
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 325716
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 188191
+    }
+  },
+  "totalDurationMs": 2484617,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-25T17:38:45.255Z",
+  "updatedAt": "2026-05-25T17:38:45.255Z"
+}

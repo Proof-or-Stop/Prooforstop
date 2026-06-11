@@ -10,8 +10,8 @@
  *     - MUTATION (git/fs.write failure) → switch to throw
  *
  *   PERSIST-class failures were previously swallowed and could not be traced afterward. This module provides a lightweight
- *   JSONL append receiver: each issue is written to ~/.koala/health.jsonl,
- *   and `koala doctor` can read them out.
+ *   JSONL append receiver: each issue is written to ~/.lattice/health.jsonl,
+ *   and `lattice doctor` can read them out.
  *
  * Design constraints:
  *   - reportHealthIssue itself must not throw. A crash in the health module must not drag down the main flow.
@@ -34,6 +34,7 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import { LATTICE_DIR } from './lattice-paths.js';
 
 export interface HealthIssue {
   schemaVersion: 1;
@@ -47,11 +48,11 @@ export interface HealthIssue {
   context: Record<string, unknown>;
 }
 
-/** Default health.jsonl path: ~/.koala/health.jsonl */
+/** Default health.jsonl path: ~/.lattice/health.jsonl */
 export function getHealthPath(): string {
   // Allow overriding the path via env for easier testing
   if (process.env.KOALA_HEALTH_PATH) return process.env.KOALA_HEALTH_PATH;
-  return join(homedir(), '.koala', 'health.jsonl');
+  return join(homedir(), LATTICE_DIR, 'health.jsonl');
 }
 
 /**

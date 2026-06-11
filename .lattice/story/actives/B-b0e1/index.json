@@ -1,0 +1,35 @@
+{
+  "storyId": "B-b0e1",
+  "name": "test-intent-gate",
+  "title": "testIntent 前置门禁 + DEV→PLAN 回退",
+  "description": "强制 testIntent 在需求阶段完成：进 DEV 必须所有 item 有 testIntent 且 story_review 通过；支持 DEV→PLAN 回退修改 testIntent",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "critical",
+  "createdAt": "2026-04-03T16:19:28.090Z",
+  "startedAt": "2026-04-03T16:19:28.090Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-03T16:19:28.090Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-03T16:19:28.147Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".claude/worktrees/B-b0e1",
+    "branch": "story/B-b0e1",
+    "createdAt": "2026-04-03T16:22:34.955Z"
+  }
+}

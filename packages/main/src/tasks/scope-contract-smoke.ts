@@ -66,7 +66,7 @@ try {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -96,7 +96,7 @@ try {
   };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
-  git(root, ['add', '.koala']);
+  git(root, ['add', '.lattice']);
   git(root, ['commit', '-m', 'story metadata']);
   git(root, ['checkout', '-b', `story/${storyId}`]);
 

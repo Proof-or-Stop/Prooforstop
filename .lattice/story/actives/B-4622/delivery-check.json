@@ -1,0 +1,49 @@
+{
+  "storyId": "B-4622",
+  "checkedAt": "2026-05-25T15:36:11.566Z",
+  "reviewRound": "2026-05-25T15:29:45.523Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#scope-evidence-hygiene",
+      "promise": "story-lifecycle documents scope_check_save remains PLAN-only signed scope review evidence",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 99 confirmed present via grep: scope_check_save remains PLAN-only signed scope review evidence. Added by B-4622 diff."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#scope-evidence-hygiene",
+      "promise": "story-lifecycle documents scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 100 confirmed present via grep: scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path. Added by B-4622 diff."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#scope-evidence-hygiene",
+      "promise": "story-lifecycle says later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 101 confirmed present via grep: later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass. Added by B-4622 diff."
+    },
+    {
+      "docPath": "packages/main/src/tasks/command-ownership-contract.ts#scope-evidence-phase-contract",
+      "promise": "command ownership contract mechanically asserts scope_check_save exactly [PLAN], scope_contract_acknowledge exactly [DEV, REVIEW], and fails if scope_check_save broadens to DEV/REVIEW/all",
+      "verifiedBy": "diff/grep",
+      "evidence": "Four named assert messages verified via grep in command-ownership-contract.ts: (1) deepEqual allowedPhases to [PLAN]; (2) not DEV/REVIEW/all adversarial check; (3) deepEqual scope_contract_acknowledge to [DEV,REVIEW]; (4) must NOT cover PLAN. Console output lines also added: scope_check_save allowedPhases: PLAN and scope_contract_acknowledge allowedPhases: DEV, REVIEW."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs_check evidence: rg confirmed all three key lines at story-lifecycle.md:99-101. koala validate PASS with 6/6 coverage including plan-only-decision-documented, later-phase-ack-path-documented, no-reviewer-pass-relabel all verdict=success."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "logic_test: npm --prefix packages/main run test:command-ownership-contract passed. Output confirmed scope_check_save allowedPhases: PLAN and scope_contract_acknowledge allowedPhases: DEV, REVIEW. All three CHK-002 intents covered via logic_test verdict=success."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises independently verified from source diff and grep. CHK-001 delivers three canonical rule lines in story-lifecycle.md lines 99-101. CHK-002 delivers four adversarial regression assertions in command-ownership-contract.ts. koala validate passes 6/6 intent coverage. No unresolved TODOs in diff."
+  },
+  "_hash": "0b64eaa336613b913d040191b95c5a829ad8bf06763f57f8204b86c3bbf02847"
+}

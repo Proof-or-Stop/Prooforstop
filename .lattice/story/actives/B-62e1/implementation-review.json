@@ -1,0 +1,15 @@
+{
+  "storyId": "B-62e1",
+  "verdict": "pass",
+  "findings": [
+    {
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 61,
+      "why": "本 story 的实际代码行为已经在当前主线中存在；本次只补 PLAN/fixture 归属与 story 收口，没有引入新的实现偏差。",
+      "severity": "info"
+    }
+  ],
+  "summary": "INIT_CHECK 的 confirm/dry-run 护栏实现已在主线存在，本次主要把 story 补齐并把回归归属到 B-62e1。",
+  "createdAt": "2026-04-16T22:28:44.810Z",
+  "updatedAt": "2026-04-16T22:28:44.810Z"
+}

@@ -1,0 +1,27 @@
+{
+  "task": "Remove the upward core-to-handlers dependency by moving init-check hash and gate primitives into a core module.",
+  "outcome": "User can see that core/machine.ts no longer imports handlers/init-check, while INIT_CHECK hash, required-reviewer, and blocking-issue gates still behave the same under validation.",
+  "facts": [
+    "core/machine.ts currently imports recomputeInitCheckHash, missingRequiredInitCheckAgents, and blockingInitCheckIssues from ../handlers/init-check.js.",
+    "handlers/init-check.ts owns pure hash and gate helpers plus the init_check_set command handler shell.",
+    "delivery-check already has the precedent packages/main/src/core/delivery-check-hash.ts consumed by core code and handler code.",
+    "Search shows only core/machine.ts has the upward init-check handler import; registry owner strings can remain command ownership for init_check_set.",
+    "Targeted verification should include npm run build, npm run test:init-check-bootstrap, npm run test:worktree-authority-smoke, and a grep proving core imports no handlers/init-check module."
+  ],
+  "constraints": [
+    "Do not change INIT_CHECK phase semantics.",
+    "Do not change reviewer flow or required reviewers.",
+    "Keep a single implementation of the hash/gate primitives.",
+    "Use Koala CLI for story metadata and preserve the worktree lifecycle."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "scripts/verify-init-check-bootstrap.mjs"
+  ],
+  "timestamp": "2026-05-21T15:46:35.990Z"
+}

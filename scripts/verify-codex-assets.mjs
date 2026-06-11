@@ -76,7 +76,7 @@ const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
 // Self-repo uses koala-branded template (bin/koala-codex.js present, not bin/lattice-codex.js)
 assert(codexReadme === renderCodexReadmeTemplate('full', 'koala'), '.Codex/README.md drifted from koala template');
 assert(manifest === renderCodexAdapterManifest(), '.Codex/koala.json drifted from template');
-// Per-file checks: .Codex/README.md and AGENTS.md use legacy koala branding; README.md uses lattice branding
+// Per-file checks: .Codex/README.md remains legacy-compatible; README.md and AGENTS.md use Lattice branding
 assertIncludes(codexReadme, LEGACY_LOCAL_CODEX_VERIFY_COMMAND, '.Codex/README.md');
 assertIncludes(codexReadme, 'node bin/koala-codex.js doctor', '.Codex/README.md');
 assertNotIncludes(codexReadme, '`koala verify_codex`', '.Codex/README.md');
@@ -85,8 +85,8 @@ assertIncludes(rootReadme, LOCAL_CODEX_VERIFY_COMMAND, 'README.md');
 assertIncludes(rootReadme, 'node bin/lattice-codex.js doctor', 'README.md');
 assertNotIncludes(rootReadme, '`koala verify_codex`', 'README.md');
 assertNotIncludes(rootReadme, '`koala init --verify-codex`', 'README.md');
-assertIncludes(agents, LEGACY_LOCAL_CODEX_VERIFY_COMMAND, 'AGENTS.md');
-assertIncludes(agents, 'node bin/koala-codex.js doctor', 'AGENTS.md');
+assertIncludes(agents, LOCAL_MAIN_VERIFY_COMMAND, 'AGENTS.md');
+assertIncludes(agents, 'node bin/lattice.js doctor', 'AGENTS.md');
 assertNotIncludes(agents, '`koala verify_codex`', 'AGENTS.md');
 assertNotIncludes(agents, '`koala init --verify-codex`', 'AGENTS.md');
 
@@ -97,7 +97,7 @@ function writeTempConfig(dir) {
     outDir: 'packages/main/dist',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -119,6 +119,10 @@ function copyCodexAssetsToTemp() {
   ]) {
     cpSync(join(root, rel), join(dir, rel), { recursive: true });
   }
+  // This helper exercises the legacy full-asset manifest path. The real repo
+  // also carries .Codex/lattice.json for thin/global checks, which would take
+  // precedence and change the fixture's manifest mode.
+  rmSync(join(dir, '.Codex', 'lattice.json'), { force: true });
   return dir;
 }
 
@@ -295,8 +299,8 @@ assertSessionBriefCommand(
 {
   const dir = mkdtempSync(join(tmpdir(), 'koala-session-brief-global-thin-'));
   try {
-    mkdirSync(join(dir, '.Lattice'), { recursive: true });
-    writeFileSync(join(dir, '.Lattice', 'lattice.json'), JSON.stringify({ assetMode: 'global-thin' }));
+    mkdirSync(join(dir, '.lattice'), { recursive: true });
+    writeFileSync(join(dir, '.lattice', 'lattice.json'), JSON.stringify({ assetMode: 'global-thin' }));
     const cmd = resolveCodexSessionBriefCommand(dir);
     const expected = `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
     assert(cmd === expected, `global-thin resolves to fallback command: expected "${expected}", got "${cmd}"`);
@@ -306,7 +310,7 @@ assertSessionBriefCommand(
 }
 
 function seedCodexStory(dir) {
-  mkdirSync(join(dir, '.koala', 'story', 'actives'), { recursive: true });
+  mkdirSync(join(dir, '.lattice', 'story', 'actives'), { recursive: true });
   const store = new StoryStore(dir);
   const now = new Date().toISOString();
   store.writeStory('B-codex', {

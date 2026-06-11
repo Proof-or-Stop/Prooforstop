@@ -1,0 +1,78 @@
+{
+  "storyId": "B-f3b0",
+  "name": "cleanup-legacy",
+  "title": "清理过时功能（MCP + flow + runtime_gen + story_quick + testintent_migrate），统一为纯 CLI",
+  "description": "koala 已全面切换为 CLI 模式，以下过时/冗余功能需要清理：\n\n## MCP 清理\n- 删除 mcp/server.ts、mcp/tools.ts 及 McpServer/StdioServerTransport/server.tool 注册逻辑。handler 业务逻辑如被 CLI 复用则保留\n- 删除 .mcp.json、package.json 中 @modelcontextprotocol/sdk 依赖、cli-init.ts 中生成 .mcp.json 的逻辑\n\n## flow 清理\n- 删除 flow_trace / flow_list 命令实现及 flow handler\n- 删除 @flow 注释相关文档说明\n\n## runtime_gen 清理\n- 删除 runtime_gen 命令实现（mcp/handlers/runtime-gen.ts）\n- 删除 cli.ts 中工具定义、tools.ts 中 import 和注册\n- 清理 docs/requirements/decisions/ 中相关引用\n\n## story_quick 合并\n- 砍掉 story_quick，将其 checklist 参数合并到 story_create\n- 更新所有 story_quick 引用改为 story_create\n\n## testintent_migrate 清理\n- 删除 testintent_migrate 命令实现\n- 存量已迁移完毕，一次性工具不再需要\n\n## 文档清理\n- 更新 CLAUDE.md、agent prompt、koala help 输出中所有上述功能的引用",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-05T01:18:44.918Z",
+  "startedAt": "2026-04-05T01:18:44.918Z",
+  "endedAt": "2026-04-05T02:47:58.792Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-05T01:18:44.918Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:26:40.006Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:33:39.426Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:35:53.130Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:39:56.653Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:41:39.353Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:43:27.321Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:47:58.792Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

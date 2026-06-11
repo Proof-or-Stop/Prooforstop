@@ -1,0 +1,84 @@
+{
+  "storyId": "B-54f9",
+  "name": "workflow-phase-gate-consistency",
+  "title": "修复 Koala 阶段状态与 fixture 门禁不一致",
+  "description": "记录并修复一组 Koala 流程/工具层面的真实使用坑：session_brief 在主目录看到的 phase 与 worktree 真实 phase 不一致，导致 agent 重复推进；DEV checklist done gate 要求 fixture intentRef coverage，但 fixture_batch_add 又宣称只能在 TEST_CASE 写，形成 DEV done 与 TEST_CASE 进入条件循环；fixture_batch_add 在 DEV 阶段实际写入但只警告，帮助文档和门禁语义不一致；TEST_CASE 阶段不能运行 test_story，导致刚写完 fixture 时无法验证；aux_doc_list 在全局 core 入口不可用但 AGENTS 要求调用；session_brief 把 testIntent present 与 fixture/reviewer coverage 混成 missing；并行 metadata advisory 缺少自然填写入口；worktree dirty baseline 风险需要在 INIT_CHECK 前/已存在 worktree 场景持续明确提示。优先修复顺序：1 DEV done gate vs TEST_CASE fixture 阶段循环；2 session_brief 阶段状态滞后；3 fixture_batch_add 阶段规则与实际行为不一致；4 dirty baseline 在创建/复用 worktree 前强提示。",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-19T16:43:48.515Z",
+  "startedAt": "2026-04-19T16:43:48.515Z",
+  "endedAt": "2026-04-19T16:59:39.339Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T16:43:48.516Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:46:01.336Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:46:05.840Z",
+      "branch": "story/B-54f9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:48:06.202Z",
+      "branch": "story/B-54f9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:55:21.510Z",
+      "branch": "story/B-54f9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:58:23.958Z",
+      "branch": "story/B-54f9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:58:36.991Z",
+      "branch": "story/B-54f9",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:59:39.339Z",
+      "branch": "story/B-54f9",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "passes": [
+    {
+      "id": "B-cac9:RP-001",
+      "agent": "koala-review-concept",
+      "note": "concept review passed: explicit init profiles now clean opposite-host managed assets on re-init, preserve unmarked user docs, and the transition coverage in scripts/verify-entrypoints.mjs plus manual all->codex / codex->claude / all->core repro confirms the B-cac9:F-001 wrong-host cleanup regression is fixed.",
+      "createdAt": "2026-05-13T01:17:24.261Z",
+      "reviewRound": "2026-05-13T01:15:07.926Z",
+      "_hash": "1dab94bee4a3b9ec1deaed1bb52b5259450630244403ee414e7e20d4ca089560"
+    },
+    {
+      "id": "B-cac9:RP-002",
+      "agent": "koala-review-quality",
+      "note": "quality review passed: F-003 rechecked and fixed. cli-init now removes stale Koala-managed opposite-host assets via enforceProfileCleanup before profile regeneration, preserves unmarked user docs, and verify-entrypoints covers all->codex, codex->claude, all->core, plus unmarked doc preservation. lsp_diagnostics is clean on cli-init.ts, init-assets.ts, and verify-entrypoints.mjs.",
+      "createdAt": "2026-05-13T01:18:36.613Z",
+      "reviewRound": "2026-05-13T01:15:07.926Z",
+      "_hash": "97075e96976b12540e2610347a5e8b6803a9d8b30f9c6c6d714ee79dd7c75149"
+    },
+    {
+      "id": "B-cac9:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。",
+      "createdAt": "2026-05-13T01:20:36.306Z",
+      "reviewRound": "2026-05-13T01:15:07.926Z",
+      "_hash": "88575d098b079b2e73ffe7ccddea2ad90b836784d69801385f654dd16d5959ce"
+    }
+  ]
+}

@@ -54,6 +54,7 @@ import {
   MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT,
   MEMORY_BENCHMARK_DEFAULT_SEED,
 } from './core/memory-benchmark.js';
+import { LATTICE_DIR, LEGACY_KOALA_DIR } from './core/lattice-paths.js';
 
 // ── Tool Registry ──
 
@@ -2035,7 +2036,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'dev_memory_finish', description: '结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）', schema: {
     storyId: z.string().optional().describe('活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Koala 外部会话可省略'),
-    storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/.koala/story/actives）'),
+    storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/.lattice/story/actives；legacy .koala/story/actives 仍可读）'),
     query: z.string().optional().describe('可选：相关性过滤词'),
     scope: z.enum(['global']).optional().describe('无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选'),
   }},
@@ -2523,6 +2524,7 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
 
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
+  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   // 向上查找项目配置（lattice.config.json 优先，koala.config.json 兜底）确定项目根
   let dir = process.cwd();
@@ -2676,8 +2678,11 @@ function safeAutopilotRunId(value: unknown): string | null {
 export function storyIdFromAutopilotRunId(projectRoot: string, args: Record<string, unknown>): string | null {
   const runId = safeAutopilotRunId(args.runId ?? args.autopilotId);
   if (!runId) return null;
-  const file = join(projectRoot, '.koala', 'autopilot-runs', runId, 'run.json');
-  if (!existsSync(file)) return null;
+  const file = [
+    join(projectRoot, LATTICE_DIR, 'autopilot-runs', runId, 'run.json'),
+    join(projectRoot, LEGACY_KOALA_DIR, 'autopilot-runs', runId, 'run.json'),
+  ].find((candidate) => existsSync(candidate));
+  if (!file) return null;
   try {
     const parsed = JSON.parse(readFileSync(file, 'utf8')) as { storyId?: unknown };
     return typeof parsed.storyId === 'string' && parsed.storyId.trim()
@@ -3133,7 +3138,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
  *
  * Root cause (verified, B-6974 / B-ad12 real-machine repros): `story_advance
  * INIT_CHECK` runs `story_advance` (writes phase) then `dev_start` (writes
- * `story.worktree` into the MAIN repo's `.koala/story/actives/<id>/index.json`).
+ * `story.worktree` into the MAIN repo's `.lattice/story/actives/<id>/index.json`).
  * `dev_start.createScopedStoryBootstrapCommit` commits the story dir onto the
  * `story/<id>` branch via a TEMPORARY git index — it never touches the main
  * repo's working tree or index. So the main checkout is left with an
@@ -3142,7 +3147,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
  *
  * At DONE, `applyDoneMergeEffects` Step 3 runs `git merge story/<id>` from the
  * main repo root. The story branch carries a committed
- * `.koala/story/actives/<id>/index.json`; the main working tree has the SAME
+ * `.lattice/story/actives/<id>/index.json`; the main working tree has the SAME
  * path untracked → git aborts the merge ("untracked working tree files would
  * be overwritten by merge") → partial-DONE (story marked DONE, branch never
  * merged).
@@ -3498,7 +3503,7 @@ export async function runCli(opts?: {
   }, 10000);
   watchdog.unref();
 
-  // 统一日志：写入 .koala/activity.jsonl（双源模块，legacy 路径只读兼容）
+  // 统一日志：写入 .lattice/activity.jsonl（双源模块，legacy 路径只读兼容）
   // 写入失败属于 PERSIST 类（audit 不完整 → 事后无法回溯），改为 reportHealthIssue
   // staleWarnings 也一并落盘，便于事后做趋势分析（agent 多久会忘记 advance 一次）
   function writeLog(entry: {
@@ -3564,7 +3569,7 @@ export async function runCli(opts?: {
     } catch (e: unknown) {
       reportHealthIssue('persist:writeLog', e as Error, {
         command: entry.command,
-        logDir: join(root, '.koala'),
+        logDir: join(root, LATTICE_DIR),
       });
     }
   }

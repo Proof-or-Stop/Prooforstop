@@ -1,0 +1,72 @@
+{
+  "storyId": "B-bffc",
+  "checkedAt": "2026-06-02T12:31:51.699Z",
+  "reviewRound": "2026-06-02T12:24:34.061Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Lattice CLI 0.3.5 is the primary entrypoint; koala remains the legacy alias; Mac App is optional dashboard/archive only; authority and conduit surfaces are read-only diagnostics.",
+      "status": "verified",
+      "verifiedBy": "live-cli + transcript-diff + rg/read",
+      "evidence": "README states the primary path is Lattice CLI plus Server Authority receipts, Mac App is optional/archive dashboard only, and authority_status/conduit_status are conservative. Live `node bin/lattice.js --version`, `lattice_config_doctor`, `host_probe --host=desktop-app`, `authority_status`, `conduit_status`, and the transcript diff all match."
+    },
+    {
+      "docPath": "docs/requirements/decisions/project-vision.md",
+      "promise": "Lattice CLI (packages/main) is the 0.3.5 main product entrypoint; koala stays a compatibility alias; CLI-first host migration demotes the Mac App to an optional dashboard/archive role.",
+      "status": "verified",
+      "verifiedBy": "live-cli + transcript-diff + read",
+      "evidence": "The decision doc names Lattice CLI 0.3.5 as the main entrypoint and says CLI-first host migration exposes provider/config status through host_* / lattice_config_doctor / authority_status / conduit_* commands while keeping Mac App optional. Live host_list and config-doctor outputs agree."
+    },
+    {
+      "docPath": "docs/requirements/decisions/stack-layering.md",
+      "promise": "Lattice CLI / Koala is the execution and verification substrate, not the runtime layer; Mac App remains optional dashboard/archive only and does not own project state or receipt authority.",
+      "status": "verified",
+      "verifiedBy": "read + live-cli",
+      "evidence": "The stack-layering doc explicitly assigns runtime to Claude/Codex, workflow to Superpowers, and project state to Lattice CLI / Koala, then demotes the Mac App to optional dashboard/archive. Live `host_probe --host=desktop-app` shows the corresponding capability demotions and receipt blocking."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md",
+      "promise": "Ordinary CLI remains a thin local/shadow lifecycle client that cannot claim L2+ authority evidence or production DONE without a verified receipt-backed authority path.",
+      "status": "verified",
+      "verifiedBy": "live-cli + transcript-diff + read",
+      "evidence": "The authority-client-role decision says the CLI must not claim or certify L2+ authority evidence, and local transport acceptance is not receipt verification. Live `authority_status` returns `authorityMode=off`, `receiptVerified=false`, `productionDone=false`, `canClaimProductionDone=false`; the transcript diff repeats the same boundary."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "Parallel Wave is local planning state only; it cannot satisfy REVIEW, TEST, DONE, delivery, receipt, or production authority gates.",
+      "status": "verified",
+      "verifiedBy": "read",
+      "evidence": "The Parallel Wave doc says wave artifacts are local planning only and keep `productionDone=false`, `authorityChanged=false`, and empty receipt refs. That matches the document’s stated contract and does not conflict with the live CLI authority surfaces."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Transcript diff plus live checks confirm `node bin/lattice.js --version` reports `Lattice CLI 0.3.5 (lattice; legacy alias: koala)`, and help/config surfaces keep `lattice` primary with `koala` preserved as a legacy alias."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Transcript diff plus live checks confirm `lattice_config_doctor` reports `macAppRequired=false` and `macAppRole=optional-dashboard-archive`; `host_probe --host=desktop-app` marks edit/test/evidence/receipt capabilities unavailable; `host_install --host=desktop-app` is dry-run guidance only."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Transcript diff plus live checks confirm `authority_status` returns `authorityMode=off`, `receiptVerified=false`, `productionDone=false`, `canClaimProductionDone=false`; `conduit_status` reports `conduitRole=cli-diagnostics-and-handoff`, `runnerProvisioned=false`, `modelRunnerCreated=false`, and `authorityChanged=false`."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Transcript diff plus live checks confirm third-party hosts remain coding runners: `host_probe --host=codex` shows edit/test capability with visible browser/evidence/receipt degradations, while authority receipts remain external and productionDone stays blocked without verification."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "`KOALA_SESSION_ID=sess-cef155f102728271 koala validate --story=B-bffc --json` passed with all 15/15 verification intents covered; live `node bin/lattice.js` checks and the saved transcript-diff agree on the migration, authority, and host boundary behavior."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Live read-only checks and the saved transcript diff confirm the CLI-first migration, Mac App demotion, third-party host diagnostics, and conservative authority boundaries; validation passed and no delivery TODOs remain."
+  },
+  "_hash": "ee10d0c9f70495d1951dd1d7811fd7349b40b0a95c5f25a4f9fa0d73fb96bc76"
+}

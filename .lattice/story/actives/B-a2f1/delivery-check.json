@@ -1,0 +1,93 @@
+{
+  "storyId": "B-a2f1",
+  "checkedAt": "2026-05-15T17:01:19.574Z",
+  "reviewRound": "2026-05-15T16:56:00.526Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/evidence-stale-hint.ts",
+      "promise": "EVIDENCE_STALE_MARKER constant and renderEvidenceStaleHint(storyId) function are the single source of truth for stale verificationEvidence UX across all surfaces",
+      "verifiedBy": "diff/grep",
+      "evidence": "File created in diff: exports EVIDENCE_STALE_MARKER constant and renderEvidenceStaleHint function; three surfaces (session.ts, story-advance.ts, hints.ts) import from this module"
+    },
+    {
+      "docPath": "packages/main/src/handlers/recover-evidence.ts",
+      "promise": "recover_evidence single-shot command exists: refuses on non-metadata dirty categories, then runs verification_evidence_refresh_stale + koala validate in-process",
+      "verifiedBy": "diff/grep",
+      "evidence": "File created in diff: RECOVER_EVIDENCE_ALLOWED_CATEGORIES allowlist of 3 categories; handler runtime storyId guard at line 125-127; uses classifyGitStatusRows from dirty-worktree.js; calls createChecklistHandlers + createVerifierHandlers in-process"
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts",
+      "promise": "recover_evidence is registered as a CLI command with storyId: z.string().min(1) schema and non-zero exit on refused/fail",
+      "verifiedBy": "diff/grep",
+      "evidence": "recover_evidence entry in MAIN_TOOLS at line 286-288 with z.string().min(1); dedicated runCli branch at line 1709-1726 throws on refused/fail to ensure non-zero exit code"
+    },
+    {
+      "docPath": "packages/main/src/registry.ts",
+      "promise": "recover_evidence handler is registered in the main registry via createRecoverEvidenceHandlers",
+      "verifiedBy": "diff/grep",
+      "evidence": "Import of createRecoverEvidenceHandlers at line 55; registry.registerBatch(createRecoverEvidenceHandlers(ctx)) at line 163"
+    },
+    {
+      "docPath": "packages/main/src/core/command-policy.ts",
+      "promise": "recover_evidence is classified as gateEvidence with metadata-write risk, allowed in all phases",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line added: recover_evidence: { status: gateEvidence, gateEvidence: true, allowedPhases: all, destructiveRisk: metadata-write }"
+    },
+    {
+      "docPath": "packages/main/src/core/config.ts",
+      "promise": "recover_evidence is in the DEFAULT_PHASE_TOOLS global whitelist so it can run in any phase",
+      "verifiedBy": "diff/grep",
+      "evidence": "recover_evidence added to the global DEFAULT_PHASE_TOOLS array alongside verification_evidence_add/batch_add/refresh_stale"
+    },
+    {
+      "docPath": "packages/main/src/handlers/session.ts",
+      "promise": "session_brief surfaces stale verificationEvidence hint using the shared renderEvidenceStaleHint renderer",
+      "verifiedBy": "diff/grep",
+      "evidence": "session.ts imports findStaleEvidence + renderEvidenceStaleHint; calls them in session_brief around line 866-876 wrapped in try/catch probe"
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-advance.ts",
+      "promise": "story_advance surfaces stale hint in REVIEW/TEST/DONE pre-check output using shared renderer",
+      "verifiedBy": "diff/grep",
+      "evidence": "story-advance.ts imports findStaleEvidence + renderEvidenceStaleHint + currentGitHead; appends staleEvidenceHint when newState is REVIEW/TEST/DONE at line 1483-1496"
+    },
+    {
+      "docPath": "packages/main/src/handlers/hints.ts",
+      "promise": "koala validate hint output uses renderEvidenceStaleHint renderer instead of ad-hoc stale hint string",
+      "verifiedBy": "diff/grep",
+      "evidence": "hints.ts replaces old per-surface stale string at line 198-214 with call to findStaleEvidence + renderEvidenceStaleHint"
+    },
+    {
+      "docPath": "packages/main/src/tasks/verification-freshness-smoke.ts",
+      "promise": "Smoke test extended with 5 assertion blocks covering 21 verificationIntent across CHK-001..004 including cross-surface byte-identity and recover_evidence happy/refuse paths",
+      "verifiedBy": "diff/grep",
+      "evidence": "Smoke diff adds assertStaleEvidenceHintCrossSurface (CHK-001/002), assertRecoverEvidenceCommand (CHK-003), assertSimulatedMainMergeRegression (CHK-004); test-evidence.json shows 21/21 covered allPass=true"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Covered by assertStaleEvidenceHintCrossSurface in verification-freshness-smoke.ts: creates temp git fixture with stale materialHash, asserts findStaleEvidence returns 1 entry, asserts session_brief and validate hint output include EVIDENCE_STALE_MARKER and copy-paste recovery line; fresh case asserts 0 stale entries and no marker in output; no-storyId guard asserts empty string return. test-evidence.json: 21/21 intents covered, allPass=true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Covered by assertStaleEvidenceHintCrossSurface and assertSimulatedMainMergeRegression: asserts recovery block contains literal koala verification_evidence_refresh_stale --storyId=B-a2f1 and koala validate --story=B-a2f1 --json lines; asserts pairwise byte-identical blocks across session_brief/story_advance/validate; asserts no placeholder strings <storyId> or <B-. test-evidence.json: CHK-002 intents all covered, allPass=true."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Covered by assertRecoverEvidenceCommand: (1) allowlist invariant: RECOVER_EVIDENCE_ALLOWED_CATEGORIES.size === 3 with exact 3 members; (2) happy path: stale fixture + clean worktree returns status=pass with refreshTranscript matching /Refreshed 1/1 stale evidence/ and non-empty validateTranscript; (3) refuse material_source_changes: untracked src file returns status=refused, refused.categories contains material_source_changes, short-circuit confirmed by undefined transcripts; (4) refuse unexpected_dirty_files: same pattern; (5) runtime guard: empty/whitespace storyId rejects with storyId is required. test-evidence.json: CHK-003 intents all covered."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Covered by assertSimulatedMainMergeRegression: full end-to-end scenario - baseline commit + material drift commit, story at DEV phase with CHK-001:happy:0 evidence pinned to baseline; story_advance DEV->REVIEW appends EVIDENCE STALE block matching canonical renderEvidenceStaleHint output; session_brief post-advance also matches canonicalBlock; decorateResult validate hint also matches canonicalBlock; three-way pairwise byte-identity proof; recover_evidence happy path returns status=pass with 1/1 refreshed, findStaleEvidence empty after; separate fixture for unexpected_dirty_files refuse confirms allowlist enforced. test-evidence.json: CHK-004 intents all covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items have real machine tests in verification-freshness-smoke.ts with 21/21 intents covered (allPass=true per test-evidence.json). Edge cases covered: fresh evidence does not trigger marker, no-storyId guard omits block, metadata-only dirt allowed, material/unexpected dirt refused, runtime storyId guard rejects empty/whitespace. No TODO/FIXME in new code. No CLAUDE.md or docs/ changes in this story so no doc-promise drift to verify."
+  },
+  "_hash": "b0df5f096674487655d50f16342a253b9be73570ea5520d98f7c20106132f538"
+}

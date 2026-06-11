@@ -139,7 +139,7 @@ function exec(opts: { jobPlan: any; store: any; git: GitRunner; provider?: Bound
 
 // glob matching: story / fixture JSON are forbidden; ordinary src files are not.
 assert.equal(matchesForbiddenGlob('docs/story/actives/B-x/index.json', WORKTREE_POLICY.forbiddenPathGlobs), 'docs/story/**');
-assert.equal(matchesForbiddenGlob('.koala/story/actives/B-x/checklist.json', WORKTREE_POLICY.forbiddenPathGlobs), '.koala/story/**');
+assert.equal(matchesForbiddenGlob('.lattice/story/actives/B-x/checklist.json', WORKTREE_POLICY.forbiddenPathGlobs), '.lattice/story/**');
 assert.equal(matchesForbiddenGlob('packages/main/tests/fixtures/foo.json', WORKTREE_POLICY.forbiddenPathGlobs), '**/tests/fixtures/**');
 assert.equal(matchesForbiddenGlob('./docs/story/x.json', WORKTREE_POLICY.forbiddenPathGlobs), 'docs/story/**');
 assert.equal(matchesForbiddenGlob('packages/main/src/core/foo.ts', WORKTREE_POLICY.forbiddenPathGlobs), null);

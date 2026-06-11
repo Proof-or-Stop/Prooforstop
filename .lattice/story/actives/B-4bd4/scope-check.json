@@ -1,0 +1,65 @@
+{
+  "storyId": "B-4bd4",
+  "checkedAt": "2026-05-25T13:55:02.841Z",
+  "features": [
+    {
+      "feature": "Freeze PD-1: decide Koala CLI as thin local/shadow client vs first-class enforce-mode authority client, stating L2+ evidence it may claim",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "index.json#description; understanding.outcome; B-0f04 cross-end-contract-audit.md#PD-1"
+    },
+    {
+      "feature": "Source-backed decision inputs (CLI posture, Python enforce requirements, Mac runner responsibilities, FU-1/FU-3 dependency) from B-0f04 audit + truth-source docs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-0f04 evidence cross-end-contract-audit.md + codex-verification.md"
+    },
+    {
+      "feature": "Durable truth-source location for the PD-1 contract (docs/requirements/decisions/authority-client-role.md) instead of story-local-only evidence",
+      "covered_by": "CHK-002; decision.json chosen=durable truth-source decision plus story derivation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "product-reviewer medium advisory + init low#2; resolved in decision.json"
+    },
+    {
+      "feature": "Inline definitions of core terms (PD-1, FU-1/FU-3, L2+, trustLevel, thin client, enforce-mode client) for standalone readability",
+      "covered_by": "CHK-001 terms-defined-inline intent; plan.md Reviewer-Advisory-Handling",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "init low#1 advisory"
+    },
+    {
+      "feature": "Milestone 2-6 follow-up routing table: owning repo, required/deferred/docs-only status, prerequisite, validation expectation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "index.json#description; init low#3 advisory; B-0f04 FU-1..FU-6 table"
+    },
+    {
+      "feature": "State which authority guarantees remain unimplemented and must not be assumed until Milestone 2-6 stories land",
+      "covered_by": "CHK-002 no-guarantee-before-implementation; CHK-003 pd1-dependent-work-blocked",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision.json preMortem#3"
+    },
+    {
+      "feature": "Enforce-mode implementation: CLI handshake, EvidenceEnvelope fields, actor-key signing, runner heartbeat, receipt verification (FU-1/FU-2/FU-3)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Out-Of-Scope; index.json#description decision-only must not modify production code",
+      "source": "B-0f04 routes these as follow-up stories conditional on PD-1"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 6,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e9af51025cef7cc0ac350f1c780d27e6b6596d9cd86eedc62887d8c8644462c2"
+}

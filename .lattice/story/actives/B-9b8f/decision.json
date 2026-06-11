@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "流程事实进入代码入口和 registry，不能只靠 prompt",
+    "保持现有 story 数据兼容，优先实时派生而非批量迁移",
+    "用户可见输出必须解释机器判定结果，不让 reviewer 人肉补说明"
+  ],
+  "drivers": [
+    "历史漂移点包括 pass-only finding、reviewRound 类型、express intent 豁免和 DONE/worktree 清理",
+    "已有 process fact registry，可扩展而不是新建平行系统",
+    "high priority story 需要 preMortem 覆盖 gate 漏判风险"
+  ],
+  "options": [
+    {
+      "name": "A: 扩展现有 process fact registry 并接入 handler/render tests",
+      "pros": [
+        "复用已有分级表和 smoke 基础",
+        "改动集中，兼容旧 story",
+        "可以把用户可见输出和 handler 规则一起锁住"
+      ],
+      "cons": [
+        "需要梳理已有分散常量并避免重复定义"
+      ]
+    },
+    {
+      "name": "B: 新建独立 flowFactPolicy.json 配置文件",
+      "pros": [
+        "配置形式直观",
+        "后续可以给非 TS 消费者读取"
+      ],
+      "cons": [
+        "会和现有 process-fact-registry 重复，增加漂移面",
+        "handler 仍需手动接入，短期价值低"
+      ]
+    },
+    {
+      "name": "C: 只修 prompt 和文档",
+      "pros": [
+        "改动最快"
+      ],
+      "cons": [
+        "违反用户要求，无法阻止同类问题再写入坏状态"
+      ]
+    }
+  ],
+  "chosen": "A: 扩展现有 process fact registry 并接入 handler/render tests",
+  "rationale": "现有仓库已经有 process-fact-registry 和 process-fact-levels，选择 A 可以把流程事实继续集中到同一张表，并用 handler 与 smoke test 证明 pass-only finding、reviewRound、express policy 都有机器兜底。",
+  "preMortem": [
+    {
+      "scenario": "registry 写了但 handler 不消费",
+      "trigger": "只增加表项和文档，没有在 finding/verification/workflow 入口引用",
+      "consequence": "实际 CLI 行为仍靠 prompt，漂移继续出现",
+      "mitigation": "每个新增 policy 都配一个 handler/render 断言和 smoke 测试"
+    },
+    {
+      "scenario": "express 豁免被误当成所有 0 intent story 的 pass",
+      "trigger": "renderVerificationCoverage 只看 total=0，不看 channel 和 checklist 条件",
+      "consequence": "normal story 缺 verificationIntent 也被误报合规",
+      "mitigation": "豁免只由 computeChannel(story, checklist, decision) === express 派生，normal/fast 保持原输出"
+    },
+    {
+      "scenario": "reviewRound 类型修文档时破坏签名兼容",
+      "trigger": "把运行时 reviewRound 从 ISO string 改成 number",
+      "consequence": "历史 finding/review pass hash 校验失败",
+      "mitigation": "保留 runtime string，修 schema 文档和 registry，测试验证 ISO 字符串"
+    }
+  ],
+  "timestamp": "2026-05-12T21:07:31.254Z"
+}

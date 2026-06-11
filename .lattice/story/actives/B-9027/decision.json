@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "behavior-preserving extraction：搬迁不改语义，任何用户/agent 可见行为变化都是 bug",
+    "显式数据流优于 global state：__koalaDoneChecklistRendered 改显式返回值/参数",
+    "layering：done-effects.ts 与 story-advance.ts 同层放 handlers/，不强塞 core/"
+  ],
+  "drivers": [
+    "DONE merge/cleanup 是 story 收尾最关键路径，inline 在 story-advance.ts 里难维护难单测",
+    "B-56d3 已抽 done-oracle gate 与 non-DONE transition effects，done-effects 是同类延续",
+    "__koalaDoneChecklistRendered 是 B-56d3 留下的 global-state 技术债"
+  ],
+  "options": [
+    {
+      "name": "A: behavior-preserving extraction —— done-effects.ts 在 handlers/，机械搬迁块 A pre-merge gates 加块 B merge/cleanup 加 maybeTriggerAudit，时序不变，globalThis 改显式传参",
+      "pros": [
+        "B-9027 scope 就是 extraction，A 不引入行为变更风险",
+        "用户/agent 可见输出 byte-identical，验收清晰",
+        "顺带还清 globalThis 技术债"
+      ],
+      "cons": [
+        "抽取跨 actor.send 边界，需拆成两个导出函数分别在落盘前后调用",
+        "回归证明成本高（要逐步对照 byte-identical）"
+      ]
+    },
+    {
+      "name": "B: extraction 同时改 DONE 时序，把 phase=DONE 写入挪到 merge+cleanup 成功之后",
+      "pros": [
+        "DONE 事务语义更直观（成功才 DONE）"
+      ],
+      "cons": [
+        "这是行为变更不是 extraction，要重设计 metadata commit / merge 后 story state 写入 / 失败恢复语义，风险高",
+        "与 B-9027『extraction』scope 不符，应单独开 story"
+      ]
+    },
+    {
+      "name": "C: 只抽块 B merge/cleanup，块 A pre-merge gates 留在 story-advance.ts",
+      "pros": [
+        "不跨 actor.send 边界，抽取简单"
+      ],
+      "cons": [
+        "done-effects.ts 不完整，pre-merge gate 与 merge 逻辑分两处，未来仍难维护",
+        "DONE 验收逻辑割裂"
+      ]
+    }
+  ],
+  "chosen": "A: behavior-preserving extraction —— done-effects.ts 在 handlers/，机械搬迁块 A pre-merge gates 加块 B merge/cleanup 加 maybeTriggerAudit，时序不变，globalThis 改显式传参",
+  "rationale": "选 A：B-9027 是 extraction 不是 DONE 事务模型重写。A 把完整 DONE pipeline（含跨 actor.send 边界的 pre-merge gates 与 merge/cleanup 加 maybeTriggerAudit）搬到 handlers/done-effects.ts，行为零变化、可见输出 byte-identical、顺带清掉 globalThis 技术债。B 改时序是行为变更须单独开 story（要重设计失败恢复语义，风险高）；C 抽不干净、pre-merge gate 与 merge 逻辑割裂。A 唯一代价是跨边界抽取需拆两个导出函数，但调用时机不变即可保证时序。",
+  "preMortem": [
+    {
+      "scenario": "搬迁中改了块 B 的步骤顺序",
+      "trigger": "抽取时重排代码，如 Step2 commit metadata 与 Step2.5 stray cleanup 颠倒、或 Step4 worktree remove 与 Step5 branch -d 颠倒",
+      "consequence": "DONE merge 行为变化——可能 commit 了不该 commit 的、漏 commit、或在分支还在时删 worktree 失败",
+      "mitigation": "CHK-003 回归 smoke 断言 Step1-5 顺序与成功路径 byte-identical；实现时逐步对照 git diff，不重排"
+    },
+    {
+      "scenario": "跨 actor.send 边界抽取时块 A pre-merge gate 的调用时机错位",
+      "trigger": "块 A 在 phase 落盘前、块 B 在后，抽成一个模块后容易混淆两段的调用点",
+      "consequence": "pre-merge gate 在 phase=DONE 落盘后才跑，gate 失败时 story 已 DONE，CHK-002 核心验收被破坏",
+      "mitigation": "done-effects.ts 拆两个独立导出函数（pre-merge gate 函数返回 rendered checklist / merge-cleanup 函数）；story-advance.ts 在 actor.send 前调前者、写盘后调后者，调用点时机与现在逐行一致；CHK-002 回归测试模拟 pre-merge gate 失败断言 story 未进 DONE"
+    },
+    {
+      "scenario": "消除 globalThis 时 DONE checklist 渲染文本丢失或顺序错",
+      "trigger": "__koalaDoneChecklistRendered 改显式传参，pre-merge gate 函数返回 rendered，story-advance.ts 持有并传给返回段，链路任一处漏接",
+      "consequence": "DONE 成功消息缺 checklist 段或位置错",
+      "mitigation": "pre-merge gate 函数显式 return rendered checklist 字符串；story-advance.ts 局部变量持有并拼进返回；smoke 断言 DONE 成功输出含完整 checklist 段"
+    },
+    {
+      "scenario": "maybeTriggerAudit 抽走后丢了 non-blocking 包装",
+      "trigger": "抽取时把 maybeTriggerAudit 外层 try/catch 漏搬或简化",
+      "consequence": "framework audit 异常导致 DONE 成功消息失败，DONE 体验回归",
+      "mitigation": "保留 maybeTriggerAudit 的 non-blocking try/catch 原样；CHK-003 smoke 或现有测试验证 audit 路径异常不影响 DONE 成功返回"
+    }
+  ],
+  "timestamp": "2026-05-17T02:12:55.573Z"
+}

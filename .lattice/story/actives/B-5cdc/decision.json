@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Runner command must be explicit and never triggered by normal local lifecycle commands.",
+    "Dry-run must be side-effect free: no network mutation and no provider execution.",
+    "Fake-provider execution must be bounded by claimed job identity and signed provider events.",
+    "Authority receipt/evidence production must not be overclaimed by local status or planning artifacts."
+  ],
+  "drivers": [
+    "Preserve local/off usability while adding enforce-only runner behavior.",
+    "Reuse B-1123 contract/signing/client primitives instead of inventing a second authority protocol.",
+    "Provide mechanical smoke tests for happy, edge, and adversarial verification intents."
+  ],
+  "options": [
+    {
+      "name": "thin-explicit-runner",
+      "pros": [
+        "Keeps normal local workflows unaffected",
+        "Reuses existing authority client/contracts",
+        "Allows dry-run and fake-provider smokes without production server dependency"
+      ],
+      "cons": [
+        "Does not yet integrate real provider CLIs",
+        "Requires later receipt-backed evidence story for production classification"
+      ]
+    },
+    {
+      "name": "always-on-authority-runner",
+      "pros": [
+        "Closer to final production automation"
+      ],
+      "cons": [
+        "Risks blocking local users without paid/server authority",
+        "Could accidentally trigger provider execution from ordinary lifecycle commands",
+        "Harder to test safely in local development"
+      ]
+    },
+    {
+      "name": "status-only-placeholder",
+      "pros": [
+        "Very low implementation risk"
+      ],
+      "cons": [
+        "Does not satisfy job claim/provider event milestones",
+        "Leaves no mechanical proof of runner flow"
+      ]
+    }
+  ],
+  "chosen": "thin-explicit-runner",
+  "rationale": "Choose the explicit once/dry-run runner because it advances real job claim and provider-event mechanics while preserving the local/off safety boundary established in earlier milestones.",
+  "preMortem": [
+    {
+      "scenario": "Runner is invoked implicitly by a normal lifecycle command",
+      "trigger": "Command wiring shares authority runner side effects with story_advance or verification_evidence_add",
+      "consequence": "Local users unexpectedly contact authority or execute provider jobs",
+      "mitigation": "Keep a dedicated authority_enforce_runner command and add adversarial smoke assertions that normal lifecycle commands do not invoke runner paths"
+    },
+    {
+      "scenario": "Dry-run mutates authority or executes a provider command",
+      "trigger": "Dry-run reuses live execution branch too late",
+      "consequence": "Users cannot safely inspect planned runner steps",
+      "mitigation": "Model dry-run as a plan projection with spawned:false/providerEvents:[] and fake server asserting no mutation/event endpoints were hit"
+    },
+    {
+      "scenario": "Provider events are accepted for the wrong job or run",
+      "trigger": "Fake execution omits lease/run/provider identity checks",
+      "consequence": "Evidence could be attached to an unrelated producer/verifier flow",
+      "mitigation": "Bind events to claimed JobSpec/run IDs and add mismatched/unleased rejection tests"
+    },
+    {
+      "scenario": "Failed provider commands look successful",
+      "trigger": "Only stdout/completed path is implemented",
+      "consequence": "Weak evidence can pass despite command failure",
+      "mitigation": "Add failing command smoke that emits failed provider event and returns non-zero runner result"
+    }
+  ],
+  "timestamp": "2026-06-02T21:01:49.847Z"
+}

@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Single choke-point: every CLI invocation must pass through one readonly reviewer guard before any handler writes.",
+    "Reuse existing command classification instead of hand-maintaining a second mutating command list.",
+    "Opt-in isolation only: normal Koala reviewer write lanes remain available unless the caller explicitly sets readonly reviewer mode.",
+    "Fail closed and explain recovery: blocked reviewers should return structured findings to the owner, who records authoritative evidence."
+  ],
+  "drivers": [
+    "The B-edca incident came from reviewer tool permissions, not from review evidence stale detection itself.",
+    "CommandPolicy.ownershipClass already distinguishes readOnly, reviewerWrite, storyScopedMutating, mainSharedMutating, and dangerousMutating.",
+    "Koala needs to support both advisory external reviewers and normal gate-writing reviewers without conflating them."
+  ],
+  "options": [
+    {
+      "name": "env-gated-readonly-choke-point",
+      "pros": [
+        "Can be injected at spawn time for Claude/Codex/Gemini CLI without changing every reviewer command schema",
+        "Uses resolveEffectiveOwnershipClass so new mutating commands are automatically blocked unless classified readOnly",
+        "Preserves normal reviewerWrite path when the env var is absent"
+      ],
+      "cons": [
+        "Owner must remember to set the env var for advisory external reviewers",
+        "If the env leaks into a normal reviewer process, legitimate reviewer evidence writes are blocked with a clear error"
+      ]
+    },
+    {
+      "name": "per-command-allowlist",
+      "pros": [
+        "Very explicit list of blocked commands",
+        "Could show a tailored error per command"
+      ],
+      "cons": [
+        "High drift risk whenever Koala adds commands",
+        "Likely to miss reviewerWrite or mainSharedMutating edge cases"
+      ]
+    },
+    {
+      "name": "tool-permission-only",
+      "pros": [
+        "No Koala code change if every launcher perfectly restricts Bash",
+        "Keeps runtime simple"
+      ],
+      "cons": [
+        "Already failed in practice when a read-only reviewer got Bash",
+        "Cannot protect unknown future launchers or manual CLI use"
+      ]
+    }
+  ],
+  "chosen": "env-gated-readonly-choke-point",
+  "rationale": "Use KOALA_REVIEWER_READONLY=1 as an explicit spawn-time/read-only reviewer signal and enforce it in cli-engine.ts before hooks and before handlers. The guard will allow only effective ownershipClass=readOnly commands and block reviewerWrite, storyScopedMutating, mainSharedMutating, dangerousMutating, and unclassified commands. This directly closes the advisory reviewer write hole without weakening normal signed reviewer lanes.",
+  "preMortem": [
+    {
+      "scenario": "Readonly env leaks into a normal gate reviewer",
+      "trigger": "Owner exports KOALA_REVIEWER_READONLY globally instead of setting it only on an advisory reviewer command",
+      "consequence": "Normal review_run_start/review_pass_set fails and REVIEW cannot progress",
+      "mitigation": "Make the error name KOALA_REVIEWER_READONLY and docs say set it only per spawned advisory process; tests prove normal no-env reviewerWrite still passes"
+    },
+    {
+      "scenario": "A new mutating command bypasses readonly mode",
+      "trigger": "Future command is added and classified reviewerWrite/mainSharedMutating/storyScopedMutating but the readonly guard uses a stale hand-written block list",
+      "consequence": "Advisory reviewer can still mutate state",
+      "mitigation": "Guard uses resolveEffectiveOwnershipClass and allows only readOnly; command-ownership contract covers all MAIN_TOOLS classification"
+    },
+    {
+      "scenario": "Blocked command still triggers hooks or partial writes",
+      "trigger": "Readonly guard runs after preCommand hooks or inside an individual handler",
+      "consequence": "A rejected advisory reviewer still leaves side effects",
+      "mitigation": "Run readonly guard in cli-engine.ts before preCommand hooks and before enforceStoryOwnerLeaseGate/handler invocation; smoke test asserts blocked command produces no review pass artifact"
+    },
+    {
+      "scenario": "Readonly mode conflicts with owner takeover semantics",
+      "trigger": "Advisory reviewer tries story_advance --takeover or --forceTakeover",
+      "consequence": "Reviewer seizes ownership despite intended read-only role",
+      "mitigation": "Readonly guard checks effective class before owner lease/takeover flow, so dangerousMutating/storyScopedMutating commands are blocked regardless of takeover flags"
+    }
+  ],
+  "timestamp": "2026-06-01T15:53:47.644Z"
+}

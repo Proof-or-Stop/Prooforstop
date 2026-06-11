@@ -1,0 +1,62 @@
+{
+  "storyId": "B-a6bc",
+  "name": "phase-split",
+  "title": "阶段拆分：新增 TEST_CASE + TEST_CASE_REVIEW 阶段",
+  "description": "在 DEV 和 TEST 之间插入 TEST_CASE（写 fixture case）和 TEST_CASE_REVIEW（reviewer 审核）两个阶段。门禁逻辑：whitebox 失败回退 DEV，黑盒失败回退 TEST_CASE。依赖 testIntent 结构变更完成。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-04T02:22:39.561Z",
+  "startedAt": "2026-04-04T02:22:39.561Z",
+  "endedAt": "2026-04-04T09:45:31.302Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-04T02:22:39.561Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-04T07:07:32.979Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-04T09:27:58.765Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-04T09:34:40.455Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-04T09:45:07.074Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-04T09:45:31.302Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

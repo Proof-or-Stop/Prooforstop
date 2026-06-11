@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "story metadata belongs to the story branch during main sync",
+    "real code conflicts must remain explicit",
+    "mutating git operations require dry-run/confirm"
+  ],
+  "drivers": [
+    "BUG-4 can still happen during manual git merge main",
+    "agents forget ours/theirs direction in story worktrees",
+    "DONE gate already depends on story branch containing main"
+  ],
+  "options": [
+    {
+      "name": "A: add story_sync_main command",
+      "pros": [
+        "encapsulates the tricky ours/theirs rule",
+        "keeps DONE gate workflow unchanged",
+        "gives agents one safe command to follow"
+      ],
+      "cons": [
+        "adds another CLI command to document and test"
+      ]
+    },
+    {
+      "name": "B: only improve DONE gate hint",
+      "pros": [
+        "very small change"
+      ],
+      "cons": [
+        "still relies on users remembering and correctly applying --ours"
+      ]
+    },
+    {
+      "name": "C: auto merge main inside DONE confirm",
+      "pros": [
+        "fewer manual steps"
+      ],
+      "cons": [
+        "DONE confirm would perform larger mutations and may surprise users when code conflicts appear"
+      ]
+    }
+  ],
+  "chosen": "A: add story_sync_main command",
+  "rationale": "选择 A，因为问题核心是手动 merge main 的易错操作，封装成明确 dry-run/confirm 命令能消除 ours/theirs 记忆负担，同时不隐藏真实代码冲突。",
+  "preMortem": [
+    {
+      "scenario": "命令吞掉源码冲突",
+      "trigger": "自动 checkout --ours 匹配路径过宽",
+      "consequence": "真实业务冲突被误合并",
+      "mitigation": "只自动处理 .koala/story/actives/<storyId>/ 前缀；其它 unmerged path 保留并报错"
+    },
+    {
+      "scenario": "在 main 或错误 worktree 中执行",
+      "trigger": "用户 cwd 不在 story worktree",
+      "consequence": "错误分支被 merge main",
+      "mitigation": "复用 assertCwdInWorktree 校验 storyId 与 cwd"
+    },
+    {
+      "scenario": "dry-run 修改仓库",
+      "trigger": "为了探测冲突直接执行 git merge",
+      "consequence": "预览也弄脏工作区",
+      "mitigation": "dry-run 只输出当前分支、main 是否领先、命令计划，不执行 merge"
+    }
+  ],
+  "timestamp": "2026-04-20T11:28:11.606Z"
+}

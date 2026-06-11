@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-6812:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete. Key deletions: (1) inline sleepSync + manual mkdir lock in checklist.ts replaced by withMkdirLock from core/mkdir-lock.ts — zero residual refs to old inline lock code in worktree; (2) old exact-name idempotency (other.name !== args.name) replaced by normalizeName comparison — no residual exact-name comparisons found; (3) dupWarning/riskHint removed from stdout return strings and moved to stderr via emitAdvisoryToStderr — no return statements splice advisory text. All new symbols (withMkdirLock, normalizeName, keywordOverlap, RECENT_CONCURRENT_WINDOW_MS, recentConcurrentStoriesNote) are consistently defined and referenced. New task files registered in package.json scripts. No orphan or stale concept references found.",
+      "createdAt": "2026-05-16T13:51:27.889Z",
+      "reviewRound": "2026-05-16T13:49:25.681Z",
+      "reviewRunId": "B-6812:RR-004",
+      "_hash": "e89c100297786ae89b5221cc34b69e2543f7ed4f9b1ffd4c6023bfba8164f2dc"
+    },
+    {
+      "id": "B-6812:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed (round 2): CHK-003:edge:4 evidence 已注册且 validate 确认 covered。全部 must intent 27/27 有效覆盖（missingRequired=0）。4 条 should intent 缺口（CHK-002:adversarial:1、CHK-003:adversarial:0/2/3）均为 priority=should，无 blocker。",
+      "createdAt": "2026-05-16T14:04:31.167Z",
+      "reviewRound": "2026-05-16T14:03:12.823Z",
+      "reviewRunId": "B-6812:RR-007",
+      "_hash": "017f598716889d96a835c178bafed6e7eb1061ad71563c5947b6c59687859ab0"
+    },
+    {
+      "id": "B-6812:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review of git diff main...HEAD. F-002 confirmed fixed: DEFAULT_DEADLINE_MS=30000 > DEFAULT_STALE_MS=10000; stale-reclaim branch is now reachable; default-config regression test added in mkdir-lock-smoke.ts. F-003 confirmed fixed: DuplicateStoryError typed class introduced; instanceof check replaces fragile string-prefix match; all keyword-block throws use the typed class. terminalKeywordOverlapNote reviewed: correct DONE/DISCARDED filter, consistent ratio===1 && shared>=2 threshold, silent error handling, no dead code or type safety issues. No new quality issues found.",
+      "createdAt": "2026-05-16T14:05:18.023Z",
+      "reviewRound": "2026-05-16T14:03:12.823Z",
+      "reviewRunId": "B-6812:RR-006",
+      "_hash": "ee820301237d0801341fbebe4d66a791c643e78d60eafbde468e8723d5660b40"
+    },
+    {
+      "id": "B-6812:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Round 2 re-review. Step 1 extracted key symbols: terminalKeywordOverlapNote, emitAdvisoryToStderr, DuplicateStoryError, normalizeName, keywordOverlap, RECENT_CONCURRENT_WINDOW_MS. Step 2 matched 3 doc sections (AGENTS.md §重复story检测/§重复并发警告走stderr, CLAUDE.md §story_create重复/并发警告走stderr). Step 3 confirmed all doc claims match code: (1) F-004 fixed - terminalKeywordOverlapNote() emits DONE/DISCARDED warn to stderr on all 3 return paths, consistent with AGENTS.md; (2) normalizeName doc matches implementation (lowercase+trim+separator collapse); (3) keyword block threshold (ratio===1, shared>=2) matches both AGENTS.md and code; (4) emitAdvisoryToStderr routing matches CLAUDE.md description; (5) RECENT_CONCURRENT_WINDOW_MS=30min hardcoded matches both docs. No blocker found in round 2.",
+      "createdAt": "2026-05-16T14:05:35.657Z",
+      "reviewRound": "2026-05-16T14:03:12.823Z",
+      "reviewRunId": "B-6812:RR-008",
+      "_hash": "c83d28c07c7bc05e44da305cd05179775174d2ec6807ef520784d01df106d578"
+    },
+    {
+      "id": "B-6812:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept review - all clear. Concepts introduced/replaced in round 1 (withMkdirLock extraction, normalizeName+keywordOverlap, DuplicateStoryError typed error, terminalKeywordOverlapNote, DEFAULT_DEADLINE_MS 5000→30000) are complete with zero residuals. (1) Deleted inline sleepSync+lock loop from checklist.ts - no residuals in worktree. (2) Old exact-name-only idempotency replaced by normalizeName comparison - no old comparison patterns remain. (3) message.startsWith() brittle catch replaced by instanceof DuplicateStoryError - only in comment (JSDoc rationale), no actual code usage. (4) dupWarning/riskHint removed from stdout return values - confirmed not in any return string. (5) terminalKeywordOverlapNote: defined and called correctly, no doc drift. (6) B-0af4 references in comments are audit trail only, not stale concept residuals. No concept deletions with incomplete cleanup found.",
+      "createdAt": "2026-05-16T14:06:45.341Z",
+      "reviewRound": "2026-05-16T14:03:12.823Z",
+      "reviewRunId": "B-6812:RR-005",
+      "_hash": "6c57ce1a36b022909aa1cceaa8aeb0b77a2e2b86816b0ae0303db14ea9d0c735"
+    }
+  ]
+}

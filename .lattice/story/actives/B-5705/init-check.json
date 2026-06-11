@@ -1,0 +1,42 @@
+{
+  "storyId": "B-5705",
+  "checkedAt": "2026-05-08T23:05:35.737Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "I-1",
+      "severity": "low",
+      "desc": "CHK-001 context includes CLI help/footer drift, but verificationIntent only explicitly names CLAUDE.md, templates, and generated prompts. Add CLI help/footer to the happy/adversarial verification target so REVIEW/TEST cannot pass while a koala help/footer still points new sessions at status."
+    },
+    {
+      "id": "I-2",
+      "severity": "low",
+      "desc": "CHK-003 says the UserPromptSubmit hook should remind when session_brief heartbeat exceeds a threshold, but the threshold/source of recency is not specified in background or verificationIntent. Define the intended default or make it an explicit DEV decision to avoid reminder frequency drifting by implementation guess."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-08T23:05:02.319Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-08T23:05:35.737Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "low",
+          "desc": "CHK-001 context includes CLI help/footer drift, but verificationIntent only explicitly names CLAUDE.md, templates, and generated prompts. Add CLI help/footer to the happy/adversarial verification target so REVIEW/TEST cannot pass while a koala help/footer still points new sessions at status."
+        },
+        {
+          "id": "I-2",
+          "severity": "low",
+          "desc": "CHK-003 says the UserPromptSubmit hook should remind when session_brief heartbeat exceeds a threshold, but the threshold/source of recency is not specified in background or verificationIntent. Define the intended default or make it an explicit DEV decision to avoid reminder frequency drifting by implementation guess."
+        }
+      ]
+    }
+  ],
+  "_hash": "efc2b03f3698a733499186ca61754bc2e91574b8eb0029b6ecfec24e1f292d91"
+}

@@ -1,0 +1,53 @@
+{
+  "storyId": "B-5cea",
+  "checkedAt": "2026-06-04T00:34:25.986Z",
+  "reviewRound": "2026-06-04T00:24:47.118Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md#wrapper-priority",
+      "promise": "Wrapper priority order documented: bin/lattice-codex.js (standard) > bin/koala-codex.js (legacy fallback) > bin/lattice.js (generic bootstrap) > bin/koala.js (legacy generic fallback); legacy projects with only bin/koala-codex.js use it directly as a semantic equivalent.",
+      "verifiedBy": "diff",
+      "evidence": "README.md diff adds: Wrapper 优先级：`bin/lattice-codex.js` > `bin/koala-codex.js` > `bin/lattice.js` > `bin/koala.js`; resolveLocalCodexVerifyCommand() in codex-adapter-checks.ts implements exactly this priority order with existsSync checks."
+    },
+    {
+      "docPath": "README.md#global-heartbeat-only",
+      "promise": "Global lattice/koala in a story worktree described as heartbeat-only, not current-worktree gate/status evidence.",
+      "verifiedBy": "diff",
+      "evidence": "README.md diff adds English sentence: Global `lattice`/`koala` in a story worktree is **heartbeat-only, not current-worktree gate/status evidence**. Also updated no-local-wrapper section with: **Global CLI is heartbeat-only, not current-worktree gate/status evidence**. bootstrap-runner.js updated error message to say: Global CLI (heartbeat-only, not current-worktree gate/status evidence)."
+    },
+    {
+      "docPath": "README.md#no-local-wrapper",
+      "promise": "No-local-wrapper section updated to mention both bin/lattice-codex.js and bin/koala-codex.js as local wrappers; global fallback only applies when neither is present.",
+      "verifiedBy": "diff",
+      "evidence": "README.md diff changes: 如果某个项目只有全局 CLI，没有 `bin/lattice-codex.js` 也没有 `bin/koala-codex.js` (added koala-codex.js to the condition). Global fallback section updated to clarify advisory-only status."
+    },
+    {
+      "docPath": "README.md#session-brief-guidance",
+      "promise": "Session brief guidance (§3 新 session 的第一步) updated to show wrapper priority options including bin/lattice-codex.js as standard and bin/koala-codex.js as legacy project fallback.",
+      "verifiedBy": "diff",
+      "evidence": "README.md diff adds heading: 用当前 worktree 已有的 codex wrapper（按优先级选一）, then shows `node bin/lattice-codex.js session_brief` (primary) and `# node bin/koala-codex.js session_brief` (legacy fallback, commented out). resolveCodexSessionBriefCommand() implements this selection."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:codex-assets (scripts/verify-codex-assets.mjs): resolveLocalCodexVerifyCommand tested for lattice-codex.js (happy), koala-codex.js legacy (edge), lattice.js and koala.js fallbacks. assertGateStatusLattice() and assertGateStatus() confirm summarizeCodexEvidence uses resolved wrapper command. renderPreflight tested via commandLabel field — no stale LOCAL_CODEX_VERIFY_COMMAND hardcoded (adversarial). All 3 verificationIntent lanes covered. test-evidence.json shows 9/9 covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:entrypoints (scripts/verify-entrypoints.mjs): global fallback heartbeat-only guidance tested without real global install mutation (uses fake stale bin injected into PATH). assertCodexWrapperSessionFrom() updated to accept both lattice/koala session brief heading. Global-thin default init tested (assertGlobalThinAssets). CHK-002:edge:0 live evidence: KOALA_SESSION_ID=codex-B-5cea-dev node bin/koala-codex.js verify_codex passed and reported global @koala-agent/core outside worktree as heartbeat-only warning. Adversarial: stale global drift advisory, not hard-fail."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Focused regression tests added to scripts/verify-codex-assets.mjs (not the planned worktree-codex-gate-command-smoke.ts — a file-plan deviation but equivalent coverage). assertSessionBriefCommand() covers all 4 wrapper candidates + global-thin fallback. assertGateStatusLattice() covers lattice-repo resolver path. npm run test:codex-assets and npm run test:entrypoints both pass per test-evidence.json. validate --json stdout confirmed parseable; no Swift or Mac Native App commands appear in any verification step. test-evidence.json result=PASS, headSha=6bfe830e."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 README docs promises verified in diff. 3 CHK features fully tested: wrapper-aware verify command selection (happy/edge/adversarial), worktree global-heartbeat-only guidance (docs/logic/adversarial), and focused regression coverage. Minor plan deviation: worktree-codex-gate-command-smoke.ts was not created; equivalent resolver tests were added to scripts/verify-codex-assets.mjs instead. JSON stdout parseability confirmed. No Swift/Mac Native validation in evidence set."
+  },
+  "_hash": "504e3020616a54af03ff52de6ad02ff32face1432f70ea54768034216ebd71e1"
+}

@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Gate remediation must recommend commands that actually exist in the current checkout.",
+    "Story worktree evidence must be tied to current worktree code, not a bare global CLI that may resolve to main or another checkout.",
+    "Compatibility is first-class: legacy koala-codex and koala.js wrappers remain accepted while Lattice names are primary when present.",
+    "The fix stays narrow and testable, with JSON stdout and non-Swift validation preserved."
+  ],
+  "drivers": [
+    "Hardcoded LOCAL_CODEX_VERIFY_COMMAND misleads legacy/full-ish repositories.",
+    "Global lattice can legitimately point at main dist, so acceptance must classify it instead of mutating it.",
+    "Review and DONE gates consume structured evidence; hints and rendered command labels must agree with resolver details."
+  ],
+  "options": [
+    {
+      "name": "wrapper-aware resolver plus worktree-local guidance",
+      "pros": [
+        "Fixes both real pitfalls without changing global installation semantics.",
+        "Keeps legacy compatibility and Lattice migration semantics explicit.",
+        "Can be covered by focused smokes and existing gate paths."
+      ],
+      "cons": [
+        "Requires touching both core evidence summary and preflight rendering paths.",
+        "May expose old docs/tests that assumed one canonical wrapper name."
+      ]
+    },
+    {
+      "name": "force global lattice to current story worktree",
+      "pros": [
+        "Would make bare lattice less surprising inside a worktree."
+      ],
+      "cons": [
+        "Breaks host-neutral/global CLI expectations and can corrupt parallel story workflows.",
+        "Does not fix missing lattice-codex wrapper hints in legacy repos."
+      ]
+    },
+    {
+      "name": "docs-only warning",
+      "pros": [
+        "Low implementation risk."
+      ],
+      "cons": [
+        "Does not repair mechanical gate output; developers would still see nonexistent commands in REVIEW/DONE."
+      ]
+    }
+  ],
+  "chosen": "wrapper-aware resolver plus worktree-local guidance",
+  "rationale": "This is the only option that fixes the gate-consumed behavior and the user-facing remediation text while preserving parallel worktree and global CLI semantics.",
+  "preMortem": [
+    {
+      "scenario": "Preflight still displays LOCAL_CODEX_VERIFY_COMMAND even though evidence summary resolved a legacy command.",
+      "trigger": "Only codex-adapter-checks is changed, but review-preflight renderer keeps its hardcoded command label.",
+      "consequence": "User still receives a nonexistent command in REVIEW/DONE despite core resolver improvements.",
+      "mitigation": "Add a regression that exercises rendered preflight output and asserts legacy wrapper command appears."
+    },
+    {
+      "scenario": "Stale global lattice is treated as failure everywhere.",
+      "trigger": "Doctor/runtime checks hard-fail when global realpath differs from worktree root.",
+      "consequence": "External projects and main checkout workflows get noisy false failures.",
+      "mitigation": "Classify stale global as advisory/heartbeat fallback for self-development worktrees, not a universal hard fail."
+    },
+    {
+      "scenario": "Tests reintroduce Swift/Mac Native validation evidence.",
+      "trigger": "Validation command selection follows old koala validate fallback paths without scrutiny.",
+      "consequence": "Story appears done using legacy product runtime evidence the user explicitly deprecated.",
+      "mitigation": "Use focused Node/Lattice CLI smokes and record no Swift/Mac Native commands as delivery evidence."
+    }
+  ],
+  "timestamp": "2026-06-03T22:59:28.069Z"
+}

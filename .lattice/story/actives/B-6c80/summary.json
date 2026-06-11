@@ -1,0 +1,55 @@
+{
+  "storyId": "B-6c80",
+  "changes": "Updated repo-local init so default initialization installs Koala management assets only; starter business templates under src/core, src/shells, and tests are now behind --starter / --with-template. scanRoot detection now uses the pre-init project shape, and entrypoint smoke covers default, starter aliases, Python no-src, pre-existing src, and init help contracts. README now scopes the entrypoint smoke promise to repo-local/local-wrapper paths rather than stale global koala installs.",
+  "usage": "Use default management-only init with `node packages/main/dist/cli.js init <dir>` or `node bin/koala.js init <dir>`. Use `--starter` or `--with-template` only when you intentionally want the legacy starter src/tests templates.",
+  "expectedOutcome": "Default init shows Koala management assets only and does not create src/core, src/shells, or tests. Python no-src init keeps language=python and scanRoot=. without creating src. Starter init prints Starter template: enabled and creates src/core/app.ts, src/shells/cli/main.ts, tests, and scanRoot=src.",
+  "actualTranscript": "Manual repo-local transcript: default checks {scanRoot: ., hasSrc:false, hasTests:false}; python checks {language:python, scanRoot: ., hasSrc:false, hasTests:false}; starter checks {scanRoot:src, hasApp:true, hasCli:true, hasTests:true}; starter output includes Starter template: enabled (--starter / --with-template). Full transcript diff is in .koala/story/actives/B-6c80/evidence/transcript-diff.md.",
+  "outcomeDiff": "No mismatch. Actual output matches the expected management-only default, Python no-src scanRoot, and explicit starter behavior.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Bare global `koala` may still show old help until the package containing this change is published or installed; README now explicitly scopes smoke guarantees to repo-local entrypoints and generated local wrapper.",
+  "pitfalls": "Two review cycles caught important process gaps: test evidence must be refreshed after any HEAD rewrite, and normal-channel implementation commits need author=koala-implementer. Also avoid parallel finding_resolve because concurrent writes can lose one status update.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 473774
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 8458
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 297348
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 900962
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1036859
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 80561
+    }
+  },
+  "totalDurationMs": 2797963,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-04T23:38:20.033Z",
+  "updatedAt": "2026-05-04T23:38:20.033Z"
+}

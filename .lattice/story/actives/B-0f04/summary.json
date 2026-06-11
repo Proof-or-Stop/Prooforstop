@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0f04",
+  "changes": "Claude Code produced the cross-end authority contract audit report, Codex PM verification evidence, TEST transcript diff, and Koala lifecycle metadata for B-0f04; no production code changed.",
+  "usage": "Open .koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md for the decision report and codex-verification.md for PM verification of HV-1/HV-2/HV-3.",
+  "expectedOutcome": "An audit-only story that tells the user whether Koala CLI, Cord Team Python authority, and Koala Mac/Swift are synchronized on evidence/receipt/authority contracts, with follow-up stories separated by owning repo.",
+  "actualTranscript": "REVIEW reviewers concept, quality, test-coverage, docs all passed with zero findings. TEST validate --json passed via npm test and transcript-diff.md records expected vs actual match.",
+  "outcomeDiff": "Expected and actual match; the only review drift was stale PENDING wording, fixed by Claude and re-reviewed successfully.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "audit_only",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story is audit-only and does not implement FU-1 through FU-6; PD-1 remains a product decision before any enforce-mode CLI development.",
+  "pitfalls": "verify_codex first failed because this worktree lacked dist artifacts; building packages/main first and packages/utils second fixed it. Parallel utils build before main dist is ready can fail with TS2307.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 299208
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23840
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 381301
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1344168
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 372289
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 77403
+    }
+  },
+  "totalDurationMs": 2498222,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-25T13:02:22.631Z",
+  "updatedAt": "2026-05-25T13:02:22.631Z"
+}

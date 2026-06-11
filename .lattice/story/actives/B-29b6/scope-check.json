@@ -1,0 +1,87 @@
+{
+  "storyId": "B-29b6",
+  "checkedAt": "2026-06-02T05:10:01.847Z",
+  "features": [
+    {
+      "feature": "Add a Lattice-compatible Parallel Wave contract.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add CLI surface for Parallel Wave planning.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Split large demands into related stories and plan them as a DAG.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Dispatch work across worktrees/hosts with capability-aware degradations.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track portable evidence and lineage in wave output.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Merge related stories in a safe order.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep local workflow distinct from production authority.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Ordinary Koala workflow commands must never be treated as authority evidence submissions or verified production authority.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:authority-client-role.md"
+    },
+    {
+      "feature": "Verification-style artifact commands remain guidance-only and must not refresh evidence, submit evidence, or verify receipts by themselves.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:verification-context-pack.md"
+    },
+    {
+      "feature": "New wave commands must stay in read-only/non-authority command policy and process-fact coverage rather than lifecycle gate evidence.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 10,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9de989755adbfbb6d6d61c21a8e9789b1a14ccbfb0a4ff2767bea87536001805",
+  "openQuestions": []
+}

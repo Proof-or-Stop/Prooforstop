@@ -1,0 +1,40 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-17T02:22:49.197Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Extract done-effects.ts DONE merge and worktree cleanup from story_advance.ts + CORE ACCEPTANCE: pre-merge gate 失败不写 phase=DONE；post-merge 失败保持现有语义 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 数据迁移/破坏性, 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "73a96f70970c342b9f62309efde443a4d30d77d92a9de4083442fc94bed6779e"
+    },
+    {
+      "timestamp": "2026-05-17T02:25:42.954Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Extract done-effects.ts DONE merge and worktree cleanup from story_advance.ts + CORE ACCEPTANCE: pre-merge gate 失败不写 phase=DONE；post-merge 失败保持现有语义 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 数据迁移/破坏性, 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "8b8030dbc8c4617b9e9f6952e24091dfdc239ac30bd161b4d652b525b542ed45"
+    }
+  ]
+}

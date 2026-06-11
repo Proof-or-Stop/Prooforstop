@@ -1,0 +1,59 @@
+{
+  "findings": [
+    {
+      "id": "B-7c4f:F-001",
+      "desc": "verificationEvidence covers every CHK-001/002/003 happy-edge-adversarial lane, and packages/main npm run test:flow-stability-smoke passes at HEAD f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0; however the recorded command is underspecified because npm run test:flow-stability-smoke fails from the story worktree root with Missing script and only reproduces from packages/main.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-04-27T13:29:53.314Z",
+      "reviewRound": "2026-04-27T13:28:35.762Z",
+      "_hash": "bdec08e7937d2ca676e24905aff2aca3633b535680e9589a83de7727fd83ceb0"
+    },
+    {
+      "id": "B-7c4f:F-002",
+      "desc": "CHK-001 userSees says the user can run koala session_brief in REVIEW, but the actual global koala entrypoint still fails in this worktree: `koala session_brief` returns \"命令 \\\"session_brief\\\" 在 REVIEW 阶段不可用\" while `node packages/main/dist/cli.js session_brief` and `node dist/cli.js session_brief` both pass. The current smoke/evidence only covers the package-local build, so it misses the real user-facing executable path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-04-27T13:30:37.983Z",
+      "reviewRound": "2026-04-27T13:28:35.762Z",
+      "_hash": "8a35edc7b5b8c80eaf2885a393fd8239dd3535c66e9465a0b2bd9b9b3c050f9a"
+    },
+    {
+      "id": "B-7c4f:F-003",
+      "desc": "packages/main/src/handlers/worktree.ts:76-77 unlinks the global @koala-agent/core symlink before creating the replacement, and packages/main/src/handlers/story-advance.ts:989-997 catches relink failure but still removes the worktree. If symlink creation fails, DONE can still break the global koala command, which contradicts CHK-003’s promise to preserve the usable CLI or only skip safely.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-04-27T13:40:52.647Z",
+      "reviewRound": "2026-04-27T13:28:35.762Z",
+      "_hash": "9c8bb7f247b1f4c4ae54ee0ed527f2af025c104cc2ded81e90cb743684725cc3"
+    },
+    {
+      "id": "B-7c4f:F-004",
+      "desc": "quality reviewer finding: if global @koala-agent/core symlink points into the story worktree and relink throws, story-advance currently records only a warning and still removes the worktree, which can leave the user-facing koala command broken after DONE cleanup.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-04-27T13:40:59.126Z",
+      "reviewRound": "2026-04-27T13:28:35.762Z",
+      "_hash": "ea1889779514b53d00a9e98d8aacb86f2167dc5a8e09db710fa15cc3c266ca8d"
+    },
+    {
+      "id": "B-7c4f:F-005",
+      "desc": "test-coverage reviewer clean: current HEAD passes cd packages/main && npm run test:flow-stability-smoke, including coverage for session_brief all-phase gate, opt-in reviewer REVIEW gate, and global koala relink failure blocking worktree deletion.",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-04-27T13:47:22.252Z",
+      "reviewRound": "2026-04-27T13:45:18.486Z",
+      "_hash": "d59e9dbfdf56c4a1287f7e6a5e71caeeb67db24d4b8ccb60bc4815c3de459de1"
+    }
+  ]
+}

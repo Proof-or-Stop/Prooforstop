@@ -1,0 +1,205 @@
+{
+  "command": "koala validate --story=B-38d6 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-38d6; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-hhMJep; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-KkM8GW; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — A temp repo with only Package.swift and no validator/config returns no-validation-entry warn/skip, not swift test execution.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — A repo with explicit validate.commands for Swift can still opt in to running swift test.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — Inline validate diagnostics/details and runtime fact labels no longer advertise swift test as a standard automatic fallback.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — lattice.config.json validate.commands are loaded and used by koala validate.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — koala.config.json remains readable when lattice.config.json is absent, with visible legacy migration diagnostics.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — If both config files exist with conflicting validation config, diagnostics identify lattice.config.json as canonical winner.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — validation-protocol smoke covers Package.swift no-auto-Swift and lattice.config.json canonical config.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via integration_test verdict=success (packages/main/src/tasks/validation-protocol-smoke.ts) — Existing package.json/npm fallback behavior still works.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/testing-infra.md) — No long-form current validation guidance treats Swift/Mac Native as the default product gate.\"],\"warnings\":[],\"timestamp\":\"2026-06-03T19:17:03.184Z\",\"headSha\":\"07d67be7fb6791aa4ba064a11509b1b62f747c7d\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-38d6; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-hhMJep; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-KkM8GW; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":3439}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A temp repo with only Package.swift and no validator/config returns no-validation-entry warn/skip, not swift test execution.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Validation protocol smoke creates a Package.swift-only temp repo and asserts discoverFallbackValidationCommands returns no swift command, validate returns koala-verifier-no-validation-entry warn/skip, and commands is empty.\",\"headHash\":\"5164d1f7688ec4a8d2abaac099e7357ec2830a1d\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:04:05.562Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A repo with explicit validate.commands for Swift can still opt in to running swift test.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Validation protocol smoke creates an explicit validate.commands entry labelled explicit swift test and verifies configured commands still run, preserving opt-in legacy Swift validation.\",\"headHash\":\"5164d1f7688ec4a8d2abaac099e7357ec2830a1d\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:04:05.591Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Inline validate diagnostics/details and runtime fact labels no longer advertise swift test as a standard automatic fallback.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:runtime-fact-contract\",\"result\":\"pass\",\"note\":\"Verifier details and runtime fallback labels no longer advertise swift test as a standard automatic fallback; runtime fact contract still verifies validate-source coverage.\",\"headHash\":\"5164d1f7688ec4a8d2abaac099e7357ec2830a1d\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:04:05.622Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice.config.json validate.commands are loaded and used by koala validate.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Validation protocol smoke creates lattice.config.json with validate.commands and verifies koala-verifier-configured-commands executes the canonical lattice command.\",\"headHash\":\"c63aab20d076030910786d1c4743c6c3faa6074e\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:04:40.548Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"koala.config.json remains readable when lattice.config.json is absent, with visible legacy migration diagnostics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Validation protocol smoke creates a legacy koala.config.json-only repo, verifies configured commands still load, and captures the migration diagnostic telling users to rename to lattice.config.json.\",\"headHash\":\"c63aab20d076030910786d1c4743c6c3faa6074e\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:04:40.648Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"If both config files exist with conflicting validation config, diagnostics identify lattice.config.json as canonical winner.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Validation protocol smoke creates both lattice.config.json and koala.config.json with conflicting commands, verifies lattice.config.json wins, koala command is not executed, and conflict diagnostics identify the canonical winner.\",\"headHash\":\"c63aab20d076030910786d1c4743c6c3faa6074e\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:04:40.778Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"validation-protocol smoke covers Package.swift no-auto-Swift and lattice.config.json canonical config.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Validation protocol smoke covers Package.swift no-auto-Swift, explicit Swift opt-in, canonical lattice.config.json, legacy koala.config.json fallback, and config conflict diagnostics.\",\"headHash\":\"61b5525562ce5bf0cbbb835c78f238617369f7db\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:06:08.628Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Existing package.json/npm fallback behavior still works.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol && lattice validate --json\",\"result\":\"pass\",\"note\":\"Existing package.json/npm fallback behavior still works: validation-protocol retains npm fallback coverage and lattice validate --json on the repo passed via package.json test script without invoking Swift.\",\"headHash\":\"61b5525562ce5bf0cbbb835c78f238617369f7db\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:06:08.778Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"No long-form current validation guidance treats Swift/Mac Native as the default product gate.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/testing-infra.md\",\"command\":\"rg -n \\\"Swift / Package.swift 不在自动 fallback|Mac Native App 已退役|lattice.config.json\\\" docs/requirements/decisions/testing-infra.md README.md packages/main/src/handlers/doctor.ts packages/main/src/verifier/serve.ts\",\"result\":\"pass\",\"note\":\"Docs and user-facing diagnostics now state lattice.config.json is canonical and Swift/Mac Native is not an automatic validation fallback; Swift remains only explicit opt-in or legacy executor context.\",\"headHash\":\"61b5525562ce5bf0cbbb835c78f238617369f7db\",\"materialHash\":\"08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e\",\"timestamp\":\"2026-06-03T19:06:08.900Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-03T19:17:04.504Z",
+  "headHash": "07d67be7fb6791aa4ba064a11509b1b62f747c7d",
+  "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A temp repo with only Package.swift and no validator/config returns no-validation-entry warn/skip, not swift test execution.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates a Package.swift-only temp repo and asserts discoverFallbackValidationCommands returns no swift command, validate returns koala-verifier-no-validation-entry warn/skip, and commands is empty.",
+          "headHash": "5164d1f7688ec4a8d2abaac099e7357ec2830a1d",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:05.562Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "A repo with explicit validate.commands for Swift can still opt in to running swift test.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates an explicit validate.commands entry labelled explicit swift test and verifies configured commands still run, preserving opt-in legacy Swift validation.",
+          "headHash": "5164d1f7688ec4a8d2abaac099e7357ec2830a1d",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:05.591Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Inline validate diagnostics/details and runtime fact labels no longer advertise swift test as a standard automatic fallback.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Verifier details and runtime fallback labels no longer advertise swift test as a standard automatic fallback; runtime fact contract still verifies validate-source coverage.",
+          "headHash": "5164d1f7688ec4a8d2abaac099e7357ec2830a1d",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:05.622Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "lattice.config.json validate.commands are loaded and used by koala validate.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates lattice.config.json with validate.commands and verifies koala-verifier-configured-commands executes the canonical lattice command.",
+          "headHash": "c63aab20d076030910786d1c4743c6c3faa6074e",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:40.548Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "koala.config.json remains readable when lattice.config.json is absent, with visible legacy migration diagnostics.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates a legacy koala.config.json-only repo, verifies configured commands still load, and captures the migration diagnostic telling users to rename to lattice.config.json.",
+          "headHash": "c63aab20d076030910786d1c4743c6c3faa6074e",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:40.648Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "If both config files exist with conflicting validation config, diagnostics identify lattice.config.json as canonical winner.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates both lattice.config.json and koala.config.json with conflicting commands, verifies lattice.config.json wins, koala command is not executed, and conflict diagnostics identify the canonical winner.",
+          "headHash": "c63aab20d076030910786d1c4743c6c3faa6074e",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:40.778Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "validation-protocol smoke covers Package.swift no-auto-Swift and lattice.config.json canonical config.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke covers Package.swift no-auto-Swift, explicit Swift opt-in, canonical lattice.config.json, legacy koala.config.json fallback, and config conflict diagnostics.",
+          "headHash": "61b5525562ce5bf0cbbb835c78f238617369f7db",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:06:08.628Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Existing package.json/npm fallback behavior still works.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol && lattice validate --json",
+          "result": "pass",
+          "note": "Existing package.json/npm fallback behavior still works: validation-protocol retains npm fallback coverage and lattice validate --json on the repo passed via package.json test script without invoking Swift.",
+          "headHash": "61b5525562ce5bf0cbbb835c78f238617369f7db",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:06:08.778Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "No long-form current validation guidance treats Swift/Mac Native as the default product gate.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "rg -n \"Swift / Package.swift 不在自动 fallback|Mac Native App 已退役|lattice.config.json\" docs/requirements/decisions/testing-infra.md README.md packages/main/src/handlers/doctor.ts packages/main/src/verifier/serve.ts",
+          "result": "pass",
+          "note": "Docs and user-facing diagnostics now state lattice.config.json is canonical and Swift/Mac Native is not an automatic validation fallback; Swift remains only explicit opt-in or legacy executor context.",
+          "headHash": "61b5525562ce5bf0cbbb835c78f238617369f7db",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:06:08.900Z"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-38d6:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review mapped all nine verification intents to fresh evidence and reran validation-protocol, runtime-fact-contract, dispatch-run, host-overflow, and lattice validate; no blocking issue found.",
+      "createdAt": "2026-06-03T19:13:36.696Z",
+      "reviewRound": "2026-06-03T19:07:32.189Z",
+      "reviewRunId": "B-38d6:RR-005",
+      "_hash": "99b85f606e53e0621aaa88f8af65171fa3757f7016f0b9d96962ba19b14088c7"
+    },
+    {
+      "id": "B-38d6:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review checked Swift demotion, Lattice config canonicalization, legacy fallback boundary, and CLI-vs-legacy runtime wording; no blocking issue found.",
+      "createdAt": "2026-06-03T19:13:50.983Z",
+      "reviewRound": "2026-06-03T19:07:32.189Z",
+      "reviewRunId": "B-38d6:RR-006",
+      "_hash": "34bc6ce4e442d1471c0e755371bbe0d61dd1bd62abfc6037504930b0ed9c9aae"
+    },
+    {
+      "id": "B-38d6:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review checked README, testing-infra, doctor/init/dashboard/evaluate/serve wording for Lattice config canonicalization and Swift demotion; no blocking issue found.",
+      "createdAt": "2026-06-03T19:15:11.293Z",
+      "reviewRound": "2026-06-03T19:07:32.189Z",
+      "reviewRunId": "B-38d6:RR-004",
+      "_hash": "1ecae3d698067d518e5f65da8ee53a0f738adec8b470afcdc82a3a874660fc78"
+    },
+    {
+      "id": "B-38d6:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality review checked config helper reuse, root/config consumers, stderr diagnostics, scope acknowledged paths, build output, and diff hygiene; no blocking issue found.",
+      "createdAt": "2026-06-03T19:15:13.029Z",
+      "reviewRound": "2026-06-03T19:07:32.189Z",
+      "reviewRunId": "B-38d6:RR-007",
+      "_hash": "0ea435c4d6419fab8fb37555508619c94a5de253186f988a014a9e9a3e57c485"
+    }
+  ]
+}

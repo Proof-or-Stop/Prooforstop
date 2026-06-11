@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Primary user-facing command language is lattice; koala remains compatibility alias only.",
+    "State and signed authority identifiers stay stable unless a dedicated migration story owns the risk.",
+    "rollout_check is read-only and explanatory by default, never an apply/repair command.",
+    "External projects should receive actionable WARN/FAIL categories instead of opaque command failures."
+  ],
+  "drivers": [
+    "Existing projects and historical story evidence depend on .koala paths and koala-review-* lane IDs.",
+    "Users need one command to understand rollout status across multiple real projects.",
+    "The CLI already exposes lattice as primary bin, but help/hints still leak koala wording."
+  ],
+  "options": [
+    {
+      "name": "docs-only rename",
+      "pros": [
+        "Low risk",
+        "Quickly clarifies user guidance"
+      ],
+      "cons": [
+        "Does not fix help/hint output",
+        "Does not solve cross-project rollout friction"
+      ]
+    },
+    {
+      "name": "full identity rename",
+      "pros": [
+        "Maximum brand consistency"
+      ],
+      "cons": [
+        "High risk to .koala state, signed reviewer lanes, package identity, and historical evidence",
+        "Too broad for this rollout story"
+      ]
+    },
+    {
+      "name": "surface migration plus rollout_check",
+      "pros": [
+        "Aligns user-visible command semantics with lattice",
+        "Keeps compatibility identifiers stable",
+        "Adds a concrete cross-project rollout tool"
+      ],
+      "cons": [
+        "Some internal koala identifiers remain by design",
+        "Requires tests to distinguish user command wording from historical authority identifiers"
+      ]
+    }
+  ],
+  "chosen": "surface migration plus rollout_check",
+  "rationale": "Choose a user-facing surface migration plus read-only rollout_check because it solves the immediate product confusion without breaking historical Koala state or signed reviewer evidence.",
+  "preMortem": [
+    {
+      "scenario": "Help text migration accidentally rewrites reviewer lane or .koala authority terminology.",
+      "trigger": "A broad string replacement touches agent IDs or signed artifact semantics.",
+      "consequence": "Review/DONE gates or historical story evidence no longer line up with existing files.",
+      "mitigation": "Use targeted edits and tests; keep .koala, koala-review-* and @koala-agent/core unchanged in this story."
+    },
+    {
+      "scenario": "rollout_check mutates real projects during patrol.",
+      "trigger": "Implementation calls check --apply or repair-style commands instead of read-only checks.",
+      "consequence": "A rollout scan changes managed assets unexpectedly across projects.",
+      "mitigation": "Use read-only subprocesses only; smoke test asserts no file changes in fixture projects."
+    },
+    {
+      "scenario": "External projects produce noisy hard failures.",
+      "trigger": "A project lacks Koala/Lattice managed assets, node_modules, or local packages/main.",
+      "consequence": "Users cannot distinguish healthy warning from real blocker.",
+      "mitigation": "Normalize command exit codes into PASS/WARN/FAIL with nextAction and captured snippets."
+    },
+    {
+      "scenario": "Docs say lattice but examples still show koala in key flows.",
+      "trigger": "README and help output are updated unevenly.",
+      "consequence": "User remains unsure whether to type lattice check or koala check.",
+      "mitigation": "Add smoke checks for README/help snippets and include TEST transcript from real projects."
+    }
+  ],
+  "timestamp": "2026-06-02T14:41:26.326Z"
+}

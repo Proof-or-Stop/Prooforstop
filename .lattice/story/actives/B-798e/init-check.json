@@ -1,0 +1,29 @@
+{
+  "storyId": "B-798e",
+  "checkedAt": "2026-06-04T10:56:49.262Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-04T10:56:49.262Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-04T10:56:49.262Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Subagent spawning is unavailable in this turn because the user did not explicitly authorize new subagents. I manually checked that the story scope is narrow: only legacy task annotation metadata for cli-validate/convergence_check, no runtime behavior, no production release, no privacy or security semantics.",
+    "actor": "Harmonygo",
+    "session": "sess-d4310880153acb6e",
+    "attestedAt": "2026-06-04T10:56:49.262Z",
+    "headHash": "429e1863e40ebd4e6d2239491b8677d409401ab1",
+    "materialHash": "938643ef472257b2f3ac210ccc38967e8ad3c61695f8871872a9b1faa269b49e"
+  },
+  "_hash": "53ee81544eee7996eda70c1c30c4b7fc9c2bea9eee4d6b1cec498fc48bd16902"
+}

@@ -1,0 +1,24 @@
+{
+  "task": "Fix Koala CLI evidence freshness so host repositories that store story evidence under uppercase Docs/story can commit validation evidence without re-triggering a stale evidence loop.",
+  "outcome": "User runs koala session_brief in a repo using Docs/story after committing green validation evidence and sees DONE pre-check line: [PASS] Evidence freshness: evidence 对应当前 HEAD or metadata-only/fresh, instead of a fresh stale warning naming Docs/story/actives/.../checklist.json, process-events.jsonl, or test-evidence.json.",
+  "facts": [
+    "B-ada1 in Cord Team Mac uses Docs/story/actives/... paths for Koala story evidence.",
+    "packages/main/src/core/evidence-freshness.ts currently excludes docs/story/ and .koala/story/ but path matching is case-sensitive.",
+    "Dirty worktree classification also consumes isStoryMetadataPath from evidence-freshness for koala_metadata_changes.",
+    "Real source/package/config files must remain material and must still stale older evidence."
+  ],
+  "constraints": [
+    "Follow Orchestrate Koala story flow and use the story worktree.",
+    "Do not broaden the exemption to arbitrary docs; only story metadata/framework-audit style paths should be non-material.",
+    "Add tests that prove both the Docs/story exemption and the material-file stale boundary.",
+    "Use existing smoke test style rather than introducing a new test framework."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/tasks/verification-freshness-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/handlers/validate-channel.ts"
+  ],
+  "timestamp": "2026-05-21T04:17:51.144Z"
+}

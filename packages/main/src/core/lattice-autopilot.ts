@@ -19,6 +19,7 @@ import {
   type DispatchWatchResult,
   type HostRuntimeId,
 } from './lattice-dispatch.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 import type { StoryStore } from './store.js';
 
 export const AUTOPILOT_RUN_SCHEMA_VERSION = 'lattice.autopilot_run.v1' as const;
@@ -283,7 +284,7 @@ function generateRunId(storyId: string): string {
 }
 
 function runsDir(root: string): string {
-  return join(root, '.koala', 'autopilot-runs');
+  return join(root, LATTICE_DIR, 'autopilot-runs');
 }
 
 function runDir(root: string, runId: string): string {
@@ -295,7 +296,7 @@ function runJsonPath(root: string, runId: string): string {
 }
 
 function runJsonRelPath(runId: string): string {
-  return join('.koala', 'autopilot-runs', safeSegment(runId, 'runId'), 'run.json').replace(/\\/g, '/');
+  return join(LATTICE_DIR, 'autopilot-runs', safeSegment(runId, 'runId'), 'run.json').replace(/\\/g, '/');
 }
 
 function writeJsonAtomic(file: string, value: unknown): void {

@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "id": "TE-001",
+      "scenario": "fixture-self-test-reform 27 cases",
+      "command": "node dist/cli.js test_fixture --fixtureId=a5711e7a + 60bbbb1f",
+      "output": "allPassed:true totalCases:27 passedCases:27",
+      "expected": "allPassed:true",
+      "result": "PASS",
+      "timestamp": "2026-04-06T02:17:17.551Z"
+    }
+  ],
+  "environment": {
+    "node": "v24.13.1",
+    "os": "darwin arm64",
+    "timestamp": "2026-04-06T02:17:17.551Z"
+  }
+}

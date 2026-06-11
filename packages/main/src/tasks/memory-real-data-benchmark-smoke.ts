@@ -41,7 +41,7 @@ function lineCount(filePath: string): number {
 }
 
 function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}): string {
-  const storyDirRel = options.storyDir ?? '.koala/story/actives';
+  const storyDirRel = options.storyDir ?? '.lattice/story/actives';
   writeJson(join(root, 'lattice.config.json'), {
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -49,7 +49,7 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
     storyDir: storyDirRel,
   });
 
-  const activityPath = join(root, '.koala', 'activity.jsonl');
+  const activityPath = join(root, '.lattice', 'activity.jsonl');
   writeJsonl(activityPath, [
     {
       source: 'cli',
@@ -161,7 +161,7 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
       },
     ],
   });
-  writeJsonl(join(root, '.koala', 'dev-memory', 'experience.jsonl'), [
+  writeJsonl(join(root, '.lattice', 'dev-memory', 'experience.jsonl'), [
     {
       id: 'devreal1',
       createdAt: '2026-06-09T00:05:00.000Z',
@@ -292,8 +292,8 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
       'outputDir writes refuse mixed-case fixture state paths',
     );
     assert.throws(
-      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, '.koala/story/actives/B-real/memory-real-baseline') }),
-      /refuses to write outputDir under \.koala\/story/,
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, '.lattice/story/actives/B-real/memory-real-baseline') }),
+      /refuses to write outputDir under \.lattice\/story/,
       'outputDir writes refuse to target Koala story state',
     );
 
@@ -353,7 +353,7 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
   }
 }
 
-assertConfiguredStoryDirWorks('.koala/custom-actives');
+assertConfiguredStoryDirWorks('.lattice/custom-actives');
 assertConfiguredStoryDirWorks('docs/story/actives');
 
 {
@@ -362,9 +362,9 @@ assertConfiguredStoryDirWorks('docs/story/actives');
     writeJson(join(root, 'lattice.config.json'), {
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
     });
-    writeJsonl(join(root, '.koala', 'dev-memory', 'experience.jsonl'), [
+    writeJsonl(join(root, '.lattice', 'dev-memory', 'experience.jsonl'), [
       {
         id: 'devonly1',
         createdAt: '2026-06-09T00:05:00.000Z',

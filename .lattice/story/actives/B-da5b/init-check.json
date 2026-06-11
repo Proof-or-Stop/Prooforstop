@@ -1,0 +1,51 @@
+{
+  "storyId": "B-da5b",
+  "checkedAt": "2026-05-25T15:39:21.052Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "description field says LOW severity but priority=high (auto-elevated by gate keyword). background.md does not mention the auto-elevation mechanism, creating contradictory signals for readers unfamiliar with keyword escalation rules."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "Opening sentence references B-c9f5 dirty-gate series without an inline explanation; B-4622 gets an inline description but B-c9f5 does not. Minor readability inconsistency."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-25T15:38:23.176Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 missing userSees field: no concrete user-facing transcript describing what done looks like (e.g. koala doctor reports 0 orphan dirs, or a specific analysis artifact is produced)"
+        },
+        {
+          "severity": "medium",
+          "desc": "Contradictory intent: background says 只记录不修 (record-only, do not fix now) but CHK-001 title says Prevent… (implies a fix). Clarify whether completion = code fix or = analysis document, and align title/context accordingly"
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-25T15:39:21.052Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "description field says LOW severity but priority=high (auto-elevated by gate keyword). background.md does not mention the auto-elevation mechanism, creating contradictory signals for readers unfamiliar with keyword escalation rules."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "Opening sentence references B-c9f5 dirty-gate series without an inline explanation; B-4622 gets an inline description but B-c9f5 does not. Minor readability inconsistency."
+        }
+      ]
+    }
+  ],
+  "_hash": "9f14588033e0178b131e51c934c28ae2159249a034837b61baeea5878e608143"
+}

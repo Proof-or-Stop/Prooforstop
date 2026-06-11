@@ -1,0 +1,30 @@
+{
+  "task": "为 Koala 建立 project-state runtime 边界，并新增只读 status/next 入口",
+  "outcome": "用户在终端运行 `koala status` 时看到当前 story/phase/reviewer/artifact/dirty risk 总览；运行 `koala next` 时只看到 `Next step: ...` 形式的可执行下一步建议，从而能说：好了，我知道 Koala 现在卡在哪、下一步该跑什么命令了。",
+  "facts": [
+    "docs/requirements/decisions/stack-layering.md 已明确 Codex/Claude 是 agent runtime，Koala 是 project execution + verification substrate",
+    "docs/requirements/decisions/project-vision.md 定位 Koala 为从需求真相源到代码验证的闭环框架",
+    "packages/main/src/handlers/session.ts 已实现 session_brief，包含 active story、reviewer status、artifact status、runtime health、baseline risk 和 computeNextStep",
+    "packages/main/src/cli-engine.ts 的 MAIN_TOOLS 注册 CLI 命令 schema 和 help 文案",
+    "packages/main/src/registry.ts 通过 createSessionHandlers 注册 session_brief handler"
+  ],
+  "constraints": [
+    "Koala 不做 Codex/Claude/OMX 的 agent runtime，不启动或管理通用 agent session",
+    "status/next 必须只读，不推进 phase，不写 .koala/state，不修改 story/fixture/git",
+    "真相源仍是 story/fixture/requirements/git，不能引入第二真相源",
+    "当前 story 命中 gate 高风险信号，PLAN 必须有 decision_set 且 preMortem 至少 3 条",
+    "遵守禁止直接读写 docs/story 和 tests/fixtures 的规则，story/fixture 操作走 koala CLI"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/stack-layering.md",
+    "docs/requirements/decisions/project-vision.md",
+    "README.md",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-prompts.ts"
+  ],
+  "timestamp": "2026-04-19T18:05:02.218Z"
+}

@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "修复 loadConfig --root：传参时用参数，不传时 cwd 向上查找",
+      "context": "B-6246 中把 loadConfig 改成了忽略参数只看 cwd，导致 --root 失效。需要改回：有参数用参数，无参数才 cwd fallback。影响 test_auto/test_story/test_fixture 的 --root 场景",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "observer fixture: test_auto 全量回归基础验证",
+      "context": "在 observer 项目中创建多个 fixture 文件（math-add.json、math-multiply.json），每个有几个简单 case。跑 test_auto 验证：扫描所有 fixture、逐个执行、返回 totalCases/passedCases/allPassed。验证一个 fail 不阻塞其余",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "observer fixture: 链式 case 执行验证",
+      "context": "创建链式 case（A→B→C 共享 $ctx），验证：按 nextCaseId 顺序执行、$ctx 在链内共享、链尾触发 cleanup。用 test_fixture 从链头跑验证 totalCases=3",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "observer fixture: fixture_migrate 验证",
+      "context": "创建无 _id 的旧格式 fixture，跑 fixture_migrate，读回验证 _id 已补、链关系已建立。验证单 case fixture 不建链、已有 _id 不被覆盖",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "observer fixture: bug fixtureId 绑定验证",
+      "context": "创建会 fail 的 case，跑 test_story 触发自动 bug_report，验证 bug 有 fixtureId。然后修复 case 让它 pass，跑 bug_update fixed 验证通过 test_fixture 重跑验证",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "observer fixture: test_fixture 链中间节点拒绝",
+      "context": "创建链式 fixture，用链中间 case 的 _id 调 test_fixture，验证报错（链中间节点）。用链头 _id 调验证正常执行",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "observer fixture: git restore cleanup 验证",
+      "context": "case 中创建临时文件（如 _test_xxx.json），验证 test_auto 跑完后临时文件被 git clean 清理。验证 koala.config.json 不被影响",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "observer 跑通全量 test_auto 并提交",
+      "context": "所有 fixture 写完后跑一次 koala --root packages/koala-observer-cli test_auto 确认全部 pass，提交到 koala-agent/koala-observer-cli 仓库",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

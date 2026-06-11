@@ -1,0 +1,24 @@
+{
+  "task": "修复 Koala DONE/DISCARDED worktree repair 残留",
+  "outcome": "用户在项目根目录运行 `koala doctor` 后看到 `terminal registered: 0`、`orphan dirs: 0`、`terminal dirs: 0` 和 `✓ No orphan or terminal worktree cleanup issues.`；运行 `koala story_list` 不再看到 `Terminal worktrees (...)`；运行 `git worktree list` 不再看到 `B-e8bb 0000000 [story/B-e8bb]`，active worktree 仍然保留。",
+  "facts": [
+    "2026-05-01 在 Prodenovo 仓库已复现 terminal registered/orphan dirs/terminal dirs 残留。",
+    "B-96c1 的物理 worktree 可被 doctor repair 清理。",
+    "B-e8bb 的 git registry 可清理，但物理目录可能因 macOS/iCloud 文件状态无法删除。",
+    "已验证全局包修复后 doctor/story_list/git worktree list 恢复健康。"
+  ],
+  "constraints": [
+    "只能通过 Koala CLI 操作 story 元数据。",
+    "repair 命令会执行 git/fs mutation，必须 fail closed 或显式 quarantine。",
+    "不能误删 active/non-terminal worktree、无关 branch 或配置 worktreeDir 外的用户目录。",
+    "读取类命令不能产生 legacy docs/story activity 副作用。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts"
+  ],
+  "timestamp": "2026-05-01T15:15:47.402Z"
+}

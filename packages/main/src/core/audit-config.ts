@@ -4,7 +4,8 @@
  * Pure function module: `resolveAuditConfig(profile, projectRoot)`.
  *
  * Priority (high → low):
- *   1. Fields in `<projectRoot>/.koala/audit-config.json` (per-field override)
+ *   1. Fields in `<projectRoot>/.lattice/audit-config.json` (per-field override;
+ *      legacy `<projectRoot>/.koala/audit-config.json` remains a read fallback)
  *   2. Profile defaults: auditTriggerWindow tiered as light=10 / balanced=5 / strict=3
  *      (requireClaudeMdDiff and mode have no profile differences, use hardcoded defaults)
  *   3. Hardcoded fallback: auditTriggerWindow=5, requireClaudeMdDiff=true, mode="semi-auto"
@@ -19,6 +20,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
 import type { WorkflowProfile } from './types.js';
 
 export type AuditMode = 'semi-auto' | 'full-auto' | 'off';
@@ -49,7 +51,7 @@ const VALID_MODES: ReadonlySet<AuditMode> = new Set<AuditMode>(['semi-auto', 'fu
  * Compute audit configuration.
  *
  * @param profile      current workflow profile (already resolved by upstream resolveProfile)
- * @param projectRoot  project root path (base for reading .koala/audit-config.json)
+ * @param projectRoot  project root path (base for reading .lattice/audit-config.json)
  */
 export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string): AuditConfig {
   // 1. First compute profile defaults (only triggerWindow is tiered)
@@ -85,7 +87,7 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
       merged.mode = userOverrides.mode as AuditMode;
     } else {
       console.warn(
-        `[audit-config] invalid mode "${userOverrides.mode}" in .koala/audit-config.json, falling back to "semi-auto".`,
+        `[audit-config] invalid mode "${userOverrides.mode}" in ${pathBasename(projectRoot)} audit-config.json, falling back to "semi-auto".`,
       );
       merged.mode = 'semi-auto';
     }
@@ -95,13 +97,17 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
 }
 
 /**
- * Read `.koala/audit-config.json`.
+ * Read `.lattice/audit-config.json`, with legacy `.koala/audit-config.json`
+ * fallback.
  *   - File does not exist → return null (silent)
  *   - JSON parse failure → warn once + return null
  */
 function readUserConfig(projectRoot: string): Partial<AuditConfig> | null {
-  const path = join(projectRoot, '.koala', 'audit-config.json');
-  if (!existsSync(path)) return null;
+  const path = [
+    join(projectRoot, LATTICE_DIR, 'audit-config.json'),
+    join(projectRoot, LEGACY_KOALA_DIR, 'audit-config.json'),
+  ].find((candidate) => existsSync(candidate));
+  if (!path) return null;
 
   try {
     const raw = readFileSync(path, 'utf-8');
@@ -116,4 +122,9 @@ function readUserConfig(projectRoot: string): Partial<AuditConfig> | null {
     console.warn(`[audit-config] failed to parse ${path}: ${msg}. Falling back to profile defaults.`);
     return null;
   }
+}
+
+function pathBasename(projectRoot: string): string {
+  const latticePath = join(projectRoot, LATTICE_DIR, 'audit-config.json');
+  return existsSync(latticePath) ? '.lattice' : '.koala';
 }

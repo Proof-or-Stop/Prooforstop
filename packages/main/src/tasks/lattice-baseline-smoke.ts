@@ -407,7 +407,7 @@ function currentGitHead(root: string): string | undefined {
 function isMaterialExcludedPath(path: string): boolean {
   const normalized = path.replace(/\\/g, '/').toLowerCase();
   return normalized.startsWith('docs/story/')
-    || normalized.startsWith('.koala/story/')
+    || normalized.startsWith('.lattice/story/')
     || normalized.startsWith('docs/koala/framework-audit/')
     || normalized.startsWith('.lattice/artifacts/baseline/');
 }
@@ -443,7 +443,7 @@ function initRepo(label: string): string {
     outDir: 'packages/main/dist',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -941,9 +941,9 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
     '.lattice baseline proof artifacts must be excluded from material hash',
   );
   assert.equal(
-    isMaterialExcludedRuntimeArtifactPath('.Lattice/artifacts/baseline/example/final-report.json'),
+    isMaterialExcludedRuntimeArtifactPath('.lattice/artifacts/baseline/example/final-report.json'),
     true,
-    '.Lattice baseline proof artifacts must be excluded from material hash',
+    '.lattice baseline proof artifacts must be excluded from material hash',
   );
 
   const help = runCli(repoRoot, ['help']);

@@ -1,0 +1,66 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-04T02:32:57.835Z",
+      "issueCount": 6,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Add DONE preflight for main worktree availability before terminal state write + Teach done_recover and error hints about actual main worktree ownership 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-e74e\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: Whether existing helper coverage can simulate a main checkout held/unavailable without destructive merges into the developer main.; Whether the final code needs a new shared main-worktree resolver in partial-done-recovery or can reuse existing listRegisteredWorktrees plus resolveMainRepoRoot.; Whether process-fact registry needs a new entry or existing story_advance L4 preflight coverage is sufficient; verify with process contract."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "36b40a5e5fdebe75f3f2e12e34f5aa7b78a4ad7431b693a4ec33986ea983cd57"
+    },
+    {
+      "timestamp": "2026-06-04T02:34:45.852Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Add DONE preflight for main worktree availability before terminal state write + Teach done_recover and error hints about actual main worktree ownership 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-e74e\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: Whether existing helper coverage can simulate a main checkout held/unavailable without destructive merges into the developer main.; Whether the final code needs a new shared main-worktree resolver in partial-done-recovery or can reuse existing listRegisteredWorktrees plus resolveMainRepoRoot.; Whether process-fact registry needs a new entry or existing story_advance L4 preflight coverage is sufficient; verify with process contract."
+        }
+      ],
+      "_hash": "0ae888e939a77a833b0670255534af4ab009aacd9f01aa49b4b0faad1704ff3d"
+    }
+  ]
+}

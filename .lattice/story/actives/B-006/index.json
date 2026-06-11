@@ -1,0 +1,13 @@
+{
+  "storyId": "B-006",
+  "title": "story_list MCP 工具：快速总览所有 Story 状态",
+  "description": "新增 story_list MCP 工具，扫描 docs/story/actives/ 下所有 Story，返回汇总信息：storyId、title、phase、checklist 完成率（如 3/5）、bug 数量（open/fixed）、测试通过率。新 session 调用一次就能了解全局，不需要逐个 story_get。同步更新 /story Skill 无参数时调用 story_list。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "中",
+  "source": "用户需求",
+  "depends": ["B-001"],
+  "createdAt": "2026-03-31T18:09:15.143Z",
+  "startedAt": "2026-04-01T13:00:00.000Z",
+  "endedAt": "2026-04-01T13:20:00.000Z"
+}

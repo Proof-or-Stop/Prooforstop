@@ -1,0 +1,36 @@
+{
+  "storyId": "B-77e4",
+  "checkedAt": "2026-05-06T14:00:54.937Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-005 is phrased as smoke coverage rather than a user-observable outcome. Keep coverage as verification/evidence, or reframe the checklist item around the protected dashboard/session/summary/evidence behavior so product completion is not reduced to tests passing."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-06T14:00:47.682Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "medium",
+          "desc": "checklist.json CHK-005 is written as a test-coverage task rather than a user-observable outcome, and it overlaps the verification expected for CHK-001..CHK-004. Non-blocking: keep the coverage intent, but in PLAN prefer converting it into verificationIntent/evidence attached to the product-facing items or make its observable output explicit."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-06T14:00:54.937Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-005 is phrased as smoke coverage rather than a user-observable outcome. Keep coverage as verification/evidence, or reframe the checklist item around the protected dashboard/session/summary/evidence behavior so product completion is not reduced to tests passing."
+        }
+      ]
+    }
+  ],
+  "_hash": "ba53ab3c9f571093e219d86a0e6af35ff66ce87162e7f179ff7d908f7630b3dd"
+}

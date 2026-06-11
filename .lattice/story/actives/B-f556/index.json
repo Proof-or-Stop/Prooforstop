@@ -1,0 +1,52 @@
+{
+  "storyId": "B-f556",
+  "name": "document-layer4-production-safety-unlock",
+  "title": "Document Layer 4 Production Safety unlock execution plan",
+  "description": "Create a decision document that consolidates the existing Authority receipt, lifecycle gate, customer key, runner session, and host certification plans into a concrete Layer 4 Production Safety unlock execution plan. This story writes documentation only and must not claim that Production Safety is unlocked.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "layer4",
+    "production-safety",
+    "authority-receipt",
+    "unlock-plan"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "Production"
+    }
+  ],
+  "createdAt": "2026-06-11T11:27:07.937Z",
+  "startedAt": "2026-06-11T11:27:07.937Z",
+  "endedAt": "2026-06-11T11:28:59.678Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-11T11:27:07.953Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-11T11:28:22.715Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-11T11:28:59.678Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reconciled": true,
+      "reason": "story_reconcile: branch deleted"
+    }
+  ]
+}

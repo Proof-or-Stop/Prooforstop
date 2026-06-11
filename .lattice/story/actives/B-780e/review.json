@@ -1,0 +1,36 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-19T00:28:45.441Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002「增加 story-review-quality-v1 profile」缺少 testIntent"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "75e9ad7dfa37ef21d46c9feb108b23667cdd6fd9e3eb2c2678304df9021b8e4a"
+    },
+    {
+      "timestamp": "2026-04-19T00:28:55.000Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "8d1e362ddd6f32c4223ad787d0748baf5f6c2dbd263ff37326a2e0c5ebf6c412"
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make finding clustering available wherever DEV findings are actionable",
+      "context": "DEV currently permits finding_add, review_pass_set, finding_dispatch, and dispatch, but rejects finding_cluster. The hard-coded phase whitelist should allow clustering before dispatching grouped finding fixes without weakening gate evidence.",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-12T00:15:24.961Z",
+      "endTime": "2026-05-12T00:17:15.318Z",
+      "userSees": "In a DEV story with open reviewer findings, koala finding_cluster {\"storyId\":\"B-xxxx\"} is accepted by the phase gate and prints a normal cluster result instead of the DEV-stage unavailable-command error.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Default phaseTools allow finding_cluster in DEV",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "REVIEW and TEST still allow finding_cluster after the change",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Custom project phaseTools continue to override defaults and can still block finding_cluster if the project intentionally removes it",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js finding_cluster JSON(storyId=B-8bb5)",
+          "result": "pass",
+          "note": "After contract hardening commit, local built CLI in DEV accepted finding_cluster and returned a cluster summary instead of the DEV unavailable-command error.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Flow stability smoke asserts finding_cluster remains allowed in REVIEW and TEST after the DEV whitelist addition.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Flow stability smoke asserts custom phaseTools can still block finding_cluster when a project explicitly overrides defaults.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for finding phase-tool consistency",
+      "context": "Add a focused smoke/contract assertion that if DEV can record findings and dispatch finding fixes, it can also run finding_cluster; this catches the SimCell B-cacf failure mode.",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "done",
+      "startTime": "2026-05-12T00:15:29.409Z",
+      "endTime": "2026-05-12T00:17:15.422Z",
+      "userSees": "In a DEV story like SimCell B-cacf, running koala finding_cluster {\"storyId\":\"B-xxxx\"} no longer prints \"命令 finding_cluster 在 DEV 阶段不可用\"; it returns a cluster summary or a no-findings message, so the user can dispatch grouped fixes.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DEV phase allows finding_cluster alongside finding_add/finding_dispatch so reviewer findings can be grouped before fix dispatch",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Only the intended finding_cluster command is newly available in DEV; unrelated gated commands such as bug_report remain blocked",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Contract checks fail if a future phaseTools change again allows finding_add/finding_dispatch in DEV but removes finding_cluster",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke asserts DEV allows finding_add, finding_dispatch, and finding_cluster together for reviewer finding workflows.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js bug_report JSON(storyId=B-8bb5,desc=probe,severity=low)",
+          "result": "pass",
+          "note": "Command failed as expected with DEV-stage unavailable-command error, proving unrelated bug_report stayed blocked.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process-fact contract now parses DEV phaseTools string-literal entries, asserts finding_cluster stays L2, and keeps finding_add/finding_dispatch/finding_cluster together.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-12T00:15:24.961Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implement minimal DEV phaseTools change and targeted assertions."
+    },
+    {
+      "timestamp": "2026-05-12T00:15:29.409Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Add regression coverage for DEV finding_cluster phase-tools consistency."
+    },
+    {
+      "timestamp": "2026-05-12T00:17:15.318Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV phaseTools now allow finding_cluster; build and local CLI evidence recorded."
+    },
+    {
+      "timestamp": "2026-05-12T00:17:15.422Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Flow stability smoke and process-fact contract cover SimCell DEV cluster regression and negative boundary."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Experience memory is reusable context, not authority evidence.",
+    "Keep first version transparent, file-backed, and inspectable by any agent.",
+    "Prefer prompt-only/dry-run wrappers over automatically launching external agents.",
+    "Story-scoped lessons are candidates with source references; exported memory is the reusable copy.",
+    "Every command must have deterministic CLI behavior that can be tested without a real Claude/Codex/Gemini binary."
+  ],
+  "drivers": [
+    "Users lose practical agent workflow lessons when ordinary non-Koala sessions end.",
+    "Koala must not confuse experience memory with signed evidence or DONE gates.",
+    "The implementation must fit existing CLI registry, command policy, and worktree story flow."
+  ],
+  "options": [
+    {
+      "name": "koala-native-dev-memory-cli",
+      "pros": [
+        "Shares existing CLI registry, schemas, policies, and tests",
+        "Can detect active Koala stories and write story-scoped candidates safely",
+        "Works inside project and non-story project contexts"
+      ],
+      "cons": [
+        "Adds several commands to Koala core",
+        "Needs careful docs to avoid evidence/gate confusion"
+      ]
+    },
+    {
+      "name": "standalone-shell-scripts",
+      "pros": [
+        "Fast to create and independent from Koala lifecycle",
+        "Could be copied across repositories easily"
+      ],
+      "cons": [
+        "Harder to enforce story-candidate semantics",
+        "Less discoverable through koala help/session_brief",
+        "Likely to drift from Koala command policy and validation"
+      ]
+    },
+    {
+      "name": "koala-story-only-experience",
+      "pros": [
+        "Strong provenance inside story artifacts",
+        "Simple relation to summary and delivery evidence"
+      ],
+      "cons": [
+        "Does not help users who explicitly are not using Koala",
+        "Next normal programming session would still miss the lessons"
+      ]
+    }
+  ],
+  "chosen": "koala-native-dev-memory-cli",
+  "rationale": "Implement dev-memory as native Koala CLI commands because it can serve ordinary non-story programming while still linking candidates back to active stories without treating memory as gate evidence.",
+  "preMortem": [
+    {
+      "scenario": "Experience memory accidentally becomes accepted as DONE evidence.",
+      "trigger": "DONE or delivery code treats experience-candidates.json as a signed artifact.",
+      "consequence": "Agents could pass gates with narrative memory instead of verification evidence.",
+      "mitigation": "Docs and tests assert candidates are non-authoritative and command policy keeps dev-memory separate from gate evidence."
+    },
+    {
+      "scenario": "Preflight output becomes noisy and users stop reading it.",
+      "trigger": "Search returns long unrelated history or transcript bodies.",
+      "consequence": "The feature recreates context overload instead of preventing repeated mistakes.",
+      "mitigation": "Default preflight cap is five entries and sixty lines, with summaries/reuse prompts only."
+    },
+    {
+      "scenario": "Duplicate capture creates an unmaintainable memory pile.",
+      "trigger": "Repeated finish/capture stores the same Claude CLI stalled lesson with slightly different words.",
+      "consequence": "Search quality drops and agents receive contradictory context.",
+      "mitigation": "Use warn-and-link dedupe with relatedEntryIds and visible duplicate warning."
+    },
+    {
+      "scenario": "Agent wrappers bypass Koala story flow.",
+      "trigger": "dev-start launches Claude directly inside an active story without reminding about story ownership and Koala gates.",
+      "consequence": "Implementation can skip story evidence, reviewers, or scope flow.",
+      "mitigation": "Wrappers are prompt-only by default and explicitly state active story detection and Koala flow remain authoritative."
+    }
+  ],
+  "timestamp": "2026-05-29T12:20:15.832Z"
+}

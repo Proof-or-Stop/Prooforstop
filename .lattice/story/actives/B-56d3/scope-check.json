@@ -1,0 +1,157 @@
+{
+  "storyId": "B-56d3",
+  "checkedAt": "2026-05-16T01:43:25.950Z",
+  "features": [
+    {
+      "feature": "REVIEW->TEST CLI preflight gate extraction to phase-gates.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "koala validate --json gate extraction to phase-gates.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "TEST->DONE done-oracle gate adapter extraction to phase-gates.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "cwd/guard-failure adapter extraction to phase-gates.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "REVIEW->TEST preflight must be fail-closed (import failure / validate throw / JSON-parse failure block TEST)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "koala validate gate may still write test-evidence.json as behavior-preserving side effect",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "process metrics (writeProcessMetrics) non-DONE side effect extraction to transition-effects.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "onPhaseChange hooks non-DONE side effect extraction to transition-effects.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "REVIEW metadata auto-commit non-DONE side effect extraction to transition-effects.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "relatedDocs hint emission non-DONE side effect extraction to transition-effects.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "next-step rendering non-DONE side effect extraction to transition-effects.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "DONE merge/worktree cleanup explicitly excluded from transition-effects.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "No circular import between phase-gates.ts/transition-effects.ts and story-advance.ts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Regression proof that fail-closed gate behavior is preserved after extraction",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "Regression proof that transition side effects produce byte-identical output before vs after extraction",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "DONE merge/worktree cleanup extraction",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly excludes: DONE merge/worktree cleanup (Story 3b)",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Transition orchestrator coupling refactor",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly excludes: transition orchestrator coupling (Story 3c)",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "TEST semantics / legacy phase / workflow profile changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly excludes: TEST semantics / legacy phase migration (Story 4)",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "story-advance.ts line count drop and removal of inline gate/effect bodies",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build clean after extraction (npm --prefix packages/main run build)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 17,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "df4d871ff86fd90cb11b452ffc1527d8b694b40a89c1f44e33fdef53bcb4ffe3",
+  "openQuestions": []
+}

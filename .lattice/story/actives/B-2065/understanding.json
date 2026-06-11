@@ -1,0 +1,35 @@
+{
+  "task": "Harden Koala validation, CLI argument errors, DONE preflight guidance, and generated story artifact handling without project-specific hardcoding.",
+  "outcome": "A user runs koala validate --json and sees the actual configured command with shell/code/durationMs, runs a bad checklist_update enum and sees the exact invalid field path instead of a help-only fallback, runs koala next in TEST and sees blocking DONE pre-check rows before any DONE suggestion, and koala doctor explains validation fallback risks without relying on PVSC-specific counts.",
+  "facts": [
+    "Existing validation command discovery already supports shell=true for configured string commands containing shell metacharacters.",
+    "Existing CLI schema validation already prints Zod issue paths and expected enum values for verificationIntent type failures.",
+    "Existing session_brief and next already consume DONE pre-check rows for TEST phase in flow-stability smoke tests.",
+    "Existing stray-file cleanup whitelist already contains init-self-check.json.",
+    "Product INIT reviewer passed but asked CHK-005 to expose clearer user-observable value."
+  ],
+  "constraints": [
+    "Do not hard-code PVSC, story ids, or exact pytest counts in Koala runtime logic.",
+    "Preserve current Koala lifecycle gates and do not bypass reviewer or delivery checks.",
+    "Keep human safety for unknown untracked story files; only Koala-generated precise artifact names may be cleaned.",
+    "New validation behavior must fail hard for required command failures and keep optional failures advisory only.",
+    "Follow fail-fast policy for new catches: no naked silent catch in mutation/persistence paths."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/stray-file-cleanup.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "README.md"
+  ],
+  "timestamp": "2026-05-05T12:59:58.205Z"
+}

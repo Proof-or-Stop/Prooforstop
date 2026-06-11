@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5cdc",
+  "changes": "Added explicit authority_enforce_runner dry-run CLI surface, lifecycle/policy/process-fact registration, bounded fake-provider execution helper, package scripts, smoke tests, and flow-stability Lattice expectation repairs.",
+  "usage": "Run lattice authority enforce runner --once --dry-run --json with KOALA_AUTHORITY_MODE=enforce and authority env vars to see planned runner register/heartbeat/claim steps without provider execution.",
+  "expectedOutcome": "Dry-run JSON shows lattice.authority_enforce_runner.v1, mode enforce, once true, dryRun true, planned register_runner/runner_heartbeat/claim_job, spawned false, providerEvents empty, localWorkflowUsable true.",
+  "actualTranscript": "Observed dry-run JSON matched expected with spawned false and providerEvents empty. npm run test:authority-enforce-runner, npm run test:authority-runner-events, lifecycle/ownership contracts, lattice-cli migration, flow-stability, build, and lattice validate all passed after main sync.",
+  "outcomeDiff": "No user-visible mismatch. Real authority job claiming and real provider execution remain out of scope for later milestones.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This milestone implements explicit dry-run runner readiness and controlled fake-provider event execution only. Real Python authority job claim execution, persistent actor key storage, and real Claude/Codex/Gemini provider adapters remain later milestones.",
+  "pitfalls": "Claude implementer attempts stalled, so implementation was completed by Codex and independently reviewed by Claude reviewers. Scope contract array args must be JSON arrays, not comma strings. Merging main after REVIEW makes evidence and review freshness sensitive, so evidence was refreshed and validate rerun.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 14158952
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 49931
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 589663
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1261591
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 370328
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 364165
+    }
+  },
+  "totalDurationMs": 16794642,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-02T21:39:59.721Z",
+  "updatedAt": "2026-06-02T21:39:59.721Z"
+}

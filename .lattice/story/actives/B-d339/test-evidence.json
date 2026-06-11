@@ -1,0 +1,256 @@
+{
+  "command": "koala validate --story=B-d339 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/core/managed-assets.ts) — Running `koala check` in the repo no longer reports managed asset drift for KOALA.md, AGENTS.md, or CLAUDE.md, so a maintainer can trust the health check output before starting story work.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — If local guidance files contain approved project-specific additions around the managed section, the health path classifies them correctly instead of flagging them as stale edits, so maintainers are not told to overwrite valid local policy.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — When a managed asset truly drifts from the expected source, `koala check` still surfaces a clear actionable failure instead of silently treating all local edits as healthy.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/handlers/story-advance.ts) — If REVIEW/TEST preflight or validate infrastructure is broken, attempting to advance the story into TEST stops with a clear `Cannot enter TEST` style failure and remediation hint instead of quietly continuing.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/handlers/story-advance.ts) — A transient import or runtime error in review-preflight is treated the same as an explicit gate failure, so maintainers do not get different behavior depending on where the exception was thrown.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/handlers/story-advance.ts) — A validate execution failure cannot be downgraded to a warning path that leaves the story looking advanced; the lifecycle stays fail-closed until the maintainer fixes the verification path.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (packages/main/src/core/lifecycle-registry.ts) — A maintainer can inspect one typed lifecycle registry file and find the canonical list of active phases, legacy aliases, transition events, rollback targets, terminal phases, and gate/oracle row identifiers without chasing multiple scattered constants.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/phase-flow.ts) — The registry is read-only in this story: existing CLI behavior stays unchanged except where other checklist items explicitly harden gates, so introducing the registry does not itself alter lifecycle execution.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (scripts/verify-process-fact-contract.mjs) — If a future contributor updates phase facts in one lifecycle surface but forgets the registry, the mismatch is now detectable because the registry is intended as the single reviewable source for those facts.\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — Contract or smoke verification fails when lifecycle phase flow, event mapping, or command policy facts drift away from the registry, so maintainers get a direct regression signal before shipping lifecycle changes.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — Legacy aliases and non-terminal rollback paths are covered by the contract checks, so drift is caught on compatibility edges rather than only on the primary happy-path phases.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript (scripts/verify-process-fact-contract.mjs) — A contributor cannot silently change PHASE_TO_EVENT or command policy tables without updating the registry and tests, because the consistency checks break on those uncoordinated edits.\"],\"warnings\":[],\"timestamp\":\"2026-05-15T02:21:28.437Z\",\"headSha\":\"dc820e766c7c6e6de3718e1980b6b9d28e28eb12\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1050}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Running `koala check` in the repo no longer reports managed asset drift for KOALA.md, AGENTS.md, or CLAUDE.md, so a maintainer can trust the health check output before starting story work.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/core/managed-assets.ts\",\"command\":\"node packages/main/dist/cli.js check\",\"result\":\"pass\",\"note\":\"Built local CLI reports Koala managed asset check OK with CASE_MISMATCH=0, STALE_LOCAL_EDIT=0, INCOMPATIBLE=0 for KOALA.md, AGENTS.md, and CLAUDE.md.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"If local guidance files contain approved project-specific additions around the managed section, the health path classifies them correctly instead of flagging them as stale edits, so maintainers are not told to overwrite valid local policy.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertManagedAssetExpandedDocsAndTrueDrift verifies expanded local KOALA/AGENTS/CLAUDE guides are accepted as OK instead of stale local edits.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"When a managed asset truly drifts from the expected source, `koala check` still surfaces a clear actionable failure instead of silently treating all local edits as healthy.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"The same smoke creates malformed managed sections and verifies doc:KOALA.md, doc:AGENTS.md, and doc:CLAUDE.md still report STALE_LOCAL_EDIT.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"If REVIEW/TEST preflight or validate infrastructure is broken, attempting to advance the story into TEST stops with a clear `Cannot enter TEST` style failure and remediation hint instead of quietly continuing.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/story-advance.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts story_advance has blocking Cannot enter TEST messages for review-preflight execution errors and validate execution errors.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A transient import or runtime error in review-preflight is treated the same as an explicit gate failure, so maintainers do not get different behavior depending on where the exception was thrown.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/story-advance.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"REVIEW->TEST preflight catch now stops the actor and throws Cannot enter TEST: CLI gate preflight execution error for import/runtime exceptions.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A validate execution failure cannot be downgraded to a warning path that leaves the story looking advanced; the lifecycle stays fail-closed until the maintainer fixes the verification path.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/story-advance.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Smoke rejects the old warn-and-advance strings, and validate execution exceptions now write FAIL evidence best-effort then throw Cannot enter TEST.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"A maintainer can inspect one typed lifecycle registry file and find the canonical list of active phases, legacy aliases, transition events, rollback targets, terminal phases, and gate/oracle row identifiers without chasing multiple scattered constants.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"packages/main/src/core/lifecycle-registry.ts\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"lifecycle-registry.ts compiles and contains active phases, terminal phases, legacy aliases, transitions/events, rollback edges, gates, effects, and oracle rows.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The registry is read-only in this story: existing CLI behavior stays unchanged except where other checklist items explicitly harden gates, so introducing the registry does not itself alter lifecycle execution.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/phase-flow.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"phase-flow and handlers/context consume registry projections while smoke confirms normal phase order, transition kinds, PHASE_TO_EVENT, and cwd gate facts remain consistent.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"If a future contributor updates phase facts in one lifecycle surface but forgets the registry, the mismatch is now detectable because the registry is intended as the single reviewable source for those facts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process fact inventory now includes lifecycle registry surfaces so future registry/consumer drift is visible in contract verification.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Contract or smoke verification fails when lifecycle phase flow, event mapping, or command policy facts drift away from the registry, so maintainers get a direct regression signal before shipping lifecycle changes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertLifecycleRegistryConsistency fails with Lifecycle registry mismatch if phase-flow, PHASE_TO_EVENT, command policy, or DEFAULT_PHASE_TOOLS drift from the registry.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Legacy aliases and non-terminal rollback paths are covered by the contract checks, so drift is caught on compatibility edges rather than only on the primary happy-path phases.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers legacy phase aliases and every registered rollback/legacy transition from lifecycle-registry.ts against phase-flow.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.671Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A contributor cannot silently change PHASE_TO_EVENT or command policy tables without updating the registry and tests, because the consistency checks break on those uncoordinated edits.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Contract script asserts lifecycle registry, phase-flow, context, and smoke-test source patterns, preventing uncoordinated lifecycle fact edits from passing silently.\",\"headHash\":\"402cc53585c65070325ab1ec03b7b898f25e898c\",\"materialHash\":\"f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4\",\"timestamp\":\"2026-05-15T02:08:04.672Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-15T02:21:28.857Z",
+  "headHash": "dc820e766c7c6e6de3718e1980b6b9d28e28eb12",
+  "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Running `koala check` in the repo no longer reports managed asset drift for KOALA.md, AGENTS.md, or CLAUDE.md, so a maintainer can trust the health check output before starting story work.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "node packages/main/dist/cli.js check",
+          "result": "pass",
+          "note": "Built local CLI reports Koala managed asset check OK with CASE_MISMATCH=0, STALE_LOCAL_EDIT=0, INCOMPATIBLE=0 for KOALA.md, AGENTS.md, and CLAUDE.md.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "If local guidance files contain approved project-specific additions around the managed section, the health path classifies them correctly instead of flagging them as stale edits, so maintainers are not told to overwrite valid local policy.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertManagedAssetExpandedDocsAndTrueDrift verifies expanded local KOALA/AGENTS/CLAUDE guides are accepted as OK instead of stale local edits.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "When a managed asset truly drifts from the expected source, `koala check` still surfaces a clear actionable failure instead of silently treating all local edits as healthy.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "The same smoke creates malformed managed sections and verifies doc:KOALA.md, doc:AGENTS.md, and doc:CLAUDE.md still report STALE_LOCAL_EDIT.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "If REVIEW/TEST preflight or validate infrastructure is broken, attempting to advance the story into TEST stops with a clear `Cannot enter TEST` style failure and remediation hint instead of quietly continuing.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke asserts story_advance has blocking Cannot enter TEST messages for review-preflight execution errors and validate execution errors.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "A transient import or runtime error in review-preflight is treated the same as an explicit gate failure, so maintainers do not get different behavior depending on where the exception was thrown.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "REVIEW->TEST preflight catch now stops the actor and throws Cannot enter TEST: CLI gate preflight execution error for import/runtime exceptions.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A validate execution failure cannot be downgraded to a warning path that leaves the story looking advanced; the lifecycle stays fail-closed until the maintainer fixes the verification path.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke rejects the old warn-and-advance strings, and validate execution exceptions now write FAIL evidence best-effort then throw Cannot enter TEST.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "A maintainer can inspect one typed lifecycle registry file and find the canonical list of active phases, legacy aliases, transition events, rollback targets, terminal phases, and gate/oracle row identifiers without chasing multiple scattered constants.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "lifecycle-registry.ts compiles and contains active phases, terminal phases, legacy aliases, transitions/events, rollback edges, gates, effects, and oracle rows.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The registry is read-only in this story: existing CLI behavior stays unchanged except where other checklist items explicitly harden gates, so introducing the registry does not itself alter lifecycle execution.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/phase-flow.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "phase-flow and handlers/context consume registry projections while smoke confirms normal phase order, transition kinds, PHASE_TO_EVENT, and cwd gate facts remain consistent.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "If a future contributor updates phase facts in one lifecycle surface but forgets the registry, the mismatch is now detectable because the registry is intended as the single reviewable source for those facts.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact inventory now includes lifecycle registry surfaces so future registry/consumer drift is visible in contract verification.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Contract or smoke verification fails when lifecycle phase flow, event mapping, or command policy facts drift away from the registry, so maintainers get a direct regression signal before shipping lifecycle changes.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertLifecycleRegistryConsistency fails with Lifecycle registry mismatch if phase-flow, PHASE_TO_EVENT, command policy, or DEFAULT_PHASE_TOOLS drift from the registry.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Legacy aliases and non-terminal rollback paths are covered by the contract checks, so drift is caught on compatibility edges rather than only on the primary happy-path phases.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke covers legacy phase aliases and every registered rollback/legacy transition from lifecycle-registry.ts against phase-flow.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "A contributor cannot silently change PHASE_TO_EVENT or command policy tables without updating the registry and tests, because the consistency checks break on those uncoordinated edits.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract script asserts lifecycle registry, phase-flow, context, and smoke-test source patterns, preventing uncoordinated lifecycle fact edits from passing silently.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.672Z"
+        }
+      }
+    ]
+  }
+}

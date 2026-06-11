@@ -1,0 +1,59 @@
+{
+  "storyId": "B-df6f",
+  "checkedAt": "2026-05-21T04:21:14.764Z",
+  "features": [
+    {
+      "feature": "Docs/story 与 docs/story 在 evidence freshness 的 material 判定中必须视为同一类 Koala story metadata。",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Host repo 在 green validation 后提交 Docs/story 下的 checklist / test-evidence / process-events 这类证据提交，不应再次触发 DONE stale-evidence 循环。",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Uppercase Docs/story 脏文件分类必须与 freshness 对齐，归入 koala metadata 而不是 unexpected material change。",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "真实 source / package / config / requirements 文件变更仍然必须被视为 material，并让旧 evidence 失效。",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "koala validate 发现 verification coverage missing/stale 时必须返回 allPass:false，不能被“测试通过”掩盖。",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "currentMaterialHash / verification freshness 只能排除非 material/runtime artifact，不能把 requirements/source/package files 一并豁免。",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f64f73ad14d10454d44958d30b02f49a02670fd38a2f02fb4e8d00dd7a4e2a6c",
+  "openQuestions": []
+}

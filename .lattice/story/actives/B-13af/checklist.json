@@ -1,0 +1,171 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "baseline risk 读取 accepted local paths 配置并过滤 material entries",
+      "context": "在 Koala config 中增加 baselineRiskAcceptedLocalPaths 或等价字段；collectBaselineRisk 继续支持调用方 excludePaths，并额外过滤项目配置里的 accepted paths。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T22:25:35.691Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "collectBaselineRisk 接收 accepted local paths 后，AGENTS.md/CLAUDE.md 这类已接受文件不进入 materialEntries",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:21.434Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY verifies accepted file paths are omitted from material baseline risk while unaccepted report remains; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "accepted local paths 中的目录项（如 .claude/skills/）能隐藏其子路径，但不会隐藏 sibling 路径",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:21.541Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY verifies accepted directory prefix hides children but not sibling .claude files; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "未被 accepted local paths 声明的 untracked 文件仍保留为 material baseline risk",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:21.637Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY verifies empty accepted list keeps AGENTS.md material; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "session_brief baseline risk 输出保留真实风险但隐藏 accepted local paths",
+      "context": "默认/项目配置接受 AGENTS.md、CLAUDE.md、.claude/skills/ 等路径后，session_brief 不再把它们列为 Main baseline risk；未接受的 experiments/reports 等仍应提示。",
+      "relatedDocs": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T22:25:41.915Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "当前项目配置 accepted local paths 后，repo-local session_brief 不再把 AGENTS.md、CLAUDE.md、.claude/skills/koala/skill.md 列为 Main baseline risk",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:21.731Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY repo-local session_brief hides configured .claude/skills accepted path and still renders brief; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当前项目 session_brief 仍显示未接受的 experiments/reports/story-review-output-lab-v1.json baseline risk",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:21.824Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY collector keeps experiments/reports unaccepted path material, preserving session risk source; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "INIT_CHECK dry-run baseline risk 也复用 accepted local paths，不再在 bootstrap 风险中提示已接受路径",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:21.917Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY shared collector used by bootstrap keeps real/risk.txt when AGENTS.md accepted; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "为 accepted local paths 增加 fixture 覆盖",
+      "context": "覆盖配置路径精确匹配、目录前缀匹配、未配置路径仍保留、activity/.omx volatile 逻辑不回退。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T22:25:48.408Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 accepted 文件路径、accepted 目录路径、未接受路径三种 baseline risk 分类",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:22.010Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY one fixture covers accepted files, accepted dirs, and unaccepted path classification; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖 docs/story/activity.jsonl 与 .omx 路径仍按 volatile 统计，不受 accepted local paths 改动影响",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:22.105Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY volatile docs/story/activity.jsonl and .omx accounting remains separate with materialTotal 0; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖空 accepted local paths 时保持原有保守行为，不会默认隐藏 AGENTS.md/CLAUDE.md",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:29:22.208Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json:1 WHY no accepted paths preserves conservative AGENTS.md/CLAUDE.md material warnings; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-15T18:03:22.865Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Add a current-story declaration surface for generated artifacts + Classify declared generated artifacts separately from unexpected dirty files 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature @task annotation required on new code (decisions/annotation-system.md) orphan-suspect: 见 decisions:decisions/annotation-system.md 未被任何 CHK 覆盖但未显式 exclude，请确认"
+        }
+      ],
+      "_hash": "f40305c08057dc7b07bc0bb07b52b757a185de50226d92191f80fe7cb082f0de"
+    }
+  ]
+}

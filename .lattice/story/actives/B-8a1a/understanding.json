@@ -1,0 +1,30 @@
+{
+  "task": "Enable policy-bound real Claude Code subprocess execution for Lattice dispatch_auto while preserving authority-safe review boundaries.",
+  "outcome": "用户在终端创建 allowRealHostSubprocess=true 的 claude-code policy 后，运行 lattice dispatch_auto --storyId=B-demo --policy=claude-real --host=claude-code --allowedPaths=allowed/result.txt --format=json，会看到 schemaVersion=lattice.dispatch_auto.v1、host=claude-code、runnerKind=claude-code-real、status=needs_receipt 或 accepted_local/failed 的真实 runner 状态、transcriptPath 指向 .koala/dispatches/.../transcript.log、authorityChanged=false、receiptVerified=false、productionDone=false；随后 lattice dispatch_review 显示 changedFiles、runner exitCode/timedOut 和 manual merge guidance，用户能明确说 Claude 真的被 Lattice 受控启动了，但结果仍需人工审查。",
+  "facts": [
+    "B-a5c2/B-1691 已经落地 dispatch_policy、dispatch_auto、dispatch_watch、dispatch_review 和 fake deterministic unattended path。",
+    "当前 claude-code/gemini/codex runtime probe 均保持 unattendedSafe=false，真实 host dispatch_run 只 scaffold worktree/prompt，不启动外部进程。",
+    "本机 claude CLI 可用且 host_runtime_probe 能检测到 claude --version 与 --print/-p 支持。",
+    "所有 overflow/dispatch authority 字段必须保持 authorityChanged=false、receiptVerified=false、productionDone=false。"
+  ],
+  "constraints": [
+    "v1.0.1 只允许 claude-code real subprocess；Gemini/Codex 必须继续 scaffold/refuse。",
+    "必须有显式 policy opt-in，allowedHosts=claude-code 本身不能授权真实 subprocess。",
+    "真实 subprocess 必须使用 isolated dispatch worktree、bounded env、timeout 和 transcript capture。",
+    "dispatch completion 不能 auto-merge、auto-DONE 或把本地 transcript 当生产 authority receipt。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/dispatch-runner.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/handlers/lattice-dispatch.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+    "README.md",
+    "docs/requirements/decisions/host-overflow.md"
+  ],
+  "timestamp": "2026-06-03T22:42:09.375Z"
+}

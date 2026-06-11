@@ -1,0 +1,73 @@
+{
+  "storyId": "B-c55d",
+  "checkedAt": "2026-05-19T04:23:30.550Z",
+  "reviewRound": "2026-05-19T04:07:05.201Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#多-session-写协调设计真相源",
+      "promise": "story owner lease (rollout step 2) implemented in core/story-owner-lease.ts with per-story owner lease, enforceStoryOwnerLeaseGate in cli-engine.ts as single choke-point, ownershipClass classification, stale-lease detection + --takeover/--forceTakeover, ownership-aware errors, session_brief renderOwnershipBlock, and koala doctor stale story-owner-lease check",
+      "verifiedBy": "diff/grep",
+      "evidence": "core/story-owner-lease.ts exists (952 lines) with acquire/refresh/release/isLeaseStale/takeOverOwnerLease/formatNonOwnerError/summarizeOwnerLease; enforceStoryOwnerLeaseGate exported from cli-engine.ts line 1355, called at line 1961; command-policy.ts has 97 ownershipClass entries covering 94+ commands; doctor.ts imports scanStoryOwnerLeases from story-owner-lease-doctor.ts"
+    },
+    {
+      "docPath": "CLAUDE.md#多-session-写协调设计真相源",
+      "promise": "rollout step 1-6 all completed: step 5 (stuck-lock + stale story-owner-lease check) and step 6 (multi-session convergence/regression smoke) both delivered by B-c55d (CHK-005)",
+      "verifiedBy": "diff/grep",
+      "evidence": "story-owner-lease-doctor.ts (CHK-005) implements scanStoryOwnerLeases + renderStoryOwnerLeaseScan; smoke cases 18-25 cover CHK-005 scenarios; package.json test:story-owner-lease-smoke and test:command-ownership-contract scripts wired"
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md#Status",
+      "promise": "Status updated to rollout fully implemented; sessionId 3-source chain (KOALA_SESSION_ID / CLAUDE_CODE_SESSION_ID / deriveLocalSessionId) and all rollout steps marked done",
+      "verifiedBy": "diff",
+      "evidence": "diff shows Status section rewritten from rollout in progress to rollout fully implemented; all 6 rollout steps marked done with story references; 3-source sessionId chain documented"
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md#Error-UX",
+      "promise": "Error UX section documents implemented behavior: formatNonOwnerError in core/story-owner-lease.ts, active and stale rejection examples matching 4-fact mandate (storyId, owner sessionId+cwd+heartbeat-age, stale verdict, next action)",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff adds implemented-behavior paragraph and two concrete examples; formatNonOwnerError in story-owner-lease.ts lines 747-768 produces messages matching examples exactly"
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md#session_brief-Requirements",
+      "promise": "session_brief Requirements section documents implemented behavior: renderOwnershipBlock from summarizeOwnerLease; B-META renders shared audit state block without story_advance suggestion",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff adds implemented-behavior paragraph for both blocks; session.ts exports renderOwnershipBlock (line 339) and renderMetaAuditBlock (line 380); session.ts line 782-795 calls renderOwnershipBlock; renderMetaAuditBlock at line 380-387 does not include story_advance"
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "story-lifecycle.md gains story owner lease bullet describing enforceStoryOwnerLeaseGate, ownershipClass, stale/takeover semantics, session_brief ownership, B-META special casing, and full rule reference",
+      "verifiedBy": "diff",
+      "evidence": "diff shows new bullet added describing lease path, acquire/refresh/release lifecycle, fail-closed gate, error message fields, stale/takeover semantics, session_brief rendering, and B-META rendering with pointer to session-ownership-and-write-leases.md"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "smoke cases 1-17: sessionId 3-source resolution (CLAUDE_CODE_SESSION_ID stable across ppid changes, KOALA_SESSION_ID priority, whitespace-only treated as absent, derived-ppid fallback); acquireOwnerLease writes owner-lease.json with all required fields; refreshOwnerLease advances heartbeatAt; releaseOwnerLease removes file idempotently; acquireOrRefreshOwnerLease acquire/refresh/foreign branches. .gitignore carries .koala/story/actives/*/owner-lease.json; runtime-artifact-registry entry runtime-story-owner-lease. Live transcript step 1-2: owner-lease.json present, owner refresh allowed (exit 0, heartbeatAt advanced 03:40:48Z to 04:16:08Z)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "command-ownership-contract.ts: all MAIN_TOOLS commands carry valid ownershipClass; every command has dispatchable handler; unclassified commands fail-closed; B-META/validate --story/delivery_check_set boundary rules correct. Live transcript step 3: non-owner storyScopedMutating fail-closed rejected with 4-fact error message (storyId, owner session+cwd+heartbeat-age, ACTIVE verdict, --forceTakeover guidance). Step 4: read-only checklist_get allowed for non-owner"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "smoke: isLeaseStale true after 30+ min gap; --takeover transfers stale lease + appends story-owner-lease-takeover event to activity.jsonl; --takeover on active lease refused (reason: lease-active); --forceTakeover transfers active lease. Live transcript step 6: --takeover refused on active lease; step 7: --forceTakeover seized active lease, activity.jsonl gained takeover event kind:forceTakeover fromSessionId:c6f1f20d toSessionId:koala-foreign-B fromWasStale:false"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "smoke: formatNonOwnerError produces 4-fact message (storyId, ownerSessionId+cwd+heartbeat-age, stale/active status, next-action); renderOwnershipBlock renders owner session/cwd/heartbeat-age/stale|active/isOwner/recommendation; renderMetaAuditBlock renders B-META shared audit state without story_advance. Live transcript step 5: session_brief rendered ## Story ownership (active) with owner session [claude-code-env], owner cwd, last heartbeat 40s ago, NOT owner (koala-foreign-B), recommended: read-only only"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "smoke cases 18-25: doctor stale-lease scan detected and rendered; two-session-one-story: second session rejected with owner guidance; two-session-two-story: both succeed independently; stale-lease --takeover: allowed + event; active-lease without --forceTakeover: rejected; non-owner reviewer read-only and valid reviewerWrite both pass; F-008 regression: owner-lease.json absent from git status. koala validate --story=B-c55d: ALL PASS, verification intent coverage 26/26 covered (0 required missing)"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified via diff and grep. All 5 CHKs have real machine tests: 25 smoke cases covering sessionId derivation (ppid-bricking regression guard), lease acquire/refresh/release/takeover, gate enforcement, error formatting, session_brief ownership rendering, B-META special-casing, doctor stale-lease scan, and multi-session regression; plus command-ownership-contract (94 commands). 7-step live transcript confirms owner allowed, non-owner fail-closed with 4-fact error, read-only unblocked, session_brief ownership block, --takeover vs --forceTakeover distinction, and audit event. Edge cases: stale vs active lease, F-008 dirty-write prevention, B-META isolation, unclassified-command fail-closed. No unresolved TODOs in production code."
+  },
+  "_hash": "f2fd8de983e2c2ebb04aedeacedad56874e3e93cf2c2ba82304630ccd38690aa"
+}

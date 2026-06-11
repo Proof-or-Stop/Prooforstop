@@ -1,0 +1,21 @@
+{
+  "task": "Resolve the remaining Koala managed asset drift by syncing the safe runtime ignore rules into .gitignore.",
+  "outcome": "After the story is done, the user runs `koala check` and the previous STALE_SAFE .gitignore message is gone; `koala convergence_check` reports `converged: true` on main.",
+  "facts": [
+    "Current `koala check` reports STALE_SAFE for .gitignore.",
+    "The missing runtime ignore patterns are `**/owner-lease.json` and `.koala/locks/`.",
+    "The recommended Koala repair command is `koala check --apply` or `koala check --upgrade`; this story should use the safe apply path.",
+    "This is managed asset drift, not a runtime source behavior change."
+  ],
+  "constraints": [
+    "Only `.gitignore` may change.",
+    "Do not edit source files, docs, story evidence, package metadata, or authority behavior.",
+    "Use Koala CLI managed asset sync instead of hand-editing story JSON or inventing a local format.",
+    "Verify the diff is limited to the expected ignore patterns."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".gitignore"
+  ],
+  "timestamp": "2026-05-27T20:16:07.893Z"
+}

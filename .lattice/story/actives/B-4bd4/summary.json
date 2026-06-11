@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4bd4",
+  "changes": "Added docs/requirements/decisions/authority-client-role.md as the canonical PD-1 decision source; updated B-4bd4 evidence with decision inputs, CHK-002 decision, CHK-003 milestone routing, transcript diff, and validation evidence.",
+  "usage": "Read docs/requirements/decisions/authority-client-role.md before starting any CLI authority enforce-mode work; use the Milestone Routing table to decide which repo/story owns M2-M6.",
+  "expectedOutcome": "User can see that Koala CLI remains thin local/shadow, cannot claim L2+ authority evidence, and FU-1/FU-2 are deferred while FU-3 is docs-only under the current decision.",
+  "actualTranscript": "koala validate --story=B-4bd4 --json returned pass; npm test/e2e passed; verification intent coverage was 9/9 with 0 required missing; reviewer lanes concept, quality, test-coverage, and docs passed after F-001/F-002 were resolved.",
+  "outcomeDiff": "No user-visible difference from expected; the story delivered decision and routing artifacts only, not enforce-mode implementation.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No production CLI, Python authority, or Mac runner code was changed. Future implementation must be separate stories in the owning repo named by Milestone Routing.",
+  "pitfalls": "Owner lease needed explicit takeover after session changes; TEST preflight required building packages/main before packages/utils and running node bin/koala-codex.js verify_codex; docs reviewer found two low wording drifts that were fixed before final review.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 112068
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16682
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 432378
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1306254
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 562678
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 84716
+    }
+  },
+  "totalDurationMs": 2514786,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-25T14:29:32.800Z",
+  "updatedAt": "2026-05-25T14:29:32.800Z"
+}

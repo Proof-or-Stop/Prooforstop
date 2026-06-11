@@ -1,0 +1,40 @@
+{
+  "storyId": "B-e74e",
+  "checkedAt": "2026-06-04T03:22:36.638Z",
+  "reviewRound": "2026-06-04T03:06:00.250Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "assertDoneSucceedsWhenMainIsCleanAndOnMain: story_advance DONE in an isolated tmp git repo with main clean on branch main → story phase=DONE, story worktree removed, branch deleted. Output: ✓ DONE main worktree preflight smoke: PASS — happy path not regressed. (headHash 772816b6)"
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "assertDoneSucceedsWhenMainBranchOwnedBySeparateWorktree: primary worktree on root-side-branch; main registered as separate linked worktree; story_advance DONE from story worktree → story phase=DONE on registered main worktree, primary worktree stays on root-side-branch. Output: ✓ DONE main worktree preflight smoke: PASS — separate registered main worktree. (headHash 772816b6)"
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "assertDoneRejectsWhenMainOnWrongBranch: main repo switched to some-other-branch BEFORE DONE; story_advance DONE fails with Cannot enter DONE naming actual main worktree path; phase stays TEST in both worktree and primary stores; story worktree directory survives; story branch survives. Output: ✓ phase remains TEST after failed preflight (main on wrong branch). (headHash 772816b6)"
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "assertDoneRejectsWhenMainIsDirty: main repo has staged tracked changes (README.md); story_advance DONE fails with Cannot enter DONE naming uncommitted changes to tracked files and actual main worktree path; phase stays TEST in both stores; story worktree and branch survive. Output: ✓ phase remains TEST after failed preflight (main worktree dirty). (headHash 772816b6)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "assertDoneRecoverUsesSeparateRegisteredMainWorktree: partial-DONE branch created; done_recover invoked from non-main root (on root-side-branch); recovery completes through registered main worktree; primary worktree branch unchanged; story worktree removed; story branch deleted. Output: ✓ done_recover smoke: PASS — separate registered main worktree. (headHash 772816b6)"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run build succeeded. node packages/main/dist/tasks/done-preflight-smoke.js → 5 PASS lines + ✓ done-preflight-smoke passed. node packages/main/dist/tasks/worktree-authority-smoke.js passed. node scripts/verify-process-fact-contract.mjs verified. koala validate --story=B-e74e --json → 9/9 verification intents covered, PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 smoke scenarios passed with isolated real git repos: happy clean-main DONE, separate-registered-main DONE, separate-registered-main done_recover, wrong-branch fail-before-write (phase stays TEST + worktree/branch survive), dirty-main fail-before-write (phase stays TEST + worktree/branch survive). No docs changes; 9/9 verification intents covered; process fact contract valid."
+  },
+  "_hash": "79a26f9d425fcacc64e2275826dea42a6d243298b86d77244dd93e0230e651c6"
+}

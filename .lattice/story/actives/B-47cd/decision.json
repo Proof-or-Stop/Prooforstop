@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Mode selection changes automation depth, never truth or authority semantics.",
+    "Conservative mode must remain useful and safe without server authority.",
+    "Authority-Verified mode must require explicit server-authority evidence before any stronger integration claim.",
+    "Full Autopilot must be bounded, observable, cancellable, and resumable rather than an unbounded loop.",
+    "Existing dispatch_auto, dispatch_review, validation, and merge_plan primitives are the source of behavior; autopilot orchestrates them."
+  ],
+  "drivers": [
+    "User wants unattended host-to-host development that can complete intent, but without false completion claims.",
+    "Existing Lattice dispatch stack already has policy and Claude runner; this story should compose it, not rebuild it.",
+    "High-risk lifecycle/production wording requires explicit preMortem, tests, and no-overclaim docs."
+  ],
+  "options": [
+    {
+      "name": "single-big-autopilot-switch",
+      "pros": [
+        "Simple surface area for users",
+        "Fast to document as one command"
+      ],
+      "cons": [
+        "Blurs authority boundaries",
+        "Hard to test safely",
+        "Risks accidental auto-merge or productionDone overclaim"
+      ]
+    },
+    {
+      "name": "three-policy-modes-on-shared-orchestrator",
+      "pros": [
+        "Clear permission matrix",
+        "Conservative mode can ship safely first",
+        "Authority and full loop reuse the same state records and gates"
+      ],
+      "cons": [
+        "More schema and CLI surface",
+        "Requires careful smoke tests for each mode"
+      ]
+    },
+    {
+      "name": "docs-only-host-native-delegation",
+      "pros": [
+        "Lowest implementation risk",
+        "Keeps execution entirely with Codex/Claude/Gemini"
+      ],
+      "cons": [
+        "Does not deliver requested unattended Lattice CLI development loop",
+        "No stable status/watch/cancel/resume primitive"
+      ]
+    }
+  ],
+  "chosen": "three-policy-modes-on-shared-orchestrator",
+  "rationale": "This option gives the user the requested three autopilot modes while keeping Conservative safe by default and making stronger automation depend on explicit authority evidence and bounded stop conditions.",
+  "preMortem": [
+    {
+      "scenario": "Autopilot claims production completion from local receipt",
+      "trigger": "A local dispatch receipt or host-native transcript is treated as server authority proof.",
+      "consequence": "Lattice would tell the user work is productionDone without external authority verification.",
+      "mitigation": "Keep receiptVerified=false/productionDone=false by default; require explicit fake/live server authority receipt in Authority-Verified tests."
+    },
+    {
+      "scenario": "Full autopilot loops forever or spends unbounded resources",
+      "trigger": "Validation keeps failing and auto-fix retries have no hard stop.",
+      "consequence": "Unattended mode burns time, budget, or agent capacity without clear user-visible stop.",
+      "mitigation": "Require maxIterations, maxRuntimeMinutes, maxBudgetUSD, stopOnConflict, and stopOnScopeViolation; smoke test maxIterations stop."
+    },
+    {
+      "scenario": "Autopilot bypasses dispatch policy scope",
+      "trigger": "Orchestrator widens allowedPaths, commandAllowlist, or host selection after policy check.",
+      "consequence": "A host could modify files outside the user-authorized scope.",
+      "mitigation": "Bind every dispatch through dispatch_auto policy check and test refusal for widened paths/commands."
+    },
+    {
+      "scenario": "Host-native delegation becomes opaque prompt-only execution",
+      "trigger": "Codex asks Claude CLI to work but no transcript/receipt/path evidence is required.",
+      "consequence": "User cannot audit what happened and Lattice cannot safely review or merge.",
+      "mitigation": "Host-native mode outputs required handoff pack, receipt path, transcript expectation, and treats missing evidence as needs_receipt."
+    },
+    {
+      "scenario": "Main merge happens from automation despite unresolved conflict",
+      "trigger": "Authority-Verified or Full Autopilot treats accepted_local as mergeable to main.",
+      "consequence": "Existing worktree/branch safety could be violated and user changes overwritten.",
+      "mitigation": "Keep main merge gated by allowMainMerge plus authority evidence; conflict state produces repair task and stops."
+    }
+  ],
+  "timestamp": "2026-06-04T02:54:31.219Z"
+}

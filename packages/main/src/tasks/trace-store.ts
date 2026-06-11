@@ -48,9 +48,9 @@ function getCurrentCommit(root: string): string {
   }
 }
 
-/** CHK-002: trace files go to .koala/traces/ instead of fixturesDir, surviving git restore/clean */
+/** CHK-002: trace files go to .lattice/traces/ instead of fixturesDir, surviving git restore/clean */
 function traceFilePath(root: string, fixtureName: string): string {
-  return join(root, '.koala', 'traces', fixtureName.replace(/\.json$/, '') + '.trace.json');
+  return join(root, '.lattice', 'traces', fixtureName.replace(/\.json$/, '') + '.trace.json');
 }
 
 /** Build the composite key: caseName:commitHash */
@@ -137,7 +137,7 @@ export function loadTraceSnapshot(
 }
 
 export function scanAllTraces(root: string): TraceSnapshot[] {
-  const tracesDir = join(root, '.koala', 'traces');
+  const tracesDir = join(root, '.lattice', 'traces');
   const results: TraceSnapshot[] = [];
   function scan(dir: string) {
     if (!existsSync(dir)) return;

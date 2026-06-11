@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "危险 git 变更默认阻止，必须先可预览再可确认。",
+    "执行路径与提示文案必须一致，不能只改行为不改引导。",
+    "优先复用已有实现草稿，减少重复改动和再次漂移。"
+  ],
+  "drivers": [
+    "用户明确禁止 INIT_CHECK 偷偷产生本地 commit。",
+    "当前 INIT_CHECK 仍会自动 bootstrap commit，与 DONE/dev_merge 的护栏语义不一致。",
+    "需要一条回归同时锁住默认阻止、dry-run 预览、confirm 放行。"
+  ],
+  "options": [
+    {
+      "name": "A: 只在 dev_start 内加 confirm gate，CLI 和提示文案保持现状",
+      "pros": [
+        "改动面最小",
+        "实现速度快"
+      ],
+      "cons": [
+        "用户仍会被 CLI/help/session 文案误导",
+        "story_advance INIT_CHECK 路径和底层 dev_start 会出现语义分叉"
+      ]
+    },
+    {
+      "name": "B: 同步收紧 CLI/handler/hints/worktree/fixture，统一 INIT_CHECK 的 dry-run/confirm 协议",
+      "pros": [
+        "行为和提示完全一致",
+        "能用一条回归锁住整个 bootstrap 路径"
+      ],
+      "cons": [
+        "改动文件更多",
+        "需要小心和现有 DONE 护栏逻辑保持一致"
+      ]
+    }
+  ],
+  "chosen": "B: 同步收紧 CLI/handler/hints/worktree/fixture，统一 INIT_CHECK 的 dry-run/confirm 协议",
+  "rationale": "这条问题本质不是单点函数 bug，而是整条 INIT_CHECK bootstrap 路径的交互契约不一致。只有把 CLI 参数、提示文案、底层执行和回归一起对齐，才能确保后面不会又出现默认偷偷提交的漂移。",
+  "preMortem": [
+    {
+      "scenario": "只拦了 story_advance，但直接调用 dev_start 仍会自动提交",
+      "trigger": "只在一层 handler 加 gate",
+      "consequence": "agent 仍可通过另一入口绕过 confirm",
+      "mitigation": "同时覆盖 cli-engine、story_advance 和 worktree dev_start/dev_finish/dev_merge 相关路径。"
+    },
+    {
+      "scenario": "默认阻止做到了，但 dry-run/confirm 文案不一致",
+      "trigger": "漏改 help/hints/session 文本",
+      "consequence": "用户以为是 bug 或不知道怎么继续",
+      "mitigation": "把 CLI prompt、session brief、next-step hint 一并更新，并用 fixture 断言 dry-run 提示。"
+    },
+    {
+      "scenario": "confirm 路径被护栏拦住后无法正常 bootstrap worktree",
+      "trigger": "只验证默认阻止，没有验证 confirm 放行",
+      "consequence": "修了误提交却把 INIT_CHECK 真正用坏了",
+      "mitigation": "回归中显式覆盖 confirm=true 后能继续创建 worktree/推进 story。"
+    }
+  ],
+  "timestamp": "2026-04-16T22:25:35.383Z"
+}

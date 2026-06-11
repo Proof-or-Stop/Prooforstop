@@ -1,0 +1,156 @@
+{
+  "storyId": "B-d987",
+  "name": "done-auto-sync-main",
+  "title": "DONE confirm 自动安全同步 main",
+  "description": "修复 BUG-4 残留：DONE gate 检测到 story branch 未包含 main 时，不再要求用户手动 git merge main；DONE confirm 先自动执行安全 sync main（当前 story metadata 冲突用 --ours，源码冲突仍阻塞），然后重新计算 DONE gate，避免手动 merge main 后 re-test 触发 evidence stale 循环。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-20T12:14:19.948Z",
+  "startedAt": "2026-04-20T12:14:19.948Z",
+  "endedAt": "2026-04-20T12:36:59.450Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-20T12:14:19.949Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:15:11.991Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:15:19.243Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:18:57.102Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:19:48.215Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:19:48.622Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:20:06.528Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:21:01.404Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:21:28.773Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:21:28.933Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:22:00.641Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:22:14.953Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:22:15.112Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:24:22.539Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:36:40.207Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:36:58.822Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:36:59.450Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

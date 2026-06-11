@@ -1,0 +1,74 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "迁移 extract-tasks.js → packages/main/src/tasks/extract.ts（TypeScript 重写）",
+      "status": "done",
+      "startTime": "2026-03-31T17:16:48.386Z",
+      "endTime": "2026-03-31T17:17:40.864Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "迁移 validate-tasks.js → packages/main/src/tasks/validate.ts（TypeScript 重写）",
+      "status": "done",
+      "startTime": "2026-03-31T17:17:41.347Z",
+      "endTime": "2026-03-31T17:18:02.277Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "新增 MCP 工具 task_extract：提取代码中所有 @task 注释，返回结构化数据",
+      "status": "done",
+      "startTime": "2026-03-31T17:18:18.276Z",
+      "endTime": "2026-03-31T17:36:23.691Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "新增 MCP 工具 task_validate：校验注释是否合规",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-03-31T17:36:24.139Z"
+    },
+    {
+      "id": "CHK-005",
+      "title": "新增 MCP 工具 task_checklist_coverage：比对 @checklist 注释与 checklist.json，返回覆盖情况",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-03-31T17:36:24.999Z"
+    },
+    {
+      "id": "CHK-006",
+      "title": "新增 MCP 工具 task_locate：输入 checklist ID 或关键词，返回对应文件+行号",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-03-31T17:36:25.448Z"
+    },
+    {
+      "id": "CHK-007",
+      "title": "DEVELOP→TEST 跳转时自动运行覆盖率检查，有遗漏则禁止跳转",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-03-31T17:36:25.917Z"
+    },
+    {
+      "id": "CHK-008",
+      "title": "bug_add 增加可选 checklistId 字段，关联到具体功能点",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-03-31T17:36:26.796Z"
+    },
+    {
+      "id": "CHK-009",
+      "title": "支持同一文件多个 @task 注释块，定位精确到函数级别",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-03-31T17:36:27.252Z"
+    },
+    {
+      "id": "CHK-010",
+      "title": "更新 root package.json lint:tasks 脚本指向新的 TypeScript 实现",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-03-31T17:36:27.697Z"
+    }
+  ]
+}

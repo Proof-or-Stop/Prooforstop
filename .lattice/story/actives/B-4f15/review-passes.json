@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-4f15:RP-001",
+      "agent": "koala-review-concept",
+      "note": "No concepts deleted or replaced in this diff. The story is purely additive: introduces KOALA_REVIEWER_READONLY env var, enforceReviewerReadOnlyCommandGate function, and advisory read-only reviewer docs. No residual concept cleanup required.",
+      "createdAt": "2026-06-01T16:18:44.507Z",
+      "reviewRound": "2026-06-01T16:17:40.045Z",
+      "reviewRunId": "B-4f15:RR-002",
+      "_hash": "4998aa1ecc3574ccf6c658b77dddbefb54b15d412f98dc7ff127e66c9488cc95"
+    },
+    {
+      "id": "B-4f15:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: all 15 verificationIntent entries (5 happy, 5 edge, 5 adversarial) have valid evidence. docs_check evidence confirmed against role-separation.md content. logic_test evidence confirmed by live test runs: command-ownership-contract and reviewer-readonly-command-policy-smoke both pass with expected output strings. 2 waivers (CHK-005 edge+adversarial) are appropriately scoped as deferred gate evidence with clear rationale. No coverage gaps.",
+      "createdAt": "2026-06-01T16:18:53.822Z",
+      "reviewRound": "2026-06-01T16:17:40.045Z",
+      "reviewRunId": "B-4f15:RR-004",
+      "_hash": "fca1ee605e8ffc2ecc98a4383e3a973d17ebfdf00728674642b3dab8dc932364"
+    },
+    {
+      "id": "B-4f15:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed cli-engine.ts (enforceReviewerReadOnlyCommandGate integration), command-ownership-contract.ts (section 6 assertions), reviewer-readonly-command-policy-smoke.ts (new smoke), and updated docs. No dead imports, no empty catch blocks, no shell/fn.ts isolation violations, no unnecessary as-any. catch (e: any) pattern is consistent with pre-existing codebase style. One low finding: log-message typo at command-ownership-contract.ts:508 (storeScopedMutating → storyScopedMutating).",
+      "createdAt": "2026-06-01T16:19:36.831Z",
+      "reviewRound": "2026-06-01T16:17:40.045Z",
+      "reviewRunId": "B-4f15:RR-003",
+      "_hash": "869244d66db69b856b9fcdf8a87c7f7d6bc6e72389674de0863d82fc580f1245"
+    },
+    {
+      "id": "B-4f15:RP-004",
+      "agent": "koala-review-quality",
+      "note": "No blockers. enforceReviewerReadOnlyCommandGate: correct fail-closed logic (null→unclassified blocked, readOnly allowed), positioned before hooks/owner-lease gate. isReviewerReadOnlyModeEnabled: only =1 enables, others disabled. Smoke test (6 cases) and contract test section 6 (5 sub-assertions) all pass. Template/agent sync verified (3 files in sync; Codex/Claude label difference is pre-existing). TSC lint passes across 5 tsconfigs. Waived intents (CHK-005:edge/adversarial) are REVIEW/DONE-deferred and appropriate.",
+      "createdAt": "2026-06-01T16:40:01.577Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-005",
+      "_hash": "e939c849c7678612fd17eb51b2605dd64cda9498b17798b2d34059afff75cca6"
+    },
+    {
+      "id": "B-4f15:RP-005",
+      "agent": "koala-review-concept",
+      "note": "All 5 checklist items delivered within scope. CHK-001: role-separation.md and session-ownership-and-write-leases.md correctly document the advisory read-only reviewer contract. CHK-002: enforceReviewerReadOnlyCommandGate in cli-engine.ts fires before preCommand hooks and before enforceStoryOwnerLeaseGate, blocks all non-readOnly classes fail-closed, error message includes env var / command / class / recovery path. CHK-003: smoke test and command-ownership-contract cover env detection, allowed readOnly paths, blocked reviewerWrite/storeScopedMutating/unclassified, no-artifact invariant, and passthrough when env unset. CHK-004: koala-evaluator template and both deployed files (.claude/agents, .Codex/agents) updated in sync with correct KOALA_REVIEWER_READONLY guidance; platform-specific diff in .Codex (\"Codex 调试流程\") is pre-existing and unrelated. CHK-005: lifecycle evidence and verification refresh completed. No deleted symbols, no orphaned concepts, no scope creep.",
+      "createdAt": "2026-06-01T16:40:06.088Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-006",
+      "_hash": "8dba60fdd80af8505a4d38755f6c2a4b6b81ae09bd3783e094e920d783e4e404"
+    },
+    {
+      "id": "B-4f15:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "13/15 must intents covered with proper evidence (logic_test/docs_check/manual_transcript). No blocker for REVIEW→TEST. Two deferred obligations before DONE: (1) CHK-005:edge:0 waiver must be replaced with actual review_pass evidence from this REVIEW round — waiver explicitly committed to this and the artifacts now exist; (2) CHK-005:adversarial:0 waiver (DONE gate proof) is legitimately deferred to TEST→DONE but must be replaced before story advances DONE. Owner must also run verification_evidence_refresh_stale to clear stale headHash on both waivers before TEST. Finding B-4f15:F-003 (medium advisory, Round 2) documents this obligation.",
+      "createdAt": "2026-06-01T16:41:14.209Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-007",
+      "_hash": "3f124f4c2d64ca4630b2da884136a650dda9bc1320918c87cfb7b8864bf85ae3"
+    },
+    {
+      "id": "B-4f15:RP-007",
+      "agent": "koala-review-docs",
+      "note": "All docs consistent with implementation. role-separation.md new section accurately documents KOALA_REVIEWER_READONLY=1 semantics, matches cli-engine.ts gate ordering and blocked-command classes. session-ownership-and-write-leases.md cross-reference is correct. All three koala-evaluator.md files (template + .claude + .Codex) carry identical KOALA_REVIEWER_READONLY guidance. koala check OK (45 assets, 0 missing). verify-codex-assets 16 prompts mirrored. Codex verify_codex 6/7 pass (1 warning is pre-existing worktree global-fallback path, not introduced by this story). Pre-existing .Codex adjustedDebug label difference is known platform divergence, not in this diff.",
+      "createdAt": "2026-06-01T16:42:18.723Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-008",
+      "_hash": "154747de7fb4da553fe9a90814d4c5b0e82c452b0d0b9e78a1975bebc063d77b"
+    }
+  ]
+}

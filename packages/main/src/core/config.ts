@@ -4,6 +4,7 @@ import { join } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
+import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths.js';
 
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
@@ -277,7 +278,7 @@ const DEFAULT_CONFIG: KoalaConfig = {
   scanRoot: 'src',
   testsDir: 'tests',
   fixturesDir: 'tests/fixtures',
-  storyDir: 'docs/story/actives',
+  storyDir: LATTICE_STORY_DIR,
   requirementsDir: 'docs/requirements',
   storyPrefix: 'B',
   flows: {
@@ -349,6 +350,7 @@ function findProjectRootByMarker(startDir: string): string | null {
 
 /** Search upward from cwd for a project config file (lattice.config.json first, koala.config.json fallback), return the project root directory */
 function resolveProjectRoot(): string {
+  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   return findProjectRootByMarker(process.cwd()) ?? process.cwd();
 }
@@ -396,6 +398,7 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
       ...(userConfig.flows || {}),
     },
   };
+  assertNoLegacyKoalaWritePath(_cached.storyDir, 'storyDir');
 
   _cache.set(root, _cached);
   return _cached;

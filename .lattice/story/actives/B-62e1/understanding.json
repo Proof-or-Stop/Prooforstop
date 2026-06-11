@@ -1,0 +1,27 @@
+{
+  "task": "把 INIT_CHECK/dev_start 这条 bootstrap git commit 路径收紧成默认阻止，只有 dry-run 预览后显式 confirm 才允许执行。",
+  "outcome": "> koala story_advance {\"storyId\":\"B-62e1\",\"phase\":\"INIT_CHECK\"}\n错误: dev_start(B-62e1) 会自动写 story.worktree metadata 并创建 bootstrap git commit，默认已阻止。\n[DRY-RUN] INIT_CHECK bootstrap plan:\n  - repo: /Users/jek/Documents/Work/Orchestrate\n  - worktree: /Users/jek/Documents/Work/Orchestrate/.worktrees/B-62e1\n  - branch: story/B-62e1\n...\n→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行\n用户看到这里会知道 INIT_CHECK 不会再偷偷写本地 commit，而是要自己明确确认。",
+  "facts": [
+    "当前 B-62e1 的目标就是收紧 INIT_CHECK/bootstrap commit 语义。",
+    "此前 stash@{0} 正好覆盖 cli-engine.ts、worktree.ts、story-advance.ts、提示文案和 git-mutation-guard.json。",
+    "DONE/dev_finish/dev_merge 已经有 dry-run/confirm 护栏，这条 story 要把 INIT_CHECK/dev_start 对齐到同一语义。"
+  ],
+  "constraints": [
+    "必须保持 INIT_CHECK 在 confirm=true 时仍能正常创建 worktree。",
+    "不能再出现默认自动本地 git commit 的路径。",
+    "要同步 help/hint/session 文案，避免继续误导用户。"
+  ],
+  "unknowns": [
+    "stash@{0} 在当前 main 上是否能无冲突直接套用，还是要局部调整。"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/handlers/hints.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/tests/fixtures/git-mutation-guard.json"
+  ],
+  "timestamp": "2026-04-16T22:25:35.270Z"
+}

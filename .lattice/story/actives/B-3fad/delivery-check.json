@@ -1,0 +1,49 @@
+{
+  "storyId": "B-3fad",
+  "checkedAt": "2026-05-17T00:59:39.796Z",
+  "reviewRound": "2026-05-17T00:51:26.668Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md#finding-evidencestate-证据状态模型",
+      "promise": "Finding.evidenceState 三值轴：suspected/verified/disproven，附默认表说明 reviewer finding_add 默认 verified、gap_log 默认 suspected、legacy 缺字段 gate 视同 verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "types.ts:421 定义 FindingEvidenceState = suspected|verified|disproven；finding.ts:79 注释说明默认 verified；advisory.ts:44 isEvidenceStateBlocking(null)=true（legacy 兼容）；gap-log.ts 默认 suspected"
+    },
+    {
+      "docPath": "AGENTS.md#gate-predicate",
+      "promise": "Gate predicate: status=open && severity in critical|high && isEvidenceStateBlocking(evidenceState) && !isAdvisoryThisRound —— suspected/disproven 不阻塞，verified 或 null 才阻塞；process-fact-levels.ts 登记 runtime:finding_evidence_state_review_gate (L4)",
+      "verifiedBy": "diff/grep",
+      "evidence": "advisory.ts:43-60 导出 isEvidenceStateBlocking + isFindingBlocking，实现完整四条件 AND；process-fact-levels.ts:145 注册 runtime:finding_evidence_state_review_gate gateConsumer=canPassReview"
+    },
+    {
+      "docPath": "AGENTS.md#gap_log-用法",
+      "promise": "koala gap_log 归档框架 gap 进 B-META-framework-audit；必填 category/severity/evidence/source（至少一个）；默认 suspected；只有带 source 才允许 verified；不接受 disproven；B-META 不存在自动 bootstrap",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/gap-log.ts 实现四级 runtime 校验（category必填+enum/severity必填+enum/evidence必填trim/source必填atLeastOne）；audit-meta-store.ts ensureMetaStory 幂等 bootstrap；registry.ts:172-175 注册 gap_log；cli-engine.ts:517 Zod schema evidenceState only enum suspected|verified"
+    },
+    {
+      "docPath": "AGENTS.md#framework-gap-手动归档命令速查",
+      "promise": "koala gap_log 命令出现在 AGENTS.md 速查区（category/severity/evidence/sourceRefs 示例）",
+      "verifiedBy": "diff",
+      "evidence": "diff 显示 AGENTS.md 新增 koala gap_log 速查块（+3 行），category/severity/evidence/sourceRefs 字段全部列出"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "evidence-state-gate-smoke.ts 10 断言覆盖：(1)legacy 缺字段 critical open 仍阻塞 (2)verified open 仍阻塞 (3)suspected open 不阻塞且进 advisory (4)verified resolved/dismissed 不阻塞 (5)disproven open 不阻塞 (6)finding_list 每条显示 evidenceState (7)suspected 缺 uncertaintyReason 被拒 (8)disproven 缺 disprovenEvidence.summary/invalid enum/1-char reason 被拒 (9)suspected sibling 不掩盖 verified blocker (10)reviewer-status display 与 gate 同源；validate 44/44 covered 0 required missing"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "gap-log-smoke.ts 12 断言覆盖：(1)必填字段缺失 Zod+handler 双层拒绝 nothing written (2)默认 suspected (3)verified 无 source 被 source gate 拒绝（不可能产生无证据 verified finding）(4)verified + source → allowed (5)blank evidence 拒绝 (6)B-META 不存在自动 bootstrap 再复用 (7)无 worktree 直接跑通 (8)相同内容两次写两条（非 dedup）(9)disproven Zod+runtime 双层拒绝 (10)5次快速连写全部持久化唯一 id (11)sourceRefs+files 合并去重 (12)gap_log --help 可发现；真机 transcript 见 evidence/transcript-diff.md"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "所有 4 条 AGENTS.md 文档承诺均在代码中有对应实现（types/advisory/gap-log handler/registry/cli-engine），两个 feature item 有完整 smoke 测试覆盖 happy+edge+adversarial 路径，validate 44/44 covered，真机 transcript 记录于 evidence/transcript-diff.md。closing self-check 诚实：无 TODO/FIXME/HACK，edge case 覆盖充分（suspected 缺 reason、disproven 缺 summary、invalid enum、1-char reason、source-gate 拦截 verified-without-evidence、rapid succession、dedup 行为均断言）。"
+  },
+  "_hash": "603368276f180a0b76dcbbdddc0b20ec6331215fedaea05cc2f9325fdc10dd09"
+}

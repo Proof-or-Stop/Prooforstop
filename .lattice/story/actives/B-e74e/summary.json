@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e74e",
+  "changes": "Added registered-main-worktree resolution for DONE and done_recover. DONE preflight now checks the actual worktree that owns branch main, keeps fail-before-write behavior for unsafe states, and uses that same worktree for merge/cleanup. Added focused smoke coverage for clean DONE, separate registered main DONE, separate registered main done_recover, wrong-branch rejection, and dirty-main rejection.",
+  "usage": "Run lattice story_advance --storyId=<id> --phase=DONE from a story worktree as before. If branch main is checked out in another registered worktree, Lattice now resolves that worktree automatically. Use lattice done_recover --storyId=<id> for partial-DONE recovery.",
+  "expectedOutcome": "DONE succeeds on a clean main target, uses a separate registered main worktree when branch main is owned elsewhere, and fails before phase mutation when the merge target is wrong-branch or dirty.",
+  "actualTranscript": "Build passed. done-preflight-smoke printed PASS for happy path, separate registered main worktree, done_recover separate registered main worktree, wrong-branch fail-before-write, and dirty-main fail-before-write. worktree-authority-smoke passed. Process fact contract verified. validate reported 9/9 verification intents covered.",
+  "outcomeDiff": "No functional difference between expected and actual; reviewer notes were advisory only.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by isolated git smoke tests and validation evidence",
+  "pitfalls": "The initial Claude Code implementation missed the done_recover registered-main scenario, so supervisor follow-up added the helper and recovery smoke. Scope gate also required explicit acknowledgement for the focused smoke file even though the intended glob covered done task files.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 316036
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 46068
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 295090
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1862610
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 567976
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 230577
+    }
+  },
+  "totalDurationMs": 3318370,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-04T03:19:18.804Z",
+  "updatedAt": "2026-06-04T03:19:18.804Z"
+}

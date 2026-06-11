@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-9e4a:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001 的 3 条 intent（happy/edge/adversarial）均有 logic_test 覆盖，result=pass；CHK-002 的 must docs intent 有 docs_check 覆盖，result=pass；should 级别 intent 均有对应 evidence；smoke test npm --prefix packages/main run test:worktree-node-modules-smoke 当场通过。无 blocker。",
+      "createdAt": "2026-05-25T17:57:58.433Z",
+      "reviewRound": "2026-05-25T17:57:11.741Z",
+      "reviewRunId": "B-9e4a:RR-003",
+      "_hash": "4183e0f8f7acb9ea72cda4921fdbcc0f11a75f2e8cea73d14c2f13a7ce7ab9d0"
+    },
+    {
+      "id": "B-9e4a:RP-002",
+      "agent": "koala-review-concept",
+      "note": "本次 diff 无概念删除或替换。所有改动均为新增：worktree.ts 新增 detectMissingNodeModulesWarning（warning-only，不自动 symlink），新增 smoke test，CLAUDE.md 新增依赖准备段落。无残留引用需清理。warning-only + no-auto-symlink 概念在代码与文档中一致。",
+      "createdAt": "2026-05-25T17:58:19.432Z",
+      "reviewRound": "2026-05-25T17:57:11.741Z",
+      "reviewRunId": "B-9e4a:RR-004",
+      "_hash": "48736f0e81c9bfd92033a5c38d118747a30b9d35fe5aff0596a1dfca235c5567"
+    },
+    {
+      "id": "B-9e4a:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 13 symbols extracted (detectMissingNodeModulesWarning, hasNodeModules, dirExists, keySubpackages, etc). Step 2: CLAUDE.md Worktree lifecycle section (line 387-397) references these via the F-003 warning block. Step 3: Warning text in code matches CLAUDE.md example exactly (worktree 根, npm install, symlink as advanced-optional). No-auto-symlink policy in CLAUDE.md confirmed by code (detectMissingNodeModulesWarning only emits text, never creates symlinks). No doc-code drift found. 0 blockers.",
+      "createdAt": "2026-05-25T17:58:20.017Z",
+      "reviewRound": "2026-05-25T17:57:11.741Z",
+      "reviewRunId": "B-9e4a:RR-001",
+      "_hash": "8fd51216d390844ef19925db3f65651e9436858084aac9313bebd14cf4ded34d"
+    },
+    {
+      "id": "B-9e4a:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: CHK-001 has must-priority happy/edge/adversarial intents all covered by logic_test evidence (smoke). CHK-002 has must happy intent covered by docs_check and should-priority edge/adversarial covered by logic_test. All evidence result=pass, smoke confirmed live. No blockers.",
+      "createdAt": "2026-05-25T18:01:04.421Z",
+      "reviewRound": "2026-05-25T18:00:09.306Z",
+      "reviewRunId": "B-9e4a:RR-006",
+      "_hash": "250bed8ec0209c58dbd8a41e397f2e522c395c5e445d22340dc37e32f8d5fdb5"
+    },
+    {
+      "id": "B-9e4a:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept review: diff adds new functions detectMissingNodeModulesWarning/hasNodeModules/dirExists and a new smoke test file. No existing concepts were deleted or replaced. F-001 fix (dirExists double lstatSync) correctly caches stat result — warning-only/advisory nature of the check is unchanged. Grep scan: no residual stale symbol references found. No blocker.",
+      "createdAt": "2026-05-25T18:01:13.429Z",
+      "reviewRound": "2026-05-25T18:00:09.306Z",
+      "reviewRunId": "B-9e4a:RR-005",
+      "_hash": "a20edf0940c79cff1e29ba372379e3fb8a02866b9b61d17bd8164be839b25d21"
+    },
+    {
+      "id": "B-9e4a:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 抽出符号 detectMissingNodeModulesWarning/hasNodeModules/nodeModulesWarning/keySubpackages/freshWorktree 等，均无需在 CLAUDE.md 中按名引用（内部实现符号）。Step 2: CLAUDE.md 新增「依赖准备（INIT_CHECK 后，F-003）」段落，描述 warning 格式、补救方式、symlink 风险，与 worktree.ts detectMissingNodeModulesWarning 实际输出完全一致（⚠ worktree 缺 node_modules / 补救（推荐）：cd...npm install / 高级可选：symlink）。Step 3: 无 doc-code-drift。无 blocker。",
+      "createdAt": "2026-05-25T18:01:28.428Z",
+      "reviewRound": "2026-05-25T18:00:09.306Z",
+      "reviewRunId": "B-9e4a:RR-007",
+      "_hash": "5535f27b503419bb4d5cf6e2ff3e443ab3a074325df20ce1d91b3f885e205913"
+    },
+    {
+      "id": "B-9e4a:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality check: F-001 fix confirmed (dirExists now uses single lstatSync call stored in const stat, no double syscall). No dead code, unused imports, as any, empty catch with bad semantics, or shell isolation violations in changed files (worktree.ts + worktree-node-modules-smoke.ts). Code is clean.",
+      "createdAt": "2026-05-25T18:01:29.245Z",
+      "reviewRound": "2026-05-25T18:00:09.306Z",
+      "reviewRunId": "B-9e4a:RR-008",
+      "_hash": "49ef60c0db9a62541421f22ea25c39d34b8f0d1eb6bab8a9314842e1fbf9556c"
+    }
+  ]
+}

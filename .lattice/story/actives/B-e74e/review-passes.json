@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-e74e:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "All 9 must-priority verification intents across CHK-001/CHK-002/CHK-003 have direct evidence from done-preflight-smoke.ts: happy clean-main, registered-separate-main-worktree DONE, done_recover from non-main root, wrong-branch fail-before-write (phase stays TEST), dirty-main fail-before-write (phase stays TEST). Process fact contract verified live. Worktree-authority-smoke passes. No blocking gaps.",
+      "createdAt": "2026-06-04T03:09:37.032Z",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "reviewRunId": "B-e74e:RR-004",
+      "_hash": "1520a5662af22d1c9902ed05ca0295d7244145104da75dd7b4a1261c22a3d6d1"
+    },
+    {
+      "id": "B-e74e:RP-002",
+      "agent": "koala-review-concept",
+      "note": "No concept deletions or replacements in this diff. The changes introduce new functions (resolveMainBranchWorktree, findRegisteredWorktreeForBranch, assertMainWorktreeReadyForMerge) and a new variable (mainMergeRoot) alongside the existing mainRepoRoot — no concept was removed. The pre-existing concept mainRepoRoot is correctly preserved as the git repository root, while mainMergeRoot is the registered worktree that owns branch main. Grepped all *.ts and *.md files: zero orphaned references to removed concepts. done-preflight-smoke.ts has no npm script entry (advisory, not a concept issue). Stale comment at done-effects.ts:458 says cd to main repo root but code now correctly uses mainMergeRoot (low severity comment drift, not a concept deletion). No CLAUDE.md changes requiring doc-promise verification. No blocking concept issues found.",
+      "createdAt": "2026-06-04T03:13:50.871Z",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "reviewRunId": "B-e74e:RR-005",
+      "_hash": "8f10a11ed060bf1148215691b27c49ef31204d62b5d09574c2207be72d74f1d0"
+    },
+    {
+      "id": "B-e74e:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality review found no blocking implementation issues. TypeScript compiles cleanly; fail-before-write semantics are preserved; registered main worktree resolution is safe; remaining notes are advisory naming/comment/path-comparison observations only.",
+      "createdAt": "2026-06-04T03:14:51.541Z",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "reviewRunId": "B-e74e:RR-003",
+      "_hash": "8bcc5eb762704a3c9d828c1fc68241bac90f0863e77fe694a2cb02ec9464eb30"
+    }
+  ]
+}

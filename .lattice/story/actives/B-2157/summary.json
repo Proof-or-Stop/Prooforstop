@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2157",
+  "changes": "Implemented Verification Context Pack CLI support: create/expand commands, requiredCommands coverage refs, target-bound evidence binding, robust diff hunk parsing, deleted-file snippets, smoke tests, process-fact registration, and synced requirements docs/NAV.",
+  "usage": "Run node packages/main/dist/cli.js verification_context_pack_create --producerRunId=<run> --storyId=<story> --requiredCommands=<json>; use verification_context_pack_expand with parentPack plus expansionReason/sourceSnippets/impactedSymbols/dependencyEdges when a verifier needs bounded extra context.",
+  "expectedOutcome": "CLI returns a pack with changedFiles, changedHunks, sourceSnippets, requiredCommands, packDigest, and summary fields; deleted files keep readable source context.",
+  "actualTranscript": "Real temp-repo run returned changedFiles=[alpha.ts,beta.ts,gamma.ts], changedHunks=[alpha.ts:1,gamma.ts:1,beta.ts:1], sourceSnippets=3 including gamma.ts reason deleted hunk context from diff, requiredCommands preserved, summary changedFiles=3 changedHunks=3 sourceSnippets=3 estimatedTokens=23 truncated=false.",
+  "outcomeDiff": "No mismatch: actual CLI output matched the expected modified/new/deleted file context-pack behavior.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Python authority server preset/gate enforcement is intentionally documented as external coordination and not implemented in this CLI-only story.",
+  "pitfalls": "Review found subtle evidence-quality bugs: requiredCommands were initially not exposed, diff hunk flush duplicated multi-file hunks, and deleted-file snippets needed diff-derived source context.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 302604
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 8303
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 384277
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1522583
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 2404782
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 90520
+    }
+  },
+  "totalDurationMs": 4713083,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-20T23:17:41.926Z",
+  "updatedAt": "2026-05-20T23:17:41.926Z"
+}

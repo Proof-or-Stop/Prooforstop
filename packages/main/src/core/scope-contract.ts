@@ -281,16 +281,13 @@ export function checkScopeContract(
     // B-b9d0 CHK-001/002: command-generated Koala lifecycle artifacts are
     // recognized via lifecycle-artifact-scope. A strict `lifecycle` match
     // means `<storyDir>/<storyId>/<known artifact filename>` — narrow,
-    // story-scoped, filename-aware. Legacy story-tree paths
-    // (`docs/story/.../B-xxx/...`, `.koala/story/.../B-xxx/...`) still pass
-    // for back-compat with PLAN-time files (plan.md, understanding.json, …).
+    // story-scoped, filename-aware. Legacy docs/story paths still pass for
+    // back-compat with PLAN-time files (plan.md, understanding.json, …).
     //
-    // Runtime artifacts (`.koala/activity.jsonl`, `.koala/runtime/`,
-    // `.koala/traces/`, `.koala/locks/`, owner-lease.json, …) are skipped via
-    // the registry predicate — NOT a blanket `.koala/` exemption. An arbitrary
-    // unknown file like `.koala/foo.json` is NOT a runtime artifact and NOT a
-    // lifecycle artifact, so it falls through to normal scope enforcement
-    // (adversarial requirement: product source and arbitrary JSON still fail).
+    // Runtime artifacts (`.lattice/activity.jsonl`, `.lattice/runtime/`,
+    // `.lattice/traces/`, `.lattice/locks/`, owner-lease.json, …) are skipped
+    // via the registry predicate. Legacy `.koala/` paths intentionally have no
+    // runtime or lifecycle exemption after the .lattice migration.
     if (classifyLifecycleArtifact(file, { storyId: contract.storyId })) continue;
     if (isRuntimeArtifactPath(file)) continue;
 

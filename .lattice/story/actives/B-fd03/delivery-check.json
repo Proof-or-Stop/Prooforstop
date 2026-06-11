@@ -1,0 +1,61 @@
+{
+  "storyId": "B-fd03",
+  "checkedAt": "2026-06-02T16:45:16.287Z",
+  "reviewRound": "2026-06-02T16:24:10.672Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Lattice CLI 0.3.5 is the CLI-first entry; lattice is the primary command and koala is the legacy alias.",
+      "status": "verified",
+      "verifiedBy": "line refs and direct doc inspection",
+      "evidence": "README.md:3-5,15-18,45-67,69-74"
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "The refresh flow after CLI edits builds packages/main, installs globally, and verifies both lattice and koala versions before check, doctor, and rollout_check.",
+      "status": "verified",
+      "verifiedBy": "line refs and direct doc inspection",
+      "evidence": "docs/guide.md:31-58"
+    },
+    {
+      "docPath": "docs/requirements/decisions/project-vision.md",
+      "promise": "rollout_check is read-only and only scans version, wrapper/realpath, managed assets, runtime footprint, git/story state, and transcript readiness without apply/upgrade/repair/fix or receipt verification.",
+      "status": "verified",
+      "verifiedBy": "line refs and direct doc inspection",
+      "evidence": "docs/requirements/decisions/project-vision.md:5-19"
+    },
+    {
+      "docPath": ".koala/story/actives/B-fd03/evidence/rollout-transcript.md",
+      "promise": "The real-project rollout transcript records lattice.rollout_check.v1, Lattice CLI 0.3.5, readOnly true, macAppRequired false, per-project status/nextAction, and unchanged git status.",
+      "status": "verified",
+      "verifiedBy": "transcript review",
+      "evidence": ".koala/story/actives/B-fd03/evidence/rollout-transcript.md:1-84"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Docs and guide publish lattice-primary usage, legacy koala alias semantics, and the refresh flow that verifies lattice and koala versions."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "CLI help and migration behavior keep koala working as a legacy alias while user-facing examples prefer lattice commands."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "rollout_check returns stable summary counts plus per-project status and nextAction, including normalization of external or non-git projects."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The real-project transcript captures rollout_check results for Orchestrate and external projects, with readOnly true, macAppRequired false, and actionable next actions."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs, transcript, and machine evidence all align with the rollout_check migration contract."
+  },
+  "_hash": "94fd4ef31da476ba71f94bb841f39ada35c76daa6961c0fe719db64758623863"
+}

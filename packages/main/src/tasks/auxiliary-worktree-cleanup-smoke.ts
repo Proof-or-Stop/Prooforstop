@@ -36,15 +36,15 @@ function initRepo(prefix: string): string {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
-    '.koala/*',
-    '!.koala/story/',
-    '!.koala/story/**',
+    '.lattice/*',
+    '!.lattice/story/',
+    '!.lattice/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'auxiliary worktree cleanup smoke\n');
@@ -73,7 +73,7 @@ function story(storyId: string): StoryInfo {
 }
 
 function commitStories(root: string): void {
-  git(root, ['add', '.koala/story/actives']);
+  git(root, ['add', '.lattice/story/actives']);
   git(root, ['commit', '-m', 'add smoke story metadata']);
 }
 
@@ -96,7 +96,7 @@ async function runLattice(root: string, command: string, args: Record<string, un
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, KOALA_PROJECT_ROOT: root },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';

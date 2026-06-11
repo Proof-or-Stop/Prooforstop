@@ -1,0 +1,26 @@
+{
+  "task": "为 koala-lab 增加 session-brief-quality-v1 与 story-review-quality-v1 流程 profile，并在 compare 输出中展示改前/改后的分数和内容摘要。",
+  "outcome": "$ koala lab run --config experiments/configs/lab-session-brief-quality-v1.json --confirm\n[lab] score: 0.71 (baseline 0.62, delta 0.09)\n[lab] normalizedScore: 0.88 (baseline 0.77, delta 0.11)\n[lab] decision: kept\n\n$ koala lab compare --config experiments/configs/lab-session-brief-quality-v1.json\n{\n  \"baseline\": { \"score\": 0.62, \"normalizedScore\": 0.77, \"contentSummary\": [\"missing reviewer status\"] },\n  \"best\": { \"score\": 0.71, \"normalizedScore\": 0.88, \"contentSummary\": [\"has reviewer status\", \"has next step\"], \"patch\": \".../patch.diff\" }\n}\n用户能直接看到流程输出改前/改后的量化分和具体内容差异。",
+  "facts": [
+    "koala-lab 目前只有 reviewer-quality-v1 profile。",
+    "score/normalizedScore、patch artifact、compare/promote 已经在 V1/V1.1 中实现。",
+    "session_brief 和 story_review 是 Koala 流程入口与 PLAN gate 的高价值评估对象。"
+  ],
+  "constraints": [
+    "新增 profile 必须复用统一 LabRunMetrics 输出。",
+    "compare 输出要兼容旧 run，缺 contentSummary 时不能崩溃。",
+    "只做本地 deterministic profile，不引入 LLM 或网络依赖。",
+    "不能改变现有 reviewer-quality-v1 的决策语义。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/lab/src/core/profile.ts",
+    "packages/lab/src/profiles/session-brief-quality-v1.ts",
+    "packages/lab/src/profiles/story-review-quality-v1.ts",
+    "packages/lab/src/types.ts",
+    "packages/lab/src/handlers/lab.ts",
+    "scripts/verify-lab-flow-profiles.mjs",
+    "README.md"
+  ],
+  "timestamp": "2026-04-19T00:28:25.261Z"
+}

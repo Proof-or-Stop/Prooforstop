@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-1fca:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Evidence quality classification (echo/version/build-only/commandless patterns), strict-profile blocking gate, balanced warning-only, actor-trust revocation, attestation staleness, fact-provenance digest/staleness checks, and reviewer quorum independence all correctly implemented and smoke-tested. Adversarial test confirms fake-verifier echo-pass evidence is blocked in strict mode. No concept-level gaps found.",
+      "createdAt": "2026-05-22T14:19:24.468Z",
+      "reviewRound": "2026-05-22T14:17:37.268Z",
+      "reviewRunId": "B-1fca:RR-004",
+      "_hash": "ad3310d4704a497c35945783b14b196ace51ecd2f11338a34308f6e8fbb776c4"
+    },
+    {
+      "id": "B-1fca:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "All 5 CHK verificationIntents (happy/edge/adversarial must items) have matching verificationEvidence with logic_test kind, current headHash, and real smoke file coverage. All 5 smoke scripts ran and passed: evidence-quality-smoke, reviewer-quorum-smoke, attestation-smoke, actor-trust-smoke, fact-provenance-smoke. Supplementary scripts (evidence-quality-contract, flow-stability-smoke, verification-freshness-smoke) also passed. Smoke files are substantial (210-569 lines each) with genuine assertions. No missing evidence, no stale hashes for must intents, no trivial pass stubs found.",
+      "createdAt": "2026-05-22T14:19:42.922Z",
+      "reviewRound": "2026-05-22T14:17:37.268Z",
+      "reviewRunId": "B-1fca:RR-001",
+      "_hash": "548ab52815743a557ab728bc6a83b1a0436f9940051799567131dc36a0188e47"
+    },
+    {
+      "id": "B-1fca:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed at medium severity threshold. New evidence-quality, actor-trust, attestation, fact-provenance, and reviewer-quorum modules are implemented correctly in code. The checklist listed testing-infra.md, story-lifecycle.md, and CLAUDE.md as files.modify but none were updated with documentation of the new evidenceQualityProfile gate behavior or weak-evidence patterns. This is a medium doc drift gap (truth-source docs omit the new quality gating concepts), not a blocking inconsistency since docs don't falsely claim contrary behavior. No critical/high blocker found.",
+      "createdAt": "2026-05-22T14:20:47.873Z",
+      "reviewRound": "2026-05-22T14:17:37.268Z",
+      "reviewRunId": "B-1fca:RR-002",
+      "_hash": "08e3bdca1ab2883bc8bf73d555e70ea547bb8ae7865845533e5ef5a6c4fe6839"
+    },
+    {
+      "id": "B-1fca:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Code quality: evidence-quality.ts, attestation.ts, actor-trust.ts, fact-provenance.ts, reviewer-quorum.ts are well-structured pure functions with correct profile-based gating (light/balanced/strict). Backward compatibility preserved — legacy evidence without new fields returns [] from all evaluators. refresh_stale correctly preserves attestation/actorTrust/factProvenance metadata. buildVerificationCoverage deduplication logic in getBlockingVerificationEvidenceIssues avoids generic+detail double-reporting. Edge cases (waiver wins over weak command, file signal overrides build-only command, manual_transcript with strong note still weak) all behave correctly. Smoke tests cover the full intent matrix. koala validate green after rebuild.",
+      "createdAt": "2026-05-22T14:26:27.833Z",
+      "reviewRound": "2026-05-22T14:17:37.268Z",
+      "reviewRunId": "B-1fca:RR-003",
+      "_hash": "f3b0de54bad2db06af236fb84b6101506c2f4d251e356c25a2b774c6719549e3"
+    },
+    {
+      "id": "B-1fca:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality retry reviewed evidence gates, refresh metadata preservation, provenance edge handling, and validate coverage wiring; no critical/high blocker found.",
+      "createdAt": "2026-05-22T14:30:14.085Z",
+      "reviewRound": "2026-05-22T14:17:37.268Z",
+      "reviewRunId": "B-1fca:RR-005",
+      "_hash": "e2545f1e39b8c61cbc6cca6804aaacf76e731af856695fb788ead25e846ec376"
+    }
+  ]
+}

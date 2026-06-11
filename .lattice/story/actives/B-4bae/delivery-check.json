@@ -1,0 +1,50 @@
+{
+  "storyId": "B-4bae",
+  "checkedAt": "2026-05-17T12:09:30.971Z",
+  "reviewRound": "2026-05-17T12:01:05.480Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/truth-source.md",
+      "promise": "convergence_check is the command that judges whether truth-source requirements and implementation have converged after gap analysis.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/cli.js convergence_check",
+      "evidence": "Fresh run returned separate Audit backlog row, excluded B-META-framework-audit from 所有 Story 完成, kept real active stories listed, and kept code annotation / requirements coverage checks passing."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE readiness requires deterministic validation evidence, fresh verification coverage, user-value summary, delivery check, and lifecycle-safe handling of DONE/partial-DONE semantics.",
+      "status": "verified",
+      "verifiedBy": "koala session_brief + koala summary_get + koala finding_list",
+      "evidence": "session_brief shows validation PASS, 6/6 verification intents covered, fresh evidence, clean worktree, complete accepted summary; finding_list shows B-META-framework-audit:F-004 resolved after the B-4c38/7350e9df partial-DONE fix. Remaining branch-sync-main row is a separate DONE pre-check handled by DONE advance."
+    },
+    {
+      "docPath": "docs/koala/framework-audit/2026-05-17/report.md",
+      "promise": "Framework audit report has no current drift rows beyond the explicit skipped audit_config_set item, so audit backlog handling should not invent a new product drift.",
+      "status": "verified",
+      "verifiedBy": "sed docs/koala/framework-audit/2026-05-17/report.md + koala finding_list",
+      "evidence": "Report states no drift; B-META active audit backlog now has F-004 resolved, F-005 dismissed duplicate, and only advisory open findings remain for convergence_check."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/cli.js convergence_check returned 代码注释合规 passed=true, 所有 Story 完成 passed=false with B-4622, B-4bae, B-6974, B-d7af, B-da5b only, Audit backlog passed=true with 0 blocking and 4 advisory, and 需求覆盖率 passed=true."
+    },
+    {
+      "featureId": "CHK-001-edge-adversarial",
+      "transcript": "npm --prefix packages/main run test:convergence-false-blockers executed node dist/tasks/convergence-discarded-smoke.js and printed convergence discarded smoke passed, covering DONE, DISCARDED, META, INIT, advisory audit findings, verified high/critical blockers, and legacy missing evidenceState blockers."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "koala finding_list {storyId:B-META-framework-audit} shows F-004 status resolved with evidenceState verified, F-005 dismissed duplicate, F-001/F-002/F-003 open suspected advisory, and F-006 open low verified advisory."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery readiness passes from the user/product perspective: convergence_check output matches the promised transcript, META audit findings are separated from unfinished story completion, verified high/critical audit blockers remain covered by smoke tests, and F-004 is resolved. No delivery waiver is needed; branch sync with main remains a separate DONE pre-check."
+  },
+  "_hash": "a80667a1e1d2b8f55a3ae8589dcaf3a097a2c2e7cdb05229ea615c576ac29320"
+}

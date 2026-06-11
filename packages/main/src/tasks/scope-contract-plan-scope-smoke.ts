@@ -178,7 +178,7 @@ try {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -253,7 +253,7 @@ try {
     store.writeChecklist(storyId, checklistWithFiles);
 
     // Write corrupt JSON to scope-contract.json
-    const contractPath = join(root, '.koala/story/actives', storyId, 'scope-contract.json');
+    const contractPath = join(root, '.lattice/story/actives', storyId, 'scope-contract.json');
     mkdirSync(dirname(contractPath), { recursive: true });
     writeFileSync(contractPath, '{ this is not valid json !!!', 'utf8');
 
@@ -367,7 +367,7 @@ try {
       write(iroot, 'koala.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
-        storyDir: '.koala/story/actives',
+        storyDir: '.lattice/story/actives',
         requirementsDir: 'docs/requirements',
         storyPrefix: 'B',
       }, null, 2));

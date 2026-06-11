@@ -1,0 +1,65 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-13T13:56:30.675Z",
+      "issueCount": 8,
+      "blockerCount": 7,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Show signed fresh-reviewer run records to maintainers + Bind reviewer findings and passes to reviewRunId 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .claude/agents/koala-review-*.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .Codex/agents/koala-review-*.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description 提到 \"Reviewer prompt updates span every verifier-scanned prompt source\" 但无对应 checklist item 且未 exclude"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description 提到 \"Reviewer prompt updates span every pass or finding reviewer lane that can emit REVIEW evidence\" 但无对应 checklist item 且未 exclude"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description 提到 \"Central review pass and finding semantics stay synchronized in flow-fact-policy.ts and testing-infra truth-source text\" 但无对应 checklist item 且未 exclude"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-001 未 resolve — \"Should CHK-003 expand prompt coverage to packages/main/templates/agents and t...\"。请跑 `koala scope_question_resolve --storyId=B-ad12 --oqId=OQ-001 --resolution=...` 书面消解（主 agent 对结论负责）"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-002 未 resolve — \"Should the story add packages/main/src/core/flow-fact-policy.ts and docs/requ...\"。请跑 `koala scope_question_resolve --storyId=B-ad12 --oqId=OQ-002 --resolution=...` 书面消解（主 agent 对结论负责）"
+        }
+      ],
+      "_hash": "396fcb6d31827f83771861a180c4cf9f86f82b81e59323328a1222453f2f1be1"
+    },
+    {
+      "timestamp": "2026-05-13T14:02:13.579Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Show signed fresh-reviewer run records to maintainers + Bind reviewer findings and passes to reviewRunId 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "d938455268b703462cfc2d895198e05680e65fe865f6cc560bfbdabc670ad57e"
+    }
+  ]
+}

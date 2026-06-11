@@ -1,0 +1,209 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-e74e:RR-001",
+      "storyId": "B-e74e",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "startedAt": "2026-06-04T03:07:02.183Z",
+      "headHash": "e77136aa82e20d1e5c7076a70e2f8fba926a347f",
+      "materialHash": "0946abc6f9233bb3762ae945a5512cbb249ab55f678cdb0c55048e0250bffafd",
+      "promptHash": "6367fc6dee4c2c5bb34805f5b846cfa139ea23faf581ac2ade7b2dd79a9fa32b",
+      "scopeBinding": {
+        "scopeContractHash": "6f57ddce5eb1df9a1ecd69385777ea6997b14ecb79d8ddf0b7c658213839d6a1",
+        "diffPackHash": "9d52104e51856c9ea8c0504a4ab4f54c2f7f6d61dd1c92985273f849375da0fb",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "0dc927209470d20bf708424abc74f6d3bc58383650662354a267d4c1c267ec98",
+          "0de5b017c68a478b4cba94c2e6317b6961075a90db2e34ecbebf6b7f54d85a85",
+          "1b8f9a2b84f83bce4480a0e2dbebf663cc6f2d574c59ca9babcb3fa1e1108df6",
+          "63108920917a2618d1c6b965cae48a14b8b4b71e757d58c31277b1ed5b329cec",
+          "7055784a694450d2da960188d54decbb1e48c747674bc4655c3d3cede6b1c27c",
+          "86759ab3b30b440f238ae8c3ef744a86b1df91f0e314424a92e525a9927aaf65",
+          "ba26417108715774be96cda72d6a44b1dc89db5555c21784a48a904883be4325",
+          "c8f11c793e63bf42a334e35c95850e142d6117fd219e40a78b490f178c1b7289",
+          "ec89147f586288bfbc340f9e571d99635f2eb4392f5979188edc61809b19dcab"
+        ],
+        "bindingHash": "4a33dcbdda03a5cb8dc058cf4bba5992f3f6f2e8066388e373eca25d892db55a"
+      },
+      "_hash": "66db5cc782360ad7e5f14b4ac48614ad668c55bab06ffcc4a68ab0c088b71f31"
+    },
+    {
+      "reviewRunId": "B-e74e:RR-002",
+      "storyId": "B-e74e",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "startedAt": "2026-06-04T03:07:02.183Z",
+      "headHash": "e77136aa82e20d1e5c7076a70e2f8fba926a347f",
+      "materialHash": "0946abc6f9233bb3762ae945a5512cbb249ab55f678cdb0c55048e0250bffafd",
+      "promptHash": "e4c807d5a59dd9f83841864dac1baa16509a16de06bb3fede0835076d9d9a8ac",
+      "scopeBinding": {
+        "scopeContractHash": "6f57ddce5eb1df9a1ecd69385777ea6997b14ecb79d8ddf0b7c658213839d6a1",
+        "diffPackHash": "9d52104e51856c9ea8c0504a4ab4f54c2f7f6d61dd1c92985273f849375da0fb",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "0dc927209470d20bf708424abc74f6d3bc58383650662354a267d4c1c267ec98",
+          "0de5b017c68a478b4cba94c2e6317b6961075a90db2e34ecbebf6b7f54d85a85",
+          "1b8f9a2b84f83bce4480a0e2dbebf663cc6f2d574c59ca9babcb3fa1e1108df6",
+          "63108920917a2618d1c6b965cae48a14b8b4b71e757d58c31277b1ed5b329cec",
+          "7055784a694450d2da960188d54decbb1e48c747674bc4655c3d3cede6b1c27c",
+          "86759ab3b30b440f238ae8c3ef744a86b1df91f0e314424a92e525a9927aaf65",
+          "ba26417108715774be96cda72d6a44b1dc89db5555c21784a48a904883be4325",
+          "c8f11c793e63bf42a334e35c95850e142d6117fd219e40a78b490f178c1b7289",
+          "ec89147f586288bfbc340f9e571d99635f2eb4392f5979188edc61809b19dcab"
+        ],
+        "bindingHash": "4a33dcbdda03a5cb8dc058cf4bba5992f3f6f2e8066388e373eca25d892db55a"
+      },
+      "_hash": "48aeebaf4d6519c3fa4c9a9b6d50d66ed82c6e98ef0ecc9e882be354b8ee2454"
+    },
+    {
+      "reviewRunId": "B-e74e:RR-003",
+      "storyId": "B-e74e",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "startedAt": "2026-06-04T03:07:02.183Z",
+      "headHash": "e77136aa82e20d1e5c7076a70e2f8fba926a347f",
+      "materialHash": "0946abc6f9233bb3762ae945a5512cbb249ab55f678cdb0c55048e0250bffafd",
+      "promptHash": "29706032c12c348dbc583e7b9cd616db365b0ab20cf6529c89808dd5092f05fd",
+      "scopeBinding": {
+        "scopeContractHash": "6f57ddce5eb1df9a1ecd69385777ea6997b14ecb79d8ddf0b7c658213839d6a1",
+        "diffPackHash": "9d52104e51856c9ea8c0504a4ab4f54c2f7f6d61dd1c92985273f849375da0fb",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "0dc927209470d20bf708424abc74f6d3bc58383650662354a267d4c1c267ec98",
+          "0de5b017c68a478b4cba94c2e6317b6961075a90db2e34ecbebf6b7f54d85a85",
+          "1b8f9a2b84f83bce4480a0e2dbebf663cc6f2d574c59ca9babcb3fa1e1108df6",
+          "63108920917a2618d1c6b965cae48a14b8b4b71e757d58c31277b1ed5b329cec",
+          "7055784a694450d2da960188d54decbb1e48c747674bc4655c3d3cede6b1c27c",
+          "86759ab3b30b440f238ae8c3ef744a86b1df91f0e314424a92e525a9927aaf65",
+          "ba26417108715774be96cda72d6a44b1dc89db5555c21784a48a904883be4325",
+          "c8f11c793e63bf42a334e35c95850e142d6117fd219e40a78b490f178c1b7289",
+          "ec89147f586288bfbc340f9e571d99635f2eb4392f5979188edc61809b19dcab"
+        ],
+        "bindingHash": "4a33dcbdda03a5cb8dc058cf4bba5992f3f6f2e8066388e373eca25d892db55a"
+      },
+      "_hash": "94dbd0c5625008892ab8e870f3905dd485e98aae76d43b14601710e10328ad52"
+    },
+    {
+      "reviewRunId": "B-e74e:RR-004",
+      "storyId": "B-e74e",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "startedAt": "2026-06-04T03:09:29.363Z",
+      "headHash": "e77136aa82e20d1e5c7076a70e2f8fba926a347f",
+      "materialHash": "0946abc6f9233bb3762ae945a5512cbb249ab55f678cdb0c55048e0250bffafd",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6f57ddce5eb1df9a1ecd69385777ea6997b14ecb79d8ddf0b7c658213839d6a1",
+        "diffPackHash": "9d52104e51856c9ea8c0504a4ab4f54c2f7f6d61dd1c92985273f849375da0fb",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0dc927209470d20bf708424abc74f6d3bc58383650662354a267d4c1c267ec98",
+          "0de5b017c68a478b4cba94c2e6317b6961075a90db2e34ecbebf6b7f54d85a85",
+          "1b8f9a2b84f83bce4480a0e2dbebf663cc6f2d574c59ca9babcb3fa1e1108df6",
+          "63108920917a2618d1c6b965cae48a14b8b4b71e757d58c31277b1ed5b329cec",
+          "7055784a694450d2da960188d54decbb1e48c747674bc4655c3d3cede6b1c27c",
+          "86759ab3b30b440f238ae8c3ef744a86b1df91f0e314424a92e525a9927aaf65",
+          "ba26417108715774be96cda72d6a44b1dc89db5555c21784a48a904883be4325",
+          "c8f11c793e63bf42a334e35c95850e142d6117fd219e40a78b490f178c1b7289",
+          "ec89147f586288bfbc340f9e571d99635f2eb4392f5979188edc61809b19dcab"
+        ],
+        "bindingHash": "45f3ab8f1c3b45e3e6144e48055a9a9b219ee19cad0f70af98d0a187f1bdfbbd"
+      },
+      "_hash": "f2bc1405ca838ff24e531f8f6a2f23b83562c8aad8e8308f65cb2c4e999fc1e5"
+    },
+    {
+      "reviewRunId": "B-e74e:RR-005",
+      "storyId": "B-e74e",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-04T03:06:00.250Z",
+      "startedAt": "2026-06-04T03:13:40.929Z",
+      "headHash": "117d15634ff2758854e0d7a49b1aa95ed739bc27",
+      "materialHash": "0946abc6f9233bb3762ae945a5512cbb249ab55f678cdb0c55048e0250bffafd",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "6f57ddce5eb1df9a1ecd69385777ea6997b14ecb79d8ddf0b7c658213839d6a1",
+        "diffPackHash": "9d52104e51856c9ea8c0504a4ab4f54c2f7f6d61dd1c92985273f849375da0fb",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0dc927209470d20bf708424abc74f6d3bc58383650662354a267d4c1c267ec98",
+          "0de5b017c68a478b4cba94c2e6317b6961075a90db2e34ecbebf6b7f54d85a85",
+          "1b8f9a2b84f83bce4480a0e2dbebf663cc6f2d574c59ca9babcb3fa1e1108df6",
+          "63108920917a2618d1c6b965cae48a14b8b4b71e757d58c31277b1ed5b329cec",
+          "7055784a694450d2da960188d54decbb1e48c747674bc4655c3d3cede6b1c27c",
+          "86759ab3b30b440f238ae8c3ef744a86b1df91f0e314424a92e525a9927aaf65",
+          "ba26417108715774be96cda72d6a44b1dc89db5555c21784a48a904883be4325",
+          "c8f11c793e63bf42a334e35c95850e142d6117fd219e40a78b490f178c1b7289",
+          "ec89147f586288bfbc340f9e571d99635f2eb4392f5979188edc61809b19dcab"
+        ],
+        "bindingHash": "45f3ab8f1c3b45e3e6144e48055a9a9b219ee19cad0f70af98d0a187f1bdfbbd"
+      },
+      "_hash": "38922d01afa4c652964000cea427f56cbdd62e5ecafb187b63dff58c0ab1b29c"
+    }
+  ]
+}

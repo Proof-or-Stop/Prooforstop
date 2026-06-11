@@ -1,0 +1,52 @@
+{
+  "storyId": "B-edca",
+  "checkedAt": "2026-06-01T14:04:35.047Z",
+  "features": [
+    {
+      "feature": "validate/test-evidence stale-loop reproduction",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-001"
+    },
+    {
+      "feature": "test-evidence generated-metadata freshness policy",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-002"
+    },
+    {
+      "feature": "minimal freshness implementation without gate weakening",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-003"
+    },
+    {
+      "feature": "self-churn and real-drift regression coverage",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-004"
+    },
+    {
+      "feature": "lifecycle validation and user-visible transcript evidence",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-005"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b871f981c489e0f02c8c52f4dd78b2c6b8ff7a0b22285f7d034ef431284dceb8",
+  "openQuestions": []
+}

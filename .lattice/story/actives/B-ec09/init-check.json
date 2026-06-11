@@ -1,0 +1,55 @@
+{
+  "storyId": "B-ec09",
+  "checkedAt": "2026-05-26T02:18:16.071Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "background.md uses \"L2+ authority\" without inline definition; readers must follow the relatedDocs link to authority-client-role.md PD-1 for the meaning. Not blocking since CHK-001 relatedDocs makes the truth source explicit, but a one-line gloss in background would improve cold-read standalone readability."
+    },
+    {
+      "severity": "low",
+      "desc": "background.md references \"seven milestones\" but only Milestones 1 and 2 are named anywhere (CHK-004 routes M2). Milestones 3-7 are not enumerated. Not blocking for Milestone-1 INIT_CHECK readiness, but PLAN should consider linking the seven-milestone source plan so future agents can see what is deferred."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-004 adversarial verificationIntent uses type=logic for \"Reviewer can verify no files outside CLI Milestone 1 scope were modified\" — this is really a diff/scope process check, closer to docs or a manual transcript, not a logic test. Minor type taxonomy nit; PLAN can reclassify if needed."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-26T02:18:02.045Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 userSees 列了 smoke/doctor/status 三种 surface，但未指明哪条具体命令/输出最能让用户一眼确认 local/shadow 分类；建议 DEV 时在 plan.md 锁定到具体命令（如 koala doctor 的某段输出），避免实现时挑最容易写的那条来交差。"
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-004 userSees 说 Story summary 会写 Milestone 1 完成与 Milestone 2 路由，但未指明 summary 落在哪里（story description / DONE summary / 单独 milestone-status doc），建议在 plan.md 阶段固化产物位置，便于后续 milestone 路由查找。"
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-26T02:18:16.071Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "background.md uses \"L2+ authority\" without inline definition; readers must follow the relatedDocs link to authority-client-role.md PD-1 for the meaning. Not blocking since CHK-001 relatedDocs makes the truth source explicit, but a one-line gloss in background would improve cold-read standalone readability."
+        },
+        {
+          "severity": "low",
+          "desc": "background.md references \"seven milestones\" but only Milestones 1 and 2 are named anywhere (CHK-004 routes M2). Milestones 3-7 are not enumerated. Not blocking for Milestone-1 INIT_CHECK readiness, but PLAN should consider linking the seven-milestone source plan so future agents can see what is deferred."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-004 adversarial verificationIntent uses type=logic for \"Reviewer can verify no files outside CLI Milestone 1 scope were modified\" — this is really a diff/scope process check, closer to docs or a manual transcript, not a logic test. Minor type taxonomy nit; PLAN can reclassify if needed."
+        }
+      ]
+    }
+  ],
+  "_hash": "b4f12878a3d955e6940279a2d0d92ae170b5a06acfa36ec845a3e7595a6abc86"
+}

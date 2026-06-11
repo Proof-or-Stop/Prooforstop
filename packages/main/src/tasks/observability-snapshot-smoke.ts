@@ -47,7 +47,7 @@ function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
   }, null, 2));
 }
 
@@ -289,7 +289,7 @@ try {
   assert.equal(activeParallel.worktreePath, '/tmp/observability-smoke-worktree/B-active');
 
   // Edge: when no resolver result is injected, the adapter calls the real
-  // resolver. With no stories in the seeded repo's `.koala/story/actives`
+  // resolver. With no stories in the seeded repo's `.lattice/story/actives`
   // matching active filter, the resolver still returns the seeded stories
   // (DEV/DONE phases). Confirm the adapter resolves without crashing.
   const liveSnapshot = buildObservabilitySnapshot(store, root, {

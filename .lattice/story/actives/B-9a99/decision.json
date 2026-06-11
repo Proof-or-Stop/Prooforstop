@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "危险命令先预览，默认不直接执行。",
+    "优先给当前公开 CLI 命令补护栏，不扩散到隐藏/内部路径。",
+    "dry-run 与 confirm 语义统一，避免每个命令各说各话。"
+  ],
+  "drivers": [
+    "当前高优先级 gap 明确点名 dry-run/confirm 缺失。",
+    "story_discard 这类命令误操作成本高。",
+    "需要一条可渐进扩展到其他危险命令的统一机制。"
+  ],
+  "options": [
+    {
+      "name": "A: 每个命令单独手写 dry-run/confirm 逻辑",
+      "pros": [
+        "实现快，容易先覆盖最紧急命令。",
+        "不需要改 CLI 调度框架。"
+      ],
+      "cons": [
+        "文案和行为容易分叉。",
+        "后续扩命令时重复劳动多。"
+      ]
+    },
+    {
+      "name": "B: 在 CLI 调度层加统一危险命令元数据，再让命令各自提供 plan()",
+      "pros": [
+        "confirm/dry-run 行为更一致。",
+        "以后扩 story_discard 之外的命令更便宜。"
+      ],
+      "cons": [
+        "要改 CLI 分发逻辑，范围更大。",
+        "首批接入成本高于单点补丁。"
+      ]
+    }
+  ],
+  "chosen": "B: 在 CLI 调度层加统一危险命令元数据，再让命令各自提供 plan()",
+  "rationale": "这组需求本质是统一命令护栏，而不是只修 story_discard 一个点。先把调度层能力搭起来，再让首批危险命令接入，会比散装补丁更稳。",
+  "preMortem": [
+    {
+      "scenario": "dry-run 仍然产生副作用",
+      "trigger": "命令在 plan 阶段复用了 execute 逻辑或提前写 store/git",
+      "consequence": "用户以为只是预览，实际已修改状态",
+      "mitigation": "显式分离 plan 与 execute；回归断言 dry-run 前后 story/fixture/git 状态不变。"
+    },
+    {
+      "scenario": "confirm 护栏过宽，误拦普通命令",
+      "trigger": "危险命令元数据定义不准，把低风险命令也标成 irreversible",
+      "consequence": "CLI 使用体验退化，正常命令频繁被要求确认",
+      "mitigation": "首批只接 story_discard 与批量写入类命令，命令白名单明确。"
+    },
+    {
+      "scenario": "批量写入命令的 confirm 规则不清导致行为反复",
+      "trigger": "fixture_batch_add 按 cases 数量分支确认而不是统一规则",
+      "consequence": "用户和 agent 不知道什么时候需要 confirm",
+      "mitigation": "第一版先统一成显式 dry-run 可用、confirm 只对真正 irreversible 命令强制，批量写入先从 dry-run 开始。"
+    }
+  ],
+  "timestamp": "2026-04-15T18:34:49.877Z"
+}

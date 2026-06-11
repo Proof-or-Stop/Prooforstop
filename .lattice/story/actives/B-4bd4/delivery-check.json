@@ -1,0 +1,71 @@
+{
+  "storyId": "B-4bd4",
+  "checkedAt": "2026-05-25T14:33:57.306Z",
+  "reviewRound": "2026-05-25T14:22:48.120Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#PD-1-Decision",
+      "promise": "Decision document exists at docs/requirements/decisions/authority-client-role.md with a PD-1 Decision section giving an explicit answer to the thin-client-vs-enforce-mode question",
+      "verifiedBy": "diff/grep",
+      "evidence": "File is new in diff (the only non-.koala changed file). grep for '## PD-1 Decision' returns line 10 and title line 1. Lines 12-19 give explicit answer: CLI remains thin local/shadow, must not claim L2+ authority evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#Current-Decision",
+      "promise": "CLI is explicitly kept as thin local/shadow client and must not claim or certify L2+ authority evidence; the L2+ Evidence Boundary section lists all gaps as Absent",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep 'thin local/shadow' returns 8 occurrences including Current Decision section. grep 'must not claim or certify L2+ authority evidence' returns lines 15, 51, 128. L2+ Evidence Boundary at line 49 lists 5 gaps each with status=Absent. Explicit statement: production Python with production_enforce_authority=true will reject every CLI POST until all gaps resolved."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#Milestone-Routing",
+      "promise": "Milestone Routing table covers M2 through M6, each row naming owning repo/component, status, prerequisite, validation expectation, and user approval required",
+      "verifiedBy": "diff/grep",
+      "evidence": "Table header at line 136 lists all 7 columns: Milestone, Name, Owning repo/component, Status, Prerequisite, Validation expectation, User approval required. M2 line 138, M3 line 139, M4 line 140, M5 line 141, M6 line 142 all present with all columns populated."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#Implications-for-FU-1-FU-2-FU-3",
+      "promise": "FU-1 and FU-2 are explicitly marked Deferred until enforce-mode product approval; no code may land until that approval is recorded",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 96 FU-1 status: Deferred -- do not implement until enforce-mode PD-1 is approved. Line 97 FU-2 status: Deferred -- same gate as FU-1. Milestone table M3 and M4 both carry User approval column: Yes -- enforce-mode product approval required before any code lands. Line 88 states no code may land until product track explicitly approves a PD-1=enforce decision."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#Implications-for-FU-1-FU-2-FU-3",
+      "promise": "FU-3 is explicitly marked docs-only/resolved under the thin-client decision; CLI is declared a non-runner and MAC is the canonical runner; no CLI code needed",
+      "verifiedBy": "diff/grep",
+      "evidence": "Line 98 FU-3 status: Deferred doc-only path available. FU-3 doc-only resolution section lines 100-110: FU-3 is resolved by design -- CLI is explicitly not a runner; MAC is canonical runner; no CLI code needed; this document is the durable record. Milestone table M5 line 141 confirms: FU-3 docs-only/resolved."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#Deduplication-against-known-backlog",
+      "promise": "Deduplication section explicitly references B-4622 and B-da5b as unrelated parked items not re-proposed as authority work in M2-M6",
+      "verifiedBy": "diff/grep",
+      "evidence": "Section header at line 144: Deduplication against known backlog (B-4622, B-da5b, B-0f04). Table row B-4622 line 151: scope_check_save hygiene, Overlap=None. Row B-da5b line 152: orphan worktrees lifecycle bug, Overlap=None. Line 157 states different subsystem from B-4622 scope-check and B-da5b worktree lifecycle. Routing M2-M6 does not re-propose either parked backlog item."
+    },
+    {
+      "docPath": ".koala/story/actives/B-4bd4/evidence/transcript-diff.md",
+      "promise": "TEST validation transcript exists showing koala validate PASS with 9/9 verification coverage and manual product-view checks confirming all expected sections in the durable doc",
+      "verifiedBy": "diff/grep",
+      "evidence": "File is new in diff. grep confirms validate PASS and 9/9 present. Transcript shows 9/9 covered, 0 required missing. Manual product-view checks confirm durable doc contains all six expected sections. test-evidence.json independently confirms result=PASS, covered=9, requiredMissing=None."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs_check: evidence artifact verified to contain PD-1 Decision Inputs section with all key terms defined inline (PD-1, FU-1/FU-2/FU-3, L2+, trustLevel, thin local/shadow client, enforce-mode authority client). Source-backed bullets cite AUDIT/CODEX. Adversarial check: file explicitly lists what CLI does NOT have (no handshake, no actor-key, no receipt verification) -- no overclaiming. 9/9 verificationIntent covered. koala validate PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "docs_check: docs/requirements/decisions/authority-client-role.md verified as new file containing PD-1 Decision section (explicit thin-client answer), Current Decision, L2+ Evidence Boundary listing 5 gaps as Absent, Deferred Enforce-Mode CLI Requirements table, and Implications for FU-1/FU-2/FU-3. Cross-links confirmed: evidence file references durable doc; durable doc references B-4bd4 evidence at lines 5 and 173. No production code touched (docs-only story)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "docs_check: Milestone Routing table in durable doc verified with rows M2-M6 each containing owning repo/component, status, prerequisite, validation expectation, and user approval required. M3 and M4 (FU-2/FU-1) require enforce-mode product approval before code. M5/FU-3 is docs-only/resolved. Deduplication section present with Overlap=None for B-4622 and B-da5b. Story does not create or scope Python authority or Mac runner stories (separate repos)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docs promises verified independently from source. The only non-metadata file in the diff is docs/requirements/decisions/authority-client-role.md with explicit PD-1 decision, L2+ boundary with 5 gaps as Absent, M2-M6 routing with all required columns, FU-1/FU-2 deferred, FU-3 docs-only/resolved, and B-4622/B-da5b dedupe. koala validate PASS with 9/9 coverage. No production code changed. F-001/F-002 both resolved. No TODOs in new files."
+  },
+  "_hash": "6371bc8d603d34b33ec22df155492322022953d5e9f33af53ff317ef420cd88e"
+}

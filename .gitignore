@@ -1,14 +1,30 @@
 node_modules
 dist
 
-# koala worktree + 日志
+# Lattice worktree + runtime
 .worktrees/
 .omx/
 **/activity.jsonl
-.koala/runtime/
-.koala/traces/
+.lattice/activity.legacy-koala.jsonl
+.lattice/*
+!.lattice/Lattice.md
+!.lattice/lattice.json
+!.lattice/dev-memory/
+!.lattice/dev-memory/**
+!.lattice/story/
+.lattice/story/*
+!.lattice/story/actives/
+!.lattice/story/actives/**
+.lattice/story/actives/**/activity.jsonl
+.lattice/runtime/
+.lattice/traces/
+.lattice/locks/
 .lattice/tmp/
+.Lattice/authority.md
+.Lattice/artifacts/baseline/
+.lattice-tmp-*
 .koala-serve.json
+lattice-debug.log
 $PROJECT_ROOT/
 browser-test.log
 koala-debug.log
@@ -32,64 +48,15 @@ env/
 # OS
 .DS_Store
 Thumbs.db
-.koala/*
-!.koala/story/
-.koala/story/*
-!.koala/story/actives/
-.koala/story/actives/*
-!.koala/story/actives/B-f1d3/
-!.koala/story/actives/B-f1d3/**
-!.koala/story/actives/B-ec81/
-!.koala/story/actives/B-ec81/**
-!.koala/story/actives/B-7a34/
-!.koala/story/actives/B-7a34/**
-!.koala/story/actives/B-4980/
-!.koala/story/actives/B-4980/**
-!.koala/story/actives/B-d4dd/
-!.koala/story/actives/B-d4dd/**
-!.koala/story/actives/B-2a63/
-!.koala/story/actives/B-2a63/**
-!.koala/story/actives/B-a10d/
-!.koala/story/actives/B-a10d/**
-!.koala/story/actives/B-7621/
-!.koala/story/actives/B-7621/**
-!.koala/story/actives/B-7110/
-!.koala/story/actives/B-7110/**
-!.koala/story/actives/B-cd0b/
-!.koala/story/actives/B-cd0b/**
-!.koala/story/actives/B-688d/
-!.koala/story/actives/B-688d/**
-!.koala/story/actives/B-0a80/
-!.koala/story/actives/B-0a80/**
-!.koala/story/actives/B-92e2/
-!.koala/story/actives/B-92e2/**
-!.koala/story/actives/B-4a53/
-!.koala/story/actives/B-4a53/**
-!.koala/story/actives/B-c5fe/
-!.koala/story/actives/B-c5fe/**
-!.koala/story/actives/B-c886/
-!.koala/story/actives/B-c886/**
-!.koala/story/actives/B-2949/
-!.koala/story/actives/B-2949/**
-!.koala/story/actives/B-eca1/
-!.koala/story/actives/B-eca1/**
-!.koala/story/actives/B-51f6/
-!.koala/story/actives/B-51f6/**
-!.koala/story/actives/B-ce79/
-!.koala/story/actives/B-ce79/**
-!.koala/story/actives/B-6532/
-!.koala/story/actives/B-6532/**
-!.koala/story/actives/B-e3d9/
-!.koala/story/actives/B-e3d9/**
-!.koala/story/actives/B-428c/
-!.koala/story/actives/B-428c/**
 packages/koala-observer-cli/
 
-# koala runtime artifacts (managed)
+# lattice runtime artifacts (managed)
 **/owner-lease.json
-.koala/locks/
+.lattice/locks/
+.Lattice/authority.md
+.Lattice/artifacts/baseline/
 .lattice/artifacts/baseline/
-# /koala runtime artifacts (managed)
+# /lattice runtime artifacts (managed)
 
 # Lattice Authority internal key-management file (may hold local private key
 # material; never commit). See docs/requirements/decisions/lattice-authority-live-integration.md

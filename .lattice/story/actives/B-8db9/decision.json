@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Defense in depth: classifier reorder is the hard gate that catches every path (CLI + JSON-injected); artifact_declare entry rejection is fail-fast UX — both required, neither alone",
+    "Declared artifacts may only RESCUE paths that would otherwise be unexpected_dirty_files — they must never reclassify a blocking material_source_changes or fixture_changes row",
+    "Minimal blast radius: this is a hotfix — do not refactor the dirty-gate-policy table or B-cf60 reference semantics; the HIGH fix is an additive DONE-only gate row"
+  ],
+  "drivers": [
+    "Read-only review of main found a CRITICAL gate bypass shipped by B-cf60 + B-4b22 combined — agents can koala artifact_declare a dirty source file to skip the DONE dirty gate",
+    "koala gates are designed for mechanical enforcement that does not rely on agent good behavior — the bypass defeats that contract",
+    "Linked HIGH gap: non-blocking declared_artifact_changes silently drops uncommitted declared deliverables at git merge"
+  ],
+  "options": [
+    {
+      "name": "A: Classifier reorder + artifact_declare entry rejection + DONE committed-check row",
+      "pros": [
+        "Classifier reorder closes the bypass for ALL paths including JSON-injected declarations",
+        "Entry rejection gives a clear fail-fast error at declare time",
+        "DONE committed-check row stops uncommitted declared deliverables from vanishing",
+        "Additive — does not touch dirty-gate-policy table or B-cf60 reference gate; small hotfix surface"
+      ],
+      "cons": [
+        "Touches 3 production files (dirty-worktree.ts, artifact-declare.ts, story-advance.ts) plus 2 smoke files"
+      ]
+    },
+    {
+      "name": "B: Only flip dirty-gate-policy declared_artifact_changes to blocking:true",
+      "pros": [
+        "One-line change; declared dirt blocks everywhere again"
+      ],
+      "cons": [
+        "Throws away the entire B-cf60 declared-artifact value — declared outputs would block REVIEW/TEST again, re-creating the B-c9f5 loop",
+        "Does not fix the classifier-order bug: a declared source file still mis-classifies (now blocking, but as the wrong category — audit/reporting still wrong)",
+        "Over-corrects: kills a legitimate feature to patch a bypass"
+      ]
+    },
+    {
+      "name": "C: Only reorder the classifier, skip entry rejection and DONE check",
+      "pros": [
+        "Smallest diff; closes the reclassification bypass"
+      ],
+      "cons": [
+        "No fail-fast — users only discover a bad declaration much later via classification output",
+        "Leaves the HIGH uncommitted-artifact loss completely unfixed — declared deliverables still vanish on merge"
+      ]
+    }
+  ],
+  "chosen": "A: Classifier reorder + artifact_declare entry rejection + DONE committed-check row",
+  "rationale": "Choose A because the CRITICAL bug has two reachable layers (CLI declare path AND hand-injected declared-artifacts.json) and only the classifier reorder closes both; the entry rejection adds fail-fast UX so a bad declaration is caught immediately. The DONE committed-check closes the linked HIGH gap in the same hotfix because both findings sit on the declared-artifact/dirty-gate boundary and splitting them risks leaving half a hole. Reject B because flipping the policy to blocking:true destroys the legitimate B-cf60 feature and re-creates the original B-c9f5 REVIEW/TEST loop. Reject C because it leaves the HIGH uncommitted-loss bug entirely unfixed — a declared deliverable would still silently vanish at merge.",
+  "preMortem": [
+    {
+      "scenario": "Classifier reorder breaks an existing legitimate declared artifact that lives under a material source prefix",
+      "trigger": "A real generated product output happens to be under packages/main/src/ or the requirements dir",
+      "consequence": "That output now classifies as material_source_changes (blocking) even though it was correctly declared",
+      "mitigation": "This is the intended and correct behavior — a generated file under a source prefix SHOULD be treated as material until the operator moves it to a non-source location (e.g. tests/output/). Document this in the artifact_declare rejection message. Smoke asserts: declaring a path under tests/output/ still works (rescued from unexpected); declaring a path under packages/main/src/ is rejected with a clear message."
+    },
+    {
+      "scenario": "DONE committed-check false-positives on a declared artifact that is intentionally git-ignored",
+      "trigger": "A declared artifact path matches .gitignore so it can never be committed",
+      "consequence": "DONE is permanently blocked for that story even though the operator did nothing wrong",
+      "mitigation": "The committed-check treats three states: committed-and-clean → pass; dirty/untracked-but-not-ignored → block with commit/cleanup guidance; git-ignored → block with explicit message that a git-ignored path must not be declared as a deliverable artifact (declare only commit-able paths, or remove the declaration). Smoke covers the git-ignored case."
+    },
+    {
+      "scenario": "artifact_declare entry rejection and classifier reorder disagree — a path rejected by one but allowed by the other",
+      "trigger": "Entry rejection uses a slightly different path-classification routine than the classifier",
+      "consequence": "Confusing UX: declare succeeds but classification still treats the path as material, or vice versa",
+      "mitigation": "Both layers MUST use the exact same classifier vocabulary — artifact_declare entry rejection calls the same classification routine (classifyDirtyWorktree / isMaterialSourcePath / isFixturePath) used by dirty-worktree.ts. Smoke asserts the two layers agree: for a sample of material/fixture/config/output paths, entry-rejection result and post-reorder classification are consistent."
+    }
+  ],
+  "timestamp": "2026-05-15T21:05:06.243Z"
+}

@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-9b76:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: thin registry mode is explicit opt-in, legacy full mode remains default, registry checks are adapter hygiene only, and no production authority semantics were moved into prompt assets.",
+      "createdAt": "2026-06-02T21:22:11.377Z",
+      "reviewRound": "2026-06-02T21:21:29.978Z",
+      "reviewRunId": "B-9b76:RR-001",
+      "_hash": "d95c2f0e1fb2cab83b1ef806413a51ed0cfd881a17a5a1b8074450a4f415f30d"
+    },
+    {
+      "id": "B-9b76:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass after fix: registry manifest now hard-fails static template drift in addition to registry hash mismatch; CLI and managed asset plumbing keep full defaults and thin no-delete behavior.",
+      "createdAt": "2026-06-02T21:22:11.884Z",
+      "reviewRound": "2026-06-02T21:21:29.978Z",
+      "reviewRunId": "B-9b76:RR-002",
+      "_hash": "6b90c130a7358a45ab2f5df24e50a83438ca5b6174291378435992444dd9bb34"
+    },
+    {
+      "id": "B-9b76:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review pass: prompt-registry, codex-registry-mode, and thin-init-assets smoke tests cover happy, edge, and adversarial lanes including legacy mirror, registry omission, drift, tamper, and user-owned prompt preservation.",
+      "createdAt": "2026-06-02T21:22:12.362Z",
+      "reviewRound": "2026-06-02T21:21:29.978Z",
+      "reviewRunId": "B-9b76:RR-003",
+      "_hash": "8c7ee16c31816dd4c226c489835f0136eae2ddf12c0d48b0beb983d9fff982d9"
+    },
+    {
+      "id": "B-9b76:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: lifecycle-artifact-scope defines asset layers and safe migration states; README now distinguishes legacy/full mirror checks from registry/thin manifest and renderability checks.",
+      "createdAt": "2026-06-02T21:22:12.850Z",
+      "reviewRound": "2026-06-02T21:21:29.978Z",
+      "reviewRunId": "B-9b76:RR-004",
+      "_hash": "6194c607207342c04d409d48950ff145ece38cf28e1f7dc1798ef5f2a6ce83d3"
+    }
+  ]
+}

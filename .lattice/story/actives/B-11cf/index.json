@@ -1,0 +1,30 @@
+{
+  "storyId": "B-11cf",
+  "name": "task-annotate-mcp",
+  "title": "新增 task_annotate MCP 工具：通过工具管理代码 @task 注释，禁止手写",
+  "description": "当前 @task 注释由 Claude 直接写入源代码，格式容易出错。新增 task_annotate MCP 工具，Claude 通过传参（storyId/checklist/title/description 等）调用工具写入注释，工具负责格式正确、缩进匹配、位置准确。定位策略：正则匹配 + 写入后 task_validate 校验兜底。同名函数多匹配时返回列表让 Claude 选择，不猜测。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "createdAt": "2026-04-02T03:32:45.736Z",
+  "startedAt": "2026-04-02T03:32:45.736Z",
+  "endedAt": "2026-04-02T03:37:40.420Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-02T03:32:45.736Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-02T03:34:45.123Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

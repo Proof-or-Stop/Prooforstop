@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-4bd4:RP-001",
+      "agent": "koala-review-quality",
+      "note": "Docs-only story. Only planned files changed: docs/requirements/decisions/authority-client-role.md (new) and .koala/story/actives/B-4bd4/evidence/ (new). No production code modified. Document is well-structured with source-backed claims (AUDIT/CODEX citations), clear scope boundaries, complete milestone routing table, and inline term definitions. No dead code, type safety, or shell-isolation issues to check. No quality findings.",
+      "createdAt": "2026-05-25T14:17:32.508Z",
+      "reviewRound": "2026-05-25T14:16:25.159Z",
+      "reviewRunId": "B-4bd4:RR-003",
+      "_hash": "c8ce31964ba4aba8e226ac48ccca70b1d5240b7e5bb4041085b2ddd1d4b71e26"
+    },
+    {
+      "id": "B-4bd4:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete. Diff is entirely additive — no concepts deleted or replaced, no production code modified. New concepts (PD-1, FU-1/FU-2/FU-3, thin-client, enforce-mode client, milestone routing M2-M6) are defined inline, used consistently between evidence derivation artifact and durable decision doc, and introduce no overlap with existing requirements/decisions docs. No stale references to grep. No blocker findings.",
+      "createdAt": "2026-05-25T14:18:12.165Z",
+      "reviewRound": "2026-05-25T14:16:25.159Z",
+      "reviewRunId": "B-4bd4:RR-001",
+      "_hash": "0cdcfadcbc8efe145f1f197e47811864dd424aa2fdd634e84050748776107474"
+    },
+    {
+      "id": "B-4bd4:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 审查 9/9 must verificationIntent（每 CHK 三栏 happy/edge/adversarial），所有 intent 均有 result=pass 的有效 evidence（docs_check 或 manual_transcript），无 must 缺口，无 fail，无 waiver。headHash 比当前 HEAD 落后 2 个纯元数据提交（checklist.json/index.json only），materialHash 一致（e4fecc08…），证明 evidence artifact 内容无漂移。CHK-001 adversarial 的命令验证（git show --stat 60017e1d）与内容读取互补，有效覆盖「不声明未实现功能」意图。无 blocker。",
+      "createdAt": "2026-05-25T14:19:38.400Z",
+      "reviewRound": "2026-05-25T14:16:25.159Z",
+      "reviewRunId": "B-4bd4:RR-002",
+      "_hash": "876b27eb2cee1861efb54efaa674b8adbd3d4c52746df5f041427f3a6fa3cc82"
+    },
+    {
+      "id": "B-4bd4:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Docs-only story: all diff files are story metadata + docs/requirements/decisions/authority-client-role.md. No TypeScript/Python/Swift code changed. Dead-code, type-safety, and I/O-shell-isolation checks are N/A. Doc content is internally consistent, sections are clearly structured, cross-references to B-0f04 evidence/Codex are explicit. No quality findings.",
+      "createdAt": "2026-05-25T14:24:47.256Z",
+      "reviewRound": "2026-05-25T14:22:48.120Z",
+      "reviewRunId": "B-4bd4:RR-006",
+      "_hash": "b679b5b577ecc7156de5693896273aeddd88e124c20d9aed9f2fa77268f102c4"
+    },
+    {
+      "id": "B-4bd4:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Re-review after F-001/F-002 fixes. Step 1: 0 exported symbols (pure docs diff). Fallback 1 applied. Verified: (1) F-001 fix: evidence file line 12 now reads `now created` — stale `not yet created` note removed. (2) F-002 fix: lines 113-114 of evidence file and canonical doc use camelCase throughout (`clientName`, `clientVersion`, `commandCatalogDigest`, `evidenceSchemaDigest`, `authorityMode`); the one snake_case occurrence (`required_authority_mode`) is inside a Python source quote — correct. No other doc-code drift found across both changed docs. 2 paragraphs verified, 0 blockers.",
+      "createdAt": "2026-05-25T14:25:05.099Z",
+      "reviewRound": "2026-05-25T14:22:48.120Z",
+      "reviewRunId": "B-4bd4:RR-008",
+      "_hash": "48ad57ba37d75b2184676186ca335aeef3358488a42dd97bfb4814a45d0ba52b"
+    },
+    {
+      "id": "B-4bd4:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Purely additive diff — no concept deleted or replaced. PD-1 framing, FU-1–FU-6 definitions, thin-client vs enforce-mode distinction, and M2–M6 milestone routing are all internally consistent and match the B-0f04 source audit verbatim. FU-4 subdivision into FU-4-runner/FU-4-receipt is granular but stays within the MAC-owned FU-4 scope. Both prior findings (F-001 stale draft note, F-002 snake_case/camelCase) verified resolved in current HEAD. No concept-residual grep required.",
+      "createdAt": "2026-05-25T14:25:31.311Z",
+      "reviewRound": "2026-05-25T14:22:48.120Z",
+      "reviewRunId": "B-4bd4:RR-005",
+      "_hash": "dc7ddf8c494c9946ddfd78dde7c03537e1f68621c79d1722e5193a6dda32a9b1"
+    },
+    {
+      "id": "B-4bd4:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 9 条 must verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。CHK-001/002/003 三栏 (happy/edge/adversarial) 各有对应 docs_check 或 manual_transcript evidence，result 全部 pass，无 fail、无 waiver 缺 note。headHash 偏移来自 docs-fix 文本精度修正 (camelCase fieldname、\"not yet created\"→\"now created\") 及 koala 元数据 commit，不影响意图覆盖有效性；CHK-002/003 primary file (authority-client-role.md) 在证据记录后未变更。",
+      "createdAt": "2026-05-25T14:26:30.122Z",
+      "reviewRound": "2026-05-25T14:22:48.120Z",
+      "reviewRunId": "B-4bd4:RR-007",
+      "_hash": "3068f2443a0fac93fd764f43f82c27b4f3ba438932a6d88912d6ad0c2538c7e0"
+    }
+  ]
+}

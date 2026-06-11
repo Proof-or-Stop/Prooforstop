@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-47cd:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept reviewer PASS: two-policy linkage, mode assertion semantics, conservative/authority/full-autopilot boundaries, server receipt fail-closed, budget fail-closed, manual-only merge/DONE, and no production authority overclaim are aligned.",
+      "createdAt": "2026-06-04T06:03:58.501Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-012",
+      "_hash": "b8431cf9fc25bc5205988b0731757162ea067650128e1def227c24a648a9752e"
+    },
+    {
+      "id": "B-47cd:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality reviewer PASS: all autopilot_* commands fail closed on unknown flags, validated args reach handlers, owner meta flags are preserved only for owner-gated commands, autopilot_review is read-only, forged server-looking receipts fail closed, and budget retry behavior remains bounded.",
+      "createdAt": "2026-06-04T06:04:26.885Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-013",
+      "_hash": "e7784e259a9014c60056a8f53e459ac136e2d9690f0f30550a534dfdf2eb1c2d"
+    },
+    {
+      "id": "B-47cd:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage reviewer PASS: autopilot-run smoke covers three modes, strict/deprecated flag refusal across the autopilot surface including watch/cancel, owner meta preservation for run/cancel/resume, read-only review immutability, forged receipt refusal, budget fail-closed, bounded retry, conflict/cancel/resume, and authority invariants.",
+      "createdAt": "2026-06-04T06:04:58.476Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-014",
+      "_hash": "7fbb850157e5e47c15c80eb1ba10b41f7b4f9ec73508cd12f2bf144953252b2f"
+    },
+    {
+      "id": "B-47cd:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Docs reviewer PASS: README and authority-client-role now scope canClaimProductionDone=false to authority_status only, conduit_status wording matches actual productionDone=false/receiptVerified=false/authorityChanged=false fields, and host overflow/autopilot docs avoid authority or production overclaim.",
+      "createdAt": "2026-06-04T06:05:26.549Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-015",
+      "_hash": "1d122e91c5f5dd96013cef6d978328e848a6fa310d1762b02d282d7b45043a7b"
+    },
+    {
+      "id": "B-47cd:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Docs reviewer PASS after latest-run F-018: README and authority-client-role correctly scope canClaimProductionDone=false to authority_status only, while conduit_status is documented with productionDone=false, receiptVerified=false, and authorityChanged=false; no docs authority overclaim remains.",
+      "createdAt": "2026-06-04T06:07:18.092Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-015",
+      "_hash": "ca00c9ab8b0f62bc19b847c76bc4c7c4ce40e7aada5cc3d1ea1c3eca3d6dd48f"
+    },
+    {
+      "id": "B-47cd:RP-006",
+      "agent": "koala-review-concept",
+      "note": "PASS concept: final review confirmed three autopilot modes remain conservative/authority-gated, caller-supplied fake/server receipts cannot self-verify, runId cancel/resume owner lease is enforced, autopilot_policy_create is not story-scoped owner-gated, terminal review status is preserved, and scope expansions are acknowledged.",
+      "createdAt": "2026-06-04T07:25:20.970Z",
+      "reviewRound": "2026-06-04T07:03:17.975Z",
+      "reviewRunId": "B-47cd:RR-027",
+      "_hash": "7e8ca2ddf13c54ff615e1eb96d69304c4ada6dd000086cb6d5634a3e9e927345"
+    },
+    {
+      "id": "B-47cd:RP-007",
+      "agent": "koala-review-quality",
+      "note": "PASS quality: final review found zero issues. It verified safe runId-to-story owner gate resolution for autopilot_cancel/resume, autopilot_policy_create mainSharedMutating classification and owner-meta refusal, strict autopilot CLI validation, read-only autopilot_review terminal projection, authority false invariants, and related smoke/contract tests.",
+      "createdAt": "2026-06-04T07:25:29.295Z",
+      "reviewRound": "2026-06-04T07:03:17.975Z",
+      "reviewRunId": "B-47cd:RR-024",
+      "_hash": "1b554d7ce8aed3a66d3b9bf4ae405e727754c14254849265c10e10fc3711ea0a"
+    },
+    {
+      "id": "B-47cd:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test-coverage: final review confirmed 33/33 verification intents, including F-020/F-021/F-022. CHK-002 adversarial, CHK-008 edge, and CHK-009 edge are now backed by autopilot-run-smoke behavior assertions; runId owner gate, autopilot_policy_create owner-meta refusal, cancelled review immutability, dispatch/unattended, ownership, and flow-stability tests pass.",
+      "createdAt": "2026-06-04T07:25:40.092Z",
+      "reviewRound": "2026-06-04T07:03:17.975Z",
+      "reviewRunId": "B-47cd:RR-026",
+      "_hash": "9dce7ed99d86f104d5f054ec140803fe4f1219ca6e5fdef522e035fc218d154b"
+    },
+    {
+      "id": "B-47cd:RP-009",
+      "agent": "koala-review-docs",
+      "note": "PASS docs: final review confirmed README and decision docs still document three autopilot modes, two-policy linkage, manual-only merge boundaries, authority_status versus conduit_status, and no overclaim of local diagnostic receipt, fake-test fixture, productionDone, receiptVerified, or automatic main merge. No doc sync needed for execution-layer tightening.",
+      "createdAt": "2026-06-04T07:25:47.509Z",
+      "reviewRound": "2026-06-04T07:03:17.975Z",
+      "reviewRunId": "B-47cd:RR-025",
+      "_hash": "90b542371cec545fe82f60b774f56adc5abc3790ac5f93f5952502b9a86a3aff"
+    }
+  ]
+}

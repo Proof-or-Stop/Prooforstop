@@ -65,7 +65,7 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'balanced' },
@@ -251,7 +251,7 @@ function assertSuspectedDoesNotBlockAndIsAdvisory(): void {
 
     // suspected finding surfaces in finding_list advisory/attention area, not blocking.
     const out = execFileSync(process.execPath, [cliPath, 'finding_list', JSON.stringify({ storyId: STORY_ID })], {
-      cwd: root, env: { ...process.env, KOALA_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     const parsed = JSON.parse(out);
     assert.ok(Array.isArray(parsed.attention?.suspected), 'finding_list must expose attention.suspected');
@@ -304,7 +304,7 @@ function assertDisprovenOpenDoesNotBlock(): void {
     assert.equal(isFindingBlocking(disproven, ['critical', 'high'], 1), false);
 
     const out = execFileSync(process.execPath, [cliPath, 'finding_list', JSON.stringify({ storyId: STORY_ID })], {
-      cwd: root, env: { ...process.env, KOALA_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     const parsed = JSON.parse(out);
     assert.ok(parsed.attention?.disproven?.includes(disproven.id), 'disproven finding must appear in attention area');
@@ -335,7 +335,7 @@ function assertFindingListRendersEvidenceState(): void {
     store.writeFindings(STORY_ID, { findings: [legacy, verified, suspected] });
 
     const out = execFileSync(process.execPath, [cliPath, 'finding_list', JSON.stringify({ storyId: STORY_ID })], {
-      cwd: root, env: { ...process.env, KOALA_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     const parsed = JSON.parse(out);
     assert.equal(parsed.findings.length, 3);

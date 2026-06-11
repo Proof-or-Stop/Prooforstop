@@ -1,0 +1,46 @@
+{
+  "storyId": "B-ec91",
+  "name": "review-integrity",
+  "title": "story_review 审查报告防伪：CLI 独占写入 + issueCount 不能为 0",
+  "description": "主 agent 可以直接编辑 review.json 伪造审查结果，失去对抗意义。改为 CLI 内部生成报告，主 agent 无法绕过。同时 issueCount=0 说明审查不认真，必须 > 0。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "critical",
+  "createdAt": "2026-04-03T18:24:46.000Z",
+  "startedAt": "2026-04-03T18:24:46.000Z",
+  "endedAt": "2026-04-04T06:44:36.962Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-03T18:24:46.000Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-03T18:25:01.336Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-04T06:39:12.165Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-04T06:44:36.962Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

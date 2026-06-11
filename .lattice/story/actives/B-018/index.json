@@ -1,0 +1,50 @@
+{
+  "storyId": "B-018",
+  "name": "config-driven",
+  "title": "硬编码路径改为 koala.config.json 驱动，支持任意项目结构",
+  "description": "当前 scanRoot/testsDir/fixturesDir 等路径硬编码为 packages/main。改为从 koala.config.json 读取，未配置走默认值。当前项目行为不变，老项目可通过配置适配。",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "高",
+  "source": "用户需求",
+  "depends": [
+    "B-017"
+  ],
+  "createdAt": "2026-04-01T08:05:48.339Z",
+  "startedAt": "2026-04-01T08:05:48.339Z",
+  "endedAt": "2026-04-01T08:26:15.104Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T08:05:48.339Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T08:21:23.990Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-01T08:23:30.503Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-01T08:26:15.104Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

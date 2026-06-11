@@ -1,0 +1,22 @@
+{
+  "storyId": "B-f5e2",
+  "name": "req-forward-track",
+  "title": "PLAN 阶段需求正向追踪：requirements-reviewer agent + L1/L2 扫描 + 监控",
+  "description": "PLAN 阶段从需求出发正向追踪影响范围，与 test-intent agent 并行启动。\n\n## requirements-reviewer agent 职责\n1. 读 story description + 真相源（docs/requirements/）\n2. 提取需求点，逐条对照已有 checklist item，标记 covered/uncovered\n3. 扫全部已完成 story 的 checklist，找语义相关的 item\n4. 相关 item 判断是否需要改动，需要则建议追加新 checklist item\n\n## L1/L2 两层扫描\n- L1 快扫：只看 checklist item 的 title+context+testIntent，判断语义相关性，不读代码\n- L2 深扫：对 L1 相关 item 的关联代码做调用链分析，发现隐式依赖\n- L2 触发条件（CLI 关键词判断）：\n  - L1 扫出 0 个相关 item（可疑）\n  - 新需求 checklist item 含改/重构/迁移类动词（改已有结构）\n  - 新增/创建类动词不触发 L2\n\n## 执行监控\n每次扫描记录到 story 的 scanResults 字段，CLI 写入：\n  { time, level: L1|L2, duration_ms, toolCalls, foundCount, trigger: 触发原因 }\n- L2 额外记录 extraFoundCount（相比 L1 的增量发现）\n- 长期统计：L2 增量价值趋近 0 时可提高触发门槛或关闭\n\n## 与其他 agent 的关系\n- 与 test-intent agent 并行启动，都在 PLAN 阶段\n- requirements-reviewer 输出建议追加的 item → 主 agent 确认后调 checklist_add（B-2caf）追加\n- test-intent agent 对所有 item（含新追加的）写 testIntent",
+  "type": "feature",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "createdAt": "2026-04-04T03:43:21.776Z",
+  "startedAt": "2026-04-04T03:43:21.776Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-04T03:43:21.776Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

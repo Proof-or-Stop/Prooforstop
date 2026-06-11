@@ -1,0 +1,22 @@
+{
+  "storyId": "B-7e1c",
+  "name": "autobug-scope",
+  "title": "auto-bug 归因修复：只为当前 story 的 case 创建 bug，不误归因",
+  "description": "## 问题\ntest_auto --storyId=B-xxx 执行时，因 intentRef CHK-ID 碰撞，其他 story 的 case 也被执行。失败时 auto-bug 把 bug 写进当前 story 的 bug.json，导致 DONE gate 被不相关的 bug 卡住。\n\n## 根因\nauto-bug 逻辑没有校验 case 是否真的属于当前 story，只要 case 失败就写 bug。\n\n## 方案\nauto-bug 创建前检查 case 的 intentRef 是否属于当前 story 的 checklist item。需配合 B-e1d4（intentRef 加 storyId 前缀）一起解决。",
+  "type": "bug",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "createdAt": "2026-04-05T10:41:29.857Z",
+  "startedAt": "2026-04-05T10:41:29.857Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-05T10:41:29.857Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

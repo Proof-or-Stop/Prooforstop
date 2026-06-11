@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bffc",
+  "changes": "Released Lattice CLI 0.3.5 identity and entrypoints, preserved koala legacy alias, added CLI-first host/config/authority/conduit diagnostics, demoted desktop-app/Mac App to optional dashboard/archive in runtime surfaces and docs, and added focused smoke coverage plus user transcript evidence.",
+  "usage": "Use node bin/lattice.js --version, node bin/lattice.js host_list --format=json, node bin/lattice.js host_probe --host=desktop-app --format=json, node bin/lattice.js lattice_config_doctor --format=json, node bin/lattice.js authority_status --format=json, or the core fallback node packages/main/dist/cli.js <command> while developing.",
+  "expectedOutcome": "A user can use Lattice CLI 0.3.5 with Codex/Claude Code/Gemini style hosts and Server Authority receipts without installing or opening the Mac App; local CLI output must keep productionDone=false unless receipt verification exists.",
+  "actualTranscript": "koala validate passed with 15/15 verification intents. User transcript evidence shows core CLI and full bin/lattice.js wrapper report Lattice CLI 0.3.5, lattice primary, koala legacy alias, desktop-app dashboard/archive only, authority_status not-configured with productionDone=false, conduit not a runner, and host_install dryRun=true.",
+  "outcomeDiff": "No product-behavior gap found. The only acknowledged scope warning is the TEST transcript evidence file required by the delivery gate, not a product scope expansion.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Server Authority receipt verification is still external: Lattice CLI reports receipt-aware local status but does not itself manufacture verified receipts or production DONE. In this dev worktree the full wrapper requires packages/utils dist to be built; verified after npm --prefix packages/utils run build.",
+  "pitfalls": "Initial reviewer pass exposed real gaps: desktop-app was still projected as an operational host and edge evidence overclaimed coverage. Repair added explicit runtime demotion plus smoke assertions. Later TEST evidence needed scope acknowledgement and reviewer rebind because the scope hash changed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 40871
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12996
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 548852
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1596721
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 2011276
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 335236
+    }
+  },
+  "totalDurationMs": 4545983,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-02T12:29:35.792Z",
+  "updatedAt": "2026-06-02T12:29:35.792Z"
+}

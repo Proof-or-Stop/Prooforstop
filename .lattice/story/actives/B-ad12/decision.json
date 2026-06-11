@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "流程事实必须由 handler/gate 可验证，prompt 只负责指路。",
+    "fresh reviewer 只能证明流程边界，不声称证明模型认知隔离。",
+    "新硬门槛要兼容历史 story，但当前 review round 要默认使用新合同。"
+  ],
+  "drivers": [
+    "REVIEW→TEST gate 必须能拒绝旧轮次或未绑定 run 的 reviewer evidence。",
+    "reviewer prompt/dispatch 必须和 CLI contract 同步，减少人手漏填。",
+    "process-fact registry 和 contract test 必须纳入新增 gate artifact。"
+  ],
+  "options": [
+    {
+      "name": "A: 新增 review_run_start + review-runs.json 并绑定 finding/pass",
+      "pros": [
+        "独立 process boundary 清晰可审计",
+        "现有 pass/finding 签名模型可扩展",
+        "gate 能给出 lane/run/hash 级别错误"
+      ],
+      "cons": [
+        "需要更新多个 handler、schema、prompt 和 contract test"
+      ]
+    },
+    {
+      "name": "B: 只在 review_pass_set/finding_add 中要求 prompt hash 字段",
+      "pros": [
+        "改动较小",
+        "现有 artifact 数量不增加"
+      ],
+      "cons": [
+        "没有 run start 事实，无法证明 reviewer 在 REVIEW 后启动",
+        "缺少独立 liveness/process boundary"
+      ]
+    },
+    {
+      "name": "C: 只改 reviewer prompt 要求自报 fresh context",
+      "pros": [
+        "最快落地",
+        "不影响旧流程"
+      ],
+      "cons": [
+        "仍是 prompt-only，正好违背用户要求和 AGENTS 流程事实原则"
+      ]
+    }
+  ],
+  "chosen": "A: 新增 review_run_start + review-runs.json 并绑定 finding/pass",
+  "rationale": "选 A，因为用户要求硬编码兜底；只有独立 review run artifact 才能让 REVIEW gate 机械判断本轮 reviewer evidence 是否真的来自当前 run boundary。",
+  "preMortem": [
+    {
+      "scenario": "旧 reviewer prompt 没传 reviewRunId 导致 gate 全面卡住",
+      "trigger": "只改 handler 不改 dispatch/prompt/template",
+      "consequence": "正常 reviewer 无法记录有效 pass/finding",
+      "mitigation": "同步更新 .claude/.Codex reviewer prompts、story-dispatch guidance、CLI help 和 process-fact contract"
+    },
+    {
+      "scenario": "reviewRunId 只记录但 gate 不消费",
+      "trigger": "新增 review-runs.json 后没有改 reviewerEvidenceForRound / status / guard",
+      "consequence": "仍可用旧 pass 混过 REVIEW",
+      "mitigation": "在 machine/guard-utils/reviewer-status 统一校验 run-bound evidence，测试 stale/missing/wrong-lane"
+    },
+    {
+      "scenario": "签名域不含 head/material hash 导致旧 run 在代码变更后仍可复用",
+      "trigger": "review run 只签 lane/round，不签代码状态",
+      "consequence": "fresh reviewer process 退化成旧 round token",
+      "mitigation": "review_run_start 记录并签 headHash/materialHash，gate 用当前 freshness 判断 stale"
+    }
+  ],
+  "timestamp": "2026-05-13T13:50:09.320Z"
+}

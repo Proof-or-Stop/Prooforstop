@@ -11,7 +11,7 @@ const diff = [
 ].join('\n');
 
 const grepOutput = [
-  './.koala/activity.jsonl:1:{"tool":"finding_add","args":{"desc":"audit_resources"}}',
+  './.lattice/activity.jsonl:1:{"tool":"finding_add","args":{"desc":"audit_resources"}}',
   './docs/story/actives/B-smoke/findings.json:2:"audit_resources residual"',
   './packages/main/tests/fixtures/concept.json:3:"audit_resources fixture mention"',
   './src/live.ts:4:export const stillThere = audit_resources();',

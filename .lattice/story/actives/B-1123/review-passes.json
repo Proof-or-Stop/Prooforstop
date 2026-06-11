@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-1123:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: Reviewed verificationIntent vs verificationEvidence for all 6 must intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial). All covered by result:pass logic_test/integration_test evidence bound to commit 1fa47507. Smoke test files exist and content is specific to each intent: canonical determinism + all 7 envelope shapes + L2+ boundary (CHK-001); 7 endpoints x1 each + off-mode zero calls + policy-discovery read-only invariant (CHK-002). No must gaps, no waivers needed.",
+      "createdAt": "2026-06-02T17:36:03.853Z",
+      "reviewRound": "2026-06-02T17:33:25.988Z",
+      "reviewRunId": "B-1123:RR-003",
+      "_hash": "f35fc1290f970b3593421ab71d8f149b5a7529dbf03131260176d386ac963251"
+    },
+    {
+      "id": "B-1123:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept residue check: diff is purely additive (3 new files, 2 modified files — additions only). No existing symbols deleted or replaced. Verified: (1) authority-boundary.ts unchanged (canonical L2+ truth source, 204 lines identical); (2) DEFAULT_AUTHORITY_TIMEOUT_MS import refactor preserves symbol usage; (3) RunnerL2Requirement is a new parallel type, not a rename of AuthorityL2Requirement; (4) runnerEnvelopeIsL2PlusCandidate() adversarial gate returns false for ordinary CLI-shaped runner envelopes — no L2+ overclaim; (5) createRunnerAuthorityClient() off-mode gate refuses instantiation with zero network calls; (6) both smoke tests use recordingFetch (mock), no real HTTP calls. Zero residual references to deleted concepts.",
+      "createdAt": "2026-06-02T17:36:35.937Z",
+      "reviewRound": "2026-06-02T17:33:25.988Z",
+      "reviewRunId": "B-1123:RR-001",
+      "_hash": "0284c70fa9765bbcaaf81598e0799b287232b307dbad16e6470eee6dfc17be34"
+    },
+    {
+      "id": "B-1123:RP-003",
+      "agent": "koala-review-quality",
+      "note": "F-001/F-002/F-003 all fixed and verified. authority-signing.ts:98-109 (decodeBase64Bytes) and 145-166 (verifyCanonical) — dead try-catches around Buffer.from(_, 'base64') removed; explanatory comments + length checks remain as the actual validity gate. Remaining try-catches around importPublicKeyRaw (PKCS#8 DER parse can throw) and verify() (crypto.verify can throw on key mismatch) are legitimate. authority-runner-contracts.ts:30-39 — both imports merged into single import block. No new dead code, type safety preserved (unknown/Zod), I/O isolation intact (only node:crypto + same-package). No whitespace issues.",
+      "createdAt": "2026-06-02T17:49:38.545Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-1123:RR-004",
+      "_hash": "db65e6d109dba637e9d05b6adf0790d6a3893ad4e86e5c4944e26e39590b59f9"
+    },
+    {
+      "id": "B-1123:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Round 2 (2026-06-02T17:46:40.609Z) concept review pass — re-verified after F-001/F-002/F-003 quality fixes. Diff remains purely additive: (1) authority-boundary.ts UNCHANGED — single mechanical L2+ truth source preserved; (2) RUNNER_L2_REQUIREMENTS in authority-runner-contracts.ts is a parallel mirror with explicit comment about intentional redundancy with authority-boundary.AuthorityL2Requirement, NOT a rename or replacement; (3) runnerEnvelopeIsL2PlusCandidate adversarial gate still returns false for any signed-but-unbound CLI runner envelope (verified by contracts smoke test §7 — even fully-bound but receiptVerified=false fails, same-run producer/verifier collapse fails on independentVerifierRunId including whitespace-only diff); (4) createRunnerAuthorityClient off-mode and missing/whitespace URL refuses instantiation with zero network calls (verified by client smoke test §4-5, both loadRunnerAuthorityClient empty env + illegal mode env paths default to off); (5) discoverPolicy stays GET-only and overclaim guard rejects 2xx bodies with accepted/receipt/etc keys (client smoke §6-7 confirms zero hits to /v1/evidence, /v1/runners/register, jobs/claim, /keys, /provider-events); (6) lattice authority_status output still shows status:not-configured, productionDone:false, receiptVerified:false, canClaimProductionDone:false; (7) F-001/F-002/F-003 fixes (dead try-catch removal in decodeBase64Bytes/verifyCanonical, import merge in authority-runner-contracts) are cleanup with no concept implications — length-check validity gates unchanged, signing invariants preserved, both smoke tests still pass; (8) OQ-1 PD-2 boundary resolution honored — no production runner command, no provider CLI execution, no verifier evidence submitted as L2+, no DONE gate promotion. Story scope = milestones 1-2 typed contract + signing + client foundation only. No real concept blockers.",
+      "createdAt": "2026-06-02T17:53:06.159Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-1123:RR-005",
+      "_hash": "1c9ab345896d2dc3363219551734868f9b0f1a13b37506e3f0d1553591988bde"
+    },
+    {
+      "id": "B-1123:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage pass for all 6 verification intents (CHK-001 happy/edge/adversarial + CHK-002 happy/edge/adversarial). Ran npm run test:authority-runner-contracts and npm run test:authority-runner-client — both print their PASS_LINE. Coverage map: CHK-001:happy:0 ← contracts-smoke §1 determinism + §2 sign/verify roundtrip + §5a-5g per-envelope + §10 JobSpec; CHK-001:edge:0 ← §2 wrong key + tamper + malformed sig + §4 tampered payload + missing sig + §6 empty/whitespace actorId/nonce/createdAt sign-throw + verify-false + §7 same-run collapse + whitespace-only collapse; CHK-001:adversarial:0 ← §7 signed-but-unbound not L2+ + full missing requirements list including verifiedAuthorityReceipt + collapsed verifier rejected + fully-bound+receipt clears boundary; CHK-002:happy:0 ← client-smoke §1a-1g all 7 endpoints hit exactly once with URL-encoded paths + Zod parse on outbound bodies + AuthorityReceipt/JobSpec union response parsing + null JobSpec success; CHK-002:edge:0 ← §2 empty path params throw zero calls + §3 503 http_error + malformed 2xx → error + ECONNREFUSED → connection_refused + AbortError → timeout + §4 off mode + missing URL + whitespace URL all zero calls + §5 illegal mode normalizes to off; CHK-002:adversarial:0 ← §6 policy discovery is GET only one call to /v1/authority/policy with no body and asserts no POST to /v1/evidence /v1/runners/register /jobs/claim /keys /provider-events + §7 overclaim accepted:true → error. No coverage gap.",
+      "createdAt": "2026-06-02T17:55:22.593Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-1123:RR-006",
+      "_hash": "c41bccf13f55fa08d5cfb404a189ce697865b37319d0c4af15e4c228a9cc4d04"
+    }
+  ]
+}

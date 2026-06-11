@@ -1,0 +1,26 @@
+{
+  "task": "把 phase invariant 和 rollback reason 收紧成结构化协议，减少 phase 语义散落在提示词和自然语言里的歧义。",
+  "outcome": "> node bin/koala-codex.js session_brief\nPrimary lane: B-....\nCurrent phase: TEST\nMissing invariants:\n- transcript artifact missing\nRollback reason:\n- review_failed\nNext step:\n- return to DEV and address reviewer findings\n\n> 新 session 进入后\n不用猜为什么卡住，能直接看到缺口和原因。",
+  "facts": [
+    "Koala 已有 state machine、auto rollback 和 session_brief。",
+    "当前推进失败通常还是自然语言为主，reason code 不够统一。",
+    "并行策略、brief、review、gate 都已经开始依赖统一状态语义。"
+  ],
+  "constraints": [
+    "不能为了结构化而把现有 phase 语义打碎。",
+    "要同时保留 human-readable hint。",
+    "reason code 需要被 brief、review、diagnose 复用。"
+  ],
+  "unknowns": [
+    "invariant 是集中定义在单文件，还是贴近各 handler 定义更稳。",
+    "历史失败路径需要回填多少 reason code。"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/types.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-04-15T06:02:48.756Z"
+}

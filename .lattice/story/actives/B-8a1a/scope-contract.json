@@ -1,0 +1,31 @@
+{
+  "storyId": "B-8a1a",
+  "mode": "enforce",
+  "allowedModify": [
+    "README.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/handlers/lattice-dispatch.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/dispatch-runner.ts",
+    "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    ".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Allow the persisted CLI fake-Claude canary evidence artifact required to resolve REVIEW finding B-8a1a:F-003.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-03T23:51:26.652Z",
+  "updatedAt": "2026-06-03T23:52:06.353Z"
+}
