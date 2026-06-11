@@ -206,6 +206,15 @@
       "reviewRound": "2026-06-11T01:53:36.174Z",
       "reviewRunId": "B-e3d9:RR-036",
       "_hash": "c352e0e09f9046d69c21765c8d00b522a5e567ad2c2b7a7ac15ff7cd6e5bd6f0"
+    },
+    {
+      "id": "B-e3d9:RP-024",
+      "agent": "koala-review-quality",
+      "note": "Stage 1 spec check passed for CHK-001..CHK-005 with focus on F-009/F-010 evidence-command reproducibility. Verified no root-level verificationEvidence command uses npm run test:authority-client; CHK-001 keeps npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze, and CHK-002 edge now uses node bin/lattice.js story_reconcile --help; node bin/lattice.js test_auto --help; node bin/lattice.js host_install --help. Commands run from this worktree: node bin/lattice.js review_run_start --help; node scripts/verify-entrypoints.mjs; node bin/lattice-codex.js verify_codex; node bin/lattice.js gap_analyze; node bin/lattice.js validate --story=B-e3d9; npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze. All passed; gap_analyze reports 0 high / 0 medium and validate reports 15/15 verification intents covered.",
+      "createdAt": "2026-06-11T01:58:18.035Z",
+      "reviewRound": "2026-06-11T01:53:36.174Z",
+      "reviewRunId": "B-e3d9:RR-035",
+      "_hash": "a780251e2f89cefc41d40d9b70c43480c8239d85a192da288807e950e26b1878"
     }
   ]
 }
