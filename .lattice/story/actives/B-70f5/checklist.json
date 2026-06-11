@@ -64,20 +64,23 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "The Lattice-lifecycle-memory-Evolving.md row names both target homes from the execution solution.",
-            "type": "docs"
+            "desc": "root-document-migration-guide.md maps Lattice-lifecycle-memory-Evolving.md to both dev-memory.md and lifecycle-artifact-scope.md, matching the execution solution.",
+            "type": "docs",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "The migration guide and execution solution agree on the split destination for lifecycle-memory content.",
-            "type": "docs"
+            "desc": "The migration guide keeps the existing split rationale and does not introduce new migration policy beyond the accepted execution solution.",
+            "type": "docs",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "The edit does not add host-specific migration claims or expand the root cleanup policy.",
-            "type": "manual"
+            "desc": "The fix is limited to the migration-guide table target and does not alter root-markdown execution solution semantics.",
+            "type": "docs",
+            "priority": "must"
           }
         ]
       }
