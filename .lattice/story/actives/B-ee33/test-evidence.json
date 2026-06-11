@@ -1,0 +1,136 @@
+{
+  "command": "koala validate --story=B-ee33 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-jpuJqi; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-21IdPb; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — The purpose paragraph requires each accepted stash bucket to become a separate future Lattice story, with tests and evidence.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — The document no longer offers a direct commit path that could bypass story-scoped checklist, review, validation, or evidence gates.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — The fix does not rewrite unrelated bucket mechanics, stash commands, NAV handling, or host-neutral safety rules.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Mechanical checks confirm stable STASH_OBJECT, stash inventory, and no whole-stash apply/pop/restore regressions remain valid after the wording fix.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/NAV.md) — NAV remains unchanged and mechanically consistent at 37 decision files and 37 NAV decision links.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Search confirms forbidden direct bypass wording such as \\\"story or commit\\\" is absent from the execution path while legitimate uses of commit in acceptance text remain scoped to story commits.\"],\"warnings\":[],\"timestamp\":\"2026-06-11T22:27:16.561Z\",\"headSha\":\"f8fe690f698a4718e2c432eb5275bee23445e38d\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-jpuJqi; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-21IdPb; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1002}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The purpose paragraph requires each accepted stash bucket to become a separate future Lattice story, with tests and evidence.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"node inline story-boundary wording checker\",\"result\":\"pass\",\"note\":\"Purpose paragraph now requires each bucket to become a separate future Lattice story with its own tests and evidence.\",\"headHash\":\"d3f6144578a93481415c737b1b530f8ba5964390\",\"materialHash\":\"89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b\",\"timestamp\":\"2026-06-11T22:22:40.012Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The document no longer offers a direct commit path that could bypass story-scoped checklist, review, validation, or evidence gates.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"rg story-or-commit bypass wording\",\"result\":\"pass\",\"note\":\"The direct story-or-commit bypass wording is absent, so the execution path remains story-gated.\",\"headHash\":\"d3f6144578a93481415c737b1b530f8ba5964390\",\"materialHash\":\"89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b\",\"timestamp\":\"2026-06-11T22:22:40.012Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The fix does not rewrite unrelated bucket mechanics, stash commands, NAV handling, or host-neutral safety rules.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"git diff -- docs/requirements/decisions/stash-split-execution-plan.md\",\"result\":\"pass\",\"note\":\"Diff is limited to the verified purpose paragraph correction; stash commands, NAV handling, and bucket mechanics are unchanged.\",\"headHash\":\"d3f6144578a93481415c737b1b530f8ba5964390\",\"materialHash\":\"89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b\",\"timestamp\":\"2026-06-11T22:22:40.012Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Mechanical checks confirm stable STASH_OBJECT, stash inventory, and no whole-stash apply/pop/restore regressions remain valid after the wording fix.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"node inline stable STASH_OBJECT and no whole-stash checker\",\"result\":\"pass\",\"note\":\"Stable STASH_OBJECT remains pinned to c4dcc3aff95fd999712d7f19dcf856f791cf0d05, stash untracked parent matches, and whole-stash apply/pop/restore prohibitions remain present.\",\"headHash\":\"d3f6144578a93481415c737b1b530f8ba5964390\",\"materialHash\":\"89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b\",\"timestamp\":\"2026-06-11T22:22:40.012Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"NAV remains unchanged and mechanically consistent at 37 decision files and 37 NAV decision links.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"node inline NAV count/link checker\",\"result\":\"pass\",\"note\":\"NAV remains unchanged and consistent: 37 declared files, 37 decision markdown files, and 37 NAV decision links.\",\"headHash\":\"d3f6144578a93481415c737b1b530f8ba5964390\",\"materialHash\":\"89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b\",\"timestamp\":\"2026-06-11T22:22:40.012Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Search confirms forbidden direct bypass wording such as \\\"story or commit\\\" is absent from the execution path while legitimate uses of commit in acceptance text remain scoped to story commits.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"node inline forbidden direct bypass wording checker\",\"result\":\"pass\",\"note\":\"Search confirms story-or-commit bypass wording is absent while legitimate commit references remain scoped to story-controlled bucket commits.\",\"headHash\":\"d3f6144578a93481415c737b1b530f8ba5964390\",\"materialHash\":\"89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b\",\"timestamp\":\"2026-06-11T22:22:40.012Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-11T22:27:16.810Z",
+  "headHash": "f8fe690f698a4718e2c432eb5275bee23445e38d",
+  "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The purpose paragraph requires each accepted stash bucket to become a separate future Lattice story, with tests and evidence.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline story-boundary wording checker",
+          "result": "pass",
+          "note": "Purpose paragraph now requires each bucket to become a separate future Lattice story with its own tests and evidence.",
+          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
+          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
+          "timestamp": "2026-06-11T22:22:40.012Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The document no longer offers a direct commit path that could bypass story-scoped checklist, review, validation, or evidence gates.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "rg story-or-commit bypass wording",
+          "result": "pass",
+          "note": "The direct story-or-commit bypass wording is absent, so the execution path remains story-gated.",
+          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
+          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
+          "timestamp": "2026-06-11T22:22:40.012Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The fix does not rewrite unrelated bucket mechanics, stash commands, NAV handling, or host-neutral safety rules.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "git diff -- docs/requirements/decisions/stash-split-execution-plan.md",
+          "result": "pass",
+          "note": "Diff is limited to the verified purpose paragraph correction; stash commands, NAV handling, and bucket mechanics are unchanged.",
+          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
+          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
+          "timestamp": "2026-06-11T22:22:40.012Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Mechanical checks confirm stable STASH_OBJECT, stash inventory, and no whole-stash apply/pop/restore regressions remain valid after the wording fix.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline stable STASH_OBJECT and no whole-stash checker",
+          "result": "pass",
+          "note": "Stable STASH_OBJECT remains pinned to c4dcc3aff95fd999712d7f19dcf856f791cf0d05, stash untracked parent matches, and whole-stash apply/pop/restore prohibitions remain present.",
+          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
+          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
+          "timestamp": "2026-06-11T22:22:40.012Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "NAV remains unchanged and mechanically consistent at 37 decision files and 37 NAV decision links.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "node inline NAV count/link checker",
+          "result": "pass",
+          "note": "NAV remains unchanged and consistent: 37 declared files, 37 decision markdown files, and 37 NAV decision links.",
+          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
+          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
+          "timestamp": "2026-06-11T22:22:40.012Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Search confirms forbidden direct bypass wording such as \"story or commit\" is absent from the execution path while legitimate uses of commit in acceptance text remain scoped to story commits.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline forbidden direct bypass wording checker",
+          "result": "pass",
+          "note": "Search confirms story-or-commit bypass wording is absent while legitimate commit references remain scoped to story-controlled bucket commits.",
+          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
+          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
+          "timestamp": "2026-06-11T22:22:40.012Z"
+        }
+      }
+    ]
+  }
+}
