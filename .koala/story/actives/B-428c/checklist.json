@@ -8,9 +8,9 @@
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-11T03:14:43.305Z",
-      "endTime": null,
+      "endTime": "2026-06-11T04:07:28.782Z",
       "userSees": "User sees capability_claim_formal_evaluate --target loop-engineering produce a formal report surface with loopEngineeringClaim gated separately from Production Safety/global claims.",
       "files": {
         "modify": [
@@ -42,7 +42,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "authorized=true, authorizedClaimLevel=loop-engineering, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=UNLOCKED, productionSafetyClaim/globalCapabilityClaim=LOCKED",
+          "headHash": "4bb6bb71e8196f49e6e53834ae66610ae622592b",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:07:28.809Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Layer 2 engineering target remains authorized independently and loopEngineeringClaim stays LOCKED for the engineering-only target.",
+          "headHash": "4bb6bb71e8196f49e6e53834ae66610ae622592b",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:07:28.839Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing/forged loop proof and higher-layer target fail-closed behavior.",
+          "headHash": "4bb6bb71e8196f49e6e53834ae66610ae622592b",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:07:28.882Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
