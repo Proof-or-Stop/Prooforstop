@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Only fix the documented correctness gap: root docs need an explicit migration policy before files move.",
+    "Preserve host-neutral entrypoints for Codex CLI, Claude Code, and human readers.",
+    "Keep claims consistent: a migration guide is not a Production Safety unlock or authority readiness proof.",
+    "Prefer reversible, auditable documentation changes over broad file churn."
+  ],
+  "drivers": [
+    "Root Markdown files mix host entrypoints, legacy compatibility docs, requirements decisions, baseline plans, and personal notes.",
+    "Moving root files without a policy would break references and confuse host-specific discovery.",
+    "The user requested a small story and audit check, not a broad root cleanup."
+  ],
+  "options": [
+    {
+      "name": "A: Add a requirements decision migration guide and NAV entry",
+      "pros": [
+        "Puts the policy in the truth-source area.",
+        "Gives a concrete file-by-file map without changing behavior.",
+        "Keeps the change small enough for audit and review."
+      ],
+      "cons": [
+        "Root clutter remains until a later execution story actually moves files."
+      ]
+    },
+    {
+      "name": "B: Move all non-entrypoint root docs now",
+      "pros": [
+        "Immediately reduces root clutter."
+      ],
+      "cons": [
+        "High reference-churn risk and easy to mix unrelated Layer4/Production Safety claims into a doc placement story.",
+        "Would exceed the small-story scope and make review harder."
+      ]
+    },
+    {
+      "name": "C: Put a short note only in docs/guide.md",
+      "pros": [
+        "Minimal file count."
+      ],
+      "cons": [
+        "Too weak as a requirements/source-of-truth decision and easy to miss during future migrations."
+      ]
+    }
+  ],
+  "chosen": "A: Add a requirements decision migration guide and NAV entry",
+  "rationale": "Option A fixes the real correctness issue: it creates a stable, auditable migration contract before any root-file movement. It preserves host-neutral entrypoints and avoids arbitrary optimization or unrelated Production Safety claims.",
+  "preMortem": [
+    {
+      "scenario": "The guide is mistaken for proof that Production Safety is unlocked.",
+      "trigger": "It lists Production Safety root documents without a boundary note.",
+      "consequence": "Readers could overstate Lattice readiness.",
+      "mitigation": "Include an explicit audit note saying the guide does not unlock Production Safety or global capability claims."
+    },
+    {
+      "scenario": "Future agents move AGENTS.md or CLAUDE.md out of root.",
+      "trigger": "The guide does not distinguish host-discovered entrypoints from ordinary documents.",
+      "consequence": "Host startup instructions and session behavior degrade.",
+      "mitigation": "Mark root host entrypoints as stay-root and explain why."
+    },
+    {
+      "scenario": "Reference churn breaks navigation.",
+      "trigger": "A later move updates filenames but not NAV/backlinks/root redirects.",
+      "consequence": "Users cannot find decisions or old links break silently.",
+      "mitigation": "Document a migration order requiring NAV/backlink checks and optional root redirects before deletion."
+    }
+  ],
+  "timestamp": "2026-06-11T16:42:03.781Z"
+}

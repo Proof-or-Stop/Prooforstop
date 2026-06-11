@@ -12,7 +12,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The migration guide contains a table listing all root Markdown files and classifies each as stay-root, move-to-decision, move-to-guide, note/archive, or future compatibility work.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Guide lists every current root Markdown file found by root-level Markdown inventory and assigns a target-home classification.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Host entrypoint files including README.md, AGENTS.md, CLAUDE.md, and KOALA.md are not prescribed for blind relocation and remain discoverable from root until a separate compatibility story changes them.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guide does not import unrelated Layer4 or Production Safety runtime claims and does not treat untracked or dirty docs as completed migrations.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
