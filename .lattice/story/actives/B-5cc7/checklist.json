@@ -98,7 +98,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees git status confirm .lattice/dev-memory/experience.jsonl was not restored, staged, or committed from the stash.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git status shows no .lattice/dev-memory/experience.jsonl restored, staged, or tracked after Bucket A work.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The stashed dev-memory data file can be inspected from stash^3 but remains absent from the worktree and commit.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final diff for Bucket A contains only approved code/test/story metadata paths and never includes .lattice/dev-memory/experience.jsonl.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
