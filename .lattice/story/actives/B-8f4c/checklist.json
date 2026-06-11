@@ -24,7 +24,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees docs/requirements/NAV.md count and decision links updated to include the new stash split execution plan decision.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV count matches the number of Markdown files under docs/requirements/decisions after adding stash-split-execution-plan.md.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV update preserves existing Layer 2, Layer 3, and Root Document Migration Guide entries while adding only the new stash split decision.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "NAV must not apply the stale stash Layer4 patch or claim Layer4 document has been added by this story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
