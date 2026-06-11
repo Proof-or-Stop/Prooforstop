@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create --phase=REVIEW creates a Story with an ISO currentReviewRound, and review_run_start immediately returns a Review run ... started message for a supported reviewer lane.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_create --phase=REVIEW also allows review_loop_start to use the initialized currentReviewRound instead of failing with missing metadata.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A legacy/corrupt REVIEW Story that is manually missing currentReviewRound still fails closed, but the error identifies the half-initialized REVIEW state and points to repair or recreate guidance.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }

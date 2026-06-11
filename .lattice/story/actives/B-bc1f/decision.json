@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "保持 phase 与其必需元数据一致，不能产生表面可用但命令不可用的 Story。",
+    "优先复用既有 REVIEW round 语义，避免新增平行状态模型。",
+    "兼容已有 direct phase onboarding/backfill 用法，除非存在明确安全风险。"
+  ],
+  "drivers": [
+    "用户需要 review-only/docs-review 场景可直接启动 reviewer run。",
+    "reviewRunId、finding、review pass 的签名域依赖 currentReviewRound。",
+    "现有 smoke 已覆盖 review_run_start，需要新增 direct story_create REVIEW 黑盒回归。"
+  ],
+  "options": [
+    {
+      "name": "A: story_create --phase=REVIEW initializes currentReviewRound",
+      "pros": [
+        "兼容已有 direct phase 创建入口。",
+        "与 story_advance REVIEW 的 ISO timestamp round 语义一致。",
+        "能直接修复用户复现场景。"
+      ],
+      "cons": [
+        "仍允许跳过完整 DEV 流程进入 REVIEW，需要依赖 direct phase 本身的既有使用边界。"
+      ]
+    },
+    {
+      "name": "B: reject story_create --phase=REVIEW unless unsafe flag is provided",
+      "pros": [
+        "避免直接进入 REVIEW 的流程绕行。",
+        "实现上阻断半初始化状态也很明确。"
+      ],
+      "cons": [
+        "破坏现有 review-only/backfill 用法，且与 story_create 帮助中 direct phase onboarding 语义不一致。"
+      ]
+    }
+  ],
+  "chosen": "A: story_create --phase=REVIEW initializes currentReviewRound",
+  "rationale": "选择 A，因为 direct phase 已是公开 CLI 行为；只补 REVIEW 必需元数据可以最小化兼容风险，并让 review_run_start/review_loop_start 立即可用。",
+  "preMortem": [
+    {
+      "scenario": "direct REVIEW 创建后 review_run_start 仍失败",
+      "trigger": "只改了错误文案但没有写 currentReviewRound，或写入时机在 story 持久化之后丢失",
+      "consequence": "用户继续卡在 phase=REVIEW but no currentReviewRound",
+      "mitigation": "新增 CLI smoke：story_create --phase=REVIEW 后立即读取 Story 并运行 review_run_start，断言 RR-001 started。"
+    },
+    {
+      "scenario": "错误地给非 REVIEW direct phase 写入 currentReviewRound",
+      "trigger": "把 currentReviewRound 初始化泛化到 TEST/DONE/DEV，没有确认历史语义",
+      "consequence": "backfill story 出现伪造 REVIEW round，后续 gate/evidence 判断可能误消费",
+      "mitigation": "本 story 只在 args.phase === REVIEW 时写 round，保留其他 phase 行为。"
+    },
+    {
+      "scenario": "遗留坏数据的提示仍然误导",
+      "trigger": "修复新建路径但 review_run_start/review_loop_start 仍只说 advance/enter REVIEW",
+      "consequence": "已有半初始化 Story 的操作者不知道这是 direct --phase=REVIEW 造成的，需要修复或重建",
+      "mitigation": "更新缺失 currentReviewRound 的错误提示，点明 Story 已标 REVIEW 但缺 metadata，建议 repair/init-review-round 或 recreate via story_advance。"
+    }
+  ],
+  "timestamp": "2026-06-11T23:24:42.725Z"
+}
