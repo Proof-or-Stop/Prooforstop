@@ -179,6 +179,15 @@
       "reviewRound": "2026-06-11T01:06:29.023Z",
       "reviewRunId": "B-e3d9:RR-028",
       "_hash": "8f6b5885d2fdb75de08d4804fc4d381e740389111bd66cd8731285da6717a570"
+    },
+    {
+      "id": "B-e3d9:RP-021",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed. Unsupported serverKey.algorithm now fails closed based on policy-declared verification material without letting pinned keys get overridden, case-variant ed25519 remains accepted, planner/worktree linkage remains mechanically enforced by runtime plus smoke coverage, and the canonical adapter path fix relies on repository-tracked local asset paths rather than host-specific observations.",
+      "createdAt": "2026-06-11T01:30:19.614Z",
+      "reviewRound": "2026-06-11T01:24:42.437Z",
+      "reviewRunId": "B-e3d9:RR-031",
+      "_hash": "d0ac466886b573decd4939fe8c6ca7f16e7223d01943b281b68ab5acf2e7f10b"
     }
   ]
 }
