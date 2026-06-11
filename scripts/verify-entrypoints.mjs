@@ -22,6 +22,7 @@ const REQUIRED_RUNTIME_IGNORE_LINES = [
   '.koala/traces/',
   '.koala/locks/',
   '.koala-serve.json',
+  '.lattice/authority.md',
   '.koala-tmp-*',
   'koala-debug.log',
   'browser-test.log',
@@ -528,6 +529,29 @@ checks.push(() => {
 });
 
 checks.push(() => {
+  const tracked = new Set(run('git', ['ls-files']).trim().split(/\r?\n/).filter(Boolean));
+  const required = [
+    '.Lattice/Lattice.md',
+    '.Lattice/lattice.json',
+    '.codex/hooks.json',
+    '.codex/hooks/lattice-scope-pretool.cjs',
+  ];
+  const forbidden = [
+    '.lattice/Lattice.md',
+    '.lattice/lattice.json',
+    '.Codex/hooks.json',
+    '.Codex/hooks/lattice-scope-pretool.cjs',
+  ];
+
+  for (const rel of required) {
+    assert(tracked.has(rel), `repository must track canonical adapter path ${rel}`);
+  }
+  for (const rel of forbidden) {
+    assert(!tracked.has(rel), `repository must not track non-canonical adapter path ${rel}`);
+  }
+});
+
+checks.push(() => {
   const result = runManagedAssetCheck(repoRoot, { profile: 'all' });
   const item = result.items.find(asset => asset.relPath === 'bin/lattice.js');
   assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Koala-owned compatibility asset');
@@ -576,7 +600,9 @@ checks.push(() => {
       '!.koala/story/**',
       '.koala/runtime/',
       '.koala/traces/',
+      '.koala/locks/',
       '.koala-serve.json',
+      '.lattice/authority.md',
       '.koala-tmp-*',
       'koala-debug.log',
       'browser-test.log',
