@@ -1,0 +1,52 @@
+{
+  "storyId": "B-b5b2",
+  "checkedAt": "2026-06-11T16:47:20.310Z",
+  "features": [
+    {
+      "feature": "Root Markdown inventory and target-home classification",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist CHK-001 and docs root inventory"
+    },
+    {
+      "feature": "Root document migration guide with upgrade instructions, mapping, ordering, compatibility, and reference checks",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist CHK-002"
+    },
+    {
+      "feature": "Visible scope-boundary audit note with no bulk move and no Production Safety/global capability overclaim",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story checklist CHK-003"
+    },
+    {
+      "feature": "Physically move or rename root Markdown files",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "B-b5b2 is guide-first only; physical moves require a future story after this policy is reviewed.",
+      "source": "understanding constraints and CHK-002 context"
+    },
+    {
+      "feature": "Unlock Production Safety, unattended authority readiness, or global capability claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "The guide is documentation placement policy only and must explicitly avoid unlock claims.",
+      "source": "understanding constraints and CHK-003 context"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a54280f54af414ddd5fba3a56ec2c1cdeda9d66bbaa4b5aa9f4449acef9d6290",
+  "openQuestions": []
+}
