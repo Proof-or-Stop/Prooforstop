@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Restore Bucket A dev-memory code paths only",
+      "context": "Use path-limited restore from the pinned stash object for packages/main/src/core/dev-memory.ts and packages/main/src/handlers/dev-memory.ts only. Do not restore .lattice/dev-memory/experience.jsonl, .gitignore, runtime registry, smoke files, planner, NAV, or Layer4 docs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stash-split-execution-plan.md",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add focused dev-memory legacy-read verification",
+      "context": "Add a narrow smoke test proving .lattice entries are preferred/written, .koala entries are read-only fallback, duplicate ids are deduped, and dev-memory remains non-authoritative/non-gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/stash-split-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify no stashed dev-memory data file was restored",
+      "context": "Acceptance requires git status to show no .lattice/dev-memory/experience.jsonl restored, staged, or tracked from the stash, while the pinned stash object remains intact.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stash-split-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
