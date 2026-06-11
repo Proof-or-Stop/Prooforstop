@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-11T04:13:46.393Z",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
   "layer": "engineering",
   "baselineId": "ENG-REGRESSION-1",
   "runId": "layer3-eng-regression-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-for-layer3-unlock",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-11T04:13:46.393Z",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=2c9cbc80ed98e9d0d87ef2d2a652dbf768249426a7207f279bc8d9e9515e89fb"
+    "artifact:verification-evidence.json#sha256=37ce39aa11143cb29907d5eb0a84a57ef9454ae7c20c781546a5d81c572e5878"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=b1089c3264a9f9603745c3fc839bd537dcb48e325b6d9c4f214b5019ef4f8499",
-    "review:codex:artifact:review-codex.json#sha256=5314da75fe2a25abb497bf0bdf8a563004a46f6b66e3a7e97007082581d05043"
+    "review:claude:artifact:review-claude.json#sha256=ba50abe5ecb70d46f48ff4b1c0868e19d41a2e6ea255071e2dc9700fa6dcff0c",
+    "review:codex:artifact:review-codex.json#sha256=06e8e49e2458a91938ea172e47dbb261d57858c9fdf03991bd4bb8e82b06291b"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=04e3249c13c98be2e4c01e5bcd3c7276f60ec4b5fc830f6b50c3335c24da5594"
+    "artifact:lifecycle-gate.json#sha256=a9e33f67d080df0f1eeabde90e7b10e556be9dadff4e905e493d341d2ef0177d"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "80b5492e513f790d5b8abd19a9cce3b897ae00c1",
-  "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-REGRESSION-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=80b5492e513f790d5b8abd19a9cce3b897ae00c1;materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca;evidenceDigest=308649bf60fac6df58a8899b26a73828c1423dc81e2967290f4789b68af6a323"
+    "receipt:;baselineId=ENG-REGRESSION-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=440f4b718431c6fcea28569a3bd1f6de06e1c5cf;materialHash=ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22;evidenceDigest=104522d51806ca7bfb407bd80b0c486f484c8e435558f36a2eb074b8825b2470"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-REGRESSION-1/layer3-eng-regression-1",

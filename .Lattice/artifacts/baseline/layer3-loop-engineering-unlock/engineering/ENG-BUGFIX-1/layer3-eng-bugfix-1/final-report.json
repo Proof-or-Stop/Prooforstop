@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-11T04:13:45.902Z",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
   "layer": "engineering",
   "baselineId": "ENG-BUGFIX-1",
   "runId": "layer3-eng-bugfix-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-for-layer3-unlock",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-11T04:13:45.902Z",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=7d6c0df0ccd0256ad51d251e339c6d7086e832ead39ffd92e773e3c4fa73ada6"
+    "artifact:verification-evidence.json#sha256=6035aa6674c0ca42b351c046ffc20db6af6461c97e2c46afcf17ba33e46a714b"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=90d00c556d5a456fd666c236b19f7e29a0fe97049f64fcef093594673de34fda",
-    "review:codex:artifact:review-codex.json#sha256=8fcdc4ef673876cdbafca30b56fa6730bbfc984b0bd1424e452b7d1de041f093"
+    "review:claude:artifact:review-claude.json#sha256=acc1152306e03db5db2bdcca4898cd0c9446a0a7ea4aaffe669c5bfca14ce8c1",
+    "review:codex:artifact:review-codex.json#sha256=8ddb1d9fa33fbc0ec457766b0f83fd20e0e62eeff79047b428e413323591af67"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=eba6599b27b396ed244172231153167e16ea685e865a362194c57f571d7dd208"
+    "artifact:lifecycle-gate.json#sha256=1639d73ecc3735edf181ed91a5207d9642a28a5e031d91b0caa5ddf19039f926"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "80b5492e513f790d5b8abd19a9cce3b897ae00c1",
-  "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-BUGFIX-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=80b5492e513f790d5b8abd19a9cce3b897ae00c1;materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca;evidenceDigest=f9b1dc757a504a5d83cd4097c247f266e12394f637cb0bd141b1ccd517f66a95"
+    "receipt:;baselineId=ENG-BUGFIX-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=440f4b718431c6fcea28569a3bd1f6de06e1c5cf;materialHash=ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22;evidenceDigest=53cbc8abd798835fdda600cf421e2857044e248cdbfccca61ddc21267c5249f1"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-BUGFIX-1/layer3-eng-bugfix-1",

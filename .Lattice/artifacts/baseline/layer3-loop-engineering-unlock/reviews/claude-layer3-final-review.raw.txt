@@ -1,0 +1,35 @@
+Good. The committed code at HEAD uses `loopUnlocked` (not `authorized`) for the `loopEngineeringClaim` field, meaning even when `authorized=false` (for production-safety/capability-claim targets), `loopEngineeringClaim` will still show `UNLOCKED` when the loop proof evidence passes. This is the correct behavior.
+
+Now I have all data needed. Here is the audit result:
+
+```json
+{
+  "host": "claude",
+  "source": "claude-cli-audit",
+  "verdict": "pass",
+  "blockers": [],
+  "checkedCommands": [
+    "git show HEAD:loop-engineering/baseline-suite-report.json — suiteStatus=PASS, outcome=PASS, authority all false",
+    "git show HEAD:reviews/two-host-review-summary.json — verdict=pass, claude=pass, codex=pass, zero blockers",
+    "git diff-tree 440f4b71 — lattice-baseline.ts formal boundary fix + smoke test coverage",
+    "capability-claim/CLAIM-LOOP-ENGINEERING claim-report.json (working tree) — authorized=true, outcome=PASS, claimId=CLAIM-LOOP-ENGINEERING, loopEngineeringClaim=UNLOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED",
+    "CLI --target=production-safety (codex two-host evidence) — outcome=EXPECTED_BLOCK, authorized=false, productionSafetyClaim=LOCKED",
+    "CLI --target=capability-claim (codex two-host evidence + smoke test) — outcome=EXPECTED_BLOCK, claimId=CLAIM-GLOBAL-CAPABILITY, globalCapabilityClaim=LOCKED",
+    "CLI --target=loop-engineering (codex two-host evidence) — outcome=PASS, authorized=true, loopEngineeringClaim=UNLOCKED",
+    "10 UDM final-report.json — 5 PASS + 5 EXPECTED_BLOCK, all authority flags false, zero blockedReasons",
+    "10 UDM host-verdicts.json — stub/localOnly (diagnostic only, not Authority evidence)",
+    "lattice-baseline.ts:2800 loopEngineeringClaim uses loopUnlocked (not authorized) — Layer2+Loop facts UNLOCKED in blocked higher reports",
+    "lattice-baseline-smoke.ts — production-safety and capability-claim targets tested with assertAuthorizedFalse + assertLoopClaim UNLOCKED + assertProductionAndGlobalClaimsLocked",
+    "3 suite reports (dev/eng/loop) all PASS, all authority false, all materialHash consistent within committed set"
+  ],
+  "notes": [
+    "Committed proof path (HEAD=440f4b71) validated at headHash 80b5492e; two-host review passed at that point with both hosts zero blockers",
+    "440f4b71 fix: added CLAIM-GLOBAL-CAPABILITY definition, gated authorized on claim.target===loop-engineering, decoupled loopEngineeringClaim from authorized to use loopUnlocked — correct formal boundary separation",
+    "Working tree has unstaged re-generation (updated materialHash ffa1f46c→440f4b71 headHash) causing CLI evaluator rebuild mismatches; this is expected transient state, not a committed proof inconsistency",
+    "Layer2 engineering and Loop facts remain UNLOCKED in higher blocked reports: code path line 2834 uses loopUnlocked independent of authorized, smoke test asserts UNLOCKED for both production-safety and capability-claim targets",
+    "Authority boundary clean: authorityChanged=false, receiptVerified=false, productionDone=false, fullAuthorityDone=false across all 3 suite reports, all 10 UDM reports, and the claim report",
+    "falseDoneCount=0, safetySuccessRate=1 across all layers",
+    "claim-report.json not yet committed (working tree only); committed proof integrity relies on suite reports + two-host review which are committed"
+  ]
+}
+```

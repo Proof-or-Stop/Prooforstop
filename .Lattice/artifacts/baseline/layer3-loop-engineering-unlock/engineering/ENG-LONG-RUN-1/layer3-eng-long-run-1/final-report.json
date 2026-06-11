@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-11T04:13:48.426Z",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
   "layer": "engineering",
   "baselineId": "ENG-LONG-RUN-1",
   "runId": "layer3-eng-long-run-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-for-layer3-unlock",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-11T04:13:48.426Z",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=c550acb596ebd4019d7b9c812a8bd814b329ab7c6a0ff752b712828403c4d29f"
+    "artifact:verification-evidence.json#sha256=6f01caf4a8f5092eadf9acb5ecd01497fb1c33fa1e67557ef2cded322f50df83"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=74101551dcd3caf0e703e640adc0067f058ec22febef314151731952f02475c8",
-    "review:codex:artifact:review-codex.json#sha256=2990b60dab6f765bab750354a8552d4c936224e4284741999e2b371417c28bb6"
+    "review:claude:artifact:review-claude.json#sha256=3fb79d608cc4ea75237dedbbd68a6b59e7f3e13f013e8a77a32ec9bf72fc7bc0",
+    "review:codex:artifact:review-codex.json#sha256=bdc87862954dc7c8db19efe6587b7f28a8252a6cd03797afddc1cd5c930ac342"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=9a590d1485ad654a097fe91e787e27a8d32d08cadec571520bd3659769d1b6e9"
+    "artifact:lifecycle-gate.json#sha256=37e918070113964d70152cc22ecd634ed21d3c3b2f513c4a34bf84bcdbe25a4f"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "80b5492e513f790d5b8abd19a9cce3b897ae00c1",
-  "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-LONG-RUN-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=80b5492e513f790d5b8abd19a9cce3b897ae00c1;materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca;evidenceDigest=13f5c7aa0c6fa48f64f306d4989d55c7a5a2b810e0674efedc1d36b629d22348"
+    "receipt:;baselineId=ENG-LONG-RUN-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=440f4b718431c6fcea28569a3bd1f6de06e1c5cf;materialHash=ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22;evidenceDigest=97df9783eb96cfc619609ca4d507150c7f3f2687d668071d99941a5cf1e77a07"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-LONG-RUN-1/layer3-eng-long-run-1",

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "lattice.two_host_review_summary.v1",
+  "generatedAt": "2026-06-11T04:48:11.046Z",
+  "storyId": "B-428c",
+  "layer": "loop-engineering",
+  "claimTarget": "loop-engineering",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+  "authorityBoundary": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false
+  },
+  "verdict": "pass",
+  "blockers": [],
+  "hosts": {
+    "claude": {
+      "source": "claude-cli",
+      "verdict": "pass",
+      "rawArtifact": "claude-layer3-final-review.raw.txt",
+      "rawSha256": "280a33b59ed58bd491456f055c688044ecfa7658bb4a6301e91aa52fa8dfcc2b",
+      "exitArtifact": "claude-layer3-final-review.exit.json",
+      "notes": [
+        "Raw output is preserved verbatim; no Authority receipt is inferred from this local host review."
+      ]
+    },
+    "codex": {
+      "source": "codex-cli",
+      "verdict": "pass",
+      "rawArtifact": "codex-layer3-final-review.raw.txt",
+      "rawSha256": "3b809213fdd55aeb6da6467c0994ec3a302ff3d222890251bf5c400719e1f052",
+      "exitArtifact": "codex-layer3-final-review.exit.json",
+      "notes": [
+        "Loop Engineering evaluation is authorized and PASS with loopEngineeringClaim=UNLOCKED.",
+        "Production Safety and global capability targets correctly return unauthorized EXPECTED_BLOCK with higher claims locked.",
+        "receiptVerified=false, productionDone=false, and fullAuthorityDone=false are consistent with the locked higher-authority claims."
+      ]
+    }
+  },
+  "checkedClaims": {
+    "loopEngineeringClaim": "UNLOCKED",
+    "productionSafetyClaim": "LOCKED",
+    "globalCapabilityClaim": "LOCKED"
+  },
+  "principles": [
+    "do not optimize for the sake of optimization",
+    "do not optimize arbitrarily",
+    "only fix real correctness issues",
+    "consistency of logic"
+  ]
+}

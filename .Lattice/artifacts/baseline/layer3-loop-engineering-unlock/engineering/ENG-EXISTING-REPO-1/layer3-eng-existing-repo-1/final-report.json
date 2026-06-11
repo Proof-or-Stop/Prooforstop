@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-11T04:13:45.405Z",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
   "layer": "engineering",
   "baselineId": "ENG-EXISTING-REPO-1",
   "runId": "layer3-eng-existing-repo-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-for-layer3-unlock",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-11T04:13:45.405Z",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=a8d741a8545630ae10b5aa300721e64e798866aa8d73b01edb42ac8b70964941"
+    "artifact:verification-evidence.json#sha256=80bcda8c9127b3cc3c0add2eba25e0ab5c9776867f82e1dcdde6a7745b2b607a"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=92d6f80454d855a0eaff935421a30b074b08bb07cff08cb242fdbe164f2c4ed6",
-    "review:codex:artifact:review-codex.json#sha256=fad7bbeb17400f59cc60de69c98c9d90d131156ccf7fee68ef8295825be2ef21"
+    "review:claude:artifact:review-claude.json#sha256=54440e02dc497dba27a2806196745fbcab3bf93dec60208d0e50be06d8c198f1",
+    "review:codex:artifact:review-codex.json#sha256=7b9d56c457073a068aa670050f14fe5573f5c362b0e39217e268c684c6eeecde"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=cc796dbd9c3b94d4f4021799cc40884472662b809601222892e1ed082e1a11a7"
+    "artifact:lifecycle-gate.json#sha256=5156242b8eafe34b60e172ab8e968a6385bd2cbc85ccac4849c25b23333ca9c4"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "80b5492e513f790d5b8abd19a9cce3b897ae00c1",
-  "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-EXISTING-REPO-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=80b5492e513f790d5b8abd19a9cce3b897ae00c1;materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca;evidenceDigest=71fc6a373f1f22bbace06725012142823dc070a6a0d69cfdb6343c160cc71e4c"
+    "receipt:;baselineId=ENG-EXISTING-REPO-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=440f4b718431c6fcea28569a3bd1f6de06e1c5cf;materialHash=ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22;evidenceDigest=4e030b72d7048dc5924ed40dc52c8d839445e724314e6741282862a2de5c7c36"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-EXISTING-REPO-1/layer3-eng-existing-repo-1",

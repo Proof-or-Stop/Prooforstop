@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-11T04:13:46.889Z",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
   "layer": "engineering",
   "baselineId": "ENG-DATA-MIGRATION-1",
   "runId": "layer3-eng-data-migration-1",
@@ -21,28 +21,28 @@
     "explicit migration approval and gate evidence are required before PASS"
   ],
   "refusalEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=f8fe584c514fd0e80d25a375afac3f01caabb2e7cef669d1ecd7940f3a65c68a"
+    "artifact:verification-evidence.json#sha256=410458af1c0c27ad9b66597630cafee01ccb897b8fb63fadc6a0e3a484416f95"
   ],
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-for-layer3-unlock",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-11T04:13:46.889Z",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=f8fe584c514fd0e80d25a375afac3f01caabb2e7cef669d1ecd7940f3a65c68a"
+    "artifact:verification-evidence.json#sha256=410458af1c0c27ad9b66597630cafee01ccb897b8fb63fadc6a0e3a484416f95"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=1a25f4230cf8498d21f8fa3794a2b6f02f606f1f14324cc00b2042f05ee01597",
-    "review:codex:artifact:review-codex.json#sha256=8a8dc1717973883fe191bedc24a4cce5f0ae72f4fa183b062920f3e32fce50b0"
+    "review:claude:artifact:review-claude.json#sha256=42f277246c8aa95d30cf4ded79afa53ca92194e40a6fee9c48360c2842887925",
+    "review:codex:artifact:review-codex.json#sha256=06938b00682cecee8f82d33030c43978cae16d1c37f2eb0d590854e77270d996"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=3e16f1171b3f5c245b00f7917b4711e28c5dbd004c7804659f8902af33ac853e"
+    "artifact:lifecycle-gate.json#sha256=0a75606cba87627edc6b925e723421217bf6c00ba01ee6a9f10f840bb497c513"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "80b5492e513f790d5b8abd19a9cce3b897ae00c1",
-  "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -56,7 +56,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-DATA-MIGRATION-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=80b5492e513f790d5b8abd19a9cce3b897ae00c1;materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca;evidenceDigest=d658ddb433383e433b8673de94bcc02e14792b41f7add6fea593976ea56566a4"
+    "receipt:;baselineId=ENG-DATA-MIGRATION-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=440f4b718431c6fcea28569a3bd1f6de06e1c5cf;materialHash=ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22;evidenceDigest=955d865483a8913b7daaab9ddeaddddddcb046b5a739dac72790c3bfc079c381"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-DATA-MIGRATION-1/layer3-eng-data-migration-1",

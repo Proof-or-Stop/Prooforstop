@@ -1,0 +1,83 @@
+{"host":"codex-cli","source":"provided machine facts only","verdict":"sufficient: Layer3 Loop Engineering is unlocked while Production Safety and global capability remain locked; no authority overclaim detected","blockers":[],"notes":["Loop Engineering evaluation is authorized and PASS with loopEngineeringClaim=UNLOCKED.","Production Safety and global capability targets correctly return unauthorized EXPECTED_BLOCK with higher claims locked.","receiptVerified=false, productionDone=false, and fullAuthorityDone=false are consistent with the locked higher-authority claims."]}
+
+[stderr]
+Reading additional input from stdin...
+2026-06-11T04:47:12.215265Z  WARN codex_core::agents_md: Project doc `/Users/jek/Documents/Work/Orchestrate/.worktrees/B-428c/AGENTS.md` exceeds remaining budget (32768 bytes) - truncating.
+2026-06-11T04:47:13.478996Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.501675Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.516396Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:13.526971Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+OpenAI Codex v0.137.0
+--------
+workdir: /Users/jek/Documents/Work/Orchestrate/.worktrees/B-428c
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019eb501-7557-70e3-99a0-e3df2aeff09d
+--------
+user
+You are Codex CLI host for a Lattice audit. Do not run commands. Audit only these machine facts and return strict JSON. Principles: do not optimize for optimization; do not optimize arbitrarily; only real correctness issues; consistency of logic.
+
+Facts:
+- loopEngineering suiteStatus=PASS, authorization=authorized, covered=10, missing=0, falseDoneCount=0, localOnly=false, receiptVerified=false, productionDone=false, fullAuthorityDone=false.
+- capability_claim_formal_evaluate --target=loop-engineering returned authorized=true, outcome=PASS, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=UNLOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED, receiptVerified=false, productionDone=false, fullAuthorityDone=false.
+- --target=production-safety returned authorized=false, outcome=EXPECTED_BLOCK, claimId=CLAIM-PRODUCTION-SAFETY, authorizedClaimLevel=loop-engineering, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED.
+- --target=capability-claim returned authorized=false, outcome=EXPECTED_BLOCK, claimId=CLAIM-GLOBAL-CAPABILITY, target=capability-claim, authorizedClaimLevel=loop-engineering, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED.
+
+Question: Are these facts logically sufficient to say Layer3 Loop Engineering claim is unlocked while Production Safety/global remain locked, with no authority overclaim? Return only JSON keys: host, source, verdict, blockers, notes.
+2026-06-11T04:47:13.549705Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.573505Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.597599Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.620994Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.677337Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.702872Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.731141Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.759574Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.782966Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.811221Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.839503Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.867889Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.889629Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.915391Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:13.937627Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-11T04:47:14.006797Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: "Bearer realm=\"OAuth\", resource_metadata=\"https://mcp.linear.app/.well-known/oauth-protected-resource/mcp\", error=\"invalid_token\", error_description=\"Missing or invalid access token\"" })
+2026-06-11T04:47:14.605869Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:14.628837Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.628848Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.629252Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.629259Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.629666Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.629671Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.630080Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.630087Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.630496Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.630501Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.631342Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.631350Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:14.944348Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:14.951737Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:14.951754Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:16.281880Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:16.304229Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.304241Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.304640Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.304648Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.305040Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.305045Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.305467Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.305473Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.305877Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.305882Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.306739Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.306744Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-06-11T04:47:16.608164Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:16.615294Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-11T04:47:16.615310Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/jek/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+codex
+{"host":"codex-cli","source":"provided machine facts only","verdict":"sufficient: Layer3 Loop Engineering is unlocked while Production Safety and global capability remain locked; no authority overclaim detected","blockers":[],"notes":["Loop Engineering evaluation is authorized and PASS with loopEngineeringClaim=UNLOCKED.","Production Safety and global capability targets correctly return unauthorized EXPECTED_BLOCK with higher claims locked.","receiptVerified=false, productionDone=false, and fullAuthorityDone=false are consistent with the locked higher-authority claims."]}
+2026-06-11T04:47:30.730517Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: handshaking with MCP server failed: Send message error Transport [rmcp::transport::worker::WorkerTransport<rmcp::transport::streamable_http_client::StreamableHttpClientWorker<codex_rmcp_client::http_client_adapter::StreamableHttpClientAdapter>>] error: Auth required, when send initialize request
+tokens used
+30,067
