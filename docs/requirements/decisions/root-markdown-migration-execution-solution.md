@@ -99,7 +99,7 @@ After the migration is complete, the only Markdown files allowed at repository r
 Before removing or stubbing a root file, run a repository reference scan for its exact filename and common relative-link forms, excluding banned or generated areas that should not be hand-edited. For example:
 
 ```bash
-rg -n --glob '!**/.omx/**' --glob '!docs/story/**' --glob '!**/tests/fixtures/**' 'KOALA\.md|./KOALA\.md|\(KOALA\.md\)' .
+rg -n --glob '!docs/story/**' --glob '!**/tests/fixtures/**' 'KOALA\.md|./KOALA\.md|\(KOALA\.md\)' .
 ```
 
 For each batch:
@@ -126,7 +126,7 @@ Useful local checks:
 ```bash
 find . -maxdepth 1 -type f -name '*.md' -exec basename {} \; | sort
 find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l
-rg -n --glob '!**/.omx/**' --glob '!docs/story/**' --glob '!**/tests/fixtures/**' 'Production Safety|capability|authority|unattended' docs/requirements/decisions docs/guide*.md README.md AGENTS.md CLAUDE.md
+rg -n --glob '!docs/story/**' --glob '!**/tests/fixtures/**' 'Production Safety|capability|authority|unattended' docs/requirements/decisions docs/guide*.md README.md AGENTS.md CLAUDE.md
 ```
 
 The last scan is not a failure by itself. Every match must be reviewed to ensure it is historical, bounded, or explicitly no-claim.
