@@ -124,7 +124,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The existing guide now names jek.md as user-owned local bootstrap content that stays root and states agents must not migrate, rewrite, archive, or retire it without explicit user request.",
+          "headHash": "b392f7c6eeb9576c71763736cd0c2792f73b871b",
+          "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
+          "timestamp": "2026-06-11T22:18:53.183Z"
+        }
+      ]
     }
   ]
 }
