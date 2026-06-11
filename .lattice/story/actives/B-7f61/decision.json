@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Execute the approved root cleanup rather than producing another explanation document.",
+    "Preserve user-owned and entrypoint root files exactly unless the cleanup requires reference updates elsewhere.",
+    "Archive historical legacy material instead of rewriting policy claims during cleanup.",
+    "Keep host-neutral Lattice boundaries and avoid new capability or production-safety claims."
+  ],
+  "drivers": [
+    "The user explicitly asked to remove root directory document pollution.",
+    "The final allowed root set is already decided by the migration solution.",
+    "The root files are large legacy docs, so full semantic merge in one cleanup story would be risky and unnecessary.",
+    "Reference scans must not leave ordinary docs pointing at removed root paths."
+  ],
+  "options": [
+    {
+      "name": "A: Archive legacy root Markdown and update references",
+      "pros": [
+        "Immediately cleans the repository root to the approved allowed set.",
+        "Preserves historical content for audit without keeping root stubs.",
+        "Avoids risky bulk rewriting of established truth-source docs."
+      ],
+      "cons": [
+        "Some archived documents remain historical rather than active canonical truth sources."
+      ]
+    },
+    {
+      "name": "B: Fully merge every legacy root document into active decision docs before deleting",
+      "pros": [
+        "Could reduce reliance on archive references later."
+      ],
+      "cons": [
+        "Large semantic rewrite in one story would be high risk.",
+        "It could accidentally introduce or duplicate capability and Production Safety claims.",
+        "It goes beyond the user-visible cleanup target."
+      ]
+    },
+    {
+      "name": "C: Delete non-allowed root files without preserving them",
+      "pros": [
+        "Fastest root cleanup."
+      ],
+      "cons": [
+        "Risky loss of historical context and harder audit trail.",
+        "Reference updates would be harder to justify where historical lineage is still mentioned."
+      ]
+    }
+  ],
+  "chosen": "A: Archive legacy root Markdown and update references",
+  "rationale": "Choose archival cleanup because it directly satisfies the user-visible root inventory goal while preserving historical context and avoiding arbitrary semantic rewrites or new capability claims.",
+  "preMortem": [
+    {
+      "scenario": "The cleanup deletes jek.md or allowed root entrypoints by accident.",
+      "trigger": "Bulk find/delete command operates on all root Markdown files instead of the explicit denylist.",
+      "consequence": "User-owned or entrypoint docs are damaged and the root contract is violated.",
+      "mitigation": "Use an explicit cleanup candidate list and verify the final inventory equals the five allowed files."
+    },
+    {
+      "scenario": "Archived legacy docs continue to be referenced as active truth source.",
+      "trigger": "References are updated to archive files without clarifying historical context where needed.",
+      "consequence": "Readers may treat retired root docs as current policy.",
+      "mitigation": "Prefer active canonical decision docs for active references and reserve archive links for historical lineage only."
+    },
+    {
+      "scenario": "The cleanup creates new overclaims while moving text.",
+      "trigger": "Agent tries to summarize Production Safety or capability content in active docs.",
+      "consequence": "The repo may imply readiness that has not been proven.",
+      "mitigation": "Avoid semantic merging in this story and run no-overclaim scans for Production Safety, capability, authority, and unattended wording."
+    },
+    {
+      "scenario": "Reference scans remain noisy due intentional code compatibility references to KOALA.md.",
+      "trigger": "The scan treats all code/template mentions as broken root-doc references.",
+      "consequence": "The story churns compatibility code unnecessarily.",
+      "mitigation": "Separate documentation reader links from code compatibility/test mentions; document intentional code mentions as legacy asset compatibility, not root file retention."
+    }
+  ],
+  "timestamp": "2026-06-11T23:05:05.556Z"
+}

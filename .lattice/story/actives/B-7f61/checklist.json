@@ -10,7 +10,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the cleanup scope list: five allowed root Markdown files stay, and twelve legacy root Markdown files are cleanup candidates.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The root Markdown inventory is explicitly classified into allowed files and cleanup candidates before DEV changes begin.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "jek.md and the four standard root entrypoints are excluded from archive/delete operations.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The cleanup candidate list is explicit rather than a broad wildcard that could catch user-owned or entrypoint files.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
