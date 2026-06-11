@@ -168,7 +168,7 @@
       "desc": ".koala/story/actives/B-e3d9/checklist.json:56-78 and :385 record verificationEvidence commands as `npm run test:authority-client` from the repo root, but packages/main/package.json:68 defines that script only inside the package. Repro: `npm run test:authority-client` from /Users/jek/Documents/Work/Orchestrate/.worktrees/B-e3d9 fails with `Missing script: \"test:authority-client\"`. This makes the recorded evidence non-reproducible as written. Fix by updating the evidence commands to the actual invocable form (for example `npm --prefix packages/main run test:authority-client`) and refresh the evidence/validation metadata with the corrected command string.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-11T01:33:20.851Z",
@@ -178,7 +178,9 @@
       "files": [
         ".koala/story/actives/B-e3d9/checklist.json",
         "packages/main/package.json"
-      ]
+      ],
+      "resolvedReason": "Resolved by checklist_update commits 4f161d2/5ebf28b and later validation evidence: CHK-001 and CHK-005 verificationEvidence now use npm --prefix packages/main run test:authority-client from the story worktree; no root-level npm run test:authority-client command remains in verificationEvidence. Verified with npm --prefix packages/main run test:authority-client and node bin/lattice.js validate --story=B-e3d9 passing 15/15.",
+      "resolvedAt": "2026-06-11T01:53:55.650Z"
     },
     {
       "id": "B-e3d9:F-010",
