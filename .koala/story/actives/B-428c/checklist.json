@@ -83,9 +83,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T04:07:55.001Z",
       "userSees": "User sees malformed or incomplete UDM final reports rejected with machine-readable blocking reasons instead of being counted as formal proof.",
       "files": {
         "modify": [
@@ -116,7 +116,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_suite_report --layer=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Loop Engineering suite is PASS with covered=10, missing=0, falseDoneCount=0, localOnly=false, capabilityProof=true.",
+          "headHash": "8967c6bee8273c153e030169465f3b2d1faaa5ff",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:07:55.029Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "jq .reports .lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/baseline-suite-report.json",
+          "result": "pass",
+          "note": "Expected-block UDM baselines remain EXPECTED_BLOCK with refusal/stop/gate evidence instead of fake PASS.",
+          "headHash": "8967c6bee8273c153e030169465f3b2d1faaa5ff",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:07:55.061Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke includes missing UDM refs rejection, forged loop suite rejection, authority overclaim rejection, and CLI UDM ref forwarding regression.",
+          "headHash": "8967c6bee8273c153e030169465f3b2d1faaa5ff",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:07:55.086Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
