@@ -1,0 +1,76 @@
+{
+  "command": "koala validate --story=B-bc1f --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-zcpsdG; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-KYm3AM; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 3/3 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — story_create --phase=REVIEW creates a Story with an ISO currentReviewRound, and review_run_start immediately returns a Review run ... started message for a supported reviewer lane.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — story_create --phase=REVIEW also allows review_loop_start to use the initialized currentReviewRound instead of failing with missing metadata.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — A legacy/corrupt REVIEW Story that is manually missing currentReviewRound still fails closed, but the error identifies the half-initialized REVIEW state and points to repair or recreate guidance.\"],\"warnings\":[],\"timestamp\":\"2026-06-11T23:49:12.210Z\",\"headSha\":\"96bc3f19b6382cfc6dfb32df99e354a15458c657\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-zcpsdG; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-KYm3AM; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1990}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":3,\"reason\":\"verificationIntent entries present (3)\"},\"verificationCoverage\":{\"total\":3,\"required\":3,\"covered\":3,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"story_create --phase=REVIEW creates a Story with an ISO currentReviewRound, and review_run_start immediately returns a Review run ... started message for a supported reviewer lane.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Field regression smoke creates a direct --phase=REVIEW story, asserts ISO currentReviewRound, and confirms review_run_start returns a Review run started message.\",\"headHash\":\"c53033f650bdec81f2b7295aeef3ca2225245c63\",\"materialHash\":\"5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1\",\"timestamp\":\"2026-06-11T23:37:45.477Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"story_create --phase=REVIEW also allows review_loop_start to use the initialized currentReviewRound instead of failing with missing metadata.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"The same smoke starts review_loop_start on the direct REVIEW story using the initialized currentReviewRound, proving review loop startup no longer fails on missing metadata.\",\"headHash\":\"c53033f650bdec81f2b7295aeef3ca2225245c63\",\"materialHash\":\"5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1\",\"timestamp\":\"2026-06-11T23:37:45.477Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A legacy/corrupt REVIEW Story that is manually missing currentReviewRound still fails closed, but the error identifies the half-initialized REVIEW state and points to repair or recreate guidance.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"The smoke keeps a manually corrupt REVIEW story without currentReviewRound and asserts review_run_start still fails closed with the clearer marked REVIEW but missing currentReviewRound guidance.\",\"headHash\":\"c53033f650bdec81f2b7295aeef3ca2225245c63\",\"materialHash\":\"5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1\",\"timestamp\":\"2026-06-11T23:37:45.477Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-11T23:49:12.587Z",
+  "headHash": "96bc3f19b6382cfc6dfb32df99e354a15458c657",
+  "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+  "verificationCoverage": {
+    "total": 3,
+    "required": 3,
+    "covered": 3,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "story_create --phase=REVIEW creates a Story with an ISO currentReviewRound, and review_run_start immediately returns a Review run ... started message for a supported reviewer lane.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke creates a direct --phase=REVIEW story, asserts ISO currentReviewRound, and confirms review_run_start returns a Review run started message.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "story_create --phase=REVIEW also allows review_loop_start to use the initialized currentReviewRound instead of failing with missing metadata.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "The same smoke starts review_loop_start on the direct REVIEW story using the initialized currentReviewRound, proving review loop startup no longer fails on missing metadata.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A legacy/corrupt REVIEW Story that is manually missing currentReviewRound still fails closed, but the error identifies the half-initialized REVIEW state and points to repair or recreate guidance.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "The smoke keeps a manually corrupt REVIEW story without currentReviewRound and asserts review_run_start still fails closed with the clearer marked REVIEW but missing currentReviewRound guidance.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        }
+      }
+    ]
+  }
+}
