@@ -44,7 +44,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Mechanical checks confirm stable STASH_OBJECT, stash inventory, and no whole-stash apply/pop/restore regressions remain valid after the wording fix.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV remains unchanged and mechanically consistent at 37 decision files and 37 NAV decision links.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search confirms forbidden direct bypass wording such as \"story or commit\" is absent from the execution path while legitimate uses of commit in acceptance text remain scoped to story commits.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
