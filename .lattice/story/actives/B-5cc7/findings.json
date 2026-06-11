@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-5cc7:F-001",
+      "desc": "docs/requirements/decisions/dev-memory.md still presents .koala/dev-memory and .koala/story paths as the storage contract, but B-5cc7 implementation now makes .lattice/dev-memory the canonical read/write path and adds .koala only as a read-only legacy fallback. The docs oracle therefore no longer describes the implemented path semantics; update the decision doc to state .lattice canonical storage plus .koala legacy read fallback, or adjust implementation to match the documented .koala contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-11T23:08:45.663Z",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "reviewRunId": "B-5cc7:RR-008",
+      "_hash": "c20bbdafc64db630586d1f515b458001fabd0c0e26696a02dea33d7ebd0c0a4d",
+      "files": [
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/handlers/dev-memory.ts"
+      ]
+    }
+  ]
+}
