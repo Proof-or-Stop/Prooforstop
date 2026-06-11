@@ -4,9 +4,9 @@
 
 ## Purpose
 
-Dev-memory provides a lightweight, file-backed mechanism for AI agents and humans to capture reusable lessons learned during development — **outside** the formal Koala story and gate lifecycle.
+Dev-memory provides a lightweight, file-backed mechanism for AI agents and humans to capture reusable lessons learned during development — **outside** the formal Lattice story and gate lifecycle.
 
-**Dev-memory is non-authoritative context, not Koala gate evidence.**
+**Dev-memory is non-authoritative context, not Lattice gate evidence.**
 
 This is not negotiable: no dev-memory entry, candidate file, or preflight pack can satisfy:
 - `delivery_check_set` docsPromises
@@ -22,13 +22,15 @@ Dev-memory is advisory context only. Its purpose is to help agents recall releva
 
 | Scope | Path | Lifetime |
 |-------|------|---------|
-| **project** | `<projectRoot>/.koala/dev-memory/experience.jsonl` | project lifetime |
-| **global** | `~/.koala/dev-memory/experience.jsonl` | machine lifetime |
-| **story-candidate** | `<storyDir>/<storyId>/dev-memory-candidates.jsonl` | story lifetime |
+| **project** | `<projectRoot>/.lattice/dev-memory/experience.jsonl` | project lifetime |
+| **global** | `~/.lattice/dev-memory/experience.jsonl` | machine lifetime |
+| **story-candidate** | `<projectRoot>/.lattice/story/actives/<storyId>/dev-memory-candidates.jsonl` | story lifetime |
 
-- Paths resolve deterministically without Koala daemon running.
+- Paths resolve deterministically without a Lattice daemon running.
+- Project/global reads use `.lattice/dev-memory/experience.jsonl` and `~/.lattice/dev-memory/experience.jsonl` as canonical storage. The legacy `.koala/dev-memory/experience.jsonl` and `~/.koala/dev-memory/experience.jsonl` paths are read-only fallback inputs for migrated installations.
+- Writes only target canonical `.lattice` storage; dev-memory commands must not append to or mutate legacy `.koala` files.
 - JSONL format: one JSON object per line, schema-versioned via required fields.
-- Story candidates are written by `koala dev_memory_finish`. They are **not** automatically promoted to project/global memory — this is a deliberate review step.
+- Story candidates are written by `lattice dev_memory_finish`. They are **not** automatically promoted to project/global memory — this is a deliberate review step.
 
 ---
 
@@ -58,7 +60,7 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 - `pattern` — a reusable approach that worked well
 - `anti-pattern` — an approach that looks reasonable but causes problems
 - `workflow` — a process or sequence that worked well
-- `tool-quirk` — unexpected behavior of a tool (koala CLI, tsc, etc.)
+- `tool-quirk` — unexpected behavior of a tool (lattice CLI, tsc, etc.)
 - `guard-bypass` — something that circumvented a gate (note it, don't encourage it)
 - `debugging` — a debugging technique that saved time
 - `communication` — a communication pattern that worked (or didn't)
@@ -70,28 +72,28 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 
 | Command | Purpose |
 |---------|---------|
-| `koala dev_memory_capture` | Save a new experience entry |
-| `koala dev_memory_search` | Search entries by query, category, agent, or tags |
-| `koala dev_memory_list` | List entries (newest first), with `--scope` filter |
-| `koala dev_memory_preflight` | Emit a bounded preflight context pack (≤60 lines) |
-| `koala dev_memory_finish` | Finish a session: report/promote project entries, or write story candidates |
-| `koala dev_memory_start` | Wrapper: run preflight then emit agent startup guidance |
+| `lattice dev_memory_capture` | Save a new experience entry |
+| `lattice dev_memory_search` | Search entries by query, category, agent, or tags |
+| `lattice dev_memory_list` | List entries (newest first), with `--scope` filter |
+| `lattice dev_memory_preflight` | Emit a bounded preflight context pack (≤60 lines) |
+| `lattice dev_memory_finish` | Finish a session: report/promote project entries, or write story candidates |
+| `lattice dev_memory_start` | Wrapper: run preflight then emit agent startup guidance |
 
 ### `dev_memory_finish` — `--storyId` is optional
 
-`koala dev_memory_finish` works in three modes:
+`lattice dev_memory_finish` works in three modes:
 
-**Outside Koala (no active story, no `--scope=global`)** — for ordinary non-Koala sessions. Does NOT require or create `.koala/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided). Returns a summary of retained entries, or a clear empty-state message when none exist. Does NOT touch story directories.
+**Outside Lattice (no active story, no `--scope=global`)** — for ordinary non-Lattice sessions. Does NOT require or create `.lattice/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided). Returns a summary of retained entries, or a clear empty-state message when none exist. Does NOT touch story directories.
 
-**Story-candidate write (active story branch, no `--scope=global`)** — defaults to the current `story/<id>` branch and writes session experience candidates to `<root>/.koala/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id. Use `--storyId=<id>` to override the target story explicitly; this is a target override within this same path, not a separate mode.
+**Story-candidate write (active story branch, no `--scope=global`)** — defaults to the current `story/<id>` branch and writes session experience candidates to `<root>/.lattice/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id. Use `--storyId=<id>` to override the target story explicitly; this is a target override within this same path, not a separate mode.
 
 **Global promotion (`--scope=global`)** — copies relevant project entries into global dev-memory, de-duped by id, as `scope: global`, non-authoritative. Does not create or append story candidates, even when run from an active story branch. Useful for promoting cross-project lessons.
 
 ### `dev_memory_start` — prompt-only memory wrapper (not lifecycle worktree initialization)
 
-`koala dev_memory_start` is a **prompt-only memory wrapper**, intentionally separate from Koala's story lifecycle and worktree initialization. It is not a replacement for story phase transitions — the Koala story lifecycle remains unchanged. `dev_memory_start` runs preflight and emits startup guidance text only; **it does not launch any binary** and does not start or advance any story phase. Always safe to run.
+`lattice dev_memory_start` is a **prompt-only memory wrapper**, intentionally separate from Lattice's story lifecycle and worktree initialization. It is not a replacement for story phase transitions — the Lattice story lifecycle remains unchanged. `dev_memory_start` runs preflight and emits startup guidance text only; **it does not launch any binary** and does not start or advance any story phase. Always safe to run.
 
-`koala dev_memory_start --agent=claude|codex|gemini` adds per-agent startup guidance to the output.
+`lattice dev_memory_start --agent=claude|codex|gemini` adds per-agent startup guidance to the output.
 
 ### Lattice Parallel Dispatch Consumers
 
@@ -117,7 +119,7 @@ is a projection-only read path:
 - Deterministic: readable by `cat`, `grep`, `jq` without any runtime.
 - Versionable: JSONL diffs are meaningful in `git diff`.
 - Schema-evolvable: unknown fields are ignored; missing required fields cause that entry to be skipped, not a crash.
-- No daemon required: path resolution and reads work without Koala running.
+- No daemon required: path resolution and reads work without Lattice running.
 
 ### Why are story candidates separate from project memory?
 
