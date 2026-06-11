@@ -53,34 +53,34 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
-          "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
           "note": "Current-head smoke keeps supported ed25519 receipt verification passing, including the pinned env LATTICE_AUTHORITY_SERVER_PUBLIC_KEY path with policy serverKey.algorithm=ED25519; counts.policy=1 proves policy metadata was consulted while the pinned key remained the trust anchor.",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:48.223Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
-          "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
           "note": "Current-head smoke preserves algorithm normalization/fail-closed edges: case-variant ED25519 is accepted, blank/malformed algorithm material is rejected as unsupported, and pinned deployments with unavailable policy still have no new required algorithm metadata path.",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:48.376Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
-          "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
           "note": "Current-head smoke covers B-e3d9:F-003: env-pinned serverPublicKey plus fake policy serverKey.algorithm=rsa returns receipt_unverified, blocks executePlannedSteps authority DONE, and authorityJobVerdictStatus keeps receiptVerified/authorityDone/fullAuthorityDone false; counts.policy=1 proves policy metadata was consulted for both gate and job-status receipt verification.",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:48.605Z"
         }
       ]
     },
