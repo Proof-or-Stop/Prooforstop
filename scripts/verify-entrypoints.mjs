@@ -5,30 +5,19 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { runManagedAssetCheck } from '../packages/main/dist/core/managed-assets.js';
+import {
+  KOALA_RUNTIME_IGNORE_BLOCK_END,
+  KOALA_RUNTIME_IGNORE_BLOCK_START,
+  listRuntimeArtifactIgnorePatterns,
+} from '../packages/main/dist/core/runtime-artifact-registry.js';
 
 const repoRoot = process.cwd();
 const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
 const INIT_ENTRYPOINT = 'packages/main/dist/cli-init.js';
 const CORE_ENTRYPOINT = 'packages/main/dist/cli.js';
-const MANAGED_GITIGNORE_BLOCK_START = '# koala runtime artifacts (managed)';
-const MANAGED_GITIGNORE_BLOCK_END = '# /koala runtime artifacts (managed)';
-const REQUIRED_RUNTIME_IGNORE_LINES = [
-  '.koala/*',
-  '!.koala/story/',
-  '!.koala/story/**',
-  '**/activity.jsonl',
-  '**/owner-lease.json',
-  '.koala/runtime/',
-  '.koala/traces/',
-  '.koala/locks/',
-  '.koala-serve.json',
-  '.lattice/authority.md',
-  '.koala-tmp-*',
-  'koala-debug.log',
-  'browser-test.log',
-  '.omx/',
-  '$PROJECT_ROOT/',
-];
+const MANAGED_GITIGNORE_BLOCK_START = KOALA_RUNTIME_IGNORE_BLOCK_START;
+const MANAGED_GITIGNORE_BLOCK_END = KOALA_RUNTIME_IGNORE_BLOCK_END;
+const REQUIRED_RUNTIME_IGNORE_LINES = listRuntimeArtifactIgnorePatterns();
 
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, {
@@ -105,6 +94,11 @@ function assertGitignoreBlock(content, lines, label) {
   for (const line of lines) {
     assertIncludes(content, line, `${label} missing managed ignore line`);
   }
+}
+
+function missingRuntimeIgnoreLines(existingLines) {
+  const present = new Set(existingLines.map(line => line.trim()).filter(Boolean));
+  return REQUIRED_RUNTIME_IGNORE_LINES.filter(line => !present.has(line));
 }
 
 function assertProfileAssets(tempDir, profile, opts = {}) {
@@ -581,33 +575,21 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-gitignore-merge-'));
   try {
-    writeFileSync(join(tempDir, '.gitignore'), [
+    const existingGitignoreLines = [
       'node_modules/',
       'custom-cache/',
       '**/activity.jsonl',
       '.omx/',
       '',
-    ].join('\n'));
+    ];
+    writeFileSync(join(tempDir, '.gitignore'), existingGitignoreLines.join('\n'));
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
     assertIncludes(initOut, '.gitignore (merged koala runtime ignores)', 'koala init existing .gitignore merge output');
 
     const gitignore = readFileSync(join(tempDir, '.gitignore'), 'utf8');
     assertIncludes(gitignore, 'custom-cache/', 'existing .gitignore merge should preserve user content');
-    assertGitignoreBlock(gitignore, [
-      '.koala/*',
-      '!.koala/story/',
-      '!.koala/story/**',
-      '.koala/runtime/',
-      '.koala/traces/',
-      '.koala/locks/',
-      '.koala-serve.json',
-      '.lattice/authority.md',
-      '.koala-tmp-*',
-      'koala-debug.log',
-      'browser-test.log',
-      '$PROJECT_ROOT/',
-    ], 'merged .gitignore');
+    assertGitignoreBlock(gitignore, missingRuntimeIgnoreLines(existingGitignoreLines), 'merged .gitignore');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
