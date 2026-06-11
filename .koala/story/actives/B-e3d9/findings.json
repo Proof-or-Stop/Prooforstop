@@ -93,6 +93,25 @@
       "files": [
         "packages/main/src"
       ]
+    },
+    {
+      "id": "B-e3d9:F-006",
+      "desc": "[HIGH] Host-neutral Codex adapter entrypoints are still case-dependent. Git tracks .lattice/lattice.json and .Codex/hooks.json/.Codex/hooks/lattice-scope-pretool.cjs, but verify_codex and guard-session resolve .Lattice/lattice.json and .codex/hooks/* (packages/main/src/core/codex-adapter-checks.ts:208-209, 396-429; packages/main/src/handlers/guard-session.ts:32-45). This passes on the current case-insensitive filesystem only because .Lattice/.lattice and .Codex/.codex alias to the same inode; on a case-sensitive host the global-thin manifest and native Codex hook will be reported missing, so REVIEW/DONE gate evidence is not actually host-neutral. Fix by choosing one canonical on-disk casing per contract and making both generated assets and runtime checks consume that same path set.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T00:42:40.511Z",
+      "reviewRound": "2026-06-11T00:37:11.229Z",
+      "reviewRunId": "B-e3d9:RR-021",
+      "_hash": "c161c6cd6014f5718b7b464cf50a5132d1a3de9fef3fc019ac3a5584ddf811a6",
+      "files": [
+        ".lattice/lattice.json",
+        ".Codex/hooks.json",
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/guard-session.ts"
+      ]
     }
   ]
 }
