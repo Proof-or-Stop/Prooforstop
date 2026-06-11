@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-11T21:40:41.803Z",
       "reviewRunId": "B-8f4c:RR-003",
       "_hash": "de492586d1f95b39be8e38fa955342ee6cfec94a7fb164384a5ef9d71013f677"
+    },
+    {
+      "id": "B-8f4c:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs wording/navigation pass. Reviewed docs/requirements/decisions/stash-split-execution-plan.md:5,12,19,22,60,87,111,132,162,184,224 and docs/requirements/NAV.md:3,35. git stash show --include-untracked --name-status stash@{0} matches the documented inventory; find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l returns 37, matching NAV. The plan forbids stash pop/whole-stash apply, uses explicit path-limited restore commands, keeps dev-memory data excluded, defers planner hash changes without repro evidence, and frames Layer4/NAV and final stash retirement as future work. I found no wording that claims stash content was applied, merged, or executed by this story, and no scope broadening beyond bucketed future correctness work under the four principles.",
+      "createdAt": "2026-06-11T21:43:00.508Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-004",
+      "_hash": "bec08c3d14e85925a60c4dae7af07c642062f4d64e0e57a3d73535fca010d5d0"
     }
   ]
 }
