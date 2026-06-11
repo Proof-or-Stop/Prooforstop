@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-428c:F-001",
+      "desc": "Formal capability-claim target was normalized to CLAIM-PRODUCTION-SAFETY, so the global capability blocked report used the wrong claim identity and did not preserve the Layer 3 proof chain when proving higher claims remained locked.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T04:31:06.322Z",
+      "reviewRound": "2026-06-11T04:22:26.699Z",
+      "reviewRunId": "B-428c:RR-001",
+      "_hash": "4caae79b48fbbe6764c416caf9c32b4be7554d6ee125a5592a32d08bd0f0b75b",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts",
+        "packages/main/src/tasks/lattice-baseline-smoke.ts"
+      ]
+    }
+  ]
+}
