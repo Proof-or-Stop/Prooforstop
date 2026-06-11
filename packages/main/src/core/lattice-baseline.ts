@@ -756,6 +756,14 @@ const CLAIM_DEFINITIONS = {
       'Lattice is approaching production-grade unattended development safety for the tested project classes and stated maturity target.',
     ],
   },
+  'CLAIM-GLOBAL-CAPABILITY': {
+    target: 'capability-claim',
+    requestedClaim: 'global production capability claim',
+    dependsOn: ['development', 'engineering', 'loop-engineering', 'production-safety'] as BaselineLayer[],
+    allowedWording: [
+      'Lattice has a production-grade unattended development capability claim backed by all required baseline layers.',
+    ],
+  },
 } as const;
 
 const PROHIBITED_WORDING = [
@@ -2384,7 +2392,8 @@ function normalizeClaimId(args: CapabilityClaimEvaluateOptions): keyof typeof CL
   if (target === 'engineering') return 'CLAIM-ENGINEERING-DEV';
   if (target === 'loop-engineering') return 'CLAIM-LOOP-ENGINEERING';
   if (target === 'production-safety') return 'CLAIM-PRODUCTION-SAFETY';
-  return 'CLAIM-PRODUCTION-SAFETY';
+  if (target === 'capability-claim') return 'CLAIM-GLOBAL-CAPABILITY';
+  return 'CLAIM-GLOBAL-CAPABILITY';
 }
 
 function readHardFactBool(report: BaselineSuiteReport | undefined, key: string): boolean {
@@ -2778,9 +2787,10 @@ function evaluateFormalLoopEngineeringClaim(options: CapabilityClaimEvaluateOpti
   blockedReasons.push(...engineeringProof.blockedReasons);
   blockedReasons.push(...loopProof.blockedReasons);
 
-  const authorized = blockedReasons.length === 0;
+  const loopUnlocked = layer2Unlocked && loopProof.authorized;
+  const authorized = loopUnlocked && claim.target === LAYER3_LOOP_ENGINEERING_CLAIM_TARGET && blockedReasons.length === 0;
   const highestAuthorizedClaim: CapabilityClaimReport['authorizedClaimLevel'] =
-    authorized ? 'loop-engineering' : layer2Unlocked ? 'engineering' : 'none';
+    loopUnlocked ? 'loop-engineering' : layer2Unlocked ? 'engineering' : 'none';
   const highestEvidenceBackedClaim: CapabilityClaimReport['highestEvidenceBackedClaim'] = highestAuthorizedClaim;
   const report: CapabilityClaimReport = {
     schemaVersion: CAPABILITY_CLAIM_REPORT_SCHEMA_VERSION,
@@ -2792,7 +2802,7 @@ function evaluateFormalLoopEngineeringClaim(options: CapabilityClaimEvaluateOpti
     outcome: authorized ? 'PASS' : 'EXPECTED_BLOCK',
     authorizedClaimLevel: highestAuthorizedClaim,
     highestEvidenceBackedClaim,
-    dependsOn: ['development', 'engineering', 'loop-engineering'],
+    dependsOn: [...claim.dependsOn],
     blockedReasons: [...new Set(blockedReasons)],
     evidence: {
       suiteReports,
@@ -2821,7 +2831,7 @@ function evaluateFormalLoopEngineeringClaim(options: CapabilityClaimEvaluateOpti
     localOnly: false,
     formalProof: authorized,
     layer2EngineeringClaim: layer2Unlocked ? 'UNLOCKED' : 'LOCKED',
-    loopEngineeringClaim: authorized ? 'UNLOCKED' : 'LOCKED',
+    loopEngineeringClaim: loopUnlocked ? 'UNLOCKED' : 'LOCKED',
     productionSafetyClaim: 'LOCKED',
     globalCapabilityClaim: 'LOCKED',
     authority: BASELINE_AUTHORITY_BOUNDARY,
@@ -2842,7 +2852,11 @@ export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEva
       : { ...options, target: LAYER2_ENGINEERING_CLAIM_TARGET },
   );
   const claim = CLAIM_DEFINITIONS[claimId];
-  if (claim.target === LAYER3_LOOP_ENGINEERING_CLAIM_TARGET) {
+  if (
+    claim.target === LAYER3_LOOP_ENGINEERING_CLAIM_TARGET
+    || claim.target === 'production-safety'
+    || claim.target === 'capability-claim'
+  ) {
     return evaluateFormalLoopEngineeringClaim(options);
   }
   return evaluateFormalEngineeringClaim(options);

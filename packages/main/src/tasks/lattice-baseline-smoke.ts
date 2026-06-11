@@ -1518,7 +1518,7 @@ for (const defect of [
         `formal ${target} claim`,
       );
       assertAuthorizedFalse(higher, `formal ${target} claim`);
-      assertLayer2Claim(higher, target === 'loop-engineering' ? 'UNLOCKED' : 'LOCKED', `formal ${target} claim`);
+      assertLayer2Claim(higher, 'UNLOCKED', `formal ${target} claim`);
       assertHigherClaimsLocked(higher, `formal ${target} claim`);
       assertMentions(higher, /Loop Engineering|higher layers remain locked|Engineering or Loop Engineering|missing baseline/i, `formal ${target} claim`);
     }
@@ -1563,6 +1563,38 @@ for (const defect of [
     assertProductionAndGlobalClaimsLocked(loop, 'formal loop-engineering claim after persisted proof artifact commit');
     assertLocalOnly(loop, false, 'formal loop-engineering claim after persisted proof artifact commit');
     assertNoAuthorityOverclaim(loop, 'formal loop-engineering claim after persisted proof artifact commit');
+
+    const production = requireJsonObject(
+      runCli(root, ['capability_claim_formal_evaluate', '--target=production-safety', '--format=json']),
+      'formal production-safety claim after persisted loop proof artifact commit',
+    );
+    assertAuthorizedFalse(production, 'formal production-safety claim after persisted loop proof artifact commit');
+    assertClaimId(production, 'CLAIM-PRODUCTION-SAFETY', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertClaimLevel(production, 'loop-engineering', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertLayer2Claim(production, 'UNLOCKED', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertLoopClaim(production, 'UNLOCKED', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertProductionAndGlobalClaimsLocked(production, 'formal production-safety claim after persisted loop proof artifact commit');
+    assertNoAuthorityOverclaim(production, 'formal production-safety claim after persisted loop proof artifact commit');
+    assert.ok(
+      Array.isArray(production.dependsOn) && production.dependsOn.includes('production-safety'),
+      'formal production-safety claim should still declare production-safety as a required dependency',
+    );
+
+    const global = requireJsonObject(
+      runCli(root, ['capability_claim_formal_evaluate', '--target=capability-claim', '--format=json']),
+      'formal global capability claim after persisted loop proof artifact commit',
+    );
+    assertAuthorizedFalse(global, 'formal global capability claim after persisted loop proof artifact commit');
+    assertClaimId(global, 'CLAIM-GLOBAL-CAPABILITY', 'formal global capability claim after persisted loop proof artifact commit');
+    assertClaimLevel(global, 'loop-engineering', 'formal global capability claim after persisted loop proof artifact commit');
+    assertLayer2Claim(global, 'UNLOCKED', 'formal global capability claim after persisted loop proof artifact commit');
+    assertLoopClaim(global, 'UNLOCKED', 'formal global capability claim after persisted loop proof artifact commit');
+    assertProductionAndGlobalClaimsLocked(global, 'formal global capability claim after persisted loop proof artifact commit');
+    assertNoAuthorityOverclaim(global, 'formal global capability claim after persisted loop proof artifact commit');
+    assert.ok(
+      Array.isArray(global.dependsOn) && global.dependsOn.includes('production-safety'),
+      'formal global capability claim should still declare production-safety as a required dependency',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
