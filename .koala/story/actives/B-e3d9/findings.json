@@ -116,6 +116,26 @@
       ],
       "resolvedReason": "Fixed by implementer commit d484257f. The checked-in global-thin Lattice assets now use canonical .Lattice/Lattice.md and .Lattice/lattice.json, Codex native hook assets now use official lowercase .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs, and scripts/verify-entrypoints.mjs now mechanically rejects the old non-canonical casing. Verified with npm --prefix packages/main run build, npm run test:entrypoints, npm --prefix packages/main run test:pretool-scope-hook-smoke, node bin/lattice-codex.js verify_codex, focused smokes, and gap_analyze 0 high/0 medium.",
       "resolvedAt": "2026-06-11T00:54:16.716Z"
+    },
+    {
+      "id": "B-e3d9:F-007",
+      "desc": "Coverage review blocked: authoritative evidence is still stale. evidence_inspect reports freshness=stale with 16 stale refs, validate --story=B-e3d9 fails verification coverage 0/15 with 15 required intents stale/missing, and gap_analyze still reports 13 medium gaps, so F-005 cannot be treated as resolved on current HEAD.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T00:56:38.477Z",
+      "reviewRound": "2026-06-11T00:54:01.041Z",
+      "reviewRunId": "B-e3d9:RR-024",
+      "_hash": "46aec2a0e931c79ba8dc612d7b9d8fbdf0367155d86a691780c8ccb40b5af5a7",
+      "files": [
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/planner-unattended-smoke.ts",
+        "packages/main/src/tasks/worktree-policy-smoke.ts",
+        "docs/requirements/decisions/cc-learnings.md",
+        "packages/main/src/core/worktree-policy.ts"
+      ]
     }
   ]
 }
