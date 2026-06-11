@@ -1,0 +1,21 @@
+{
+  "task": "Remove the direct commit bypass wording from the stash split execution plan.",
+  "outcome": "Final answer tells the user: final two-host audit found one real issue, fixed it, the document now requires each accepted stash bucket to become a separate future Lattice story, and mechanical checks still pass.",
+  "facts": [
+    "Two-host audit found docs/requirements/decisions/stash-split-execution-plan.md says each bucket may become a future story or commit.",
+    "The same document later requires one future story per bucket.",
+    "Lattice host-neutral correctness depends on story-scoped checklist, review, validation, and evidence gates."
+  ],
+  "constraints": [
+    "Do not optimize wording arbitrarily.",
+    "Only fix the verified correctness issue.",
+    "Do not touch stash content or unrelated docs.",
+    "Preserve NAV unless mechanical checks prove it changed."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/stash-split-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-11T22:18:08.979Z"
+}

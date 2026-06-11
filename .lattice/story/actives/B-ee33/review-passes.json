@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-ee33:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review PASS: wording now requires separate future Lattice story per bucket, removing direct commit bypass and preserving host-neutral story-gated execution.",
+      "createdAt": "2026-06-11T22:24:29.469Z",
+      "reviewRound": "2026-06-11T22:22:33.784Z",
+      "reviewRunId": "B-ee33:RR-001",
+      "_hash": "f37906ecc5dae63edad144d542e2e6beb93197f51f5b1aae8723beb9c2228f22"
+    },
+    {
+      "id": "B-ee33:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review PASS: blocker fixed at stash split plan purpose line, only intended doc changed, NAV and stash mechanics unchanged, diff check clean.",
+      "createdAt": "2026-06-11T22:24:29.938Z",
+      "reviewRound": "2026-06-11T22:22:33.784Z",
+      "reviewRunId": "B-ee33:RR-002",
+      "_hash": "6626e5afeedfcdf39599b895ae5d8ff8f6577471e5c2b84ac52cad8a74461495"
+    },
+    {
+      "id": "B-ee33:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage PASS: all six verification intents covered; one-line material diff, no story-or-commit bypass, stable STASH_OBJECT checks, NAV 37/37 unchanged.",
+      "createdAt": "2026-06-11T22:26:42.795Z",
+      "reviewRound": "2026-06-11T22:22:33.784Z",
+      "reviewRunId": "B-ee33:RR-003",
+      "_hash": "e826f1814a04f2ecc8ad3f5c8cd4ca5ac04a1594ce484842f3476937fdbc6355"
+    },
+    {
+      "id": "B-ee33:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Docs review PASS: purpose now says separate future Lattice story per bucket, later one-story-per-bucket procedure remains consistent, NAV unchanged.",
+      "createdAt": "2026-06-11T22:26:43.265Z",
+      "reviewRound": "2026-06-11T22:22:33.784Z",
+      "reviewRunId": "B-ee33:RR-004",
+      "_hash": "3c3fe4cec2934612f57a7c88668d7d7eedff5096a816b346aba5d00836078de8"
+    }
+  ]
+}

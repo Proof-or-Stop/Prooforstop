@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ee33",
+  "changes": "Updated docs/requirements/decisions/stash-split-execution-plan.md so each accepted stash bucket must become a separate future Lattice story with tests and evidence. Removed the direct story-or-commit bypass wording; NAV was intentionally unchanged.",
+  "usage": "Use the stash split plan as before, but now every accepted bucket must start as its own Lattice story before restoration, testing, review, validation, and commit inside that story.",
+  "expectedOutcome": "User sees the final audit result: the only real blocker was fixed, and the stash split plan is now explicitly story-gated while the rest of the executable safeguards still pass.",
+  "actualTranscript": "lattice validate --story=B-ee33 --json returned status pass, allPass true, npm test pass, cli-e2e ALL PASS, and verification intent coverage 6/6. Delivery reviewer verified three document promises and two real-machine tests.",
+  "outcomeDiff": "Expected and actual match. Only the direct commit bypass wording changed; NAV and stash execution mechanics stayed unchanged.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story only fixes the verified wording/process correctness issue. It does not execute, restore, drop, or process any stash bucket.",
+  "pitfalls": "Owner lease had to be continued with the recorded KOALA_SESSION_ID because the active story lease was owned by an earlier derived session in the same worktree. Worktree dependencies were missing, so ignored node_modules symlink and npm run build were used before validate.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 69628
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10315
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 296868
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 52005
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 277361
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 150947
+    }
+  },
+  "totalDurationMs": 857125,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-11T22:29:42.093Z",
+  "updatedAt": "2026-06-11T22:29:42.093Z"
+}

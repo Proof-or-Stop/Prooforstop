@@ -1,0 +1,37 @@
+{
+  "principles": [
+    "Only fix verified correctness issues.",
+    "Preserve Lattice story-gated evidence flow.",
+    "Avoid arbitrary wording optimization."
+  ],
+  "drivers": [
+    "The phrase story or commit creates a bypass around checklist/review/validation gates.",
+    "The document already requires one future story per bucket later in the recovery procedure."
+  ],
+  "options": [
+    {
+      "name": "A: Replace story or commit with future Lattice story",
+      "pros": [
+        "Removes bypass wording",
+        "Keeps plan consistent with later one-story-per-bucket rule",
+        "Smallest possible change"
+      ],
+      "cons": [
+        "Requires a tiny follow-up story for one sentence"
+      ]
+    },
+    {
+      "name": "B: Leave wording unchanged and explain later",
+      "pros": [
+        "No file change"
+      ],
+      "cons": [
+        "Keeps contradictory execution path",
+        "Allows readers to bypass story evidence gates"
+      ]
+    }
+  ],
+  "chosen": "A: Replace story or commit with future Lattice story",
+  "rationale": "Option A fixes the verified process correctness issue with the smallest document change while preserving the rest of the executable plan.",
+  "timestamp": "2026-06-11T22:21:35.933Z"
+}
