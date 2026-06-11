@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-11T22:41:52.721Z",
-      "endTime": null,
+      "endTime": "2026-06-11T22:43:06.021Z",
       "userSees": "User sees docs/requirements/NAV.md declare 38 decision files, matching the 38 linked decision docs in docs/requirements/decisions.",
       "files": {
         "modify": [
@@ -40,7 +40,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "find docs/requirements/decisions -maxdepth 1 -type f -name \"*.md\" | wc -l && sed -n \"3p\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "Decision markdown file count is 38 and NAV header now says > 38 个文件.",
+          "headHash": "a37bd1925d664f384fe230356b92e53a8a7d3dde",
+          "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
+          "timestamp": "2026-06-11T22:43:06.129Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -c \"^- \\\\[.*\\\\]\\\\(decisions/.*\\\\.md\\\\)\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV decision link count is 38, matching the 38 decision markdown files.",
+          "headHash": "a37bd1925d664f384fe230356b92e53a8a7d3dde",
+          "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
+          "timestamp": "2026-06-11T22:43:06.201Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "git show --stat --oneline HEAD",
+          "result": "pass",
+          "note": "Commit a37bd192 changes only the NAV header count for this item; it does not add, remove, or reorder NAV links.",
+          "headHash": "a37bd1925d664f384fe230356b92e53a8a7d3dde",
+          "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
+          "timestamp": "2026-06-11T22:43:06.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
