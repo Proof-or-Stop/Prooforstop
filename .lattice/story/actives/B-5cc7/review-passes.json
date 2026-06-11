@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-11T23:51:32.816Z",
       "reviewRunId": "B-5cc7:RR-025",
       "_hash": "8665d441eed82be3d984b9b40c6eede9646dd8dba5f31c76dd2d0f0785249af1"
+    },
+    {
+      "id": "B-5cc7:RP-014",
+      "agent": "koala-review-quality",
+      "note": "PASS: final quality review after F-006. Minimality and scope hold: material paths are dev-memory core/handler, focused legacy-read smoke, dev-memory decision doc, and the two acknowledged parallel-wave touchpoints justified by verified findings F-003/F-006. No unrelated stash bucket paths (.gitignore, runtime registry, planner, NAV, Layer4 doc, flow-stability smoke, fixtures) appear in main...HEAD. Pinned stash remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05; stash^3 still contains the 23-line .lattice/dev-memory/experience.jsonl, while HEAD/main do not contain that data file. .koala is read-only fallback only: writes resolve through .lattice paths, KOALA_GLOBAL_MEMORY_DIR cannot redirect the writable global path, and handler/docs no longer emit stale koala dev_memory_finish guidance. Existing dist smoke node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js passed; git diff --check passed.",
+      "createdAt": "2026-06-11T23:55:10.850Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-026",
+      "_hash": "0a2c1be88fed8017e0b88b59bc1f4259cc4ae68ce09bd7eab3b99fbf8e2ff929"
     }
   ]
 }
