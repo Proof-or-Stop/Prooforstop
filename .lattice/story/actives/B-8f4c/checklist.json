@@ -13,7 +13,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees docs/requirements/decisions/stash-split-execution-plan.md with bucketed stash handling, restore mechanics, stop conditions, tests, and non-goals.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/stash-split-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document defines executable buckets for stash@{0}: runtime path cleanup, smoke expectation repairs, Layer4 doc, planner hash deferral, and dev-memory data exclusion.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document explicitly handles untracked stash restore mechanics, including Layer4 doc from stash untracked parent and no default restore for .lattice/dev-memory/experience.jsonl.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document forbids whole stash pop, mixed commits, arbitrary planner hash churn, and committing local dev-memory data without explicit versioning decision.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
