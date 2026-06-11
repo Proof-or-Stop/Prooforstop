@@ -1,0 +1,47 @@
+{
+  "storyId": "B-7f61",
+  "name": "execute-root-markdown-cleanup",
+  "title": "Execute root Markdown cleanup",
+  "description": "Execute the approved root Markdown migration solution by removing agent-generated legacy Markdown from the repository root, preserving only the allowed root entrypoints and user-owned jek.md. Move or archive legacy content, update references, and verify the root inventory is clean.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "root-markdown",
+    "migration",
+    "cleanup",
+    "docs"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-11T23:00:36.901Z",
+  "startedAt": "2026-06-11T23:00:36.901Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-11T23:00:36.914Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:01:35.976Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7f61",
+    "branch": "story/B-7f61",
+    "createdAt": "2026-06-11T23:01:36.151Z"
+  }
+}
