@@ -15,6 +15,22 @@
       "files": [
         "docs/requirements/decisions/root-document-migration-guide.md"
       ]
+    },
+    {
+      "id": "B-b5b2:F-002",
+      "desc": "verificationEvidence for CHK-001..003 was stamped against DEV commit 252c37a, while REVIEW metadata advanced HEAD to a9b5f3b and later reviewer metadata commits. The docs satisfy the intents, but test-coverage reviewer requested fresh current-HEAD/material evidence before PASS.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T17:11:45.179Z",
+      "reviewRound": "2026-06-11T17:04:42.824Z",
+      "reviewRunId": "B-b5b2:RR-004",
+      "_hash": "f856e9bea2a4d84f4f0d43d5f1578bfc3a9ff784f89a306abade63fa8002226a",
+      "files": [
+        ".lattice/story/actives/B-b5b2/checklist.json"
+      ]
     }
   ]
 }
