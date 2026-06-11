@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-11T23:30:23.834Z",
       "reviewRunId": "B-5cc7:RR-016",
       "_hash": "01aa32dd4a9ed4be5aafc199c3e025a40779d92666bfb6fda46fe22bbb7b6413"
+    },
+    {
+      "id": "B-5cc7:RP-008",
+      "agent": "koala-review-quality",
+      "note": "PASS quality final REVIEW: Bucket A remains path-limited to dev-memory code plus focused doc/test/story metadata; final main...HEAD diff has no .gitignore, runtime registry, planner, NAV, Layer4, .lattice/dev-memory/experience.jsonl, or .koala artifact paths. F-001 and F-002 are resolved in finding_list; code now uses .lattice write paths with .koala read-only fallback, and KOALA_GLOBAL_MEMORY_DIR no longer redirects writable global memory. Verified with git diff --check main...HEAD, git stash list pinned stash@0=c4dcc3aff95fd999712d7f19dcf856f791cf0d05, git status/ls-files checks for no restored data file, rg write-path checks, npx tsc --noEmit -p packages/main/tsconfig.json, and node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "createdAt": "2026-06-11T23:34:33.048Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-015",
+      "_hash": "28381e9296397131d47f30962f751a926fdcaee4f41b822d8a05ad8ba3d76e6c"
     }
   ]
 }
