@@ -61,8 +61,26 @@
         "codex_adapter_verification",
         "host_neutral_entrypoints"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve F-006 host-neutral path-casing correctness: canonical Lattice thin assets and Codex native hooks must be tracked with the same casing that runtime checks consume, and verifier scripts now prevent regression on case-sensitive hosts.",
+      "timestamp": "2026-06-11T00:52:25.990Z",
+      "paths": [
+        ".Lattice/Lattice.md",
+        ".Lattice/lattice.json",
+        ".codex/hooks.json",
+        ".codex/hooks/lattice-scope-pretool.cjs",
+        "scripts/verify-codex-assets.mjs",
+        "scripts/verify-entrypoints.mjs"
+      ],
+      "anchors": [
+        "codex_adapter_path_casing",
+        "host_neutral_entrypoints",
+        "case_sensitive_filesystem"
+      ]
     }
   ],
   "createdAt": "2026-06-10T23:44:00.682Z",
-  "updatedAt": "2026-06-11T00:36:43.910Z"
+  "updatedAt": "2026-06-11T00:52:25.990Z"
 }
