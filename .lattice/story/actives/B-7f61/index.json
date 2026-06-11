@@ -4,7 +4,7 @@
   "title": "Execute root Markdown cleanup",
   "description": "Execute the approved root Markdown migration solution by removing agent-generated legacy Markdown from the repository root, preserving only the allowed root entrypoints and user-owned jek.md. Move or archive legacy content, update references, and verify the root inventory is clean.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "root-markdown",
@@ -58,6 +58,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-11T23:17:38.217Z",
+      "branch": "story/B-7f61",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:24:45.325Z",
       "branch": "story/B-7f61",
       "user": "Harmonygo",
       "agent": "main"
