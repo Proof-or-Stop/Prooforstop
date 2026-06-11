@@ -47,37 +47,26 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-001:happy:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "node inline NAV + stash split plan checker",
-          "result": "pass",
-          "note": "Document defines buckets for runtime path cleanup, smoke expectation repairs, Layer4 doc, planner hash deferral, and dev-memory exclusion.",
-          "headHash": "612e982b5094ff3bb2585857f2b3f4357ca8cbc0",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:12.683Z"
-        },
-        {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "node inline NAV + stash split plan checker",
+          "command": "node inline Bucket A / NAV restore correctness checker",
           "result": "pass",
-          "note": "Document explicitly requires --include-untracked or stash@{0}^3 for untracked restore and excludes .lattice/dev-memory/experience.jsonl by default.",
-          "headHash": "612e982b5094ff3bb2585857f2b3f4357ca8cbc0",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:12.717Z"
+          "note": "Bucket A no longer scopes .gitignore or requires git check-ignore; dev-memory data is excluded by not restoring, staging, or committing it.",
+          "headHash": "cd9cfe918b9fd20d71526ec31c4d4237af227381",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:48:53.455Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "rg non-negotiable rules + mechanical checker",
+          "command": "git diff --check HEAD~1..HEAD",
           "result": "pass",
-          "note": "Document forbids git stash pop, whole-stash apply, mixed commits, planner hash churn without repro, and dev-memory data commit without explicit decision.",
-          "headHash": "612e982b5094ff3bb2585857f2b3f4357ca8cbc0",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:12.751Z"
+          "note": "Focused doc patch has no whitespace errors and only corrects the two reviewer-verified execution-plan issues.",
+          "headHash": "cd9cfe918b9fd20d71526ec31c4d4237af227381",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:48:53.520Z"
         }
       ]
     },
