@@ -16,7 +16,8 @@ separate future story or commit with its own tests and evidence.
    explicitly rejected, and record the stash object hash before any final drop.
 5. Inspect untracked files with `--include-untracked` or the third stash parent.
    A normal stash diff omits them.
-6. Restore untracked files only from `stash@{0}^3` and only by explicit path.
+6. Restore untracked files only from the captured stash object's third parent
+   (`${STASH_OBJECT}^3`) and only by explicit path.
 7. Keep `.lattice/dev-memory/experience.jsonl` excluded by default by not
    restoring, staging, or committing it. It is local runtime data, not a normal
    source artifact.
@@ -28,8 +29,12 @@ separate future story or commit with its own tests and evidence.
 Mechanical inventory command:
 
 ```bash
-git stash show --name-status --include-untracked 'stash@{0}'
-git ls-tree -r --name-only 'stash@{0}^3'
+EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05
+STASH_OBJECT=$(git rev-parse 'stash@{0}')
+test "$STASH_OBJECT" = "$EXPECTED_STASH_OBJECT"
+git log -1 --format=%s "$STASH_OBJECT" | grep -Fx 'On main: park unrelated lattice path cleanup and layer4 doc before B-b5b2 DONE'
+git stash show --name-status --include-untracked "$STASH_OBJECT"
+git ls-tree -r --name-only "${STASH_OBJECT}^3"
 ```
 
 Observed paths:
@@ -78,7 +83,7 @@ Handling:
 - If a future story needs to inspect the data file, use:
 
 ```bash
-git show 'stash@{0}^3:.lattice/dev-memory/experience.jsonl'
+git show "${STASH_OBJECT}^3:.lattice/dev-memory/experience.jsonl"
 ```
 
 Acceptance:
@@ -149,11 +154,11 @@ Handling:
 - Restore the new untracked Layer 4 document from the third stash parent:
 
 ```bash
-git restore --source 'stash@{0}^3' -- docs/requirements/decisions/unlock-layer4-production-safety-suite.md
+git restore --source "${STASH_OBJECT}^3" -- docs/requirements/decisions/unlock-layer4-production-safety-suite.md
 ```
 
-- Do not restore `docs/requirements/NAV.md` from `stash@{0}`. The stashed NAV
-  hunk is stale relative to the current catalog.
+- Do not restore `docs/requirements/NAV.md` from the captured stash object. The
+  stashed NAV hunk is stale relative to the current catalog.
 - Hand-merge only the Layer 4 NAV link and count update from the current NAV
   state.
 - Preserve existing `Unlock Layer 2 Engineering Baseline Suite`,
@@ -195,9 +200,12 @@ Acceptance:
 1. Record the stash identity:
 
 ```bash
-git rev-parse 'stash@{0}'
-git stash show --name-status --include-untracked 'stash@{0}'
-git ls-tree -r --name-only 'stash@{0}^3'
+EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05
+STASH_OBJECT=$(git rev-parse 'stash@{0}')
+test "$STASH_OBJECT" = "$EXPECTED_STASH_OBJECT"
+git log -1 --format=%s "$STASH_OBJECT" | grep -Fx 'On main: park unrelated lattice path cleanup and layer4 doc before B-b5b2 DONE'
+git stash show --name-status --include-untracked "$STASH_OBJECT"
+git ls-tree -r --name-only "${STASH_OBJECT}^3"
 ```
 
 2. Start one future story per bucket from a clean worktree.
@@ -205,13 +213,13 @@ git ls-tree -r --name-only 'stash@{0}^3'
 3. Inspect tracked hunks without applying them:
 
 ```bash
-git diff 'stash@{0}^1' 'stash@{0}' -- <tracked-paths>
+git diff "${STASH_OBJECT}^1" "$STASH_OBJECT" -- <tracked-paths>
 ```
 
 4. Restore only approved tracked paths for the current bucket:
 
 ```bash
-git restore --source 'stash@{0}' -- <tracked-paths>
+git restore --source "$STASH_OBJECT" -- <tracked-paths>
 ```
 
    Exclude stale index/catalog files such as `docs/requirements/NAV.md` from
@@ -220,7 +228,7 @@ git restore --source 'stash@{0}' -- <tracked-paths>
 5. Restore only approved untracked paths from the third stash parent:
 
 ```bash
-git restore --source 'stash@{0}^3' -- <untracked-paths>
+git restore --source "${STASH_OBJECT}^3" -- <untracked-paths>
 ```
 
 6. Immediately run `git status --porcelain` and verify that only the current
@@ -235,6 +243,7 @@ git restore --source 'stash@{0}^3' -- <untracked-paths>
 
 Only after all accepted buckets are merged and rejected buckets are documented:
 
-1. Record `git rev-parse 'stash@{0}'` in the final story evidence.
+1. Record the resolved `STASH_OBJECT` and matching expected hash in the final
+   story evidence.
 2. Confirm no bucket still depends on the stash.
 3. Ask a human owner before dropping the exact stash ref or object.
