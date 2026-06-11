@@ -1,0 +1,39 @@
+{
+  "storyId": "B-70f5",
+  "checkedAt": "2026-06-11T22:51:53.038Z",
+  "reviewRound": "2026-06-11T22:43:52.984Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV declares 38 decision files matching actual count",
+      "verifiedBy": "diff/node-script",
+      "evidence": "git diff shows 37→38; node script confirms count=38, files=38, links=38"
+    },
+    {
+      "docPath": "docs/requirements/decisions/root-document-migration-guide.md",
+      "promise": "lifecycle-memory migration row targets both dev-memory.md and lifecycle-artifact-scope.md",
+      "verifiedBy": "diff/node-script",
+      "evidence": "git diff shows added lifecycle-artifact-scope.md target; node script confirms hasDev=true, hasScope=true"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "koala validate --story=B-70f5 PASS; node docs-count script returns count=38, files=38, links=38; transcript-diff.md confirms NAV count matches",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "koala validate --story=B-70f5 PASS; node script returns hasDev=true, hasScope=true; transcript-diff.md confirms lifecycle-memory row has both targets",
+      "waiverReason": ""
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both doc fixes verified: NAV count=38 matches actual files and links; migration-guide lifecycle row targets both dev-memory.md and lifecycle-artifact-scope.md. No unrelated changes."
+  },
+  "_hash": "85aff1ee3a699574d3212bc6f7253cdedb112de1113dd535aa1a5c87f884ec2f"
+}

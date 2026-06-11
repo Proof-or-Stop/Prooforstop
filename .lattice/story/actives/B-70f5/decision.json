@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Only correct documented mismatches that are mechanically observable",
+    "Keep changes scoped to the affected requirement documents",
+    "Preserve host-neutral non-authority wording and do not claim Authority production proof"
+  ],
+  "drivers": [
+    "NAV declared count must match the actual decision catalog",
+    "Migration guide target must match the accepted execution solution",
+    "No code or runtime behavior change is needed for this documentation consistency fix"
+  ],
+  "options": [
+    {
+      "name": "A: Minimal documentation consistency fix",
+      "pros": [
+        "Fixes both audited correctness issues directly",
+        "Keeps the change limited to two docs",
+        "Avoids touching runtime code, stash buckets, or Authority logic"
+      ],
+      "cons": [
+        "Does not process stash buckets yet; it only clears the active documentation blocker"
+      ]
+    },
+    {
+      "name": "B: Fold these fixes into a broader stash bucket execution",
+      "pros": [
+        "Could combine related documentation work into one effort"
+      ],
+      "cons": [
+        "Would mix an already active story with future stash-bucket stories",
+        "Would violate the bucket separation rule in the stash split plan",
+        "Raises unnecessary review and evidence scope"
+      ]
+    }
+  ],
+  "chosen": "A: Minimal documentation consistency fix",
+  "rationale": "Choose the minimal fix because the active story already identifies two concrete documentation inconsistencies and the stash split plan requires future bucket execution to happen in separate clean stories.",
+  "preMortem": [
+    {
+      "scenario": "NAV count is changed but link inventory is still inconsistent",
+      "trigger": "Only the header count is edited without recounting decision links and files",
+      "consequence": "Documentation catalog remains misleading",
+      "mitigation": "Run filesystem and NAV link count checks after the edit"
+    },
+    {
+      "scenario": "Migration target wording over-expands policy",
+      "trigger": "Guide text introduces new lifecycle-memory semantics beyond the execution solution",
+      "consequence": "A small consistency fix becomes arbitrary policy design",
+      "mitigation": "Only align the target cell to the already accepted split destinations"
+    },
+    {
+      "scenario": "The story is mistaken for Authority-backed production proof",
+      "trigger": "Final summary overclaims beyond local documentation validation",
+      "consequence": "Host-neutral authority boundary is blurred",
+      "mitigation": "State that this is Lattice CLI non-authority documentation validation only"
+    }
+  ],
+  "timestamp": "2026-06-11T22:39:05.721Z"
+}

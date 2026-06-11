@@ -1,0 +1,55 @@
+{
+  "storyId": "B-70f5",
+  "changes": "Fixed two audit-confirmed documentation inconsistencies: NAV now declares 38 decision files, and the lifecycle-memory migration row now names both dev-memory.md and lifecycle-artifact-scope.md.",
+  "usage": "Use docs/requirements/NAV.md as the current decision-doc index, and use root-document-migration-guide.md together with the execution solution when planning the later root Markdown cleanup.",
+  "expectedOutcome": "User sees the multi-host audit findings resolved without unrelated root Markdown moves, deletes, or policy rewrites.",
+  "actualTranscript": "validate --story=B-70f5 --json returned allPass=true, npm test passed, verification coverage was 6/6, and transcript-diff.md recorded count=38 files=38 links=38 hasDev=true hasScope=true.",
+  "outcomeDiff": "Expected and actual match. The only source-document diffs are NAV.md 37 to 38 and the lifecycle-memory row target expanded to include lifecycle-artifact-scope.md.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No root Markdown migration was executed in this story; it only corrected the executable documentation guidance.",
+  "pitfalls": "Avoid treating this story as approval to move or delete root Markdown files. That cleanup remains a separate story following the migration solution.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 77535
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 44045
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 187033
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 173165
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 201622
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 305763
+    }
+  },
+  "totalDurationMs": 989170,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-11T22:52:20.370Z",
+  "updatedAt": "2026-06-11T22:52:20.370Z"
+}

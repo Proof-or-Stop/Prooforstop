@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-70f5:RP-001",
+      "agent": "koala-review-concept",
+      "note": "PASS: Concept review found no blocker. The docs commit only corrects real catalog drift: NAV count now matches 38 decision docs/links, and the lifecycle-memory migration target now matches the accepted split destination in root-markdown-migration-execution-solution.md. The change preserves the host-neutral root boundary for entrypoints/compatibility/user-owned files, follows the four principles by avoiding arbitrary optimization or broader rewrites, fixes only correctness inconsistencies, and preserves logical consistency without adding readiness/capability claims.",
+      "createdAt": "2026-06-11T22:45:11.117Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-001",
+      "_hash": "cb1d88087fe45867aefdaa131199c9fed23952abb3ae9d4b779230fcaaf7fad8"
+    },
+    {
+      "id": "B-70f5:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: verified all 6 refs have matching verificationEvidence. Mechanical checks confirmed NAV decision file count=38, NAV decision links=38, migration guide maps lifecycle-memory to both dev-memory.md and lifecycle-artifact-scope.md, execution solution remains unchanged, and diffs from recorded evidence hashes a37bd192/63f2c45f to current HEAD are empty for relevant docs; no stale or mismatched-doc coverage gap found.",
+      "createdAt": "2026-06-11T22:45:21.545Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-003",
+      "_hash": "e5508fea5956b717857198c7990649d3c8b2e6b59a79e6afd9692c0c9211131c"
+    },
+    {
+      "id": "B-70f5:RP-003",
+      "agent": "koala-review-docs",
+      "note": "PASS: Documentation coherence reviewed for docs/requirements/NAV.md, docs/requirements/decisions/root-document-migration-guide.md, and docs/requirements/decisions/root-markdown-migration-execution-solution.md. NAV count matches the 38 decision files, the lifecycle-memory destination now matches the execution solution split between dev-memory and lifecycle-artifact-scope, and the branch does not introduce new migration authority, Production Safety, capability, authority, or unattended-readiness claims.",
+      "createdAt": "2026-06-11T22:45:29.032Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-004",
+      "_hash": "18495f2b7fc06b096ef300464aa995bb90bce3c08048e1c02c3f740700117aa0"
+    },
+    {
+      "id": "B-70f5:RP-004",
+      "agent": "koala-review-quality",
+      "note": "PASS: implementation is minimal and scoped. Exact diff outside Lattice metadata changes only docs/requirements/NAV.md count 37->38 and docs/requirements/decisions/root-document-migration-guide.md lifecycle-memory target to add lifecycle-artifact-scope.md. Independent checks confirm 38 decision markdown files, 38 NAV decision links, execution solution already names both target docs, and git diff shows no unrelated source/doc churn.",
+      "createdAt": "2026-06-11T22:45:37.367Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-005",
+      "_hash": "7695d9344fd05f05677be00d94d806a74ce4cab50b9652b00fd63bc36d677dc6"
+    },
+    {
+      "id": "B-70f5:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Docs lane review: NAV count 38 matches 38 actual decision files and 38 links. Migration guide lifecycle-memory row lists both dev-memory.md and lifecycle-artifact-scope.md matching execution solution. Host-neutral, no unrelated churn.",
+      "createdAt": "2026-06-11T22:48:02.278Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-012",
+      "_hash": "6d8334cb863409ee00750c5c1fc1cb9ef868e6e3ab9def3b4577812a7efe071d"
+    },
+    {
+      "id": "B-70f5:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality review re-bound to latest run after TEST evidence refresh; diff remains limited to NAV count and migration guide target, with no unrelated edits or authority overclaim.",
+      "createdAt": "2026-06-11T22:48:26.915Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-010",
+      "_hash": "8cb8e05fa0f8985a7e23ba56cca817d7010e1ccc41c85d3b21bd159c1b3e8d06"
+    },
+    {
+      "id": "B-70f5:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review re-bound to latest run after TEST evidence refresh; all six verification intents remain covered by fresh docs evidence and validation evidence.",
+      "createdAt": "2026-06-11T22:48:28.043Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-011",
+      "_hash": "04159a769fec02bdde8f8e8b2562223fa831bc4aa2e68cdec40ce428061c70fd"
+    },
+    {
+      "id": "B-70f5:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Docs review re-bound to latest run after TEST evidence refresh; NAV count and lifecycle-memory split target remain coherent with no policy overreach.",
+      "createdAt": "2026-06-11T22:48:29.294Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-012",
+      "_hash": "42c0664e696378c9d1b206c7456042fc9003df4c8ab24be43cfd40400fdc4782"
+    },
+    {
+      "id": "B-70f5:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed committed diff, checklist, and verificationEvidence for all six refs. Evidence covers CHK-001 and CHK-002 happy/edge/adversarial intents; replayed docs check proves NAV count/files/links are 38 and lifecycle-memory row includes both dev-memory.md and lifecycle-artifact-scope.md. No blocking test-coverage issue found.",
+      "createdAt": "2026-06-11T22:48:59.374Z",
+      "reviewRound": "2026-06-11T22:43:52.984Z",
+      "reviewRunId": "B-70f5:RR-011",
+      "_hash": "cc4f2a6256602bef206620e901b90352531c8d633ff25d61afa491bf43e73bc8"
+    }
+  ]
+}

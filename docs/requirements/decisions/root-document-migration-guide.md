@@ -32,7 +32,7 @@ This repository currently has 17 root-level Markdown files.
 | `Lattice-Parallel-Development-Capability.md` | Legacy parallel-development capability doc | Move / merge candidate | `docs/requirements/decisions/lattice-parallel-wave.md` | Merge reusable parallel-development policy into the existing parallel-wave decision. |
 | `Lattice-Production-Safety-baseline.md` | Legacy production-safety baseline doc | Retirement / archive candidate | `docs/koala/legacy/root-markdown/Lattice-Production-Safety-baseline.md` only if historical retention is needed | Do not keep root compatibility. Do not create an active replacement that claims Production Safety readiness. |
 | `Lattice-Review-reflection-loop.md` | Legacy review-loop doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md` | Merge active reflection-loop rules into the Layer 3 truth source. |
-| `Lattice-lifecycle-memory-Evolving.md` | Legacy lifecycle-memory doc | Move / merge candidate | `docs/requirements/decisions/dev-memory.md` | Split durable memory policy from runtime artifact scope before moving. |
+| `Lattice-lifecycle-memory-Evolving.md` | Legacy lifecycle-memory doc | Move / merge candidate | `docs/requirements/decisions/dev-memory.md` and `docs/requirements/decisions/lifecycle-artifact-scope.md` | Split durable memory policy from runtime artifact scope before moving. |
 
 ## What Should Stay Root
 

@@ -1,0 +1,38 @@
+{
+  "storyId": "B-70f5",
+  "checkedAt": "2026-06-11T22:40:40.264Z",
+  "features": [
+    {
+      "feature": "NAV decision-document count matches current decisions catalog",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/NAV.md"
+    },
+    {
+      "feature": "Lifecycle-memory migration guide target matches split destination guidance",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/root-document-migration-guide.md"
+    },
+    {
+      "feature": "Root markdown execution solution is used only as consistency oracle, not edited for new policy",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1d370b96aa131a1bbfb2f9fcabae72070b3e28c24b8a77687c1f28ad6a2147a3",
+  "openQuestions": []
+}

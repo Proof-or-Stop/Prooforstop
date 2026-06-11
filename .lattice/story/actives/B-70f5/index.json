@@ -4,7 +4,7 @@
   "title": "Fix root migration documentation audit inconsistencies",
   "description": "Three host audits found two small but real documentation consistency issues after the root Markdown migration solution: NAV declares the wrong decision-doc count, and the lifecycle-memory row names only one of the intended target homes. This story fixes only those correctness issues.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "root-markdown",
@@ -21,7 +21,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-11T22:35:51.199Z",
   "startedAt": "2026-06-11T22:35:51.199Z",
-  "endedAt": null,
+  "endedAt": "2026-06-11T22:52:34.935Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,11 +38,58 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:37:52.786Z",
+      "branch": "story/B-70f5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:40:59.819Z",
+      "branch": "story/B-70f5",
+      "user": "Harmonygo",
+      "sessionId": "sess-3cca9d40e60f1f1a",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:43:52.984Z",
+      "branch": "story/B-70f5",
+      "user": "Harmonygo",
+      "sessionId": "sess-3cca9d40e60f1f1a",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:47:14.606Z",
+      "branch": "story/B-70f5",
+      "user": "Harmonygo",
+      "sessionId": "sess-3cca9d40e60f1f1a",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:50:05.525Z",
+      "branch": "story/B-70f5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:52:34.935Z",
+      "branch": "story/B-70f5",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-70f5",
-    "branch": "story/B-70f5",
-    "createdAt": "2026-06-11T22:37:09.182Z"
-  }
+  "currentReviewRound": "2026-06-11T22:43:52.984Z"
 }
