@@ -21,20 +21,23 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "NAV declared decision-file count equals the number of decision markdown files and decision links after the edit.",
-            "type": "docs"
+            "desc": "docs/requirements/NAV.md declared file count equals the actual number of decision markdown files.",
+            "type": "docs",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "The count correction does not leave missing or stale decision links in NAV.",
-            "type": "docs"
+            "desc": "NAV decision link count equals the actual decision markdown file count after the edit.",
+            "type": "docs",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "The edit does not reorder, regenerate, or rewrite unrelated NAV entries.",
-            "type": "manual"
+            "desc": "The NAV fix does not add or remove unrelated decision links or change non-count catalog content.",
+            "type": "docs",
+            "priority": "must"
           }
         ]
       }
