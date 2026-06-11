@@ -77,6 +77,22 @@
       ],
       "resolvedReason": "Resolved by returning to PLAN and updating CHK-001 verificationIntent in commit f3dec96. CHK-001 edge now matches the shipped contract: benign Ed25519 casing/spacing variants normalize and succeed, while blank, malformed, unsupported, or non-string algorithm material fails closed. DEV validation after the PLAN correction reports 15/15 verification intent coverage and the authority-client smoke covers both discovery and pinned-key paths.",
       "resolvedAt": "2026-06-11T00:27:54.785Z"
+    },
+    {
+      "id": "B-e3d9:F-005",
+      "desc": "Verification coverage is stale for 15/15 intents after materialHash drift at HEAD 5d7fe05; session_brief reports review hash freshness missing and marks all prior verificationEvidence stale for this REVIEW round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T00:38:39.640Z",
+      "reviewRound": "2026-06-11T00:37:11.229Z",
+      "reviewRunId": "B-e3d9:RR-020",
+      "_hash": "161def29fdbef6106336fd853729b8f5d8707908b585ae2a52622b345700a212",
+      "files": [
+        "packages/main/src"
+      ]
     }
   ]
 }
