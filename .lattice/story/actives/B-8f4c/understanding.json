@@ -1,0 +1,21 @@
+{
+  "task": "Write a formal execution-plan decision for safely splitting and later processing stash@{0}.",
+  "outcome": "User can open docs/requirements/decisions/stash-split-execution-plan.md and see exact buckets, restore commands, stop conditions, tests, and non-goals for stash@{0}; NAV lists the decision with a correct count.",
+  "facts": [
+    "stash@{0} contains tracked runtime cleanup files, an untracked Layer4 document, an untracked .lattice/dev-memory/experience.jsonl file, and a planner.ts hash hunk.",
+    "Claude and Codex audits returned REQUEST CHANGES on the first plan because untracked restore mechanics, NAV reconciliation, planner hash risk, dev-memory data, and smoke expectation repairs were under-specified.",
+    "main is clean and B-b5b2 is DONE; this story must not restore or apply stash content."
+  ],
+  "constraints": [
+    "Do not pop or apply stash content in this story.",
+    "Do not edit docs/story or tests/fixtures directly.",
+    "The plan must follow the four principles: no optimization for its own sake, no arbitrary optimization, only real correctness fixes, and logic consistency.",
+    "New durable requirements decision docs must be listed in docs/requirements/NAV.md."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/stash-split-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-11T21:31:55.025Z"
+}

@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-8f4c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept/boundary pass. docs/requirements/decisions/stash-split-execution-plan.md:5 states the plan processes stash@{0} without applying the whole stash, and lines 12-23 add hard stop rules for stash pop/apply, untracked restore mechanics, dev-memory exclusion, and planner hash deferral. Lines 60-182 split work into bounded buckets with acceptance checks, so the plan is executable rather than overbroad. Lines 122-129 and 172-181 require focused repro/tests before behavior/hash changes, preserving the four principles: no optimization for its own sake, no arbitrary optimization, correctness fixes only, and logic consistency.",
+      "createdAt": "2026-06-11T21:42:33.053Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-001",
+      "_hash": "51641b3b7695b98a78f88312d561c901fa009624de34a3935a09600df7c5dbe0"
+    },
+    {
+      "id": "B-8f4c:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review pass: all 9 verificationIntent entries have matching verificationEvidence. Independent read-only checker confirmed NAV declared/link/fs counts are 37/37/37, current stash@{0} has 12 paths with none missing from the plan, Layer4 doc and NAV link are absent now, untracked restore is path-limited through stash@{0}^3, dev-memory data is excluded by default, planner hash is deferred, and the plan forbids git stash pop plus whole-stash apply/restore. Mechanical checks are adequate for this docs-only story.",
+      "createdAt": "2026-06-11T21:42:48.885Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-003",
+      "_hash": "de492586d1f95b39be8e38fa955342ee6cfec94a7fb164384a5ef9d71013f677"
+    },
+    {
+      "id": "B-8f4c:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs wording/navigation pass. Reviewed docs/requirements/decisions/stash-split-execution-plan.md:5,12,19,22,60,87,111,132,162,184,224 and docs/requirements/NAV.md:3,35. git stash show --include-untracked --name-status stash@{0} matches the documented inventory; find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l returns 37, matching NAV. The plan forbids stash pop/whole-stash apply, uses explicit path-limited restore commands, keeps dev-memory data excluded, defers planner hash changes without repro evidence, and frames Layer4/NAV and final stash retirement as future work. I found no wording that claims stash content was applied, merged, or executed by this story, and no scope broadening beyond bucketed future correctness work under the four principles.",
+      "createdAt": "2026-06-11T21:43:00.508Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-004",
+      "_hash": "bec08c3d14e85925a60c4dae7af07c642062f4d64e0e57a3d73535fca010d5d0"
+    },
+    {
+      "id": "B-8f4c:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review PASS: plan forbids whole-stash restore, keeps buckets separated, treats dev-memory as no-restore/no-stage/no-commit data, and requires NAV hand-merge from current state.",
+      "createdAt": "2026-06-11T21:53:07.162Z",
+      "reviewRound": "2026-06-11T21:49:48.273Z",
+      "reviewRunId": "B-8f4c:RR-005",
+      "_hash": "27071f8ba8c2af2a4200e83e6760d00596fb4bd8dccf7a4ea667b8c55154c042"
+    },
+    {
+      "id": "B-8f4c:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review PASS: F-001 and F-002 are fixed; no .gitignore/git-check-ignore false claim remains, and NAV restore is forbidden in favor of hand-merge from current catalog.",
+      "createdAt": "2026-06-11T21:53:11.299Z",
+      "reviewRound": "2026-06-11T21:49:48.273Z",
+      "reviewRunId": "B-8f4c:RR-006",
+      "_hash": "765ec83ca4ee499682e77c69612178044768ecc9c20f5e979d428d2dbdafb388"
+    },
+    {
+      "id": "B-8f4c:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review PASS: checklist evidence covers all verification intents and mechanically checks dev-memory no-restore, NAV stale-restore guard, third-parent Layer4 restore, and NAV count consistency.",
+      "createdAt": "2026-06-11T21:55:34.840Z",
+      "reviewRound": "2026-06-11T21:49:48.273Z",
+      "reviewRunId": "B-8f4c:RR-007",
+      "_hash": "5e936ce05d4c4b069e23a402793f6e1149b862d2e238b400dd071e5e25e33edf"
+    },
+    {
+      "id": "B-8f4c:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Final concept review PASS: plan remains a thin path-limited execution plan, buckets stay separated, STASH_OBJECT stabilizes stash identity, and planner/dev-memory/NAV guidance follows no-arbitrary-optimization principles.",
+      "createdAt": "2026-06-11T22:03:04.061Z",
+      "reviewRound": "2026-06-11T21:59:57.876Z",
+      "reviewRunId": "B-8f4c:RR-009",
+      "_hash": "e9eeb14f53fdeb5a78fbbf304c47d35738eda29c82ad44ee096fc4c590147203"
+    },
+    {
+      "id": "B-8f4c:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Final quality review PASS: F-001/F-002/F-003 are fixed; no executable restore/diff/show command relies on unstable positional stash refs after STASH_OBJECT capture, and NAV remains 37 links for 37 decision files.",
+      "createdAt": "2026-06-11T22:03:13.926Z",
+      "reviewRound": "2026-06-11T21:59:57.876Z",
+      "reviewRunId": "B-8f4c:RR-010",
+      "_hash": "2130603e85110d524167aa467472b44ef92f9874d9a0c20486927e72e558eeb4"
+    },
+    {
+      "id": "B-8f4c:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "Final test-coverage review PASS: evidence is fresh, 9/9 intents covered, F-001/F-002/F-003 resolved and mechanically covered, including stable STASH_OBJECT, NAV 37, no whole-stash apply/pop, and third-parent untracked restore.",
+      "createdAt": "2026-06-11T22:05:59.799Z",
+      "reviewRound": "2026-06-11T21:59:57.876Z",
+      "reviewRunId": "B-8f4c:RR-011",
+      "_hash": "e3b5ce2d4da955dfeb6d992c1f280a7e766d0a33f072fca17c8241c2e973623e"
+    },
+    {
+      "id": "B-8f4c:RP-010",
+      "agent": "koala-review-docs",
+      "note": "Final docs review PASS: execution plan consistently captures STASH_OBJECT before restore/diff/show/inventory commands, NAV remains 37 links for 37 decision files, and stale NAV path restore remains forbidden.",
+      "createdAt": "2026-06-11T22:06:04.627Z",
+      "reviewRound": "2026-06-11T21:59:57.876Z",
+      "reviewRunId": "B-8f4c:RR-012",
+      "_hash": "36cbdc17c7a7b7d8ef51227e23a03102da1bf1947b1964df7365e407ef1d314c"
+    }
+  ]
+}

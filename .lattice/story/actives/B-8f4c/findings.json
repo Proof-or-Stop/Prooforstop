@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "id": "B-8f4c:F-001",
+      "desc": "docs/requirements/decisions/stash-split-execution-plan.md:20-23 and 72-85 treat .gitignore as Bucket A Dev Memory Default Exclusion and require git check-ignore .lattice/dev-memory/experience.jsonl to report ignored, but the actual stashed .gitignore hunk does not implement that. Verified with git diff 'stash@{0}^1' 'stash@{0}' -- .gitignore: the hunk changes story/dispatch/autopilot patterns, while git show 'stash@{0}:.gitignore' still contains !.lattice/dev-memory/ and !.lattice/dev-memory/**. The future acceptance check is therefore impossible and the .gitignore hunk is mis-bucketed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T21:43:44.306Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-002",
+      "_hash": "a76b225051a2ac3811ccad8d861b978e588eb3adce804e3c9db473f25876e9b5",
+      "files": [
+        "docs/requirements/decisions/stash-split-execution-plan.md",
+        ".gitignore"
+      ],
+      "resolvedReason": "Fixed in cd9cfe91 and verified by CHK-001/CHK-003 fresh evidence: Bucket A no longer scopes .gitignore or requires git check-ignore for .lattice/dev-memory/experience.jsonl; plan excludes dev-memory data by not restoring, staging, or committing it, with ignore-policy changes deferred to a separate future story.",
+      "resolvedAt": "2026-06-11T21:49:55.161Z"
+    },
+    {
+      "id": "B-8f4c:F-002",
+      "desc": "docs/requirements/decisions/stash-split-execution-plan.md:149 and 202-206 still allow restoring docs/requirements/NAV.md from stash as a tracked path, but the stashed NAV tree is stale. Verified with git show 'stash@{0}:docs/requirements/NAV.md': it has > 36 个文件 and includes Layer 4 while lacking the current Root Document Migration Guide and Stash Split Execution Plan entries; current docs/requirements/NAV.md has 37 links and matches the current decisions directory. A literal path restore would overwrite newer NAV entries and produce the wrong count. Bucket D must require hand-merging only the Layer 4 link/count update, not path-restoring NAV from the stash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T21:43:51.199Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-002",
+      "_hash": "f8c4bec7b0721367893ec920afc77dc5b402cc999426d067cc31f5d487d59091",
+      "files": [
+        "docs/requirements/decisions/stash-split-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "resolvedReason": "Fixed in cd9cfe91 and verified by CHK-002/CHK-003 fresh evidence plus independent read-only audit: Bucket D now forbids restoring docs/requirements/NAV.md from stash@{0}; future Layer4 work must restore only the untracked doc from stash@{0}^3 and hand-merge the NAV link/count from current NAV state.",
+      "resolvedAt": "2026-06-11T21:50:00.324Z"
+    },
+    {
+      "id": "B-8f4c:F-003",
+      "desc": "docs/requirements/decisions/stash-split-execution-plan.md records the stash hash but executable restore commands still use positional stash@{0} refs. Because stash@{0} shifts if any later stash is created or dropped, future bucket stories could restore from the wrong stash. The plan should bind the recorded object hash to a stable variable/ref and use that stable identity for git diff, git restore --source, git show, and ^3 parent commands.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-11T21:55:42.745Z",
+      "reviewRound": "2026-06-11T21:49:48.273Z",
+      "reviewRunId": "B-8f4c:RR-008",
+      "_hash": "4fb2cbcdef1d385455c50b985427a95b4be34cc35a3950390ff1b89b45be4588",
+      "files": [
+        "docs/requirements/decisions/stash-split-execution-plan.md"
+      ],
+      "resolvedReason": "Fixed in 0a9056a: execution plan now captures EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and STASH_OBJECT=$(git rev-parse stash@{0}), verifies the subject, and uses STASH_OBJECT / STASH_OBJECT^1 / STASH_OBJECT^3 for executable diff, restore, show, stash show, and ls-tree commands.",
+      "resolvedAt": "2026-06-11T22:00:05.795Z"
+    }
+  ]
+}

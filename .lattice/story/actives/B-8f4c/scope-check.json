@@ -1,0 +1,80 @@
+{
+  "storyId": "B-8f4c",
+  "checkedAt": "2026-06-11T21:34:39.309Z",
+  "features": [
+    {
+      "feature": "Formal stash split execution decision document with executable buckets for runtime cleanup, smoke repairs, Layer4 doc, planner hash deferral, and dev-memory data handling",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Untracked stash restore mechanics are documented, including Layer4 doc from stash untracked parent and no default restore for .lattice/dev-memory/experience.jsonl",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New durable decision must be listed in docs/requirements/NAV.md with mechanically correct decision count",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "relatedDocs:docs/requirements/NAV.md"
+    },
+    {
+      "feature": "Mechanical verification must confirm current stash@{0} still exists and document mentions every current stash path group",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Mechanical verification must forbid git stash pop and must not claim stash content was executed or merged",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Actual runtime path cleanup and smoke expectation code changes from stash@{0}",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 documents buckets only; decision chooses docs-first and forbids code mutation in this story",
+      "source": "description"
+    },
+    {
+      "feature": "Actual Layer4 production-safety decision doc addition from the stash",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 documents restore mechanics; CHK-002 adversarial intent says not to claim Layer4 was added by this story",
+      "source": "description"
+    },
+    {
+      "feature": "Planner hash behavior change from packages/main/src/core/planner.ts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decision preMortem defers planner hash unless a focused repro and test prove correctness need",
+      "source": "description"
+    },
+    {
+      "feature": "Committing .lattice/dev-memory/experience.jsonl runtime data",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 edge/adversarial intent and dev-memory policy keep runtime data non-authoritative and out of commits by default",
+      "source": "relatedDocs:docs/requirements/decisions/dev-memory.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 5,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ab4aae7d99e54293c6ede787815ace9ad569019cdeb03fd125e007f194c17e68",
+  "openQuestions": []
+}
