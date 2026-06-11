@@ -16,6 +16,23 @@
         "docs/requirements/decisions/stash-split-execution-plan.md",
         ".gitignore"
       ]
+    },
+    {
+      "id": "B-8f4c:F-002",
+      "desc": "docs/requirements/decisions/stash-split-execution-plan.md:149 and 202-206 still allow restoring docs/requirements/NAV.md from stash as a tracked path, but the stashed NAV tree is stale. Verified with git show 'stash@{0}:docs/requirements/NAV.md': it has > 36 个文件 and includes Layer 4 while lacking the current Root Document Migration Guide and Stash Split Execution Plan entries; current docs/requirements/NAV.md has 37 links and matches the current decisions directory. A literal path restore would overwrite newer NAV entries and produce the wrong count. Bucket D must require hand-merging only the Layer 4 link/count update, not path-restoring NAV from the stash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T21:43:51.199Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-002",
+      "_hash": "f8c4bec7b0721367893ec920afc77dc5b402cc999426d067cc31f5d487d59091",
+      "files": [
+        "docs/requirements/decisions/stash-split-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ]
     }
   ]
 }
