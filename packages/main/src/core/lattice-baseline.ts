@@ -2695,7 +2695,7 @@ function evaluateFormalEngineeringClaim(options: CapabilityClaimEvaluateOptions)
   );
 
   if (claim.target !== LAYER2_ENGINEERING_CLAIM_TARGET) {
-    blockedReasons.push('formal Layer 2 evaluator can unlock only the Engineering claim; higher layers remain locked');
+    blockedReasons.push('formal evaluator can unlock only Engineering or Loop Engineering claims; higher layers remain locked');
   }
   blockedReasons.push(...developmentProof.blockedReasons);
   blockedReasons.push(...engineeringProof.blockedReasons);

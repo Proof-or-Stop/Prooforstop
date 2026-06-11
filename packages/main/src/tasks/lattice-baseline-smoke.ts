@@ -1515,7 +1515,7 @@ for (const defect of [
       assertAuthorizedFalse(higher, `formal ${target} claim`);
       assertLayer2Claim(higher, target === 'loop-engineering' ? 'UNLOCKED' : 'LOCKED', `formal ${target} claim`);
       assertHigherClaimsLocked(higher, `formal ${target} claim`);
-      assertMentions(higher, /Loop Engineering|higher layers remain locked|only the Engineering claim|missing baseline/i, `formal ${target} claim`);
+      assertMentions(higher, /Loop Engineering|higher layers remain locked|Engineering or Loop Engineering|missing baseline/i, `formal ${target} claim`);
     }
   } finally {
     rmSync(root, { recursive: true, force: true });
