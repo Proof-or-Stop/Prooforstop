@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/stash-split-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T22:22:13.731Z",
       "verificationIntent": {
         "happy": [
           {
@@ -32,7 +32,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline story-boundary wording checker",
+          "result": "pass",
+          "note": "Purpose paragraph now requires each bucket to become a separate future Lattice story with its own tests and evidence.",
+          "headHash": "83a97f783c3fa0954bc1f2833ea921456b142597",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:22:13.788Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "rg story-or-commit bypass wording",
+          "result": "pass",
+          "note": "The direct story-or-commit bypass wording is absent, so the execution path remains story-gated.",
+          "headHash": "83a97f783c3fa0954bc1f2833ea921456b142597",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:22:13.821Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "git diff -- docs/requirements/decisions/stash-split-execution-plan.md",
+          "result": "pass",
+          "note": "Diff is limited to the verified purpose paragraph correction; stash commands, NAV handling, and bucket mechanics are unchanged.",
+          "headHash": "83a97f783c3fa0954bc1f2833ea921456b142597",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:22:13.855Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
