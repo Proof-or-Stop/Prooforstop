@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-11T03:58:07.845Z",
+  "layer": "loop-engineering",
+  "baselineId": "UDM-INTAKE-PLAN-1",
+  "runId": "layer3-udm-intake-plan-1",
+  "name": "Intake to plan",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "Request becomes story, checklist, and verification intent.",
+  "capabilityProof": true,
+  "localOnly": false,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "gateEvidenceRefs": [],
+  "suiteRunId": "layer3-loop-engineering-unlock",
+  "claimTarget": "loop-engineering",
+  "verifiedAt": "2026-06-11T03:58:07.845Z",
+  "verificationEvidenceRefs": [
+    "artifact:verification-evidence.json#sha256=8b651db69889efc591273b66ad03031a313ef796b83c08fe8924985b551e363b"
+  ],
+  "formalProof": true,
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "4bb6bb71e8196f49e6e53834ae66610ae622592b",
+  "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-INTAKE-PLAN-1/layer3-udm-intake-plan-1",
+    "files": [
+      "input.md",
+      "story.json",
+      "planned-steps.json",
+      "loop-policy.json",
+      "execution-log.jsonl",
+      "repair-log.jsonl",
+      "review-loop.jsonl",
+      "verification-evidence.json",
+      "evidence-index.json",
+      "gate-results.json",
+      "host-verdicts.json",
+      "host-verdict-claude.json",
+      "host-verdict-codex.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Formal Loop Engineering proof artifact; still not production DONE proof.",
+    "Authority changed and production DONE remain false."
+  ]
+}

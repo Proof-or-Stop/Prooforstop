@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.baseline.scenario-evidence.v1",
+  "baselineId": "NL-REPAIR-1",
+  "runId": "layer3-dev-nl-repair-1",
+  "track": "natural-language",
+  "scenarioProofValid": true,
+  "assertions": {
+    "initialFailureObserved": true,
+    "repairApplied": true,
+    "retryPassed": true
+  },
+  "commands": [
+    {
+      "command": [
+        "/Users/jek/.nvm/versions/node/v22.13.0/bin/node",
+        ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/NL-REPAIR-1/layer3-dev-nl-repair-1/scenario-repair.cjs",
+        ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/NL-REPAIR-1/layer3-dev-nl-repair-1/repair-marker.txt"
+      ],
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "missing repair marker\n"
+    },
+    {
+      "command": [
+        "/Users/jek/.nvm/versions/node/v22.13.0/bin/node",
+        ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/NL-REPAIR-1/layer3-dev-nl-repair-1/scenario-repair.cjs",
+        ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/NL-REPAIR-1/layer3-dev-nl-repair-1/repair-marker.txt"
+      ],
+      "exitCode": 0,
+      "stdout": "repair marker accepted\n",
+      "stderr": ""
+    }
+  ]
+}

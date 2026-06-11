@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "lattice.layer3.two_host_review.v1",
+  "generatedAt": "2026-06-11T04:06:46.685Z",
+  "headHash": "4bb6bb71e8196f49e6e53834ae66610ae622592b",
+  "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+  "artifactsRoot": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock",
+  "requiredHosts": [
+    "claude",
+    "codex"
+  ],
+  "verdict": "pass",
+  "reviews": {
+    "claude": {
+      "host": "claude",
+      "source": "claude",
+      "verdict": "pass",
+      "blockers": [],
+      "checkedCommands": [
+        "capability_claim_formal_evaluate --target=loop-engineering",
+        "capability_claim_formal_evaluate --target=production-safety",
+        "baseline_run --formal --plannedStepRefs/reviewLoopRefs/hostVerdictRefs/budgetReportRef/stopConditionRefs",
+        "baseline_suite_report --layer=loop-engineering",
+        "baseline_suite_report --layer=engineering"
+      ],
+      "notes": [
+        "evaluateFormalLoopEngineeringClaim requires all three lower-layer proofs (development + engineering + loop-engineering) to be valid before unlocking; verified at lattice-baseline.ts:2756-2783",
+        "productionSafetyClaim and globalCapabilityClaim are hardcoded LOCKED in both formal evaluators (lines 2742-2744, 2825-2826)",
+        "All five UDM fields (plannedStepRefs, reviewLoopRefs, hostVerdictRefs, budgetReportRef, stopConditionRefs) are forwarded through handler (baseline.ts:106-110) and persisted in final report (lattice-baseline.ts:1637-1641)",
+        "loopEngineeringFormalProofEvidenceProblems validates per-baseline UDM field requirements with baseline ID sets (lines 1262-1323)",
+        "All artifacts use .lattice/ path; only .omx reference is a refuse-to-use guard (line 844)",
+        "Expected-block baselines (UDM-EVIDENCE-GATE-1, UDM-BLOCK-ESCALATE-1, UDM-BUDGET-STOP-1, UDM-HUMAN-HANDOFF-1, UDM-NO-FALSE-DONE-1) verified as outcome=EXPECTED_BLOCK with refusalEvidenceRefs in persisted artifacts",
+        "Smoke tests 23-26 cover: full unlock path, forged suite rejection, missing UDM refs rejection, and CLI parameter forwarding",
+        "collectFormalSuiteProofState rebuilds suite from final-reports independently (line 2624), preventing forged summary-only attacks"
+      ],
+      "principlesApplied": [
+        "Do not optimize for the sake of optimization — no suggestions for code changes that are not correctness issues",
+        "Do not optimize arbitrarily — audit limited to stated focus checks",
+        "Only identify real correctness issues — no blockers found after verifying all paths",
+        "Follow consistency of logic — verified claim escalation chain is consistent across evaluators, handlers, smoke tests, and persisted artifacts"
+      ],
+      "rawFile": "claude-layer3-review.raw.json",
+      "rawSha256": "a53d19dc2fcf9bcf34ad0d0ec368859467db8f7989cedb6ff06dce2d43e93048"
+    },
+    "codex": {
+      "host": "codex",
+      "source": "codex",
+      "verdict": "pass",
+      "blockers": [],
+      "checkedCommands": [
+        "lattice session_brief",
+        "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+        "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=production-safety --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+        "find .lattice/artifacts/baseline/layer3-loop-engineering-unlock -name '.omx' -o -name '.omx*' -o -path '*/.omx/*'"
+      ],
+      "notes": [
+        "loop-engineering authorized=true outcome=PASS formalProof=true layer2EngineeringClaim=UNLOCKED loopEngineeringClaim=UNLOCKED productionSafetyClaim=LOCKED globalCapabilityClaim=LOCKED",
+        "production-safety authorized=false outcome=EXPECTED_BLOCK productionSafetyClaim=LOCKED globalCapabilityClaim=LOCKED",
+        "no .omx assets found under artifacts root"
+      ],
+      "principlesApplied": [
+        "read-only audit",
+        "only real correctness blockers reported"
+      ],
+      "rawFile": "codex-layer3-review.raw.json",
+      "rawSha256": "4f30cf1f3756e3bc595ff3f98dd1e1d7d1368f46af4aeb352633022aae79d1d2"
+    }
+  },
+  "principles": [
+    "do not optimize for the sake of optimization",
+    "do not optimize arbitrarily",
+    "only fix real correctness issues",
+    "consistency of logic"
+  ]
+}

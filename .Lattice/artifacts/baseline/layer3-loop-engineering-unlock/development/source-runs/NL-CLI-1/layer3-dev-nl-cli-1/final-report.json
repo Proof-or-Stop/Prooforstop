@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "lattice.baseline.final-report.v1",
+  "baselineId": "NL-CLI-1",
+  "runId": "layer3-dev-nl-cli-1",
+  "track": "natural-language",
+  "expectedOutcome": "PASS",
+  "outcome": "PASS",
+  "invalidReason": null,
+  "blockedReason": null,
+  "weight": 1,
+  "authority": {
+    "mode": "non-authority",
+    "authorityDone": false,
+    "receiptVerified": false,
+    "multiHostVerified": false,
+    "fullAuthorityDone": false,
+    "status": "not-applicable"
+  },
+  "local": {
+    "localReviewCertified": true,
+    "authorityServerContact": false,
+    "status": "pass",
+    "evidenceRefs": [
+      "host-verdict:codex-local-review",
+      "host-verdict:claude-local-review"
+    ],
+    "requiredIndependentHosts": 2,
+    "independentHosts": 2,
+    "passingIndependentHosts": 2,
+    "failingIndependentHosts": 0,
+    "staleVerdicts": 0
+  },
+  "metrics": {
+    "durationSeconds": 0,
+    "retryCount": 0,
+    "repairCount": 0,
+    "evidenceCount": 0,
+    "hostVerdictCount": 2,
+    "reviewWaveCount": 1
+  },
+  "failure": null,
+  "artifacts": {
+    "story": "story.json",
+    "checklist": "checklist.json",
+    "jobPlan": "job-plan.json",
+    "executionLog": "execution-log.jsonl",
+    "evidenceIndex": null,
+    "gateReceipt": null,
+    "hostVerdicts": null,
+    "authorityStatus": null,
+    "localReviewStatus": "local-review-status.json",
+    "scenarioEvidence": "scenario-evidence.json"
+  }
+}

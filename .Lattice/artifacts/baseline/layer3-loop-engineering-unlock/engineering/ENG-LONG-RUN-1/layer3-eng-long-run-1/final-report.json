@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-11T03:58:06.586Z",
+  "layer": "engineering",
+  "baselineId": "ENG-LONG-RUN-1",
+  "runId": "layer3-eng-long-run-1",
+  "name": "Long-running project",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "Multiple stories and review rounds remain coherent.",
+  "capabilityProof": true,
+  "localOnly": false,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "gateEvidenceRefs": [],
+  "suiteRunId": "layer2-engineering-for-layer3-unlock",
+  "claimTarget": "engineering",
+  "verifiedAt": "2026-06-11T03:58:06.586Z",
+  "verificationEvidenceRefs": [
+    "artifact:verification-evidence.json#sha256=df317f1083597caee42d0076fb876c438161b381ebbe501952074d155e86802f"
+  ],
+  "reviewEvidenceRefs": [
+    "review:claude:artifact:review-claude.json#sha256=64101bd0f5b4ce8b2a9b7e4576b5afdc5d02c0f10f6a51d65a00f56f5388111f",
+    "review:codex:artifact:review-codex.json#sha256=dcffd65a9aa4d5b6273c5ed8b7ce14201948b13256ab59fc4fcbd627164a3ab6"
+  ],
+  "lifecycleGateEvidenceRefs": [
+    "artifact:lifecycle-gate.json#sha256=bf7c64a7c2f37c4e8ab0dfb2b645289a7cae4b4ee9ad9ac18ef3e508f7ce3f30"
+  ],
+  "formalProof": true,
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "4bb6bb71e8196f49e6e53834ae66610ae622592b",
+  "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [
+    "receipt:;baselineId=ENG-LONG-RUN-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=4bb6bb71e8196f49e6e53834ae66610ae622592b;materialHash=61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e;evidenceDigest=aa8cb6729e2891885e4021d3a83c0cff76bce912fdfb10a554f1398b919974b1"
+  ],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-LONG-RUN-1/layer3-eng-long-run-1",
+    "files": [
+      "input.md",
+      "repo-manifest.json",
+      "story.json",
+      "checklist.json",
+      "scope-contract.json",
+      "execution-log.jsonl",
+      "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
+      "review-claude.json",
+      "review-codex.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Formal Engineering proof artifact; still not production DONE proof.",
+    "Authority changed and production DONE remain false."
+  ]
+}

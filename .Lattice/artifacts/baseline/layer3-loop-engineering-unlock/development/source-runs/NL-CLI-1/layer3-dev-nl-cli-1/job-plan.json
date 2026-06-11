@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.baseline.job-plan.v1",
+  "baselineId": "NL-CLI-1",
+  "mode": "non-authority",
+  "plannedSteps": [
+    {
+      "stepId": "S-001",
+      "operation": "planner.create_story"
+    },
+    {
+      "stepId": "S-002",
+      "operation": "planner.create_job"
+    },
+    {
+      "stepId": "S-003",
+      "operation": "executor.run"
+    },
+    {
+      "stepId": "S-004",
+      "operation": "validation.pass"
+    },
+    {
+      "stepId": "S-005",
+      "operation": "baseline.report"
+    }
+  ]
+}
