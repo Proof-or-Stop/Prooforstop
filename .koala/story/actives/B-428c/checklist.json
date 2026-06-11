@@ -138,7 +138,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees two independent host review artifacts, one Claude CLI and one Codex CLI, referenced as non-authority evidence in the Layer 3 delivery report.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude CLI and Codex CLI review artifacts are captured with distinct host identities, current headHash/materialHash binding, and PASS verdicts for Layer 3 boundary behavior.",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Host verdict refs are accepted only as review evidence and do not satisfy Authority production receipt fields.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate host identity, stale host verdict, or single-host self-certification blocks the loop-engineering claim.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
