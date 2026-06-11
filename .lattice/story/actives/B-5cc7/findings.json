@@ -45,7 +45,7 @@
       "desc": "concept-cleanup: dev-memory legacy read fallback incomplete: packages/main/src/core/lattice-parallel-wave.ts still builds experienceRefs with readEntries(resolveProjectMemoryPath(...)) and readEntries(resolveGlobalMemoryPath()), bypassing readProjectMemoryEntries/readGlobalMemoryEntries. That read-only consumer therefore ignores legacy .koala project/global fallback and KOALA_GLOBAL_MEMORY_DIR fallback promised by F-002/docs.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-11T23:33:09.439Z",
@@ -55,7 +55,9 @@
       "files": [
         "packages/main/src/core/lattice-parallel-wave.ts",
         "docs/requirements/decisions/dev-memory.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit bf001e43: lattice-parallel-wave experienceRefs now use readProjectMemoryEntries/readGlobalMemoryEntries so parallel dispatch/report include the same .lattice canonical plus .koala read-only legacy fallback as other dev-memory read consumers. Scope expansion was explicitly acknowledged in scope-contract.json because F-003 identified this file as a necessary dev-memory projection consumer. Verified by npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "resolvedAt": "2026-06-11T23:43:01.548Z"
     },
     {
       "id": "B-5cc7:F-004",
