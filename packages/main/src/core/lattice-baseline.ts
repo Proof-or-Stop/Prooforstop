@@ -1779,6 +1779,7 @@ function buildDevelopmentLowerLayerReport(input: {
   customRoot?: string;
 }): BaselineSuiteReport {
   const sourcePath = join(layerDir(input.root, 'development', input.customRoot), 'source-suite', 'baseline-suite-report.json');
+  const sourceRunsDir = join(layerDir(input.root, 'development', input.customRoot), 'source-runs');
   const sourceDisplayPath = pathForDisplay(input.root, sourcePath);
   const blockedReasons: string[] = [];
   const errors: string[] = [];
@@ -1808,7 +1809,7 @@ function buildDevelopmentLowerLayerReport(input: {
     if (source.suiteStatus !== 'PASS') {
       blockedReasons.push(`development source suite is not PASS: ${String(source.suiteStatus ?? 'missing')}`);
     }
-    const counts = isRecord(source.counts) ? source.counts : {};
+    const counts = isRecord(source.counts) ? source.counts : source;
     if ((counts.falseDoneCount ?? 0) !== 0) {
       blockedReasons.push(`development source suite has falseDoneCount=${String(counts.falseDoneCount)}`);
     }
@@ -1816,36 +1817,57 @@ function buildDevelopmentLowerLayerReport(input: {
     const missing = Array.isArray(minimumSuite.missingBaselineIds)
       ? minimumSuite.missingBaselineIds.filter((item): item is string => typeof item === 'string')
       : [];
-    if (minimumSuite.satisfied !== true) {
+    if (source.minimumSuite !== undefined && minimumSuite.satisfied !== true) {
       blockedReasons.push('development source suite minimumSuite is not satisfied');
     }
     if (missing.length > 0) {
       blockedReasons.push(`development source suite missing baselines: ${missing.join(', ')}`);
     }
-    const runs = Array.isArray(source.runs) ? source.runs.filter(isRecord) : [];
+    const validRunCount = numberField(counts, 'validRunCount') ?? 0;
+    if (validRunCount < requiredBaselineIds.length) {
+      blockedReasons.push(`development source suite validRunCount=${validRunCount}, expected at least ${requiredBaselineIds.length}`);
+    }
+    const sourceRunReports = collectFinalReportPaths(sourceRunsDir).map((file) => {
+      try {
+        const parsed = readJson(file) as unknown;
+        return isRecord(parsed) ? { file, report: parsed } : null;
+      } catch {
+        return null;
+      }
+    }).filter((item): item is { file: string; report: Record<string, unknown> } => Boolean(item));
     for (const baselineId of requiredBaselineIds) {
-      const candidates = runs.filter((run) => stringField(run, 'baselineId') === baselineId);
-      const accepted = candidates.find((run) => run.valid === true && run.success === true && run.falseDone !== true);
+      const expectedOutcome: BaselineOutcome = baselineId === 'RED-GAP-BLOCK-1' ? 'EXPECTED_BLOCK' : 'PASS';
+      const candidates = sourceRunReports.filter((run) => stringField(run.report, 'baselineId') === baselineId);
+      const accepted = candidates.find(({ report }) => {
+        const outcome = stringField(report, 'outcome') as BaselineOutcome | undefined;
+        const failure = report.failure;
+        const authority = isRecord(report.authority) ? report.authority : {};
+        return outcome === expectedOutcome
+          && failure === null
+          && report.falseDone !== true
+          && authority.authorityDone !== true
+          && authority.receiptVerified !== true
+          && authority.fullAuthorityDone !== true;
+      });
       if (!accepted) {
         reports.push({
           baselineId,
           runId: '',
           path: '',
           outcome: 'FAIL',
-          expectedOutcomes: baselineId === 'RED-GAP-BLOCK-1' ? ['EXPECTED_BLOCK'] : ['PASS'],
+          expectedOutcomes: [expectedOutcome],
           status: 'rejected',
           reasons: ['development source run missing valid successful non-false-DONE evidence'],
         });
         continue;
       }
-      const expectedOutcome = stringField(accepted, 'expectedOutcome') as BaselineOutcome | undefined;
-      const outcome = stringField(accepted, 'outcome') as BaselineOutcome | undefined;
+      const outcome = stringField(accepted.report, 'outcome') as BaselineOutcome | undefined;
       reports.push({
         baselineId,
-        runId: stringField(accepted, 'runId') ?? '',
-        path: stringField(accepted, 'path') ?? '',
+        runId: stringField(accepted.report, 'runId') ?? '',
+        path: pathForDisplay(input.root, accepted.file),
         outcome: outcome ?? 'PASS',
-        expectedOutcomes: expectedOutcome ? [expectedOutcome] : (baselineId === 'RED-GAP-BLOCK-1' ? ['EXPECTED_BLOCK'] : ['PASS']),
+        expectedOutcomes: [expectedOutcome],
         status: 'accepted',
         reasons: [],
       });
