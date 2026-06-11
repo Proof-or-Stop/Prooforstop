@@ -41,9 +41,9 @@
           "command": "node inline story-boundary wording checker",
           "result": "pass",
           "note": "Purpose paragraph now requires each bucket to become a separate future Lattice story with its own tests and evidence.",
-          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
-          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
-          "timestamp": "2026-06-11T22:22:40.012Z"
+          "headHash": "34cbd940c2d658fd6885102ff7a04ab37eb45f3a",
+          "materialHash": "05cd66aef4c856a58869332f6d1b62b8c72d64d56c9ab46f21c3868151397022",
+          "timestamp": "2026-06-11T22:31:14.818Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -52,9 +52,9 @@
           "command": "rg story-or-commit bypass wording",
           "result": "pass",
           "note": "The direct story-or-commit bypass wording is absent, so the execution path remains story-gated.",
-          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
-          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
-          "timestamp": "2026-06-11T22:22:40.012Z"
+          "headHash": "34cbd940c2d658fd6885102ff7a04ab37eb45f3a",
+          "materialHash": "05cd66aef4c856a58869332f6d1b62b8c72d64d56c9ab46f21c3868151397022",
+          "timestamp": "2026-06-11T22:31:14.818Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -63,9 +63,9 @@
           "command": "git diff -- docs/requirements/decisions/stash-split-execution-plan.md",
           "result": "pass",
           "note": "Diff is limited to the verified purpose paragraph correction; stash commands, NAV handling, and bucket mechanics are unchanged.",
-          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
-          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
-          "timestamp": "2026-06-11T22:22:40.012Z"
+          "headHash": "34cbd940c2d658fd6885102ff7a04ab37eb45f3a",
+          "materialHash": "05cd66aef4c856a58869332f6d1b62b8c72d64d56c9ab46f21c3868151397022",
+          "timestamp": "2026-06-11T22:31:14.818Z"
         }
       ]
     },
@@ -111,9 +111,9 @@
           "command": "node inline stable STASH_OBJECT and no whole-stash checker",
           "result": "pass",
           "note": "Stable STASH_OBJECT remains pinned to c4dcc3aff95fd999712d7f19dcf856f791cf0d05, stash untracked parent matches, and whole-stash apply/pop/restore prohibitions remain present.",
-          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
-          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
-          "timestamp": "2026-06-11T22:22:40.012Z"
+          "headHash": "34cbd940c2d658fd6885102ff7a04ab37eb45f3a",
+          "materialHash": "05cd66aef4c856a58869332f6d1b62b8c72d64d56c9ab46f21c3868151397022",
+          "timestamp": "2026-06-11T22:31:14.818Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -122,9 +122,9 @@
           "command": "node inline NAV count/link checker",
           "result": "pass",
           "note": "NAV remains unchanged and consistent: 37 declared files, 37 decision markdown files, and 37 NAV decision links.",
-          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
-          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
-          "timestamp": "2026-06-11T22:22:40.012Z"
+          "headHash": "34cbd940c2d658fd6885102ff7a04ab37eb45f3a",
+          "materialHash": "05cd66aef4c856a58869332f6d1b62b8c72d64d56c9ab46f21c3868151397022",
+          "timestamp": "2026-06-11T22:31:14.818Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -133,9 +133,9 @@
           "command": "node inline forbidden direct bypass wording checker",
           "result": "pass",
           "note": "Search confirms story-or-commit bypass wording is absent while legitimate commit references remain scoped to story-controlled bucket commits.",
-          "headHash": "d3f6144578a93481415c737b1b530f8ba5964390",
-          "materialHash": "89b82db88298d71c507ab815e8cfc7e0386a8d84844a11b075dd1ea5ac573a2b",
-          "timestamp": "2026-06-11T22:22:40.012Z"
+          "headHash": "34cbd940c2d658fd6885102ff7a04ab37eb45f3a",
+          "materialHash": "05cd66aef4c856a58869332f6d1b62b8c72d64d56c9ab46f21c3868151397022",
+          "timestamp": "2026-06-11T22:31:14.818Z"
         }
       ]
     }
