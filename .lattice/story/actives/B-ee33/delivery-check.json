@@ -1,0 +1,46 @@
+{
+  "storyId": "B-ee33",
+  "checkedAt": "2026-06-11T22:29:31.673Z",
+  "reviewRound": "2026-06-11T22:22:33.784Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/stash-split-execution-plan.md",
+      "promise": "Each accepted stash bucket must become a separate future Lattice story with its own tests and evidence; direct commit bypass wording is removed.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg, manual line review",
+      "evidence": "Line 8 now says separate future Lattice story with its own tests and evidence; diff replaces separate future story or commit; rg found no story or commit, direct commit, or bypass in the material docs."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV remains synchronized at 37 decision files and 37 decision links.",
+      "status": "verified",
+      "verifiedBy": "find, rg, git diff",
+      "evidence": "NAV line 3 says 37 files; filesystem decision file count is 37; NAV decision-link count is 37; git diff --exit-code -- docs/requirements/NAV.md passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ee33/evidence/transcript-diff.md",
+      "promise": "Transcript evidence records validation passed and expected/actual delivery match.",
+      "status": "verified",
+      "verifiedBy": "manual line review and lattice session_brief",
+      "evidence": "Transcript records status pass, allPass true, npm test pass, cli-e2e ALL PASS, coverage 6/6, missing evidence 0; session_brief reports last test run PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-ee33-delivery-doc-promises",
+      "transcript": "Read-only review checked git diff main...HEAD, target docs, transcript evidence, negative phrase search, NAV file count, NAV link count, and NAV clean diff. Result: pass."
+    },
+    {
+      "featureId": "B-ee33-validation",
+      "transcript": "lattice validate --story=B-ee33 --json returned status pass, allPass true, npm test pass, cli-e2e ALL PASS, and verification intent coverage 6/6."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises verified: bypass wording removed from the material doc, future Lattice story per bucket is required, NAV remains 37/37, and validation passed. No delivery blockers found."
+  },
+  "_hash": "51875e7b7361ee1fc09ac0656d2d39d7e30b897118217d676b62fa5cdc12216f"
+}
