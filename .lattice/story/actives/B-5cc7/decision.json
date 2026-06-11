@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Restore only the bucket paths proven by the approved stash split plan",
+    "Prefer focused smoke evidence over narrative confidence",
+    "Keep dev-memory non-authoritative and separate from Lattice gate evidence",
+    "Fail closed if the hunk cannot be verified without restoring runtime data"
+  ],
+  "drivers": [
+    "Bucket A is isolated to dev-memory read compatibility",
+    "The user asked to execute the approved plan without arbitrary optimization",
+    "The stashed runtime data file must remain local and uncommitted",
+    "Other buckets have different risks and must stay separate"
+  ],
+  "options": [
+    {
+      "name": "A: Execute Bucket A only with focused smoke test",
+      "pros": [
+        "Matches the approved bucket split",
+        "Allows a narrow proof of legacy read fallback",
+        "Keeps data file and other buckets untouched"
+      ],
+      "cons": [
+        "Leaves Bucket B-D for later stories and Bucket E deferred until repro"
+      ]
+    },
+    {
+      "name": "B: Apply all dev-memory-related stash content including data and gitignore",
+      "pros": [
+        "Would move all visually related dev-memory stash paths together"
+      ],
+      "cons": [
+        "Would violate the explicit no data-file restore rule",
+        "Would mix runtime data policy with code behavior",
+        "Would risk committing local non-source memory data"
+      ]
+    },
+    {
+      "name": "C: Skip Bucket A and move to documentation Bucket D",
+      "pros": [
+        "Could deliver a visible document artifact sooner"
+      ],
+      "cons": [
+        "Would ignore the approved safe first bucket after B-70f5",
+        "Would leave the dev-memory compatibility hunk unclassified"
+      ]
+    }
+  ],
+  "chosen": "A: Execute Bucket A only with focused smoke test",
+  "rationale": "Choose Bucket A only because the stash split plan requires one future Lattice story per bucket, and this hunk can be mechanically verified without applying the whole stash or restoring runtime data.",
+  "preMortem": [
+    {
+      "scenario": "The story accidentally restores the stashed dev-memory data file",
+      "trigger": "A broad git restore command or untracked restore is used",
+      "consequence": "Local runtime data becomes tracked or staged as source",
+      "mitigation": "Use explicit tracked-path restore only and verify git status excludes .lattice/dev-memory/experience.jsonl"
+    },
+    {
+      "scenario": "Legacy .koala fallback becomes a write target",
+      "trigger": "Path helpers are reused for append/write behavior",
+      "consequence": "Lattice writes new assets under legacy .koala, violating migration rules",
+      "mitigation": "Smoke test write behavior and keep append paths resolved to .lattice only"
+    },
+    {
+      "scenario": "Dev-memory entries are treated as gate or Authority evidence",
+      "trigger": "Tests only check presence of entries and ignore authority fields",
+      "consequence": "Non-authoritative advisory memory could be overclaimed",
+      "mitigation": "Smoke test gateEvidence=false and authority=non_authoritative and record Authority productionDone=false"
+    }
+  ],
+  "timestamp": "2026-06-11T22:57:05.065Z"
+}

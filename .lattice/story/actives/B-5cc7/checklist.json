@@ -10,7 +10,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Bucket A restored only two dev-memory code paths from the pinned stash object, with no other stash paths changed.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Only packages/main/src/core/dev-memory.ts and packages/main/src/handlers/dev-memory.ts are restored from the pinned stash for Bucket A.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No .gitignore, runtime registry, planner, smoke expectation, NAV, Layer4, or dev-memory data file path is restored by CHK-001.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The pinned stash object remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and no whole-stash apply/pop/drop command is used.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
