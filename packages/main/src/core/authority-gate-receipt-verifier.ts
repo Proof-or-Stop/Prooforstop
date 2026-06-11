@@ -6,7 +6,6 @@ import {
   type AuthorityReceipt,
 } from './authority-runner-contracts.js';
 import {
-  canonicalDigest,
   type PublicKeyBase64,
   type SignatureBase64,
 } from './authority-signing.js';
@@ -216,8 +215,70 @@ function digestMatches(claimed: string | undefined, digest: string): boolean {
   return claimed === digest || claimed === `sha256:${digest}`;
 }
 
+function compareJsonKeyByCodePoint(a: string, b: string): number {
+  const aPoints = Array.from(a);
+  const bPoints = Array.from(b);
+  const max = Math.min(aPoints.length, bPoints.length);
+  for (let index = 0; index < max; index += 1) {
+    const diff = (aPoints[index]?.codePointAt(0) ?? 0) - (bPoints[index]?.codePointAt(0) ?? 0);
+    if (diff !== 0) return diff;
+  }
+  return aPoints.length - bPoints.length;
+}
+
+function normalizePythonDigestJson(value: unknown): unknown {
+  if (value === undefined) return undefined;
+  if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
+  if (Array.isArray(value)) return value.map(normalizePythonDigestJson).filter(item => item !== undefined);
+  if (typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value as Record<string, unknown>).sort(([a], [b]) => compareJsonKeyByCodePoint(a, b))) {
+      const normalized = normalizePythonDigestJson(item);
+      if (normalized !== undefined) out[key] = normalized;
+    }
+    return out;
+  }
+  return String(value);
+}
+
+function pythonModelDigest(value: unknown): string {
+  return createHash('sha256')
+    .update(JSON.stringify(normalizePythonDigestJson(value)), 'utf8')
+    .digest('hex');
+}
+
+function normalizeGateRepoDigestInput(repo: AuthorityGateDecisionInput['repo'] | undefined): AuthorityGateDecisionInput['repo'] | undefined {
+  if (!repo) return undefined;
+  const raw = repo as Record<string, unknown>;
+  return {
+    ...raw,
+    headHash: repo.headHash,
+    materialHash: repo.materialHash,
+    baseHash: raw.baseHash ?? null,
+    treeHash: raw.treeHash ?? null,
+    diffHash: raw.diffHash ?? null,
+    manifestHash: raw.manifestHash ?? null,
+    dirty: raw.dirty ?? false,
+  };
+}
+
+function normalizeGateDecisionForDigest<T extends Record<string, unknown>>(decision: T): T {
+  const repo = decision.repo;
+  if (!repo || typeof repo !== 'object' || Array.isArray(repo)) return decision;
+  return {
+    ...decision,
+    repo: normalizeGateRepoDigestInput(repo as AuthorityGateDecisionInput['repo']),
+  };
+}
+
 function sameCanonicalValue(left: unknown, right: unknown): boolean {
-  return canonicalDigest(left) === canonicalDigest(right);
+  const normalizedLeft = left && typeof left === 'object' && !Array.isArray(left)
+    ? normalizeGateDecisionForDigest(left as Record<string, unknown>)
+    : left;
+  const normalizedRight = right && typeof right === 'object' && !Array.isArray(right)
+    ? normalizeGateDecisionForDigest(right as Record<string, unknown>)
+    : right;
+  return pythonModelDigest(normalizedLeft) === pythonModelDigest(normalizedRight);
 }
 
 function isLocalTestAuthorityMarker(value: string | undefined): boolean {
@@ -290,11 +351,17 @@ function verifiedClassification(
 }
 
 export function gateDecisionInputDigest(input: AuthorityGateDecisionInput): string {
-  return canonicalDigest(input);
+  return pythonModelDigest({
+    ...input,
+    repo: normalizeGateRepoDigestInput(input.repo),
+  });
 }
 
 export function gateDecisionDigest(decisionDigestPayload: z.infer<typeof AuthorityGateDecisionDigestPayloadSchema>): string {
-  return canonicalDigest(decisionDigestPayload);
+  return pythonModelDigest({
+    ...decisionDigestPayload,
+    decision: normalizeGateDecisionForDigest(decisionDigestPayload.decision),
+  });
 }
 
 export function verifyAuthorityGateReceiptProof(
