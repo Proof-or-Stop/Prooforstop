@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-11T23:38:10.576Z",
       "reviewRunId": "B-bc1f:RR-002",
       "_hash": "87b8bf68186d3bdd9b09af7236aa577104422cb2260c3a36384ee178fd932a76"
+    },
+    {
+      "id": "B-bc1f:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: story_create direct REVIEW now persists currentReviewRound at creation time; review_run_start and review_loop_start keep malformed legacy REVIEW stories fail-closed with specific diagnostics; the field smoke covers direct REVIEW create followed by review_run_start and review_loop_start. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:field-regression-cli-smoke.",
+      "createdAt": "2026-06-11T23:46:47.278Z",
+      "reviewRound": "2026-06-11T23:38:10.576Z",
+      "reviewRunId": "B-bc1f:RR-001",
+      "_hash": "6223731da562fa9da6a9809d1df7866f0f7aa793818d9777e21dce58f2ad6075"
     }
   ]
 }
