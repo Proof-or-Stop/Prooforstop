@@ -206,24 +206,37 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-003:docs:scope-boundary-audit",
+          "intentRef": "CHK-003:happy:0",
           "kind": "docs_check",
-          "command": "rg -n \"Scope Boundary Audit|No bulk move happened|does not unlock Production Safety|does not claim any new global capability\" docs/requirements/decisions/root-document-migration-guide.md",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg 'Scope Boundary Audit|No bulk move|No root Markdown file' docs/requirements/decisions/root-document-migration-guide.md",
           "result": "pass",
-          "note": "The guide includes an explicit scope-boundary audit and no capability unlock claim.",
-          "headHash": "8e63932d63e10e4d25f9d4f65eb04111cccbc738",
+          "note": "Scope Boundary Audit remains visible and states no bulk move, no root Markdown rename/move/delete, and documentation-only behavior.",
+          "headHash": "64c18846891f3ced4873ddd4104df32af96ecf62",
           "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
-          "timestamp": "2026-06-11T17:18:02.579Z"
+          "timestamp": "2026-06-11T17:19:21.213Z"
         },
         {
-          "intentRef": "CHK-003:logic:diff-check",
-          "kind": "logic_test",
-          "command": "git diff --check",
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "claude final host-neutral audit B + node strict checker",
           "result": "pass",
-          "note": "Markdown patch has no whitespace errors.",
-          "headHash": "8e63932d63e10e4d25f9d4f65eb04111cccbc738",
+          "note": "Host-neutral audit PASS and strict checker PASS: entrypoints, compatibility assets, existing decisions, and future-only targets are distinguished without mixing truth-source layers.",
+          "headHash": "64c18846891f3ced4873ddd4104df32af96ecf62",
           "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
-          "timestamp": "2026-06-11T17:18:02.639Z"
+          "timestamp": "2026-06-11T17:19:21.633Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg 'does not unlock Production Safety|does not assert unattended readiness|does not claim any new global capability' docs/requirements/decisions/root-document-migration-guide.md",
+          "result": "pass",
+          "note": "Scope Boundary Audit explicitly denies Production Safety unlock, authority/unattended readiness, and global capability claims; future Layer4 row is marked Future-only and no-unlock.",
+          "headHash": "64c18846891f3ced4873ddd4104df32af96ecf62",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:19:21.913Z"
         }
       ]
     }
