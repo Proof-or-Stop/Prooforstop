@@ -54,7 +54,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the focused dev-memory legacy-read smoke pass, proving read fallback, dedupe, .lattice writes, and non-authoritative entries.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke test proves .lattice and legacy .koala project/global memory entries are both readable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused smoke test proves duplicate ids across .lattice and .koala inputs are deduped deterministically.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Focused smoke test proves capture/write behavior still writes to .lattice and entries remain gateEvidence=false and authority=non_authoritative.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
