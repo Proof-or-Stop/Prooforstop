@@ -4,7 +4,7 @@
   "title": "Fix direct REVIEW story missing review round metadata",
   "description": "story_create with phase REVIEW can create a story whose phase is REVIEW but currentReviewRound is missing, causing review_run_start and review_loop_start to fail. Fix direct REVIEW creation or reject unsupported direct phases so REVIEW metadata cannot be half-initialized.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "story_create",
@@ -54,11 +54,20 @@
       "branch": "story/B-bc1f",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:38:10.576Z",
+      "branch": "story/B-bc1f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-bc1f",
     "branch": "story/B-bc1f",
     "createdAt": "2026-06-11T23:22:33.625Z"
-  }
+  },
+  "currentReviewRound": "2026-06-11T23:38:10.576Z"
 }
