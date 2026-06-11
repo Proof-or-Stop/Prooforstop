@@ -39,7 +39,7 @@
  * transition-orchestrator imports done-effects, never the reverse.
  */
 
-import type { StoryStore } from '../core/store.js';
+import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
 import { maybeTriggerAudit } from '../core/audit-trigger.js';
 import { execFileSync, execSync } from 'child_process';
@@ -52,6 +52,10 @@ import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { acquireMainWriteLockRegistered, mainWriteLockPath } from '../core/main-write-lock.js';
 import { resolveMainBranchWorktree } from '../core/partial-done-recovery.js';
+import {
+  cleanupAuxiliaryWorktreeResidues,
+  renderAuxiliaryClassification,
+} from '../core/auxiliary-worktree-cleanup.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -613,6 +617,25 @@ export async function applyDoneMergeEffects(
           `Story ${storyId} 已合并，但 worktree 清理未完成: ${cleanupFailure}\n` +
           `→ 请运行 koala doctor 查看，或执行 koala doctor --repair 清理终态 worktree 残留。`,
         );
+      }
+
+      try {
+        const mainStore = new StoryStore(mainMergeRoot);
+        const auxiliaryResults = cleanupAuxiliaryWorktreeResidues(mainMergeRoot, mainStore, { storyIds: [storyId] });
+        for (const result of auxiliaryResults) {
+          const label = renderAuxiliaryClassification(mainMergeRoot, result.before);
+          if (result.cleaned) {
+            mergeLines.push(`✓ Auxiliary worktree cleaned: ${label}`);
+          } else {
+            mergeLines.push(`⚠ Auxiliary worktree left for review: ${label}`);
+          }
+        }
+      } catch (e: any) {
+        reportHealthIssue('mutation:auxiliaryWorktreeCleanup', e, {
+          storyId,
+          mainMergeRoot,
+        });
+        mergeLines.push(`⚠ Auxiliary worktree cleanup skipped: ${e?.message || e}`);
       }
     }
 

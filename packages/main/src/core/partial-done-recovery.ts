@@ -4,6 +4,7 @@ import { basename, dirname, isAbsolute, join, resolve } from 'path';
 import type { StoryStore } from './store.js';
 import type { StoryInfo } from './types.js';
 import { loadConfig } from './config.js';
+import { isVolatileRuntimeArtifactPath } from './runtime-artifact-registry.js';
 
 export interface PartialDoneStory {
   storyId: string;
@@ -160,11 +161,25 @@ function readStoryFromBranch(root: string, storyDirRel: string, branch: string, 
   }
 }
 
+function statusLinePath(line: string): string {
+  const payload = line.slice(3).trim();
+  const renamedTarget = payload.includes(' -> ') ? payload.split(' -> ').pop() || payload : payload;
+  return renamedTarget.replace(/^"|"$/g, '');
+}
+
+function materialStatusLines(status: string): string[] {
+  return status
+    .split(/\r?\n/)
+    .map(line => line.trimEnd())
+    .filter(Boolean)
+    .filter(line => !isVolatileRuntimeArtifactPath(statusLinePath(line)));
+}
+
 export function assertMainWorktreeClean(root: string): void {
-  const status = git(root, ['status', '--porcelain']);
-  if (status.trim()) {
+  const status = materialStatusLines(git(root, ['status', '--porcelain']));
+  if (status.length > 0) {
     throw new Error(
-      `done_recover refused: main worktree at "${resolve(root)}" is not clean.\n${status}\n` +
+      `done_recover refused: main worktree is not clean at "${resolve(root)}".\n${status.join('\n')}\n` +
       `→ cd "${resolve(root)}" && git stash (or commit/resolve these changes before retrying).`,
     );
   }
