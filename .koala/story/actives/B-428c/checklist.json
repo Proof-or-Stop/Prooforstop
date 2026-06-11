@@ -53,7 +53,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees malformed or incomplete UDM final reports rejected with machine-readable blocking reasons instead of being counted as formal proof.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All 10 documented UDM final reports with required refs, host verdicts, stop/budget/gate evidence, falseDone=false, and authority production flags false aggregate into a loop-engineering suite PASS.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expected-block UDM baselines are accepted only when their outcome matches expectedOutcome and include gate/stop evidence rather than normal PASS.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A UDM report missing required refs, using localOnly proof, setting falseDone=true, or setting productionDone/fullAuthorityDone=true is rejected fail-closed.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
