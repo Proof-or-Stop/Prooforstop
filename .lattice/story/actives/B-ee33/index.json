@@ -4,7 +4,7 @@
   "title": "Fix stash split bucket boundary wording",
   "description": "Correct the stash split execution plan so accepted buckets must become future Lattice stories, not direct commits. This closes the host-neutral process correctness issue found during final two-host audit: direct commit wording could bypass story-scoped checklist, review, validation, and evidence gates.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "createdAt": "2026-06-11T22:15:24.967Z",
   "startedAt": "2026-06-11T22:15:24.967Z",
@@ -42,11 +42,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-201e33f4b6388742",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:22:33.784Z",
+      "branch": "story/B-ee33",
+      "user": "Harmonygo",
+      "sessionId": "sess-201e33f4b6388742",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-ee33",
     "branch": "story/B-ee33",
     "createdAt": "2026-06-11T22:16:34.724Z"
-  }
+  },
+  "currentReviewRound": "2026-06-11T22:22:33.784Z"
 }
