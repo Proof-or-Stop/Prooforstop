@@ -100,7 +100,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The migration guide includes a visible audit note listing known root docs, stay-root files, no bulk move, and no Production Safety or global capability unlock claim.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit note names the known root docs, names stay-root files, and states this story only adds the guide and NAV entry.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Audit note distinguishes host-neutral entrypoints from requirements truth-source docs so Claude, Codex, and human host access remains consistent.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audit note explicitly says the guide does not unlock Production Safety, authority or unattended readiness, or global capability claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
