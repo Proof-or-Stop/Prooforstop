@@ -144,7 +144,7 @@
       "desc": "F-007 remains unresolved on REVIEW head 77dd05c: lattice evidence_inspect --storyId=B-e3d9 reports stale refs for all 15 checklist verification intents plus test-evidence, and lattice validate --story=B-e3d9 fails verification coverage with 0/15 covered. F-006 remains covered: lattice verify_codex --storyId=B-e3d9 passes its adapter checks and git ls-files shows canonical .Lattice/.codex paths tracked, while both gap_analyze entrypoints report 100% requirement/test coverage and 0 high / 0 medium gaps.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-11T01:04:11.737Z",
@@ -159,7 +159,9 @@
         "docs/requirements/decisions/cc-learnings.md",
         ".Lattice/lattice.json",
         ".codex/hooks.json"
-      ]
+      ],
+      "resolvedReason": "Resolved on current worktree-local Lattice evidence. The coverage finding was triggered from the global lattice entrypoint, which computed a different materialHash than the checked-out story worktree after the path-casing changes. After force-taking ownership back to the current worktree, node bin/lattice.js evidence_inspect showed checklist evidence fresh, node bin/lattice.js validate --story=B-e3d9 passed with 15/15 verification intent coverage, and both node bin/lattice.js gap_analyze and node packages/main/dist/cli.js gap_analyze reported Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium. The restored local validation evidence was committed in d4da3897.",
+      "resolvedAt": "2026-06-11T01:05:43.660Z"
     }
   ]
 }
