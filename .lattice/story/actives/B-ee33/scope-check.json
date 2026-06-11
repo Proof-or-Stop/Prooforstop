@@ -1,0 +1,52 @@
+{
+  "storyId": "B-ee33",
+  "checkedAt": "2026-06-11T22:21:05.028Z",
+  "features": [
+    {
+      "feature": "Accepted stash buckets must become separate future Lattice stories, not direct commits",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove direct-commit wording that could bypass story-scoped checklist, review, validation, and evidence gates",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep stash split recovery path-limited and executable: stable STASH_OBJECT, recorded inventory, no whole-stash pop/apply/restore, and explicit-path restores only",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/stash-split-execution-plan.md"
+    },
+    {
+      "feature": "Keep docs/requirements/NAV.md verification-only for this story and mechanically consistent with the current 37 decision files and 37 NAV decision links",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/stash-split-execution-plan.md"
+    },
+    {
+      "feature": "Do not rewrite unrelated bucket mechanics, stash commands, NAV handling, or host-neutral safety rules while fixing the bucket boundary wording",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/stash-split-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "dd8f89c76a1def3858b55931749cc0b9181b193c4b257e66a6a36c782bcf6a25",
+  "openQuestions": []
+}
