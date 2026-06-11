@@ -265,6 +265,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - `process-fact-registry` + `verify-process-fact-contract`：静态 contract 负责校验 MAIN_TOOLS、DEFAULT_PHASE_TOOLS、reviewer lanes、signed/gate artifacts、L4 gate evidence 与 required semantic facts 是否一致；fail 文案必须直接点名 `missing from PROCESS_FACT_REGISTRY` 或 `required process fact missing`，避免维护者只看到 prompt 漂移。
 - Flow fact policy 必须硬编码在 `packages/main/src/core/flow-fact-policy.ts` 并登记进 `process-fact-registry` / `process-fact-levels`。当前明确登记：`flow-policy:review-pass`、`flow-policy:finding`、`flow-policy:pass-only-normalization`、`flow-policy:review-round-iso-string`、`flow-policy:express-verification-policy`。
 - `reviewRound: string (ISO 8601 review round id)`。review pass / finding / delivery check 的签名域消费这个字符串，不能退回 number round。
+- `story_create --phase=REVIEW` 也必须初始化 `currentReviewRound`。直接创建 REVIEW story 是 review-only / backfill 场景的兼容入口，但持久化后必须满足 REVIEW 命令的结构化元数据契约，不能留下 phase=REVIEW 且无 review round 的半初始化状态。
 - `story_review.planReviewRound: number (PLAN review round count)`。这是 PLAN 阶段 story review 轮次数字，来自 `review.json.reviews.length`；`story_review.reviewRound` 仅是 legacy numeric PLAN review alias，不能解释成 signed artifact `reviewRound`。
 - pass-only finding_add 归一化：low severity 且 agent 为 `koala-review-*` 的 pass-only `finding_add` 机械转成 `review_pass_set`；ambiguous pass+failure、非 reviewer、非 low severity 都是真 finding。
 - review run freshness：同一 reviewer lane 在当前 REVIEW round 可多次 `review_run_start`；只有该 lane 最新 signed run 仍是 current。代码/文档 material 改动后旧 run 会 stale，必须重跑 `review_run_start` 再提交 finding/pass。
