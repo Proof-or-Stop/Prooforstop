@@ -107,10 +107,14 @@ If the old path is only a filename contract and the canonical doc is already in 
 - update the file count to match the decisions list;
 - add, move, or remove decision links when decision guides are added, moved, or retired.
 
+## Migration Status
+
+As of story B-7f61, all 12 non-allowed root Markdown files have been archived to `docs/koala/legacy/root-markdown/`. The remaining root Markdown set is: `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, `jek.md`. File references in the inventory table above are now historical lineage only.
+
 ## Scope Boundary Audit
 
-- No bulk move happened in this story.
-- No root Markdown file was renamed, moved, or deleted in this story.
+- Root Markdown cleanup was executed in story B-7f61.
+- All 12 migration/retirement candidates were moved to `docs/koala/legacy/root-markdown/`.
 - This guide does not unlock Production Safety.
 - This guide does not assert unattended readiness or authority readiness.
 - This guide does not claim any new global capability.
