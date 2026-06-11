@@ -138,6 +138,28 @@
       ],
       "resolvedReason": "Resolved on current REVIEW head by rerunning node bin/lattice.js validate --story=B-e3d9 and both node bin/lattice.js gap_analyze plus node packages/main/dist/cli.js gap_analyze. validate reports 15/15 verification intent coverage with zero required missing, evidence_inspect reports no stale refs, and both gap_analyze entrypoints report Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium. Validation evidence was committed in 6420f46d.",
       "resolvedAt": "2026-06-11T01:01:17.805Z"
+    },
+    {
+      "id": "B-e3d9:F-008",
+      "desc": "F-007 remains unresolved on REVIEW head 77dd05c: lattice evidence_inspect --storyId=B-e3d9 reports stale refs for all 15 checklist verification intents plus test-evidence, and lattice validate --story=B-e3d9 fails verification coverage with 0/15 covered. F-006 remains covered: lattice verify_codex --storyId=B-e3d9 passes its adapter checks and git ls-files shows canonical .Lattice/.codex paths tracked, while both gap_analyze entrypoints report 100% requirement/test coverage and 0 high / 0 medium gaps.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T01:04:11.737Z",
+      "reviewRound": "2026-06-11T01:02:23.141Z",
+      "reviewRunId": "B-e3d9:RR-026",
+      "_hash": "d2041fd19e0aeb37a3c5600eb82e80ec4635889458ec78a92cdc3771c1fe612a",
+      "files": [
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/planner-unattended-smoke.ts",
+        "packages/main/src/tasks/worktree-policy-smoke.ts",
+        "packages/main/src/core/worktree-policy.ts",
+        "docs/requirements/decisions/cc-learnings.md",
+        ".Lattice/lattice.json",
+        ".codex/hooks.json"
+      ]
     }
   ]
 }
