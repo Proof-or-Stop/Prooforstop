@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-8f4c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept/boundary pass. docs/requirements/decisions/stash-split-execution-plan.md:5 states the plan processes stash@{0} without applying the whole stash, and lines 12-23 add hard stop rules for stash pop/apply, untracked restore mechanics, dev-memory exclusion, and planner hash deferral. Lines 60-182 split work into bounded buckets with acceptance checks, so the plan is executable rather than overbroad. Lines 122-129 and 172-181 require focused repro/tests before behavior/hash changes, preserving the four principles: no optimization for its own sake, no arbitrary optimization, correctness fixes only, and logic consistency.",
+      "createdAt": "2026-06-11T21:42:33.053Z",
+      "reviewRound": "2026-06-11T21:40:41.803Z",
+      "reviewRunId": "B-8f4c:RR-001",
+      "_hash": "51641b3b7695b98a78f88312d561c901fa009624de34a3935a09600df7c5dbe0"
+    }
+  ]
+}
