@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7f61",
+  "changes": "Moved 12 generated legacy root Markdown documents out of repository root into docs/koala/legacy/root-markdown/, updated cleanup/migration decision docs and active references, and recorded root inventory validation evidence.",
+  "usage": "Open the repository root: only AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, and jek.md should appear as root Markdown files. Historical generated docs are under docs/koala/legacy/root-markdown/.",
+  "expectedOutcome": "Root Markdown inventory is exactly AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, and jek.md; legacy KOALA/Lattice generated docs are archived, not left at root.",
+  "actualTranscript": "find root Markdown returned AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, jek.md; root legacy residual scan returned empty; archive listing returned all 12 legacy generated docs; validate passed with 12/12 verification intents covered.",
+  "outcomeDiff": "No user-visible diff from expected for B-7f61 cleanup; global convergence_check still reports unrelated unfinished B-5cc7, which is outside this story.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - B-7f61 cleanup is fully covered; unrelated active story B-5cc7 may still prevent whole-project convergence.",
+  "pitfalls": "review_pass_set requires the full reviewRunId form such as B-7f61:RR-009 for Codex-started runs; short RR ids were rejected and had to be retried.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 59062
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 126067
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 303629
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 532545
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 427108
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 292311
+    }
+  },
+  "totalDurationMs": 1740735,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-11T23:29:37.636Z",
+  "updatedAt": "2026-06-11T23:29:37.636Z"
+}

@@ -1,0 +1,37 @@
+{
+  "storyId": "B-7f61",
+  "checkedAt": "2026-06-11T23:28:40.547Z",
+  "reviewRound": "2026-06-11T23:17:38.217Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "promise": "Root Markdown cleanup executes per approved solution: 12 legacy files archived, 5 allowed files remain",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --stat shows 12 files moved to docs/koala/legacy/root-markdown/; ls *.md at root returns exactly AGENTS.md CHANGELOG.md CLAUDE.md README.md jek.md; no overclaim lines in added content per rg scan"
+    },
+    {
+      "docPath": "docs/requirements/decisions/root-document-migration-guide.md",
+      "promise": "Migration guide updated with execution status and historical lineage",
+      "verifiedBy": "diff",
+      "evidence": "git diff shows Migration Status section added noting B-7f61 archived all 12 candidates; no-overclaim boundary section preserved intact"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002",
+      "transcript": "find . -maxdepth 1 -type f -name *.md | sort → AGENTS.md CHANGELOG.md CLAUDE.md README.md jek.md; ls docs/koala/legacy/root-markdown/ → all 12 legacy files present"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "git diff main...HEAD added lines scanned for Production Safety/authority/unattended/production-grade/capability-readiness overclaims → zero matches in docs changes; transcript-diff.md grep hits are self-referential evidence description only"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Root cleanup delivered as scoped: 12 legacy files archived, 5 allowed root files remain, references updated, no overclaims introduced, validate PASS with 12/12 verification coverage"
+  },
+  "_hash": "57006b21eb1f0ea1f0749c452e21aed78ffb1f5e6e64f0b79ce3bfb0f73c03cf"
+}

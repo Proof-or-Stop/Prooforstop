@@ -1,0 +1,52 @@
+{
+  "storyId": "B-7f61",
+  "mode": "enforce",
+  "allowedModify": [
+    "KOALA.md",
+    "koala-project-overview.md",
+    "Lattice-baseline.md",
+    "Lattice-Capability-Claim-baseline.md",
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+    "Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+    "Lattice-Loop-Engineering-baseline.md",
+    "Lattice-Parallel-Development-Capability.md",
+    "Lattice-Production-Safety-baseline.md",
+    "Lattice-Review-reflection-loop.md",
+    "Lattice-lifecycle-memory-Evolving.md",
+    "docs/requirements/decisions/root-document-migration-guide.md",
+    "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+    "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+    "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "docs/koala/legacy/root-markdown/",
+    "docs/koala/legacy/root-markdown/KOALA.md",
+    "docs/koala/legacy/root-markdown/koala-project-overview.md",
+    "docs/koala/legacy/root-markdown/Lattice-baseline.md",
+    "docs/koala/legacy/root-markdown/Lattice-Capability-Claim-baseline.md",
+    "docs/koala/legacy/root-markdown/Lattice-Engineering-baseline.md",
+    "docs/koala/legacy/root-markdown/Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+    "docs/koala/legacy/root-markdown/Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+    "docs/koala/legacy/root-markdown/Lattice-Loop-Engineering-baseline.md",
+    "docs/koala/legacy/root-markdown/Lattice-Parallel-Development-Capability.md",
+    "docs/koala/legacy/root-markdown/Lattice-Production-Safety-baseline.md",
+    "docs/koala/legacy/root-markdown/Lattice-Review-reflection-loop.md",
+    "docs/koala/legacy/root-markdown/Lattice-lifecycle-memory-Evolving.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "jek.md",
+    "README.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CHANGELOG.md",
+    "docs/story/**",
+    "packages/main/tests/fixtures/**"
+  ],
+  "scopeChangeReason": "Root Markdown cleanup scope excludes user-owned jek.md, standard root entrypoints, story files, and fixtures.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-11T23:17:16.322Z",
+  "updatedAt": "2026-06-11T23:17:16.322Z"
+}

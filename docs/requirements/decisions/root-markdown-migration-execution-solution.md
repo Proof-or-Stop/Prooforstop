@@ -131,6 +131,10 @@ rg -n --glob '!docs/story/**' --glob '!**/tests/fixtures/**' 'Production Safety|
 
 The last scan is not a failure by itself. Every match must be reviewed to ensure it is historical, bounded, or explicitly no-claim.
 
+## Migration Status
+
+As of story B-7f61, all 12 non-allowed root Markdown files listed in the Canonical Destinations table have been archived to `docs/koala/legacy/root-markdown/`. Root file references in the tables above are now historical lineage. The remaining root Markdown set matches the Final Allowed Root Markdown Set.
+
 ## No-Overclaim Boundary
 
 This solution is documentation-only. It does not unlock Production Safety, does not grant new capability, does not assert authority readiness, and does not assert unattended readiness. It only defines where root Markdown content should live and how future stories should verify the migration.
