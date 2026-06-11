@@ -104,8 +104,23 @@
         "host_neutral_asset_ownership",
         "no_omx_baseline_assets"
       ]
+    },
+    {
+      "actor": "codex-auditor",
+      "reason": "Codex adapter REVIEW gate required native PreToolUse hook plus global-thin Lattice manifest/guide so verify_codex can produce machine-consumable host-neutral adapter evidence. This does not unlock higher-layer capability claims.",
+      "timestamp": "2026-06-11T00:23:45.614Z",
+      "paths": [
+        ".Codex/hooks/lattice-scope-pretool.cjs",
+        ".lattice/Lattice.md",
+        ".lattice/lattice.json"
+      ],
+      "anchors": [
+        "codex_adapter_verification",
+        "host_neutral_global_thin",
+        "no_higher_layer_claim_unlock"
+      ]
     }
   ],
   "createdAt": "2026-06-10T22:32:56.682Z",
-  "updatedAt": "2026-06-10T23:54:54.618Z"
+  "updatedAt": "2026-06-11T00:23:45.614Z"
 }
