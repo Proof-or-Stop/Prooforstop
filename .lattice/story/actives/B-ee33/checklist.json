@@ -9,7 +9,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The purpose paragraph requires each accepted stash bucket to become a separate future Lattice story, with tests and evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document no longer offers a direct commit path that could bypass story-scoped checklist, review, validation, or evidence gates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The fix does not rewrite unrelated bucket mechanics, stash commands, NAV handling, or host-neutral safety rules.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
