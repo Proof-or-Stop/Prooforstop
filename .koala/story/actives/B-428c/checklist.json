@@ -158,9 +158,9 @@
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T04:08:06.098Z",
       "userSees": "User sees a fresh .lattice Layer 3 artifact root containing refreshed Development, Engineering, and Loop Engineering suite reports bound to the final HEAD/materialHash.",
       "files": {
         "modify": [
@@ -190,7 +190,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "jq summaries for development/engineering/loop-engineering baseline-suite-report.json under .lattice/artifacts/baseline/layer3-loop-engineering-unlock",
+          "result": "pass",
+          "note": "Final root contains Development covered=6, Engineering covered=9, Loop Engineering covered=10; all suiteStatus=PASS and materialHash=61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.",
+          "headHash": "548f6c9125d9ef5e7c60cefdf0d75165a853cefb",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:08:06.123Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Evaluator rebuilt and consumed the final refreshed lower-layer proof, producing authorizedClaimLevel=loop-engineering with no blockedReasons.",
+          "headHash": "548f6c9125d9ef5e7c60cefdf0d75165a853cefb",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:08:06.148Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "find .lattice/artifacts/baseline/layer3-loop-engineering-unlock -path */.omx/* -o -name .omx -o -name .omx*",
+          "result": "pass",
+          "note": "No .omx artifact paths found; proof root is .lattice only.",
+          "headHash": "548f6c9125d9ef5e7c60cefdf0d75165a853cefb",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:08:06.174Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
