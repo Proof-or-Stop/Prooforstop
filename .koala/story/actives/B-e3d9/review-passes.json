@@ -161,6 +161,15 @@
       "reviewRound": "2026-06-11T01:06:29.023Z",
       "reviewRunId": "B-e3d9:RR-030",
       "_hash": "b8b3164cf642564dd138c3dbc7c2ce078d3838a9381060b67757c112048956d2"
+    },
+    {
+      "id": "B-e3d9:RP-019",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: F-006 path-casing stays host-neutral with canonical tracked paths limited to .Lattice/* and .codex/hooks*, forbidden non-canonical .lattice thin files and .Codex/hooks untracked, verified by git ls-files + scripts/verify-entrypoints.mjs. Original gap closures remain logically sound at HEAD: authority-client, lattice-cli-migration-smoke, worktree-policy-smoke, planner-unattended-smoke, and gap-analyze-input-hygiene-smoke all pass after rebuild. Non-blocking note: scripts/verify-codex-assets.mjs still fails on AGENTS.md wrapper wording on both this branch and main, so it is pre-existing and outside B-e3d9 scope.",
+      "createdAt": "2026-06-11T01:10:45.731Z",
+      "reviewRound": "2026-06-11T01:06:29.023Z",
+      "reviewRunId": "B-e3d9:RR-027",
+      "_hash": "00e1e0d947aa064cfff9622836e370487cb948dcd1eb9e56590a67ff6e9c1b1a"
     }
   ]
 }
