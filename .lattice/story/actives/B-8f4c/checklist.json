@@ -47,15 +47,26 @@
       },
       "verificationEvidence": [
         {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline Bucket A / NAV restore correctness checker",
+          "result": "pass",
+          "note": "Document defines executable buckets for dev-memory data handling, runtime artifact cleanup, smoke repairs, Layer4 doc handling, and planner hash deferral.",
+          "headHash": "ba45ed69fcabc07e46590aeaf08e8630f6d9dd31",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:49:37.549Z"
+        },
+        {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
           "command": "node inline Bucket A / NAV restore correctness checker",
           "result": "pass",
           "note": "Bucket A no longer scopes .gitignore or requires git check-ignore; dev-memory data is excluded by not restoring, staging, or committing it.",
-          "headHash": "cd9cfe918b9fd20d71526ec31c4d4237af227381",
+          "headHash": "ba45ed69fcabc07e46590aeaf08e8630f6d9dd31",
           "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:48:53.455Z"
+          "timestamp": "2026-06-11T21:49:37.584Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -64,9 +75,9 @@
           "command": "git diff --check HEAD~1..HEAD",
           "result": "pass",
           "note": "Focused doc patch has no whitespace errors and only corrects the two reviewer-verified execution-plan issues.",
-          "headHash": "cd9cfe918b9fd20d71526ec31c4d4237af227381",
+          "headHash": "ba45ed69fcabc07e46590aeaf08e8630f6d9dd31",
           "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:48:53.520Z"
+          "timestamp": "2026-06-11T21:49:37.618Z"
         }
       ]
     },
