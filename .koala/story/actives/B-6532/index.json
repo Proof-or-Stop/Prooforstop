@@ -4,7 +4,7 @@
   "title": "Execute formal Layer 2 Engineering Baseline unlock",
   "description": "Execute the formal Layer 2 Engineering Baseline unlock end to end. All Lattice baseline assets for this run must be written under .Lattice/artifacts/baseline, not .omx. The final required result is a formal claim report with authorized=true, authorizedClaimLevel=engineering, layer2EngineeringClaim=UNLOCKED, higher-layer claims LOCKED, and production/Authority/full-unattended fields false. Use two-host Claude CLI and Codex CLI multi-agent review. Follow: do not optimize for the sake of optimization; do not optimize arbitrarily; only fix real correctness issues; maintain logical consistency.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-06-10T22:19:12.532Z",
   "startedAt": "2026-06-10T22:19:12.532Z",
-  "endedAt": null,
+  "endedAt": "2026-06-11T00:28:25.777Z",
   "events": [
     {
       "phase": "INIT",
@@ -90,12 +90,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-a80baa8197125884",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-11T00:28:25.777Z",
+      "branch": "story/B-6532",
+      "user": "Harmonygo",
+      "sessionId": "sess-a80baa8197125884",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6532",
-    "branch": "story/B-6532",
-    "createdAt": "2026-06-10T22:29:34.173Z"
-  },
   "currentReviewRound": "2026-06-11T00:23:52.021Z"
 }
