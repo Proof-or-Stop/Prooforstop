@@ -20,7 +20,7 @@ This repository currently has 17 root-level Markdown files.
 | `CLAUDE.md` | Claude-facing root instruction entrypoint | Stay root host-specific compatibility asset | Root | Keep as a Claude Code-specific root entrypoint and compatibility asset by filename contract. Update in place when project workflow changes. |
 | `README.md` | Human-facing repository entrypoint | Stay root | Root | Keep as the first landing page for the repo. |
 | `CHANGELOG.md` | Human release history | Stay root compatibility asset | Root | Keep while release history is still consumed from the repository root. |
-| `KOALA.md` | Legacy Koala-named guide | Retirement target | Active guide material to `docs/guide.md` or `docs/guide-*.md`; historical material to `docs/koala/legacy/root-markdown/KOALA.md` only if retention is needed | Retire the root path. Do not keep it as retained compatibility. Update references, then delete or use only a temporary migration stub. |
+| `KOALA.md` | Legacy Koala-named guide | Retirement target | Active guide material to `docs/guide.md` or `docs/guide-*.md`; historical material to `docs/koala/legacy/root-markdown/KOALA.md` only if retention is needed | Retire the root path. Do not keep it at root. Update references, then delete or use only a temporary migration stub. |
 | `jek.md` | User-owned local bootstrap note | Stay root | Root | Keep in place as user-owned content. Agents must not migrate, rewrite, archive, or retire it unless the user explicitly asks. |
 | `koala-project-overview.md` | Duplicate project overview | Move / merge candidate | `docs/requirements/decisions/project-vision.md` | Merge into the canonical overview, then leave only a short compatibility stub if external references still exist. |
 | `Lattice-baseline.md` | Legacy baseline policy doc | Move / merge candidate | `docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md` | Merge policy that is still active into the canonical baseline decision; archive duplicated historical text. |
@@ -43,7 +43,7 @@ Only root files that satisfy one of these conditions should remain at the reposi
 3. They are a release-history or bootstrap artifact that existing tooling already treats as root-owned.
 4. They are explicitly user-owned local bootstrap notes.
 
-In practice, the final allowed root Markdown set is `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, and `jek.md`. `KOALA.md` is a retirement target, not retained compatibility. Anything else should be treated as a migration or retirement candidate, not a new permanent root doc.
+In practice, the final allowed root Markdown set is `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, and `jek.md`. `KOALA.md` is a retirement target and must not remain at root after cleanup. Anything else should be treated as a migration or retirement candidate, not a new permanent root doc.
 
 ## Migration Order
 

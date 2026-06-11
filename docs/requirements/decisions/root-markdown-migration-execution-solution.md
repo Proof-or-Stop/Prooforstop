@@ -18,7 +18,7 @@ After the migration is complete, the only Markdown files allowed at repository r
 | `CHANGELOG.md` | Release-history artifact | Keep root while releases are still recorded from this path. |
 | `jek.md` | User-owned local bootstrap note | Keep root. Agents must not migrate, rewrite, archive, or retire it unless the user explicitly asks. |
 
-`KOALA.md` is not part of the final allowed root set. It is a retirement target, not a retained compatibility asset.
+`KOALA.md` is not part of the final allowed root set. It is a retirement target and must not remain at root after cleanup.
 
 ## Canonical Destinations
 
