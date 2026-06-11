@@ -56,9 +56,9 @@
           "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
           "note": "Current-head smoke keeps supported ed25519 receipt verification passing, including the pinned env LATTICE_AUTHORITY_SERVER_PUBLIC_KEY path with policy serverKey.algorithm=ED25519; counts.policy=1 proves policy metadata was consulted while the pinned key remained the trust anchor.",
-          "headHash": "8b271dff96d0a6a01b2f80f30f9bec69e3bb2ca6",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-11T00:16:16.269Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,9 +67,9 @@
           "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
           "note": "Current-head smoke preserves algorithm normalization/fail-closed edges: case-variant ED25519 is accepted, blank/malformed algorithm material is rejected as unsupported, and pinned deployments with unavailable policy still have no new required algorithm metadata path.",
-          "headHash": "8b271dff96d0a6a01b2f80f30f9bec69e3bb2ca6",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-11T00:16:16.313Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
           "note": "Current-head smoke covers B-e3d9:F-003: env-pinned serverPublicKey plus fake policy serverKey.algorithm=rsa returns receipt_unverified, blocks executePlannedSteps authority DONE, and authorityJobVerdictStatus keeps receiptVerified/authorityDone/fullAuthorityDone false; counts.policy=1 proves policy metadata was consulted for both gate and job-status receipt verification.",
-          "headHash": "8b271dff96d0a6a01b2f80f30f9bec69e3bb2ca6",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-11T00:16:16.354Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         }
       ]
     },
@@ -138,9 +138,9 @@
           "command": "lattice gap_analyze",
           "result": "pass",
           "note": "gap_analyze no longer reports the stale supportsDryRun uncovered_requirement; the remaining high gaps are the separate CHK-003/CHK-004 authority-policy items.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,9 +148,9 @@
           "command": "node packages/main/dist/cli.js --root . story_reconcile --help; node packages/main/dist/cli.js --root . test_auto --help; node packages/main/dist/cli.js --root . host_install --help",
           "result": "pass",
           "note": "The live help surface now distinguishes default-on dry-run (story_reconcile), optional --dryRun plus --confirm semantics (test_auto), and always-on projection-only behavior (host_install) without inventing metadata for commands that do not expose real dry-run behavior.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,9 +159,9 @@
           "command": "git show --stat --format=fuller HEAD -- docs/requirements/decisions/cc-learnings.md packages/main/src/cli-engine.ts packages/main/src/core/command-policy.ts",
           "result": "pass",
           "note": "The requirement truth now explicitly rejects a new ToolDef.supportsDryRun field, and the code annotations/help bind dry-run semantics to existing schema plus COMMAND_POLICIES surfaces so a metadata-only fix would contradict the documented contract.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         }
       ]
     },
@@ -220,9 +220,9 @@
           "command": "npm --prefix packages/main run test:planner-unattended-smoke",
           "result": "pass",
           "note": "planner-unattended smoke asserts authority JobPlans emit requiresAuthoritativeWorktree=true, preserve git-status evidence requirements, and provider planned steps carry requiresCleanWorktree for the passing authoritative worktree path",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -231,9 +231,9 @@
           "command": "npm --prefix packages/main run test:worktree-policy-smoke",
           "result": "pass",
           "note": "worktree-policy smoke distinguishes clean missing-worktree authoritative_worktree_unresolved from configured dirty-worktree dirty_worktree, including policy-level requiresCleanWorktree=true without conflating the two stop reasons",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -242,9 +242,9 @@
           "command": "lattice gap_analyze",
           "result": "pass",
           "note": "gap_analyze reports 0 high / 0 medium after runtime annotations and smoke assertions, proving requiresAuthoritativeWorktree and requiresCleanWorktree are linked to live enforcement rather than prose-only coverage",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         }
       ]
     },
@@ -302,9 +302,9 @@
           "command": "npm --prefix packages/main run test:planner-unattended-smoke",
           "result": "pass",
           "note": "planner-unattended smoke records planner_answer confirmationDigest and then planner_create_story succeeds with a persisted Story id when requiresConfirmationBeforeStoryCreate is satisfied",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -313,9 +313,9 @@
           "command": "npm --prefix packages/main run test:planner-unattended-smoke",
           "result": "pass",
           "note": "planner-unattended smoke asserts local autonomous plannerPolicy has requiresConfirmationBeforeStoryCreate=false and create-story proceeds without inheriting the stricter confirmation gate",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -324,9 +324,9 @@
           "command": "npm --prefix packages/main run test:planner-unattended-smoke",
           "result": "pass",
           "note": "planner-unattended smoke attempts planner_create_story with a confirmation-required draft and no confirmationDigest; it returns blocked with confirmation required before Story creation and status shows no storyId was created",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         }
       ]
     },
@@ -385,9 +385,9 @@
           "command": "lattice gap_analyze; npm --prefix packages/main run build; npm run test:authority-client; npm run test:lattice-cli-migration-smoke; npm run test:worktree-policy-smoke; npm run test:planner-unattended-smoke",
           "result": "pass",
           "note": "Current-head convergence suite passed: gap_analyze reports Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium; build and all focused smokes for receipt algorithm, dry-run help, worktree policy, and planner confirmation passed. lattice validate is rerun after this evidence so final pass remains Lattice-authoritative, not host narrative.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -395,9 +395,9 @@
           "command": "command -v claude && claude --version; guarded claude -p advisory review attempt 1; guarded claude -p advisory review attempt 2",
           "result": "pass",
           "note": "Codex host coordinated the story and Lattice commands. Claude CLI host was present at /Users/jek/.nvm/versions/node/v22.13.0/bin/claude version 2.1.88; advisory attempt 1 returned a one-sentence confirmation that Lattice gap_analyze/validate are authoritative, while advisory attempt 2 was degraded by the local 15s guard with exit 143/no output. Both are recorded as advisory only; they do not replace Lattice CLI/test evidence.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -405,9 +405,9 @@
           "command": "lattice validate --story=B-e3d9 before adding CHK-005 evidence",
           "result": "pass",
           "note": "The pre-evidence validate run passed npm test but still refused completion with 12/15 covered and CHK-005 missing, proving host transcripts or partial command success cannot satisfy the gate without current Lattice verificationEvidence.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
-          "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "headHash": "309a856c185391c284ed23a223a03293645972ad",
+          "materialHash": "9b079fff1d140889acd3c5113ed65962b131f5bee16c4b3be30aff3143299322",
+          "timestamp": "2026-06-11T00:18:09.013Z"
         }
       ]
     }
