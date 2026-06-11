@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-11T00:37:11.229Z",
       "reviewRunId": "B-e3d9:RR-017",
       "_hash": "49839e0e2a571a990d8b0f7965aa392d82b01d3971bded1914550fbdc5b567be"
+    },
+    {
+      "id": "B-e3d9:RP-013",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass. main...HEAD is minimal on the adapter side: only .Codex/hooks/lattice-scope-pretool.cjs plus .lattice/* were added; no CLAUDE.md or .claude churn appears in the diff. scope_contract_check is warn-only with 8 acknowledged out-of-scope paths matching the extra adapter/help/smoke files, and no broader spill. Verified smokes/build on touched surfaces pass: npm run build, test:authority-client, test:planner-unattended-smoke, test:worktree-policy-smoke, test:gap-analyze-input-hygiene-smoke, test:lattice-cli-migration-smoke, test:pretool-scope-hook-smoke, and node bin/lattice.js verify_codex. Residual risk only: test:thin-init-assets-smoke still fails in unchanged global-thin init/verify files (cli-init/codex-adapter-checks/thin-init-assets-smoke), so I am not attributing that pre-existing gap to this story.",
+      "createdAt": "2026-06-11T00:42:10.396Z",
+      "reviewRound": "2026-06-11T00:37:11.229Z",
+      "reviewRunId": "B-e3d9:RR-018",
+      "_hash": "fc54a2d04f01475698808a40bc8aa04fe3d285ed12efc6c225b74b8210a052f3"
     }
   ]
 }
