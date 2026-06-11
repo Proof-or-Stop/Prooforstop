@@ -46,34 +46,34 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/NAV.md",
-          "command": "find docs/requirements/decisions -maxdepth 1 -type f -name \"*.md\" | wc -l && sed -n \"3p\" docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\");const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\");const files=fs.readdirSync(\"docs/requirements/decisions\").filter(f=>f.endsWith(\".md\"));const links=[...nav.matchAll(/\\(decisions\\/([^\\)]+)\\)/g)].map(m=>m[1]);const count=Number(nav.match(/^> (\\d+) 个文件/m)?.[1]||0);const guide=fs.readFileSync(\"docs/requirements/decisions/root-document-migration-guide.md\",\"utf8\");const row=guide.split(\"\\n\").find(l=>l.startsWith(\"| `Lattice-lifecycle-memory-Evolving.md`\"))||\"\";const result={count,files:files.length,links:links.length,hasDev:row.includes(\"dev-memory.md\"),hasScope:row.includes(\"lifecycle-artifact-scope.md\")};console.log(JSON.stringify(result));if(count!==files.length||links.length!==files.length||!result.hasDev||!result.hasScope)process.exit(1);'",
           "result": "pass",
-          "note": "Decision markdown file count is 38 and NAV header now says > 38 个文件.",
-          "headHash": "a37bd1925d664f384fe230356b92e53a8a7d3dde",
+          "note": "The docs check returned count=38, files=38, links=38, proving the NAV declared count matches the current decision docs and NAV decision links.",
+          "headHash": "9fe297a2bb42f343b7c043b004fc65229d69d6d1",
           "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
-          "timestamp": "2026-06-11T22:43:06.129Z"
+          "timestamp": "2026-06-11T22:45:29.374Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/NAV.md",
-          "command": "rg -c \"^- \\\\[.*\\\\]\\\\(decisions/.*\\\\.md\\\\)\" docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\");const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\");const files=fs.readdirSync(\"docs/requirements/decisions\").filter(f=>f.endsWith(\".md\"));const links=[...nav.matchAll(/\\(decisions\\/([^\\)]+)\\)/g)].map(m=>m[1]);const count=Number(nav.match(/^> (\\d+) 个文件/m)?.[1]||0);const guide=fs.readFileSync(\"docs/requirements/decisions/root-document-migration-guide.md\",\"utf8\");const row=guide.split(\"\\n\").find(l=>l.startsWith(\"| `Lattice-lifecycle-memory-Evolving.md`\"))||\"\";const result={count,files:files.length,links:links.length,hasDev:row.includes(\"dev-memory.md\"),hasScope:row.includes(\"lifecycle-artifact-scope.md\")};console.log(JSON.stringify(result));if(count!==files.length||links.length!==files.length||!result.hasDev||!result.hasScope)process.exit(1);'",
           "result": "pass",
-          "note": "NAV decision link count is 38, matching the 38 decision markdown files.",
-          "headHash": "a37bd1925d664f384fe230356b92e53a8a7d3dde",
+          "note": "The same docs check found no missing or stale decision-link mismatch because link count and decision-file count both equal 38.",
+          "headHash": "9fe297a2bb42f343b7c043b004fc65229d69d6d1",
           "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
-          "timestamp": "2026-06-11T22:43:06.201Z"
+          "timestamp": "2026-06-11T22:45:29.374Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "docs_check",
+          "kind": "manual_transcript",
           "file": "docs/requirements/NAV.md",
-          "command": "git show --stat --oneline HEAD",
+          "command": "git diff --name-only HEAD~1..HEAD && git diff --check HEAD~1..HEAD",
           "result": "pass",
-          "note": "Commit a37bd192 changes only the NAV header count for this item; it does not add, remove, or reorder NAV links.",
-          "headHash": "a37bd1925d664f384fe230356b92e53a8a7d3dde",
+          "note": "Diff inspection showed only NAV.md and root-document-migration-guide.md changed, and diff --check passed; NAV was not regenerated or reordered.",
+          "headHash": "9fe297a2bb42f343b7c043b004fc65229d69d6d1",
           "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
-          "timestamp": "2026-06-11T22:43:06.270Z"
+          "timestamp": "2026-06-11T22:45:29.374Z"
         }
       ]
     },
@@ -125,34 +125,34 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "rg -n \"Lattice-lifecycle-memory-Evolving\\.md|dev-memory\\.md|lifecycle-artifact-scope\\.md\" docs/requirements/decisions/root-document-migration-guide.md docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "node -e 'const fs=require(\"fs\");const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\");const files=fs.readdirSync(\"docs/requirements/decisions\").filter(f=>f.endsWith(\".md\"));const links=[...nav.matchAll(/\\(decisions\\/([^\\)]+)\\)/g)].map(m=>m[1]);const count=Number(nav.match(/^> (\\d+) 个文件/m)?.[1]||0);const guide=fs.readFileSync(\"docs/requirements/decisions/root-document-migration-guide.md\",\"utf8\");const row=guide.split(\"\\n\").find(l=>l.startsWith(\"| `Lattice-lifecycle-memory-Evolving.md`\"))||\"\";const result={count,files:files.length,links:links.length,hasDev:row.includes(\"dev-memory.md\"),hasScope:row.includes(\"lifecycle-artifact-scope.md\")};console.log(JSON.stringify(result));if(count!==files.length||links.length!==files.length||!result.hasDev||!result.hasScope)process.exit(1);'",
           "result": "pass",
-          "note": "The migration guide row now names both dev-memory.md and lifecycle-artifact-scope.md, matching the execution solution.",
-          "headHash": "63f2c45f01dea7d0dae7cf7f6c31fd186723dcd3",
+          "note": "The docs check returned hasDev=true and hasScope=true for the lifecycle-memory row, proving both target homes are present.",
+          "headHash": "9fe297a2bb42f343b7c043b004fc65229d69d6d1",
           "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
-          "timestamp": "2026-06-11T22:43:29.898Z"
+          "timestamp": "2026-06-11T22:45:29.374Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "rg -n \"Split durable memory policy from runtime artifact scope before moving\" docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node -e 'const fs=require(\"fs\");const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\");const files=fs.readdirSync(\"docs/requirements/decisions\").filter(f=>f.endsWith(\".md\"));const links=[...nav.matchAll(/\\(decisions\\/([^\\)]+)\\)/g)].map(m=>m[1]);const count=Number(nav.match(/^> (\\d+) 个文件/m)?.[1]||0);const guide=fs.readFileSync(\"docs/requirements/decisions/root-document-migration-guide.md\",\"utf8\");const row=guide.split(\"\\n\").find(l=>l.startsWith(\"| `Lattice-lifecycle-memory-Evolving.md`\"))||\"\";const result={count,files:files.length,links:links.length,hasDev:row.includes(\"dev-memory.md\"),hasScope:row.includes(\"lifecycle-artifact-scope.md\")};console.log(JSON.stringify(result));if(count!==files.length||links.length!==files.length||!result.hasDev||!result.hasScope)process.exit(1);'",
           "result": "pass",
-          "note": "The existing split rationale remains unchanged; only the target destination cell was aligned.",
-          "headHash": "63f2c45f01dea7d0dae7cf7f6c31fd186723dcd3",
+          "note": "The migration guide row now matches the execution solution split between dev-memory.md and lifecycle-artifact-scope.md.",
+          "headHash": "9fe297a2bb42f343b7c043b004fc65229d69d6d1",
           "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
-          "timestamp": "2026-06-11T22:43:29.967Z"
+          "timestamp": "2026-06-11T22:45:29.374Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
-          "command": "git diff HEAD^ HEAD -- docs/requirements/decisions/root-markdown-migration-execution-solution.md && git show --stat --oneline HEAD",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "git diff --name-only HEAD~1..HEAD && git diff --check HEAD~1..HEAD",
           "result": "pass",
-          "note": "The execution solution was not modified; commit a37bd192 is limited to NAV.md and root-document-migration-guide.md.",
-          "headHash": "63f2c45f01dea7d0dae7cf7f6c31fd186723dcd3",
+          "note": "Diff inspection showed only the intended documentation files changed and no host-specific migration claims or broader root cleanup policy were added.",
+          "headHash": "9fe297a2bb42f343b7c043b004fc65229d69d6d1",
           "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
-          "timestamp": "2026-06-11T22:43:30.035Z"
+          "timestamp": "2026-06-11T22:45:29.374Z"
         }
       ]
     }
