@@ -77,9 +77,9 @@
         "docs/requirements/decisions/stash-split-execution-plan.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T22:22:21.794Z",
       "verificationIntent": {
         "happy": [
           {
@@ -102,7 +102,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline stable STASH_OBJECT and no whole-stash checker",
+          "result": "pass",
+          "note": "Stable STASH_OBJECT remains pinned to c4dcc3aff95fd999712d7f19dcf856f791cf0d05, stash untracked parent matches, and whole-stash apply/pop/restore prohibitions remain present.",
+          "headHash": "b2f862cd93f059f71c66f1372862f44b4e6c0fab",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:22:21.838Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "node inline NAV count/link checker",
+          "result": "pass",
+          "note": "NAV remains unchanged and consistent: 37 declared files, 37 decision markdown files, and 37 NAV decision links.",
+          "headHash": "b2f862cd93f059f71c66f1372862f44b4e6c0fab",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:22:21.873Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline forbidden direct bypass wording checker",
+          "result": "pass",
+          "note": "Search confirms story-or-commit bypass wording is absent while legitimate commit references remain scoped to story-controlled bucket commits.",
+          "headHash": "b2f862cd93f059f71c66f1372862f44b4e6c0fab",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:22:21.908Z"
+        }
+      ]
     }
   ]
 }
