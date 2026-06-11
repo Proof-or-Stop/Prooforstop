@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-11T23:04:58.263Z",
       "reviewRunId": "B-5cc7:RR-003",
       "_hash": "128d0c3f68fbeaf021af533afeaad4839d7a3cc2b220f93d50765759f451a3f7"
+    },
+    {
+      "id": "B-5cc7:RP-002",
+      "agent": "koala-review-concept",
+      "note": "PASS Bucket A conceptual correctness: legacy .koala dev-memory paths are read-only fallback through read helpers; capture/finish writes remain on canonical .lattice/story paths; final diff does not restore .lattice/dev-memory/experience.jsonl; entries and smoke coverage keep gateEvidence=false and authority=non_authoritative without Authority production overclaim. Verified with git diff/read-path inspection and npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "createdAt": "2026-06-11T23:07:27.015Z",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "reviewRunId": "B-5cc7:RR-005",
+      "_hash": "c60f790b49cef7d0f9298690678e1de234f1b60240b9db3b90c397a7ee1ca9a9"
     }
   ]
 }
