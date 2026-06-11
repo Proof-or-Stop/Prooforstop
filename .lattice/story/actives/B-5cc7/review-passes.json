@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-11T23:20:58.733Z",
       "reviewRunId": "B-5cc7:RR-013",
       "_hash": "a3c97d15e7b38a02d9f1e37108563d314e0c1e3ac44a98c056ba786908de2004"
+    },
+    {
+      "id": "B-5cc7:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test-coverage: reran npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js successfully. Smoke covers project/global current plus legacy read fallback, duplicate ids with current .lattice winning, LATTICE_GLOBAL_MEMORY_DIR masking legacy fallback, KOALA_GLOBAL_MEMORY_DIR remaining read-only fallback without redirecting writable global path, global read paths current-first then legacy fallback, capture writing only .lattice and non-authoritative entries. Also verified git diff/status contain no .lattice/dev-memory/experience.jsonl restored, tracked, or present in worktree.",
+      "createdAt": "2026-06-11T23:33:47.089Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-016",
+      "_hash": "01aa32dd4a9ed4be5aafc199c3e025a40779d92666bfb6fda46fe22bbb7b6413"
     }
   ]
 }
