@@ -35,6 +35,7 @@
 - [Stash Split Execution Plan](decisions/stash-split-execution-plan.md)
 - [Story 生命周期](decisions/story-lifecycle.md)
 - [Root Document Migration Guide](decisions/root-document-migration-guide.md)
+- [Root Markdown Migration Execution Solution](decisions/root-markdown-migration-execution-solution.md)
 - [@test 注释与 Fixture 规范](decisions/test-fixture-spec.md)
 - [testIntent 对抗审查体系](decisions/test-intent-review.md)
 - [测试完整性决策](decisions/testing-completeness.md)

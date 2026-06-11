@@ -4,7 +4,7 @@
   "title": "Write root Markdown migration execution solution",
   "description": "Create a concrete execution solution for moving agent-generated root Markdown documents to their canonical docs locations. The solution must preserve human and host entrypoints, keep user-owned jek.md at root, and explicitly retire the legacy KOALA root guide instead of treating it as a retained root compatibility asset.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-11T22:10:38.140Z",
   "startedAt": "2026-06-11T22:10:38.140Z",
-  "endedAt": null,
+  "endedAt": "2026-06-11T22:26:25.370Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:11:22.594Z",
+      "branch": "story/B-0b9b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:13:22.474Z",
+      "branch": "story/B-0b9b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:21:16.630Z",
+      "branch": "story/B-0b9b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:22:29.986Z",
+      "branch": "story/B-0b9b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:23:22.843Z",
+      "branch": "story/B-0b9b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:24:21.725Z",
+      "branch": "story/B-0b9b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:26:25.370Z",
+      "branch": "story/B-0b9b",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-0b9b",
-    "branch": "story/B-0b9b",
-    "createdAt": "2026-06-11T22:11:06.771Z"
-  }
+  "currentReviewRound": "2026-06-11T22:23:22.843Z"
 }
