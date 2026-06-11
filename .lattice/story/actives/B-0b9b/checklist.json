@@ -58,6 +58,17 @@
           "headHash": "9946c3c9562f813d466881630186a441e09183a3",
           "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
           "timestamp": "2026-06-11T22:18:35.751Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The execution solution separates low-risk policy/engineering/loop merges from claim-sensitive retirements and states capability and Production Safety root docs must not create readiness or unlock claims.",
+          "headHash": "ead26b7ea82f06e414336679f636291f692c573c",
+          "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
+          "timestamp": "2026-06-11T22:18:41.336Z"
         }
       ]
     },
