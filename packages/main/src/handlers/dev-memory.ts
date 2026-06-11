@@ -10,6 +10,8 @@ import {
   createEntry,
   appendEntry,
   readEntries,
+  readGlobalMemoryEntries,
+  readProjectMemoryEntries,
   searchEntries,
   findSimilar,
   buildPreflightPack,
@@ -78,7 +80,9 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       ? resolveGlobalMemoryPath()
       : resolveProjectMemoryPath(root);
     // Duplicate detection: check existing entries before appending
-    const existingEntries = readEntries(filePath);
+    const existingEntries = scope === 'global'
+      ? readGlobalMemoryEntries()
+      : readProjectMemoryEntries(root);
     const similar = findSimilar(existingEntries, input);
     appendEntry(filePath, entry);
     const tagsStr = entry.tags && entry.tags.length > 0 ? ` [${entry.tags.join(', ')}]` : '';
@@ -96,14 +100,14 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     const scope = args.scope || 'project';
     let entries = (() => {
       if (scope === 'global') {
-        return readEntries(resolveGlobalMemoryPath());
+        return readGlobalMemoryEntries();
       }
       if (scope === 'project') {
-        return readEntries(resolveProjectMemoryPath(root));
+        return readProjectMemoryEntries(root);
       }
       // 'story-candidate' — list all known story candidate files
       // For simplicity, read from project memory
-      return readEntries(resolveProjectMemoryPath(root));
+      return readProjectMemoryEntries(root);
     })();
     const limit = args.limit ?? 50;
     // Newest-first: reverse the full array, then take the first `limit` items
@@ -135,8 +139,8 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     global?: boolean;
     json?: boolean;
   }): string {
-    const projectEntries = readEntries(resolveProjectMemoryPath(root));
-    const globalEntries = args.global ? readEntries(resolveGlobalMemoryPath()) : [];
+    const projectEntries = readProjectMemoryEntries(root);
+    const globalEntries = args.global ? readGlobalMemoryEntries() : [];
     const seen = new Set<string>();
     const allEntries = [];
     for (const e of [...projectEntries, ...globalEntries]) {
@@ -193,7 +197,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     scope?: string;
   }): string {
     const projectPath = resolveProjectMemoryPath(root);
-    const allEntries = readEntries(projectPath);
+    const allEntries = readProjectMemoryEntries(root);
     const relevant = args.query
       ? searchEntries(allEntries, { query: args.query, limit: 20 })
       : allEntries.slice(-20);
@@ -210,7 +214,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       if (args.scope === 'global') {
         // Promote relevant project entries to global dev-memory, de-duped by id.
         const globalPath = resolveGlobalMemoryPath();
-        const existingGlobalIds = new Set(readEntries(globalPath).map(e => e.id));
+        const existingGlobalIds = new Set(readGlobalMemoryEntries().map(e => e.id));
         const newEntries = relevant.filter(e => !existingGlobalIds.has(e.id));
         for (const e of newEntries) {
           const globalCopy = {
