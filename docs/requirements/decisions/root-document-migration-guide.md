@@ -24,13 +24,13 @@ This repository currently has 17 root-level Markdown files.
 | `jek.md` | Local bootstrap note | Archive candidate | TBD / do not migrate yet | Leave this note in place until a human classifies the content and chooses one definitive archive target. |
 | `koala-project-overview.md` | Duplicate project overview | Move / merge candidate | `docs/requirements/decisions/project-vision.md` | Merge into the canonical overview, then leave only a short compatibility stub if external references still exist. |
 | `Lattice-baseline.md` | Legacy baseline policy doc | Move / merge candidate | `docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md` | Merge policy that is still active into the canonical baseline decision; archive duplicated historical text. |
-| `Lattice-Capability-Claim-baseline.md` | Legacy capability boundary doc | Move / merge candidate | `docs/requirements/decisions/lattice-capability-claim-boundary.md` | Future-only and no-claim: convert only the still-valid claim boundary into a reviewed decision if and when that separate decision is approved. |
+| `Lattice-Capability-Claim-baseline.md` | Legacy capability boundary doc | Move / merge candidate | TBD / do not migrate yet | Future-only and no-claim: keep root compatibility until a reviewed capability-claim decision exists. |
 | `Lattice-Engineering-baseline.md` | Legacy engineering baseline doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` | Merge active Layer 2 engineering baseline material into the existing Layer 2 decision. |
 | `Lattice-Engineering-Baseline-Unlock-Execution-Plan.md` | Legacy execution plan doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` | Fold durable execution-plan details into the Layer 2 decision; mark superseded evidence inside that decision when needed. |
 | `Lattice-Layer2-Proof-Bridge-Execution-Plan.md` | Legacy execution plan doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` | Merge only the bridge rules that remain current; do not duplicate Layer 2 proof claims. |
 | `Lattice-Loop-Engineering-baseline.md` | Legacy loop-engineering doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md` | Merge active Loop Engineering baseline material into the Layer 3 decision. |
 | `Lattice-Parallel-Development-Capability.md` | Legacy parallel-development capability doc | Move / merge candidate | `docs/requirements/decisions/lattice-parallel-wave.md` | Merge reusable parallel-development policy into the existing parallel-wave decision. |
-| `Lattice-Production-Safety-baseline.md` | Legacy production-safety baseline doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer4-production-safety-suite.md` | Future-only and no-unlock: move only in a dedicated Production Safety story after the reviewed decision exists. |
+| `Lattice-Production-Safety-baseline.md` | Legacy production-safety baseline doc | Move / merge candidate | TBD / do not migrate yet | Future-only and no-unlock: keep root compatibility until a reviewed Production Safety decision exists. |
 | `Lattice-Review-reflection-loop.md` | Legacy review-loop doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md` | Merge active reflection-loop rules into the Layer 3 truth source. |
 | `Lattice-lifecycle-memory-Evolving.md` | Legacy lifecycle-memory doc | Move / merge candidate | `docs/requirements/decisions/dev-memory.md` | Split durable memory policy from runtime artifact scope before moving. |
 
@@ -87,7 +87,7 @@ If the old path is only a filename contract and the canonical doc is already in 
 ## Reference-Update Rules
 
 1. Update links before moving files when the old path is still referenced.
-2. Update every inbound reference in the same migration set: root docs, `docs/requirements/NAV.md`, related guides, and any code or prompt text that names the file directly.
+2. Update every Markdown documentation reference in the same migration set: root docs, `docs/requirements/NAV.md`, and related guides that name the file directly.
 3. Preserve the meaning of the document while changing its location. A move is not an excuse to rewrite scope.
 4. Do not create new root Markdown files unless they are entrypoints or compatibility assets.
 5. If a filename is part of a contract, update the contract consumers at the same time as the document move.
