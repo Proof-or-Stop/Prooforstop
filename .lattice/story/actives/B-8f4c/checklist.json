@@ -113,37 +113,26 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-002:happy:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/NAV.md",
-          "command": "node inline NAV + decisions count checker",
-          "result": "pass",
-          "note": "NAV declared count is 37, link count is 37, and decisions directory contains 37 Markdown files.",
-          "headHash": "92e78bf3f6cc15af3f9203d3a2a9b84aa71b9955",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:13.389Z"
-        },
-        {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/NAV.md",
-          "command": "node inline NAV + decisions count checker",
+          "command": "node inline NAV current-catalog checker",
           "result": "pass",
-          "note": "NAV preserves Layer 2, Layer 3, and Root Document Migration Guide entries while adding only Stash Split Execution Plan.",
-          "headHash": "92e78bf3f6cc15af3f9203d3a2a9b84aa71b9955",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:13.422Z"
+          "note": "Current NAV has 37 decision links for 37 decision files and preserves Layer2, Layer3, Root Document Migration Guide, and Stash Split Execution Plan entries.",
+          "headHash": "b36653526657275ce44b0bba47399b1bbe01065c",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:49:00.051Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
-          "file": "docs/requirements/NAV.md",
-          "command": "node inline NAV + stash split plan checker",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline stale NAV restore guard checker",
           "result": "pass",
-          "note": "Layer4 document is not present in decisions directory and the doc says a future Layer4 story must reconcile NAV against the then-current count, not reuse stale stash NAV text.",
-          "headHash": "92e78bf3f6cc15af3f9203d3a2a9b84aa71b9955",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:13.456Z"
+          "note": "Plan now forbids restoring docs/requirements/NAV.md from stash@{0}; future Layer4 work must hand-merge the NAV link and count from current state.",
+          "headHash": "b36653526657275ce44b0bba47399b1bbe01065c",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:49:00.085Z"
         }
       ]
     },
