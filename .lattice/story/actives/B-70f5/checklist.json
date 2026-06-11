@@ -9,7 +9,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees docs/requirements/NAV.md declare 38 decision files, matching the 38 linked decision docs in docs/requirements/decisions.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV declared decision-file count equals the number of decision markdown files and decision links after the edit.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The count correction does not leave missing or stale decision links in NAV.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The edit does not reorder, regenerate, or rewrite unrelated NAV entries.",
+            "type": "manual"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,24 @@
+{
+  "task": "Fix two audited inconsistencies in the root Markdown migration documentation without expanding the migration scope.",
+  "outcome": "User sees: multi-host audit found two real documentation consistency issues; NAV now reports 38 decision files, and the lifecycle-memory row now points to both dev-memory.md and lifecycle-artifact-scope.md. Verification passed, with no arbitrary rewrite.",
+  "facts": [
+    "Two Claude CLI host reviews and one Codex CLI host review were run before this story.",
+    "docs/requirements/NAV.md declares 37 decision files while the decisions directory and NAV links currently total 38.",
+    "root-markdown-migration-execution-solution.md treats Lattice-lifecycle-memory-Evolving.md as split across dev-memory.md and lifecycle-artifact-scope.md.",
+    "root-document-migration-guide.md currently narrows that row to dev-memory.md only."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues found by the host audits.",
+    "Preserve consistency of logic and host-neutral Lattice guidance.",
+    "Do not move or delete root Markdown files in this story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/NAV.md",
+    "docs/requirements/decisions/root-document-migration-guide.md",
+    "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
+  ],
+  "timestamp": "2026-06-11T22:38:06.075Z"
+}

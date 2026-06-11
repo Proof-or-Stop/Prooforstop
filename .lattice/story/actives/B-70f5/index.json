@@ -4,7 +4,7 @@
   "title": "Fix root migration documentation audit inconsistencies",
   "description": "Three host audits found two small but real documentation consistency issues after the root Markdown migration solution: NAV declares the wrong decision-doc count, and the lifecycle-memory row names only one of the intended target homes. This story fixes only those correctness issues.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "root-markdown",
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-06-11T22:37:08.741Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:37:52.786Z",
+      "branch": "story/B-70f5",
       "user": "Harmonygo",
       "agent": "main"
     }
