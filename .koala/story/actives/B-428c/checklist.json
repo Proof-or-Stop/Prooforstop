@@ -179,7 +179,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees build, targeted smoke, validation, and final lifecycle checks pass, followed by a summary that Layer 3 is unlocked and higher layers remain locked.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build, lattice baseline smoke, and story validation pass with verificationEvidence tied to current HEAD/materialHash.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing Layer 2 formal evaluator smoke tests still pass after adding the Layer 3 path.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression tests prove stale lower-layer proof, missing review evidence, and higher-layer overclaim remain locked or blocked.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
