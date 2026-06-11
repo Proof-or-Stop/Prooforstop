@@ -43,7 +43,7 @@
       "desc": "docs/requirements/decisions/stash-split-execution-plan.md records the stash hash but executable restore commands still use positional stash@{0} refs. Because stash@{0} shifts if any later stash is created or dropped, future bucket stories could restore from the wrong stash. The plan should bind the recorded object hash to a stable variable/ref and use that stable identity for git diff, git restore --source, git show, and ^3 parent commands.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-11T21:55:42.745Z",
@@ -52,7 +52,9 @@
       "_hash": "4fb2cbcdef1d385455c50b985427a95b4be34cc35a3950390ff1b89b45be4588",
       "files": [
         "docs/requirements/decisions/stash-split-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Fixed in 0a9056a: execution plan now captures EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and STASH_OBJECT=$(git rev-parse stash@{0}), verifies the subject, and uses STASH_OBJECT / STASH_OBJECT^1 / STASH_OBJECT^3 for executable diff, restore, show, stash show, and ls-tree commands.",
+      "resolvedAt": "2026-06-11T22:00:05.795Z"
     }
   ]
 }
