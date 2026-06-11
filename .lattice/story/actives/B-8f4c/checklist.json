@@ -180,34 +180,34 @@
           "intentRef": "CHK-003:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "git stash show --include-untracked --name-status stash@{0} + node inline checker",
+          "command": "git stash show --name-only --include-untracked stash@{0} + node inline checker",
           "result": "pass",
-          "note": "Document mentions all 12 current stash path groups and current stash@{0} is still present.",
-          "headHash": "1cca2a97c86da2c90575f45812cd19fa6770b803",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:13.046Z"
+          "note": "Current stash@{0} still exists with the same 12 paths; plan still inventories each path group and restores untracked Layer4 doc only from stash@{0}^3.",
+          "headHash": "55240c93857ee590413739339d50de4874671b03",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:49:07.763Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "node inline NAV + stash split plan checker",
+          "command": "Claude-host read-only audit + node inline NAV checker",
           "result": "pass",
-          "note": "Document says Bucket D must use the then-current catalog plus one, with 38 immediately after this story lands, rather than stale 37 for future Layer4.",
-          "headHash": "1cca2a97c86da2c90575f45812cd19fa6770b803",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:13.080Z"
+          "note": "Independent read-only audit confirmed stashed NAV is stale and current plan requires hand-merge from current NAV rather than path restore.",
+          "headHash": "55240c93857ee590413739339d50de4874671b03",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:49:07.795Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "rg git stash pop + node inline checker",
+          "command": "node inline forbidden-claim checker",
           "result": "pass",
-          "note": "Document forbids git stash pop and whole-stash apply, and this story did not execute or merge stash content.",
-          "headHash": "1cca2a97c86da2c90575f45812cd19fa6770b803",
-          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
-          "timestamp": "2026-06-11T21:40:13.113Z"
+          "note": "Plan forbids stash pop, whole-stash apply, whole-tree restore, dev-memory data commit, and stale NAV path restore.",
+          "headHash": "55240c93857ee590413739339d50de4874671b03",
+          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
+          "timestamp": "2026-06-11T21:49:07.827Z"
         }
       ]
     }
