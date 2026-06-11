@@ -1,0 +1,29 @@
+{
+  "storyId": "B-bc1f",
+  "checkedAt": "2026-06-11T23:22:27.780Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-11T23:22:27.780Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-11T23:22:27.780Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Subagent spawning is unavailable under the current tool policy unless the user explicitly authorizes it; manually verified story background and checklist with lattice story_get/background_get and confirmed scope is this REVIEW metadata consistency bug.",
+    "actor": "Harmonygo",
+    "session": "sess-10f3a74e4fffbc2e",
+    "attestedAt": "2026-06-11T23:22:27.780Z",
+    "headHash": "f549c1de51c99ea8fafb43c3ca054acdd8106eaa",
+    "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a"
+  },
+  "_hash": "f9607e983d375f0f40017346447afac84d336f98900fab6d62c186bb02318657"
+}
