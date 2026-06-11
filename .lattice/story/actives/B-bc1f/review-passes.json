@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-11T23:38:10.576Z",
       "reviewRunId": "B-bc1f:RR-004",
       "_hash": "356c9e2bbdf5eca9e1a00984e695e2c0154085f0f349d14bbedf6e6319a75bd5"
+    },
+    {
+      "id": "B-bc1f:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: direct story_create --phase=REVIEW now persists currentReviewRound using the same ISO timestamp shape consumed by review_run_start/review_loop_start; the change is scoped to args.phase===REVIEW and does not broaden direct TEST/DONE/other phase behavior. story_advance still creates new review rounds on REVIEW transitions, and advisory round-count fallback treats direct REVIEW creation as round 1. Lifecycle docs mention the invariant. Attempted field-regression smoke hit stale dist import mismatch for resolveMainRepoRoot unrelated to this diff; source exports that symbol and this story did not touch that module.",
+      "createdAt": "2026-06-11T23:47:43.496Z",
+      "reviewRound": "2026-06-11T23:38:10.576Z",
+      "reviewRunId": "B-bc1f:RR-003",
+      "_hash": "91d73e6fc9ffe9f70f4217e70b0d15d4ffabd78ac96c0ed9c04550d62a283f66"
     }
   ]
 }
