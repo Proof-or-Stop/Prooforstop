@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inventory root-level documentation and classify target homes",
+      "context": "List root Markdown documents, separate entrypoint/compatibility files from requirements decisions, guides, notes, and archive candidates. Keep the output scoped to a migration guide so unrelated Layer4 runtime changes are not touched.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md",
+        "KOALA.md",
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write the migration guide and upgrade instructions",
+      "context": "Add a small document under docs/requirements/decisions or docs/guide that explains recommended locations, filename mapping, migration order, compatibility/redirect strategy, and reference update rules. It must not claim that migration is complete unless files are actually moved.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Publish a visible scope-boundary audit note",
+      "context": "Add or include in the migration guide a short audit note that readers can inspect: it must name the known root documents, state which files stay at root, state that no bulk move was performed in this story, and explicitly say the guide does not unlock Production Safety or global capability claims.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
