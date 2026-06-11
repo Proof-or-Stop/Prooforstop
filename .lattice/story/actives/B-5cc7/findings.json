@@ -39,6 +39,23 @@
       ],
       "resolvedReason": "Resolved by commit 8f59161: resolveGlobalMemoryPath now only honors LATTICE_GLOBAL_MEMORY_DIR for writable global storage and otherwise uses canonical ~/.lattice/dev-memory/experience.jsonl. KOALA_GLOBAL_MEMORY_DIR remains available only through resolveLegacyGlobalMemoryPath / resolveGlobalMemoryReadPaths as read fallback. Focused smoke now asserts KOALA_GLOBAL_MEMORY_DIR alone cannot redirect the writable global path and that read paths remain current-first plus legacy fallback. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
       "resolvedAt": "2026-06-11T23:30:33.940Z"
+    },
+    {
+      "id": "B-5cc7:F-003",
+      "desc": "concept-cleanup: dev-memory legacy read fallback incomplete: packages/main/src/core/lattice-parallel-wave.ts still builds experienceRefs with readEntries(resolveProjectMemoryPath(...)) and readEntries(resolveGlobalMemoryPath()), bypassing readProjectMemoryEntries/readGlobalMemoryEntries. That read-only consumer therefore ignores legacy .koala project/global fallback and KOALA_GLOBAL_MEMORY_DIR fallback promised by F-002/docs.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T23:33:09.439Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-017",
+      "_hash": "05a31cf158fa6b8697fa8e1de1a619fd78923299b9deaa1a26e0c43be72fe8e6",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "docs/requirements/decisions/dev-memory.md"
+      ]
     }
   ]
 }
