@@ -1,0 +1,41 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create formal stash split execution plan document",
+      "context": "Document the executable split plan for stash@{0}, including buckets, restore mechanics, stop conditions, tests, and non-goals. The document must avoid broad optimization and only authorize real correctness fixes.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/root-document-migration-guide.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update requirements navigation for the new decision",
+      "context": "Add the new decision document to docs/requirements/NAV.md and keep the decision count mechanically consistent with the current decisions directory.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify the document against current stash and navigation state",
+      "context": "Run mechanical checks that the plan references the actual stash@{0} groups, does not claim execution, does not authorize whole stash pop, and keeps Layer4/NAV guidance current.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
