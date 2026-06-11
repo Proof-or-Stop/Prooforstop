@@ -11,9 +11,77 @@
         "AGENTS.md",
         "CLAUDE.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-11T22:18:25.896Z",
+      "endTime": "2026-06-11T22:19:18.514Z",
+      "userSees": "User sees the document title \"Root Markdown Migration Execution Solution\" and a section \"Final Allowed Root Markdown Set\" listing only README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and jek.md.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execution solution defines the final allowed root Markdown set as README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md only.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Execution solution separates low-risk migration batch from high-risk capability and Production Safety boundary/history handling without claiming unlocks.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Execution solution treats the legacy Koala root guide as a retirement target, not as an allowed root compatibility asset.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The execution solution has title Root Markdown Migration Execution Solution and Final Allowed Root Markdown Set listing only README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md.",
+          "headHash": "557488b04c22ab326fc8bd679fbe003752528afd",
+          "materialHash": "ed4cfbf8a926188008de8988601f2f216165307ce21ad0fba88d4cc207ad78e2",
+          "timestamp": "2026-06-11T22:25:59.491Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The execution solution separates low-risk policy/engineering/loop merges from claim-sensitive retirements and states capability and Production Safety root docs must not create readiness or unlock claims.",
+          "headHash": "557488b04c22ab326fc8bd679fbe003752528afd",
+          "materialHash": "ed4cfbf8a926188008de8988601f2f216165307ce21ad0fba88d4cc207ad78e2",
+          "timestamp": "2026-06-11T22:25:59.491Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The execution solution explicitly says KOALA.md is not part of the final allowed root set and is a retirement target, not a retained compatibility asset.",
+          "headHash": "557488b04c22ab326fc8bd679fbe003752528afd",
+          "materialHash": "ed4cfbf8a926188008de8988601f2f216165307ce21ad0fba88d4cc207ad78e2",
+          "timestamp": "2026-06-11T22:25:59.491Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -23,9 +91,75 @@
         "docs/requirements/decisions/root-document-migration-guide.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-11T22:18:30.417Z",
+      "endTime": "2026-06-11T22:19:23.182Z",
+      "userSees": "User sees the existing guide section \"What Should Stay Root\" listing README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and jek.md, with the legacy Koala root guide classified for retirement rather than retained-root compatibility.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Existing migration guide names jek.md as user-owned and allowed to remain root while generated Lattice docs are migration candidates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing migration guide preserves README.md, AGENTS.md, CLAUDE.md, and CHANGELOG.md as allowed root files but does not retain the legacy Koala root guide.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Existing migration guide does not contain language that the legacy Koala root guide may stay root or remain a compatibility asset after cleanup.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The existing guide now names jek.md as user-owned local bootstrap content that stays root and states agents must not migrate, rewrite, archive, or retire it without explicit user request.",
+          "headHash": "557488b04c22ab326fc8bd679fbe003752528afd",
+          "materialHash": "ed4cfbf8a926188008de8988601f2f216165307ce21ad0fba88d4cc207ad78e2",
+          "timestamp": "2026-06-11T22:25:59.491Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The existing guide final allowed root Markdown set is README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and jek.md; it preserves true entrypoints while excluding the legacy Koala root guide from retained-root compatibility.",
+          "headHash": "557488b04c22ab326fc8bd679fbe003752528afd",
+          "materialHash": "ed4cfbf8a926188008de8988601f2f216165307ce21ad0fba88d4cc207ad78e2",
+          "timestamp": "2026-06-11T22:25:59.491Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The existing guide no longer contains language that KOALA.md may stay root; it classifies the root path as retirement target and says not to keep it as retained compatibility.",
+          "headHash": "557488b04c22ab326fc8bd679fbe003752528afd",
+          "materialHash": "ed4cfbf8a926188008de8988601f2f216165307ce21ad0fba88d4cc207ad78e2",
+          "timestamp": "2026-06-11T22:25:59.491Z"
+        }
+      ]
     }
   ]
 }
