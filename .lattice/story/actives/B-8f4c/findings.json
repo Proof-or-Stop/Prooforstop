@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/stash-split-execution-plan.md:20-23 and 72-85 treat .gitignore as Bucket A Dev Memory Default Exclusion and require git check-ignore .lattice/dev-memory/experience.jsonl to report ignored, but the actual stashed .gitignore hunk does not implement that. Verified with git diff 'stash@{0}^1' 'stash@{0}' -- .gitignore: the hunk changes story/dispatch/autopilot patterns, while git show 'stash@{0}:.gitignore' still contains !.lattice/dev-memory/ and !.lattice/dev-memory/**. The future acceptance check is therefore impossible and the .gitignore hunk is mis-bucketed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-11T21:43:44.306Z",
@@ -15,7 +15,9 @@
       "files": [
         "docs/requirements/decisions/stash-split-execution-plan.md",
         ".gitignore"
-      ]
+      ],
+      "resolvedReason": "Fixed in cd9cfe91 and verified by CHK-001/CHK-003 fresh evidence: Bucket A no longer scopes .gitignore or requires git check-ignore for .lattice/dev-memory/experience.jsonl; plan excludes dev-memory data by not restoring, staging, or committing it, with ignore-policy changes deferred to a separate future story.",
+      "resolvedAt": "2026-06-11T21:49:55.161Z"
     },
     {
       "id": "B-8f4c:F-002",
