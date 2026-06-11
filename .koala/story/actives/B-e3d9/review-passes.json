@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-11T00:54:01.041Z",
       "reviewRunId": "B-e3d9:RR-022",
       "_hash": "3c41c0c00a0245dc5e4ed7e7b3b8dda8bc0b4a683af71ceee9c4ec895a1c4266"
+    },
+    {
+      "id": "B-e3d9:RP-015",
+      "agent": "koala-review-concept",
+      "note": "No concept blocker. F-006 is resolved host-neutrally: git tracks canonical .Lattice/Lattice.md, .Lattice/lattice.json, .codex/hooks.json, and .codex/hooks/lattice-scope-pretool.cjs, while the old .lattice/* and .Codex/hooks* paths are untracked. Runtime consumers align with that contract: verify_codex resolves global-thin via .Lattice/lattice.json and validates lowercase .codex native hook assets (packages/main/src/core/codex-adapter-checks.ts), and guard_session enforces the same lowercase .codex hook wiring (packages/main/src/handlers/guard-session.ts). Mechanical coverage passed after build: scripts/verify-entrypoints.mjs, test:pretool-scope-hook-smoke, test:authority-client, test:worktree-policy-smoke, and test:planner-unattended-smoke. Spot-check of the original resolved fix set remains conceptually sound: algorithm normalization and pinned-key policy enforcement fail closed without regressing Ed25519, planner confirmation/worktree linkage still block for the intended reasons, and the entrypoint casing contract is now explicit and mechanically guarded.",
+      "createdAt": "2026-06-11T00:59:41.265Z",
+      "reviewRound": "2026-06-11T00:54:01.041Z",
+      "reviewRunId": "B-e3d9:RR-023",
+      "_hash": "e9c201501a99c2c92d438cb7805932c539bb340e840e42e793857f66280a3701"
     }
   ]
 }
