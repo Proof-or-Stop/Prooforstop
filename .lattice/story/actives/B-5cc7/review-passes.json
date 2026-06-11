@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-11T23:51:32.816Z",
       "reviewRunId": "B-5cc7:RR-026",
       "_hash": "0a2c1be88fed8017e0b88b59bc1f4259cc4ae68ce09bd7eab3b99fbf8e2ff929"
+    },
+    {
+      "id": "B-5cc7:RP-015",
+      "agent": "koala-review-concept",
+      "note": "Final concept review after F-006: no blocker. Verified lattice finding_list shows F-001..F-006 resolved. Source now keeps writable dev-memory paths canonical to .lattice; .koala is exposed through read-only legacy read helpers, handlers use readProjectMemoryEntries/readGlobalMemoryEntries, and lattice-parallel-wave experienceRefs use the same readers. Active docs/requirements/decisions/dev-memory.md and lattice-parallel-wave.md agree on .lattice canonical storage, .koala read-only fallback, bounded non-authoritative experienceRefs, and no production-authority claim. Ran targeted built smoke node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js and git diff --check main...HEAD successfully. Repo-wide residue grep found only expected compatibility/legacy references; Lattice-lifecycle-memory-Evolving.md is explicitly listed as a legacy move/merge candidate outside the active decision docs, so it is not a concept blocker for this story.",
+      "createdAt": "2026-06-11T23:55:30.315Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-024",
+      "_hash": "daecc208a5c8465e83af05cf3fbcc692e58d1a2f49482178c5a944baa32d4c3e"
     }
   ]
 }
