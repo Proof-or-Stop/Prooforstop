@@ -8,9 +8,9 @@
         "docs/requirements/decisions/stash-split-execution-plan.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-11T23:03:54.156Z",
-      "endTime": null,
+      "endTime": "2026-06-11T23:03:55.294Z",
       "userSees": "User sees Bucket A restored only two dev-memory code paths from the pinned stash object, with no other stash paths changed.",
       "files": {
         "modify": [
@@ -44,7 +44,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only HEAD~1..HEAD",
+          "result": "pass",
+          "note": "The material commit contains only packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, and the focused smoke test; the two restored Bucket A code paths are present.",
+          "headHash": "e39737721e22a718b88813e97331094938c11c32",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:03:55.381Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-status main...HEAD and git status --short --untracked-files=all",
+          "result": "pass",
+          "note": "No .gitignore, runtime registry, planner, smoke expectation, NAV, Layer4 doc, or .lattice/dev-memory/experience.jsonl path appears in the material change or worktree status.",
+          "headHash": "e39737721e22a718b88813e97331094938c11c32",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:03:55.443Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git rev-parse stash@{0} and git diff --name-status main...HEAD",
+          "result": "pass",
+          "note": "stash@{0} remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and the final material diff is path-limited, proving no whole-stash apply/pop/drop result landed.",
+          "headHash": "e39737721e22a718b88813e97331094938c11c32",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:03:55.502Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
