@@ -232,9 +232,9 @@
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T04:08:16.982Z",
       "userSees": "User sees two independent host review artifacts, one Claude CLI and one Codex CLI, referenced as non-authority evidence in the Layer 3 delivery report.",
       "files": {
         "modify": [
@@ -263,7 +263,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "claude -p <layer3 review prompt>; codex exec -s read-only <layer3 review prompt>; normalized to .lattice/artifacts/baseline/layer3-loop-engineering-unlock/reviews/two-host-review-summary.json",
+          "result": "pass",
+          "note": "Two-host review summary verdict=pass with distinct claude and codex review artifacts, both blockers=[] and bound to HEAD 4bb6bb71/materialHash 61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.",
+          "headHash": "a5664118470b2f51dfdb37f0f41a6172aa856ed4",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:08:17.006Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Host verdict refs are non-authority review evidence; receiptVerified=false, productionDone=false, fullAuthorityDone=false.",
+          "headHash": "a5664118470b2f51dfdb37f0f41a6172aa856ed4",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:08:17.030Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke covers duplicate/missing/stale host or review evidence paths through formal suite fail-closed tests and UDM multi-host validation.",
+          "headHash": "a5664118470b2f51dfdb37f0f41a6172aa856ed4",
+          "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+          "timestamp": "2026-06-11T04:08:17.053Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
