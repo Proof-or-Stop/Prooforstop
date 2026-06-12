@@ -1,0 +1,80 @@
+{
+  "storyId": "B-85ba",
+  "checkedAt": "2026-06-12T19:43:06.698Z",
+  "features": [
+    {
+      "feature": "Persist canonical INIT scope boundary and execution boundary artifacts; fail closed when missing or malformed",
+      "covered_by": "CHK-001; understanding constraints: missing boundary must fail closed; plan Boundary: persist user-confirmed scope and execution boundaries",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story description / understanding / plan"
+    },
+    {
+      "feature": "Add INIT-only scope freeze check and explicit scope extension proposal plus decision path",
+      "covered_by": "CHK-002; decision option A; preMortem: reviewer proposal path must not mutate checklist scope",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision / checklist / plan"
+    },
+    {
+      "feature": "Block INIT_CHECK before worktree creation on missing, failed, stale, or pending anti-expansion evidence",
+      "covered_by": "CHK-003; understanding outcome; plan STOP conditions",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding / checklist / plan"
+    },
+    {
+      "feature": "Enforce excluded keyword and discard digest protections from bounded sources, with correctness_fix-only default future denylist",
+      "covered_by": "CHK-004; plan CHK-004 steps and non-goals; decision preMortem false-positive mitigation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist / decision / plan"
+    },
+    {
+      "feature": "Register gate-consumed process facts, CLI schemas, reviewer prompt/docs, and smoke/contract tests",
+      "covered_by": "CHK-005; understanding fact: gate-consumed process facts need registry and contract verification; plan CHK-005 verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding / checklist / plan"
+    },
+    {
+      "feature": "Generic semantic classifier platform, broad audit subsystem, fuzzy product taxonomy, or arbitrary repo-content scanning",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Boundary Do not: Build a generic semantic classifier platform; CHK-004 context: bounded sources only; plan CHK-004 Non-goals: no arbitrary repo scan or fuzzy product taxonomy",
+      "source": "plan / CHK-004"
+    },
+    {
+      "feature": "Authority, Layer4, customerKeyRef, or repair UX behavior changes beyond bounded keyword-blocking examples",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Boundary Do not; plan CHK-005 Non-goals",
+      "source": "plan"
+    },
+    {
+      "feature": "Treat host dispatch output, prompts, transcripts, or OMX runtime/evidence paths as gate evidence",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Boundary Do not; understanding facts: local OMX ban remains active; plan CHK-005 Non-goals",
+      "source": "understanding / plan"
+    },
+    {
+      "feature": "Replace or broaden later scope_contract diff/file enforcement",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Boundary: keep distinct from later scope_contract diff/file enforcement; plan CHK-001 Non-goals; plan CHK-003 Non-goals",
+      "source": "plan"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 5,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d391c581ffe39e3e26f3340a56f3ae56d87c15f3437411a1093026c156d6d824",
+  "openQuestions": []
+}
