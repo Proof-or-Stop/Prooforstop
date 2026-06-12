@@ -2,6 +2,15 @@ import type { DoneCheckRow } from '../core/done-oracle.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import type { StoryInfo } from '../core/types.js';
 import type { HandlerContext } from './context.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { loadAuthoritySettings } from '../core/authority-mode.js';
+import { loadConfig } from '../core/config.js';
+import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
+import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+  consumeAuthorityGateReceiptDocument,
+  type AuthorityGateReceiptFailReason,
+} from '../core/authority-gate-receipts.js';
 
 type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
 type AuthorityImpact = 'none' | 'localOnly' | 'requiresAuthorityReceipt';
@@ -97,6 +106,62 @@ function receiptRefsForStory(ctx: HandlerContext, storyId: string): string[] {
     .filter((value): value is string => typeof value === 'string' && value.length > 0);
 }
 
+function authorityReceiptProjection(ctx: HandlerContext, storyId: string, story: StoryInfo): {
+  required: boolean;
+  receiptVerified: boolean;
+  receiptRefs: string[];
+  mayClaimAuthorityDone: boolean;
+  blocking: boolean;
+} {
+  const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
+  const required = settings.mode === 'enforce';
+  const receiptRefs = receiptRefsForStory(ctx, storyId);
+  if (settings.mode === 'off') {
+    return {
+      required,
+      receiptVerified: false,
+      receiptRefs,
+      mayClaimAuthorityDone: false,
+      blocking: false,
+    };
+  }
+
+  const headHash = currentGitHead(ctx.root);
+  const materialHash = currentMaterialHash(ctx.root);
+  let reason: AuthorityGateReceiptFailReason | undefined;
+  let receiptVerified = false;
+  if (!headHash || !materialHash) {
+    reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
+  } else {
+    const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
+    const now = new Date().toISOString();
+    const consumed = consumeAuthorityGateReceiptDocument(
+      ctx.store.readAuthorityReceiptRefs(storyId) ?? undefined,
+      {
+        storyId,
+        targetPhase: 'DONE',
+        headHash,
+        materialHash,
+        now,
+        maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+        acceptablePolicyModes: [policy.profile],
+        acceptableAuthorityModes: ['enforce'],
+      },
+      now,
+    );
+    reason = consumed.reason;
+    receiptVerified = consumed.consumed;
+  }
+
+  return {
+    required,
+    receiptVerified,
+    receiptRefs,
+    mayClaimAuthorityDone: false,
+    blocking: required && (!receiptVerified || reason !== undefined),
+  };
+}
+
 function localAuditStatus(phase: StoryInfo['phase'], blockingRows: DoneClosureBlocker[]): DoneClosureStatus {
   if (phase === 'DONE') return 'notRequired';
   if (blockingRows.length > 0) return 'blocked';
@@ -112,13 +177,13 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
   const evidenceRefs = [...new Set(rows
     .filter((row) => row.status === 'pass' && row.source)
     .map((row) => row.source))];
-  const receiptRefs = receiptRefsForStory(ctx, storyId);
+  const authorityServerPath = authorityReceiptProjection(ctx, storyId, story);
 
   return {
     schemaVersion: 'lattice.done_closure.v1',
     storyId,
     phase: story.phase,
-    canAttemptDone: story.phase === 'TEST' && blockingRows.length === 0,
+    canAttemptDone: story.phase === 'TEST' && blockingRows.length === 0 && !authorityServerPath.blocking,
     blockers,
     localNonAuthorityAudit: {
       status: localAuditStatus(story.phase, blockingRows),
@@ -127,10 +192,10 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
       evidenceRefs,
     },
     authorityServerPath: {
-      required: false,
-      receiptVerified: false,
-      receiptRefs,
-      mayClaimAuthorityDone: false,
+      required: authorityServerPath.required,
+      receiptVerified: authorityServerPath.receiptVerified,
+      receiptRefs: authorityServerPath.receiptRefs,
+      mayClaimAuthorityDone: authorityServerPath.mayClaimAuthorityDone,
     },
     readOnly: true,
     note: 'local DONE readiness is not Authority DONE readiness',
