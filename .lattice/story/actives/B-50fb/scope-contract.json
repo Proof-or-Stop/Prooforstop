@@ -19,6 +19,7 @@
     "packages/main/src/cli-init.ts",
     "packages/main/src/cli.ts",
     "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/machine.ts",
     "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/rollout-check.ts",
     "packages/main/src/core/runtime-environment-checks.ts",
@@ -31,6 +32,7 @@
     "packages/main/src/registry.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
     "packages/main/templates/agents/koala-evaluator.md",
     "packages/main/templates/agents/koala-implementer.md",
     "packages/main/templates/agents/koala-review-behavior.md",
@@ -53,6 +55,7 @@
   "allowedTest": [
     "packages/main/src/tasks/validation-protocol-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
     "scripts/verify-entrypoints.mjs",
     "scripts/verify-global-lab-entrypoint.mjs",
     "scripts/verify-runtime-fact-contract.mjs",
@@ -70,7 +73,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "validate failure actor snapshot can method missing blocks B-50fb; restore existing package rename scope and add transition orchestrator narrowly",
+  "scopeChangeReason": "Review repair B-50fb: F-001 requires shared machine guard predicate in core/machine.ts; F-002 requires focused mixed-install coverage in worktree-repair-smoke.ts.",
   "acknowledgements": [
     {
       "actor": "koala-implementer",
@@ -83,5 +86,5 @@
     }
   ],
   "createdAt": "2026-06-12T20:41:39.210Z",
-  "updatedAt": "2026-06-12T21:15:25.946Z"
+  "updatedAt": "2026-06-12T21:50:42.058Z"
 }

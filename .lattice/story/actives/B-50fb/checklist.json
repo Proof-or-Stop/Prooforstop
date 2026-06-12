@@ -90,9 +90,9 @@
         "README.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:48:30.313Z",
-      "endTime": "2026-06-12T21:32:18.678Z",
+      "endTime": "2026-06-12T21:51:09.332Z",
       "userSees": "`lattice doctor` and related runtime diagnostics show \"@lattice-agent/core\" as the canonical package; if \"@koala-agent/core\" appears, the output labels it as legacy compatibility.",
       "files": {
         "modify": [
@@ -146,34 +146,14 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run build && node scripts/verify-runtime-fact-contract.mjs",
-          "result": "pass",
-          "note": "Main TypeScript build passed and runtime fact contract confirms @lattice-agent/core remains canonical for runtime facts after the transition guard compatibility fix.",
-          "headHash": "37e00335b4582b777ee4a3ea190bf2779f7e6ca2",
-          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
-          "timestamp": "2026-06-12T21:32:19.007Z"
-        },
-        {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
-          "command": "rg focused package resolution scan for @koala-agent/core fallback references",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Remaining @koala-agent/core runtime references are bounded legacy compatibility constants, fallback paths, or diagnostics; test-auto blocks @lattice-agent/core canonically and keeps @koala-agent/core only as LEGACY_CORE_PACKAGE_NAME.",
-          "headHash": "37e00335b4582b777ee4a3ea190bf2779f7e6ca2",
+          "note": "Focused mixed-install smoke passed: canonical @lattice-agent/core directory present while legacy @koala-agent/core symlink pointed at the story worktree; repairGlobalKoalaLinkBeforeWorktreeDelete relinked the legacy symlink to packages/main before deletion.",
+          "headHash": "37e81951b11c676c8e12f135b517196d0f69767e",
           "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
-          "timestamp": "2026-06-12T21:32:19.188Z"
-        },
-        {
-          "intentRef": "CHK-002:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "node scripts/verify-entrypoints.mjs && rg @koala-agent/core packages/main/src packages/main/templates scripts README.md docs/requirements/decisions/authority-client-role.md",
-          "result": "pass",
-          "note": "Entrypoint verification passed; generated bootstrap and runtime scans prefer @lattice-agent/core and retain old core only as labelled legacy fallback or compatibility assertion.",
-          "headHash": "37e00335b4582b777ee4a3ea190bf2779f7e6ca2",
-          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
-          "timestamp": "2026-06-12T21:32:19.358Z"
+          "timestamp": "2026-06-12T21:51:09.384Z"
         }
       ]
     },
