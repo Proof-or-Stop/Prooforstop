@@ -9,9 +9,9 @@
         "docs/requirements/decisions/host-neutral-observability-console.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T16:22:03.732Z",
-      "endTime": null,
+      "endTime": "2026-06-12T16:38:21.735Z",
       "userSees": "User sees story_resolve JSON include metadataRoot, signedWorkspaceRoot, authoritativeCwd, resolved, resolutionSource, and unresolvedReason; non-git wrapper roots no longer appear as executable REVIEW cwd.",
       "files": {
         "modify": [
@@ -48,7 +48,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/cli.js story_resolve --storyId=B-b750 --format=json",
+          "result": "pass",
+          "note": "story_resolve for B-b750 returned resolved=true with metadataRoot, signedWorkspaceRoot, repoRoot, authoritativeCwd, resolutionSource=story-worktree, and unresolvedReason=null.",
+          "headHash": "265aad766cbb32b9d3aaad1295ac393f75e1929f",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:21.773Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers non-git wrapper metadataRoot without gitRoot: story_resolve returns resolved=false, signedWorkspaceRoot=null, authoritativeCwd=null, and review_run_start creates no run.",
+          "headHash": "265aad766cbb32b9d3aaad1295ac393f75e1929f",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:21.808Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers wrapper root with nested git repo but no gitRoot and proves Lattice does not auto-select the nested repository.",
+          "headHash": "265aad766cbb32b9d3aaad1295ac393f75e1929f",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:21.839Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
