@@ -228,7 +228,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T18:01:19.322Z",
-      "endTime": "2026-06-12T18:01:31.059Z",
+      "endTime": "2026-06-12T18:06:10.403Z",
       "userSees": "Completion report lists verification commands and says docs/navigation consistency passed or identifies the remaining blocker.",
       "files": {
         "modify": [
@@ -264,19 +264,19 @@
           "command": "rg -n F-009.gap_analyze.High.Gaps.Execution.Plan docs/requirements/NAV.md && rg -n 45.个文件 docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV lists the new F-009 gap_analyze document and the count is updated to 45 files.",
-          "headHash": "04e1b61a7f6f0b2c4fe5d875c06dff6e5b55d7e4",
+          "headHash": "94f61301ccf2a1f3c367d64ba646f5140ae1fb66",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:01:31.108Z"
+          "timestamp": "2026-06-12T18:06:10.442Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
-          "command": "git diff --name-status main...HEAD -- scoped docs",
+          "command": "git diff --name-status main...HEAD && git diff --name-status main...HEAD | awk allowlist check for B-3a80 metadata plus three scoped docs",
           "result": "pass",
-          "note": "The committed diff contains only NAV, the new F-009 plan, and the Layer4 future/blocked note among documentation changes; unrelated root dirty docs are not included in this worktree diff.",
-          "headHash": "04e1b61a7f6f0b2c4fe5d875c06dff6e5b55d7e4",
+          "note": "Unfiltered diff contains only B-3a80 Lattice metadata and the three scoped docs; the allowlist negative path check produced no output and exited 0, proving unrelated root/docs/code changes are absent from this story diff.",
+          "headHash": "94f61301ccf2a1f3c367d64ba646f5140ae1fb66",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:01:31.142Z"
+          "timestamp": "2026-06-12T18:06:10.479Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -284,9 +284,9 @@
           "command": "Claude CLI final review; Codex CLI final review",
           "result": "pass",
           "note": "Both final reviews checked forbidden claim language and reported PASS with no high or critical blockers after the evidence-diff guidance fix.",
-          "headHash": "04e1b61a7f6f0b2c4fe5d875c06dff6e5b55d7e4",
+          "headHash": "94f61301ccf2a1f3c367d64ba646f5140ae1fb66",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:01:31.175Z"
+          "timestamp": "2026-06-12T18:06:10.511Z"
         }
       ]
     }
