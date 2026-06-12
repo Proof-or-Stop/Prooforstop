@@ -52,9 +52,9 @@
           "command": "lattice finding_list --storyId=B-META-framework-audit; rg -n \"F-009|Current Facts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "The document cites F-009, its suspected status, and the current fact anchors used for execution.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "rg -n \"suspected|verified|disproven|Required Decision Outcomes\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "The document separates suspected, verified, and disproven outcomes and requires mechanical evidence before status changes.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "command": "rg -n \"disabled legacy artifact roots|clean artifact root|formal proof roots\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "The execution plan requires clean formal roots and forbids disabled legacy artifact roots as proof roots.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         }
       ]
     },
@@ -140,9 +140,9 @@
           "command": "rg -n \"Host Draft Inputs|Host output is review/drafting input only|Authority Server\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "The host section records both host inputs while explicitly preventing either host from becoming Authority.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,9 +151,9 @@
           "command": "rg -n \"Do not optimize|Non-Goals|Forbidden fixes|host transcripts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "The document excludes arbitrary optimizations, false capability claims, and converting host transcripts into Authority receipt proof.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         }
       ]
     },
@@ -220,9 +220,9 @@
           "command": "rg -n \"does not unlock|This document alone does\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "The document explicitly states that it is plan-only and cannot unlock Layer2 by itself.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -231,9 +231,9 @@
           "command": "rg -n \"Do not unlock Loop Engineering|Layer 3|Layer 4|global Capability|Production Safety\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "The plan keeps Layer3, Layer4, Production Safety, fullAuthorityDone, and global Capability Claim out of scope.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         }
       ]
     },
@@ -298,9 +298,9 @@
           "command": "rg -n \"unlock-layer2|formal-unlock|lifecycle|Authority Receipt|Current Facts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "Audit confirmed the plan aligns with existing Layer2 unlock, artifact isolation, lifecycle receipt, and Authority receipt boundaries.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -309,9 +309,9 @@
           "command": "rg -n \"Forbidden fixes|Fail-Closed Tests|local diagnostic|Authority overclaim|This document alone\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
           "note": "Audit confirmed false PASS language, missing fail-closed rules, and local CLI Authority overclaim are explicitly blocked.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
         }
       ]
     }
