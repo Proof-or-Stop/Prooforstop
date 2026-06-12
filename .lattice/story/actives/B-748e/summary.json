@@ -1,0 +1,56 @@
+{
+  "storyId": "B-748e",
+  "changes": "Added annotation-only source coverage bindings in packages/main/src/core/story-signed-workspace-resolution.ts and packages/main/src/handlers/context.ts for the two signed-workspace gap_analyze requirements. No runtime logic changed.",
+  "usage": "Run lattice gap_analyze from the repository or story worktree to verify the signed-workspace line 262 and line 311 gaps are no longer reported.",
+  "expectedOutcome": "lattice gap_analyze shows Gaps: 1 high / 0 medium, with signed-workspace lines 262 and 311 absent and customerKeyRef still listed as Layer4 future scope.",
+  "actualTranscript": "lattice gap_analyze reported Requirement coverage 100%, Test coverage 100%, Gaps: 1 high / 0 medium. The only remaining high gap is decisions/unlock-layer4-production-safety-suite.md:267 customerKeyRef.",
+  "outcomeDiff": "Expected and actual match for B-748e; the remaining customerKeyRef gap is intentionally out of scope.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Layer4 customerKeyRef remains unresolved by design; this story does not implement customerKeyRef, Authority receipt verification, productionDone, fullAuthorityDone, or gitRoot repair UX.",
+  "pitfalls": "The earlier attempts picked up gitRoot repair UX scope creep; this story fixed only signed-workspace coverage binding and used scope contract enforcement to avoid future-scope expansion.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 773456
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 20162
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 379968
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 463452
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 185887
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 110738
+    }
+  },
+  "totalDurationMs": 1933663,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T19:49:50.663Z",
+  "updatedAt": "2026-06-12T19:49:50.663Z"
+}

@@ -1,0 +1,50 @@
+{
+  "storyId": "B-748e",
+  "checkedAt": "2026-06-12T19:51:57.856Z",
+  "reviewRound": "2026-06-12T19:44:54.037Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Line 262 signed-workspace unresolvedReason gap is bound to source evidence and is no longer reported by gap_analyze.",
+      "status": "verified",
+      "verifiedBy": "lattice gap_analyze plus source diff review",
+      "evidence": "lattice gap_analyze reports Gaps: 1 high / 0 medium and contains no source entry for review-run-start-signed-workspace-resolution-execution-plan.md:262; source diff only adds B-748e task binding comments."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Line 311 no-binding REVIEW diagnostic gap is bound to source evidence and is no longer reported by gap_analyze.",
+      "status": "verified",
+      "verifiedBy": "lattice gap_analyze plus source diff review",
+      "evidence": "lattice gap_analyze reports Gaps: 1 high / 0 medium and contains no source entry for review-run-start-signed-workspace-resolution-execution-plan.md:311 or requires_git_signed_workspace_but_no_binding; source diff only adds B-748e task binding comments."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "promise": "The remaining high gap is customerKeyRef Layer4 future scope, with no implementation of customerKeyRef, Authority server, productionDone, fullAuthorityDone, or receiptVerified in this story.",
+      "status": "verified",
+      "verifiedBy": "lattice gap_analyze plus git diff and keyword scans",
+      "evidence": "lattice gap_analyze leaves exactly decisions/unlock-layer4-production-safety-suite.md:267 customerKeyRef as the sole high gap. git diff name-only shows no Layer4, Authority, analyzer, customer-key, receipt, or production-done implementation files changed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: Ran lattice gap_analyze in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-748e. Output dashboard says Gaps: 1 high / 0 medium, and no gap references review-run-start-signed-workspace-resolution-execution-plan.md:262."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS: Ran lattice gap_analyze in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-748e. Output dashboard says Gaps: 1 high / 0 medium, and no gap references review-run-start-signed-workspace-resolution-execution-plan.md:311 or requires_git_signed_workspace_but_no_binding."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS: Reviewed git diff main...HEAD and keyword scans. The only source changes are comment task bindings in packages/main/src/core/story-signed-workspace-resolution.ts and packages/main/src/handlers/context.ts. No gitRoot repair UX, config repair, customerKeyRef, Authority server, productionDone, fullAuthorityDone, receiptVerified, or broad analyzer changes were implemented."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "ACCEPTED/PASS: B-748e delivered exactly the two signed-workspace gap_analyze bindings. Live gap_analyze shows Gaps: 1 high / 0 medium, with only customerKeyRef Layer4 future scope remaining. Diff review found no out-of-scope implementation or broad analyzer change."
+  },
+  "_hash": "25c678d9a99df5ad9849c61e85ba791aa35fcc0dfb08d0dd1ea47bb6604dcd56"
+}
