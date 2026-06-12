@@ -4,7 +4,7 @@
   "title": "Implement review_run_start signed workspace resolution",
   "description": "Implement the signed workspace resolution plan so Lattice can distinguish metadataRoot from signedWorkspaceRoot, fail closed for non-git wrapper roots without explicit binding, and keep local CLI reviewer evidence separate from Authority Server receipts.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-12T16:10:11.707Z",
   "startedAt": "2026-06-12T16:10:11.707Z",
@@ -57,6 +57,14 @@
       "branch": "story/B-b750",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T16:56:23.170Z",
+      "branch": "story/B-b750",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -64,5 +72,5 @@
     "branch": "story/B-b750",
     "createdAt": "2026-06-12T16:14:58.236Z"
   },
-  "currentReviewRound": "2026-06-12T16:39:13.623Z"
+  "currentReviewRound": "2026-06-12T16:56:23.170Z"
 }
