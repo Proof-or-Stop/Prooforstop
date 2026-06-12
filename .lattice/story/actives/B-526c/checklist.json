@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Diagnose wrapper-root gitRoot candidates deterministically",
+      "context": "When metadataRoot itself is not a git repository and no explicit gitRoot is configured, diagnostics should identify the exact state: zero candidates, one candidate with an explicit repair suggestion, or multiple candidates with a fail-closed ambiguity message. This is a real correctness UX issue because story_resolve/review_run_start currently fail with a stable but manual-only error in parent-metadata/child-repo layouts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
+      ],
+      "userSees": "lattice config doctor reports metadataRoot is not git-backed and, when exactly one child git repo exists, prints a concrete gitRoot suggestion and repair command.",
+      "excludes": [
+        "using the suggested child repo automatically for signed-workspace resolution",
+        "scanning deep arbitrary directory trees",
+        "choosing among multiple child repos"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add explicit confirmed gitRoot repair command",
+      "context": "Provide a CLI repair path that requires an explicit gitRoot value and confirmation, validates the target stays under metadataRoot and is git-backed, writes only the config field, and reports the verification result. This should be deterministic and usable by any host shell without making the host authoritative.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
+      ],
+      "userSees": "lattice config repair --set-git-root=clawcreek --confirm writes gitRoot and reports that the configured git root resolves successfully.",
+      "excludes": [
+        "host-agent auto repair",
+        "implicit --confirm",
+        "writing unrelated config fields",
+        "accepting paths outside metadataRoot"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify repair unblocks signed-workspace resolution",
+      "context": "Add regression coverage for a wrapper-root project with one child git repo and no gitRoot, then run the repair command and verify story_resolve/review_run_start can resolve the git-backed signed workspace. Also verify ambiguous multiple-child layouts remain fail-closed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "After repair, story_resolve/review_run_start no longer report metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for the repaired project.",
+      "excludes": [
+        "claiming full Lattice convergence",
+        "closing unrelated gap_analyze highs",
+        "modifying Layer4 authority readiness"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
