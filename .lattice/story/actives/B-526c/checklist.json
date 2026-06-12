@@ -16,7 +16,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper metadata root is not git-backed, has no configured gitRoot, and has exactly one immediate child git repo; lattice config doctor JSON/text reports a gitRoot suggestion and explicit repair command without marking the project as repaired",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wrapper root has no child git repo candidates; config doctor reports no candidates and no repair command",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrapper root has multiple immediate child git repo candidates; config doctor reports ambiguity and refuses to choose a repair target",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
