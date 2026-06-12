@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e155",
+  "changes": "Added docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md with a concrete resolve-or-disprove path for B-META-framework-audit:F-009; updated docs/requirements/NAV.md to 42/42 decision links including the new F-009 plan and the previously missing formal unlock artifact isolation decision; recorded transcript-diff and delivery evidence.",
+  "usage": "Use docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md as the execution checklist before any future F-009 closure or Layer2 Engineering claim attempt; follow the phases, fail-closed tests, host transcript rules, and DONE criteria in that document.",
+  "expectedOutcome": "User sees an audited execution document that explains exactly how to resolve or disprove F-009 before any Layer2 capability claim is made, with Claude/Codex host input and final auditor checks recorded.",
+  "actualTranscript": "lattice validate --story=B-e155 --json returned status=pass, allPass=true, npm test passed, verification intent coverage 12/12 covered, findings B-e155:F-001 and B-e155:F-002 resolved, concept/quality/test-coverage/docs reviewers passed, delivery reviewer signed PASS.",
+  "outcomeDiff": "No user-value gap: expected executable audited F-009 plan and actual result provides the plan, host evidence, reviewer passes, delivery signature, and validation PASS. Layer2 remains not unlocked by this document.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story only writes and audits the F-009 execution plan. It does not execute the future proof bridge work, close B-META-framework-audit:F-009, or unlock Layer2 Engineering capability.",
+  "pitfalls": "Do not record host evidence as a bare manual assertion; include inspectable command trails or artifacts. Do not update NAV count without comparing against all docs/requirements/decisions markdown files. Do not run finding_resolve in parallel because git index.lock can race.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 99869
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5880
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 338998
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 701004
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 619551
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 314483
+    }
+  },
+  "totalDurationMs": 2079791,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T15:45:06.733Z",
+  "updatedAt": "2026-06-12T15:45:06.733Z"
+}
