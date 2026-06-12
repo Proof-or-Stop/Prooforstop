@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Reuse existing lifecycle truth sources instead of duplicating gates.",
+    "Keep local Non-authority closure separate from Authority Server proof.",
+    "Make TEST PASS != DONE mechanically visible to agents.",
+    "Prefer narrow read-only observability over lifecycle mutation."
+  ],
+  "drivers": [
+    "High-risk lifecycle and Authority-adjacent scope.",
+    "Existing done-oracle already centralizes DONE pre-check rows.",
+    "Operators need a stable machine-readable runbook, not prose-only hints."
+  ],
+  "options": [
+    {
+      "name": "A: Add read-only done_closure handler backed by buildDoneChecklist",
+      "pros": [
+        "Provides stable JSON/text contract without weakening DONE gate",
+        "Reuses existing oracle rows and can include explicit authorityServerPath fields",
+        "Keeps session_brief behavior intact while adding a focused command"
+      ],
+      "cons": [
+        "Adds a new CLI surface and requires command/process-fact registration"
+      ]
+    },
+    {
+      "name": "B: Only expand session_brief and next wording",
+      "pros": [
+        "Smallest visible surface change",
+        "No new command name"
+      ],
+      "cons": [
+        "Does not provide a stable machine-readable runbook contract",
+        "Can continue to be read as advisory prose rather than an executable closure checklist"
+      ]
+    },
+    {
+      "name": "C: Automate delivery-check and summary generation",
+      "pros": [
+        "Could reduce manual closure steps"
+      ],
+      "cons": [
+        "Would forge or weaken reviewer/user-value gates",
+        "Violates Non-authority and role-separation boundaries",
+        "Optimizes arbitrarily beyond the real correctness issue"
+      ]
+    }
+  ],
+  "chosen": "A: Add read-only done_closure handler backed by buildDoneChecklist",
+  "rationale": "Option A directly addresses the correctness issue with the smallest safe mechanical capability: a read-only runbook backed by the existing DONE oracle, with explicit Non-authority and Authority separation.",
+  "preMortem": [
+    {
+      "scenario": "The new command duplicates DONE gate predicates and drifts from story_advance DONE.",
+      "trigger": "A handler rebuilds branch, delivery, summary, or evidence rules by hand.",
+      "consequence": "Agents receive a green runbook while DONE gate still blocks, recreating the original confusion.",
+      "mitigation": "Call buildDoneChecklist and test same-source behavior through flow-stability/done-preflight coverage."
+    },
+    {
+      "scenario": "Local runbook output is mistaken for Authority completion.",
+      "trigger": "Output includes authority-like success wording without receipt verification fields.",
+      "consequence": "Lattice overclaims receiptVerified or fullAuthorityDone from local CLI evidence.",
+      "mitigation": "Return authorityServerPath with receiptVerified=false and mayClaimAuthorityDone=false unless verified receipt refs exist."
+    },
+    {
+      "scenario": "The assistant becomes mutating closure automation.",
+      "trigger": "Implementation writes delivery-check, summary, or advances DONE from done_closure.",
+      "consequence": "Reviewer signatures and user-value closure can be forged by the main agent.",
+      "mitigation": "Classify command as read-only lifecycle observability and add tests asserting no lifecycle artifacts are written."
+    },
+    {
+      "scenario": "Implementation scope expands into Authority Server redesign.",
+      "trigger": "Developer tries to solve Authority mode inside this local runbook story.",
+      "consequence": "Large risky changes obscure the TEST PASS != DONE fix.",
+      "mitigation": "Keep Authority mode to guidance/projection only and defer receipt-backed server changes to dedicated stories."
+    }
+  ],
+  "timestamp": "2026-06-12T17:44:32.044Z"
+}
