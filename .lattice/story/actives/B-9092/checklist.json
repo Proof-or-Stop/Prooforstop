@@ -218,7 +218,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-host-verdicts.md",
+          "command": "two host review: Claude agent 019ebca5-cf82 and Codex agent 019ebca5-fc27 over the same frozen evidence anchors",
+          "result": "pass",
+          "note": "Claude and Codex host verdicts independently agree to retain F-009 open/suspected and identify no authority-boundary bypass.",
+          "headHash": "1e5c9046dbedf63077ae25d69bb10fc3db03c9c2",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:33:03.053Z"
+        }
+      ]
     }
   ]
 }
