@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-85ba:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: verificationIntent/evidence coverage is sufficient for B-85ba. Confirmed scope-anti-expansion smoke covers story_create initial boundary persistence, missing scope/execution boundary, malformed/blank/unsafe path rejection, correctness_fix default denylist, feature-mode no default denylist, pending proposal, accepted decision stale evidence, stale checklist mutation, repeat discard mitigation, and happy path. Re-ran npm --prefix packages/main run test:scope-anti-expansion-smoke and node scripts/verify-process-fact-contract.mjs; both passed. Process fact contract covers the new scope boundary/execution boundary/freeze check/proposal/decision commands and INIT_CHECK gate artifacts.",
+      "createdAt": "2026-06-12T20:41:58.109Z",
+      "reviewRound": "2026-06-12T20:36:30.829Z",
+      "reviewRunId": "B-85ba:RR-002",
+      "_hash": "e34f1e74ee31db88adf78fed0642ff6cc6c48c2b43f27e45d31374143cb06457"
+    }
+  ]
+}
