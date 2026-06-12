@@ -289,9 +289,9 @@
       "id": "CHK-004",
       "title": "Verify package rename behavior",
       "context": "Run targeted package metadata checks, TypeScript/build verification, existing runtime contract verification scripts, and lattice validate so the rename does not break local wrappers, lab registration, or runtime environment diagnostics.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:50:03.372Z",
-      "endTime": null,
+      "endTime": "2026-06-12T20:56:10.661Z",
       "userSees": "Terminal evidence shows package metadata checks passed, `npm --prefix packages/main run build` passed, runtime contract scripts passed, and `lattice validate --story=B-50fb` reports pass/allPass true for B-50fb.",
       "files": {
         "modify": [],
@@ -333,7 +333,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/lab run build && npm --prefix packages/utils run build",
+          "result": "pass",
+          "note": "Main, lab, and utils TypeScript builds passed under @lattice-agent package names.",
+          "headHash": "4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:56:10.751Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-entrypoints.mjs && node scripts/verify-global-lab-entrypoint.mjs && node scripts/verify-runtime-fact-contract.mjs && node bin/lattice.js verify_codex",
+          "result": "pass",
+          "note": "Entrypoints, global lab metadata/bootstrap behavior, runtime fact contract, and Codex adapter verification passed; verify_codex labels old global @koala-agent/core as legacy fallback.",
+          "headHash": "4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:56:10.828Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:rollout-check-smoke",
+          "result": "pass",
+          "note": "Runtime validation protocol and rollout/self-layout smoke tests passed after package-scope rename.",
+          "headHash": "4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:56:11.109Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check {storyId:B-50fb}",
+          "result": "pass",
+          "note": "Scope gate passed with 43 changed files and 0 unacknowledged violations before commit.",
+          "headHash": "4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:56:11.330Z"
+        }
+      ]
     }
   ]
 }
