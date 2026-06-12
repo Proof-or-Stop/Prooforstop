@@ -166,9 +166,9 @@
         "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T19:44:39.811Z",
       "userSees": "lattice gap_analyze prints Gaps: 1 high / 0 medium and the remaining high gap source is unlock-layer4-production-safety-suite.md:267 customerKeyRef.",
       "files": {
         "modify": [],
@@ -269,6 +269,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Code committed in 11b5b21f1 and verification evidence covers CHK-002 happy/edge/adversarial intents."
+    },
+    {
+      "timestamp": "2026-06-12T19:44:39.811Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Build, field regression smoke, and gap_analyze evidence show signed-workspace gaps closed while Layer4 customerKeyRef remains separate."
     }
   ]
 }
