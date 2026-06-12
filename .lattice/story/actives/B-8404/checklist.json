@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Detect actual changed files for active story worktrees",
+      "context": "Collect git-derived changed files for each active story worktree without reading story JSON directly or writing evidence. Include committed branch changes relative to main and uncommitted worktree changes; exclude Lattice runtime/story metadata and non-material runtime artifacts where appropriate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Integrate changed-file overlap into parallel safety and merge queue guidance",
+      "context": "If two active story worktrees modify the same material file, the wave should surface a visible degradation and avoid recommending simultaneous DEV for those stories. parallel_merge_queue should expose the overlap in blockers/guidance so operators do not merge blindly.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/koala/legacy/root-markdown/Lattice-Parallel-Development-Capability.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Preserve host-neutral and Authority boundaries",
+      "context": "The new overlap detection must remain L0/read-only planning guidance. It must not mutate story authority, verify receipts, submit evidence, spawn hosts, or claim productionDone/fullAuthorityDone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression coverage for active worktree overlap behavior",
+      "context": "Add smoke coverage proving overlapping active worktree diffs are detected, recommendations are degraded, queue guidance lists the overlap, clean non-overlapping stories remain parallel candidates, and authority fields remain non-authoritative.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
