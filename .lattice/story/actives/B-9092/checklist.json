@@ -145,6 +145,17 @@
           "headHash": "c2ca5b80c16d9bc0fa2b3c7d9ef51baea66a9a09",
           "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
           "timestamp": "2026-06-12T16:20:55.714Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/engineering/baseline-suite-report.json",
+          "command": "lattice baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z --format=json",
+          "result": "pass",
+          "note": "Missing fresh Development proof and all 9 ENG final reports kept suiteStatus=BLOCKED, authorization=not_authorized, formalProof=false, falseDoneCount=0.",
+          "headHash": "4adc6d12ccd7e98498b064c32f83ed72d31ad025",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:21:02.881Z"
         }
       ]
     },
