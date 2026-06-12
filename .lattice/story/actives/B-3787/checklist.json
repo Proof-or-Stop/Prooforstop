@@ -117,8 +117,8 @@
         "docs/requirements/decisions/lattice-authority-receipt-contract.md",
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-12T11:13:58.668Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -184,6 +184,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation committed in 479e8982 and verified by build plus field regression smoke."
+    },
+    {
+      "timestamp": "2026-06-12T11:13:58.668Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start recording regression coverage evidence after implementation commit."
     }
   ]
 }
