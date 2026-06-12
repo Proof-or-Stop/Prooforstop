@@ -119,7 +119,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "after confirmed repair in a wrapper-root fixture, story_resolve reports resolved true with resolutionSource configured-git-root and review_run_start creates a signed reviewer run bound to the child git repo",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "before repair, story_resolve/review_run_start still fail closed with unresolved signed workspace and do not create review runs",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "ambiguous multi-child wrapper-root fixture remains unresolved until an explicit valid gitRoot repair is provided",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
