@@ -78,9 +78,9 @@
       "id": "CHK-002",
       "title": "Run two-host audit on the cleanup decision",
       "context": "Claude CLI and Codex CLI should independently review whether dirty assets should be committed, restored, or deferred. Only real correctness issues may drive changes.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T14:02:31.055Z",
-      "endTime": null,
+      "endTime": "2026-06-12T14:19:24.227Z",
       "relatedDocs": [
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
@@ -113,7 +113,39 @@
             "type": "manual"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "Claude CLI and Codex CLI read-only audits",
+          "result": "pass",
+          "note": "Claude docs auditor and Codex docs auditor both found the main formal-unlock document obsolete/conflicting with B-9d6c. Codex baseline auditor found baseline artifacts BLOCKED/not_authorized and recommended restore/defer rather than commit. Claude baseline auditor also returned BLOCK, though its inventory was incomplete; final auditor did not rely on its optimistic commit suggestion.",
+          "headHash": "c46663fbfbe250f23e57e3e4dc4cdace2c2eb76e",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:19:24.280Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "Final auditor reconciliation of four host outputs",
+          "result": "pass",
+          "note": "Disagreement was handled by fail-closed logic: stale/BLOCKED baseline artifacts were not committed; only Layer4 document plus synchronized NAV was committed; story-lifecycle and B3787 audit plan were deferred in stash.",
+          "headHash": "c46663fbfbe250f23e57e3e4dc4cdace2c2eb76e",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:19:24.315Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Host audit claim boundary check",
+          "result": "pass",
+          "note": "All host audit outputs were treated as local non-authority evidence only. No Authority receipt, productionDone, fullAuthorityDone, or global capability claim was inferred from Claude or Codex host verdicts.",
+          "headHash": "c46663fbfbe250f23e57e3e4dc4cdace2c2eb76e",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:19:24.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
