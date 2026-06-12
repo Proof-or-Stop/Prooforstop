@@ -47,6 +47,20 @@ const PARALLEL_WAVE_COMMANDS = [
 ] as const;
 const DEFAULT_POLICY_PHASES = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'] as const;
 const WAVE_STORY_IDS = ['B-main', 'B-independent', 'B-dependent', 'B-hotspot', 'B-idea-adjacent'] as const;
+const OVERLAP_STORY_IDS = ['B-overlap-a', 'B-overlap-b', 'B-metadata-only', 'B-clean'] as const;
+
+function git(cwd: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function commitAll(root: string, message: string): void {
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', message]);
+}
 
 function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
@@ -146,7 +160,6 @@ function seedDevMemory(root: string): void {
 }
 
 function seedStories(store: StoryStore, root: string): void {
-  const now = '2026-06-02T00:00:00.000Z';
   store.writeStory('B-main', story('B-main', {
     priority: 'high',
     lane: 'mainline',
@@ -158,11 +171,6 @@ function seedStories(store: StoryStore, root: string): void {
     priority: 'medium',
     lane: 'supporting',
     parallelSafe: 'yes',
-    worktree: {
-      path: join(root, '.worktrees', 'B-independent'),
-      branch: 'story/B-independent',
-      createdAt: now,
-    },
   }));
   store.writeChecklist('B-independent', checklist('B-independent:happy:0', 'local-unverified-wave-receipt'));
 
@@ -237,8 +245,9 @@ function assertWave(wave: LatticeParallelWave, root: string): void {
   assert.equal(independent.recommendation, 'parallel_dev');
   assert.equal(independent.parallelDevRecommended, true);
   assert.deepEqual(independent.recommendedHostIds, ['codex']);
-  assert.equal(independent.worktreePath, join(root, '.worktrees', 'B-independent'));
-  assert.equal(independent.branch, 'story/B-independent');
+  assert.equal(independent.changedFiles!.status, 'not_configured');
+  assert.deepEqual(independent.changedFiles!.materialChangedFiles, []);
+  assert.deepEqual(independent.actualFileOverlaps ?? [], []);
 
   const dependent = ref(wave, 'B-dependent');
   assert.equal(dependent.declaredParallelSafe, 'yes');
@@ -265,7 +274,7 @@ function assertWave(wave: LatticeParallelWave, root: string): void {
   assert.deepEqual(ideaAdjacent.dependencies.declared, ['B-idea-peer']);
   assert.deepEqual(ideaAdjacent.dependencies.active, [], 'IDEA dependency is declared but not active');
   assert.deepEqual(ideaAdjacent.sharedHotspots, [], 'IDEA hotspot peer does not create an active conflict');
-  assert.deepEqual(ideaAdjacent.degradations, [], 'IDEA peer should not block or degrade scheduling');
+  assert.ok(ideaAdjacent.degradations.every(degradation => degradation.severity === 'info'), 'IDEA peer should not create blocking or warn scheduling degradation');
 }
 
 function assertInspection(inspection: LatticeParallelWaveInspection): void {
@@ -325,8 +334,6 @@ function assertDispatch(dispatch: LatticeParallelDispatch, root: string, expecte
   assert.equal(independent.spawned, false);
   assert.equal(independent.requiresRunnerConfirmation, true);
   assert.deepEqual(independent.recommendedHostIds, ['codex']);
-  assert.equal(independent.worktreePath, join(root, '.worktrees', 'B-independent'));
-  assert.equal(independent.branch, 'story/B-independent');
   assert.match(independent.nextCommand, /koala dispatch/);
   assert.deepEqual(independent.blockers, []);
   assert.ok(independent.evidenceRefs.includes('B-independent:happy:0'));
@@ -419,6 +426,134 @@ function assertCommandRegistration(registry: ReturnType<typeof createMainRegistr
     assert.equal(fact!.gateConsumer, undefined, `${command} is not consumed by a gate`);
   }
 }
+
+function writeOverlapStory(store: StoryStore, root: string, storyId: typeof OVERLAP_STORY_IDS[number]): void {
+  const now = '2026-06-02T00:00:00.000Z';
+  store.writeStory(storyId, story(storyId, {
+    priority: 'medium',
+    lane: 'supporting',
+    parallelSafe: 'yes',
+    worktree: {
+      path: join(root, '.worktrees', storyId),
+      branch: `story/${storyId}`,
+      createdAt: now,
+    },
+  }));
+  store.writeChecklist(storyId, checklist(`${storyId}:happy:0`));
+}
+
+function seedOverlapWorktreeRepo(root: string, store: StoryStore): void {
+  mkdirSync(join(root, 'packages/main/src'), { recursive: true });
+  writeFileSync(join(root, '.gitignore'), '.worktrees/\n', 'utf8');
+  writeFileSync(join(root, 'packages/main/src/shared.ts'), 'export const shared = "base";\n', 'utf8');
+  writeConfig(root);
+  for (const storyId of OVERLAP_STORY_IDS) writeOverlapStory(store, root, storyId);
+
+  git(root, ['init']);
+  git(root, ['config', 'user.email', 'parallel-wave-smoke@example.invalid']);
+  git(root, ['config', 'user.name', 'Parallel Wave Smoke']);
+  git(root, ['checkout', '-B', 'main']);
+  commitAll(root, 'seed parallel wave overlap repo');
+
+  for (const storyId of OVERLAP_STORY_IDS) {
+    git(root, ['branch', `story/${storyId}`]);
+    git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
+  }
+
+  const overlapA = join(root, '.worktrees', 'B-overlap-a');
+  writeFileSync(join(overlapA, 'packages/main/src/shared.ts'), 'export const shared = "overlap-a";\n', 'utf8');
+  git(overlapA, ['add', 'packages/main/src/shared.ts']);
+  git(overlapA, ['commit', '-m', 'change shared file in overlap a']);
+
+  const overlapB = join(root, '.worktrees', 'B-overlap-b');
+  writeFileSync(join(overlapB, 'packages/main/src/shared.ts'), 'export const shared = "overlap-b";\n', 'utf8');
+
+  const metadataOnly = join(root, '.worktrees', 'B-metadata-only');
+  mkdirSync(join(metadataOnly, '.koala/runtime'), { recursive: true });
+  writeFileSync(join(metadataOnly, '.koala/runtime/cache.json'), '{}\n', 'utf8');
+  mkdirSync(join(metadataOnly, '.lattice/story/actives/B-metadata-only'), { recursive: true });
+  writeFileSync(join(metadataOnly, '.lattice/story/actives/B-metadata-only/process-events.jsonl'), '{"event":"metadata-only"}\n', 'utf8');
+
+  const clean = join(root, '.worktrees', 'B-clean');
+  writeFileSync(join(clean, 'packages/main/src/clean.ts'), 'export const clean = true;\n', 'utf8');
+}
+
+function assertActiveWorktreeOverlapProjection(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-lattice-parallel-wave-overlap-'));
+  try {
+    writeConfig(root);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    seedOverlapWorktreeRepo(root, store);
+    resetConfigCache();
+
+    const wave = createParallelWave(store, root, {
+      storyIds: [...OVERLAP_STORY_IDS],
+      hosts: ['codex'],
+      waveId: 'wave-overlap-smoke',
+    });
+    assertAuthorityBoundary(wave);
+
+    const overlapA = ref(wave, 'B-overlap-a');
+    const overlapB = ref(wave, 'B-overlap-b');
+    for (const overlapRef of [overlapA, overlapB]) {
+      assert.equal(overlapRef.changedFiles!.status, 'ok');
+      assert.deepEqual(overlapRef.changedFiles!.materialChangedFiles, ['packages/main/src/shared.ts']);
+      assert.deepEqual(overlapRef.sharedHotspots, [], 'actual overlap is detected without sharedHotspots metadata');
+      assert.equal(overlapRef.safety, 'plan_only');
+      assert.equal(overlapRef.recommendation, 'plan_only');
+      assert.equal(overlapRef.parallelDevRecommended, false);
+      assert.ok((overlapRef.actualFileOverlaps ?? []).some(overlap => overlap.path === 'packages/main/src/shared.ts'), 'overlap path is recorded');
+      assert.ok(overlapRef.degradations.some(degradation => /packages\/main\/src\/shared\.ts/.test(degradation.reason)), 'overlap degradation names the file');
+    }
+    assert.ok((overlapA.actualFileOverlaps ?? []).some(overlap => overlap.peerStoryId === 'B-overlap-b'), 'overlap A names peer story');
+    assert.ok((overlapB.actualFileOverlaps ?? []).some(overlap => overlap.peerStoryId === 'B-overlap-a'), 'overlap B names peer story');
+
+    const metadataOnly = ref(wave, 'B-metadata-only');
+    assert.equal(metadataOnly.changedFiles!.status, 'ok');
+    assert.deepEqual(metadataOnly.changedFiles!.materialChangedFiles, []);
+    assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.lattice/')), 'metadata-only Lattice changes are visible as ignored');
+    assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.koala/')), 'metadata-only runtime changes are visible as ignored');
+    assert.deepEqual(metadataOnly.actualFileOverlaps ?? [], []);
+    assert.equal(metadataOnly.recommendation, 'parallel_dev', 'metadata-only changes do not create overlap noise');
+
+    const clean = ref(wave, 'B-clean');
+    assert.equal(clean.changedFiles!.status, 'ok');
+    assert.deepEqual(clean.changedFiles!.materialChangedFiles, ['packages/main/src/clean.ts']);
+    assert.deepEqual(clean.actualFileOverlaps ?? [], []);
+    assert.equal(clean.recommendation, 'parallel_dev', 'non-overlapping material changes stay parallel candidates');
+
+    const plan = buildParallelPlan(wave);
+    assert.deepEqual(plan.parallelDevCandidates, ['B-clean', 'B-metadata-only']);
+    assert.deepEqual(plan.planOnlyStories, ['B-overlap-a', 'B-overlap-b']);
+    assertAuthorityBoundary(plan);
+
+    const status = buildParallelStatus(wave);
+    assert.deepEqual(status.candidates, ['B-clean', 'B-metadata-only']);
+    assert.deepEqual(status.planOnly, ['B-overlap-a', 'B-overlap-b']);
+    assert.ok(status.mergeGuidance.ready.some(entry =>
+      entry.storyId === 'B-overlap-a' &&
+      /packages\/main\/src\/shared\.ts/.test(entry.guidance) &&
+      /B-overlap-b/.test(entry.guidance)
+    ), 'status guidance includes overlapping file and peer story');
+    assertAuthorityBoundary(status);
+
+    const queue = buildParallelMergeQueue(wave);
+    const queueOverlapA = queue.ready.find(entry => entry.storyId === 'B-overlap-a');
+    assert.ok(queueOverlapA, 'plan-only overlap story remains visible in merge queue');
+    assert.ok(queueOverlapA!.blockers.some(blocker =>
+      /packages\/main\/src\/shared\.ts/.test(blocker) && /B-overlap-b/.test(blocker)
+    ), 'merge queue blockers include overlapping file and peer story');
+    assert.match(queueOverlapA!.guidance, /packages\/main\/src\/shared\.ts/);
+    assert.match(queueOverlapA!.guidance, /B-overlap-b/);
+    assertAuthorityBoundary(queue);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+assertActiveWorktreeOverlapProjection();
 
 const root = mkdtempSync(join(tmpdir(), 'koala-lattice-parallel-wave-'));
 const originalGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
