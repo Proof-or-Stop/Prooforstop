@@ -92,7 +92,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T20:48:30.313Z",
-      "endTime": "2026-06-12T20:55:36.301Z",
+      "endTime": "2026-06-12T21:01:46.913Z",
       "userSees": "`lattice doctor` and related runtime diagnostics show \"@lattice-agent/core\" as the canonical package; if \"@koala-agent/core\" appears, the output labels it as legacy compatibility.",
       "files": {
         "modify": [
@@ -148,22 +148,22 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run build",
+          "command": "npm --prefix packages/main run build && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
-          "note": "TypeScript build passed after runtime/bootstrap code started preferring @lattice-agent/core.",
-          "headHash": "ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2",
-          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
-          "timestamp": "2026-06-12T20:55:36.637Z"
+          "note": "Main build and runtime fact contract passed after root identity correction; self-project detection now expects root package name lattice and core package @lattice-agent/core.",
+          "headHash": "b5b9c3254f4bda57667ebaff670daf240302abd3",
+          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
+          "timestamp": "2026-06-12T21:01:47.020Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "node -e external project runRuntimeEnvironmentChecks with only global @koala-agent/core symlink",
           "result": "pass",
-          "note": "Runtime global-core-realpath passed when legacy @koala-agent/core resolved to the expected core realpath and emitted a legacy compatibility fallback warning.",
-          "headHash": "ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2",
-          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
-          "timestamp": "2026-06-12T20:55:36.768Z"
+          "note": "Runtime global-core-realpath passed when legacy @koala-agent/core resolved to expected core realpath and emitted a legacy compatibility fallback warning.",
+          "headHash": "b5b9c3254f4bda57667ebaff670daf240302abd3",
+          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
+          "timestamp": "2026-06-12T21:01:47.079Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,19 +171,9 @@
           "command": "rg scan for @koala-agent/core/dev-host, old prompt registry, and unlabelled canonical @koala-agent package assertions",
           "result": "pass",
           "note": "No generated prompt template import or canonical resolver/template assertion points first to @koala-agent/core; remaining @koala-agent/core references are labelled legacy fallback paths.",
-          "headHash": "ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2",
-          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
-          "timestamp": "2026-06-12T20:55:36.912Z"
-        },
-        {
-          "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice.js verify_codex",
-          "result": "pass",
-          "note": "Codex adapter checks passed 6/7 with the only warning explicitly labelling global @koala-agent/core as legacy fallback heartbeat-only evidence.",
-          "headHash": "ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2",
-          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
-          "timestamp": "2026-06-12T20:55:37.210Z"
+          "headHash": "b5b9c3254f4bda57667ebaff670daf240302abd3",
+          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
+          "timestamp": "2026-06-12T21:01:47.115Z"
         }
       ]
     },
