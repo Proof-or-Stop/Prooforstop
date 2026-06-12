@@ -428,7 +428,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     assert.notEqual(missingRound.code, 0);
     assert.match(missingRound.stderr, /marked REVIEW but missing currentReviewRound/);
     assert.match(missingRound.stderr, /direct --phase=REVIEW creation/);
-    assert.match(missingRound.stderr, /repair\/init-review-round|story_advance/);
+    assert.match(missingRound.stderr, /REVIEW-entry flow|story_advance/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -265,7 +265,11 @@ export function assertCurrentReviewRunForEvidence(
   reviewRunId: string | undefined,
 ): ReviewRun {
   if (!story.currentReviewRound) {
-    throw new Error(`review_run_start: story ${story.storyId} currently has no currentReviewRound; advance to REVIEW first before starting a reviewer run`);
+    throw new Error(
+      `review_run_start: story ${story.storyId} is marked REVIEW but missing currentReviewRound. ` +
+      `This likely came from legacy direct --phase=REVIEW creation before review metadata initialization; ` +
+      `recreate this story through a supported REVIEW-entry flow before running reviewer commands.`,
+    );
   }
   if (!reviewRunId || !reviewRunId.trim()) {
     throw new Error(`review evidence for ${agent} is missing reviewRunId. ${startRunHint(story.storyId, agent)}`);

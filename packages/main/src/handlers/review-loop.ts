@@ -104,8 +104,8 @@ function requireReviewPhase(ctx: HandlerContext, storyId: string, commandName: s
   if (!story.currentReviewRound) {
     throw new Error(
       `${commandName}: story ${storyId} is marked REVIEW but missing currentReviewRound. ` +
-      `This likely came from direct --phase=REVIEW creation before review metadata initialization; ` +
-      `repair/init-review-round if available, or recreate by entering REVIEW via story_advance.`,
+      `This likely came from legacy direct --phase=REVIEW creation before review metadata initialization; ` +
+      `recreate this story through a supported REVIEW-entry flow before retrying review loop commands.`,
     );
   }
   return story.currentReviewRound;

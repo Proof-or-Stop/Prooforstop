@@ -50,8 +50,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         if (story.phase === 'REVIEW') {
           throw new Error(
             `review_run_start: story ${args.storyId} is marked REVIEW but missing currentReviewRound. ` +
-            `This likely came from direct --phase=REVIEW creation before review metadata initialization; ` +
-            `repair/init-review-round if available, or recreate by entering REVIEW via story_advance.`,
+            `This likely came from legacy direct --phase=REVIEW creation before review metadata initialization; ` +
+            `recreate this story through a supported REVIEW-entry flow before restarting reviewer commands.`,
           );
         }
         throw new Error(`review_run_start: story ${args.storyId} currently has no currentReviewRound; advance to REVIEW before starting reviewer run`);
