@@ -8,9 +8,9 @@
         "README.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:42:13.930Z",
-      "endTime": null,
+      "endTime": "2026-06-12T20:55:23.332Z",
       "userSees": "Metadata checks print \"@lattice-agent/core 0.3.5\" and a package scope scan prints \"package metadata scope check passed\"; the `koala` bin remains visible only as a legacy alias.",
       "files": {
         "modify": [
@@ -48,7 +48,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e package metadata assertion over root/core/utils/lab/cli manifests and locks",
+          "result": "pass",
+          "note": "Printed @lattice-agent/core 0.3.5 and package metadata scope check passed; root is @lattice/game and workspace manifests/locks use @lattice-agent/* names.",
+          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:23.451Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e package metadata assertion over packages/main/package.json bin aliases",
+          "result": "pass",
+          "note": "Verified bin.lattice remains primary and legacy bin.koala remains mapped to dist/cli.js.",
+          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:23.502Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "if rg -n old @koala-agent canonical package names in package manifests and lockfiles; then exit 1; else echo package metadata legacy canonical scan passed; fi",
+          "result": "pass",
+          "note": "No package manifest or lockfile presents @koala-agent/* or root koala as canonical package identity.",
+          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:23.562Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
