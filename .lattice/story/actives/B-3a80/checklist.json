@@ -51,7 +51,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Completion report links the new execution document and says it is an execution plan only, not an unlock artifact.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New document contains purpose, Lattice CLI flow, two-host protocol, exact steps, stop conditions, and DONE criteria.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document handles dirty main and unrelated docs by keeping story work isolated and avoiding unrelated edits.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document forbids false closure, arbitrary optimization, and local host verdicts becoming Authority proof.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
