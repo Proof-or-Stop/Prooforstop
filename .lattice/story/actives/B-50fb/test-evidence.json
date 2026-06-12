@@ -1,0 +1,244 @@
+{
+  "command": "koala validate --story=B-50fb --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > @lattice/game@0.3.5 test\",\"  > npm run test:e2e\",\"  > @lattice/game@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-P4Rlse; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0py9Eg; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — Inspect root and workspace package manifests plus lockfiles and confirm published package names use @lattice-agent/*, especially packages/main name @lattice-agent/core at version 0.3.5.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — Confirm package bin metadata keeps lattice as the primary command while koala remains only as an explicit legacy compatibility alias, with no accidental removal of existing CLI access.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Run a package metadata scan that fails if any manifest or lockfile dependency still presents @koala-agent/* as a canonical package scope rather than a deliberate legacy bin alias or historical repository URL.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — Run runtime diagnostics or focused assertions and confirm global/local package resolution prefers @lattice-agent/core for doctor, worktree relink, init bootstrap, prompt registry, rollout checks, and adapter checks.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — Simulate or inspect the compatibility path where only @koala-agent/core is present and confirm it is treated as a bounded legacy fallback with diagnostic wording that names it legacy, not canonical.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Search updated runtime/bootstrap code and generated prompt templates to prove no new canonical resolver, wrapper, diagnostic, or template import still points first to @koala-agent/core.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check — Review README and active truth-source docs and confirm current install/runtime package guidance names @lattice-agent/core as canonical instead of @koala-agent/core.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check — Confirm retained Koala references in active docs are explicitly framed as legacy compatibility, historical context, repository URLs, or command aliases, not as the current npm package identity.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Run a focused search across README, active requirement docs, verification scripts, and active runtime sources that fails if @koala-agent/core is still asserted as canonical or protected by verification scripts.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — Run a targeted metadata assertion and repo-standard build or typecheck to prove @lattice-agent/* package metadata, dependency edges, and generated lock metadata are internally consistent after the rename.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — Run existing runtime contract checks, including entrypoint/global lab verification and verify_codex when adapter assets or prompt templates changed, to prove wrappers and adapter diagnostics still work with canonical package names.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Run lattice validate --story=B-50fb after implementation evidence is recorded and confirm it passes only with fresh verificationEvidence covering CHK-001 through CHK-004, with no stale package rename evidence accepted.\"],\"warnings\":[],\"timestamp\":\"2026-06-12T20:56:26.466Z\",\"headSha\":\"36652eb0875325bbc37bc987f2787fb8d63d788f\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> @lattice/game@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> @lattice/game@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-P4Rlse; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0py9Eg; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":5694}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Inspect root and workspace package manifests plus lockfiles and confirm published package names use @lattice-agent/*, especially packages/main name @lattice-agent/core at version 0.3.5.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node -e package metadata assertion over root/core/utils/lab/cli manifests and locks\",\"result\":\"pass\",\"note\":\"Printed @lattice-agent/core 0.3.5 and package metadata scope check passed; root is @lattice/game and workspace manifests/locks use @lattice-agent/* names.\",\"headHash\":\"fc1e869c0225bd75d45cdfb5ed4aae034a930a2e\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:23.451Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Confirm package bin metadata keeps lattice as the primary command while koala remains only as an explicit legacy compatibility alias, with no accidental removal of existing CLI access.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node -e package metadata assertion over packages/main/package.json bin aliases\",\"result\":\"pass\",\"note\":\"Verified bin.lattice remains primary and legacy bin.koala remains mapped to dist/cli.js.\",\"headHash\":\"fc1e869c0225bd75d45cdfb5ed4aae034a930a2e\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:23.502Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Run a package metadata scan that fails if any manifest or lockfile dependency still presents @koala-agent/* as a canonical package scope rather than a deliberate legacy bin alias or historical repository URL.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"if rg -n old @koala-agent canonical package names in package manifests and lockfiles; then exit 1; else echo package metadata legacy canonical scan passed; fi\",\"result\":\"pass\",\"note\":\"No package manifest or lockfile presents @koala-agent/* or root koala as canonical package identity.\",\"headHash\":\"fc1e869c0225bd75d45cdfb5ed4aae034a930a2e\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:23.562Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Run runtime diagnostics or focused assertions and confirm global/local package resolution prefers @lattice-agent/core for doctor, worktree relink, init bootstrap, prompt registry, rollout checks, and adapter checks.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"TypeScript build passed after runtime/bootstrap code started preferring @lattice-agent/core.\",\"headHash\":\"ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:36.637Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Simulate or inspect the compatibility path where only @koala-agent/core is present and confirm it is treated as a bounded legacy fallback with diagnostic wording that names it legacy, not canonical.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"node -e external project runRuntimeEnvironmentChecks with only global @koala-agent/core symlink\",\"result\":\"pass\",\"note\":\"Runtime global-core-realpath passed when legacy @koala-agent/core resolved to the expected core realpath and emitted a legacy compatibility fallback warning.\",\"headHash\":\"ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:36.768Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Search updated runtime/bootstrap code and generated prompt templates to prove no new canonical resolver, wrapper, diagnostic, or template import still points first to @koala-agent/core.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"rg scan for @koala-agent/core/dev-host, old prompt registry, and unlabelled canonical @koala-agent package assertions\",\"result\":\"pass\",\"note\":\"No generated prompt template import or canonical resolver/template assertion points first to @koala-agent/core; remaining @koala-agent/core references are labelled legacy fallback paths.\",\"headHash\":\"ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:36.912Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Review README and active truth-source docs and confirm current install/runtime package guidance names @lattice-agent/core as canonical instead of @koala-agent/core.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"command\":\"node -e active docs package scope check over README.md and authority-client-role.md\",\"result\":\"pass\",\"note\":\"README and authority-client-role current package guidance include @lattice-agent/core as canonical.\",\"headHash\":\"2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:49.226Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Confirm retained Koala references in active docs are explicitly framed as legacy compatibility, historical context, repository URLs, or command aliases, not as the current npm package identity.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"command\":\"node -e legacy package reference labelling check\",\"result\":\"pass\",\"note\":\"Retained @koala-agent/core references in active docs/scripts/runtime paths are explicitly labelled legacy fallback or compatibility.\",\"headHash\":\"2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:49.540Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Run a focused search across README, active requirement docs, verification scripts, and active runtime sources that fails if @koala-agent/core is still asserted as canonical or protected by verification scripts.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"if rg -n old canonical @koala-agent/core assertions in README, active authority doc, scripts, packages/main/src, and templates; then exit 1; else echo canonical package assertion scan passed; fi\",\"result\":\"pass\",\"note\":\"Focused scan found no old @koala-agent/core canonical install/runtime/template assertions.\",\"headHash\":\"2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:55:49.626Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Run a targeted metadata assertion and repo-standard build or typecheck to prove @lattice-agent/* package metadata, dependency edges, and generated lock metadata are internally consistent after the rename.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/lab run build && npm --prefix packages/utils run build\",\"result\":\"pass\",\"note\":\"Main, lab, and utils TypeScript builds passed under @lattice-agent package names.\",\"headHash\":\"4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:56:10.751Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Run existing runtime contract checks, including entrypoint/global lab verification and verify_codex when adapter assets or prompt templates changed, to prove wrappers and adapter diagnostics still work with canonical package names.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-entrypoints.mjs && node scripts/verify-global-lab-entrypoint.mjs && node scripts/verify-runtime-fact-contract.mjs && node bin/lattice.js verify_codex\",\"result\":\"pass\",\"note\":\"Entrypoints, global lab metadata/bootstrap behavior, runtime fact contract, and Codex adapter verification passed; verify_codex labels old global @koala-agent/core as legacy fallback.\",\"headHash\":\"4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:56:10.828Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Run lattice validate --story=B-50fb after implementation evidence is recorded and confirm it passes only with fresh verificationEvidence covering CHK-001 through CHK-004, with no stale package rename evidence accepted.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice scope_contract_check {storyId:B-50fb}\",\"result\":\"pass\",\"note\":\"Scope gate passed with 43 changed files and 0 unacknowledged violations before commit.\",\"headHash\":\"4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d\",\"materialHash\":\"9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55\",\"timestamp\":\"2026-06-12T20:56:11.330Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-12T20:56:27.792Z",
+  "headHash": "36652eb0875325bbc37bc987f2787fb8d63d788f",
+  "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Inspect root and workspace package manifests plus lockfiles and confirm published package names use @lattice-agent/*, especially packages/main name @lattice-agent/core at version 0.3.5.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e package metadata assertion over root/core/utils/lab/cli manifests and locks",
+          "result": "pass",
+          "note": "Printed @lattice-agent/core 0.3.5 and package metadata scope check passed; root is @lattice/game and workspace manifests/locks use @lattice-agent/* names.",
+          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:23.451Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Confirm package bin metadata keeps lattice as the primary command while koala remains only as an explicit legacy compatibility alias, with no accidental removal of existing CLI access.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e package metadata assertion over packages/main/package.json bin aliases",
+          "result": "pass",
+          "note": "Verified bin.lattice remains primary and legacy bin.koala remains mapped to dist/cli.js.",
+          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:23.502Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Run a package metadata scan that fails if any manifest or lockfile dependency still presents @koala-agent/* as a canonical package scope rather than a deliberate legacy bin alias or historical repository URL.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "if rg -n old @koala-agent canonical package names in package manifests and lockfiles; then exit 1; else echo package metadata legacy canonical scan passed; fi",
+          "result": "pass",
+          "note": "No package manifest or lockfile presents @koala-agent/* or root koala as canonical package identity.",
+          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:23.562Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Run runtime diagnostics or focused assertions and confirm global/local package resolution prefers @lattice-agent/core for doctor, worktree relink, init bootstrap, prompt registry, rollout checks, and adapter checks.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after runtime/bootstrap code started preferring @lattice-agent/core.",
+          "headHash": "ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:36.637Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Simulate or inspect the compatibility path where only @koala-agent/core is present and confirm it is treated as a bounded legacy fallback with diagnostic wording that names it legacy, not canonical.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node -e external project runRuntimeEnvironmentChecks with only global @koala-agent/core symlink",
+          "result": "pass",
+          "note": "Runtime global-core-realpath passed when legacy @koala-agent/core resolved to the expected core realpath and emitted a legacy compatibility fallback warning.",
+          "headHash": "ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:36.768Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Search updated runtime/bootstrap code and generated prompt templates to prove no new canonical resolver, wrapper, diagnostic, or template import still points first to @koala-agent/core.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg scan for @koala-agent/core/dev-host, old prompt registry, and unlabelled canonical @koala-agent package assertions",
+          "result": "pass",
+          "note": "No generated prompt template import or canonical resolver/template assertion points first to @koala-agent/core; remaining @koala-agent/core references are labelled legacy fallback paths.",
+          "headHash": "ff7d9208ce0645fc33a89a6e7e3b8dae79a7d0b2",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:36.912Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Review README and active truth-source docs and confirm current install/runtime package guidance names @lattice-agent/core as canonical instead of @koala-agent/core.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "node -e active docs package scope check over README.md and authority-client-role.md",
+          "result": "pass",
+          "note": "README and authority-client-role current package guidance include @lattice-agent/core as canonical.",
+          "headHash": "2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:49.226Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Confirm retained Koala references in active docs are explicitly framed as legacy compatibility, historical context, repository URLs, or command aliases, not as the current npm package identity.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "node -e legacy package reference labelling check",
+          "result": "pass",
+          "note": "Retained @koala-agent/core references in active docs/scripts/runtime paths are explicitly labelled legacy fallback or compatibility.",
+          "headHash": "2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:49.540Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Run a focused search across README, active requirement docs, verification scripts, and active runtime sources that fails if @koala-agent/core is still asserted as canonical or protected by verification scripts.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "if rg -n old canonical @koala-agent/core assertions in README, active authority doc, scripts, packages/main/src, and templates; then exit 1; else echo canonical package assertion scan passed; fi",
+          "result": "pass",
+          "note": "Focused scan found no old @koala-agent/core canonical install/runtime/template assertions.",
+          "headHash": "2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:49.626Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Run a targeted metadata assertion and repo-standard build or typecheck to prove @lattice-agent/* package metadata, dependency edges, and generated lock metadata are internally consistent after the rename.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/lab run build && npm --prefix packages/utils run build",
+          "result": "pass",
+          "note": "Main, lab, and utils TypeScript builds passed under @lattice-agent package names.",
+          "headHash": "4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:56:10.751Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Run existing runtime contract checks, including entrypoint/global lab verification and verify_codex when adapter assets or prompt templates changed, to prove wrappers and adapter diagnostics still work with canonical package names.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-entrypoints.mjs && node scripts/verify-global-lab-entrypoint.mjs && node scripts/verify-runtime-fact-contract.mjs && node bin/lattice.js verify_codex",
+          "result": "pass",
+          "note": "Entrypoints, global lab metadata/bootstrap behavior, runtime fact contract, and Codex adapter verification passed; verify_codex labels old global @koala-agent/core as legacy fallback.",
+          "headHash": "4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:56:10.828Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Run lattice validate --story=B-50fb after implementation evidence is recorded and confirm it passes only with fresh verificationEvidence covering CHK-001 through CHK-004, with no stale package rename evidence accepted.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check {storyId:B-50fb}",
+          "result": "pass",
+          "note": "Scope gate passed with 43 changed files and 0 unacknowledged violations before commit.",
+          "headHash": "4e8ebd308a1f2780fa1f363b0472f7cd96f63a1d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:56:11.330Z"
+        }
+      }
+    ]
+  }
+}
