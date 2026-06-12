@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement shared signed workspace resolver and story_resolve surface",
+      "context": "Add a shared resolver that separates metadataRoot, signedWorkspaceRoot, authoritativeCwd, worktreePath, resolutionSource, and unresolvedReason. story_resolve must not present a non-git wrapper root as executable REVIEW cwd when signed workspace is unresolved.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind review_run_start and REVIEW evidence consumers to resolved signed workspace",
+      "context": "Use the resolver for review_run_start snapshot capture and scope binding, preserve metadata writes through metadataRoot, fail closed for unresolved wrapper-root cases, and add/preserve signed workspaceBinding/process-fact consistency as needed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression coverage for split-root and Authority-boundary cases",
+      "context": "Cover normal git roots, non-git wrapper roots, explicit gitRoot, linked worktrees, no HEAD/materialHash, stale or tampered workspace binding, and Authority overclaim prevention without requiring a real Authority Server.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement explicit gitRoot signed workspace binding path",
+      "context": "Add a concrete operator repair path for wrapper-root projects by supporting an explicit gitRoot configuration that resolves metadataRoot/gitRoot as the signedWorkspaceRoot after validating it is a git repository with HEAD/materialHash. This closes the ClawCreek issue beyond diagnostics while avoiding arbitrary nested repo guessing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
