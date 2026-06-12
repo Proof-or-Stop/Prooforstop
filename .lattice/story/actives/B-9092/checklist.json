@@ -243,6 +243,18 @@
           "headHash": "abe5524240be66ff207871a34cf4a09553fd0ec5",
           "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
           "timestamp": "2026-06-12T16:33:09.238Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+          "command": "rg -n 'receiptVerified=true|productionDone=true|fullAuthorityDone=true|layer2EngineeringClaim=UNLOCKED' .lattice/story/actives/B-9092/evidence .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z",
+          "result": "pass",
+          "note": "No reviewed evidence artifact declares Authority receipt verification, production DONE, full Authority DONE, or an unlocked Layer 2 claim; higher claims remain fail-closed.",
+          "headHash": "2ce56c0293df5d1527eaacfbf72d1f44b0b83b46",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:33:17.381Z"
         }
       ]
     }
