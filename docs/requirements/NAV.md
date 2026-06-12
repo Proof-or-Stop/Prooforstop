@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 41 个文件
+> 42 个文件
 
 ## decisions
 
@@ -14,6 +14,7 @@
 - [Dev Memory — Lightweight Experience Capture](decisions/dev-memory.md)
 - [framework](decisions/framework.md)
 - [F-009 Layer 2 Engineering Proof Gap Execution Plan](decisions/f009-layer2-engineering-proof-gap-execution-plan.md)
+- [Formal Unlock Artifact Isolation Execution Plan](decisions/formal-unlock-artifact-isolation-execution-plan.md)
 - [Host-Neutral Observability Console（CLI-backed read-only Dashboard 设计）](decisions/host-neutral-observability-console.md)
 - [Lattice Host Overflow](decisions/host-overflow.md)
 - [Lattice Baseline Two-Host Multi-Agent Execution Plan](decisions/lattice-baseline-two-host-multi-agent-execution-plan.md)

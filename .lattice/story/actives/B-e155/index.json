@@ -4,7 +4,7 @@
   "title": "Write F-009 Layer2 proof gap execution plan",
   "description": "Create a decision execution document for B-META-framework-audit:F-009. The plan must be drafted with two host inputs from Claude CLI and Codex CLI, then audited by the main auditor. It must preserve Lattice host-neutral semantics, keep CLI non-authority separate from Authority Server receipts, and obey the four correctness principles.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "F-009",
@@ -54,6 +54,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-12T15:26:58.477Z",
+      "branch": "story/B-e155",
+      "user": "Harmonygo",
+      "sessionId": "sess-d758b59aae31f4fa",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T15:31:47.369Z",
       "branch": "story/B-e155",
       "user": "Harmonygo",
       "sessionId": "sess-d758b59aae31f4fa",

@@ -69,6 +69,87 @@ Host output is review/drafting input only. Neither Claude CLI nor Codex CLI is
 an Authority Server, and neither host transcript can replace signed receipt or
 formal artifact evidence.
 
+### 3.1 Host Transcript Evidence
+
+The host drafts used by this document are inspectable here as command trail and
+captured draft content. They are not formal proof and must not be reused as
+Authority evidence.
+
+Claude CLI command trail:
+
+```bash
+claude --bare --print --no-session-persistence --tools "" --permission-mode plan --max-budget-usd 0.50 --model sonnet '<F-009 draft prompt>'
+```
+
+Result:
+
+```text
+Not logged in - Please run /login
+```
+
+The first Claude run was rejected because `--bare` skipped the local auth path.
+The retry used the normal Claude Code host context:
+
+```bash
+claude --print --no-session-persistence --tools "" --permission-mode plan --max-budget-usd 0.50 --model sonnet '<F-009 draft prompt>'
+```
+
+Captured Claude draft:
+
+```text
+Plan: Resolve or Disprove B-META-framework-audit F-009
+
+Core question: Is F-009 a real correctness defect or a disproven finding?
+
+Phases:
+1. Audit the PASS predicate.
+2. Map all producers of localOnly=false and capabilityProof=true.
+3. Read the unlock requirement docs verbatim.
+4. Determine verdict: confirmed, disproven, or diagnostic-only.
+5. Implement only for confirmed or diagnostic-only cases.
+6. Add tests only if code changed.
+7. Validate and close.
+
+DONE criteria:
+- F-009 verdict documented with file and line evidence.
+- No path fabricates localOnly=false or capabilityProof=true from L0.
+- Validation is green.
+```
+
+Codex CLI command trail:
+
+```bash
+codex exec -s read-only -c 'approval_policy="never"' \
+  -C /Users/jek/Documents/Work/Orchestrate/.worktrees/B-e155 \
+  --ephemeral '<F-009 draft prompt>'
+```
+
+Captured Codex draft:
+
+```text
+Minimal Plan:
+1. Reconfirm F-009 scope.
+2. Inventory authority surfaces.
+3. Trace proof producers.
+4. Check proof prerequisites.
+5. Check Authority boundary.
+6. Check import/verification path.
+7. Check suite aggregation.
+8. Check claim evaluation.
+9. Add or tighten fail-closed coverage.
+10. Resolve/disprove.
+
+Fail-closed tests:
+- Local baseline_run artifacts cannot make Engineering suite PASS.
+- localOnly=true or capabilityProof=false blocks suite and claim.
+- Missing/stale Development proof blocks Layer 2.
+- Missing Claude or Codex review refs blocks formal proof.
+- Forged suite summary without accepted final-report.json proof blocks.
+- Authority overclaim fields set to true block.
+- Layer 2 proof cannot unlock Loop, Production Safety, or global Capability.
+- Disabled legacy proof roots are rejected.
+```
+
 ## 4. Non-Goals
 
 - Do not unlock Layer 2 from this document.
@@ -427,4 +508,3 @@ F-009 REMAINS OPEN: evidence is insufficient or a required host/Authority prereq
 A successful execution of this plan may unlock the Layer 2 claim only if the
 formal evaluator proves valid Engineering suite proof. This document alone does
 not unlock any capability claim.
-
