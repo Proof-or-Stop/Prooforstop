@@ -50,6 +50,27 @@ which context is missing.
 - Do not require the full DEV flow for valid review-only work when a git-backed
   material snapshot exists.
 
+## Local Review Run vs Authority Server Evidence
+
+`review_run_start` creates a local signed REVIEW artifact. It binds a reviewer
+lane, `reviewRunId`, `currentReviewRound`, `HEAD`, and `materialHash` so local
+REVIEW evidence can be checked mechanically.
+
+That artifact is not an Authority Server artifact:
+
+- a local `reviewRunId` is not an Authority receipt ref;
+- a local reviewer pass or finding is not an Authority host verdict;
+- a local reviewer run is not a `gate_decision` receipt;
+- transport acceptance, host transcript text, or local diagnostic output must
+  not set `receiptVerified=true`, `productionDone=true`, or
+  `authorityChanged=true`.
+
+When Authority mode is configured, Authority Server evidence remains a separate
+receipt-backed path. A lifecycle gate may consume Authority evidence only from a
+verified production `gate_decision` receipt whose binding facts match the
+current gate context. Local reviewer-run evidence may be an input to review
+quality, but it cannot replace server receipt verification.
+
 ## Two-Host Agent Authoring Split
 
 This plan uses two host perspectives. Both are execution or audit surfaces, not
@@ -118,6 +139,10 @@ Suggested categories:
 | `missing_material_hash` | `HEAD` exists but material hash cannot be computed. | Check git tree/materialHash exclusions and rerun from the project/worktree root. |
 | `wrong_worktree` | Story has a worktree and current cwd is outside it. | `cd <story.worktree.path>` and rerun. |
 
+All failure messages should say that no reviewer run was created and that the
+operator should rerun only after a git-backed project/worktree with an initial
+commit can provide the signed snapshot.
+
 The helper must not change the success path. It only changes the error text.
 
 ### M2. Resolve The Signed Workspace Explicitly
@@ -148,6 +173,11 @@ Rules:
 - If `ctx.root`, `--root`, or `LATTICE_PROJECT_ROOT` disagrees with the verified
   worktree root, fail closed before signing. The error should say that signing
   against a different workspace would produce invalid reviewer evidence.
+- Do not normalize only the snapshot root while continuing to read/write story
+  metadata through another root. Snapshot-only normalization can still sign one
+  workspace and persist reviewer-run metadata through another. Either fail
+  closed, or explicitly rebase the entire handler/store/artifact context to the
+  verified root in a separately reviewed change.
 
 This milestone prevents a signed reviewer run from binding to the wrong
 workspace.
@@ -208,14 +238,23 @@ Required cases:
 4. Story with a linked worktree invoked from the wrong cwd returns a concrete
    worktree path hint.
 5. Cwd inside a story worktree while `--root` or `LATTICE_PROJECT_ROOT` points
-   elsewhere fails closed, or signs against the verified worktree root if the
-   implementation intentionally normalizes `snapshotRoot` that way.
+   elsewhere fails closed before signing, unless the implementation explicitly
+   rebases the entire handler/store/artifact context to the verified worktree
+   root. Snapshot-only normalization is not acceptable.
 6. Legacy REVIEW story missing `currentReviewRound` in a git repo with commit
    repairs the round and starts the reviewer run.
 7. Legacy REVIEW story missing `currentReviewRound` in a non-git or no-commit
    project fails without writing a repair event or reviewer run.
 8. Existing `review_loop_start` placeholder-hash and empty-trigger checks remain
    passing.
+9. Direct REVIEW `review_run_start` succeeds locally without changing
+   `productionDone`, `receiptVerified`, or `authorityChanged`.
+10. Authority mode without a verified native `gate_decision` receipt still fails
+    closed for Authority-required completion.
+11. Forged or local-only Claude/Codex host output cannot create an Authority
+    host verdict, verified receipt, or production DONE claim.
+12. Server-backed host verdicts, when used by a future Authority path, must be
+    authenticated and receipt-bound; they must not be inferred from host prose.
 
 Optional focused unit coverage:
 
@@ -230,6 +269,9 @@ Required commands:
 npm --prefix packages/main run build
 npm --prefix packages/main run test:field-regression-cli-smoke
 npm --prefix packages/main run test:review-loop-smoke
+npm --prefix packages/main run test:authority-boundary-smoke
+npm --prefix packages/main run test:authority-gate-consumption
+npm --prefix packages/main run test:baseline-local-certification-smoke
 ```
 
 If the implementation touches shared cwd/worktree logic, also run:
@@ -244,11 +286,15 @@ The work is complete when:
 
 - `review_run_start` no longer makes git/material failures look like
   `currentReviewRound` failures.
-- Direct REVIEW stories still initialize or repair `currentReviewRound`.
+- Direct REVIEW stories still initialize or repair `currentReviewRound` after
+  git/material snapshot readiness succeeds.
 - Signed reviewer runs still require real `HEAD` and `materialHash`.
 - Non-git and no-commit cases fail closed with actionable messages.
 - Wrong-cwd worktree cases tell the operator where to run the command.
-- No host output is treated as Authority evidence.
+- Local reviewer runs remain local REVIEW evidence, not Authority host verdicts
+  or `gate_decision` receipts.
+- No host output is treated as Authority evidence unless it goes through the
+  explicit receipt-backed Authority Server path.
 
 ## Rollout Notes
 
