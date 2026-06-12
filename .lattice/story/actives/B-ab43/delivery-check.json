@@ -1,0 +1,49 @@
+{
+  "storyId": "B-ab43",
+  "checkedAt": "2026-06-12T16:03:26.041Z",
+  "reviewRound": "2026-06-12T16:00:03.736Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Defines explicit metadataRoot versus signedWorkspaceRoot semantics and implementation phases for signed workspace resolution.",
+      "status": "verified",
+      "verifiedBy": "rg + reviewer pass",
+      "evidence": "Document contains Target Capability, Implementation Phases, Regression Matrix, and Acceptance Criteria sections."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Non-git wrapper roots fail closed unless explicit gitRoot or story worktree attachment binds the signed workspace.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "Regression matrix says nested cwd alone is not a signed workspace binding; acceptance criteria repeats nested cwd alone is not enough."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Local Claude/Codex host output remains localNonAuthorityAudit and cannot set Authority completion fields.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "Document states receiptVerified=false, productionDone=false, authorityDone=false, fullAuthorityDone=false for local fix."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Requirements NAV links the new decision document and remains complete.",
+      "status": "verified",
+      "verifiedBy": "find + rg",
+      "evidence": "NAV reports 42 files and includes Formal Unlock Artifact Isolation plus Review Run Start Signed Workspace Resolution."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-ab43",
+      "transcript": "lattice validate --story=B-ab43 --json returned status=pass, allPass=true; npm test ran CLI e2e and reported ALL PASS; verification intent coverage was 6/6."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only story delivered: execution plan is linked, internally consistent, review findings resolved, and local non-authority boundary remains explicit."
+  },
+  "_hash": "3ca91714f8075b7dc520d5ead2230f36d48c32abee43f6a574a3920e9e922d0a"
+}
