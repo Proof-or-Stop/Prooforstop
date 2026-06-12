@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-3787:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: direct REVIEW remains supported for git-backed project roots without a recorded worktree; review_run_start resolves and validates the signed workspace before ensureCurrentReviewRound repair; recorded/linked worktree mismatches fail closed instead of signing one root while persisting through another; diagnostics and regression coverage keep local REVIEW evidence separate from Authority receipt/productionDone/receiptVerified/authorityChanged semantics. Reviewed packages/main/src/handlers/review-run.ts, packages/main/src/handlers/context.ts, packages/main/src/core/review-run.ts, packages/main/src/tasks/field-regression-cli-smoke.ts against the review-run-start workspace diagnostics and Authority receipt boundary docs.",
+      "createdAt": "2026-06-12T11:18:24.932Z",
+      "reviewRound": "2026-06-12T11:15:04.727Z",
+      "reviewRunId": "B-3787:RR-001",
+      "_hash": "52149ba9f94054f68cf00acc3d0ae1e743501840dec54bfb39b9b73124c15201"
+    }
+  ]
+}
