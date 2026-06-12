@@ -58,7 +58,7 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
       ],
-      "userSees": "lattice config repair --set-git-root=clawcreek --confirm writes gitRoot and reports that the configured git root resolves successfully.",
+      "userSees": "`lattice config repair --set-git-root=clawcreek --confirm` prints `gitRoot: clawcreek`, `write: updated lattice.config.json`, and `verification: configured-git-root verified`.",
       "excludes": [
         "host-agent auto repair",
         "implicit --confirm",
