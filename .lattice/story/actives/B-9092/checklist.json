@@ -110,7 +110,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees final F-009 status: resolved with evidence, or remains open/verified with exact missing proof, plus Claude/Codex localNonAuthorityAudit verdict refs.",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-9092/checklist.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-9092/evidence/f009-host-verdicts.md",
+          ".lattice/story/actives/B-9092/evidence/f009-final-status.md"
+        ],
+        "test": [
+          "lattice finding_list --storyId=B-META-framework-audit",
+          "lattice convergence_check"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude and Codex host verdicts review the same frozen artifact root, suiteRunId, HEAD, materialHash, and F-009 evidence anchors.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If evidence is insufficient, F-009 is not falsely resolved; final status says open or verified with exact missing proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final status does not claim receiptVerified, productionDone, fullAuthorityDone, Layer 3, Production Safety, or global capability from local host evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
