@@ -8,7 +8,7 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
       ],
-      "userSees": "lattice config doctor reports metadataRoot is not git-backed and, when exactly one child git repo exists, prints a concrete gitRoot suggestion and repair command.",
+      "userSees": "`lattice config doctor` prints `wrapperGitRoot.status: single-candidate`, `suggestedGitRoot: clawcreek`, and `repairCommand: lattice config repair --set-git-root=clawcreek --confirm`.",
       "excludes": [
         "using the suggested child repo automatically for signed-workspace resolution",
         "scanning deep arbitrary directory trees",
