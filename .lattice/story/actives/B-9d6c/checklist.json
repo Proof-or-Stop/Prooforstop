@@ -11,7 +11,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "baseline_suite_report for Engineering or Loop Engineering returns BLOCKED when the selected formal proof root contains mixed root-invariant final reports, and PASS only for a clean current-run root.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "A clean Layer 2/3 formal proof root with one suiteRunId and expected claimTarget can still aggregate normally.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "A final-report for the same baseline with a different suiteRunId or claimTarget inside the selected root blocks the suite before claim unlock.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "A higher-layer or authority-overclaim artifact inside the selected root cannot be ignored to produce a PASS suite.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
