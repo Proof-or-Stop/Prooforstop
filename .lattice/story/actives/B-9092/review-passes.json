@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-12T16:34:23.551Z",
       "reviewRunId": "B-9092:RR-006",
       "_hash": "4f10cee9bbac58b1ed8241cc6ba262ea96ffa88acdc1bd75987733fda82e3beb"
+    },
+    {
+      "id": "B-9092:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review after F-001 fix passed. All CHK-001/002/003 verification intents have evidence with matching material hash; CHK-002 adversarial negative controls now cover forged/malformed final report, wrong claim target, wrong/mixed suiteRunId, local-only final report, and Authority-overclaim with BLOCKED/LOCKED machine outputs. CHK-003 final status retains B-META-framework-audit:F-009 as open/suspected. Structured JSON scan found no receiptVerified=true, productionDone=true, fullAuthorityDone=true, or layer2EngineeringClaim=UNLOCKED; text scan found no false resolved/unlocked claim.",
+      "createdAt": "2026-06-12T16:59:06.549Z",
+      "reviewRound": "2026-06-12T16:55:59.050Z",
+      "reviewRunId": "B-9092:RR-010",
+      "_hash": "f53db56d17c0c009e85dfda465370884aa20ed52d25c69f89958feb906f0a14a"
     }
   ]
 }
