@@ -20,7 +20,12 @@
       "context": "Claude CLI and Codex CLI should independently review whether dirty assets should be committed, restored, or deferred. Only real correctness issues may drive changes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "userSees": "Two independent host audit summaries from Claude CLI and Codex CLI agree on whether each dirty asset group should be committed, restored, or deferred."
     },
     {
       "id": "CHK-003",
