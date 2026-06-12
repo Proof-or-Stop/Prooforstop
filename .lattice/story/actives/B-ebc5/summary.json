@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ebc5",
+  "changes": "Added docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md and updated docs/requirements/NAV.md to include the new execution plan with the correct 47-file count.",
+  "usage": "Use the new execution plan as the next-step map: one signed-workspace implementation story for the two signed-workspace high gaps, then either future/blocked wording or a dedicated Layer4 story for customerKeyRef.",
+  "expectedOutcome": "The user can open the new plan and see how to clear the current three high gaps without creating new current uncovered requirements or false capability claims.",
+  "actualTranscript": "npm --prefix packages/main run build passed; lattice story_advance phase=TEST passed; lattice validate --story=B-ebc5 passed with 6/6 verification intent coverage; lattice gap_analyze remained 3 high / 0 medium.",
+  "outcomeDiff": "Actual matched expected for this docs-only planning story. The three high gaps remain open intentionally; this story writes the execution path, not the implementation fix.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Does not close the three high gaps, does not implement signed-workspace fixes, does not implement customerKeyRef, and does not unlock Layer2, Layer4, Production Safety, or Authority claims.",
+  "pitfalls": "A first draft created one extra high gap by duplicating a literal failure label as a current requirement; reviewer also caught non-replayable evidence commands and a stale NAV count. These are now fixed with shell-safe evidence and declared=actual NAV counting.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 112253
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13127
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 288109
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 513220
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 331788
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 69253
+    }
+  },
+  "totalDurationMs": 1327759,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T19:03:25.996Z",
+  "updatedAt": "2026-06-12T19:03:25.996Z"
+}
