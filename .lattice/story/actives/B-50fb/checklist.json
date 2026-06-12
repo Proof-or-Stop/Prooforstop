@@ -186,9 +186,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:49:47.604Z",
-      "endTime": "2026-06-12T21:01:54.126Z",
+      "endTime": "2026-06-12T21:07:48.059Z",
       "userSees": "README and active requirement docs show \"@lattice-agent/core\" as the current package; `rg \"@koala-agent/core\" README.md docs/requirements/decisions scripts packages/main/src` returns only legacy-labelled or historical matches.",
       "files": {
         "modify": [
@@ -235,33 +235,33 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "docs_check",
-          "command": "node -e active docs package scope check over README.md and authority-client-role.md",
+          "kind": "manual_transcript",
+          "command": "rg @koala-agent/(core|utils|lab|cli-guess-number) packages/main/src packages/utils/src packages/lab/src packages/main/templates scripts README.md docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
-          "note": "README and authority-client-role current package guidance still include @lattice-agent/core as canonical.",
-          "headHash": "d815ebd57728ec6ec5198df23f9d21f4e9ef7ef8",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:54.172Z"
+          "note": "Active current package identity comments and import examples in main/utils/lab source now use @lattice-agent/core, @lattice-agent/utils, and @lattice-agent/lab.",
+          "headHash": "93179a9a6ec6e6ba7e7008399fdeb7470bc717df",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:07:48.105Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
-          "kind": "docs_check",
-          "command": "node -e / rg legacy package reference labelling check",
+          "kind": "manual_transcript",
+          "command": "rg @koala-agent/(utils|lab|cli-guess-number) packages/main/src packages/utils/src packages/lab/src packages/main/templates README.md docs/requirements scripts",
           "result": "pass",
-          "note": "Retained @koala-agent/core references in active docs/scripts/runtime paths remain explicitly labelled legacy fallback or compatibility.",
-          "headHash": "d815ebd57728ec6ec5198df23f9d21f4e9ef7ef8",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:54.210Z"
+          "note": "No old @koala-agent/utils or @koala-agent/cli-guess-number current references remain; the only @koala-agent/lab hit is a negative dependency assertion in verify-global-lab-entrypoint.",
+          "headHash": "93179a9a6ec6e6ba7e7008399fdeb7470bc717df",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:07:48.143Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
-          "command": "rg old canonical @koala-agent/core assertions in README, active authority doc, scripts, packages/main/src, and templates",
+          "command": "focused remaining @koala-agent/core classification search",
           "result": "pass",
-          "note": "Focused scan found no old @koala-agent/core canonical install/runtime/template assertions.",
-          "headHash": "d815ebd57728ec6ec5198df23f9d21f4e9ef7ef8",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:54.246Z"
+          "note": "Remaining @koala-agent/core matches are README/authority docs that say legacy fallback, runtime fallback constants/diagnostics, generated bootstrap fallback assertions, and the new test-auto LEGACY_CORE_PACKAGE_NAME compatibility guard.",
+          "headHash": "93179a9a6ec6e6ba7e7008399fdeb7470bc717df",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:07:48.182Z"
         }
       ]
     },
