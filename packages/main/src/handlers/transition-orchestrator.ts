@@ -41,8 +41,7 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
-import { createStoryActor, getStateName, storyMachine } from '../core/machine.js';
-import { getNextSnapshot } from 'xstate';
+import { createStoryActor, getGuardFailureReason, getStateName } from '../core/machine.js';
 import type { StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
@@ -138,6 +137,10 @@ export function renderTransitionResult(result: TransitionResult): string {
 function canSendStoryEvent(
   actor: ReturnType<typeof createStoryActor>,
   eventType: string,
+  targetPhase: StoryPhase,
+  storyId: string,
+  store: HandlerContext['store'],
+  root: string,
 ): boolean {
   const event = { type: eventType } as any;
   const snapshot = actor.getSnapshot();
@@ -147,15 +150,29 @@ function canSendStoryEvent(
   }
 
   // Compatibility fallback for XState runtimes/restored snapshots that do not
-  // expose actor.getSnapshot().can(...). A dry transition preserves the same
-  // guard decision: rejected/unknown events return the same snapshot.
-  const normalizedSnapshot = Array.isArray((snapshot as any)._nodes)
-    ? snapshot
-    : storyMachine.resolveState({
-      value: (snapshot as any).value,
-      context: (snapshot as any).context,
-    });
-  return getNextSnapshot(storyMachine, normalizedSnapshot as any, event) !== normalizedSnapshot;
+  // expose actor.getSnapshot().can(...). Keep this table aligned with
+  // core/machine.ts and delegate guarded decisions to getGuardFailureReason,
+  // the same source used by resolveGuardFailure for the user-facing message.
+  const currentState = getStateName(actor);
+  const guarded = () => getGuardFailureReason(storyId, store, targetPhase, root) === null;
+  switch (currentState) {
+    case 'IDEA':
+      return eventType === 'INIT' || eventType === 'PLAN';
+    case 'INIT':
+      return eventType === 'INIT_CHECK' && guarded();
+    case 'INIT_CHECK':
+      return eventType === 'PLAN' || (eventType === 'START' && guarded());
+    case 'PLAN':
+      return eventType === 'START' && guarded();
+    case 'DEV':
+      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && guarded());
+    case 'REVIEW':
+      return eventType === 'START' || (eventType === 'REVIEW_PASS' && guarded());
+    case 'TEST':
+      return eventType === 'START' || (eventType === 'FINISH' && guarded());
+    default:
+      return false;
+  }
 }
 
 /**
@@ -284,7 +301,7 @@ export async function runStoryTransition(
     }
     // TEST→DEV rollback: PHASE_TO_EVENT['DEV']='START' matches automatically
 
-    const canSend = canSendStoryEvent(actor, eventType);
+    const canSend = canSendStoryEvent(actor, eventType, args.phase, args.storyId, store, ctx.root);
     if (!canSend) {
       // B-56d3: cwd/guard-failure adapter in phase-gates.ts. B-6974: it no
       // longer stops the actor — the orchestrator's finally owns that.
