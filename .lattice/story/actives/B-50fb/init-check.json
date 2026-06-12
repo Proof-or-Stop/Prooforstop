@@ -1,0 +1,30 @@
+{
+  "storyId": "B-50fb",
+  "checkedAt": "2026-06-12T20:36:38.446Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-004 verification is broad even though the rename likely touches Codex/Claude adapter assets and agent templates that currently reference @koala-agent/core. If those assets are changed, the checklist/verification intent should explicitly include the project-mandated node bin/lattice.js verify_codex check, instead of relying only on generic runtime contract or lattice validate wording."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-12T20:36:01.863Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-12T20:36:38.446Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-004 verification is broad even though the rename likely touches Codex/Claude adapter assets and agent templates that currently reference @koala-agent/core. If those assets are changed, the checklist/verification intent should explicitly include the project-mandated node bin/lattice.js verify_codex check, instead of relying only on generic runtime contract or lattice validate wording."
+        }
+      ]
+    }
+  ],
+  "_hash": "d4157a158bcaf06c5f65f98e14740bcb6dd16d42568492d06e560b4f721a1183"
+}

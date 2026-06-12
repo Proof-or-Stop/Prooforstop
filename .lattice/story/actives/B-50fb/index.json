@@ -1,0 +1,41 @@
+{
+  "storyId": "B-50fb",
+  "name": "rename-koala-package-scope-to-lattice",
+  "title": "Rename npm package scope away from Koala",
+  "description": "Rename the public npm package identity from @koala-agent/* to @lattice-agent/* so released package names no longer use Koala branding, while preserving existing koala CLI/runtime compatibility where needed as legacy aliases.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-06-12T20:35:00.897Z",
+  "startedAt": "2026-06-12T20:35:00.897Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T20:35:00.898Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:36:50.343Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-50fb",
+    "branch": "story/B-50fb",
+    "createdAt": "2026-06-12T20:36:50.443Z"
+  }
+}
