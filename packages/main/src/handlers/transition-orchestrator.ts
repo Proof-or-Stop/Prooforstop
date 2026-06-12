@@ -41,7 +41,8 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
-import { createStoryActor, getStateName } from '../core/machine.js';
+import { createStoryActor, getStateName, storyMachine } from '../core/machine.js';
+import { getNextSnapshot } from 'xstate';
 import type { StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
@@ -132,6 +133,29 @@ export function renderTransitionResult(result: TransitionResult): string {
     `${result.scopeGateReport}${result.guardGateReport}${result.depsWarning}${result.sessionWarning}${result.doneSummarySuffix}` +
     `${result.initCheckAdvisory}${result.baselineRiskWarning}${result.staleEvidenceHint}`
   );
+}
+
+function canSendStoryEvent(
+  actor: ReturnType<typeof createStoryActor>,
+  eventType: string,
+): boolean {
+  const event = { type: eventType } as any;
+  const snapshot = actor.getSnapshot();
+  const snapshotCan = (snapshot as typeof snapshot & { can?: (event: unknown) => boolean }).can;
+  if (typeof snapshotCan === 'function') {
+    return snapshotCan.call(snapshot, event);
+  }
+
+  // Compatibility fallback for XState runtimes/restored snapshots that do not
+  // expose actor.getSnapshot().can(...). A dry transition preserves the same
+  // guard decision: rejected/unknown events return the same snapshot.
+  const normalizedSnapshot = Array.isArray((snapshot as any)._nodes)
+    ? snapshot
+    : storyMachine.resolveState({
+      value: (snapshot as any).value,
+      context: (snapshot as any).context,
+    });
+  return getNextSnapshot(storyMachine, normalizedSnapshot as any, event) !== normalizedSnapshot;
 }
 
 /**
@@ -260,7 +284,7 @@ export async function runStoryTransition(
     }
     // TEST→DEV rollback: PHASE_TO_EVENT['DEV']='START' matches automatically
 
-    const canSend = actor.getSnapshot().can({ type: eventType } as any);
+    const canSend = canSendStoryEvent(actor, eventType);
     if (!canSend) {
       // B-56d3: cwd/guard-failure adapter in phase-gates.ts. B-6974: it no
       // longer stops the actor — the orchestrator's finally owns that.
