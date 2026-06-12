@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-12T18:18:16.480Z",
       "reviewRunId": "B-3a80:RR-015",
       "_hash": "73e5a376a82103070dcb6af01eb0ded53cda172ede15f8d97e5fd9a410129f43"
+    },
+    {
+      "id": "B-3a80:RP-012",
+      "agent": "koala-review-docs",
+      "note": "PASS docs review. Verified NAV has 45 decision links and the new F-009 gap_analyze link resolves; decisions directory also has 45 markdown files. Verified the Layer 4 customerKeyRef note marks the row future/blocked unless a separate implementation story is opened and does not implement customerKeyRef, set receiptVerified, set productionDone, or unlock Layer 4. Verified the F-009 execution plan preserves no false F-009/Layer2/Layer4/Authority claims and evidence guidance includes git add -N before commit plus commit-bound git diff main...HEAD / git show --name-only after commit so new docs are included. Replayed lattice gap_analyze: still 3 high / 0 medium.",
+      "createdAt": "2026-06-12T18:21:34.815Z",
+      "reviewRound": "2026-06-12T18:18:16.480Z",
+      "reviewRunId": "B-3a80:RR-016",
+      "_hash": "f9674be8ae6f97d8364c39e21a914991086766e84256fc22647abcae6d0db8b0"
     }
   ]
 }
