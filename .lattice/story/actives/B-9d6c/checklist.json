@@ -9,9 +9,9 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T13:29:55.630Z",
-      "endTime": null,
+      "endTime": "2026-06-12T13:30:03.305Z",
       "userSees": "baseline_suite_report for Engineering or Loop Engineering returns BLOCKED when the selected formal proof root contains mixed root-invariant final reports, and PASS only for a clean current-run root.",
       "files": {
         "modify": [
@@ -44,7 +44,39 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after the formal Layer 2/3 suite aggregation invariant implementation.",
+          "headHash": "9682edb080542ada26e82e5e71823bbe841261ea",
+          "materialHash": "ee8dfb954794aa4779f125b129a06d86e2a8efc53db968e8eb890d54301e25ea",
+          "timestamp": "2026-06-12T13:30:03.355Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage passed, including mixed suiteRunId and wrong claimTarget fail-closed coverage for formal roots.",
+          "headHash": "9682edb080542ada26e82e5e71823bbe841261ea",
+          "materialHash": "ee8dfb954794aa4779f125b129a06d86e2a8efc53db968e8eb890d54301e25ea",
+          "timestamp": "2026-06-12T13:30:03.396Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage passed, including Authority-overclaim fail-closed assertions that keep receiptVerified, productionDone, and fullAuthorityDone false.",
+          "headHash": "9682edb080542ada26e82e5e71823bbe841261ea",
+          "materialHash": "ee8dfb954794aa4779f125b129a06d86e2a8efc53db968e8eb890d54301e25ea",
+          "timestamp": "2026-06-12T13:30:03.433Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
