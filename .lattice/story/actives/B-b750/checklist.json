@@ -271,9 +271,9 @@
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T16:38:56.431Z",
       "userSees": "User can repair wrapper-root projects by setting an explicit gitRoot; Lattice validates that gitRoot is a real git repository and uses it as signedWorkspaceRoot without guessing nested repositories.",
       "files": {
         "modify": [
@@ -310,7 +310,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression builds a non-git metadataRoot with config gitRoot=clawcreek, verifies story_resolve returns resolutionSource=configured-git-root, and review_run_start captures HEAD/materialHash from that git root.",
+          "headHash": "6f89268f91c1493fe5ff92882b6246fa13aac1c9",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:56.470Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression verifies an unbound non-git wrapper root fails closed before currentReviewRound repair or review-run creation; resolver also validates configured gitRoot paths before use.",
+          "headHash": "6f89268f91c1493fe5ff92882b6246fa13aac1c9",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:56.504Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression creates a nested git repository under a wrapper metadataRoot and proves Lattice does not use it unless gitRoot is explicitly configured.",
+          "headHash": "6f89268f91c1493fe5ff92882b6246fa13aac1c9",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:56.541Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes with gitRoot config support, shared resolver integration, review_run_start workspaceBinding, and story_resolve output fields.",
+          "headHash": "6f89268f91c1493fe5ff92882b6246fa13aac1c9",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:56.574Z"
+        }
+      ]
     }
   ]
 }
