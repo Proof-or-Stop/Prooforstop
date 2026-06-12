@@ -104,6 +104,24 @@
         }
       ],
       "_hash": "6ddbef966a0718ddc1e32cd78881b470636444dead12f97277c74de0354225fe"
+    },
+    {
+      "timestamp": "2026-06-12T13:58:31.147Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Classify main dirty baseline and doc assets + Run two-host audit on the cleanup decision are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Which dirty baseline artifacts are valid proof assets versus stale scratch leftovers?; Whether untracked decision docs duplicate B-9d6c worktree docs or represent separate accepted documents."
+        }
+      ],
+      "_hash": "3340097696acec30a208380e84b10bf6a647f19ea7f340a335f93ca9588abd84"
     }
   ]
 }
