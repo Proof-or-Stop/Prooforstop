@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-12T18:02:02.558Z",
       "reviewRunId": "B-3a80:RR-001",
       "_hash": "48384ea690f242f719084cfe262552d5e065d25cdfac8359cedb0d8071424602"
+    },
+    {
+      "id": "B-3a80:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Docs diff quality/correctness reviewed only. Evidence: lattice gap_analyze still reports 3 high / 0 medium with anchors 262, 311, 267; NAV decision count is 45 and link was added; signed-workspace plan has no diff; packages/main src/tests contain no customerKeyRef; wording preserves future/blocked boundary and avoids F-009, Layer 2, Layer 4, productionDone, receiptVerified, or Authority completion claims.",
+      "createdAt": "2026-06-12T18:04:40.902Z",
+      "reviewRound": "2026-06-12T18:02:02.558Z",
+      "reviewRunId": "B-3a80:RR-002",
+      "_hash": "8ac857ba87a2b8033d09cfe3719adbadf8f40d871d4400d4b243a35870cfecdc"
     }
   ]
 }
