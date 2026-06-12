@@ -43,7 +43,40 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze output is Gaps: 1 high / 0 medium and no longer includes decisions/review-run-start-signed-workspace-resolution-execution-plan.md:262.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression smoke passed and covers unresolved wrapper root reason behavior for signed-workspace resolution.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline HEAD && lattice gap_analyze",
+          "result": "pass",
+          "note": "HEAD changes only source-level coverage annotations in signed-workspace files; gap_analyze still keeps unrelated customerKeyRef as the only high gap, so no broad analyzer hiding occurred.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -89,7 +122,41 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze output no longer includes decisions/review-run-start-signed-workspace-resolution-execution-plan.md:311 or Reason [requires_git_signed_workspace_but_no_binding] as a high gap.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression smoke passed and asserts unresolved review_run_start fails, reports signedWorkspaceRoot unresolved, and creates no reviewer run.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression smoke passed and preserves fail-closed behavior instead of silently signing a non-git metadata root or writing REVIEW metadata on failure.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -139,7 +206,49 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "TypeScript build and targeted field regression smoke both passed after the annotation-only source binding change.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze reports exactly Gaps: 1 high / 0 medium after the signed-workspace bindings are recognized.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "The only remaining high gap source is decisions/unlock-layer4-production-safety-suite.md:267 customerKeyRef, which is Layer4 future scope.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline HEAD && lattice gap_analyze",
+          "result": "pass",
+          "note": "Diff contains no Layer4, Authority, productionDone, fullAuthorityDone, receiptVerified, or customerKeyRef implementation changes; customerKeyRef remains uncovered.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      ]
     }
   ]
 }
