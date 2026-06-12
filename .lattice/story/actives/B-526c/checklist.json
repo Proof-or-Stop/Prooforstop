@@ -181,9 +181,9 @@
         "closing unrelated gap_analyze highs",
         "modifying Layer4 authority readiness"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T19:33:12.350Z",
-      "endTime": null,
+      "endTime": "2026-06-12T19:54:39.096Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/field-regression-cli-smoke.ts"
@@ -212,7 +212,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers story_resolve resolving via configured-git-root and review_run_start creating a signed reviewer run bound to the child git root after repair.",
+          "headHash": "2cc23ebbfebeb551ae5f2d707bc7f0ae831cc914",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:39.132Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers story_resolve and review_run_start failing closed before repair with no review run created.",
+          "headHash": "2cc23ebbfebeb551ae5f2d707bc7f0ae831cc914",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:39.167Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers ambiguous multi-child wrapper roots remaining unresolved until an explicit valid gitRoot repair is provided.",
+          "headHash": "2cc23ebbfebeb551ae5f2d707bc7f0ae831cc914",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:39.202Z"
+        }
+      ]
     }
   ],
   "auditLog": [
