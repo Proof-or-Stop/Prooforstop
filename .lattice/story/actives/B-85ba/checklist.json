@@ -11,7 +11,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "create": [
+          "packages/main/src/core/scope-anti-expansion.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scope-boundary and execution-boundary artifacts persist with canonical user-confirmed allowed/excluded scope and can be read back by store helpers",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing scope boundary or execution boundary is represented as a hard missing-artifact condition, not as allow-all scope",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "malformed boundary arrays, unsafe paths, or blank boundary terms are rejected before gate evidence can be written",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

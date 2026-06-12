@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Fail closed before worktree creation for missing or failed user-confirmed scope boundaries.",
+    "Keep semantic anti-expansion separate from later diff/file scope enforcement.",
+    "Reviewer influence must be auditable proposal evidence, not direct scope mutation.",
+    "Gate-consumed facts require typed registry and contract verification."
+  ],
+  "drivers": [
+    "Prevent multi-agent loops from amplifying a wrong story boundary.",
+    "Minimize token waste by stopping in INIT before worktree/development.",
+    "Preserve compatibility with existing init-check and scope-contract flows.",
+    "Keep implementation narrow enough to land safely despite touching lifecycle gates."
+  ],
+  "options": [
+    {
+      "name": "A: Add dedicated INIT scope-boundary and freeze-check gate",
+      "pros": [
+        "Blocks semantic scope creep before worktree creation",
+        "Keeps reviewer expansion explicit through proposals",
+        "Fits process-fact registry model"
+      ],
+      "cons": [
+        "Adds new artifacts and CLI commands",
+        "Requires focused smoke and contract tests"
+      ]
+    },
+    {
+      "name": "B: Reuse existing scope_contract and guard_session only",
+      "pros": [
+        "Less new schema",
+        "Builds on existing diff-scope infrastructure"
+      ],
+      "cons": [
+        "Detects file drift too late",
+        "Does not capture original user-confirmed semantic boundary",
+        "Cannot stop token-heavy work before INIT_CHECK"
+      ]
+    },
+    {
+      "name": "C: Prompt-only reviewer discipline",
+      "pros": [
+        "Fastest to document",
+        "No schema or command changes"
+      ],
+      "cons": [
+        "Violates Lattice process-fact dual-layer principle",
+        "Fails when agents forget or misapply prompt guidance",
+        "Cannot mechanically block future-capability keywords"
+      ]
+    }
+  ],
+  "chosen": "A: Add dedicated INIT scope-boundary and freeze-check gate",
+  "rationale": "Option A is the only design that mechanically freezes the user-confirmed semantic boundary before INIT_CHECK while preserving existing later file-scope gates. It costs more schema/test work, but it directly addresses the incident and Lattice core value of bounded closure.",
+  "preMortem": [
+    {
+      "scenario": "Missing boundary is treated as allow-all scope.",
+      "trigger": "story_create omits scopeBoundary or an older story lacks the new artifact.",
+      "consequence": "INIT_CHECK proceeds and the gate gives a false sense of safety.",
+      "mitigation": "canEnterInitCheck and getGuardFailureReason fail closed on missing scope-boundary/execution-boundary except explicit legacy compatibility paths documented as non-enforcing."
+    },
+    {
+      "scenario": "Excluded keyword matcher blocks legitimate stories.",
+      "trigger": "Authority or Layer4 appears in a feature story that is actually about that domain.",
+      "consequence": "False positives make Lattice feel arbitrary and operators bypass the gate.",
+      "mitigation": "Default future denylist applies only to correctness_fix mode; other modes use user-confirmed excludedScope/excludedKeywords, and explicit proposal/decision can accept scope changes."
+    },
+    {
+      "scenario": "Reviewer proposal path becomes a hidden checklist mutation channel.",
+      "trigger": "scope_extension_proposal writes accepted state or checklist changes directly.",
+      "consequence": "INIT reviewer expands scope despite the new gate.",
+      "mitigation": "Separate proposal from decision; only scope_extension_decide can accept/reject, acceptance invalidates freeze-check and requires rerun."
+    },
+    {
+      "scenario": "Process-fact registry drifts from command behavior.",
+      "trigger": "New commands write gate evidence but registry/contract verifier is not updated.",
+      "consequence": "The gate becomes prompt-only or invisible to process audits.",
+      "mitigation": "Add L4 entries, artifact refs, required semantics, and update verify-process-fact-contract as part of CHK-005."
+    }
+  ],
+  "timestamp": "2026-06-12T19:39:18.602Z"
+}
