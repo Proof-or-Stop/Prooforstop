@@ -48,7 +48,40 @@
       "context": "Determine whether F-009 is resolved, superseded, or should be narrowed. The decision must distinguish Layer2 Engineering proof from Layer4/Authority/customerKeyRef scope.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+        "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+      ],
+      "userSees": "A recorded decision explains whether F-009 is resolved, superseded, narrowed, or still open, without merging Layer2 and Layer4 scope.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Decision evidence identifies whether the original no-producer/importer claim is stale or still true.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Any remaining customerKeyRef or Authority receipt concern is classified as Layer4 future/blocked scope, not as the original F-009 Layer2 gap.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If source evidence shows local diagnostic artifacts can still unlock Layer2, the decision must keep or narrow F-009 instead of resolving it.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
