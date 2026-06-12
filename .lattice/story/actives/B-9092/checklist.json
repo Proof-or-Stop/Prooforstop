@@ -167,6 +167,18 @@
           "headHash": "79b2c8e20230ddeb37973e06b9d16b6b0d97b7d2",
           "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
           "timestamp": "2026-06-12T16:21:12.425Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node NAV decision count/link check: files=43 declared=43 links=43 uniqueLinks=43 missing=[] extra=[]",
+          "result": "pass",
+          "note": "Requirements NAV count and decision links match the actual docs/requirements/decisions markdown files: 43 files, 43 declared, 43 unique links, no missing or extra links.",
+          "headHash": "ef7011ab69d489e441a90de8938740fbb71aec27",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:34:16.801Z"
         }
       ]
     },
