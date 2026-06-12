@@ -9,9 +9,9 @@
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T21:09:36.535Z",
-      "endTime": null,
+      "endTime": "2026-06-12T21:17:46.922Z",
       "userSees": "Terminal includes quoted lines: \"Signed workspace: OK\", \"configured gitRoot: clawcreek\", and \"resolutionSource: configured-git-root\" for a configured wrapper-root project.",
       "files": {
         "modify": [
@@ -41,7 +41,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Build passed and field-regression smoke asserts configured wrapper-root session_brief includes Signed workspace: OK, configured gitRoot: clawcreek, signedWorkspaceRoot path, and resolutionSource: configured-git-root.",
+          "headHash": "d4b0bc570096040d3f61dfe79bfd0af9b1b6d9e1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T21:17:47.054Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Build passed and field-regression smoke asserts a normal git-backed project does not render the wrapper-root configured gitRoot signed workspace block.",
+          "headHash": "d4b0bc570096040d3f61dfe79bfd0af9b1b6d9e1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T21:17:47.093Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Build passed and field-regression smoke asserts missing configured gitRoot renders unresolved status and never claims Signed workspace: OK.",
+          "headHash": "d4b0bc570096040d3f61dfe79bfd0af9b1b6d9e1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T21:17:47.129Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
