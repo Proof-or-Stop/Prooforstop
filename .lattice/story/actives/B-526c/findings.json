@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-526c:F-001",
+      "desc": "CHK-002 adversarial verificationIntent explicitly requires repair to reject missing paths with config unchanged, but the recorded smoke coverage only exercises preview no-mutation, outside-path rejection, and nested non-root rejection. The implementation has a distinct missing-target branch at packages/main/src/handlers/lattice-cli.ts:605, while packages/main/src/tasks/field-regression-cli-smoke.ts:1014 and :1022 only cover ../outside and clawcreek/packages. Add a missing relative target assertion, e.g. setGitRoot=\"missing-creek\" with confirm true, asserting non-zero exit, /target does not exist/, and unchanged config.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T20:01:34.336Z",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "reviewRunId": "B-526c:RR-003",
+      "_hash": "e7f700fdb0c4480176ca501a60c242f1998346ed459cae468728f002a00002ef",
+      "files": [
+        "packages/main/src/tasks/field-regression-cli-smoke.ts:1003",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts:1014",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts:1022",
+        "packages/main/src/handlers/lattice-cli.ts:605"
+      ]
+    }
+  ]
+}
