@@ -1,0 +1,42 @@
+{
+  "storyId": "B-3a80",
+  "checkedAt": "2026-06-12T18:26:08.074Z",
+  "reviewRound": "2026-06-12T18:18:16.480Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "promise": "Document provides a conservative Lattice CLI execution plan for triaging the current F-009 gap_analyze high gaps without claiming closure or unlock.",
+      "status": "verified",
+      "verifiedBy": "rg + final Claude/Codex host review + lattice validate",
+      "evidence": "Document contains claim boundary, Lattice CLI flow, two-host audit protocol, stop conditions, DONE criteria, and forbidden final wording; Claude and Codex final reviews passed with no high or critical blockers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "promise": "customerKeyRef is explicitly treated as future/blocked planning scope in this context unless a separate Layer4 implementation story is opened.",
+      "status": "verified",
+      "verifiedBy": "rg + docs review",
+      "evidence": "Section 9.1 B-3a80 customerKeyRef Scope Note states the field remains future Layer4 scope and does not implement customerKeyRef, set receiptVerified, set productionDone, or unlock Layer 4."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV includes the new F-009 execution plan with the updated document count and relative link.",
+      "status": "verified",
+      "verifiedBy": "rg + docs review",
+      "evidence": "NAV count was updated and the F-009 execution plan link is present; docs reviewer pass recorded RP-012."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-004",
+      "transcript": "lattice story_advance --forceTakeover --storyId=B-3a80 --phase=TEST passed; lattice validate --story=B-3a80 passed; validation ran npm test/test:e2e and reported verification intent coverage 12/12 covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only execution plan is delivered with future/blocked scope preserved, host review evidence recorded, and no formal capability unlock claimed."
+  },
+  "_hash": "a545cec126aacd5fcc7e597824788495abefd5738979b3dd8154f221f9115189"
+}

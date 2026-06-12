@@ -8,9 +8,71 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T18:00:05.830Z",
+      "endTime": "2026-06-12T18:11:22.918Z",
+      "userSees": "Completion report states: current gap_analyze high gaps were triaged; signed workspace gaps require real consistency verification; Layer4 customerKeyRef is future/blocked.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze is rerun and the three high findings are classified without claiming they are resolved.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If customerKeyRef is future capability prose, the plan marks it future/blocked instead of starting implementation.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The triage must not mark F-009 resolved or Layer2/Layer4 unlocked without formal proof.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze rerun reported exactly 3 high / 0 medium gaps and the execution plan classifies them without closure claims.",
+          "headHash": "4b66c4b9438c6817ecaf2a199d75eca36f909399",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:11:22.977Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"future/blocked\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "customerKeyRef is explicitly marked future/blocked unless a separate Layer 4 implementation story is opened.",
+          "headHash": "4b66c4b9438c6817ecaf2a199d75eca36f909399",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:11:23.018Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Claim boundary: this document does not resolve F-009\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "The executable rg command finds the claim boundary stating the document does not resolve F-009, unlock Layer 2, unlock Layer 4, set productionDone, set receiptVerified, or complete Authority work.",
+          "headHash": "4b66c4b9438c6817ecaf2a199d75eca36f909399",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:11:23.082Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +82,71 @@
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T18:00:39.325Z",
+      "endTime": "2026-06-12T18:17:31.652Z",
+      "userSees": "Completion report links the new execution document and says it is an execution plan only, not an unlock artifact.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New document contains purpose, Lattice CLI flow, two-host protocol, exact steps, stop conditions, and DONE criteria.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document handles dirty main and unrelated docs by keeping story work isolated and avoiding unrelated edits.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document forbids false closure, arbitrary optimization, and local host verdicts becoming Authority proof.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "sed -n 1,297p docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "The new execution document contains purpose, governing principles, non-goals, bounded action, Lattice CLI flow, two-host audit protocol, phases, evidence pack, and DONE criteria.",
+          "headHash": "c1b9605953d94042e05d3802b982ea3d9b7f8cb3",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:17:31.700Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const {execSync}=require('child_process'); const allowed=[/^\\.lattice\\/story\\/actives\\/B-3a80\\//,'docs/requirements/NAV.md','docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md','docs/requirements/decisions/unlock-layer4-production-safety-suite.md']; const bad=execSync('git diff --name-only main...HEAD',{encoding:'utf8'}).trim().split('\\n').filter(Boolean).filter(p=>!allowed.some(a=>typeof a==='string'?a===p:a.test(p))); if(bad.length){console.error(bad.join('\\n')); process.exit(1)}\"",
+          "result": "pass",
+          "note": "Executable allowlist command exits 0 only when git diff --name-only main...HEAD contains no paths outside B-3a80 Lattice metadata and the three scoped docs.",
+          "headHash": "c1b9605953d94042e05d3802b982ea3d9b7f8cb3",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:17:31.736Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Do not add abstractions|Do not broaden this story|Host verdicts are review evidence only; they are not Authority receipts and cannot unlock claims|Do not treat host transcripts, local diagnostics, or this document as formal\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "Executable rg command verifies the document forbids arbitrary optimization, scope broadening, host transcripts as formal proof, and host verdicts as Authority receipts.",
+          "headHash": "c1b9605953d94042e05d3802b982ea3d9b7f8cb3",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:17:31.769Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +155,69 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T18:01:04.699Z",
+      "endTime": "2026-06-12T18:11:35.972Z",
+      "userSees": "Completion report says Layer4 customerKeyRef is explicitly future/blocked unless a separate Layer4 implementation story is opened.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Layer4 document states customerKeyRef is future/blocked planning scope in this context.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Wording still preserves future Layer4 execution requirements and does not delete the planned production safety concept.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Wording must not imply current CLI support or verified Authority receipt for customerKeyRef.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"B-3a80 customerKeyRef Scope Note\" docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "Layer4 document now includes a B-3a80 customerKeyRef scope note classifying the row as future/blocked unless a separate Layer4 implementation story is opened.",
+          "headHash": "b7674f947c78ccf1ada45d0b74ee5f43102abce2",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:11:36.014Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "sed -n 252,305p docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "The future Layer4 customerKeyRef evidence field is preserved and the redaction rule remains intact; the note does not remove the planned production safety concept.",
+          "headHash": "b7674f947c78ccf1ada45d0b74ee5f43102abce2",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:11:36.049Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"current implemented support|implement .customerKeyRef.|receiptVerified=true|productionDone=true|unlock Layer 4 Production\" docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "The executable rg command finds the scope note language requiring a separate story before current support and stating the note does not implement customerKeyRef, set receiptVerified, set productionDone, or unlock Layer4 Production Safety.",
+          "headHash": "b7674f947c78ccf1ada45d0b74ee5f43102abce2",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:11:36.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -42,9 +226,69 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T18:01:19.322Z",
+      "endTime": "2026-06-12T18:17:46.869Z",
+      "userSees": "Completion report lists verification commands and says docs/navigation consistency passed or identifies the remaining blocker.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV includes the new document with the correct count and relative link.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing unrelated dirty documentation is not included in this story diff.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final validation must not pass if the document says PASS or UNLOCKED for claims this story did not prove.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"F-009 gap_analyze High Gaps Execution Plan\" docs/requirements/NAV.md && rg -n \"45 个文件\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV lists the new F-009 gap_analyze document and the count is updated to 45 files.",
+          "headHash": "a68f2309da44022518235af38dee153183816276",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:17:46.909Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const {execSync}=require('child_process'); const allowed=[/^\\.lattice\\/story\\/actives\\/B-3a80\\//,'docs/requirements/NAV.md','docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md','docs/requirements/decisions/unlock-layer4-production-safety-suite.md']; const bad=execSync('git diff --name-only main...HEAD',{encoding:'utf8'}).trim().split('\\n').filter(Boolean).filter(p=>!allowed.some(a=>typeof a==='string'?a===p:a.test(p))); if(bad.length){console.error(bad.join('\\n')); process.exit(1)}\"",
+          "result": "pass",
+          "note": "Executable allowlist command exits 0 only when git diff --name-only main...HEAD contains no paths outside B-3a80 Lattice metadata and the three scoped docs.",
+          "headHash": "a68f2309da44022518235af38dee153183816276",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:17:46.942Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Forbidden final wording|F-009 as closed|Layer 2 or Layer 4 as unlocked|productionDone.*receiptVerified|Authority work as complete\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "Executable rg command verifies the final wording section forbids claiming F-009 closed, Layer2/Layer4 unlocked, productionDone or receiptVerified proven, or Authority work complete.",
+          "headHash": "a68f2309da44022518235af38dee153183816276",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:17:46.975Z"
+        }
+      ]
     }
   ]
 }

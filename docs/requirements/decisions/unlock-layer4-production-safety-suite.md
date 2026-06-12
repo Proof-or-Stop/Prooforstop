@@ -281,6 +281,22 @@ validation.
 | `localOnly` | Must be `false` for formal unlock proof. |
 | `capabilityProof` | Must be `true` only after receipt verification and gate consumption pass. |
 
+### 9.1 B-3a80 customerKeyRef Scope Note
+
+`customerKeyRef` remains a future Layer 4 evidence requirement. In the B-3a80
+`gap_analyze` triage context, the uncovered `customerKeyRef` row is classified
+as future/blocked unless a separate Layer 4 implementation story is opened.
+
+That separate implementation story must define the producer, loader, redaction
+contract, verifier, evaluator consumption, negative controls, and tests before
+any CLI, report, receipt, or claim evaluator may treat `customerKeyRef` as
+current implemented support.
+
+This note preserves the future Layer 4 requirement. It does not remove the
+field, weaken the redaction rule, implement `customerKeyRef`, set
+`receiptVerified=true`, set `productionDone=true`, or unlock Layer 4 Production
+Safety.
+
 Missing, stale, mismatched, local-only, or unverifiable evidence must produce:
 
 ```text
