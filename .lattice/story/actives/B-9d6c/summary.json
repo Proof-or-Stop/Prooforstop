@@ -1,0 +1,55 @@
+{
+  "storyId": "B-9d6c",
+  "changes": "Implemented formal Layer 2/3 proof-root invariant checks in baseline suite aggregation, added smoke coverage for mixed or overclaim artifacts, and documented the exact non-authority boundary.",
+  "usage": "Run npm --prefix packages/main run test:lattice-baseline-smoke or use lattice baseline_suite_report/capability_claim_formal_evaluate against a clean .lattice artifacts root to verify formal Layer 2/3 unlock proof hygiene.",
+  "expectedOutcome": "Formal Engineering and Loop Engineering proof roots pass only when current proof artifacts are clean, single-suite, non-local capability proof records with expected claim targets and no Authority overclaim.",
+  "actualTranscript": "npm --prefix packages/main run build PASS; npm --prefix packages/main run test:lattice-baseline-smoke PASS; lattice validate --story=B-9d6c --json PASS with 9/9 verification intents covered; Claude concept/docs and Codex quality/test-coverage reviewer lanes PASS.",
+  "outcomeDiff": "Expected and actual match. One documentation overstatement about headHash as current-HEAD gate was corrected to match the existing source-head binding/materialHash stale-gate model.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Layer 4 Production Safety and global capability claims remain locked. This story does not verify Authority Server receipts, does not mint production authority, and does not convert host verdicts into Authority evidence.",
+  "pitfalls": "Use a clean selected artifacts root for formal unlock proof. Negative stale-trap artifacts belong in separate negative-check roots; placing them in the selected root must BLOCK rather than be ignored.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 115026
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23380
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 226599
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 913818
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 558654
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 145800
+    }
+  },
+  "totalDurationMs": 1983277,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T13:43:02.998Z",
+  "updatedAt": "2026-06-12T13:43:02.998Z"
+}

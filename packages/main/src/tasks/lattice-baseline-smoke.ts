@@ -56,6 +56,7 @@ const repoRoot = join(here, '..', '..', '..', '..');
 const PASS_LINE = '✓ lattice baseline smoke passed';
 const AUTHORITY_FALSE_KEYS = [
   'authorityChanged',
+  'authorityDone',
   'receiptVerified',
   'productionDone',
   'fullAuthorityDone',
@@ -348,6 +349,19 @@ function assertNoSuiteBlockedReasons(value: JsonObject, label: string): void {
   );
 }
 
+function assertFormalSuiteBlocked(result: CliResult, label: string, pattern: RegExp): JsonObject {
+  const output = requireJsonObject(result, label);
+  assertFailsClosed(result, label);
+  assert.ok(collectValuesForKeys(output, ['suiteStatus']).includes('BLOCKED'), `${label} should emit suiteStatus=BLOCKED`);
+  assert.ok(collectValuesForKeys(output, ['authorization']).includes('not_authorized'), `${label} should emit authorization=not_authorized`);
+  assert.match(result.combined, pattern, `${label} should name the formal root invariant defect`);
+  assertNoAuthorityOverclaim(output, label);
+  for (const key of ['receiptVerified', 'productionDone', 'fullAuthorityDone']) {
+    assertRequiredFalseField(output, key, label);
+  }
+  return output;
+}
+
 function findFiles(root: string, fileName: string): string[] {
   if (!existsSync(root)) return [];
   const found: string[] = [];
@@ -515,6 +529,21 @@ function finalReportSeed(
     },
     ...patch,
   };
+}
+
+function engineeringFinalReportForRun(
+  root: string,
+  baselineId: string,
+  runId: string,
+  patch: JsonObject = {},
+): JsonObject {
+  const report = finalReportSeed(root, 'engineering', baselineId, patch);
+  report.runId = runId;
+  report.artifacts = {
+    directory: `.lattice/artifacts/baseline/engineering/${baselineId}/${runId}`,
+    files: ['final-report.json', ...FORMAL_PROOF_FILES],
+  };
+  return report;
 }
 
 function reviewArtifactContent(root: string, baselineId: string, host: 'claude' | 'codex'): string {
@@ -1369,7 +1398,86 @@ for (const defect of [
   }
 }
 
-// 17. Formal baseline_run cannot mint formal proof without required inputs.
+// 17. Formal suite roots fail closed when any parsed report violates the root invariant.
+for (const defect of [
+  {
+    label: 'mixed-suite-run-id',
+    mutate(report: JsonObject, _root: string): void {
+      report.suiteRunId = 'layer2-engineering-suite-smoke-other';
+    },
+    pattern: /suiteRunId|root invariant/i,
+  },
+  {
+    label: 'wrong-claim-target',
+    mutate(report: JsonObject, _root: string): void {
+      report.claimTarget = LOOP_FORMAL_CLAIM_TARGET;
+    },
+    pattern: /claimTarget|root invariant/i,
+  },
+  {
+    label: 'local-only',
+    mutate(report: JsonObject, _root: string): void {
+      report.localOnly = true;
+    },
+    pattern: /localOnly|root invariant/i,
+  },
+  {
+    label: 'authority-overclaim',
+    mutate(report: JsonObject, _root: string): void {
+      report.productionDone = true;
+      report.authority = {
+        authorityChanged: false,
+        receiptVerified: false,
+        productionDone: true,
+        fullAuthorityDone: false,
+        receiptRefs: [],
+      };
+    },
+    pattern: /authority-overclaim|productionDone|root invariant/i,
+  },
+  {
+    label: 'top-level-authority-done',
+    mutate(report: JsonObject, _root: string): void {
+      report.authorityDone = true;
+    },
+    pattern: /authority-overclaim|authorityDone|root invariant/i,
+  },
+  {
+    label: 'nested-authority-done',
+    mutate(report: JsonObject, _root: string): void {
+      report.authority = {
+        authorityChanged: false,
+        authorityDone: true,
+        receiptVerified: false,
+        productionDone: false,
+        fullAuthorityDone: false,
+        receiptRefs: [],
+      };
+    },
+    pattern: /authority-overclaim|authorityDone|root invariant/i,
+  },
+] as const) {
+  const root = initRepo(`formal-root-invariant-${defect.label}`);
+  try {
+    writeSuiteReport(root, 'development');
+    writeEngineeringProofReports(root);
+    const contaminated = engineeringFinalReportForRun(
+      root,
+      'ENG-BUGFIX-1',
+      `ignored-${defect.label}`,
+      { generatedAt: '2020-01-01T00:00:00.000Z' },
+    );
+    defect.mutate(contaminated, root);
+    writeFinalReport(root, 'engineering', 'ENG-BUGFIX-1', String(contaminated.runId), contaminated);
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFormalSuiteBlocked(result, `formal root invariant ${defect.label}`, defect.pattern);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 18. Formal baseline_run cannot mint formal proof without required inputs.
 {
   const root = initRepo('formal-run-missing-inputs');
   try {
@@ -1489,6 +1597,8 @@ for (const defect of [
     const suite = requireJsonObject(suiteResult, 'formal engineering suite proof');
     assertSuiteAccepted(suite, 'formal engineering suite proof');
     assert.equal(suite.formalProof, true, 'formal engineering suite proof should be formal');
+    assert.equal(suite.suiteRunId, FORMAL_SUITE_RUN_ID, 'formal engineering suite proof should preserve one suiteRunId');
+    assert.equal(suite.claimTarget, FORMAL_CLAIM_TARGET, 'formal engineering suite proof should preserve the Engineering claim target');
     assert.equal(suite.headHash, beforeArtifactCommitHead, 'generated suite report should bind to the pre-artifact-commit HEAD');
     assert.equal(suite.materialHash, beforeArtifactCommitMaterialHash, 'generated suite report should bind to the current material hash');
 
@@ -1546,6 +1656,8 @@ for (const defect of [
     );
     assertSuiteAccepted(loopSuite, 'formal loop-engineering suite proof');
     assert.equal(loopSuite.formalProof, true, 'formal loop-engineering suite proof should be formal');
+    assert.equal(loopSuite.suiteRunId, LOOP_FORMAL_SUITE_RUN_ID, 'formal loop-engineering suite proof should preserve one suiteRunId');
+    assert.equal(loopSuite.claimTarget, LOOP_FORMAL_CLAIM_TARGET, 'formal loop-engineering suite proof should preserve the Loop Engineering claim target');
     assert.equal((loopSuite.coveredBaselineIds as unknown[]).length, 10, 'formal loop suite should cover all ten UDM baselines');
 
     git(root, ['add', '-f', '.lattice/artifacts/baseline']);

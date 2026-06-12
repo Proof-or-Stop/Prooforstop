@@ -9,9 +9,74 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T13:29:55.630Z",
+      "endTime": "2026-06-12T13:30:03.305Z",
+      "userSees": "baseline_suite_report for Engineering or Loop Engineering returns BLOCKED when the selected formal proof root contains mixed root-invariant final reports, and PASS only for a clean current-run root.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "A clean Layer 2/3 formal proof root with one suiteRunId and expected claimTarget can still aggregate normally.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "A final-report for the same baseline with a different suiteRunId or claimTarget inside the selected root blocks the suite before claim unlock.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "A higher-layer or authority-overclaim artifact inside the selected root cannot be ignored to produce a PASS suite.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after the formal Layer 2/3 suite aggregation invariant implementation.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage passed, including mixed suiteRunId and wrong claimTarget fail-closed coverage for formal roots.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage passed, including Authority-overclaim fail-closed assertions that keep receiptVerified, productionDone, and fullAuthorityDone false.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +85,72 @@
       "relatedDocs": [
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T13:30:08.212Z",
+      "endTime": "2026-06-12T13:30:17.350Z",
+      "userSees": "The baseline smoke task reports PASS for negative controls proving stale materialHash, mixed suiteRunId, wrong claimTarget, localOnly, and Authority overclaim artifacts fail closed.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Smoke coverage includes a clean formal proof path that still passes after adding the invariant guard.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Smoke coverage includes mixed suiteRunId and wrong claimTarget artifacts and observes BLOCKED output.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Smoke coverage includes localOnly or Authority-overclaim artifacts and verifies receiptVerified/productionDone/fullAuthorityDone remain false.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage passed and preserved the clean formal proof path after the invariant guard.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage includes mixed suiteRunId and wrong claimTarget artifacts and observes BLOCKED output.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage includes localOnly and Authority-overclaim artifacts and verifies receiptVerified, productionDone, and fullAuthorityDone remain false.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +159,72 @@
       "relatedDocs": [
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T13:30:42.352Z",
+      "endTime": "2026-06-12T13:31:04.254Z",
+      "userSees": "The artifact isolation execution plan states that the invariant guard is implemented for Layer 2/3, stale traps use a negative-check root, and Layer 4 remains gated by its own Authority-backed evaluator.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "The execution plan documents the implemented root invariant and exact supported scope for Layer 2/3.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "The execution plan keeps Layer 4 as a precondition-only consumer until its production-safety evaluator exists.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "The execution plan forbids treating artifact isolation or host verdicts as Authority evidence.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan documents the implemented Layer 2/3 root invariant guard and its implementation files.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan keeps Layer 4 as LOCKED and describes artifact isolation only as a precondition until a production-safety evaluator and Authority proof chain exist.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan explicitly states Lattice CLI remains non-authority, does not verify Authority Server receipts, and does not convert Claude or Codex verdicts into Authority evidence.",
+          "headHash": "afba5a0c74d467d6ddad74509bfecce7f04faef7",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:16:01.435Z"
+        }
+      ]
     }
   ]
 }

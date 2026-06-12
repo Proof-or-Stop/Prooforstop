@@ -1366,7 +1366,7 @@ function assertFreshMaterial(root: string, artifactMaterialHash: string | undefi
 
 function hasAuthorityOverclaim(record: Record<string, unknown>): string | null {
   const authority = isRecord(record.authority) ? record.authority : {};
-  const keys = ['authorityChanged', 'receiptVerified', 'productionDone', 'fullAuthorityDone', 'canClaimProductionDone'];
+  const keys = ['authorityChanged', 'authorityDone', 'receiptVerified', 'productionDone', 'fullAuthorityDone', 'canClaimProductionDone'];
   for (const key of keys) {
     const top = record[key];
     const nested = authority[key];
@@ -1375,6 +1375,21 @@ function hasAuthorityOverclaim(record: Record<string, unknown>): string | null {
   const nestedRefs = Array.isArray(authority.receiptRefs) ? authority.receiptRefs : [];
   if (nestedRefs.length > 0) return 'authority.receiptRefs must stay empty; formal proof uses top-level receiptRefs bindings';
   return null;
+}
+
+function formalRootInvariantProblems(report: BaselineFinalReport, expectedClaimTarget: string): string[] {
+  const problems: string[] = [];
+  if (!report.suiteRunId) problems.push('suiteRunId is missing');
+  if (report.claimTarget !== expectedClaimTarget) problems.push(`claimTarget must be ${expectedClaimTarget}`);
+  if (report.localOnly !== false) problems.push('localOnly must be false');
+  if (report.capabilityProof !== true) problems.push('capabilityProof must be true');
+  if (report.formalProof !== true) problems.push('formalProof must be true');
+  if (report.falseDone !== false || report.falseDoneCount !== 0) {
+    problems.push('falseDone must be false and falseDoneCount must be 0');
+  }
+  const authorityOverclaim = hasAuthorityOverclaim(report as unknown as Record<string, unknown>);
+  if (authorityOverclaim) problems.push(`authority-overclaim: ${authorityOverclaim}`);
+  return problems;
 }
 
 function normalizeLayer(value: string | undefined): BaselineLayer | null {
@@ -2158,6 +2173,8 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
 
   const definitions = definitionsForLayer(layer);
   const requiredBaselineIds = definitions.map((definition) => definition.baselineId);
+  const expectedFormalClaimTarget = formalClaimTargetForLayer(layer);
+  const formalRootSuiteRunIds = new Set<string>();
   const byBaseline = new Map<string, BaselineFinalReport[]>();
   if (definitions.length === 0) {
     blockedReasons.push(`${layer} has no local baseline definitions; capability proof must come from a fresh authorized suite report`);
@@ -2172,6 +2189,16 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
       continue;
     }
     const report = parsed.report!;
+    if (expectedFormalClaimTarget) {
+      const displayPath = pathForDisplay(options.root, path);
+      if (report.suiteRunId) formalRootSuiteRunIds.add(report.suiteRunId);
+      const rootInvariantProblems = formalRootInvariantProblems(report, expectedFormalClaimTarget);
+      if (rootInvariantProblems.length > 0) {
+        const reason = `formal ${formalLayerLabel(layer)} root invariant violation: ${rootInvariantProblems.join('; ')}`;
+        refusedArtifacts.push({ path: displayPath, reason });
+        blockedReasons.push(`${displayPath}: ${reason}`);
+      }
+    }
     const list = byBaseline.get(report.baselineId) ?? [];
     list.push(report);
     byBaseline.set(report.baselineId, list);
@@ -2261,8 +2288,10 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
     blockedReasons.push(`missing baseline final reports: ${missingBaselineIds.join(', ')}`);
   }
 
-  const expectedFormalClaimTarget = formalClaimTargetForLayer(layer);
   if (expectedFormalClaimTarget && definitions.length > 0) {
+    if (formalRootSuiteRunIds.size !== 1) {
+      blockedReasons.push(`${formalLayerLabel(layer)} formal proof requires exactly one suiteRunId across all parsed reports in selected root; saw ${formalRootSuiteRunIds.size}`);
+    }
     if (acceptedSuiteRunIds.size !== 1) {
       blockedReasons.push(`${formalLayerLabel(layer)} formal proof requires exactly one suiteRunId across accepted reports; saw ${acceptedSuiteRunIds.size}`);
     }

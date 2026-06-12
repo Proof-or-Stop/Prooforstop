@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-9d6c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Host Neutral design is correctly maintained throughout. BASELINE_AUTHORITY_BOUNDARY hardcodes all five authority fields to false with as-const TypeScript enforcement; no code path can set them to true in generated reports. Authority overclaim is checked at two layers: parseFinalReport (parse-time refusal) and hasAuthorityOverclaim inside formalRootInvariantProblems. Lattice CLI non-authority boundary is intact: no function produces or verifies Authority Server receipts, receiptRefs stays empty in generated artifacts. Layer 4 Production Safety boundary is correctly gated: formalClaimTargetForLayer returns null for production-safety, skipping the root invariant guard; layerRequiresProductionProof adds an explicit BLOCKED reason for L4. The formal root invariant guard at formalRootInvariantProblems (line 1380) is correctly wired into baseline_suite_report aggregation (line 2195) for engineering and loop-engineering only. The layer field check is enforced at parseFinalReport parse-time (line 1802); materialHash staleness is also checked at parse-time (line 1809); these together with the per-report formalRootInvariantProblems implement all invariant conditions from the execution plan table. Smoke test negative coverage exercises: mixed-suiteRunId, wrong-claimTarget, localOnly=true, and authority-overclaim defects, each asserting BLOCKED suite with not_authorized. Formal production-safety claim stays authorized=false after lower layers unlock (smoke test line 1658-1662). Design principles (no optimization for optimization, only real correctness issues, preserve logic consistency) are followed: no arbitrary refactors, targeted guard additions only.",
+      "createdAt": "2026-06-12T13:36:10.209Z",
+      "reviewRound": "2026-06-12T13:31:18.544Z",
+      "reviewRunId": "B-9d6c:RR-001",
+      "_hash": "78760755080b334e6e3b5ea3b0b8b7421bc3b317c6fb0f86455ca95fbf1357c2"
+    },
+    {
+      "id": "B-9d6c:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Execution plan doc (formal-unlock-artifact-isolation-execution-plan.md) accurately reflects implementation. Section 3 invariant table: all conditions (layer, materialHash, suiteRunId, claimTarget, localOnly, capabilityProof, formalProof, falseDone, authority.receiptVerified, authority.productionDone, authority.fullAuthorityDone) are enforced in code. Minor presentation note: doc presents all as root-invariant conditions but code splits them between parseFinalReport parse-time checks (layer, materialHash, authorityOverclaim, schemaVersion) and per-report formalRootInvariantProblems (the remainder); this is a tighter implementation than the doc implies, not a weaker one. Section 4 negative-root separation is correctly implemented: parseFinalReport scopes to layerDir and smoke tests use isolated temp repos for negative artifacts. Section 5 Layer 4 boundary: formalClaimTargetForLayer returns null for production-safety; explicit BLOCKED reason added by layerRequiresProductionProof; doc boundary table (L2=can unlock, L3=can unlock, L4=LOCKED) matches runtime behavior confirmed by smoke test. Section 6 non-goals: verified correct—no receipt verification, no new capability layers, no host verdict conversion to Authority evidence, no BLOCKED-to-PASS downgrade. Section 7 implementation locations match actual file paths. The doc's headHash note ('not a current-HEAD root invariant, materialHash is used instead') is confirmed correct by the implementation. No doc promises violated, no Layer 4 production safety claims made anywhere in the doc or code.",
+      "createdAt": "2026-06-12T13:36:19.337Z",
+      "reviewRound": "2026-06-12T13:31:18.544Z",
+      "reviewRunId": "B-9d6c:RR-002",
+      "_hash": "935cd858068b80f51de9d117549c2e2f2a5d1342a779306ae37f925e37e1b98a"
+    },
+    {
+      "id": "B-9d6c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed packages/main/src/core/lattice-baseline.ts, packages/main/src/tasks/lattice-baseline-smoke.ts, and the formal unlock artifact isolation execution plan. The suite aggregation scans parsed final-report artifacts in the selected formal root, blocks refused or invariant-violating artifacts, keeps Authority fields false, and formal claim evaluation leaves Layer 4/global claims locked. No real correctness blocker found; npm --prefix packages/main run test:lattice-baseline-smoke passed at current reviewed state.",
+      "createdAt": "2026-06-12T13:37:22.150Z",
+      "reviewRound": "2026-06-12T13:31:18.544Z",
+      "reviewRunId": "B-9d6c:RR-003",
+      "_hash": "5028d0fa1b44ac70d67f12c0e44eddf41501726c54928d4ddf1eabde06a461e9"
+    },
+    {
+      "id": "B-9d6c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed verification intents/evidence plus lattice-baseline-smoke coverage for CHK-001 through CHK-003. Coverage includes clean formal Layer 2/3 proof paths, mixed suiteRunId, wrong claimTarget, localOnly, Authority-overclaim fail-closed cases, forged suite-summary rejection, production/global lock assertions, and the smoke command npm --prefix packages/main run test:lattice-baseline-smoke passed during review. No verified test-coverage blocker found.",
+      "createdAt": "2026-06-12T13:37:30.799Z",
+      "reviewRound": "2026-06-12T13:31:18.544Z",
+      "reviewRunId": "B-9d6c:RR-004",
+      "_hash": "2411c5023b55bf05e66db5ac7a4dc7cf2ec0fe85e5f59f273efc163cdc02687f"
+    },
+    {
+      "id": "B-9d6c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed. Formal root invariant remains a local proof-root isolation guard for Layer 2/3 only: parsed final reports fail closed on mixed layer, stale materialHash, localOnly/formalProof/capabilityProof/suiteRunId/claimTarget defects, and authority overclaims including authorityDone/receiptVerified/productionDone/fullAuthorityDone. Formal claim outputs keep authorityReports empty, receiptVerified=false, productionDone=false, production/global claims locked; no Lattice Authority Server receipt semantics are confused with local non-authority proof bindings. Verified with git diff --check main...HEAD and node packages/main/dist/tasks/lattice-baseline-smoke.js.",
+      "createdAt": "2026-06-12T14:10:04.574Z",
+      "reviewRound": "2026-06-12T14:04:38.155Z",
+      "reviewRunId": "B-9d6c:RR-006",
+      "_hash": "fe76c201b5de33ed3b8c302b52afebdea002c7419451e573d6106a712586f5b5"
+    },
+    {
+      "id": "B-9d6c:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Reviewed current B-9d6c commit with focus on packages/main/src/core/lattice-baseline.ts formal root invariant guard. No real correctness issue found: parsed formal reports fail closed on root invariant violations, authorityDone overclaim is covered with existing authority checks, stored formal suite proof is revalidated against rebuilt evidence, and capability claim authorization only trusts rebuilt PASS state. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:lattice-baseline-smoke.",
+      "createdAt": "2026-06-12T14:11:30.375Z",
+      "reviewRound": "2026-06-12T14:04:38.155Z",
+      "reviewRunId": "B-9d6c:RR-009",
+      "_hash": "97c4a57075de6b94a3ed5ba3de486dc2ef2552c787c1a7cf5827db48c580fc6c"
+    },
+    {
+      "id": "B-9d6c:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "No correctness issue found. packages/main/src/tasks/lattice-baseline-smoke.ts covers formal root invariant authority overclaims for top-level authorityDone and nested authority.authorityDone, both routed through baseline_suite_report and assertFormalSuiteBlocked; checklist verificationIntent/evidence remains 9/9 covered. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:lattice-baseline-smoke after build.",
+      "createdAt": "2026-06-12T14:12:26.043Z",
+      "reviewRound": "2026-06-12T14:04:38.155Z",
+      "reviewRunId": "B-9d6c:RR-007",
+      "_hash": "99b4f2ded6a20c40a5792ad64e49451d82ef40c286d3f2a954cc49e93124b575"
+    },
+    {
+      "id": "B-9d6c:RP-008",
+      "agent": "koala-review-concept",
+      "note": "PASS: Current diff implements the intended narrow formal proof-root invariant for Layer 2/3 only. It blocks stale materialHash, mixed suiteRunId, wrong claimTarget, localOnly/non-formal/non-proof artifacts, and Authority overclaim without unlocking Layer4/Production/global claims. No conceptual blocker under the four principles.",
+      "createdAt": "2026-06-12T14:17:09.025Z",
+      "reviewRound": "2026-06-12T14:15:48.063Z",
+      "reviewRunId": "B-9d6c:RR-011",
+      "_hash": "9087ab20ae2bb0941a2e3a69a1ef5753af9f44e20ba32591ed028bc8c800bc32"
+    },
+    {
+      "id": "B-9d6c:RP-009",
+      "agent": "koala-review-quality",
+      "note": "PASS: Code change is scoped to packages/main/src/core/lattice-baseline.ts and focused smoke coverage. It reuses existing baseline aggregation structures, fails closed with explicit blocked reasons, and avoids arbitrary refactor or Authority semantics expansion. No quality blocker found.",
+      "createdAt": "2026-06-12T14:17:16.664Z",
+      "reviewRound": "2026-06-12T14:15:48.063Z",
+      "reviewRunId": "B-9d6c:RR-012",
+      "_hash": "3f2da8730a8c21408b012dae55003e407f47a63e871d3619bb01562c734533e2"
+    },
+    {
+      "id": "B-9d6c:RP-010",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: npm --prefix packages/main run build passed; npm --prefix packages/main run test:lattice-baseline-smoke passed; lattice validate --story=B-9d6c --json passed with 9/9 verification intents covered. Coverage includes clean PASS path plus stale/mixed/wrong-target/localOnly/Authority-overclaim fail-closed cases.",
+      "createdAt": "2026-06-12T14:17:23.575Z",
+      "reviewRound": "2026-06-12T14:15:48.063Z",
+      "reviewRunId": "B-9d6c:RR-013",
+      "_hash": "17ad7b0da6fc6a50bb76804475106309c6437d88bdb4ac1b5d138c931d838183"
+    },
+    {
+      "id": "B-9d6c:RP-011",
+      "agent": "koala-review-docs",
+      "note": "PASS: docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md documents the implemented Layer2/3 root invariant, includes authority.authorityDone=false to match code, and keeps Lattice CLI non-authority plus Layer4/Production/global claims locked. No docs blocker found.",
+      "createdAt": "2026-06-12T14:17:29.590Z",
+      "reviewRound": "2026-06-12T14:15:48.063Z",
+      "reviewRunId": "B-9d6c:RR-014",
+      "_hash": "e584a16020f6148f2607dc41e51b2483e399c40aa9554b551320b4c3107bdc23"
+    }
+  ]
+}
