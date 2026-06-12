@@ -157,9 +157,9 @@
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T21:09:37.336Z",
-      "endTime": null,
+      "endTime": "2026-06-12T21:18:01.937Z",
       "userSees": "Regression output remains stable: configured fixture asserts \"Signed workspace: OK\" and unresolved fixture asserts absence of \"Signed workspace: OK\".",
       "files": {
         "modify": [],
@@ -187,7 +187,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field-regression smoke now asserts configured wrapper-root session_brief contains configured gitRoot, signedWorkspaceRoot, Signed workspace: OK, and resolutionSource: configured-git-root.",
+          "headHash": "75ac2902123e4d11848f3d24eb0dc0d1e804ad9b",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T21:18:01.983Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field-regression smoke now asserts unresolved wrapper-root session_brief keeps Non-git or unresolved guidance and never emits Signed workspace: OK.",
+          "headHash": "75ac2902123e4d11848f3d24eb0dc0d1e804ad9b",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T21:18:02.020Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field-regression smoke now snapshots config before and after session_brief for configured, unconfigured, and invalid wrapper roots to prove rendering does not mutate config.",
+          "headHash": "75ac2902123e4d11848f3d24eb0dc0d1e804ad9b",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T21:18:02.053Z"
+        }
+      ]
     }
   ]
 }
