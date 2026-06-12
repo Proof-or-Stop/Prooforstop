@@ -97,7 +97,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The artifact isolation execution plan states that the invariant guard is implemented for Layer 2/3, stale traps use a negative-check root, and Layer 4 remains gated by its own Authority-backed evaluator.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "The execution plan documents the implemented root invariant and exact supported scope for Layer 2/3.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "The execution plan keeps Layer 4 as a precondition-only consumer until its production-safety evaluator exists.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "The execution plan forbids treating artifact isolation or host verdicts as Authority evidence.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
