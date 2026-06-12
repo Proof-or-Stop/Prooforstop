@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind signed-workspace unresolved reason to implementation",
+      "context": "Resolve GAP-SW-UNRESOLVED-1 from resolve-gap-analyze-three-high-gaps-execution-plan.md. The current analyzer points to review-run-start-signed-workspace-resolution-execution-plan.md:262. Confirm whether source already implements this reason; if not, implement the minimal fail-closed behavior. Do not touch customerKeyRef.",
+      "relatedDocs": [
+        "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind signed-workspace no-binding diagnostic to REVIEW behavior",
+      "context": "Resolve GAP-SW-NO-BINDING-1 from resolve-gap-analyze-three-high-gaps-execution-plan.md. The current analyzer points to review-run-start-signed-workspace-resolution-execution-plan.md:311. review_run_start must fail closed without a git-backed signed workspace and must not create a reviewer run in that path.",
+      "relatedDocs": [
+        "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify gap_analyze drops signed-workspace highs without new gaps",
+      "context": "Run build/regression validation and gap_analyze. Success means the two signed-workspace high gaps disappear while customerKeyRef remains the only high gap unless a separate Layer4 story is opened.",
+      "relatedDocs": [
+        "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+        "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add deterministic gitRoot repair UX for wrapper-root projects",
+      "context": "When metadataRoot is a non-git wrapper and exactly one nested git repo is present, Lattice should suggest an explicit gitRoot repair and provide a confirmed deterministic command to write gitRoot. It must fail closed for multiple nested repos and must not auto-spawn Claude/Codex or silently choose a signed workspace.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+      ],
+      "userSees": "lattice config doctor suggests gitRoot=clawcreek; lattice config repair --set-git-root=clawcreek --confirm writes config and verifies story_resolve.",
+      "excludes": [
+        "Automatic child repo guessing without explicit config write",
+        "Host-agent auto repair",
+        "Authority or production DONE claims"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
