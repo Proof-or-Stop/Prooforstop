@@ -9,9 +9,9 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T10:59:06.315Z",
-      "endTime": null,
+      "endTime": "2026-06-12T11:13:50.729Z",
       "verificationIntent": {
         "happy": [
           {
@@ -54,7 +54,59 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Build passed and field-regression smoke asserted REVIEW review_run_start success persists real headHash/materialHash and stable reviewRunId.",
+          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:13:50.768Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Smoke covers non-git and unborn HEAD review_run_start failures and asserts no currentReviewRound repair or review-runs write occurs before snapshot readiness.",
+          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:13:50.804Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "resolveStoryCommandWorkspace now canonicalizes ctx.root versus expected worktree root; smoke asserts mismatched LATTICE_PROJECT_ROOT fails before writes.",
+          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:13:50.839Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Smoke runs from story worktree with LATTICE_PROJECT_ROOT pointing at main and asserts root/worktree mismatch plus no reviewer-run write.",
+          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:13:50.872Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "diagnoseReviewRunSnapshot refuses missing git HEAD/materialHash before signing; placeholder user hashes are still not accepted for reviewer runs.",
+          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:13:50.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -123,6 +175,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start implementing review_run_start signed workspace diagnostics."
+    },
+    {
+      "timestamp": "2026-06-12T11:13:50.729Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 479e8982 and verified by build plus field regression smoke."
     }
   ]
 }
