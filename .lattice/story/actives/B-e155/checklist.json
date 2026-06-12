@@ -10,9 +10,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T15:18:15.819Z",
-      "endTime": null,
+      "endTime": "2026-06-12T15:26:43.248Z",
       "userSees": "Context evidence lists F-009 text, suspected gap, source anchors, and related Layer2/Authority docs without using .omx.",
       "files": {
         "modify": [],
@@ -313,6 +313,17 @@
           "timestamp": "2026-06-12T15:26:31.651Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-12T15:26:43.248Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-009 context, source anchors, and existing proof-boundary docs were captured in the execution plan."
     }
   ]
 }
