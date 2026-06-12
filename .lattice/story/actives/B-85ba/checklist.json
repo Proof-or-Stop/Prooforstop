@@ -242,12 +242,12 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Smoke missing-boundary case asserts INIT_CHECK guard fails before worktree creation or phase mutation semantics can proceed.",
-          "headHash": "a66217e52b4efd17399b9c3985882f7b779ef702",
+          "note": "F-006 follow-up: worktree authority smoke now verifies fromDraft stops at INIT and only explicit story_advance INIT_CHECK performs worktree bootstrap, so anti-expansion failures still happen before worktree creation.",
+          "headHash": "57924e65aa068481ca8359a6fd8c396b3bd8c757",
           "materialHash": "7c932b33f861b8d9cf19b1279c55484b28379e4d0b2712da4ab88322bd218bb3",
-          "timestamp": "2026-06-12T21:27:03.213Z"
+          "timestamp": "2026-06-12T21:27:23.438Z"
         }
       ]
     },
@@ -415,12 +415,12 @@
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Smoke and contract checks fail if required gate artifacts, lifecycle artifact filenames, or anti-expansion guard behavior regress.",
-          "headHash": "a66217e52b4efd17399b9c3985882f7b779ef702",
+          "note": "F-006 follow-up: repository-level worktree authority smoke was updated and passed, preventing stale legacy fromDraft INIT_CHECK auto-worktree expectations from hiding regressions.",
+          "headHash": "57924e65aa068481ca8359a6fd8c396b3bd8c757",
           "materialHash": "7c932b33f861b8d9cf19b1279c55484b28379e4d0b2712da4ab88322bd218bb3",
-          "timestamp": "2026-06-12T21:27:03.213Z"
+          "timestamp": "2026-06-12T21:27:23.438Z"
         }
       ]
     }
