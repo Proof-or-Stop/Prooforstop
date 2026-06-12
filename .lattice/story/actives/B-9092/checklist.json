@@ -133,7 +133,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+          "command": "lattice baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z --format=json; lattice capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z --outputDir=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/proof/formal-claim --format=json",
+          "result": "pass",
+          "note": "Formal diagnostics ran against frozen clean root; suite report is BLOCKED and formal claim report is LOCKED with explicit missing Development and Engineering proof reasons.",
+          "headHash": "c2ca5b80c16d9bc0fa2b3c7d9ef51baea66a9a09",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:20:55.714Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
