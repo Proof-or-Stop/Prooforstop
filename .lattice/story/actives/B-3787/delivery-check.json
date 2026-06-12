@@ -1,0 +1,26 @@
+{
+  "storyId": "B-3787",
+  "checkedAt": "2026-06-12T11:33:13.460Z",
+  "reviewRound": "2026-06-12T11:23:48.540Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: npm --prefix packages/main run build; PASS: npm --prefix packages/main run test:field-regression-cli-smoke; PASS: KOALA_SESSION_ID=sess-494d6e5a4a0cad62 lattice validate --story=B-3787 --json. Covered review_run_start success in story worktree, non-git, unborn HEAD, missing materialHash, wrong cwd, and root/worktree mismatch without pre-read metadata mutation.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS: npm --prefix packages/main run test:review-loop-smoke; PASS: npm --prefix packages/main run test:authority-boundary-smoke; PASS: npm --prefix packages/main run test:authority-gate-consumption; PASS: npm --prefix packages/main run test:baseline-local-certification-smoke. Verified rollback placeholder validation remains intact and local reviewer evidence does not overclaim Authority Server receipts.",
+      "waiverReason": ""
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "review_run_start now fails closed with precise workspace snapshot diagnostics before any repair/run write, uses one canonical story worktree root for story metadata and HEAD/materialHash capture, and keeps local CLI evidence separate from Authority Server gate authority."
+  },
+  "_hash": "da9574f902db3b93388606ea0c83da2bc3c3ff07680bf9c498f5ac2c1307d9f8"
+}
