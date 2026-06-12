@@ -20,8 +20,8 @@ const cliPath = join(packageRoot, 'cli.js');
 
 const placeholderRollbackRef = {
   headHash: '0'.repeat(40),
-  diffHash: '1'.repeat(40),
-  materialHash: '2'.repeat(40),
+  diffHash: '1'.repeat(64),
+  materialHash: '2'.repeat(64),
 };
 
 function git(cwd: string, args: string[]): string {
@@ -370,6 +370,18 @@ async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise
       rollbackRef: reviewLoopRollbackRef(root),
     });
     assert.match(directLoop, /Review loop .* started/);
+
+    const emptyTriggerLoop = await runKoalaRaw(root, 'review_loop_start', {
+      storyId: directStoryId,
+      trigger: { findingIds: [] },
+      rollbackRef: reviewLoopRollbackRef(root),
+    });
+    assert.notEqual(emptyTriggerLoop.code, 0);
+    assert.match(
+      emptyTriggerLoop.stdout + emptyTriggerLoop.stderr,
+      /trigger|findingId|bugId|validationFailureRef|scopeViolationRef/,
+      'review_loop_start must reject empty trigger refs at parameter validation',
+    );
 
     const placeholderLoop = await runKoalaRaw(root, 'review_loop_start', {
       storyId: directStoryId,

@@ -154,11 +154,20 @@ const reviewLoopDecisionSchema = z.enum([
   'stop_blocked',
 ]);
 
+const reviewLoopTriggerRefSchema = z.string().trim().min(1);
+
 const reviewLoopTriggerSchema = z.object({
-  findingIds: z.array(z.string().min(1)).optional().describe('触发 loop 的 finding id 列表'),
-  bugIds: z.array(z.string().min(1)).optional().describe('触发 loop 的 bug id 列表'),
-  validationFailureRefs: z.array(z.string().min(1)).optional().describe('触发 loop 的 validation failure 引用'),
-  scopeViolationRefs: z.array(z.string().min(1)).optional().describe('触发 loop 的 scope violation 引用'),
+  findingIds: z.array(reviewLoopTriggerRefSchema).optional().describe('触发 loop 的 finding id 列表'),
+  bugIds: z.array(reviewLoopTriggerRefSchema).optional().describe('触发 loop 的 bug id 列表'),
+  validationFailureRefs: z.array(reviewLoopTriggerRefSchema).optional().describe('触发 loop 的 validation failure 引用'),
+  scopeViolationRefs: z.array(reviewLoopTriggerRefSchema).optional().describe('触发 loop 的 scope violation 引用'),
+}).refine((trigger) => (
+  (trigger.findingIds?.length ?? 0) > 0 ||
+  (trigger.bugIds?.length ?? 0) > 0 ||
+  (trigger.validationFailureRefs?.length ?? 0) > 0 ||
+  (trigger.scopeViolationRefs?.length ?? 0) > 0
+), {
+  message: 'must include at least one findingId, bugId, validationFailureRef, or scopeViolationRef',
 });
 
 const gitObjectHashSchema = z.string().trim().regex(
