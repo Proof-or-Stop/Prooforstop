@@ -23,7 +23,7 @@
       "desc": "docs/requirements/NAV.md claims and lists 41 decision links after this change, but docs/requirements/decisions currently contains 42 markdown decision files. The missing truth-source entry is decisions/formal-unlock-artifact-isolation-execution-plan.md, confirmed by comparing rg --files docs/requirements/decisions with the NAV link set. This makes the requirements navigation incomplete for readers relying on NAV as the truth-source index.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T15:53:28.220Z",
@@ -33,7 +33,9 @@
       "files": [
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by updating docs/requirements/NAV.md to 42 files and adding Formal Unlock Artifact Isolation Execution Plan. Verified rg --files docs/requirements/decisions count equals NAV decision link count equals 42.",
+      "resolvedAt": "2026-06-12T16:00:17.733Z"
     },
     {
       "id": "B-ab43:F-003",
