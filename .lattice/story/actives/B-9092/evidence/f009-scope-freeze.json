@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "lattice.f009.scope_freeze.v1",
+  "storyId": "B-9092",
+  "checklistItem": "CHK-001",
+  "createdAt": "2026-06-12T16:16:54Z",
+  "restoredIntoStoryWorktreeAt": "2026-06-12T16:29:22Z",
+  "frozenBy": "B-9092 auditor",
+  "scope": {
+    "targetFindingId": "B-META-framework-audit:F-009",
+    "targetClaim": "Layer 2 Engineering Baseline formal proof gap closure",
+    "suiteRunId": "f009-layer2-closure-20260612T161654Z",
+    "artifactRoot": ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z",
+    "excludedRoots": [
+      ".omx"
+    ],
+    "artifactRootPolicy": "Use only the frozen .lattice artifact root and its proof/negative-control descendants; do not mix default stale baseline artifacts into the formal proof root."
+  },
+  "git": {
+    "mainHead": "7f13846ac6a15f2d628159bca562dfa3ff0607d2",
+    "storyHeadAtInitialRead": "6f9b10e27d3d94a6989f5b2e00f30dd92ae7079e",
+    "storyHeadAtProofDiagnostics": "d433912b3ecb515299a5cfb6406c63afe9115030",
+    "storyHeadAfterChecklistMetadata": "44de03ea20d6ed43c765a6356a84a0284fccec04",
+    "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+    "materialHashMethod": "Equivalent to currentMaterialHash(projectRoot, HEAD): git ls-tree -r -z HEAD, exclude story metadata and runtime artifact paths, sort filePath/objectId pairs, sha256.",
+    "metadataOnlyDriftNote": "Lattice checklist/evidence commands auto-committed story metadata after the initial freeze read. This file restores the evidence anchor into the authoritative B-9092 worktree; it does not change the frozen proof root."
+  },
+  "cleanArtifactRootPrecheck": {
+    "command": "node -e clean-root precheck for .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z",
+    "result": "pass",
+    "observed": {
+      "exists": false,
+      "entryCount": 0
+    }
+  },
+  "findingSnapshot": {
+    "id": "B-META-framework-audit:F-009",
+    "status": "open",
+    "severity": "high",
+    "category": "missing",
+    "evidenceState": "suspected",
+    "createdAt": "2026-06-10T15:22:28.750Z",
+    "hash": "d73d5402fd6cb5714416502d9a591c8ab14a1fce76ae199044e148476a7360b7",
+    "gapFingerprint": "cfbbca03d1fa30ed8751f256f04ea63a00f98b7b978c61c28235fb8881ee4752",
+    "desc": "Layer 2 Engineering Baseline suite cannot legitimately reach PASS: baseline_suite_report requires fresh lower-layer Development proof plus ENG final reports with localOnly=false and capabilityProof=true, but current baseline_run/baseline_suite_report/capability_claim_evaluate surfaces are explicitly L0 non-authority local diagnostics and no producer/import path exists for verified non-local capability proof or Authority receipt-backed Engineering final reports.",
+    "sourceRefs": [
+      "packages/main/src/core/lattice-baseline.ts:1387",
+      "packages/main/src/core/lattice-baseline.ts:1388",
+      "packages/main/src/core/process-fact-levels.ts:121",
+      "packages/main/src/core/command-policy.ts:294",
+      "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md:459",
+      "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md:856"
+    ]
+  },
+  "commands": [
+    {
+      "command": "lattice session_brief",
+      "result": "pass",
+      "note": "Confirmed B-9092 DEV phase and owner session in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-9092."
+    },
+    {
+      "command": "lattice finding_list --storyId=B-META-framework-audit",
+      "result": "pass",
+      "note": "Captured F-009 open/suspected snapshot through CLI, without directly reading or mutating story JSON."
+    },
+    {
+      "command": "git rev-parse HEAD; git rev-parse main; currentMaterialHash-equivalent node script",
+      "result": "pass",
+      "note": "Captured story/main HEADs and materialHash. Metadata-only commits happened later; the frozen proof root remains unchanged."
+    }
+  ],
+  "authorityBoundary": {
+    "latticeCliIsNonAuthority": true,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false
+  }
+}

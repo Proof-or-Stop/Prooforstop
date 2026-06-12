@@ -8,9 +8,77 @@
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T16:17:36.119Z",
+      "endTime": "2026-06-12T16:20:44.546Z",
+      "userSees": "User sees 'F-009 target frozen' with current HEAD, materialHash, suiteRunId, clean .lattice artifact root, and finding snapshot path.",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-9092/checklist.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The frozen scope evidence records current main/story HEAD, materialHash, suiteRunId, clean .lattice artifact root, and F-009 finding snapshot.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The selected artifact root is under .lattice and is clean/isolated from stale default baseline artifacts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The frozen scope explicitly excludes .omx and does not allow disabled legacy roots or mixed stale proof roots.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json",
+          "command": "lattice finding_list --storyId=B-META-framework-audit; git rev-parse HEAD; git rev-parse main; material hash computed from currentMaterialHash algorithm",
+          "result": "pass",
+          "note": "Freeze records story/main HEADs, materialHash a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c, suiteRunId f009-layer2-closure-20260612T161654Z, artifactRoot, and F-009 snapshot.",
+          "headHash": "f2c0b5196d0d07ecc94ec577150738d087f0f9b4",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:20:25.795Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json",
+          "command": "node clean-root precheck for .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z",
+          "result": "pass",
+          "note": "Precheck showed artifactRoot did not exist before proof diagnostics, so stale default artifacts were isolated from the frozen proof root.",
+          "headHash": "2e84ae67cab19b2d6c9c3242833208b9f4a30043",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:20:32.728Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json",
+          "command": "lattice baseline_suite_report/capability_claim_formal_evaluate with .lattice artifact root; no omx commands or paths used",
+          "result": "pass",
+          "note": "Freeze explicitly excludes .omx and binds proof work to .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z only.",
+          "headHash": "50fd4d2f14a4f5a5c55a8f9f51bf0b513de07132",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:20:39.403Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +88,100 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T16:20:17.633Z",
+      "endTime": "2026-06-12T16:21:18.219Z",
+      "userSees": "User sees 'Layer 2 formal claim: LOCKED/BLOCKED with explicit reasons' or 'Layer 2 formal claim: UNLOCKED; higher layers remain LOCKED'.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md",
+          ".lattice/story/actives/B-9092/checklist.json"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/f009-layer2-closure-*",
+          ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md"
+        ],
+        "test": [
+          "lattice baseline_suite_report --layer=engineering",
+          "lattice capability_claim_formal_evaluate --target=engineering"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Formal proof commands run against the frozen clean artifact root and produce a clear Engineering suite and claim evaluator result.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Requirements NAV count and links match the actual decisions markdown files after any scope hygiene repair.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If fresh Development proof or any of the 9 ENG final reports are missing, the suite/evaluator remains LOCKED or BLOCKED with explicit reasons.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Local-only, stale, forged, wrong-target, wrong-suiteRunId, and Authority-overclaim artifacts fail closed and cannot unlock Layer 2.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+          "command": "lattice baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z --format=json; lattice capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z --outputDir=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/proof/formal-claim --format=json",
+          "result": "pass",
+          "note": "Formal diagnostics ran against frozen clean root; suite report is BLOCKED and formal claim report is LOCKED with explicit missing Development and Engineering proof reasons.",
+          "headHash": "c2ca5b80c16d9bc0fa2b3c7d9ef51baea66a9a09",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:20:55.714Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/engineering/baseline-suite-report.json",
+          "command": "lattice baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z --format=json",
+          "result": "pass",
+          "note": "Missing fresh Development proof and all 9 ENG final reports kept suiteStatus=BLOCKED, authorization=not_authorized, formalProof=false, falseDoneCount=0.",
+          "headHash": "4adc6d12ccd7e98498b064c32f83ed72d31ad025",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:21:02.881Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-negative-controls.md",
+          "command": "lattice baseline_suite_report negative-control matrix; lattice capability_claim_formal_evaluate authority-overclaim; rg forbidden authority/unlock true scan",
+          "result": "pass",
+          "note": "Fresh negative-control pack covers forged/malformed final-report, wrong claim target, wrong/mixed suiteRunId, local-only final-report, and Authority-overclaim. Generated Lattice reports are BLOCKED or LOCKED, forbidden authority/unlock scan has no matches, and B-META-framework-audit:F-009 remains open/suspected.",
+          "headHash": "0e71a2ea6079a6474da23f0dd40f4ba59299a66d",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:50:47.044Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node NAV decision count/link check: files=43 declared=43 links=43 uniqueLinks=43 missing=[] extra=[]",
+          "result": "pass",
+          "note": "Requirements NAV count and decision links match the actual docs/requirements/decisions markdown files: 43 files, 43 declared, 43 unique links, no missing or extra links.",
+          "headHash": "ef7011ab69d489e441a90de8938740fbb71aec27",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:34:16.801Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +191,85 @@
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T16:23:55.642Z",
+      "endTime": "2026-06-12T16:33:28.570Z",
+      "userSees": "User sees 'F-009 final status: RESOLVED' or 'F-009 final status: REMAINS OPEN/VERIFIED with missing proof listed', with Claude/Codex localNonAuthorityAudit refs.",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-9092/checklist.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-9092/evidence/f009-host-verdicts.md",
+          ".lattice/story/actives/B-9092/evidence/f009-final-status.md"
+        ],
+        "test": [
+          "lattice finding_list --storyId=B-META-framework-audit",
+          "lattice convergence_check"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude and Codex host verdicts review the same frozen artifact root, suiteRunId, HEAD, materialHash, and F-009 evidence anchors.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If evidence is insufficient, F-009 is not falsely resolved; final status says open or verified with exact missing proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final status does not claim receiptVerified, productionDone, fullAuthorityDone, Layer 3, Production Safety, or global capability from local host evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-host-verdicts.md",
+          "command": "two host review: Claude agent 019ebca5-cf82 and Codex agent 019ebca5-fc27 over the same frozen evidence anchors",
+          "result": "pass",
+          "note": "Claude and Codex host verdicts independently agree to retain F-009 open/suspected and identify no authority-boundary bypass.",
+          "headHash": "1e5c9046dbedf63077ae25d69bb10fc3db03c9c2",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:33:03.053Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-final-status.md",
+          "command": "lattice finding_list --storyId=B-META-framework-audit",
+          "result": "pass",
+          "note": "F-009 remains open/suspected because the frozen proof root is BLOCKED/LOCKED; the story records retention instead of falsely resolving the finding.",
+          "headHash": "abe5524240be66ff207871a34cf4a09553fd0ec5",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:33:09.238Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+          "command": "rg -n 'receiptVerified=true|productionDone=true|fullAuthorityDone=true|layer2EngineeringClaim=UNLOCKED' .lattice/story/actives/B-9092/evidence .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z",
+          "result": "pass",
+          "note": "No reviewed evidence artifact declares Authority receipt verification, production DONE, full Authority DONE, or an unlocked Layer 2 claim; higher claims remain fail-closed.",
+          "headHash": "2ce56c0293df5d1527eaacfbf72d1f44b0b83b46",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:33:17.381Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-9092:F-001",
+      "desc": "CHK-002 adversarial evidence is marked pass even though the frozen proof bundle only contains default-stale-root and formal-run-missing-refs controls; it does not include forged/malformed, wrong-target, mixed or wrong-suiteRunId negative-control artifacts required by the F-009 plan and verificationIntent, so the evidence overstates fail-closed coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-12T16:40:12.502Z",
+      "reviewRound": "2026-06-12T16:34:23.551Z",
+      "reviewRunId": "B-9092:RR-002",
+      "_hash": "80e2c48c7ee59b4f31cb85dc7972c2bd614dbf835691102dcdd88abaf4408277",
+      "files": [
+        ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+        ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z",
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ],
+      "resolvedReason": "Resolved by adding machine-backed CHK-002 adversarial negative controls: forged/malformed final-report, wrong claim target, wrong/mixed suiteRunId, local-only final-report, and Authority-overclaim all produce BLOCKED/LOCKED Lattice outputs. Evidence documented in .lattice/story/actives/B-9092/evidence/f009-negative-controls.md and f009-formal-proof-audit.md; forbidden Authority/unlock true scan now has no matches.",
+      "resolvedAt": "2026-06-12T16:56:06.153Z"
+    }
+  ]
+}
