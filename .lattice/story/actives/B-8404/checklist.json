@@ -188,6 +188,16 @@
           "headHash": "468893f67c35f1f121d5a44790b9e27de95c34d1",
           "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
           "timestamp": "2026-06-12T19:53:01.944Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "git status --short before/after parallel_merge_queue remained clean",
+          "result": "pass",
+          "note": "Auditor observed git status clean before and after the read-only parallel_merge_queue projection; command did not mutate story metadata, evidence, receipts, or host state.",
+          "headHash": "9fed80cb42434db0180b29cb22481208cec6d805",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:53:08.696Z"
         }
       ]
     },
