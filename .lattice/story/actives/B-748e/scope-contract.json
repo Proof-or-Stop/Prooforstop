@@ -1,0 +1,29 @@
+{
+  "storyId": "B-748e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/handlers/context.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/handlers/context.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+    "packages/main/src/tasks/gap-analyze.ts"
+  ],
+  "explicitExcludes": [
+    "gitRoot repair UX",
+    "config repair commands",
+    "customerKeyRef implementation",
+    "Authority server integration",
+    "productionDone/fullAuthorityDone/receiptVerified changes"
+  ],
+  "scopeChangeReason": "Initialize enforce scope contract from PLAN. This story may only bind two signed-workspace gap_analyze requirements and must not expand into Layer4, Authority, customerKeyRef, or repair UX work.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T19:37:31.810Z",
+  "updatedAt": "2026-06-12T19:37:31.810Z"
+}

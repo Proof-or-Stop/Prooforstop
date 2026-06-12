@@ -1,0 +1,77 @@
+{
+  "storyId": "B-748e",
+  "name": "signed-workspace-two-gap-source-binding-no-repair-only",
+  "title": "Bind two signed-workspace gap_analyze requirements",
+  "description": "Resolve only the two current gap_analyze high gaps that point to review-run-start-signed-workspace-resolution-execution-plan.md lines 262 and 311. The work is limited to source/test/metadata binding for existing signed-workspace fail-closed behavior. Explicitly out of scope: gitRoot repair UX, config repair commands, customerKeyRef, Layer4 Production Safety, Authority server, productionDone, fullAuthorityDone, receiptVerified, and any broad optimization.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "Production"
+    }
+  ],
+  "createdAt": "2026-06-12T19:17:36.999Z",
+  "startedAt": "2026-06-12T19:17:36.999Z",
+  "endedAt": "2026-06-12T19:52:40.788Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T19:17:36.999Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:30:30.455Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:30:50.617Z",
+      "branch": "story/B-748e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:37:10.585Z",
+      "branch": "story/B-748e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:44:54.037Z",
+      "branch": "story/B-748e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:47:59.924Z",
+      "branch": "story/B-748e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:52:40.788Z",
+      "branch": "story/B-748e",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-12T19:44:54.037Z"
+}

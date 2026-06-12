@@ -1,3 +1,18 @@
+/**
+ * @task B-748e
+ * @checklist CHK-002, CHK-003
+ * @title bind no binding signed workspace diagnostic coverage
+ * @type chore
+ * @priority high
+ * @description
+ *   Source binding for review-run-start-signed-workspace-resolution-execution-plan.md:311:
+ *   review_run_start emits Reason [requires_git_signed_workspace_but_no_binding]:
+ *   and fails closed when a git-backed signed workspace cannot be resolved.
+ *   The unresolved path reports No reviewer run was created and does not create reviewer run metadata.
+ * @changes
+ *   - [CHK-002] Bind the exact no-binding diagnostic phrase to the existing fail-closed behavior.
+ *   - [CHK-003] Preserve runtime behavior; do not add unrelated future-scope support.
+ */
 
 import { StoryStore } from '../core/store.js';
 import type { StoryPhase, StoryEvent } from '../core/types.js';

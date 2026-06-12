@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inspect F-009 original claim and current proof surfaces",
+      "context": "Use Lattice CLI and source/doc reads to compare the open F-009 claim with current Layer2 formal proof/evaluator behavior. Do not edit code.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Decide F-009 closure state with evidence",
+      "context": "Determine whether F-009 is resolved, superseded, or should be narrowed. The decision must distinguish Layer2 Engineering proof from Layer4/Authority/customerKeyRef scope.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update B-META finding state through Lattice finding flow",
+      "context": "Use finding_resolve, finding_dismiss, or an equivalent Lattice finding command only after evidence supports the decision. Do not mutate B-META files directly.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify convergence and audit backlog after F-009 triage",
+      "context": "Run convergence_check, finding_list, and gap_analyze. Success means F-009 no longer remains a vague open high/suspected finding; any remaining high gap is explicitly scoped.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
