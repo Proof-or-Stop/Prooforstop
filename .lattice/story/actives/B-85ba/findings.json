@@ -114,7 +114,7 @@
       "desc": "fromDraft coverage is stale/conflicting after the F-003 fix. The implementation now materializes fromDraft stories in INIT (packages/main/src/handlers/story-create.ts:330,354), and the CLI auto-dev_start branch only triggers for legacy output containing `(phase=INIT_CHECK)` (packages/main/src/cli-engine.ts:3844). The new scope anti-expansion smoke covers direct phase=INIT_CHECK rejection (packages/main/src/tasks/scope-anti-expansion-smoke.ts:303-317), and the contract verifier only checks for the fromDraft output string `(INIT)` (scripts/verify-process-fact-contract.mjs:3170-3177); it does not run a fromDraft behavior smoke for the new INIT semantics. Meanwhile the existing fromDraft behavioral smoke still asserts the old behavior: story.phase === INIT_CHECK, worktree metadata exists, and output mentions worktree/main merge (packages/main/src/tasks/worktree-authority-smoke.ts:300-307,365-371). Repro: `npm --prefix packages/main run test:worktree-authority-smoke` fails with actual `INIT` vs expected `INIT_CHECK` at dist/tasks/worktree-authority-smoke.js:287. Therefore smoke/contract coverage does not cleanly cover the updated direct INIT_CHECK/fromDraft behavior, and the repository retains a stale failing smoke around the exact reviewed finding.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-12T21:05:20.692Z",
@@ -127,7 +127,9 @@
         "scripts/verify-process-fact-contract.mjs",
         "packages/main/src/handlers/story-create.ts",
         "packages/main/src/cli-engine.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in 2a355f947: worktree-authority-smoke now expects fromDraft stories to stop at INIT, commits bounded from-draft metadata on main, and verifies explicit story_advance INIT_CHECK performs the worktree bootstrap. Verified by npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run build, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-12T21:35:32.487Z"
     }
   ]
 }
