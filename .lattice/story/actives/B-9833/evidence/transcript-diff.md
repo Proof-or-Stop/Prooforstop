@@ -37,7 +37,7 @@ lattice convergence_check
 converged=false
 Audit backlog: passed, no open audit findings
 No high-priority gaps: failed, 1 high-priority gap to resolve
-All Stories completed: failed, 4 unfinished stories
+All Stories completed: failed, 2 unfinished stories
 Requirements coverage: 100%
 ```
 
@@ -53,4 +53,4 @@ Expected and actual match for the B-9833 scope: F-009 is resolved with a narrow 
 
 Expected and actual also match the safety boundary: formal Engineering claim remains LOCKED when formal suite proof artifacts are missing, and higher-layer / production authority claims remain locked or false.
 
-Global convergence is intentionally not claimed. The remaining high gap is separate Layer4 `customerKeyRef` future/blocked scope, and other active stories remain unfinished.
+Global convergence is intentionally not claimed. The remaining high gap is separate Layer4 `customerKeyRef` future/blocked scope, and the remaining active stories are unfinished.
