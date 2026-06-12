@@ -60,7 +60,58 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`lattice doctor` and related runtime diagnostics show \"@lattice-agent/core\" as the canonical package; if \"@koala-agent/core\" appears, the output labels it as legacy compatibility.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/templates/agents/koala-implementer.md",
+          "packages/main/templates/agents/koala-review-behavior.md",
+          "packages/main/templates/agents/koala-review-channel.md",
+          "packages/main/templates/agents/koala-review-concept.md",
+          "packages/main/templates/agents/koala-review-delivery.md",
+          "packages/main/templates/agents/koala-review-docs.md",
+          "packages/main/templates/agents/koala-review-quality.md",
+          "packages/main/templates/agents/koala-review-scope-plan.md",
+          "packages/main/templates/agents/koala-review-story-init.md",
+          "packages/main/templates/agents/koala-evaluator.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run runtime diagnostics or focused assertions and confirm global/local package resolution prefers @lattice-agent/core for doctor, worktree relink, init bootstrap, prompt registry, rollout checks, and adapter checks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Simulate or inspect the compatibility path where only @koala-agent/core is present and confirm it is treated as a bounded legacy fallback with diagnostic wording that names it legacy, not canonical.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search updated runtime/bootstrap code and generated prompt templates to prove no new canonical resolver, wrapper, diagnostic, or template import still points first to @koala-agent/core.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
