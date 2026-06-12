@@ -178,6 +178,16 @@
           "headHash": "b0920726bfafecd80ad5b1657a420ff608ccf59a",
           "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
           "timestamp": "2026-06-12T19:51:37.408Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
+          "result": "pass",
+          "note": "Real CLI output reports local scheduling guidance only; overlap/worktree facts remain blockers/guidance fields and are not encoded as Authority receipt or production completion.",
+          "headHash": "468893f67c35f1f121d5a44790b9e27de95c34d1",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:53:01.944Z"
         }
       ]
     },
