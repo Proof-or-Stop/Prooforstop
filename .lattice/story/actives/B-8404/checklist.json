@@ -57,7 +57,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-12T19:44:25.830Z",
+      "endTime": "2026-06-12T19:51:37.910Z",
       "verificationIntent": {
         "happy": [
           {
@@ -87,30 +87,10 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
-          "note": "Smoke creates two active worktrees with the same material file and no sharedHotspots; both are plan_only and queue blockers/guidance include the file and peer story id.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:25.883Z"
-        },
-        {
-          "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
-          "result": "pass",
-          "note": "Smoke asserts metadata-only changes do not overlap and a separate non-overlapping material change remains a parallel_dev candidate; existing sharedHotspots assertions still pass.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:25.926Z"
-        },
-        {
-          "intentRef": "CHK-002:adversarial:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build",
-          "result": "pass",
-          "note": "Safety resolution preserves existing no/block conditions before plan_only overlap degradation, so active dependency blockers are not downgraded.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:25.961Z"
+          "note": "Smoke asserts overlapping active worktrees degrade to plan_only and merge queue blockers/guidance include the shared file and peer story, including when the projection runs from a story worktree.",
+          "headHash": "f332af88e7a7d84fc14ad35098228878d3414132",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:51:37.955Z"
         }
       ]
     },
