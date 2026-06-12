@@ -1,0 +1,187 @@
+{
+  "command": "koala validate --story=B-526c --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-vRN7ht; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-B2vZ4B; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test — wrapper metadata root is not git-backed, has no configured gitRoot, and has exactly one immediate child git repo; lattice config doctor JSON/text reports a gitRoot suggestion and explicit repair command without marking the project as repaired\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — wrapper root has no child git repo candidates; config doctor reports no candidates and no repair command\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test — wrapper root has multiple immediate child git repo candidates; config doctor reports ambiguity and refuses to choose a repair target\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test — lattice config repair --set-git-root=clawcreek --confirm validates the child git root, writes gitRoot to lattice.config.json/koala.config.json, and reports verified configured-git-root\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test — repair without --confirm is non-mutating and tells the operator to rerun with --confirm; config file remains unchanged\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test — repair rejects paths outside metadataRoot, missing paths, or directories whose git top-level is not the provided target; config file remains unchanged\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — after confirmed repair in a wrapper-root fixture, story_resolve reports resolved true with resolutionSource configured-git-root and review_run_start creates a signed reviewer run bound to the child git repo\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test — before repair, story_resolve/review_run_start still fail closed with unresolved signed workspace and do not create review runs\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test — ambiguous multi-child wrapper-root fixture remains unresolved until an explicit valid gitRoot repair is provided\"],\"warnings\":[],\"timestamp\":\"2026-06-12T20:19:55.669Z\",\"headSha\":\"f534f6167ac842d267c110432fb3bbdd317b9372\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-vRN7ht; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-B2vZ4B; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1022}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"wrapper metadata root is not git-backed, has no configured gitRoot, and has exactly one immediate child git repo; lattice config doctor JSON/text reports a gitRoot suggestion and explicit repair command without marking the project as repaired\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers single immediate child git repo doctor output with wrapperGitRoot.status single-candidate, suggestedGitRoot, and repairCommand.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"wrapper root has no child git repo candidates; config doctor reports no candidates and no repair command\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers wrapper metadata root with no child git repo candidates and no repair command.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"wrapper root has multiple immediate child git repo candidates; config doctor reports ambiguity and refuses to choose a repair target\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers ambiguous multiple immediate child git repos and verifies no suggested repair target is chosen.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice config repair --set-git-root=clawcreek --confirm validates the child git root, writes gitRoot to lattice.config.json/koala.config.json, and reports verified configured-git-root\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers confirmed lattice config repair --set-git-root=clawcreek --confirm writing gitRoot to existing lattice.config.json and reporting configured-git-root verified.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"repair without --confirm is non-mutating and tells the operator to rerun with --confirm; config file remains unchanged\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers repair without --confirm as non-mutating preview with confirmCommand and unchanged config file.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"repair rejects paths outside metadataRoot, missing paths, or directories whose git top-level is not the provided target; config file remains unchanged\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers unsafe outside path and nested non-root git target rejection with config remaining unchanged.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"after confirmed repair in a wrapper-root fixture, story_resolve reports resolved true with resolutionSource configured-git-root and review_run_start creates a signed reviewer run bound to the child git repo\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers story_resolve resolving via configured-git-root and review_run_start creating a signed reviewer run bound to the child git root after repair.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"before repair, story_resolve/review_run_start still fail closed with unresolved signed workspace and do not create review runs\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers story_resolve and review_run_start failing closed before repair with no review run created.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"ambiguous multi-child wrapper-root fixture remains unresolved until an explicit valid gitRoot repair is provided\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/field-regression-cli-smoke.js\",\"result\":\"pass\",\"note\":\"Field regression smoke covers ambiguous multi-child wrapper roots remaining unresolved until an explicit valid gitRoot repair is provided.\",\"headHash\":\"d7b106e8919c3ecfca6f448273d2cb3c387ac5c4\",\"materialHash\":\"8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f\",\"timestamp\":\"2026-06-12T20:13:27.927Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-12T20:19:56.009Z",
+  "headHash": "f534f6167ac842d267c110432fb3bbdd317b9372",
+  "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "wrapper metadata root is not git-backed, has no configured gitRoot, and has exactly one immediate child git repo; lattice config doctor JSON/text reports a gitRoot suggestion and explicit repair command without marking the project as repaired",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers single immediate child git repo doctor output with wrapperGitRoot.status single-candidate, suggestedGitRoot, and repairCommand.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "wrapper root has no child git repo candidates; config doctor reports no candidates and no repair command",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers wrapper metadata root with no child git repo candidates and no repair command.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "wrapper root has multiple immediate child git repo candidates; config doctor reports ambiguity and refuses to choose a repair target",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers ambiguous multiple immediate child git repos and verifies no suggested repair target is chosen.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "lattice config repair --set-git-root=clawcreek --confirm validates the child git root, writes gitRoot to lattice.config.json/koala.config.json, and reports verified configured-git-root",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers confirmed lattice config repair --set-git-root=clawcreek --confirm writing gitRoot to existing lattice.config.json and reporting configured-git-root verified.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "repair without --confirm is non-mutating and tells the operator to rerun with --confirm; config file remains unchanged",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers repair without --confirm as non-mutating preview with confirmCommand and unchanged config file.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "repair rejects paths outside metadataRoot, missing paths, or directories whose git top-level is not the provided target; config file remains unchanged",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers unsafe outside path and nested non-root git target rejection with config remaining unchanged.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "after confirmed repair in a wrapper-root fixture, story_resolve reports resolved true with resolutionSource configured-git-root and review_run_start creates a signed reviewer run bound to the child git repo",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers story_resolve resolving via configured-git-root and review_run_start creating a signed reviewer run bound to the child git root after repair.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "before repair, story_resolve/review_run_start still fail closed with unresolved signed workspace and do not create review runs",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers story_resolve and review_run_start failing closed before repair with no review run created.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "ambiguous multi-child wrapper-root fixture remains unresolved until an explicit valid gitRoot repair is provided",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers ambiguous multi-child wrapper roots remaining unresolved until an explicit valid gitRoot repair is provided.",
+          "headHash": "d7b106e8919c3ecfca6f448273d2cb3c387ac5c4",
+          "materialHash": "8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f",
+          "timestamp": "2026-06-12T20:13:27.927Z"
+        }
+      }
+    ]
+  }
+}
