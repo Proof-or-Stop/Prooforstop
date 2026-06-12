@@ -53,7 +53,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "session_brief still warns when metadataRoot is non-git and no valid configured gitRoot signed workspace exists; it never suggests that Lattice guessed a child repo.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "metadataRoot is non-git with no configured gitRoot; session_brief keeps Non-git project guidance and no signed workspace OK claim",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "metadataRoot is non-git with configured gitRoot outside/missing/not git; session_brief reports configured gitRoot unresolved or invalid without claiming OK",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrapper root has a single child git repo but no configured gitRoot; session_brief does not guess the child repo or mutate config",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
