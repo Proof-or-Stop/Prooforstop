@@ -1,0 +1,35 @@
+{
+  "storyId": "B-ab43",
+  "name": "review-run-signed-workspace-resolution-plan",
+  "title": "Review run signed workspace resolution execution plan",
+  "description": "Write an audited execution plan for the follow-up correctness issue where Lattice metadata root can differ from the git-backed signed workspace root, causing review_run_start to fail with not_git_repo in wrapper-root projects such as ClawCreek.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-06-12T15:32:46.182Z",
+  "startedAt": "2026-06-12T15:32:46.182Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T15:32:46.183Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T15:34:55.273Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ab43",
+    "branch": "story/B-ab43",
+    "createdAt": "2026-06-12T15:34:55.390Z"
+  }
+}
