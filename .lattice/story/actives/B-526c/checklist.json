@@ -14,9 +14,9 @@
         "scanning deep arbitrary directory trees",
         "choosing among multiple child repos"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T19:32:32.644Z",
-      "endTime": null,
+      "endTime": "2026-06-12T19:54:13.718Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/lattice-cli.ts",
@@ -48,7 +48,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers single immediate child git repo doctor output with wrapperGitRoot.status single-candidate, suggestedGitRoot, and repairCommand.",
+          "headHash": "51f2855391344fff3ee2a55524bcb73bc484c70b",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:13.808Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers wrapper metadata root with no child git repo candidates and no repair command.",
+          "headHash": "51f2855391344fff3ee2a55524bcb73bc484c70b",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:13.865Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers ambiguous multiple immediate child git repos and verifies no suggested repair target is chosen.",
+          "headHash": "51f2855391344fff3ee2a55524bcb73bc484c70b",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:13.907Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
