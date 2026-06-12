@@ -269,7 +269,7 @@
       "id": "CHK-004",
       "title": "Verify package rename behavior",
       "context": "Run targeted package metadata checks, TypeScript/build verification, existing runtime contract verification scripts, and lattice validate so the rename does not break local wrappers, lab registration, or runtime environment diagnostics.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-12T20:50:03.372Z",
       "endTime": "2026-06-12T21:32:45.354Z",
       "userSees": "Terminal evidence shows package metadata checks passed, `npm --prefix packages/main run build` passed, runtime contract scripts passed, and `lattice validate --story=B-50fb` reports pass/allPass true for B-50fb.",
@@ -375,6 +375,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Repair verified REVIEW finding F-002 for mixed canonical and legacy global package symlink cleanup."
+    },
+    {
+      "timestamp": "2026-06-12T21:42:58.212Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Repair verified REVIEW finding F-001 transition fallback guard and refresh post-finding verification evidence."
     }
   ]
 }
