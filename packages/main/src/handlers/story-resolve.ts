@@ -1,5 +1,5 @@
-import { join, isAbsolute } from 'node:path';
 import type { HandlerContext } from './context.js';
+import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-resolution.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -11,27 +11,40 @@ export function createStoryResolveHandlers(ctx: HandlerContext) {
   return {
     story_resolve(args: { storyId: string } & FormatArgs) {
       const story = ctx.store.readStory(args.storyId);
-      const configuredWorktree = story.worktree?.path
-        ? isAbsolute(story.worktree.path)
-          ? story.worktree.path
-          : join(ctx.root, story.worktree.path)
-        : null;
+      const resolution = resolveStorySignedWorkspace({
+        store: ctx.store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+      });
       const result = {
         schemaVersion: 'lattice.story_resolve.v1' as const,
         storyId: story.storyId,
         phase: story.phase,
         exists: true,
-        storyDir: ctx.store.storyDirPath(story.storyId),
+        storyDir: resolution.storyDir,
         worktree: story.worktree ?? null,
-        authoritativeCwd: configuredWorktree ?? ctx.root,
-        requiresWorktree: story.phase !== 'INIT' && story.phase !== 'DONE' && story.phase !== 'DISCARDED',
+        authoritativeCwd: resolution.authoritativeCwd,
+        requiresWorktree: resolution.requiresWorktree,
+        metadataRoot: resolution.metadataRoot,
+        signedWorkspaceRoot: resolution.signedWorkspaceRoot,
+        repoRoot: resolution.repoRoot,
+        resolved: resolution.resolved,
+        resolutionSource: resolution.resolutionSource,
+        worktreePath: resolution.worktreePath,
+        unresolvedReason: resolution.unresolvedReason,
       };
       if (wantsJson(args)) return result;
       return [
         `Lattice story resolve (${result.schemaVersion})`,
         `storyId: ${result.storyId}`,
         `phase: ${result.phase}`,
-        `authoritativeCwd: ${result.authoritativeCwd}`,
+        `metadataRoot: ${result.metadataRoot}`,
+        `signedWorkspaceRoot: ${result.signedWorkspaceRoot ?? 'unresolved'}`,
+        `repoRoot: ${result.repoRoot ?? 'unresolved'}`,
+        `authoritativeCwd: ${result.authoritativeCwd ?? 'unresolved'}`,
+        `resolved: ${result.resolved}`,
+        `resolutionSource: ${result.resolutionSource}`,
+        ...(result.unresolvedReason ? [`unresolvedReason: ${result.unresolvedReason}`] : []),
         `requiresWorktree: ${result.requiresWorktree}`,
       ].join('\n');
     },

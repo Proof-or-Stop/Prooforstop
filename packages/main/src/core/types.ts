@@ -619,6 +619,13 @@ export interface ReviewRun {
    * tampered, or stale relative to the live scope contract / diff pack.
    */
   scopeBinding?: ReviewScopeBinding;
+  /**
+   * B-b750: signed workspace interpretation used to capture headHash,
+   * materialHash, and optional scopeBinding. This allows metadataRoot and the
+   * git-backed signed workspace root to differ without losing the mechanical
+   * root binding that later REVIEW consumers verify.
+   */
+  workspaceBinding?: ReviewRunWorkspaceBinding;
   _hash?: string;
 }
 
@@ -1362,6 +1369,24 @@ export interface ReviewScopeBinding {
   reviewedIntentRefs: string[];
   /** Material hunk digests the reviewer inspected (sorted, deduped). */
   reviewedHunkDigests: string[];
+  /** sha256 over all fields above + salt; folded into the review run signature. */
+  bindingHash: string;
+}
+
+/**
+ * B-b750: binds a reviewer run to the exact git-backed workspace used for
+ * signed material facts while keeping story metadata writes rooted at
+ * metadataRoot.
+ */
+export interface ReviewRunWorkspaceBinding {
+  schemaVersion: 'lattice.review_run_workspace_binding.v1';
+  metadataRoot: string;
+  invocationCwd: string;
+  repoRoot: string | null;
+  signedWorkspaceRoot: string;
+  workspaceMode: string;
+  headHash: string;
+  materialHash: string;
   /** sha256 over all fields above + salt; folded into the review run signature. */
   bindingHash: string;
 }

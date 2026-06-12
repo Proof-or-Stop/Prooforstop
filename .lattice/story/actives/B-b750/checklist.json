@@ -9,9 +9,78 @@
         "docs/requirements/decisions/host-neutral-observability-console.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T16:22:03.732Z",
+      "endTime": "2026-06-12T16:38:21.735Z",
+      "userSees": "User sees story_resolve JSON include metadataRoot, signedWorkspaceRoot, authoritativeCwd, resolved, resolutionSource, and unresolvedReason; non-git wrapper roots no longer appear as executable REVIEW cwd.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/story-resolve.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_resolve for an ordinary git-backed REVIEW story reports resolved=true and a signedWorkspaceRoot rooted in the git worktree.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_resolve for a non-git metadataRoot with no worktree/gitRoot reports resolved=false, signedWorkspaceRoot=null, authoritativeCwd=null, and an unresolvedReason instead of returning the wrapper root as executable cwd.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_resolve does not auto-select a nested git repository merely because one exists below metadataRoot.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/cli.js story_resolve --storyId=B-b750 --format=json",
+          "result": "pass",
+          "note": "story_resolve for B-b750 returned resolved=true with metadataRoot, signedWorkspaceRoot, repoRoot, authoritativeCwd, resolutionSource=story-worktree, and unresolvedReason=null.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers non-git wrapper metadataRoot without gitRoot: story_resolve returns resolved=false, signedWorkspaceRoot=null, authoritativeCwd=null, and review_run_start creates no run.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers wrapper root with nested git repo but no gitRoot and proves Lattice does not auto-select the nested repository.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +91,89 @@
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T16:22:04.050Z",
+      "endTime": "2026-06-12T16:38:35.162Z",
+      "userSees": "User sees review_run_start sign the resolved signedWorkspaceRoot, persist workspaceBinding on reviewer runs, and reject pass/finding evidence whose binding or material facts are stale or mismatched.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_run_start for a resolved signed workspace starts a run and persists workspaceBinding fields consistent with top-level headHash/materialHash.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "review_pass_set/finding_add freshness behavior still rejects stale reviewer runs after material changes using the same signed workspace facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tampered or mismatched workspaceBinding on a review run is rejected before pass/finding evidence can be accepted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression verifies review_run_start persists workspaceBinding with metadataRoot, signedWorkspaceRoot, workspaceMode, headHash, materialHash, and bindingHash for configured gitRoot split-root projects.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "semantic scope guard smoke still passes after workspaceBinding; review evidence freshness and scope checks continue to reject stale reviewer runs using signed workspace facts.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression mutates reviewRun.workspaceBinding.signedWorkspaceRoot after run creation and verifies review_pass_set rejects the tampered binding before accepting pass evidence.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process fact contract verifies review_run_start semantics include workspace-binding and the review-runs artifact signature contract folds workspaceBinding.bindingHash into gate-consumed evidence.",
+          "headHash": "bcd8d71752cb10fca9e9d58ce442466070641a82",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:35.479Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,9 +184,83 @@
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T16:38:45.926Z",
+      "userSees": "User sees regression coverage prove split-root behavior: git-backed roots work, wrapper roots fail closed unless explicitly bound, placeholders/tampering remain rejected, and local reviewer evidence is never reported as Authority proof.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/review-run-workspace-binding.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Regression smoke covers ordinary git root and explicit gitRoot split-root cases where story_resolve resolves and review_run_start can capture HEAD/materialHash.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression smoke covers non-git wrapper root without gitRoot/worktree and verifies story_resolve/review_run_start fail closed with clear unresolvedReason/not_git_repo diagnostics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression coverage proves placeholder hashes, tampered workspaceBinding, and local-only reviewer evidence cannot be treated as Authority Server completion or receipt-backed proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers ordinary git root, linked story worktree split-root, and explicit gitRoot split-root cases where story_resolve resolves and review_run_start captures HEAD/materialHash.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers non-git wrapper root without gitRoot and verifies story_resolve/review_run_start fail closed with unresolved signedWorkspaceRoot and no reviewer run metadata.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression keeps placeholder rollbackRef rejection, rejects tampered workspaceBinding, and does not report local reviewer evidence as Authority Server receipt-backed completion.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process fact contract confirms workspaceBinding is local REVIEW gate evidence only and no Authority completion fields are introduced by this change.",
+          "headHash": "194b3e5d0696ad157958271c2d0439cb144971c1",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:46.100Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -48,9 +271,88 @@
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T16:38:56.431Z",
+      "userSees": "User can repair wrapper-root projects by setting an explicit gitRoot; Lattice validates that gitRoot is a real git repository and uses it as signedWorkspaceRoot without guessing nested repositories.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/story-resolve.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A non-git metadataRoot with config gitRoot pointing to a real git repository resolves signedWorkspaceRoot to that gitRoot and review_run_start captures HEAD/materialHash there.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An explicit gitRoot that is missing, outside the project contract, or not a git repository fails closed with a clear unresolvedReason and does not create a review run.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When metadataRoot contains multiple nested git repositories, Lattice only uses the explicit gitRoot/worktree binding and never chooses one by directory scan.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression builds a non-git metadataRoot with config gitRoot=clawcreek, verifies story_resolve returns resolutionSource=configured-git-root, and review_run_start captures HEAD/materialHash from that git root.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression verifies an unbound non-git wrapper root fails closed before currentReviewRound repair or review-run creation; resolver also validates configured gitRoot paths before use.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression creates a nested git repository under a wrapper metadataRoot and proves Lattice does not use it unless gitRoot is explicitly configured.",
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes with gitRoot config support, shared resolver integration, review_run_start workspaceBinding, and story_resolve output fields.",
+          "headHash": "6f89268f91c1493fe5ff92882b6246fa13aac1c9",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:56.574Z"
+        }
+      ]
     }
   ]
 }

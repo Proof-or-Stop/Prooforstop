@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-b750:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Codex CLI host test-coverage audit: build, field-regression CLI smoke, and process-fact contract passed. Rechecked F-002: local review_run_start/review_pass_set coverage mechanically asserts no authority-receipt-refs.json creation and no authorityDone/fullAuthorityDone/receiptVerified/productionDone claims in local review CLI outputs or review artifacts. No blocker found.",
+      "createdAt": "2026-06-12T17:00:34.039Z",
+      "reviewRound": "2026-06-12T16:56:23.170Z",
+      "reviewRunId": "B-b750:RR-006",
+      "_hash": "bc3bb9d53bf8e50dae1fde8289584c5d8b0859bcdf7bc2c5339f7fce7e2e41fa"
+    },
+    {
+      "id": "B-b750:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Claude CLI host audit: workspaceBinding is signed and revalidated against current story signed workspace resolution; no concept blocker found. Local evidence only, no Authority Server receipt claimed.",
+      "createdAt": "2026-06-12T17:03:47.863Z",
+      "reviewRound": "2026-06-12T16:56:23.170Z",
+      "reviewRunId": "B-b750:RR-008",
+      "_hash": "25e5242a3c9f0722924d9c188a1d68e084b8e210adf9681fe565e73c49a63bfb"
+    },
+    {
+      "id": "B-b750:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Claude CLI host audit: persisted story.worktree.path is only accepted on expected story branch and stale/tampered workspaceBinding is rejected; no quality blocker found. Local evidence only, no Authority Server receipt claimed.",
+      "createdAt": "2026-06-12T17:03:53.779Z",
+      "reviewRound": "2026-06-12T16:56:23.170Z",
+      "reviewRunId": "B-b750:RR-009",
+      "_hash": "618b610bcb7a489b22ff64024fa464ceacb74fec6e762910efaf9870f7f0883b"
+    }
+  ]
+}
