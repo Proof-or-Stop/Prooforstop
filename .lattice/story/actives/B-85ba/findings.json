@@ -108,6 +108,26 @@
       ],
       "resolvedReason": "Fixed in 07ceb003: INIT reviewer lanes koala-review-story-init/product-reviewer are mechanically blocked from checklist_add or checklist_update definition mutations in INIT and must use scope_extension_proposal; process fact contract now asserts this invariant. Verified by INIT reviewer mutation smoke and contract verifier.",
       "resolvedAt": "2026-06-12T20:59:52.673Z"
+    },
+    {
+      "id": "B-85ba:F-006",
+      "desc": "fromDraft coverage is stale/conflicting after the F-003 fix. The implementation now materializes fromDraft stories in INIT (packages/main/src/handlers/story-create.ts:330,354), and the CLI auto-dev_start branch only triggers for legacy output containing `(phase=INIT_CHECK)` (packages/main/src/cli-engine.ts:3844). The new scope anti-expansion smoke covers direct phase=INIT_CHECK rejection (packages/main/src/tasks/scope-anti-expansion-smoke.ts:303-317), and the contract verifier only checks for the fromDraft output string `(INIT)` (scripts/verify-process-fact-contract.mjs:3170-3177); it does not run a fromDraft behavior smoke for the new INIT semantics. Meanwhile the existing fromDraft behavioral smoke still asserts the old behavior: story.phase === INIT_CHECK, worktree metadata exists, and output mentions worktree/main merge (packages/main/src/tasks/worktree-authority-smoke.ts:300-307,365-371). Repro: `npm --prefix packages/main run test:worktree-authority-smoke` fails with actual `INIT` vs expected `INIT_CHECK` at dist/tasks/worktree-authority-smoke.js:287. Therefore smoke/contract coverage does not cleanly cover the updated direct INIT_CHECK/fromDraft behavior, and the repository retains a stale failing smoke around the exact reviewed finding.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T21:05:20.692Z",
+      "reviewRound": "2026-06-12T20:59:32.965Z",
+      "reviewRunId": "B-85ba:RR-009",
+      "_hash": "174224020e07da8c32a16ff094d4c2aca42530e26d62f66aec414bc6907202bf",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/scope-anti-expansion-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
