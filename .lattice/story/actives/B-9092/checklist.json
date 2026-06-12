@@ -43,7 +43,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json",
+          "command": "lattice finding_list --storyId=B-META-framework-audit; git rev-parse HEAD; git rev-parse main; material hash computed from currentMaterialHash algorithm",
+          "result": "pass",
+          "note": "Freeze records story/main HEADs, materialHash a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c, suiteRunId f009-layer2-closure-20260612T161654Z, artifactRoot, and F-009 snapshot.",
+          "headHash": "f2c0b5196d0d07ecc94ec577150738d087f0f9b4",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:20:25.795Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
