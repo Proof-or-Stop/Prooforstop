@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Build passed and field-regression smoke asserted REVIEW review_run_start success persists real headHash/materialHash and stable reviewRunId.",
-          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:13:50.768Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -72,9 +72,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Smoke covers non-git and unborn HEAD review_run_start failures and asserts no currentReviewRound repair or review-runs write occurs before snapshot readiness.",
-          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:13:50.804Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -82,9 +82,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "resolveStoryCommandWorkspace now canonicalizes ctx.root versus expected worktree root; smoke asserts mismatched LATTICE_PROJECT_ROOT fails before writes.",
-          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:13:50.839Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -92,9 +92,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Smoke runs from story worktree with LATTICE_PROJECT_ROOT pointing at main and asserts root/worktree mismatch plus no reviewer-run write.",
-          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:13:50.872Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -102,9 +102,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "diagnoseReviewRunSnapshot refuses missing git HEAD/materialHash before signing; placeholder user hashes are still not accepted for reviewer runs.",
-          "headHash": "479e8982a97aa2ba735bbd92bb578f5b5b29ea32",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:13:50.908Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         }
       ]
     },
@@ -171,9 +171,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Field regression smoke covers direct REVIEW review_run_start success, reviewRunId output, persisted run metadata, headHash, and materialHash.",
-          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:14:30.511Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -181,9 +181,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Field regression smoke proves legacy REVIEW currentReviewRound repair happens only after snapshot readiness; non-git and no-commit cases leave story and review-runs unchanged.",
-          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:14:30.552Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -191,9 +191,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Field regression covers wrong cwd and ctx.root/worktree mismatch; review-loop smoke confirms placeholder rollback hash and empty trigger validation still pass.",
-          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:14:30.591Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -201,9 +201,9 @@
           "command": "npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:baseline-local-certification-smoke",
           "result": "pass",
           "note": "Authority boundary, gate-consumption, and baseline-local-certification smoke passed; local host output and local review evidence cannot set productionDone, receiptVerified, or authorityChanged.",
-          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:14:30.631Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -211,9 +211,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:authority-boundary-smoke",
           "result": "pass",
           "note": "review_run_start diagnostics remain local signed REVIEW evidence wording only, while Authority boundary smoke pins that no Authority Server gate receipt or production completion is inferred from local output.",
-          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
-          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
-          "timestamp": "2026-06-12T11:14:30.675Z"
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
         }
       ]
     }
