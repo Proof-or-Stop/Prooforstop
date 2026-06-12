@@ -51,7 +51,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "NAV lists the new three-high-gap resolution plan and the decision document count remains consistent.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV includes a relative link to resolve-gap-analyze-three-high-gaps-execution-plan.md.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV decision document count matches the number of decision links after the new document is added.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "NAV does not remove or overwrite the prior B-3a80 triage plan link.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
