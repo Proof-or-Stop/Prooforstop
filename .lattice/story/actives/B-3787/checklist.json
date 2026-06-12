@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make review_run_start diagnose signed workspace readiness before reviewer-run creation",
+      "context": "Classify missing git repository, unborn HEAD, missing materialHash, wrong story worktree, and root/worktree mismatch before writing reviewer run metadata. Fail closed when the signed snapshot root and story metadata root would diverge.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for non-authority and Authority boundary behavior",
+      "context": "Cover direct REVIEW success in a git-backed worktree, legacy REVIEW missing currentReviewRound repair only after HEAD/materialHash readiness succeeds, non-git/no-commit failure without writes, wrong worktree/root mismatch failure, review_loop placeholder/empty-trigger preservation, and Authority boundary smoke that host output cannot set productionDone/receiptVerified/authorityChanged.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
