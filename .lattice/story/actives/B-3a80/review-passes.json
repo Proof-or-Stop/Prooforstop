@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-12T18:06:33.192Z",
       "reviewRunId": "B-3a80:RR-008",
       "_hash": "5258e0c51e865cb4ebfd0e9f3bce9acaf70c10f60e7394583ad252ee893d8d89"
+    },
+    {
+      "id": "B-3a80:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Docs re-review PASS. NAV.md line 3 says 45 files; mechanical link check found 45 NAV entries and missing=[]; NAV line 17 links f009-gap-analyze-high-gaps-execution-plan.md. f009 plan lines 12-14, 57-65, 269-297 explicitly forbid F-009 closure, Layer2/Layer4 unlock, productionDone/receiptVerified, and Authority completion claims. Layer4 plan lines 284-298 preserve customerKeyRef as future/blocked B-3a80 scope and state it is not implemented/proven. Claim-like Layer4 examples are guarded as future formal-unlock/precondition wording, including lines 724-748. git diff main...HEAD under docs/requirements shows only NAV, the new f009 plan, and unlock-layer4-production-safety-suite.",
+      "createdAt": "2026-06-12T18:10:02.093Z",
+      "reviewRound": "2026-06-12T18:06:33.192Z",
+      "reviewRunId": "B-3a80:RR-007",
+      "_hash": "34a6d6547bac3828761fedafdfc3f0da4840a56d7a6a422c9ee211d6421e609e"
     }
   ]
 }
