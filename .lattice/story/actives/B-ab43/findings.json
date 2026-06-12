@@ -32,6 +32,23 @@
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-ab43:F-003",
+      "desc": "docs/requirements/NAV.md was touched by this story but its decision-file navigation is mechanically stale: line 3 says 41 files, while `rg --files docs/requirements/decisions | wc -l` returns 42 in this worktree, and docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md exists but is not listed in NAV. This makes the truth-source navigation incomplete after adding the new signed workspace resolution plan. lane=koala-review-docs; source refs: docs/requirements/NAV.md:3, docs/requirements/NAV.md:15-16, docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md:1.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-12T15:57:19.238Z",
+      "reviewRound": "2026-06-12T15:49:32.878Z",
+      "reviewRunId": "B-ab43:RR-007",
+      "_hash": "39ffd46b3f62ead0347d7bf964b7eba063dabb4351ade076b8bd6abb9048150f",
+      "files": [
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ]
     }
   ]
 }
