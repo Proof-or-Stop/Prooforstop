@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T18:07:37.128Z",
       "userSees": "User runs lattice done_closure --storyId=B-cd1e and sees local DONE readiness, ordered closure blockers, and next commands derived from DONE pre-check rows.",
       "files": {
         "modify": [
@@ -45,7 +45,39 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-cd1e\",\"json\":true}",
+          "result": "pass",
+          "note": "done_closure renders DONE oracle rows from buildDoneChecklist with canAttemptDone=false and ordered next commands for the active DEV story.",
+          "headHash": "fb09b7f7761671c1819db4341e05c342af507f08",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:37.185Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding the handler, CLI schema, registry wiring, and read-only oracle option.",
+          "headHash": "fb09b7f7761671c1819db4341e05c342af507f08",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:37.225Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "done-preflight smoke includes TEST PASS but missing closure artifacts and confirms done_closure stays not DONE-ready.",
+          "headHash": "fb09b7f7761671c1819db4341e05c342af507f08",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:37.258Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
