@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-cd1e:F-001",
+      "desc": "done_closure can report canAttemptDone=true and authorityServerPath.required=false from local DONE oracle rows even though story_advance DONE also runs runAuthorityReceiptTransitionGate and blocks in Authority enforce mode without a verified production receipt. This under-reports the Authority Server path instead of projecting the same real DONE closure boundary; the runbook should include the Authority receipt gate status/next command and avoid canAttemptDone=true for the full DONE attempt when enforce-mode receipt consumption would fail.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T18:10:45.503Z",
+      "reviewRound": "2026-06-12T18:08:21.945Z",
+      "reviewRunId": "B-cd1e:RR-001",
+      "_hash": "e35b90727a837e306ef50a67659e48a0fb5152e42f25f95e5a385f0c370ab652",
+      "files": [
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ]
+    }
+  ]
+}
