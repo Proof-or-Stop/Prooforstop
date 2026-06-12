@@ -1,0 +1,38 @@
+{
+  "storyId": "B-d925",
+  "checkedAt": "2026-06-12T13:53:58.325Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "All three checklist items are missing the userSees field — CLAUDE.md requires a concrete observable output text so done-criteria are machine-verifiable, not abstract"
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-002 has no relatedDocs entry; the decision doc referenced in CHK-001 (formal-unlock-artifact-isolation-execution-plan.md) is directly relevant to the two-host audit criteria and should be linked here for reviewer continuity"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-12T13:53:47.860Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-12T13:53:58.325Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "All three checklist items are missing the userSees field — CLAUDE.md requires a concrete observable output text so done-criteria are machine-verifiable, not abstract"
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-002 has no relatedDocs entry; the decision doc referenced in CHK-001 (formal-unlock-artifact-isolation-execution-plan.md) is directly relevant to the two-host audit criteria and should be linked here for reviewer continuity"
+        }
+      ]
+    }
+  ],
+  "_hash": "ef992c8f6fbb20331adda4870761dddbf96c761a4954c328ccf6b02650ef5852"
+}

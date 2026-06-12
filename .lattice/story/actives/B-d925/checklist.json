@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify main dirty baseline and doc assets",
+      "context": "Use git status/diff to group tracked modifications, deletions, and untracked docs. Do not touch .omx and do not revert anything before classification.",
+      "relatedDocs": [
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run two-host audit on the cleanup decision",
+      "context": "Claude CLI and Codex CLI should independently review whether dirty assets should be committed, restored, or deferred. Only real correctness issues may drive changes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Apply the minimal reconciliation that unblocks B-9d6c DONE",
+      "context": "Make main clean by committing valid assets or restoring confirmed stale/scratch changes, then verify B-9d6c can advance to DONE.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

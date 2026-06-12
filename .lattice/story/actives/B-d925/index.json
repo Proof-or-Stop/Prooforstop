@@ -1,0 +1,41 @@
+{
+  "storyId": "B-d925",
+  "name": "reconcile-main-dirty-for-b9d6c-done",
+  "title": "Reconcile main dirty assets blocking B-9d6c DONE",
+  "description": "B-9d6c is fully verified in TEST, but Lattice DONE merge is blocked because the main worktree has uncommitted tracked baseline artifacts and docs. This story records the audit and cleanup needed to make main clean without mixing those changes into B-9d6c.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "main-dirty",
+    "baseline-artifacts",
+    "b9d6c",
+    "done-blocker"
+  ],
+  "createdAt": "2026-06-12T13:52:43.919Z",
+  "startedAt": "2026-06-12T13:52:43.919Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T13:52:43.927Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T13:54:13.843Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d925",
+    "branch": "story/B-d925",
+    "createdAt": "2026-06-12T13:54:14.002Z"
+  }
+}
