@@ -46,8 +46,22 @@
         "DEFAULT_PHASE_TOOLS.INIT",
         "scope_anti_expansion_INIT_command_allowlist"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve verified REVIEW finding B-85ba F-006: the existing worktree authority smoke still asserted legacy fromDraft INIT_CHECK auto-worktree behavior, conflicting with the new INIT scope anti-expansion gate that intentionally keeps fromDraft stories in INIT until explicit INIT_CHECK advancement.",
+      "timestamp": "2026-06-12T21:26:33.239Z",
+      "paths": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ],
+      "anchors": [
+        "B_85ba_F_006",
+        "fromDraft_INIT_stop",
+        "init_scope_anti_expansion_gate",
+        "worktree_authority_smoke"
+      ]
     }
   ],
   "createdAt": "2026-06-12T19:48:39.680Z",
-  "updatedAt": "2026-06-12T20:20:15.845Z"
+  "updatedAt": "2026-06-12T21:26:33.239Z"
 }
