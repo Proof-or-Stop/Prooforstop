@@ -62,7 +62,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/scope-anti-expansion.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scope_boundary_set, execution_boundary_set, scope_freeze_check, scope_extension_proposal, and scope_extension_decide are registered and enforce INIT-only command semantics",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "accepted scope extension invalidates stale freeze-check evidence and requires a rerun before INIT_CHECK",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "reviewer proposal command cannot directly accept expansion or mutate checklist scope",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
