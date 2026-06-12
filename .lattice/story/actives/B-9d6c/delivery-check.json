@@ -1,0 +1,43 @@
+{
+  "storyId": "B-9d6c",
+  "checkedAt": "2026-06-12T14:18:39.218Z",
+  "reviewRound": "2026-06-12T14:15:48.063Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "promise": "Formal Layer 2/3 proof roots reject stale, mixed, local-only, non-formal, non-proof, wrong-target, or Authority-overclaim artifacts instead of ignoring them to produce PASS.",
+      "status": "verified",
+      "verifiedBy": "code grep plus smoke test",
+      "evidence": "rg found root invariant enforcement in packages/main/src/core/lattice-baseline.ts and negative coverage in packages/main/src/tasks/lattice-baseline-smoke.ts; npm --prefix packages/main run test:lattice-baseline-smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "promise": "Artifact isolation remains non-authority and does not unlock Layer4, Production Safety, global Capability Claim, or Authority receipt verification.",
+      "status": "verified",
+      "verifiedBy": "docs check plus validate",
+      "evidence": "Document states Layer4/Production/global remain locked and Lattice CLI stays non-authority; lattice validate --story=B-9d6c --json passed with CHK-003 adversarial docs coverage."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build -> PASS on B-9d6c current worktree."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke -> PASS; includes clean formal path and fail-closed stale/mixed/wrong-target/localOnly/Authority-overclaim cases."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice validate --story=B-9d6c --json -> PASS; 9/9 verification intents covered, including docs checks for non-authority and Layer4 lock boundary."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-9d6c delivers the formal proof-root invariant guard for Layer 2/3 only. Tests cover clean PASS and fail-closed negative roots. Authority and production claims remain out of scope and locked."
+  },
+  "_hash": "9114ae18db23f3a4875117a6ad80ce68d5da81a77ef68b81ce2acba645fc9ad4"
+}
