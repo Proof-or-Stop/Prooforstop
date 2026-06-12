@@ -6,7 +6,41 @@
       "context": "Use Lattice CLI and source/doc reads to compare the open F-009 claim with current Layer2 formal proof/evaluator behavior. Do not edit code.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+      ],
+      "userSees": "Audit evidence lists the original F-009 claim and current Layer2 formal proof surfaces with source/doc references.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "finding_list shows F-009 original open high/suspected claim and source/doc rg commands identify current formal proof surfaces.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The audit distinguishes formal Layer2 proof path from local diagnostic commands and from Layer4 Authority/customerKeyRef scope.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If only docs claim a proof path but source lacks fail-closed checks, CHK-001 must not be considered done.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
