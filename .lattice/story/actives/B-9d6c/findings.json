@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-9d6c:F-001",
+      "desc": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md Root Invariant table omits authorityDone from the Authority overclaim conditions, but packages/main/src/core/lattice-baseline.ts hasAuthorityOverclaim rejects both top-level and nested authorityDone=true and packages/main/src/tasks/lattice-baseline-smoke.ts includes top-level-authority-done and nested-authority-done negative coverage. Because this document claims to describe the implemented guard precisely, the authorityDone overclaim fix needs the decision doc synchronized so the Authority boundary is not understated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-12T14:07:41.455Z",
+      "reviewRound": "2026-06-12T14:04:38.155Z",
+      "reviewRunId": "B-9d6c:RR-005",
+      "_hash": "9604e3210ec105b8620a85d404d766bb26da8966402b9bc403079b9b7200f114",
+      "files": [
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+        "packages/main/src/core/lattice-baseline.ts",
+        "packages/main/src/tasks/lattice-baseline-smoke.ts"
+      ]
+    }
+  ]
+}
