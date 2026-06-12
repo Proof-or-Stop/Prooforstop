@@ -44,6 +44,16 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "User sees either Review run B-xxxx:RR-001 started for koala-review-... with a real head prefix, or a fail-closed review_run_start diagnostic naming the missing git/worktree/material context and saying no reviewer run was created.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/context.ts"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {
