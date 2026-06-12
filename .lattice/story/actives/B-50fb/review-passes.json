@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-12T21:34:37.455Z",
       "reviewRunId": "B-50fb:RR-005",
       "_hash": "ed656b159d268f498657660f71088fcb27779b10486055b75490e1a3e81cf923"
+    },
+    {
+      "id": "B-50fb:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage pass: package metadata scope/bin assertion passed at current HEAD; npm --prefix packages/main run build passed; verify-entrypoints, verify-global-lab-entrypoint, verify-runtime-fact-contract, and verify-process-fact-contract passed; node bin/lattice.js verify_codex {storyId:B-50fb} passed with only expected legacy global fallback heartbeat warning; npm test passed; scope_contract_check passed with 0 unacknowledged violations; lattice validate --story=B-50fb passed with 12/12 verification intents covered. transition-orchestrator fallback coverage is acceptable via story-lifecycle E2E plus source alignment with machine transition table.",
+      "createdAt": "2026-06-12T21:41:09.313Z",
+      "reviewRound": "2026-06-12T21:34:37.455Z",
+      "reviewRunId": "B-50fb:RR-006",
+      "_hash": "53f22275eedf3dc4f188f8db17d17c25342b8b5582d4be99af4fc9156f774f15"
     }
   ]
 }
