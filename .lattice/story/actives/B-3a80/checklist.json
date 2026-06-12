@@ -92,7 +92,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Completion report says Layer4 customerKeyRef is explicitly future/blocked unless a separate Layer4 implementation story is opened.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Layer4 document states customerKeyRef is future/blocked planning scope in this context.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Wording still preserves future Layer4 execution requirements and does not delete the planned production safety concept.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Wording must not imply current CLI support or verified Authority receipt for customerKeyRef.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
