@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-12T13:31:18.544Z",
       "reviewRunId": "B-9d6c:RR-002",
       "_hash": "935cd858068b80f51de9d117549c2e2f2a5d1342a779306ae37f925e37e1b98a"
+    },
+    {
+      "id": "B-9d6c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed packages/main/src/core/lattice-baseline.ts, packages/main/src/tasks/lattice-baseline-smoke.ts, and the formal unlock artifact isolation execution plan. The suite aggregation scans parsed final-report artifacts in the selected formal root, blocks refused or invariant-violating artifacts, keeps Authority fields false, and formal claim evaluation leaves Layer 4/global claims locked. No real correctness blocker found; npm --prefix packages/main run test:lattice-baseline-smoke passed at current reviewed state.",
+      "createdAt": "2026-06-12T13:37:22.150Z",
+      "reviewRound": "2026-06-12T13:31:18.544Z",
+      "reviewRunId": "B-9d6c:RR-003",
+      "_hash": "5028d0fa1b44ac70d67f12c0e44eddf41501726c54928d4ddf1eabde06a461e9"
     }
   ]
 }
