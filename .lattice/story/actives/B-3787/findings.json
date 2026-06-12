@@ -20,7 +20,7 @@
       "desc": "review_run_start checks the story phase from ctx.root before resolving the signed workspace, so when cwd is the story worktree but --root/LATTICE_PROJECT_ROOT points at main with stale story metadata, the command fails with \"story B-3787 must be in REVIEW phase (current: INIT_CHECK)\" instead of the intended root/worktree mismatch diagnostic. Repro: from /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3787, run lattice --root /Users/jek/Documents/Work/Orchestrate review_run_start {storyId:B-3787,agent:koala-review-delivery}; no reviewer run is created, but the operator guidance is misleading and misses the hard mismatch check promised by CHK-001/CHK-002.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T11:19:16.786Z",
@@ -30,7 +30,9 @@
       "files": [
         "packages/main/src/handlers/review-run.ts",
         "packages/main/src/handlers/context.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in e5779c23: review_run_start resolves story worktree/root mismatch before phase validation and field-regression asserts LATTICE_PROJECT_ROOT pointing at main fails with the root/worktree mismatch diagnostic.",
+      "resolvedAt": "2026-06-12T11:24:00.588Z"
     }
   ]
 }
