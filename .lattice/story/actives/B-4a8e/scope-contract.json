@@ -1,0 +1,22 @@
+{
+  "storyId": "B-4a8e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/session.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "docs/requirements/decisions"
+  ],
+  "scopeChangeReason": "B-4a8e is scoped to session_brief status rendering and field regression smoke only; resolver policy, config repair, review-run gates, and docs are excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T21:08:54.796Z",
+  "updatedAt": "2026-06-12T21:08:54.796Z"
+}

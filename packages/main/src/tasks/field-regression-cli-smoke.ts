@@ -888,6 +888,70 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
   }
 }
 
+async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<void> {
+  const configured = initWrapperProjectWithNestedGitRepo('koala-field-session-brief-wrapper-bound-', 'clawcreek');
+  try {
+    const configPath = join(configured.root, 'koala.config.json');
+    const beforeConfig = readFileSync(configPath, 'utf-8');
+    const result = await runKoalaRaw(configured.root, 'session_brief');
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /Signed workspace: OK/);
+    assert.match(result.stdout, /configured gitRoot: clawcreek/);
+    assert.match(result.stdout, /resolutionSource: configured-git-root/);
+    assert.ok(
+      result.stdout.includes(`signedWorkspaceRoot: ${canonicalPath(configured.gitRoot)}`),
+      `configured wrapper root session_brief should show signed workspace path, got:\n${result.stdout}`,
+    );
+    assert.equal(readFileSync(configPath, 'utf-8'), beforeConfig, 'configured wrapper root session_brief must not mutate config');
+  } finally {
+    rmSync(configured.root, { recursive: true, force: true });
+  }
+
+  const unconfigured = initWrapperProjectWithNestedGitRepo('koala-field-session-brief-wrapper-unbound-');
+  try {
+    const configPath = join(unconfigured.root, 'koala.config.json');
+    const beforeConfig = readFileSync(configPath, 'utf-8');
+    const result = await runKoalaRaw(unconfigured.root, 'session_brief');
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /Non-git project/);
+    assert.doesNotMatch(result.stdout, /Signed workspace: OK/);
+    assert.doesNotMatch(result.stdout, /resolutionSource: configured-git-root/);
+    assert.equal(readFileSync(configPath, 'utf-8'), beforeConfig, 'unconfigured wrapper root session_brief must not mutate config');
+    assert.equal(JSON.parse(readFileSync(configPath, 'utf-8')).gitRoot, undefined);
+  } finally {
+    rmSync(unconfigured.root, { recursive: true, force: true });
+  }
+
+  const missingGitRoot = initWrapperProjectWithNestedGitRepo(
+    'koala-field-session-brief-wrapper-missing-',
+    'missing-creek',
+  );
+  try {
+    const configPath = join(missingGitRoot.root, 'koala.config.json');
+    const beforeConfig = readFileSync(configPath, 'utf-8');
+    const result = await runKoalaRaw(missingGitRoot.root, 'session_brief');
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /Signed workspace: unresolved/);
+    assert.match(result.stdout, /configured gitRoot: missing-creek/);
+    assert.match(result.stdout, /configured_gitRoot_missing/);
+    assert.doesNotMatch(result.stdout, /Signed workspace: OK/);
+    assert.equal(readFileSync(configPath, 'utf-8'), beforeConfig, 'invalid configured gitRoot session_brief must not mutate config');
+  } finally {
+    rmSync(missingGitRoot.root, { recursive: true, force: true });
+  }
+
+  const gitBacked = initRepo('koala-field-session-brief-git-backed-');
+  try {
+    const result = await runKoalaRaw(gitBacked, 'session_brief');
+    assert.equal(result.code, 0, result.stderr);
+    assert.doesNotMatch(result.stdout, /## Signed workspace/);
+    assert.doesNotMatch(result.stdout, /configured gitRoot:/);
+    assert.doesNotMatch(result.stdout, /resolutionSource: configured-git-root/);
+  } finally {
+    rmSync(gitBacked, { recursive: true, force: true });
+  }
+}
+
 async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
   type ConfigDoctor = {
     wrapperGitRoot: {
@@ -1852,6 +1916,7 @@ await assertDirectReviewStoryCreateInitializesReviewMetadata();
 await assertReviewRunStartCliSurface();
 await assertReviewRunStartWorkspaceDiagnostics();
 await assertReviewRunStartSplitRootGitRootBinding();
+await assertSessionBriefConfiguredGitRootWorkspaceStatus();
 await assertWrapperGitRootDoctorAndRepairCliSurface();
 await assertReviewerListForceReviewerLaneContract();
 await assertReviewPassConcurrentCliSurface();
