@@ -17,6 +17,24 @@
         "packages/main/src/handlers/transition-orchestrator.ts",
         "packages/main/src/handlers/phase-gates.ts"
       ]
+    },
+    {
+      "id": "B-cd1e:F-002",
+      "desc": "packages/main/src/handlers/done-closure.ts:121 and :129-133 compute canAttemptDone and authorityServerPath without checking Authority mode or receipt eligibility. In Authority enforce mode, packages/main/src/handlers/phase-gates.ts:347-405 can still block TEST/DONE on consumeAuthorityGateReceiptDocument, so done_closure can report local blockers clear, required=false, receiptVerified=false instead of the required Authority receipt path. This violates docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md:261-287, which requires the runbook to reflect the story_advance DONE pre-check and keep receiptVerified tied to verified receipts. Severity high because the assistant can mislead agents about DONE closure in Authority mode, even though the underlying gate still blocks.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-12T18:12:18.348Z",
+      "reviewRound": "2026-06-12T18:08:21.945Z",
+      "reviewRunId": "B-cd1e:RR-005",
+      "_hash": "e186feb0bc1135780904369420a4b0a23aca8533009684e4c446a737ba607ceb",
+      "files": [
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+      ]
     }
   ]
 }
