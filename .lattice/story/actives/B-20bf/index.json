@@ -4,7 +4,7 @@
   "title": "Resolve signed-workspace gaps and gitRoot repair UX",
   "description": "Resolve the signed-workspace gap_analyze bindings and add deterministic gitRoot diagnostic/repair UX for wrapper-root projects where metadata root is not git-backed but a nested child repo is the intended signed workspace. Keep the fix host-neutral: Lattice CLI diagnoses and performs an explicit confirmed config write; Claude/Codex hosts do not silently auto-repair, choose repositories, or override policy.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DISCARDED",
   "priority": "high",
   "keywords": [
     "gap_analyze",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-12T19:14:00.204Z",
   "startedAt": "2026-06-12T19:14:00.204Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T19:16:36.451Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-12T19:16:36.451Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "Discarding contaminated story: checklist includes out-of-scope gitRoot repair UX after INIT_CHECK freeze; approved task is only the two signed-workspace gap bindings."
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-20bf",
-    "branch": "story/B-20bf",
-    "createdAt": "2026-06-12T19:15:47.483Z"
-  }
+  ]
 }
