@@ -9,9 +9,9 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T21:48:55.541Z",
-      "endTime": null,
+      "endTime": "2026-06-12T21:50:20.702Z",
       "userSees": "User sees \"Draft execution plan saved: docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\".",
       "files": {
         "modify": [],
@@ -42,7 +42,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "No whitespace errors in the execution plan document diff.",
+          "headHash": "e709c343d3a8e50f324364c0cf16692644522389",
+          "materialHash": "9d9536195e0dee55efa9bb4c66ec30f35f35adc8cce25e0ad94989fb8a7e2365",
+          "timestamp": "2026-06-12T21:50:20.744Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Plan explicitly covers scope_check_save, missing scope-check.json, no self-signing/auto-generation, Authority boundary, and follow-up execution handoff.",
+          "headHash": "e709c343d3a8e50f324364c0cf16692644522389",
+          "materialHash": "9d9536195e0dee55efa9bb4c66ec30f35f35adc8cce25e0ad94989fb8a7e2365",
+          "timestamp": "2026-06-12T21:50:20.782Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Document does not claim implementation or Authority completion; it names future follow-up lifecycle work.",
+          "headHash": "e709c343d3a8e50f324364c0cf16692644522389",
+          "materialHash": "9d9536195e0dee55efa9bb4c66ec30f35f35adc8cce25e0ad94989fb8a7e2365",
+          "timestamp": "2026-06-12T21:50:20.823Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
