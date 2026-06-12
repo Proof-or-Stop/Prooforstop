@@ -48,9 +48,9 @@
           "command": "rg -n \"GAP-SW-UNRESOLVED-1|GAP-SW-NO-BINDING-1|GAP-L4-CUSTOMER-KEY-1|Required Work Split|Recommended Execution Order\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
           "result": "pass",
           "note": "The execution plan names all three current high gaps and assigns them to bounded follow-up workstreams.",
-          "headHash": "4aab04d2cba498cafdad68720c7d6bb26de7f99c",
-          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:56:04.743Z"
+          "headHash": "f8dff2f6788c89d987a31b4d236a41b5ee2d84b7",
+          "materialHash": "e4262a40ae9e2631241a227238c731cffcf565ddcd550628b3c9ed027bb40897",
+          "timestamp": "2026-06-12T18:57:12.337Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,9 +58,9 @@
           "command": "rg -n \"future/blocked|Path B1: Keep It Future/Blocked|customerKeyRef remains a future Layer 4 requirement|Forbidden result wording\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
           "result": "pass",
           "note": "The document preserves customerKeyRef as future/blocked unless a separate Layer4 implementation story is opened.",
-          "headHash": "4aab04d2cba498cafdad68720c7d6bb26de7f99c",
-          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:56:04.775Z"
+          "headHash": "f8dff2f6788c89d987a31b4d236a41b5ee2d84b7",
+          "materialHash": "e4262a40ae9e2631241a227238c731cffcf565ddcd550628b3c9ed027bb40897",
+          "timestamp": "2026-06-12T18:57:12.337Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -68,9 +68,9 @@
           "command": "lattice gap_analyze | node -e \"let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const json=JSON.parse(s.slice(s.indexOf(\"{\"),s.lastIndexOf(\"}\")+1)); const high=json.gaps.filter(g=>g.severity===\"high\").length; const medium=json.gaps.filter(g=>g.severity===\"medium\").length; if(high!==3||medium!==0){console.error(JSON.stringify({high,medium})); process.exit(1)} console.log(JSON.stringify({high,medium,ok:true}))})\"",
           "result": "pass",
           "note": "Mechanical assertion proves the plan did not increase current high or medium gap count; expected state remains exactly 3 high and 0 medium.",
-          "headHash": "4aab04d2cba498cafdad68720c7d6bb26de7f99c",
-          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:56:04.805Z"
+          "headHash": "f8dff2f6788c89d987a31b4d236a41b5ee2d84b7",
+          "materialHash": "e4262a40ae9e2631241a227238c731cffcf565ddcd550628b3c9ed027bb40897",
+          "timestamp": "2026-06-12T18:57:12.337Z"
         }
       ]
     },
@@ -119,9 +119,9 @@
           "command": "rg -n \"Resolve gap_analyze Three High Gaps Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV includes the new resolution plan link.",
-          "headHash": "d27f3bfb368faa31272fbc007adbe4638afdfff1",
-          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:56:18.874Z"
+          "headHash": "f8dff2f6788c89d987a31b4d236a41b5ee2d84b7",
+          "materialHash": "e4262a40ae9e2631241a227238c731cffcf565ddcd550628b3c9ed027bb40897",
+          "timestamp": "2026-06-12T18:57:12.337Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -129,9 +129,9 @@
           "command": "node -e \"const fs=require(\"fs\"),path=require(\"path\"); function walk(d){return fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{const p=path.join(d,e.name); return e.isDirectory()?walk(p):(p.endsWith(\".md\")?[p]:[])})} const s=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const declared=Number((s.match(/^> (\\\\d+) 个文件/m)||[])[1]); const actual=walk(\"docs/requirements\").length; if(declared!==actual){console.error(JSON.stringify({declared,actual}));process.exit(1)} console.log(JSON.stringify({declared,actual,ok:true}))\"",
           "result": "pass",
           "note": "NAV declared file count equals the actual markdown file count under docs/requirements.",
-          "headHash": "d27f3bfb368faa31272fbc007adbe4638afdfff1",
-          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:56:18.904Z"
+          "headHash": "f8dff2f6788c89d987a31b4d236a41b5ee2d84b7",
+          "materialHash": "e4262a40ae9e2631241a227238c731cffcf565ddcd550628b3c9ed027bb40897",
+          "timestamp": "2026-06-12T18:57:12.338Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -139,9 +139,9 @@
           "command": "rg -n \"F-009 gap_analyze High Gaps Execution Plan|Resolve gap_analyze Three High Gaps Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV keeps the prior B-3a80 triage plan link and adds the new resolution plan link.",
-          "headHash": "d27f3bfb368faa31272fbc007adbe4638afdfff1",
-          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:56:18.934Z"
+          "headHash": "f8dff2f6788c89d987a31b4d236a41b5ee2d84b7",
+          "materialHash": "e4262a40ae9e2631241a227238c731cffcf565ddcd550628b3c9ed027bb40897",
+          "timestamp": "2026-06-12T18:57:12.338Z"
         }
       ]
     }
