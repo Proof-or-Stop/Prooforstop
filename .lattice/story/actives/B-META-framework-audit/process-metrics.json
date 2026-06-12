@@ -1,13 +1,13 @@
 {
   "storyId": "B-META-framework-audit",
-  "generatedAt": "2026-05-25T18:08:07.983Z",
+  "generatedAt": "2026-06-12T20:26:42.878Z",
   "sourceSnapshot": {
     "hasUnderstanding": false,
     "hasDecision": false,
     "hasPlan": false,
     "checklistItems": 0,
     "reviewRounds": 0,
-    "findings": 8,
+    "findings": 9,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -27,13 +27,12 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "medium",
           "sources": [
             "findings.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugFixWithReproEvidenceRatio": {
           "value": null,
@@ -101,7 +100,7 @@
           "note": "no reviews yet"
         },
         "missingFindingCount": {
-          "value": 7,
+          "value": 8,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -253,7 +252,7 @@
           "checklist.json",
           "index.json"
         ],
-        "note": "express channel — main agent 允许自写代码"
+        "note": "express channel — main agent allowed to write code itself"
       },
       "metrics": {
         "normalChannelUsesSubagent": {
@@ -264,7 +263,7 @@
             "checklist.json",
             "index.json"
           ],
-          "note": "express channel — main agent 允许自写代码"
+          "note": "express channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
           "value": true,
@@ -281,7 +280,7 @@
           "sources": [
             "checklist.json"
           ],
-          "note": "express channel — main agent 允许自写代码 — no violation possible"
+          "note": "express channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
           "value": null,
@@ -324,7 +323,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 8,
+          "value": 9,
           "unit": "count",
           "confidence": "high",
           "sources": [
