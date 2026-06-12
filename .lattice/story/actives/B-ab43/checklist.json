@@ -12,7 +12,55 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"Executable plan written: review-run-start-signed-workspace-resolution-execution-plan.md; two-host drafts reconciled; final Claude host review completed.\"",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new execution document defines the metadataRoot versus signedWorkspaceRoot correctness issue and gives concrete implementation phases for explicit binding/configuration, fail-closed diagnostics, tests, and rollout.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The document records that Claude CLI and Codex CLI host perspectives were used as local non-authority audit inputs and reconciled by the main auditor.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document preserves direct REVIEW compatibility for normal git-backed project roots and does not require a worktree for every REVIEW story.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The plan explicitly rejects automatic nested-repo guessing and requires explicit gitRoot configuration or story worktree attachment when metadata root is non-git.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document separates localNonAuthorityAudit from authorityServerPath and forbids claiming receiptVerified, productionDone, authorityDone, or fullAuthorityDone from host prose or local reviewer runs.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The regression matrix includes fail-closed cases for non-git wrapper root, missing worktree binding, ambiguous nested repos, stale/mismatched hashes, and forged/local-only Authority evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

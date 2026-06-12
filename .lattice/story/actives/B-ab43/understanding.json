@@ -1,0 +1,24 @@
+{
+  "task": "Write an audited execution plan for fixing Lattice signed workspace root resolution after B-3787.",
+  "outcome": "User sees a final note saying the executable plan is written, audited by Claude CLI and Codex CLI host perspectives, reviewed once more by a Claude host reviewer, and ready for the next implementation story to fix metadataRoot versus signedWorkspaceRoot safely.",
+  "facts": [
+    "B-3787 fixed direct REVIEW currentReviewRound initialization and clearer not_git_repo diagnostics.",
+    "ClawCreek has Lattice metadata at /Users/jek/Documents/ClawCreek while the real git repo is nested under clawcreek or a linked worktree.",
+    "review_run_start signs HEAD/materialHash from the resolved signed workspace and must fail closed without a git-backed workspace.",
+    "Local CLI reviewer runs are Non-authority evidence and cannot become Authority Server receipts without receipt-backed verification."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Follow consistency of logic.",
+    "Do not guess nested git repositories automatically as the signed workspace.",
+    "Do not claim Authority completion without verified Authority Server receipt proof."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-12T15:39:38.433Z"
+}
