@@ -113,6 +113,7 @@ export function resolveReviewPromptHash(prompt?: string, promptHash?: string): s
 }
 
 export type ReviewRunSnapshotFailureCode = 'not_git_repo' | 'missing_head' | 'missing_material_hash';
+const EMPTY_MATERIAL_HASH = createHash('sha256').update('').digest('hex');
 
 export interface ReviewRunSnapshotFailure {
   code: ReviewRunSnapshotFailureCode;
@@ -156,7 +157,8 @@ export function diagnoseReviewRunSnapshot(projectRoot: string): ReviewRunSnapsho
       nextAction: 'Create at least one commit in the signed workspace before starting a reviewer run.',
     };
   }
-  if (!currentMaterialHash(projectRoot)) {
+  const materialHash = currentMaterialHash(projectRoot);
+  if (!materialHash || materialHash === EMPTY_MATERIAL_HASH) {
     return {
       code: 'missing_material_hash',
       reason: `materialHash cannot be computed from signed workspace: ${projectRoot}`,

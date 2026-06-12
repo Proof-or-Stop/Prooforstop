@@ -125,6 +125,32 @@ function initRepoWithoutCommit(prefix: string): string {
   return root;
 }
 
+function initRepoWithMetadataOnlyHead(prefix: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  git(root, ['config', 'user.email', 'smoke@example.test']);
+  git(root, ['config', 'user.name', 'Koala Smoke']);
+  write(root, 'koala.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    worktreeDir: '.worktrees',
+    workflow: { profile: 'balanced' },
+  }, null, 2));
+  git(root, [
+    '-c', 'user.name=Koala Smoke',
+    '-c', 'user.email=smoke@example.test',
+    '-c', 'commit.gpgsign=false',
+    'commit',
+    '--allow-empty',
+    '-m', 'empty material base',
+  ]);
+  resetConfigCache();
+  return root;
+}
+
 function runKoalaRaw(
   cwd: string,
   command: string,
@@ -551,6 +577,24 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'unborn HEAD failure must not write reviewer runs');
   } finally {
     rmSync(unbornRoot, { recursive: true, force: true });
+  }
+
+  const missingMaterialRoot = initRepoWithMetadataOnlyHead('koala-field-review-run-no-material-');
+  try {
+    const storyId = 'B-nomat';
+    const store = new StoryStore(missingMaterialRoot);
+    writeLegacyReviewStoryWithoutRound(store, storyId);
+    const failed = await runKoalaRaw(missingMaterialRoot, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(failed.code, 0);
+    assert.match(failed.stderr, /missing_material_hash/);
+    assert.match(failed.stderr, /No reviewer run was created/);
+    assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'missing materialHash failure must not repair legacy currentReviewRound');
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'missing materialHash failure must not write reviewer runs');
+  } finally {
+    rmSync(missingMaterialRoot, { recursive: true, force: true });
   }
 
   const worktreeRoot = initRepo('koala-field-review-run-worktree-');

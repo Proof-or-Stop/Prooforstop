@@ -99,9 +99,14 @@ export function resolveStoryCommandWorkspace(
   storyId: string,
   contextRoot: string,
 ): StoryCommandWorkspace {
-  const story = store.readStory(storyId);
   const cwd = process.cwd();
-  const expectedAbsPath = resolveExpectedWorktreeRoot(store, storyId, cwd, story.worktree?.path);
+  let storedWorktreePath = store.readStory(storyId).worktree?.path;
+  if (!storedWorktreePath && canonicalPath(contextRoot) !== canonicalPath(cwd)) {
+    try {
+      storedWorktreePath = new StoryStore(cwd).readStory(storyId).worktree?.path;
+    } catch { /* PROBE: cwd may be a subdir or unrelated workspace */ }
+  }
+  const expectedAbsPath = resolveExpectedWorktreeRoot(store, storyId, cwd, storedWorktreePath);
   if (!expectedAbsPath) {
     return {
       cwd,

@@ -45,13 +45,13 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
+      const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
       const preflightStory = store.readStory(args.storyId);
       if (preflightStory.phase !== 'REVIEW') {
         throw new Error(
           `review_run_start: story ${args.storyId} must be in REVIEW phase (current: ${preflightStory.phase})`,
         );
       }
-      const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
       const lane = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
