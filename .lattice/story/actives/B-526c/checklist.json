@@ -97,9 +97,9 @@
         "writing unrelated config fields",
         "accepting paths outside metadataRoot"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T19:33:06.033Z",
-      "endTime": null,
+      "endTime": "2026-06-12T19:54:30.324Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/lattice-cli.ts",
@@ -133,7 +133,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers confirmed lattice config repair --set-git-root=clawcreek --confirm writing gitRoot to existing lattice.config.json and reporting configured-git-root verified.",
+          "headHash": "4fea47aa7b3e4f3aae2fe5d724759624a8ea46c6",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:30.372Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers repair without --confirm as non-mutating preview with confirmCommand and unchanged config file.",
+          "headHash": "4fea47aa7b3e4f3aae2fe5d724759624a8ea46c6",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:30.417Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers unsafe outside path and nested non-root git target rejection with config remaining unchanged.",
+          "headHash": "4fea47aa7b3e4f3aae2fe5d724759624a8ea46c6",
+          "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+          "timestamp": "2026-06-12T19:54:30.463Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
