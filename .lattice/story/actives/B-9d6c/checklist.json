@@ -85,9 +85,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T13:30:08.212Z",
-      "endTime": null,
+      "endTime": "2026-06-12T13:30:17.350Z",
       "userSees": "The baseline smoke task reports PASS for negative controls proving stale materialHash, mixed suiteRunId, wrong claimTarget, localOnly, and Authority overclaim artifacts fail closed.",
       "files": {
         "modify": [],
@@ -118,7 +118,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage passed and preserved the clean formal proof path after the invariant guard.",
+          "headHash": "85e5f3b54a8728accab6f673118df3aa43ba6231",
+          "materialHash": "ee8dfb954794aa4779f125b129a06d86e2a8efc53db968e8eb890d54301e25ea",
+          "timestamp": "2026-06-12T13:30:17.429Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage includes mixed suiteRunId and wrong claimTarget artifacts and observes BLOCKED output.",
+          "headHash": "85e5f3b54a8728accab6f673118df3aa43ba6231",
+          "materialHash": "ee8dfb954794aa4779f125b129a06d86e2a8efc53db968e8eb890d54301e25ea",
+          "timestamp": "2026-06-12T13:30:17.473Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke coverage includes localOnly and Authority-overclaim artifacts and verifies receiptVerified, productionDone, and fullAuthorityDone remain false.",
+          "headHash": "85e5f3b54a8728accab6f673118df3aa43ba6231",
+          "materialHash": "ee8dfb954794aa4779f125b129a06d86e2a8efc53db968e8eb890d54301e25ea",
+          "timestamp": "2026-06-12T13:30:17.511Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
