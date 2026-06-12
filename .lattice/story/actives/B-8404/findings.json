@@ -25,7 +25,7 @@
       "desc": "Changed-file probes are collected for all active stories, but failed probe risk is only attached to selected story refs. If a selected story has no overlap while another active story has a broken registered worktree, the selected story can still be recommended parallel_dev with no visible collection-level risk.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-12T20:02:13.714Z",
@@ -34,7 +34,9 @@
       "_hash": "6dc301142333999181f4bc2428f0f0756715b04a2eb08db2d51c5eed32532d2b",
       "files": [
         "packages/main/src/core/lattice-parallel-wave.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed by adding activeStoryChangedFileProbeFailures into story safety resolution. Any failed changed-file probe from another active story now adds a visible warn degradation, appears in blockers/guidance, and degrades selected output to plan_only until every active worktree projection succeeds. Smoke covers selecting B-clean while B-missing-worktree is active and broken.",
+      "resolvedAt": "2026-06-12T20:15:38.545Z"
     },
     {
       "id": "B-8404:F-003",
