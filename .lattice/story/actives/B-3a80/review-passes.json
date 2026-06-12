@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-12T18:12:01.199Z",
       "reviewRunId": "B-3a80:RR-009",
       "_hash": "8b86ef8412a9388461b9ec4e71df25ce39be01e78cfd7008d0238529d5f76f58"
+    },
+    {
+      "id": "B-3a80:RP-008",
+      "agent": "koala-review-concept",
+      "note": "Concept re-review PASS. lattice gap_analyze still reports the expected 3 high gaps; the new F-009 execution plan classifies the two signed-workspace gaps as real future implementation/verification candidates, marks customerKeyRef as future/blocked Layer 4 scope, and explicitly denies F-009 closure, Layer2 unlock, Layer4 unlock, Authority completion, productionDone, and receiptVerified claims. The Layer4 scope note preserves customerKeyRef as a future evidence requirement and does not claim current CLI/report/receipt/evaluator support.",
+      "createdAt": "2026-06-12T18:14:44.069Z",
+      "reviewRound": "2026-06-12T18:12:01.199Z",
+      "reviewRunId": "B-3a80:RR-010",
+      "_hash": "0d3e16fb6f8c605977b98d49d591e21be5971d3b8d0d2635d167badd200f44c2"
     }
   ]
 }
