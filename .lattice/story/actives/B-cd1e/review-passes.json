@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-12T18:21:09.306Z",
       "reviewRunId": "B-cd1e:RR-008",
       "_hash": "7ed4e9a57c5a94ff5e1d7671cc8b78ad5bc8ca638204b44e4347149ebe7b0698"
+    },
+    {
+      "id": "B-cd1e:RP-004",
+      "agent": "koala-review-quality",
+      "note": "PASS: Re-reviewed DONE closure runbook quality after Authority DONE receipt readiness fix. Inspected packages/main/src/handlers/done-closure.ts, packages/main/src/core/done-oracle.ts, CLI/policy/process-fact registration, and smoke coverage. Source keeps DONE oracle projection read-only via auditWriter:null, does not persist consumptionEvents, separates localNonAuthorityAudit from authorityServerPath, keeps mayClaimAuthorityDone=false, and registers done_closure as L0/readOnly/non-gate evidence. Verified npx tsc --noEmit -p packages/main/tsconfig.json, npm run test:process-fact-contract, and local core CLI node packages/main/dist/cli.js done_closure JSON/status unchanged.",
+      "createdAt": "2026-06-12T18:25:42.211Z",
+      "reviewRound": "2026-06-12T18:21:09.306Z",
+      "reviewRunId": "B-cd1e:RR-007",
+      "_hash": "9e0d7423fde2095823615b79d2230ead35ec7ddb5ec3fbdb5a67e3301f4eec49"
     }
   ]
 }
