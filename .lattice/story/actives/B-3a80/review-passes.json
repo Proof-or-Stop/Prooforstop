@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-12T18:06:33.192Z",
       "reviewRunId": "B-3a80:RR-005",
       "_hash": "9792a626ec10d2f1f5a0bad2437294507ae1e51ace881531305a2cecd449baec"
+    },
+    {
+      "id": "B-3a80:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-reviewed B-3a80:F-001: CHK-002:edge and CHK-004:edge now record unfiltered git diff --name-status main...HEAD plus a negative allowlist check. I reran the full diff and allowlist check; only B-3a80 Lattice metadata and the three scoped docs are present, with no unrelated paths emitted. No test-coverage blocker remains.",
+      "createdAt": "2026-06-12T18:09:39.155Z",
+      "reviewRound": "2026-06-12T18:06:33.192Z",
+      "reviewRunId": "B-3a80:RR-008",
+      "_hash": "5258e0c51e865cb4ebfd0e9f3bce9acaf70c10f60e7394583ad252ee893d8d89"
     }
   ]
 }
