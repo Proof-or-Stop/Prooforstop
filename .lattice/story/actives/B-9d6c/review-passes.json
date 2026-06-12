@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-12T14:04:38.155Z",
       "reviewRunId": "B-9d6c:RR-006",
       "_hash": "fe76c201b5de33ed3b8c302b52afebdea002c7419451e573d6106a712586f5b5"
+    },
+    {
+      "id": "B-9d6c:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Reviewed current B-9d6c commit with focus on packages/main/src/core/lattice-baseline.ts formal root invariant guard. No real correctness issue found: parsed formal reports fail closed on root invariant violations, authorityDone overclaim is covered with existing authority checks, stored formal suite proof is revalidated against rebuilt evidence, and capability claim authorization only trusts rebuilt PASS state. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:lattice-baseline-smoke.",
+      "createdAt": "2026-06-12T14:11:30.375Z",
+      "reviewRound": "2026-06-12T14:04:38.155Z",
+      "reviewRunId": "B-9d6c:RR-009",
+      "_hash": "97c4a57075de6b94a3ed5ba3de486dc2ef2552c787c1a7cf5827db48c580fc6c"
     }
   ]
 }
