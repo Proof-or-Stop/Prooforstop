@@ -11,7 +11,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees story_resolve JSON include metadataRoot, signedWorkspaceRoot, authoritativeCwd, resolved, resolutionSource, and unresolvedReason; non-git wrapper roots no longer appear as executable REVIEW cwd.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/story-resolve.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_resolve for an ordinary git-backed REVIEW story reports resolved=true and a signedWorkspaceRoot rooted in the git worktree.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_resolve for a non-git metadataRoot with no worktree/gitRoot reports resolved=false, signedWorkspaceRoot=null, authoritativeCwd=null, and an unresolvedReason instead of returning the wrapper root as executable cwd.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_resolve does not auto-select a nested git repository merely because one exists below metadataRoot.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,35 @@
+{
+  "task": "Implement signed workspace resolution for review_run_start and story_resolve so wrapper-root projects can explicitly bind git-backed review evidence.",
+  "outcome": "User sees review_run_start either start a reviewer run against the real git-backed signed workspace or fail with a clear message: metadataRoot is non-git and needs gitRoot or story worktree attachment; story_resolve JSON shows metadataRoot, signedWorkspaceRoot, resolved, and unresolvedReason.",
+  "facts": [
+    "B-ab43 documented the required metadataRoot versus signedWorkspaceRoot contract and the need for explicit gitRoot or worktree binding.",
+    "Current resolveStoryCommandWorkspace signs ctx.root when no story worktree exists, which fails for non-git wrapper roots and cannot express split roots.",
+    "Current story_resolve reports configuredWorktree or ctx.root as authoritativeCwd and lacks signedWorkspaceRoot/resolved/unresolvedReason fields.",
+    "review_run_start currently captures HEAD/materialHash and scope diff from workspace.snapshotRoot, then writes local non-authority reviewer-run metadata.",
+    "Lattice CLI local reviewer evidence is not an Authority Server receipt and must not set production completion fields."
+  ],
+  "constraints": [
+    "Do not optimize for optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Follow consistency of logic.",
+    "Do not auto-discover nested git repositories.",
+    "Preserve direct REVIEW compatibility for normal git-backed project roots.",
+    "Keep Authority Server completion receipt-backed and separate from local CLI reviewer evidence."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/story-resolve.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "timestamp": "2026-06-12T16:16:02.813Z"
+}

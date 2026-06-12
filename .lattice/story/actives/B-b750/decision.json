@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Fail closed unless a git-backed signed workspace is explicit and verifiable.",
+    "Keep metadata persistence and material signing roots distinct but mechanically bound.",
+    "Prefer a narrow explicit gitRoot binding path over arbitrary nested repository discovery.",
+    "Do not convert local reviewer evidence into Authority Server proof."
+  ],
+  "drivers": [
+    "ClawCreek needs an operator repair path beyond clearer not_git_repo diagnostics.",
+    "review_run_start and later REVIEW evidence consumers must agree on the signed material root.",
+    "Existing direct REVIEW behavior in ordinary git-backed repos must continue to work.",
+    "High-risk lifecycle evidence changes require regression tests for negative controls."
+  ],
+  "options": [
+    {
+      "name": "A: Shared resolver plus explicit gitRoot binding",
+      "pros": [
+        "Solves wrapper-root projects without guessing nested repos.",
+        "Keeps implementation scope smaller than a new attachment command.",
+        "Can feed story_resolve and review_run_start from one contract."
+      ],
+      "cons": [
+        "Does not provide a full story_attach_worktree command yet.",
+        "Requires careful tests for metadataRoot and signedWorkspaceRoot separation."
+      ]
+    },
+    {
+      "name": "B: Add story_attach_worktree first",
+      "pros": [
+        "Provides a direct per-story repair path.",
+        "Can express arbitrary existing linked worktrees."
+      ],
+      "cons": [
+        "Broader mutating API surface.",
+        "Requires branch/worktree ownership policy decisions not needed for the minimal ClawCreek fix."
+      ]
+    },
+    {
+      "name": "C: Only improve diagnostics further",
+      "pros": [
+        "Smallest code change."
+      ],
+      "cons": [
+        "Leaves wrapper-root users unable to start reviewer runs.",
+        "Does not satisfy the INIT reviewer blocker requiring an explicit binding path."
+      ]
+    }
+  ],
+  "chosen": "A: Shared resolver plus explicit gitRoot binding",
+  "rationale": "Choose A because it fixes the observed correctness issue with the narrowest explicit binding path: metadataRoot remains the story store, gitRoot provides signedWorkspaceRoot, and unresolved wrapper roots still fail closed. story_attach_worktree can be a later enhancement after branch/path policy is designed.",
+  "preMortem": [
+    {
+      "scenario": "Implementation silently signs a nested repo just because cwd is inside it.",
+      "trigger": "A developer tests only a single nested repo wrapper project.",
+      "consequence": "A multi-repo wrapper can sign the wrong material root.",
+      "mitigation": "Resolver requires metadataRoot git root, story worktree, or explicit gitRoot; tests cover wrapper root plus nested repo without gitRoot as fail-closed."
+    },
+    {
+      "scenario": "review_run_start succeeds but pass/finding freshness checks use a different root.",
+      "trigger": "Only the start command is updated while consumers still recompute from ctx.root.",
+      "consequence": "REVIEW gate can accept or reject evidence inconsistently.",
+      "mitigation": "Persist workspaceBinding and include consumer/tamper tests for review_pass_set/finding_add freshness behavior."
+    },
+    {
+      "scenario": "Local host review is overstated as Authority completion.",
+      "trigger": "Documentation or status output reuses Authority terms for local review-run evidence.",
+      "consequence": "Users may believe production completion is receipt-backed when it is only local CLI evidence.",
+      "mitigation": "Tests and wording keep receiptVerified, productionDone, authorityDone, and fullAuthorityDone false without verified gate_decision receipts."
+    }
+  ],
+  "timestamp": "2026-06-12T16:16:21.082Z"
+}
