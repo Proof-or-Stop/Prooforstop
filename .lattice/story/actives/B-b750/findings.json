@@ -23,13 +23,15 @@
       "desc": "packages/main/src/tasks/field-regression-cli-smoke.ts:740: WHY CHK-003 claims local reviewer evidence is never reported as Authority Server receipt-backed completion, but the configured gitRoot/local review_run_start path only asserts workspaceBinding fields and a local review_pass_set succeeds; neither this smoke nor scripts/verify-process-fact-contract.mjs exercises absence of authorityDone/fullAuthorityDone/receiptVerified or authority-receipt artifacts after local REVIEW evidence, so the Non-authority/Authority boundary remains untested.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-12T16:43:37.392Z",
       "reviewRound": "2026-06-12T16:39:13.623Z",
       "reviewRunId": "B-b750:RR-003",
-      "_hash": "0db4bacdb361c7aae3348a26a8b771c8b98a0c51bb8a09e7af5b4421211c54b3"
+      "_hash": "0db4bacdb361c7aae3348a26a8b771c8b98a0c51bb8a09e7af5b4421211c54b3",
+      "resolvedReason": "Fixed in bb40aada: field regression coverage now mechanically asserts local review evidence and process facts do not contain Authority completion claims such as authorityDone, fullAuthorityDone, receiptVerified, productionDone, or authority receipt artifacts. Process-fact contract updated to keep workspace binding as local REVIEW evidence only. Verified by npm --prefix packages/main run test:field-regression-cli-smoke and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-12T16:56:57.973Z"
     },
     {
       "id": "B-b750:F-003",
