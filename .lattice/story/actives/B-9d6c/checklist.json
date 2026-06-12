@@ -22,7 +22,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The baseline smoke task reports PASS for negative controls proving stale materialHash, mixed suiteRunId, wrong claimTarget, localOnly, and Authority overclaim artifacts fail closed.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Smoke coverage includes a clean formal proof path that still passes after adding the invariant guard.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Smoke coverage includes mixed suiteRunId and wrong claimTarget artifacts and observes BLOCKED output.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Smoke coverage includes localOnly or Authority-overclaim artifacts and verifies receiptVerified/productionDone/fullAuthorityDone remain false.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",

@@ -1,0 +1,23 @@
+{
+  "task": "Implement a formal unlock artifact isolation invariant guard for Layer 2 and Layer 3 baseline proof roots.",
+  "outcome": "User runs the formal Layer 2/3 unlock flow and sees mixed or stale artifacts fail closed, while clean fresh proof can still unlock only Engineering or Loop Engineering and keeps Production Safety/global claims locked.",
+  "facts": [
+    "Current formal proof path supports Engineering and Loop Engineering only.",
+    "Production Safety requires a separate Authority-backed evaluator and must remain locked in this story.",
+    "baseline_suite currently aggregates final-report artifacts under the selected artifactsRoot/layer directory.",
+    "The new execution plan requires final PASS proof roots to exclude stale-trap artifacts and use a separate negative-check root."
+  ],
+  "constraints": [
+    "Do not use .omx or any legacy OMX artifact path.",
+    "Do not convert local CLI proof into Authority receipt proof.",
+    "Do not implement reportFiles/reportRoot expansion unless required for correctness.",
+    "Only fix real correctness issues around formal proof contamination."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-12T13:12:41.262Z"
+}

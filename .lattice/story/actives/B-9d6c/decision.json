@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency of logic."
+  ],
+  "drivers": [
+    "Prevent stale or mixed artifacts from polluting formal unlock proof.",
+    "Keep Lattice CLI non-authority for local baseline proof.",
+    "Preserve the Authority Server boundary for Production Safety."
+  ],
+  "options": [
+    {
+      "name": "A: Add a narrow formal root invariant inside existing suite aggregation",
+      "pros": [
+        "Directly addresses the pollution failure mode.",
+        "Keeps existing artifactsRoot and evaluator flow.",
+        "Avoids adding a new capability layer or broad runner rewrite."
+      ],
+      "cons": [
+        "Does not add explicit reportFiles support.",
+        "Requires tests to cover all-files invariants, not just accepted reports."
+      ]
+    },
+    {
+      "name": "B: Add reportFiles/reportRoot selection support now",
+      "pros": [
+        "Would allow exact file selection for future flows.",
+        "Could reduce dependence on directory hygiene."
+      ],
+      "cons": [
+        "Broader API surface than needed for this correctness issue.",
+        "More risk of arbitrary optimization and new edge cases."
+      ]
+    },
+    {
+      "name": "C: Documentation-only clean-root rule",
+      "pros": [
+        "Smallest immediate change.",
+        "No code risk."
+      ],
+      "cons": [
+        "Does not make the invariant mechanically enforceable.",
+        "Would leave the same class of false PASS risk to manual discipline."
+      ]
+    }
+  ],
+  "chosen": "A: Add a narrow formal root invariant inside existing suite aggregation",
+  "rationale": "Choose the narrow invariant because the real correctness issue is polluted final PASS proof roots. This makes the existing L2/L3 formal path fail closed without expanding API shape or claiming Authority.",
+  "preMortem": [
+    {
+      "scenario": "The guard blocks valid historical artifacts outside the selected clean root.",
+      "trigger": "The implementation scans the parent unlock directory instead of the supplied artifactsRoot/layer directory.",
+      "consequence": "Fresh unlock runs become unusable when audit history exists.",
+      "mitigation": "Keep the scan scoped to the selected artifactsRoot and add negative coverage for outside-root history not polluting the current suite."
+    },
+    {
+      "scenario": "The guard accidentally unlocks Production Safety or treats host review as Authority.",
+      "trigger": "The implementation shares formal evaluator code with production-safety without preserving locked Authority fields.",
+      "consequence": "Local CLI evidence could be overclaimed as production authority.",
+      "mitigation": "Limit formal root invariant authorization to Engineering and Loop Engineering, assert receiptVerified/productionDone/fullAuthorityDone remain false."
+    },
+    {
+      "scenario": "Mixed suiteRunId artifacts are rejected but not surfaced clearly.",
+      "trigger": "The guard only adds a generic blocked reason.",
+      "consequence": "Auditors cannot tell whether the failure is stale, mixed, local-only, or claimTarget mismatch.",
+      "mitigation": "Emit explicit blocked reasons for root invariant fields and assert test output mentions suiteRunId/claimTarget/materialHash/localOnly as applicable."
+    }
+  ],
+  "timestamp": "2026-06-12T13:12:57.482Z"
+}
