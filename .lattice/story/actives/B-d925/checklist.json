@@ -93,7 +93,44 @@
       "relatedDocs": [
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
-      "userSees": "The main worktree is clean, B-9d6c can advance to DONE, and any retained cleanup commit is clearly separate from the B-9d6c implementation commit."
+      "userSees": "Terminal output includes: \"main clean: yes\" and \"B-9d6c DONE: success\" or an explicit non-dirty blocker.",
+      "files": {
+        "modify": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock",
+          ".lattice/artifacts/baseline/layer3-loop-engineering-unlock",
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/b3787-post-merge-two-host-three-round-audit-plan.md",
+          "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "Main worktree becomes clean after the audited reconciliation and B-9d6c can retry DONE.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "If B-9d6c DONE exposes a new explicit blocker, the blocker is reported without further arbitrary cleanup.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Cleanup does not use .omx, git reset --hard, or unreviewed deletion of useful Lattice evidence.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
