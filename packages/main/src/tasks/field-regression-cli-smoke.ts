@@ -1019,6 +1019,14 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.match(unsafeOutside.stderr, /must stay strictly under the metadata root|unsafe path/);
     assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
 
+    const missingTarget = await runKoalaRaw(canonicalPath(repairable.root), 'lattice_config_repair', {
+      setGitRoot: 'missing-creek',
+      confirm: true,
+    });
+    assert.notEqual(missingTarget.code, 0);
+    assert.match(missingTarget.stderr, /target does not exist/);
+    assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
+
     const nestedNonRoot = await runKoalaRaw(repairable.root, 'lattice_config_repair', {
       setGitRoot: 'clawcreek/packages',
       confirm: true,
