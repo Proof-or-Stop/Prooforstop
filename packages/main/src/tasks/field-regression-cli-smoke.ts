@@ -425,10 +425,22 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       storyId: mainStoryId,
       agent: 'koala-review-quality',
     });
-    assert.notEqual(missingRound.code, 0);
-    assert.match(missingRound.stderr, /marked REVIEW but missing currentReviewRound/);
-    assert.match(missingRound.stderr, /direct --phase=REVIEW creation/);
-    assert.match(missingRound.stderr, /REVIEW-entry flow|story_advance/);
+    assert.equal(missingRound.code, 0);
+    assert.match(missingRound.stdout + missingRound.stderr, /Review run B-main:RR-001 started/);
+    const repairedStory = store.readStory(mainStoryId);
+    assert.equal(repairedStory.currentReviewRound, now(), 'legacy REVIEW story missing currentReviewRound should be repaired to createdAt for compatibility');
+
+    const repairedLoop = await runKoalaRaw(root, 'review_loop_start', {
+      storyId: mainStoryId,
+      trigger: { findingIds: [`${mainStoryId}:F-001`] },
+      rollbackRef: {
+        headHash: '0'.repeat(40),
+        diffHash: '1'.repeat(40),
+        materialHash: '2'.repeat(40),
+      },
+    });
+    assert.equal(repairedLoop.code, 0);
+    assert.match(repairedLoop.stdout + repairedLoop.stderr, /Review loop .* started/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -152,6 +152,44 @@ export function signReviewRun(
   return createHash('sha256').update(parts.join(':')).digest('hex');
 }
 
+function defaultReviewRoundFromStory(story: StoryInfo): string {
+  if (!story.createdAt) return new Date().toISOString();
+  if (Number.isFinite(Date.parse(story.createdAt))) return story.createdAt;
+  return new Date().toISOString();
+}
+
+export function ensureCurrentReviewRound(
+  store: StoryStore,
+  storyId: string,
+  commandName: string,
+): StoryInfo {
+  const story = store.readStory(storyId);
+  if (!story.currentReviewRound) {
+    if (story.phase !== 'REVIEW') {
+      throw new Error(
+        `${commandName}: story ${storyId} must be in REVIEW phase (current: ${story.phase})`,
+      );
+    }
+    story.currentReviewRound = defaultReviewRoundFromStory(story);
+    if (!story.events) story.events = [];
+    story.events.push({
+      phase: 'REVIEW',
+      action: 'reviewer_forced',
+      timestamp: new Date().toISOString(),
+      reason: `${commandName} auto-initialized missing currentReviewRound for legacy direct REVIEW story`,
+      agent: 'main',
+    });
+    store.writeStory(storyId, story);
+  }
+  if (!story.currentReviewRound) {
+    throw new Error(
+      `${commandName}: failed to initialize currentReviewRound for ${storyId}; ` +
+      'story metadata is inconsistent. Please recreate through a supported REVIEW-entry flow.',
+    );
+  }
+  return story;
+}
+
 export function verifyReviewRun(run: ReviewRun): boolean {
   if (
     !run._hash || !run.storyId || !run.reviewRunId || !run.agent || !run.lane

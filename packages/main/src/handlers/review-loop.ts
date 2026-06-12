@@ -19,6 +19,7 @@ import {
   validateResolvedCloseInvariant,
   validateTriggerRefs,
 } from '../core/review-loop.js';
+import { ensureCurrentReviewRound } from '../core/review-run.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
@@ -97,18 +98,8 @@ function appendRecord(store: unknown, storyId: string, record: ReviewLoopRecord)
 
 function requireReviewPhase(ctx: HandlerContext, storyId: string, commandName: string): string {
   assertCwdInWorktree(ctx.store, storyId);
-  const story = ctx.store.readStory(storyId);
-  if (story.phase !== 'REVIEW') {
-    throw new Error(`${commandName}: story ${storyId} must be in REVIEW phase (current: ${story.phase})`);
-  }
-  if (!story.currentReviewRound) {
-    throw new Error(
-      `${commandName}: story ${storyId} is marked REVIEW but missing currentReviewRound. ` +
-      `This likely came from legacy direct --phase=REVIEW creation before review metadata initialization; ` +
-      `recreate this story through a supported REVIEW-entry flow before retrying review loop commands.`,
-    );
-  }
-  return story.currentReviewRound;
+  const story = ensureCurrentReviewRound(ctx.store, storyId, commandName);
+  return story.currentReviewRound as string;
 }
 
 function normalizeList(value: string[] | undefined): string[] | undefined {

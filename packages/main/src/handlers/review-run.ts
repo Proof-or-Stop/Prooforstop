@@ -3,6 +3,7 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import type { ReviewRun, ReviewScopeBinding } from '../core/types.js';
 import {
+  ensureCurrentReviewRound,
   captureReviewRunSnapshot,
   resolveReviewPromptHash,
   resolveReviewRunLane,
@@ -45,17 +46,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
   return {
     review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
       assertCwdInWorktree(store, args.storyId);
-      const story = store.readStory(args.storyId);
-      if (!story.currentReviewRound) {
-        if (story.phase === 'REVIEW') {
-          throw new Error(
-            `review_run_start: story ${args.storyId} is marked REVIEW but missing currentReviewRound. ` +
-            `This likely came from legacy direct --phase=REVIEW creation before review metadata initialization; ` +
-            `recreate this story through a supported REVIEW-entry flow before restarting reviewer commands.`,
-          );
-        }
-        throw new Error(`review_run_start: story ${args.storyId} currently has no currentReviewRound; advance to REVIEW before starting reviewer run`);
-      }
+      const story = ensureCurrentReviewRound(store, args.storyId, 'review_run_start');
       const lane = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
