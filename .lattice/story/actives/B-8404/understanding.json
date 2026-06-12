@@ -1,0 +1,26 @@
+{
+  "task": "Make Lattice parallel merge guidance detect real active worktree file overlaps instead of relying only on manually declared sharedHotspots.",
+  "outcome": "After running lattice parallel_merge_queue --storyIds=[\"B-a\",\"B-b\"] --format=json on two active story worktrees that both changed packages/main/src/core/example.ts, the terminal JSON shows each story degraded from parallel_dev, lists the overlapping file packages/main/src/core/example.ts with the peer story id, keeps authority.productionDone=false, and tells the operator not to run simultaneous DEV or merge blindly.",
+  "facts": [
+    "Parallel Wave is L0/read-only planning guidance, not gate evidence or Authority proof.",
+    "Current sharedHotspots detection depends on story metadata and misses actual git diff overlaps when hotspots are not declared.",
+    "Story owner lease protects story-scoped metadata writes but does not prevent two different story worktrees from editing the same source file.",
+    "Main write lock serializes shared writes and DONE merge, but it does not schedule active worktree file overlap before merge.",
+    "Material overlap detection will use git-derived changed paths and ignore Lattice runtime/story metadata paths such as .lattice/**, .koala/**, .omx/**, owner-lease/runtime/cache/log artifacts."
+  ],
+  "constraints": [
+    "Do not add a broad global file lock.",
+    "Do not mutate story metadata from parallel_wave/parallel_merge_queue commands except optional no-overwrite output artifact requested by caller.",
+    "Only use git-derived overlap as local Non-authority scheduling guidance.",
+    "Do not claim productionDone, authorityDone, fullAuthorityDone, or receipt verification.",
+    "Ignore Lattice runtime/story metadata and non-material runtime artifacts in changed-file overlap checks."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-parallel-wave.ts",
+    "packages/main/src/handlers/lattice-parallel-wave.ts",
+    "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+    "docs/requirements/decisions/lattice-parallel-wave.md"
+  ],
+  "timestamp": "2026-06-12T19:25:28.674Z"
+}

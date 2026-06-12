@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Fix only the real correctness gap: actual active worktree file overlap is currently invisible to parallel scheduling unless declared manually.",
+    "Keep Parallel Wave L0/read-only and host-neutral; overlap detection is guidance, not lifecycle or Authority evidence.",
+    "Preserve existing worktree, owner lease, and main write lock responsibilities instead of introducing a broad file-lock framework."
+  ],
+  "drivers": [
+    "Operators need to see hidden same-file overlap before parallel DEV/merge decisions.",
+    "The existing sharedHotspots model is useful but incomplete when metadata was not declared.",
+    "The change must remain testable with deterministic smoke fixtures."
+  ],
+  "options": [
+    {
+      "name": "A: Add git-derived active worktree changed-file overlap to Parallel Wave safety model",
+      "pros": [
+        "Targets the missing mechanical fact directly",
+        "Reuses existing parallel plan/status/merge queue surfaces",
+        "Keeps the feature read-only and local Non-authority"
+      ],
+      "cons": [
+        "Requires careful filtering of runtime/story metadata",
+        "Read-only guidance still depends on operators respecting the queue"
+      ]
+    },
+    {
+      "name": "B: Add a global source file lock for every edited path",
+      "pros": [
+        "Would hard-prevent simultaneous same-file edits"
+      ],
+      "cons": [
+        "Overbroad for git worktree workflows",
+        "Likely to block legitimate independent work",
+        "Adds a new coordination framework beyond the observed correctness gap"
+      ]
+    },
+    {
+      "name": "C: Rely on git merge conflicts and validation only",
+      "pros": [
+        "No implementation cost",
+        "Preserves current behavior"
+      ],
+      "cons": [
+        "Does not solve the user-observed blind spot before merge",
+        "Semantic fix-A-break-B cases may not produce textual conflicts"
+      ]
+    }
+  ],
+  "chosen": "A: Add git-derived active worktree changed-file overlap to Parallel Wave safety model",
+  "rationale": "Choose A because it mechanically exposes the real hidden risk at the scheduling and merge-queue layer without inventing a broad lock or claiming Authority. It follows existing Lattice logic: worktrees isolate edits, owner leases protect story writes, main write lock serializes merge, and Parallel Wave should project scheduling hazards.",
+  "preMortem": [
+    {
+      "scenario": "Overlap detector reports Lattice metadata files and creates noisy false positives",
+      "trigger": "git status includes .lattice/story runtime or owner lease paths",
+      "consequence": "Operators lose trust and avoid useful parallel scheduling",
+      "mitigation": "Pin a material-file predicate and add smoke coverage excluding story/runtime metadata"
+    },
+    {
+      "scenario": "parallel_merge_queue says ready even when actual active worktree overlaps exist",
+      "trigger": "overlap is computed but not fed into safety/recommendation/blocker guidance",
+      "consequence": "The original same-file blind spot remains",
+      "mitigation": "Feed overlap as visible degradation and assert queue guidance lists file and peer story"
+    },
+    {
+      "scenario": "Overlap output is mistaken for Authority or DONE evidence",
+      "trigger": "JSON wording or schema adds receipt/proof-like fields",
+      "consequence": "Local scheduling guidance could be overclaimed",
+      "mitigation": "Keep authority boundary unchanged and assert productionDone=false, authorityChanged=false, receiptRefs=[]"
+    }
+  ],
+  "timestamp": "2026-06-12T19:24:26.518Z"
+}

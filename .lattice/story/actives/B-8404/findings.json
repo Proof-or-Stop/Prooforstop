@@ -1,0 +1,79 @@
+{
+  "findings": [
+    {
+      "id": "B-8404:F-001",
+      "desc": "Metadata filtering in active worktree overlap detection hard-codes broad roots/filenames instead of using the runtime artifact registry. It can hide material files with runtime-like basenames and treats .omx as ignored metadata despite local OMX being disabled, so real overlapping material changes can be missed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T20:02:07.587Z",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "reviewRunId": "B-8404:RR-001",
+      "_hash": "e900b3623a0a18c7c3175de717f30fc967bcc6bee17c4cd0c7be75ad17f40168",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/core/runtime-artifact-registry.ts",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "resolvedReason": "Fixed by removing local broad metadata root/filename filters from lattice-parallel-wave.ts and routing ignored changed files through isMaterialExcludedPath, which uses story metadata and runtime artifact registry semantics. Smoke now asserts packages/main/src/process-events.jsonl remains material and .lattice runtime/story metadata remains ignored. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/lattice-parallel-wave-smoke.js.",
+      "resolvedAt": "2026-06-12T20:15:32.325Z"
+    },
+    {
+      "id": "B-8404:F-002",
+      "desc": "Changed-file probes are collected for all active stories, but failed probe risk is only attached to selected story refs. If a selected story has no overlap while another active story has a broken registered worktree, the selected story can still be recommended parallel_dev with no visible collection-level risk.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T20:02:13.714Z",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "reviewRunId": "B-8404:RR-001",
+      "_hash": "6dc301142333999181f4bc2428f0f0756715b04a2eb08db2d51c5eed32532d2b",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "resolvedReason": "Fixed by adding activeStoryChangedFileProbeFailures into story safety resolution. Any failed changed-file probe from another active story now adds a visible warn degradation, appears in blockers/guidance, and degrades selected output to plan_only until every active worktree projection succeeds. Smoke covers selecting B-clean while B-missing-worktree is active and broken.",
+      "resolvedAt": "2026-06-12T20:15:38.545Z"
+    },
+    {
+      "id": "B-8404:F-003",
+      "desc": "The story-worktree smoke claims to cover relative worktree path resolution, but seeded overlap stories store absolute worktree.path values. The new assertion bypasses resolveWorktreePath relative-path behavior and would pass even if relative .worktrees/<id> handling regressed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T20:02:21.080Z",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "reviewRunId": "B-8404:RR-003",
+      "_hash": "ebff14d6ea63c940085429a4a30ef8858eca1aa14f0a91934ee98779c1e6e74b",
+      "files": [
+        "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+      ],
+      "resolvedReason": "Fixed smoke fixture by persisting worktree.path as relative .worktrees/<id> instead of absolute temp-root paths. The story-worktree execution assertion now exercises resolveWorktreePath relative-path fallback through git common root.",
+      "resolvedAt": "2026-06-12T20:15:45.931Z"
+    },
+    {
+      "id": "B-8404:F-004",
+      "desc": "CHK-001 adversarial coverage requires a registered-but-missing or broken worktree to remain visible as changedFiles.status=failed with degradation and plan_only fallback. The smoke only asserts not_configured and ok statuses, so failed probe behavior is not mechanically covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T20:02:28.529Z",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "reviewRunId": "B-8404:RR-003",
+      "_hash": "797e4be435d102a57202d6bb850007dd943fe1be59bc9489796e7fad97832968",
+      "files": [
+        "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "resolvedReason": "Fixed smoke coverage by adding B-missing-worktree with a registered but absent relative worktree path. Tests assert changedFiles.status=failed, warning degradation, plan_only recommendation, and collection-level degradation of a selected clean story when another active probe failed.",
+      "resolvedAt": "2026-06-12T20:15:52.698Z"
+    }
+  ]
+}

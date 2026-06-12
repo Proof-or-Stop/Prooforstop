@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { basename, dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 import { buildCapabilityProbe, type CapabilityStatus } from './capabilities.js';
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
 import {
@@ -7,6 +9,7 @@ import {
   searchEntries,
   type DevMemoryEntry,
 } from './dev-memory.js';
+import { isMaterialExcludedPath } from './evidence-freshness.js';
 import { resolveStoryLane, type StoryLane } from './parallel-policy.js';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
@@ -48,6 +51,24 @@ export interface ParallelWaveHotspotConflict {
   storyIds: string[];
 }
 
+export interface ParallelWaveChangedFiles {
+  source: 'git';
+  status: 'ok' | 'not_configured' | 'failed';
+  materialChangedFiles: string[];
+  ignoredChangedFiles: string[];
+  reason?: string;
+}
+
+interface ParallelWaveChangedFileProbeFailure {
+  storyId: string;
+  reason: string;
+}
+
+export interface ParallelWaveActualFileOverlap {
+  path: string;
+  peerStoryId: string;
+}
+
 export interface ParallelWaveStoryRef {
   storyId: string;
   title: string;
@@ -61,6 +82,8 @@ export interface ParallelWaveStoryRef {
   dependencies: ParallelWaveDependencySummary;
   hotspots: string[];
   sharedHotspots: ParallelWaveHotspotConflict[];
+  changedFiles?: ParallelWaveChangedFiles;
+  actualFileOverlaps?: ParallelWaveActualFileOverlap[];
   degradations: ParallelWaveDegradation[];
   evidenceRefs: string[];
   canonicalStoryRef: {
@@ -286,9 +309,160 @@ const MAX_EXPERIENCE_REFS = 20;
 
 const TERMINAL_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED']);
 const NON_ACTIVE_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED', 'IDEA', 'META']);
+const ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND = 'active-story-changed-file-probe-failed';
 
 function uniqueStrings(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => Boolean(value && value.trim())))].sort();
+}
+
+function normalizeChangedPath(rawPath: string): string | undefined {
+  let normalized = rawPath.trim().replace(/\\/g, '/');
+  while (normalized.startsWith('./')) normalized = normalized.slice(2);
+  normalized = normalized.replace(/^\/+/, '');
+  normalized = normalized.replace(/\/+/g, '/');
+  return normalized ? normalized : undefined;
+}
+
+function errorText(error: unknown): string {
+  const candidate = error as { stderr?: Buffer | string; message?: string };
+  const stderr = candidate.stderr ? String(candidate.stderr).trim() : '';
+  const message = candidate.message ? String(candidate.message).trim() : '';
+  return stderr || message || String(error);
+}
+
+function gitOutputLines(cwd: string, args: string[]): string[] {
+  const output = execFileSync('git', ['-C', cwd, ...args], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  return output.split(/\r?\n/).map(normalizeChangedPath).filter((line): line is string => Boolean(line));
+}
+
+function resolveGitCommonWorktreeRoot(root: string): string | undefined {
+  try {
+    const gitCommonDir = execFileSync('git', ['-C', root, 'rev-parse', '--git-common-dir'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+    const absoluteGitCommonDir = isAbsolute(gitCommonDir) ? gitCommonDir : resolvePath(root, gitCommonDir);
+    return basename(absoluteGitCommonDir) === '.git' ? dirname(absoluteGitCommonDir) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function resolveWorktreePath(root: string, worktreePath: string): string {
+  if (isAbsolute(worktreePath)) return worktreePath;
+
+  const rootCandidate = resolvePath(root, worktreePath);
+  const commonRoot = resolveGitCommonWorktreeRoot(root);
+  const commonRootCandidate = commonRoot ? resolvePath(commonRoot, worktreePath) : undefined;
+  const candidates = uniqueStrings([rootCandidate, commonRootCandidate]);
+  const existingCandidate = candidates.find(candidate => existsSync(candidate));
+  return existingCandidate ?? candidates[candidates.length - 1] ?? rootCandidate;
+}
+
+function collectStoryChangedFiles(root: string, story: StoryInfo): ParallelWaveChangedFiles {
+  const configuredPath = story.worktree?.path;
+  if (!configuredPath) {
+    return {
+      source: 'git',
+      status: 'not_configured',
+      materialChangedFiles: [],
+      ignoredChangedFiles: [],
+      reason: 'Story has no registered worktree path; git changed-file projection was not collected.',
+    };
+  }
+
+  const worktreePath = resolveWorktreePath(root, configuredPath);
+  if (!existsSync(worktreePath)) {
+    return {
+      source: 'git',
+      status: 'failed',
+      materialChangedFiles: [],
+      ignoredChangedFiles: [],
+      reason: `Registered worktree path does not exist: ${worktreePath}`,
+    };
+  }
+
+  try {
+    const paths = uniqueStrings([
+      ...gitOutputLines(worktreePath, ['diff', '--name-only', 'main...HEAD', '--']),
+      ...gitOutputLines(worktreePath, ['diff', '--name-only', '--cached', '--']),
+      ...gitOutputLines(worktreePath, ['diff', '--name-only', '--']),
+      ...gitOutputLines(worktreePath, ['ls-files', '--others', '--exclude-standard']),
+    ]);
+    const ignoredChangedFiles = paths.filter(path => isMaterialExcludedPath(path, worktreePath));
+    const ignored = new Set(ignoredChangedFiles);
+    return {
+      source: 'git',
+      status: 'ok',
+      materialChangedFiles: paths.filter(path => !ignored.has(path)),
+      ignoredChangedFiles,
+    };
+  } catch (error) {
+    return {
+      source: 'git',
+      status: 'failed',
+      materialChangedFiles: [],
+      ignoredChangedFiles: [],
+      reason: `git changed-file probe failed for ${worktreePath}: ${errorText(error)}`,
+    };
+  }
+}
+
+function collectActiveStoryChangedFiles(root: string, allStories: StoryInfo[]): Map<string, ParallelWaveChangedFiles> {
+  return new Map(
+    allStories
+      .filter(isActiveStory)
+      .map(story => [story.storyId, collectStoryChangedFiles(root, story)]),
+  );
+}
+
+function activeStoryChangedFileProbeFailures(
+  changesByStory: Map<string, ParallelWaveChangedFiles>,
+  storyId: string,
+): ParallelWaveChangedFileProbeFailure[] {
+  return [...changesByStory.entries()]
+    .filter(([peerStoryId, changedFiles]) => peerStoryId !== storyId && changedFiles.status === 'failed')
+    .map(([peerStoryId, changedFiles]) => ({
+      storyId: peerStoryId,
+      reason: changedFiles.reason ?? 'git changed-file projection failed',
+    }))
+    .sort((a, b) => a.storyId.localeCompare(b.storyId));
+}
+
+function actualFileOverlapsByStory(
+  changesByStory: Map<string, ParallelWaveChangedFiles>,
+): Map<string, ParallelWaveActualFileOverlap[]> {
+  const storyIdsByFile = new Map<string, Set<string>>();
+  for (const [storyId, changedFiles] of changesByStory) {
+    for (const file of changedFiles.materialChangedFiles) {
+      const storyIds = storyIdsByFile.get(file) ?? new Set<string>();
+      storyIds.add(storyId);
+      storyIdsByFile.set(file, storyIds);
+    }
+  }
+
+  const overlaps = new Map<string, ParallelWaveActualFileOverlap[]>();
+  for (const [file, storyIds] of storyIdsByFile) {
+    if (storyIds.size < 2) continue;
+    const sortedStoryIds = [...storyIds].sort();
+    for (const storyId of sortedStoryIds) {
+      const existing = overlaps.get(storyId) ?? [];
+      overlaps.set(storyId, [
+        ...existing,
+        ...sortedStoryIds
+          .filter(peerStoryId => peerStoryId !== storyId)
+          .map(peerStoryId => ({ path: file, peerStoryId })),
+      ]);
+    }
+  }
+
+  return new Map([...overlaps].map(([storyId, fileOverlaps]) => [
+    storyId,
+    fileOverlaps.sort((a, b) => a.path.localeCompare(b.path) || a.peerStoryId.localeCompare(b.peerStoryId)),
+  ]));
 }
 
 function boundedExperienceLimit(maxExperienceRefs?: number): number {
@@ -339,10 +513,32 @@ function waveCounts(wave: Pick<LatticeParallelWave, 'storyRefs'>): ParallelWaveC
   };
 }
 
+function actualFileOverlapReasons(ref: ParallelWaveStoryRef): string[] {
+  return (ref.actualFileOverlaps ?? []).map(overlap =>
+    `Material file ${overlap.path} overlaps active story ${overlap.peerStoryId}`
+  );
+}
+
+function changedFileProbeRiskReasons(ref: ParallelWaveStoryRef): string[] {
+  return ref.changedFiles?.status === 'failed'
+    ? [ref.changedFiles.reason ?? 'git changed-file projection failed']
+    : [];
+}
+
+function activeStoryChangedFileProbeRiskReasons(ref: ParallelWaveStoryRef): string[] {
+  const prefix = degradationId(ref.storyId, ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND, '');
+  return ref.degradations
+    .filter(degradation => degradation.id === prefix || degradation.id.startsWith(`${prefix}-`))
+    .map(degradation => degradation.reason);
+}
+
 function refBlockers(ref: ParallelWaveStoryRef): string[] {
   return uniqueStrings([
     ...ref.dependencies.active,
     ...ref.dependencies.blockingForActive,
+    ...actualFileOverlapReasons(ref),
+    ...changedFileProbeRiskReasons(ref),
+    ...activeStoryChangedFileProbeRiskReasons(ref),
     ...ref.degradations
       .filter(degradation => degradation.severity === 'block')
       .map(degradation => degradation.reason),
@@ -409,7 +605,9 @@ function mergeGuidance(wave: LatticeParallelWave): ParallelWaveMergeGuidance {
       title: ref.title,
       guidance: ref.recommendation === 'parallel_dev'
         ? 'Ready for operator-confirmed implementer dispatch; normal Koala review, test, merge, and receipt gates still apply.'
-        : 'Ready for planning-only handoff; avoid simultaneous DEV until hotspot or capability degradations clear.',
+        : blockers.length > 0
+          ? `Ready for planning-only handoff; resolve scheduling risks before simultaneous DEV or merge: ${blockers.join('; ')}.`
+          : 'Ready for planning-only handoff; avoid simultaneous DEV until hotspot or capability degradations clear.',
     });
   }
   return { ready, blocked };
@@ -427,7 +625,9 @@ function mergeQueueEntry(entry: ParallelWaveMergeOrderEntry, ref: ParallelWaveSt
     ready,
     blockers,
     guidance: ready
-      ? entry.recommendation === 'parallel_dev'
+      ? blockers.length > 0
+        ? `Queue for planning follow-up only; resolve before simultaneous DEV or merge: ${blockers.join('; ')}.`
+        : entry.recommendation === 'parallel_dev'
         ? 'Queue after listed dependencies and keep receipt-backed authority checks separate.'
         : 'Queue for planning follow-up only; do not treat plan-only as simultaneous DEV clearance.'
       : blockers.length > 0
@@ -552,6 +752,9 @@ function resolveWaveSafety(
   story: StoryInfo,
   dependencies: ParallelWaveDependencySummary,
   sharedHotspots: ParallelWaveHotspotConflict[],
+  changedFiles: ParallelWaveChangedFiles,
+  actualFileOverlaps: ParallelWaveActualFileOverlap[],
+  activeStoryProbeFailures: ParallelWaveChangedFileProbeFailure[],
 ): { safety: ParallelWaveSafety; degradations: ParallelWaveDegradation[] } {
   const degradations: ParallelWaveDegradation[] = [];
   const explicit = story.parallelSafe;
@@ -599,11 +802,57 @@ function resolveWaveSafety(
       'Allow planning and handoff only; avoid simultaneous DEV on the overlapping hotspot.',
     ));
   }
+  if (changedFiles.status === 'not_configured') {
+    degradations.push(schedulingDegradation(
+      story.storyId,
+      'changed-files',
+      'not-configured',
+      'info',
+      changedFiles.reason ?? 'Story has no registered worktree path; git changed-file projection was not collected.',
+      'Changed-file overlap checks apply once the story has a registered worktree.',
+    ));
+  }
+  if (changedFiles.status === 'failed') {
+    degradations.push(schedulingDegradation(
+      story.storyId,
+      'changed-files',
+      'failed',
+      'warn',
+      `${changedFiles.reason ?? 'git changed-file projection failed.'}${explicitOverrideNote}`,
+      'Allow planning only until the worktree changed-file projection can be collected.',
+    ));
+  }
+  for (const failure of activeStoryProbeFailures) {
+    degradations.push(schedulingDegradation(
+      story.storyId,
+      ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND,
+      failure.storyId,
+      'warn',
+      `Active story ${failure.storyId} changed-file projection failed: ${failure.reason}.${explicitOverrideNote}`,
+      'Allow planning only until every active story worktree changed-file projection can be collected.',
+    ));
+  }
+  for (const overlap of actualFileOverlaps) {
+    degradations.push(schedulingDegradation(
+      story.storyId,
+      'actual-file-overlap',
+      `${overlap.path}-${overlap.peerStoryId}`,
+      'warn',
+      `Material file ${overlap.path} overlaps active story ${overlap.peerStoryId}.${explicitOverrideNote}`,
+      'Allow planning and merge sequencing only; avoid simultaneous DEV until the overlapping file risk is resolved.',
+    ));
+  }
 
   if (dependencies.active.length > 0 || dependencies.blockingForActive.length > 0 || explicit === 'no') {
     return { safety: 'no', degradations };
   }
-  if (sharedHotspots.length > 0 || explicit === 'plan_only') {
+  if (
+    sharedHotspots.length > 0 ||
+    actualFileOverlaps.length > 0 ||
+    changedFiles.status === 'failed' ||
+    activeStoryProbeFailures.length > 0 ||
+    explicit === 'plan_only'
+  ) {
     return { safety: 'plan_only', degradations };
   }
   return { safety: 'yes', degradations };
@@ -661,11 +910,22 @@ function storyRef(
   allStories: StoryInfo[],
   waveIds: Set<string>,
   hostIds: string[],
+  changedFilesByStory: Map<string, ParallelWaveChangedFiles>,
+  actualFileOverlapsByStory: Map<string, ParallelWaveActualFileOverlap[]>,
 ): ParallelWaveStoryRef {
   const canonical = buildCanonicalStory(store, root, story.storyId).story;
   const dependencies = dependencySummary(story, allStories, waveIds);
   const sharedHotspots = hotspotConflicts(story, allStories);
-  const resolved = resolveWaveSafety(story, dependencies, sharedHotspots);
+  const changedFiles = changedFilesByStory.get(story.storyId) ?? {
+    source: 'git',
+    status: 'not_configured',
+    materialChangedFiles: [],
+    ignoredChangedFiles: [],
+    reason: 'Story has no changed-file projection.',
+  } satisfies ParallelWaveChangedFiles;
+  const actualFileOverlaps = actualFileOverlapsByStory.get(story.storyId) ?? [];
+  const activeStoryProbeFailures = activeStoryChangedFileProbeFailures(changedFilesByStory, story.storyId);
+  const resolved = resolveWaveSafety(story, dependencies, sharedHotspots, changedFiles, actualFileOverlaps, activeStoryProbeFailures);
   const recommendation = recommendationFor(resolved.safety, hostIds);
   return {
     storyId: story.storyId,
@@ -680,6 +940,8 @@ function storyRef(
     dependencies,
     hotspots: uniqueStrings(story.sharedHotspots ?? []),
     sharedHotspots,
+    changedFiles,
+    actualFileOverlaps,
     degradations: resolved.degradations,
     evidenceRefs: evidenceRefs(canonical),
     canonicalStoryRef: {
@@ -734,10 +996,7 @@ function mergeOrder(storyRefs: ParallelWaveStoryRef[]): ParallelWaveMergeOrderEn
       after: ref.dependencies.inWave,
       safety: ref.safety,
       recommendation: ref.recommendation,
-      blockers: uniqueStrings([
-        ...ref.dependencies.active,
-        ...ref.dependencies.blockingForActive,
-      ]),
+      blockers: refBlockers(ref),
     };
   });
 }
@@ -770,8 +1029,10 @@ export function createParallelWave(
   const hosts = uniqueStrings(args.hosts && args.hosts.length > 0 ? args.hosts : ['codex'])
     .map(hostCandidate);
   const recommendedHostIds = implementationHostIds(hosts);
+  const changedFilesByStory = collectActiveStoryChangedFiles(root, allStories);
+  const overlapsByStory = actualFileOverlapsByStory(changedFilesByStory);
   const storyRefs = selectedStories.map(story =>
-    storyRef(store, root, story, allStories, waveIds, recommendedHostIds)
+    storyRef(store, root, story, allStories, waveIds, recommendedHostIds, changedFilesByStory, overlapsByStory)
   );
   const evidence = uniqueStrings(storyRefs.flatMap(ref => ref.evidenceRefs));
   return {

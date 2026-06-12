@@ -8,9 +8,64 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T19:33:11.760Z",
+      "endTime": "2026-06-12T19:51:22.880Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two active story worktrees each with committed-vs-main and uncommitted tracked/untracked changes -> parallel_plan/parallel_status/parallel_merge_queue --format=json expose repo-relative POSIX material changed files per story; WHY: core mechanical detection must work without manual sharedHotspots declaration",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Active worktree whose only changes are .lattice/** / .koala/** / .omx/** / owner-lease/runtime/cache/log artifacts -> material changed-file set is empty, no overlap reported; WHY: runtime/story-metadata noise must be excluded or every parallel story pair falsely overlaps",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git probing fails for one story (worktree path missing or git error) -> story kept with a visible degradation marker instead of being silently dropped or throwing; WHY: detection failure must not erase the risk signal or crash the planning surface",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js && node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
+          "result": "pass",
+          "note": "Regression now covers running parallel wave from inside a story worktree; real B-8404 parallel_merge_queue no longer resolves .worktrees/B-8404/.worktrees/B-8404 and still reads changed files from registered worktrees.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers metadata-only active worktree changes under .lattice and .koala as ignoredChangedFiles with empty materialChangedFiles and no overlap degradation.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Core smoke preserves failed/not_configured changed-file projection as visible changedFiles status and degradation instead of dropping the story or throwing.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +75,64 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/koala/legacy/root-markdown/Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T19:51:37.910Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two active stories modify the same material source file (no sharedHotspots declared) -> both degrade to plan_only in parallel safety output and parallel_merge_queue blockers/guidance include the overlapping file path + peer story id; WHY: this is the core gap the story fixes — overlap must mechanically block simultaneous DEV recommendation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A third non-overlapping active story alongside the overlapping pair -> it remains a parallel_dev candidate when host capability and dependency checks pass, and manually declared sharedHotspots behavior is preserved unchanged; WHY: overlap detection must not over-block clean stories or regress existing hotspot semantics",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Overlapping story already carries a stronger existing dependency/blocker -> the stronger blocker is preserved (not downgraded or replaced by the overlap degradation) and guidance still surfaces both facts; WHY: precedence under conflicting safety signals must not weaken the stricter constraint",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts overlapping active worktrees degrade to plan_only and merge queue blockers/guidance include the shared file and peer story, including when the projection runs from a story worktree.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts non-overlapping material changes remain parallel_dev candidates while metadata-only changes do not create false overlap noise; existing sharedHotspots assertions still pass.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Safety resolution keeps stronger explicit/dependency blockers before plan_only overlap degradation, so actual file overlap detection does not downgrade stricter scheduling constraints.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +142,64 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T19:51:37.359Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run parallel_plan/parallel_status/parallel_merge_queue with detected overlaps -> JSON output keeps authority.productionDone=false, authority.authorityChanged=false, authority.receiptRefs=[]; WHY: overlap guard is L0 read-only guidance and must never claim Authority completion",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Overlap warns/blocks local parallel scheduling -> output text still states it did not prove DONE or Authority completion, and overlap facts are NOT encoded in Authority receipt fields; WHY: blocking guidance must not be misread as authority verdicts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Snapshot story metadata/evidence/receipt files before and after running overlap-detection commands -> byte-identical (no story authority mutation, no evidence writes, no receipt verification, no host spawn); WHY: read-only boundary must be proven under operation, not just asserted in docs",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
+          "result": "pass",
+          "note": "Real CLI projection keeps authority.productionDone=false, authority.authorityChanged=false, receiptRefs=[], and emits only local scheduling guidance after the worktree path fix.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
+          "result": "pass",
+          "note": "Real CLI output reports local scheduling guidance only; overlap/worktree facts remain blockers/guidance fields and are not encoded as Authority receipt or production completion.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "git status --short before/after parallel_merge_queue remained clean",
+          "result": "pass",
+          "note": "Auditor observed git status clean before and after the read-only parallel_merge_queue projection; command did not mutate story metadata, evidence, receipts, or host state.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -44,9 +209,64 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T19:51:37.639Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js -> exit 0 with fixture assertions covering: overlap detected without sharedHotspots, overlapping stories degraded out of parallel_dev, queue guidance lists file + peer story; WHY: deterministic regression proof of the end-to-end overlap behavior",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke fixtures where one story changes only Lattice/runtime metadata and another is clean non-overlapping -> no overlap reported for metadata-only diffs and the clean story remains a parallel candidate; WHY: negative coverage prevents false-positive regressions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts authority fields stay non-authoritative in overlap scenarios, and assertions are real (a deliberately broken expectation makes the smoke task exit non-zero); WHY: regression coverage that cannot fail is no coverage — the suite must go red when overlap behavior breaks",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Build and smoke pass on the final DEV patch, including regression coverage for relative worktree path resolution from story worktrees and non-authoritative output fields.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes metadata-only and clean non-overlapping stories; metadata-only changes stay ignored and clean material changes remain parallel_dev candidates.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke has hard assertions that authority.productionDone=false, authority.authorityChanged=false, and receiptRefs=[] across overlap outputs; assertion failure exits non-zero.",
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
+        }
+      ]
     }
   ]
 }
