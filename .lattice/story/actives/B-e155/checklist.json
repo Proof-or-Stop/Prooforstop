@@ -124,13 +124,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
-          "command": "claude --print ...; codex exec -s read-only ...",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Host Transcript Evidence|Claude CLI command trail|Captured Claude draft|Codex CLI command trail|Captured Codex draft\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
           "result": "pass",
-          "note": "Claude CLI produced a text-only A/B/C plan; Codex CLI produced a read-only phase/fail-closed plan. Both were consumed as drafting input, not authority proof.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "note": "The F-001 fix makes both host drafts inspectable in the decision document with command trails and captured draft content, rather than relying on an uninspectable manual assertion.",
+          "headHash": "591175dc6974df97ed961b407b99030fcf98661a",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:34:07.064Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -204,13 +205,13 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "docs_check",
-          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
-          "command": "rg -n \"41 个文件|F-009 Layer 2 Engineering Proof Gap Execution Plan\" docs/requirements/NAV.md",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg --files docs/requirements/decisions -g \"*.md\" | wc -l; rg -n \"^-\" docs/requirements/NAV.md | wc -l; rg -n \"42 个文件|formal-unlock-artifact-isolation\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "The new F-009 decision document exists and NAV count/link were updated to include it.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "note": "The F-002 fix synchronizes NAV to 42 decision links and includes the previously missing formal-unlock-artifact-isolation decision document.",
+          "headHash": "591175dc6974df97ed961b407b99030fcf98661a",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:34:07.064Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -281,14 +282,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
-          "kind": "manual_transcript",
+          "kind": "docs_check",
           "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
-          "command": "auditor rg checks over F-009 doc and NAV after commit",
+          "command": "git diff --check -- docs/requirements/NAV.md docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md; lattice scope_contract_check --storyId=B-e155",
           "result": "pass",
-          "note": "Final audit found a concrete phase plan, decision outcomes, fail-closed matrix, evidence pack, and DONE criteria for resolving/disproving F-009.",
-          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
-          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
-          "timestamp": "2026-06-12T15:26:31.651Z"
+          "note": "Post-finding audit checks pass for whitespace and scope after host transcript and NAV synchronization fixes.",
+          "headHash": "591175dc6974df97ed961b407b99030fcf98661a",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:34:07.064Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
