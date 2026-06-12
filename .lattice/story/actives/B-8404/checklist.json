@@ -255,6 +255,16 @@
           "headHash": "6ac5dd101eff2b8fc950d98185bad11c45ec3d3b",
           "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
           "timestamp": "2026-06-12T19:53:15.671Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke has hard assertions that authority.productionDone=false, authority.authorityChanged=false, and receiptRefs=[] across overlap outputs; assertion failure exits non-zero.",
+          "headHash": "a9f9cbefb276a4e3c33f62ebcc50380a4cb019f1",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:53:22.530Z"
         }
       ]
     }
