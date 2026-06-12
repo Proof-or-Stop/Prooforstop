@@ -15,6 +15,23 @@
       "files": [
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-ab43:F-002",
+      "desc": "docs/requirements/NAV.md claims and lists 41 decision links after this change, but docs/requirements/decisions currently contains 42 markdown decision files. The missing truth-source entry is decisions/formal-unlock-artifact-isolation-execution-plan.md, confirmed by comparing rg --files docs/requirements/decisions with the NAV link set. This makes the requirements navigation incomplete for readers relying on NAV as the truth-source index.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-12T15:53:28.220Z",
+      "reviewRound": "2026-06-12T15:49:32.878Z",
+      "reviewRunId": "B-ab43:RR-005",
+      "_hash": "b1bb2a01cd2ac306f1f5f5e4951b9f55fe38ebce2268d57c6253c2e247192f8c",
+      "files": [
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ]
     }
   ]
 }
