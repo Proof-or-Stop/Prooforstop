@@ -161,11 +161,21 @@ const reviewLoopTriggerSchema = z.object({
   scopeViolationRefs: z.array(z.string().min(1)).optional().describe('触发 loop 的 scope violation 引用'),
 });
 
+const gitObjectHashSchema = z.string().trim().regex(
+  /^(?!([0-9a-f])\1+$)[0-9a-f]{40}(?:[0-9a-f]{24})?$/i,
+  'must be a full Git object hash (40 or 64 hex characters), not a placeholder',
+);
+
+const sha256HashSchema = z.string().trim().regex(
+  /^(?!([0-9a-f])\1+$)[0-9a-f]{64}$/i,
+  'must be a SHA-256 hex digest (64 hex characters), not a placeholder',
+);
+
 const reviewLoopRollbackRefSchema = z.object({
-  headHash: z.string().min(1).describe('loop 开始或迭代前的 HEAD hash'),
-  diffHash: z.string().min(1).describe('loop 开始或迭代前的 diff hash'),
-  materialHash: z.string().min(1).describe('loop 开始或迭代前的 material hash'),
-  scopeContractHash: z.string().min(1).optional().describe('可选 scope contract hash'),
+  headHash: gitObjectHashSchema.describe('loop 开始或迭代前的 HEAD hash'),
+  diffHash: sha256HashSchema.describe('loop 开始或迭代前的 diff hash'),
+  materialHash: sha256HashSchema.describe('loop 开始或迭代前的 material hash'),
+  scopeContractHash: sha256HashSchema.optional().describe('可选 scope contract hash'),
 });
 
 const reviewLoopHostSchema = z.object({

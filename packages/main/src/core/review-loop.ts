@@ -8,6 +8,7 @@
 
 import type {
   ReviewLoopRecord,
+  ReviewLoopRollbackRef,
   ReviewLoopTrigger,
   ReviewLoopPolicy,
   ReviewLoopStatus,
@@ -31,6 +32,32 @@ export const DEFAULT_REVIEW_LOOP_POLICY: ReviewLoopPolicy = {
   stopOnTestRegression: true,
   stopOnScopeViolation: true,
 };
+
+const FULL_GIT_HASH = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/i;
+const SHA256_HASH = /^[0-9a-f]{64}$/i;
+
+function isPlaceholderHash(value: string): boolean {
+  return /^([0-9a-f])\1+$/i.test(value);
+}
+
+function validateHashField(name: string, value: string | undefined, pattern: RegExp, description: string): string | undefined {
+  const normalized = value?.trim();
+  if (!normalized) return `${name} is required`;
+  if (!pattern.test(normalized)) return `${name} must be ${description}`;
+  if (isPlaceholderHash(normalized)) return `${name} must not be a placeholder hash`;
+  return undefined;
+}
+
+export function validateRollbackRef(ref: ReviewLoopRollbackRef): string | undefined {
+  return (
+    validateHashField('rollbackRef.headHash', ref.headHash, FULL_GIT_HASH, 'a full Git object hash (40 or 64 hex characters)') ||
+    validateHashField('rollbackRef.diffHash', ref.diffHash, SHA256_HASH, 'a SHA-256 hex digest (64 hex characters)') ||
+    validateHashField('rollbackRef.materialHash', ref.materialHash, SHA256_HASH, 'a SHA-256 hex digest (64 hex characters)') ||
+    (ref.scopeContractHash
+      ? validateHashField('rollbackRef.scopeContractHash', ref.scopeContractHash, SHA256_HASH, 'a SHA-256 hex digest (64 hex characters)')
+      : undefined)
+  );
+}
 
 /**
  * Returns an error string if the trigger has no refs, undefined otherwise.

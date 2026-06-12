@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
+import { digestCanonical } from '../core/authority-contracts.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, DeliveryCheckData, StoryInfo, StorySummaryData, TestEvidenceData } from '../core/types.js';
@@ -16,6 +17,12 @@ import { createFindingHandlers } from '../handlers/finding.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
+
+const placeholderRollbackRef = {
+  headHash: '0'.repeat(40),
+  diffHash: '1'.repeat(40),
+  materialHash: '2'.repeat(40),
+};
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -52,6 +59,16 @@ function allowEmptyCommit(cwd: string, message: string, author = 'koala-implemen
     '-m', message,
   ]);
   return git(cwd, ['rev-parse', 'HEAD']);
+}
+
+function reviewLoopRollbackRef(root: string): { headHash: string; diffHash: string; materialHash: string } {
+  const materialHash = currentMaterialHash(root);
+  assert.ok(materialHash, 'review loop smoke requires a computable materialHash');
+  return {
+    headHash: git(root, ['rev-parse', 'HEAD']),
+    diffHash: digestCanonical({ diff: git(root, ['diff', '--binary', 'HEAD']) }),
+    materialHash,
+  };
 }
 
 function initRepo(prefix: string, storyDir = '.lattice/story/actives'): string {
@@ -350,13 +367,21 @@ async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise
     const directLoop = await runKoala(root, 'review_loop_start', {
       storyId: directStoryId,
       trigger: { findingIds: [`${directStoryId}:F-001`] },
-      rollbackRef: {
-        headHash: '0'.repeat(40),
-        diffHash: '1'.repeat(40),
-        materialHash: '2'.repeat(40),
-      },
+      rollbackRef: reviewLoopRollbackRef(root),
     });
     assert.match(directLoop, /Review loop .* started/);
+
+    const placeholderLoop = await runKoalaRaw(root, 'review_loop_start', {
+      storyId: directStoryId,
+      trigger: { findingIds: [`${directStoryId}:F-002`] },
+      rollbackRef: placeholderRollbackRef,
+    });
+    assert.notEqual(placeholderLoop.code, 0);
+    assert.match(
+      placeholderLoop.stdout + placeholderLoop.stderr,
+      /rollbackRef|headHash|diffHash|materialHash|placeholder/,
+      'review_loop_start must reject placeholder rollbackRef hashes',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -433,11 +458,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     const repairedLoop = await runKoalaRaw(root, 'review_loop_start', {
       storyId: mainStoryId,
       trigger: { findingIds: [`${mainStoryId}:F-001`] },
-      rollbackRef: {
-        headHash: '0'.repeat(40),
-        diffHash: '1'.repeat(40),
-        materialHash: '2'.repeat(40),
-      },
+      rollbackRef: reviewLoopRollbackRef(root),
     });
     assert.equal(repairedLoop.code, 0);
     assert.match(repairedLoop.stdout + repairedLoop.stderr, /Review loop .* started/);

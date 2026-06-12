@@ -16,6 +16,7 @@ import {
   deriveLatestLoopRecord,
   listActiveLoops,
   nextIterationNumber,
+  validateRollbackRef,
   validateResolvedCloseInvariant,
   validateTriggerRefs,
 } from '../core/review-loop.js';
@@ -121,12 +122,15 @@ function normalizeTrigger(trigger: ReviewLoopTrigger): ReviewLoopTrigger {
 }
 
 function normalizeRollbackRef(ref: ReviewLoopRollbackRef): ReviewLoopRollbackRef {
-  return {
-    headHash: ref.headHash.trim(),
-    diffHash: ref.diffHash.trim(),
-    materialHash: ref.materialHash.trim(),
-    ...(ref.scopeContractHash?.trim() ? { scopeContractHash: ref.scopeContractHash.trim() } : {}),
+  const normalized = {
+    headHash: ref.headHash.trim().toLowerCase(),
+    diffHash: ref.diffHash.trim().toLowerCase(),
+    materialHash: ref.materialHash.trim().toLowerCase(),
+    ...(ref.scopeContractHash?.trim() ? { scopeContractHash: ref.scopeContractHash.trim().toLowerCase() } : {}),
   };
+  const error = validateRollbackRef(normalized);
+  if (error) throw new Error(`review_loop rollbackRef invalid: ${error}`);
+  return normalized;
 }
 
 function nextLoopId(storyId: string, records: ReviewLoopRecord[]): string {

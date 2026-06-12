@@ -74,7 +74,11 @@ function makeStore(root: string, storyId: string): StoryStore {
 }
 
 const sampleTrigger = { findingIds: ['F-001'] };
-const sampleRollback = { headHash: 'abc123', diffHash: 'def456', materialHash: 'ghi789' };
+const sampleRollback = {
+  headHash: '0123456789abcdef0123456789abcdef01234567',
+  diffHash: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  materialHash: '89abcdef0123456789abcdef0123456789abcdef0123456789abcdef01234567',
+};
 
 function makeStart(loopId: string, storyId: string): ReviewLoopStart {
   return {
@@ -503,6 +507,31 @@ test('review_loop_start rejects duplicate explicit loopId', () => {
     () => handlers.review_loop_start(args),
     /already exists/,
     'duplicate explicit loopId must be rejected',
+  );
+});
+
+test('review_loop_start rejects placeholder rollbackRef hashes', () => {
+  const records: ReviewLoopRecord[] = [];
+  const store = {
+    readStory: () => ({ phase: 'REVIEW', currentReviewRound: 'round-1' }),
+    readReviewLoopRecords: () => records,
+    appendReviewLoopRecord: (_storyId: string, record: ReviewLoopRecord) => { records.push(record); },
+  };
+  const handlers = createReviewLoopHandlers({ store, root: process.cwd(), scanRoot: 'packages/main/src' } as any);
+  assert.throws(
+    () => handlers.review_loop_start({
+      storyId: 'B-handler',
+      loopId: 'L-placeholder',
+      trigger: sampleTrigger,
+      rollbackRef: {
+        headHash: '0'.repeat(40),
+        diffHash: '1'.repeat(64),
+        materialHash: '2'.repeat(64),
+      },
+      json: true,
+    }),
+    /rollbackRef invalid/,
+    'placeholder rollbackRef hashes must be rejected',
   );
 });
 
