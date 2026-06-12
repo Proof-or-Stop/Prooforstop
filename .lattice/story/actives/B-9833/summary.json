@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9833",
+  "changes": "Resolved B-META-framework-audit:F-009 through Lattice finding_resolve as a stale/superseded original Layer2 no-formal-path finding. Added B-9833 audit evidence, transcript-diff, review passes, and validation evidence; no business source code or decision docs were changed by this story.",
+  "usage": "Use lattice finding_list {\"storyId\":\"B-META-framework-audit\"} to inspect F-009 status. Use lattice capability_claim_formal_evaluate --target=engineering --format=json to confirm formal claim remains fail-closed when proof artifacts are missing.",
+  "expectedOutcome": "F-009 is no longer an open high/suspected audit finding, but Lattice does not claim Layer2 unlock, Production Safety, global Capability, receiptVerified, productionDone, or fullAuthorityDone from this story.",
+  "actualTranscript": "finding_list shows B-META-framework-audit:F-009 status=resolved and attention.suspected=[]. capability_claim_formal_evaluate --target=engineering returns authorized=false, outcome=EXPECTED_BLOCK, layer2EngineeringClaim=LOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED, receiptVerified=false, productionDone=false, fullAuthorityDone=false. gap_analyze still reports one high Layer4 customerKeyRef gap. convergence_check is false because of that gap and unfinished stories, while Audit backlog passes.",
+  "outcomeDiff": "No difference for B-9833 scope. Global convergence is intentionally still false due separate Layer4 customerKeyRef and other active stories.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Layer2 capability is not unlocked by this story. Layer4 customerKeyRef remains a separate high gap and Production/global authority claims remain locked.",
+  "pitfalls": "finding_resolve is REVIEW-phase gateEvidence for normal stories; attempting it from DEV was correctly rejected. B-META resolution had to be done through the main-shared audit container and then merged back into the story worktree.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 133982
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14285
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 605121
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 352451
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 442159
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 96087
+    }
+  },
+  "totalDurationMs": 1644086,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T20:36:52.350Z",
+  "updatedAt": "2026-06-12T20:36:52.350Z"
+}

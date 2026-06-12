@@ -1,0 +1,28 @@
+{
+  "task": "Triage the open F-009 Layer2 Engineering proof audit finding through the Lattice CLI flow.",
+  "outcome": "F-009 is no longer a vague open high/suspected finding: it is either resolved with source evidence or narrowed to a concrete remaining scope, and convergence output reflects the updated state.",
+  "facts": [
+    "B-META-framework-audit:F-009 currently claims no verified non-local capability proof producer/import path exists for Layer2 Engineering final reports.",
+    "Current lattice-baseline source has a formal baseline report writer that sets capabilityProof=true, localOnly=false, formalProof=true only on the formal path and rejects missing proof evidence.",
+    "Engineering formal reports require receiptRefs and structured verification/review/gate evidence where applicable before suite consumption.",
+    "The suite builder rejects localOnly diagnostic final reports and capabilityProof=false reports for formal suite proof.",
+    "The formal claim evaluator rebuilds Engineering suite proof from final-report artifacts, compares stored suite fields with rebuilt evidence, and unlocks only layer2EngineeringClaim while keeping Loop, Production Safety, global claim, productionDone, fullAuthorityDone, and receiptVerified locked/false.",
+    "gap_analyze currently reports the remaining high gap as Layer4 customerKeyRef scope, not the original Layer2 producer/importer claim."
+  ],
+  "constraints": [
+    "Use Lattice CLI flow; do not mutate B-META or story files directly.",
+    "Do not implement or weaken Authority/customerKeyRef/Layer4 semantics in this story.",
+    "Do not relax localOnly=false, capabilityProof=true, formalProof, receiptRefs, materialHash, or fail-closed semantics.",
+    "Only resolve F-009 if current source/docs/tests prove the original suspected gap is stale, disproven, or already fixed.",
+    "Keep the outcome limited to audit finding state; no production authority or global capability claim is unlocked."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+    "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+    "B-META-framework-audit:F-009 via Lattice finding flow"
+  ],
+  "timestamp": "2026-06-12T20:15:21.126Z"
+}

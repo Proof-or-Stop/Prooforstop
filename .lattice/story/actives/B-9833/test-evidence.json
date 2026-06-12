@@ -1,0 +1,244 @@
+{
+  "command": "koala validate --story=B-9833 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-x48WI6; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-wEkmAK; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — finding_list shows F-009 original open high/suspected claim and source/doc rg commands identify current formal proof surfaces.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via docs_check — The audit distinguishes formal Layer2 proof path from local diagnostic commands and from Layer4 Authority/customerKeyRef scope.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test — If only docs claim a proof path but source lacks fail-closed checks, CHK-001 must not be considered done.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — Decision evidence identifies whether the original no-producer/importer claim is stale or still true.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via docs_check — Any remaining customerKeyRef or Authority receipt concern is classified as Layer4 future/blocked scope, not as the original F-009 Layer2 gap.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test — If source evidence shows local diagnostic artifacts can still unlock Layer2, the decision must keep or narrow F-009 instead of resolving it.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — finding_resolve or equivalent Lattice command updates F-009 with evidence-backed resolution text.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — The resolution does not mark Layer4 customerKeyRef, Production Safety, global Capability, productionDone, or fullAuthorityDone as complete.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Direct file mutation or unsupported status edits fail this checklist item even if the visible text looks correct.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — finding_list confirms F-009 is resolved/dismissed/narrowed according to the recorded decision.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — gap_analyze may still report customerKeyRef, but it must be clearly scoped to Layer4 future/blocked work rather than this F-009 closure.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — convergence output must not be presented as fully clean if active stories or unrelated high gaps remain.\"],\"warnings\":[],\"timestamp\":\"2026-06-12T20:40:21.016Z\",\"headSha\":\"ef19bf640de328d996b01751dafa8505266eacfc\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-x48WI6; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-wEkmAK; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1305}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding_list shows F-009 original open high/suspected claim and source/doc rg commands identify current formal proof surfaces.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice finding_list {\\\"storyId\\\":\\\"B-META-framework-audit\\\"} | rg -n \\\"F-009|Layer 2|localOnly|capabilityProof\\\" -C 4\",\"result\":\"pass\",\"note\":\"Confirmed original F-009 was open/high/suspected and claimed no verified non-local capability proof producer/import path exists.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.554Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The audit distinguishes formal Layer2 proof path from local diagnostic commands and from Layer4 Authority/customerKeyRef scope.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"formal proof path|localOnly=false|capabilityProof=true|Production Safety|global Capability\\\" docs/requirements/decisions/unlock-layer2-ENG-suite.md docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md\",\"result\":\"pass\",\"note\":\"Docs distinguish Layer2 formal proof, current LOCKED/PASS semantics, and separate Layer4 customerKeyRef/Authority scope.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"If only docs claim a proof path but source lacks fail-closed checks, CHK-001 must not be considered done.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"rg -n \\\"writeFormalBaselineReport|localOnly=true diagnostic final-report cannot authorize suite proof|formalSuiteRevalidationProblems|evaluateFormalEngineeringClaim\\\" packages/main/src/core/lattice-baseline.ts && npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Source and smoke test evidence show the formal path exists and local-only/forged/stale/higher-layer overclaim paths fail closed.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Decision evidence identifies whether the original no-producer/importer claim is stale or still true.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"two-host audit lanes plus local source/doc inspection; lattice capability_claim_formal_evaluate --target=engineering --format=json\",\"result\":\"pass\",\"note\":\"Combined audit decision: original no-producer/importer claim is stale because formal writer/suite/evaluator path exists; current claim remains LOCKED due missing baseline-suite-report artifacts, which is expected fail-closed behavior, not a Layer2 proof-path absence.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Any remaining customerKeyRef or Authority receipt concern is classified as Layer4 future/blocked scope, not as the original F-009 Layer2 gap.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"customerKeyRef|Layer 4|future Layer 4 evidence requirement|LOCKED|BLOCKED\\\" docs/requirements/decisions/unlock-layer4-production-safety-suite.md\",\"result\":\"pass\",\"note\":\"Remaining customerKeyRef coverage is documented as future Layer4 evidence scope and must not be treated as current implemented support or folded into F-009.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"If source evidence shows local diagnostic artifacts can still unlock Layer2, the decision must keep or narrow F-009 instead of resolving it.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"lattice capability_claim_formal_evaluate --target=engineering --format=json\",\"result\":\"pass\",\"note\":\"Evaluator returned authorized=false, outcome=EXPECTED_BLOCK, layer2EngineeringClaim=LOCKED, and Production/global claims LOCKED when proof artifacts are missing; no fake unlock was observed.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"finding_resolve or equivalent Lattice command updates F-009 with evidence-backed resolution text.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice finding_resolve {\\\"storyId\\\":\\\"B-META-framework-audit\\\",\\\"findingId\\\":\\\"B-META-framework-audit:F-009\\\",\\\"resolution\\\":\\\"...\\\"}\",\"result\":\"pass\",\"note\":\"F-009 was resolved through the Lattice finding flow in the B-META main-shared audit container, then merged into B-9833; no direct B-META file mutation was used.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The resolution does not mark Layer4 customerKeyRef, Production Safety, global Capability, productionDone, or fullAuthorityDone as complete.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice finding_list {\\\"storyId\\\":\\\"B-META-framework-audit\\\"} | rg -n \\\"F-009|resolvedReason|attention\\\" -C 4\",\"result\":\"pass\",\"note\":\"ResolvedReason explicitly says this is not a Layer2 capability unlock and keeps Layer4 customerKeyRef, Production Safety, global claim, receiptVerified, productionDone, and fullAuthorityDone outside this resolution.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Direct file mutation or unsupported status edits fail this checklist item even if the visible text looks correct.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice finding_resolve attempted from DEV worktree before REVIEW/main-shared handling\",\"result\":\"pass\",\"note\":\"The first DEV-phase attempt was rejected by Lattice phase policy, proving unsupported status mutation was not silently accepted.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"finding_list confirms F-009 is resolved/dismissed/narrowed according to the recorded decision.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice finding_list {\\\"storyId\\\":\\\"B-META-framework-audit\\\"} | rg -n \\\"F-009|status|resolvedReason|attention|suspected\\\" -C 4\",\"result\":\"pass\",\"note\":\"F-009 is status=resolved and attention.suspected is empty, so it is no longer a vague open high/suspected audit finding.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"gap_analyze may still report customerKeyRef, but it must be clearly scoped to Layer4 future/blocked work rather than this F-009 closure.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice gap_analyze\",\"result\":\"pass\",\"note\":\"gap_analyze still reports exactly one high gap: Layer4 customerKeyRef redacted/non-secret requirement at unlock-layer4-production-safety-suite.md:267; this is separate future/blocked Layer4 scope, not F-009.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"convergence output must not be presented as fully clean if active stories or unrelated high gaps remain.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice convergence_check\",\"result\":\"pass\",\"note\":\"convergence_check is not fully converged: No high-priority gaps fails due customerKeyRef, All Stories completed fails due B-526c/B-8404/B-85ba/B-9833, but Audit backlog passes with no open audit findings.\",\"headHash\":\"616d98157764385422096e41c3d0f3aa50ad27b1\",\"materialHash\":\"c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7\",\"timestamp\":\"2026-06-12T20:40:02.555Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-12T20:40:22.769Z",
+  "headHash": "ef19bf640de328d996b01751dafa8505266eacfc",
+  "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "finding_list shows F-009 original open high/suspected claim and source/doc rg commands identify current formal proof surfaces.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_list {\"storyId\":\"B-META-framework-audit\"} | rg -n \"F-009|Layer 2|localOnly|capabilityProof\" -C 4",
+          "result": "pass",
+          "note": "Confirmed original F-009 was open/high/suspected and claimed no verified non-local capability proof producer/import path exists.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.554Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The audit distinguishes formal Layer2 proof path from local diagnostic commands and from Layer4 Authority/customerKeyRef scope.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"formal proof path|localOnly=false|capabilityProof=true|Production Safety|global Capability\" docs/requirements/decisions/unlock-layer2-ENG-suite.md docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "Docs distinguish Layer2 formal proof, current LOCKED/PASS semantics, and separate Layer4 customerKeyRef/Authority scope.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "If only docs claim a proof path but source lacks fail-closed checks, CHK-001 must not be considered done.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg -n \"writeFormalBaselineReport|localOnly=true diagnostic final-report cannot authorize suite proof|formalSuiteRevalidationProblems|evaluateFormalEngineeringClaim\" packages/main/src/core/lattice-baseline.ts && npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Source and smoke test evidence show the formal path exists and local-only/forged/stale/higher-layer overclaim paths fail closed.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Decision evidence identifies whether the original no-producer/importer claim is stale or still true.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "two-host audit lanes plus local source/doc inspection; lattice capability_claim_formal_evaluate --target=engineering --format=json",
+          "result": "pass",
+          "note": "Combined audit decision: original no-producer/importer claim is stale because formal writer/suite/evaluator path exists; current claim remains LOCKED due missing baseline-suite-report artifacts, which is expected fail-closed behavior, not a Layer2 proof-path absence.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Any remaining customerKeyRef or Authority receipt concern is classified as Layer4 future/blocked scope, not as the original F-009 Layer2 gap.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"customerKeyRef|Layer 4|future Layer 4 evidence requirement|LOCKED|BLOCKED\" docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "Remaining customerKeyRef coverage is documented as future Layer4 evidence scope and must not be treated as current implemented support or folded into F-009.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "If source evidence shows local diagnostic artifacts can still unlock Layer2, the decision must keep or narrow F-009 instead of resolving it.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "lattice capability_claim_formal_evaluate --target=engineering --format=json",
+          "result": "pass",
+          "note": "Evaluator returned authorized=false, outcome=EXPECTED_BLOCK, layer2EngineeringClaim=LOCKED, and Production/global claims LOCKED when proof artifacts are missing; no fake unlock was observed.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "finding_resolve or equivalent Lattice command updates F-009 with evidence-backed resolution text.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_resolve {\"storyId\":\"B-META-framework-audit\",\"findingId\":\"B-META-framework-audit:F-009\",\"resolution\":\"...\"}",
+          "result": "pass",
+          "note": "F-009 was resolved through the Lattice finding flow in the B-META main-shared audit container, then merged into B-9833; no direct B-META file mutation was used.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The resolution does not mark Layer4 customerKeyRef, Production Safety, global Capability, productionDone, or fullAuthorityDone as complete.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_list {\"storyId\":\"B-META-framework-audit\"} | rg -n \"F-009|resolvedReason|attention\" -C 4",
+          "result": "pass",
+          "note": "ResolvedReason explicitly says this is not a Layer2 capability unlock and keeps Layer4 customerKeyRef, Production Safety, global claim, receiptVerified, productionDone, and fullAuthorityDone outside this resolution.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Direct file mutation or unsupported status edits fail this checklist item even if the visible text looks correct.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_resolve attempted from DEV worktree before REVIEW/main-shared handling",
+          "result": "pass",
+          "note": "The first DEV-phase attempt was rejected by Lattice phase policy, proving unsupported status mutation was not silently accepted.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "finding_list confirms F-009 is resolved/dismissed/narrowed according to the recorded decision.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_list {\"storyId\":\"B-META-framework-audit\"} | rg -n \"F-009|status|resolvedReason|attention|suspected\" -C 4",
+          "result": "pass",
+          "note": "F-009 is status=resolved and attention.suspected is empty, so it is no longer a vague open high/suspected audit finding.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "gap_analyze may still report customerKeyRef, but it must be clearly scoped to Layer4 future/blocked work rather than this F-009 closure.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze still reports exactly one high gap: Layer4 customerKeyRef redacted/non-secret requirement at unlock-layer4-production-safety-suite.md:267; this is separate future/blocked Layer4 scope, not F-009.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "convergence output must not be presented as fully clean if active stories or unrelated high gaps remain.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check",
+          "result": "pass",
+          "note": "convergence_check is not fully converged: No high-priority gaps fails due customerKeyRef, All Stories completed fails due B-526c/B-8404/B-85ba/B-9833, but Audit backlog passes with no open audit findings.",
+          "headHash": "616d98157764385422096e41c3d0f3aa50ad27b1",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:40:02.555Z"
+        }
+      }
+    ]
+  }
+}

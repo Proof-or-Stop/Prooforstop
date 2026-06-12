@@ -1,2 +1,14 @@
 {"type":"dispatch","storyId":"B-9833","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-06-12T20:10:03.548Z"}
 {"type":"dispatch","storyId":"B-9833","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-12T20:10:12.942Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":1,"issueCount":7,"timestamp":"2026-06-12T20:17:26.202Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":6,"timestamp":"2026-06-12T20:21:40.295Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-12T20:25:51.832Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-12T20:26:02.339Z"}
+{"type":"dispatch","checklistId":"CHK-003","timestamp":"2026-06-12T20:26:09.337Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-12T20:27:30.084Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-12T20:27:40.938Z"}
+{"type":"review_pass","storyId":"B-9833","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-9833:RP-001","timestamp":"2026-06-12T20:30:32.105Z"}
+{"type":"review_pass","storyId":"B-9833","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-9833:RP-002","timestamp":"2026-06-12T20:31:05.657Z"}
+{"type":"review_pass","storyId":"B-9833","command":"review_pass_set","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","reviewPassId":"B-9833:RP-003","timestamp":"2026-06-12T20:33:03.603Z"}
+{"type":"review_pass","storyId":"B-9833","command":"review_pass_set","role":"reviewer","agent":"koala-review-docs","result":"pass","reviewPassId":"B-9833:RP-004","timestamp":"2026-06-12T20:33:15.376Z"}
+{"type":"dirty_gate_audit","storyId":"B-9833","gate":"done-gate","category":"koala_metadata_changes","pathCount":4,"paths":[".lattice/story/actives/B-9833/index.json",".lattice/story/actives/B-9833/process-metrics.json",".lattice/story/actives/B-9833/evidence/transcript-diff.md",".lattice/story/actives/B-9833/test-evidence.json"],"reason":"koala-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-12T20:36:11.601Z"}
