@@ -4,7 +4,7 @@
   "title": "Add wrapper-root gitRoot repair UX",
   "description": "Add a small deterministic Lattice CLI UX for projects where metadataRoot is a wrapper directory and the actual git-backed signed workspace is a nested child repository. The CLI should diagnose the layout, suggest an explicit gitRoot configuration when there is exactly one safe child git repo candidate, and provide a confirmed repair command that validates and writes gitRoot. It must stay host-neutral: hosts may execute the command, but Lattice owns the diagnosis and config write; no Claude/Codex auto-repair, no silent repository choice, no broad optimization, and no authority/production policy expansion.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "gitRoot",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-12T19:20:38.433Z",
   "startedAt": "2026-06-12T19:20:38.433Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T20:28:14.681Z",
   "events": [
     {
       "phase": "INIT",
@@ -86,13 +86,16 @@
       "branch": "story/B-526c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:28:14.681Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-526c",
-    "branch": "story/B-526c",
-    "createdAt": "2026-06-12T19:23:30.229Z"
-  },
   "riskSignalsDismissed": [
     {
       "category": "Production/Emergency",
