@@ -87,9 +87,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T15:26:43.693Z",
       "userSees": "Two independent host drafts from Claude CLI and Codex CLI are available as input to the final document synthesis.",
       "files": {
         "modify": [],
@@ -324,6 +324,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "F-009 context, source anchors, and existing proof-boundary docs were captured in the execution plan."
+    },
+    {
+      "timestamp": "2026-06-12T15:26:43.693Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Claude CLI and Codex CLI host drafts were produced/consumed with host limitations recorded."
     }
   ]
 }
