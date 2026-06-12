@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-12T20:13:54.209Z",
       "reviewRunId": "B-526c:RR-006",
       "_hash": "fcf8e637d26fb8125be23a8130029d200c374d5a2cadd2adb99eb1eb2f1ee956"
+    },
+    {
+      "id": "B-526c:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality re-review of d7b106e validateRepairGitRootTarget: (1) lexical containment (resolvePath, no realpath) now runs before existence check, rejecting ../escapes and empty rel without false positives under /var->/private/var symlinked metadata roots; (2) missing-but-contained target correctly throws target-does-not-exist with the uncanonicalized lexicalCandidate path; (3) canonical realpath containment retained for existing targets, still guarding symlink escapes; (4) config relativePath derived from canonical rel stays consistent and under the root; (5) smoke test updated to pass repairable.root uncanonicalized, covering the regression. Verified: tsc build green, field-regression-cli-smoke passed. Diff contains no unrelated changes (only lattice-cli.ts validation fn + 1-line smoke change).",
+      "createdAt": "2026-06-12T20:17:10.612Z",
+      "reviewRound": "2026-06-12T20:13:54.209Z",
+      "reviewRunId": "B-526c:RR-004",
+      "_hash": "0954623ffb3e9180ff525e06a5a6fc4f2ac69e11ff0b8f5792b7cb86767d6cb4"
     }
   ]
 }
