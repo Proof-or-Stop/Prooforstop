@@ -184,9 +184,9 @@
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T16:38:45.926Z",
       "userSees": "User sees regression coverage prove split-root behavior: git-backed roots work, wrapper roots fail closed unless explicitly bound, placeholders/tampering remain rejected, and local reviewer evidence is never reported as Authority proof.",
       "files": {
         "modify": [],
@@ -218,7 +218,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers ordinary git root, linked story worktree split-root, and explicit gitRoot split-root cases where story_resolve resolves and review_run_start captures HEAD/materialHash.",
+          "headHash": "194b3e5d0696ad157958271c2d0439cb144971c1",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:45.994Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression covers non-git wrapper root without gitRoot and verifies story_resolve/review_run_start fail closed with unresolved signedWorkspaceRoot and no reviewer run metadata.",
+          "headHash": "194b3e5d0696ad157958271c2d0439cb144971c1",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:46.029Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression keeps placeholder rollbackRef rejection, rejects tampered workspaceBinding, and does not report local reviewer evidence as Authority Server receipt-backed completion.",
+          "headHash": "194b3e5d0696ad157958271c2d0439cb144971c1",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:46.063Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process fact contract confirms workspaceBinding is local REVIEW gate evidence only and no Authority completion fields are introduced by this change.",
+          "headHash": "194b3e5d0696ad157958271c2d0439cb144971c1",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:46.100Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
