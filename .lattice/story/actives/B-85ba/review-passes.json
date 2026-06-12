@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-12T21:35:24.407Z",
       "reviewRunId": "B-85ba:RR-017",
       "_hash": "759e06c7b5b9a804390666d8c5e53986ef93cda1cc3d6bb501413ca7322b2363"
+    },
+    {
+      "id": "B-85ba:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Docs/prompt/process-fact contract/repo-local CLI help are aligned for B-85ba: INIT reviewers are proposal-only via scope_extension_proposal, fromDraft stops at INIT, explicit story_advance INIT_CHECK creates the worktree, and scope anti-expansion artifact names are consistent across docs, prompt, registry, and contract. Verified with node packages/main/dist/cli.js help, node scripts/verify-process-fact-contract.mjs, and npm --prefix packages/main run test:scope-anti-expansion-smoke.",
+      "createdAt": "2026-06-12T21:41:27.321Z",
+      "reviewRound": "2026-06-12T21:35:24.407Z",
+      "reviewRunId": "B-85ba:RR-016",
+      "_hash": "d3ceb1d9ca6029e005953a159c3064994437d5bb14c2f5dc176ba47237800a03"
     }
   ]
 }
