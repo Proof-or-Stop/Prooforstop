@@ -1,0 +1,47 @@
+{
+  "storyId": "B-8404",
+  "checkedAt": "2026-06-12T20:28:22.319Z",
+  "reviewRound": "2026-06-12T20:15:24.399Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "Parallel Wave remains local non-authority scheduling guidance and never satisfies REVIEW, TEST, DONE, receipt, or production authority gates.",
+      "status": "verified",
+      "verifiedBy": "rg + parallel_merge_queue smoke",
+      "evidence": "Doc states authority.productionDone=false, authority.authorityChanged=false, receiptRefs=[]; real parallel_merge_queue JSON after main sync shows those exact non-authority fields."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "Active story worktrees are inspected with read-only git probes, shared material-exclusion classifiers, visible failed-probe degradations, and actual material overlap plan_only guidance.",
+      "status": "verified",
+      "verifiedBy": "git diff + smoke + validate",
+      "evidence": "Diff touches lattice-parallel-wave.ts and lattice-parallel-wave-smoke.ts; smoke passed after main sync and validate reports 12/12 verification intent coverage fresh."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build PASS; node packages/main/dist/tasks/lattice-parallel-wave-smoke.js PASS; changed-file projection covers committed, uncommitted tracked, staged, and untracked files."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke PASS confirms two active worktrees editing the same material file degrade to plan_only and merge queue guidance names overlapping file plus peer story."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json PASS; authority.productionDone=false, authority.authorityChanged=false, receiptRefs=[] in output."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "lattice validate --story=B-8404 --json PASS after main sync and evidence refresh; verification intent coverage 12/12 covered, 0 missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check verified the implementation, docs, tests, and Non-authority boundary after syncing main. No unresolved correctness issue or Authority overclaim remains."
+  },
+  "_hash": "f4a3df6186e6f8658a4f705f62bc28d1ae426737c4eb01d8fcb115a07bf6d6d5"
+}
