@@ -101,7 +101,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice gap_analyze prints Gaps: 1 high / 0 medium and the remaining high gap source is unlock-layer4-production-safety-suite.md:267 customerKeyRef.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "Build and targeted regression pass after the source binding change.",
+            "type": "cli"
+          },
+          {
+            "id": "CHK-003:happy:1",
+            "desc": "gap_analyze reports exactly one high gap and zero medium gaps after the signed-workspace bindings are recognized.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "The only remaining high gap is customerKeyRef from Layer4/future scope, not either signed-workspace requirement.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "No source change claims Layer4 Production Safety, Authority receipt verification, productionDone, fullAuthorityDone, or customerKeyRef support.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
