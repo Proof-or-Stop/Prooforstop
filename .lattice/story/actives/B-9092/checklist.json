@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Freeze F-009 target proof scope",
+      "context": "Record current main HEAD/materialHash, selected clean .lattice artifact root, suiteRunId, and F-009 finding snapshot before any proof attempt.",
+      "relatedDocs": [
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run formal Layer 2 proof and negative controls",
+      "context": "Generate or verify fresh Development proof, 9 ENG final reports, Engineering suite report, formal claim evaluator output, and fail-closed controls for local-only/stale/forged/wrong-target artifacts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Collect two-host verdicts and close or retain F-009",
+      "context": "Use Claude CLI and Codex CLI host verdicts as localNonAuthorityAudit only. Resolve F-009 only if evidence proves it; otherwise keep it open or mark verified with exact missing work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
