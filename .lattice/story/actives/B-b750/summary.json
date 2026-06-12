@@ -1,0 +1,56 @@
+{
+  "storyId": "B-b750",
+  "changes": "Implemented signed workspace resolution for story_resolve and review_run_start: resolver now separates metadataRoot, signedWorkspaceRoot, authoritativeCwd, repoRoot, worktreePath, resolutionSource, and unresolvedReason; added explicit gitRoot path and regression coverage for wrapper-root, nested repo, stale/tampered binding, and local non-authority cases.",
+  "usage": "Use node packages/main/dist/cli.js story_resolve --storyId=<story> --format=json to inspect signed workspace facts; configure gitRoot for wrapper-root projects instead of relying on nested repo guessing.",
+  "expectedOutcome": "User sees story_resolve report resolved signed workspace facts, review_run_start sign the resolved workspace, wrapper roots fail closed unless explicitly bound, and local review evidence remains non-authority.",
+  "actualTranscript": "node packages/main/dist/cli.js story_resolve --storyId=B-b750 --format=json returned resolved=true with metadataRoot, signedWorkspaceRoot, repoRoot, authoritativeCwd, resolutionSource=story-worktree, and unresolvedReason=null. lattice validate --story=B-b750 --json returned status=pass, allPass=true, npm test passed, and 12/12 verification intents covered.",
+  "outcomeDiff": "Expected signed workspace resolution behavior is present in the worktree CLI build; no product gap observed. Global fallback lattice may still point at main until DONE merge, so worktree dist output is the authoritative transcript before merge.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No Authority Server receipt or production DONE is claimed; this story only strengthens local signed workspace resolution and REVIEW evidence binding.",
+  "pitfalls": "Do not treat global fallback lattice output as proof for unmerged worktree code; use node packages/main/dist/cli.js inside the story worktree before DONE merge.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 286411
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14515
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 285990
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1857478
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 903609
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 157856
+    }
+  },
+  "totalDurationMs": 3505860,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T17:08:37.567Z",
+  "updatedAt": "2026-06-12T17:08:37.567Z"
+}
