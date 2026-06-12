@@ -1,10 +1,12 @@
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
+import { existsSync, realpathSync } from 'fs';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
+import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
 import {
   buildCurrentScopeContext,
   compareScopeBinding,
@@ -480,7 +482,91 @@ interface RunWorkspaceBindingValidation {
   message?: string;
 }
 
+function canonicalBindingPath(path: string): string {
+  try {
+    return existsSync(path) ? realpathSync(path) : path;
+  } catch {
+    return path;
+  }
+}
+
+function canonicalOptionalBindingPath(path: string | null | undefined): string | null {
+  const trimmed = path?.trim() || '';
+  return trimmed ? canonicalBindingPath(trimmed) : null;
+}
+
+function validateRunWorkspaceBindingMatchesCurrentResolution(
+  store: StoryStore,
+  run: ReviewRun,
+): RunWorkspaceBindingValidation | null {
+  const binding = run.workspaceBinding;
+  if (!binding) return null;
+
+  let currentResolution: ReturnType<typeof resolveStorySignedWorkspace>;
+  try {
+    currentResolution = resolveStorySignedWorkspace({
+      store,
+      storyId: run.storyId,
+      metadataRoot: binding.metadataRoot,
+    });
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false,
+      projectRoot: binding.signedWorkspaceRoot,
+      code: 'stale_workspace_binding',
+      message: `reviewRunId ${run.reviewRunId} workspaceBinding cannot be compared to current story signed workspace resolution: ${reason}`,
+    };
+  }
+
+  if (!currentResolution.resolved || !currentResolution.signedWorkspaceRoot) {
+    return {
+      ok: false,
+      projectRoot: binding.signedWorkspaceRoot,
+      code: 'stale_workspace_binding',
+      message: `reviewRunId ${run.reviewRunId} workspaceBinding no longer matches a resolved current story signed workspace: ${currentResolution.unresolvedReason || 'unresolved'}`,
+    };
+  }
+
+  const comparisons = [
+    {
+      field: 'metadataRoot',
+      actual: canonicalBindingPath(binding.metadataRoot),
+      expected: currentResolution.metadataRoot,
+    },
+    {
+      field: 'signedWorkspaceRoot',
+      actual: canonicalBindingPath(binding.signedWorkspaceRoot),
+      expected: currentResolution.signedWorkspaceRoot,
+    },
+    {
+      field: 'repoRoot',
+      actual: canonicalOptionalBindingPath(binding.repoRoot),
+      expected: currentResolution.repoRoot,
+    },
+    {
+      field: 'workspaceMode',
+      actual: binding.workspaceMode,
+      expected: currentResolution.resolutionSource,
+    },
+  ];
+
+  const mismatch = comparisons.find((entry) => entry.actual !== entry.expected);
+  if (!mismatch) return null;
+
+  return {
+    ok: false,
+    projectRoot: binding.signedWorkspaceRoot,
+    code: 'stale_workspace_binding',
+    message: (
+      `reviewRunId ${run.reviewRunId} workspaceBinding is stale relative to current story signed workspace resolution: ` +
+      `${mismatch.field} expected ${mismatch.expected ?? '(none)'}, got ${mismatch.actual ?? '(none)'}`
+    ),
+  };
+}
+
 function validateRunWorkspaceBinding(
+  store: StoryStore,
   run: ReviewRun,
   fallbackProjectRoot: string,
 ): RunWorkspaceBindingValidation {
@@ -496,6 +582,9 @@ function validateRunWorkspaceBinding(
       message: `reviewRunId ${run.reviewRunId} has tampered workspaceBinding or mismatched headHash/materialHash`,
     };
   }
+
+  const currentResolutionMismatch = validateRunWorkspaceBindingMatchesCurrentResolution(store, run);
+  if (currentResolutionMismatch) return currentResolutionMismatch;
 
   const signedWorkspaceRoot = run.workspaceBinding.signedWorkspaceRoot;
   const failure = diagnoseReviewRunSnapshot(signedWorkspaceRoot);
@@ -537,7 +626,7 @@ export function assertCurrentReviewRunForEvidence(
   if (!run) {
     throw new Error(`review evidence for ${agent} references unknown reviewRunId ${reviewRunId}. ${startRunHint(story.storyId, agent)}`);
   }
-  const workspaceValidation = validateRunWorkspaceBinding(run, projectRoot);
+  const workspaceValidation = validateRunWorkspaceBinding(store, run, projectRoot);
   if (!workspaceValidation.ok) {
     throw new Error(
       `review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid workspace binding: ` +
@@ -627,7 +716,7 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} references unknown reviewRunId ${evidence.reviewRunId}. ${startRunHint(story.storyId, evidence.agent)}`,
     };
   }
-  const workspaceValidation = validateRunWorkspaceBinding(run, projectRoot);
+  const workspaceValidation = validateRunWorkspaceBinding(store, run, projectRoot);
   if (!workspaceValidation.ok) {
     return {
       code: workspaceValidation.code ?? 'workspace_binding_tampered',

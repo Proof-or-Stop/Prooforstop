@@ -225,7 +225,8 @@ const requiredRuntimeEntries = [
   {
     // B-b750: ReviewRun.workspaceBinding is gate-consumed structured evidence.
     // review_run_start signs it, and REVIEW consumers reject tampered bindings
-    // while using signedWorkspaceRoot for freshness and scope checks.
+    // or bindings that no longer match the current story signed workspace
+    // resolution, while using signedWorkspaceRoot for freshness and scope checks.
     name: 'runtime:review_run_workspace_binding_gate',
     level: 'L4',
     owner: 'core/review-run',

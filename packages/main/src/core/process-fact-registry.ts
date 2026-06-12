@@ -168,7 +168,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun; workspaceBinding.bindingHash is folded into new review-run signatures',
+    signature: 'signReviewRun/verifyReviewRun; workspaceBinding.bindingHash is folded into new review-run signatures and compared to current story signed workspace resolution by REVIEW consumers',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },

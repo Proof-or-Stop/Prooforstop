@@ -223,13 +223,44 @@ function extractReviewRunId(output: string): string {
   return match![0];
 }
 
-async function startReviewRun(cwd: string, storyId: string, agent: string, extra: Record<string, unknown> = {}): Promise<string> {
+async function startReviewRunWithOutput(
+  cwd: string,
+  storyId: string,
+  agent: string,
+  extra: Record<string, unknown> = {},
+): Promise<{ reviewRunId: string; output: string }> {
   const output = await runKoala(cwd, 'review_run_start', {
     storyId,
     agent,
     ...extra,
   });
-  return extractReviewRunId(output);
+  return { reviewRunId: extractReviewRunId(output), output };
+}
+
+async function startReviewRun(cwd: string, storyId: string, agent: string, extra: Record<string, unknown> = {}): Promise<string> {
+  return (await startReviewRunWithOutput(cwd, storyId, agent, extra)).reviewRunId;
+}
+
+const localAuthorityCompletionFieldPattern = /\b(?:authorityDone|fullAuthorityDone|receiptVerified|productionDone)\b/;
+
+function assertNoAuthorityCompletionClaims(label: string, value: unknown): void {
+  const text = typeof value === 'string' ? value : JSON.stringify(value);
+  assert.doesNotMatch(text, localAuthorityCompletionFieldPattern, `${label} must not claim Authority-backed completion`);
+}
+
+function assertLocalReviewEvidenceDoesNotClaimAuthority(root: string, storyId: string, outputs: string[]): void {
+  const store = new StoryStore(root);
+  assert.equal(store.readAuthorityReceiptRefs(storyId), null, 'local review_run_start/review_pass_set must not persist Authority receipt refs');
+  assert.equal(
+    existsSync(store.storyFilePath(storyId, 'authority-receipt-refs.json')),
+    false,
+    'local review_run_start/review_pass_set must not create authority-receipt-refs.json',
+  );
+  outputs.forEach((output, index) => assertNoAuthorityCompletionClaims(`local review CLI output ${index + 1}`, output));
+  for (const artifact of ['review-runs.json', 'review-passes.json']) {
+    const path = store.storyFilePath(storyId, artifact);
+    if (existsSync(path)) assertNoAuthorityCompletionClaims(`local review artifact ${artifact}`, readFileSync(path, 'utf-8'));
+  }
 }
 
 function now(): string {
@@ -670,6 +701,23 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     assert.match(wrongCwd.stderr, new RegExp(storyId));
     assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'wrong cwd failure must not write reviewer runs');
 
+    const branchTamperedStory = store.readStory(storyId);
+    branchTamperedStory.worktree!.path = '.';
+    store.writeStory(storyId, branchTamperedStory);
+    const branchTamperedResolution = await runKoalaJson<{
+      resolved: boolean;
+      signedWorkspaceRoot: string | null;
+      resolutionSource: string;
+      unresolvedReason: string | null;
+    }>(worktreeRoot, 'story_resolve', { storyId });
+    assert.equal(branchTamperedResolution.resolved, true);
+    assert.equal(branchTamperedResolution.signedWorkspaceRoot, canonicalPath(worktree));
+    assert.equal(branchTamperedResolution.resolutionSource, 'linked-story-branch-worktree');
+    assert.notEqual(branchTamperedResolution.signedWorkspaceRoot, canonicalPath(worktreeRoot), 'persisted story.worktree.path on main must not be used as signedWorkspaceRoot');
+    const restoredStory = store.readStory(storyId);
+    restoredStory.worktree!.path = `.worktrees/${storyId}`;
+    store.writeStory(storyId, restoredStory);
+
     const splitRootRun = await runKoalaRaw(worktree, 'review_run_start', {
       storyId,
       agent: 'koala-review-quality',
@@ -757,6 +805,43 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     });
     assert.equal(pass.code, 0, pass.stderr);
 
+    const otherGitRoot = join(bound.root, 'othercreek');
+    mkdirSync(otherGitRoot, { recursive: true });
+    git(otherGitRoot, ['init']);
+    git(otherGitRoot, ['checkout', '-B', 'main']);
+    git(otherGitRoot, ['config', 'user.email', 'smoke@example.test']);
+    git(otherGitRoot, ['config', 'user.name', 'Koala Smoke']);
+    write(otherGitRoot, 'README.md', 'alternate git material root\n');
+    write(otherGitRoot, 'packages/main/src/base.ts', 'export const alternate = true;\n');
+    commit(otherGitRoot, 'alternate git material base');
+    write(bound.root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+      workflow: { profile: 'balanced' },
+      gitRoot: 'othercreek',
+    }, null, 2));
+    const driftRejected = await runKoalaRaw(bound.root, 'review_pass_set', {
+      storyId,
+      agent: 'koala-review-quality',
+      reviewRunId,
+      note: 'old split-root review pass must be rejected after gitRoot changes.',
+    });
+    assert.notEqual(driftRejected.code, 0);
+    assert.match(driftRejected.stderr, /workspace binding|signed workspace resolution|stale/i);
+    assert.match(driftRejected.stderr, /signedWorkspaceRoot|workspaceBinding/i);
+    write(bound.root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+      workflow: { profile: 'balanced' },
+      gitRoot: 'clawcreek',
+    }, null, 2));
+
     const tampered = store.readReviewRuns(storyId);
     tampered.runs[0].workspaceBinding!.signedWorkspaceRoot = bound.root;
     store.writeReviewRuns(storyId, tampered);
@@ -814,11 +899,11 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
     writeReviewStory(store, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs', 'behavior']
       .map(name => `koala-review-${name}`);
-    const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
+    const starts = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRunWithOutput(root, storyId, agent)] as const)));
     const outputs = await Promise.all(agents.map(agent => runKoala(root, 'review_pass_set', {
       storyId,
       agent,
-      reviewRunId: runIds.get(agent),
+      reviewRunId: starts.get(agent)?.reviewRunId,
       note: `${agent} checked current round and found no blocking findings.`,
     })));
     const ids = outputs.map(out => out.match(/B-rpcli:RP-\d+/)?.[0]).filter(Boolean);
@@ -829,6 +914,10 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
     for (const pass of passes) {
       assertIsoReviewRound(pass.reviewRound, now(), `CLI-created review pass ${pass.id} reviewRound`);
     }
+    assertLocalReviewEvidenceDoesNotClaimAuthority(root, storyId, [
+      ...Array.from(starts.values()).map(start => start.output),
+      ...outputs,
+    ]);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

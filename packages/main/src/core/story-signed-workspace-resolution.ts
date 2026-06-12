@@ -48,6 +48,11 @@ interface ConfiguredGitRootResolution {
   reason: string | null;
 }
 
+interface PersistedStoryWorktreeResolution {
+  path: string | null;
+  reason: string | null;
+}
+
 export function resolveStorySignedWorkspace(
   opts: ResolveStorySignedWorkspaceOptions,
 ): StorySignedWorkspaceResolution {
@@ -61,19 +66,19 @@ export function resolveStorySignedWorkspace(
   const unresolvedReasons: string[] = [];
 
   if (story.worktree?.path) {
-    const resolvedWorktree = resolvePersistedStoryWorktree(metadataRoot, story.worktree.path);
-    if (resolvedWorktree) {
+    const resolvedWorktree = resolvePersistedStoryWorktree(metadataRoot, story.worktree.path, expectedBranch);
+    if (resolvedWorktree.path) {
       return resolved(
         story,
         metadataRoot,
         storyDir,
-        resolvedWorktree,
+        resolvedWorktree.path,
         'story-worktree',
-        resolvedWorktree,
+        resolvedWorktree.path,
         requiresWorktree,
       );
     }
-    unresolvedReasons.push('story_worktree_path_is_not_a_git_worktree');
+    unresolvedReasons.push(resolvedWorktree.reason || 'story_worktree_path_is_not_a_git_worktree');
   }
 
   const configuredGitRoot = resolveConfiguredGitRoot(metadataRoot, config.gitRoot);
@@ -193,12 +198,23 @@ function unresolved(
   };
 }
 
-function resolvePersistedStoryWorktree(metadataRoot: string, storedPath: string): string | null {
+function resolvePersistedStoryWorktree(
+  metadataRoot: string,
+  storedPath: string,
+  expectedBranch: string,
+): PersistedStoryWorktreeResolution {
+  let sawGitRoot = false;
+  let sawWrongBranch = false;
   for (const candidate of storyWorktreeCandidates(metadataRoot, storedPath)) {
     const probe = probeGitRoot(candidate);
-    if (probe.ok && probe.topLevel && canonicalPath(candidate) === probe.topLevel) return probe.topLevel;
+    if (!probe.ok || !probe.topLevel || canonicalPath(candidate) !== probe.topLevel) continue;
+    sawGitRoot = true;
+    if (gitRootHasBranch(probe.topLevel, expectedBranch)) return { path: probe.topLevel, reason: null };
+    sawWrongBranch = true;
   }
-  return null;
+  if (sawWrongBranch) return { path: null, reason: 'story_worktree_path_branch_mismatch' };
+  if (sawGitRoot) return { path: null, reason: 'story_worktree_path_branch_unresolved' };
+  return { path: null, reason: 'story_worktree_path_is_not_a_git_worktree' };
 }
 
 function storyWorktreeCandidates(metadataRoot: string, storedPath: string): string[] {
@@ -215,6 +231,11 @@ function resolveLinkedStoryWorktree(repoRoot: string, expectedBranch: string): s
   const probe = probeGitRoot(linked.path);
   if (!probe.ok || !probe.topLevel) return null;
   return probe.topLevel;
+}
+
+function gitRootHasBranch(gitRoot: string, expectedBranch: string): boolean {
+  const branch = gitProbe('git rev-parse --abbrev-ref HEAD', { cwd: gitRoot });
+  return branch.ok && branch.output === expectedBranch;
 }
 
 function resolveConfiguredGitRoot(metadataRoot: string, configuredGitRoot: string | undefined): ConfiguredGitRootResolution | null {
