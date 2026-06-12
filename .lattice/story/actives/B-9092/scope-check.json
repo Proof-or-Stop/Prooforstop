@@ -1,0 +1,38 @@
+{
+  "storyId": "B-9092",
+  "checkedAt": "2026-06-12T16:11:51.594Z",
+  "features": [
+    {
+      "feature": "F-009 target proof scope freeze",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md + checklist.json + plan.md: freeze HEAD/materialHash/suiteRunId/artifact root/F-009 snapshot before proof attempts"
+    },
+    {
+      "feature": "F-009 Layer 2 formal proof and fail-closed negative controls",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json + plan.md: run Engineering suite/evaluator against frozen root; require Development proof, 9 ENG reports, and local-only/stale/forged/wrong-target/wrong-suiteRunId/Authority-overclaim controls"
+    },
+    {
+      "feature": "F-009 final closure or retention with two-host local audit verdicts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json + plan.md: collect Claude/Codex localNonAuthorityAudit verdicts over same anchors; resolve only if evidence proves closure, otherwise keep open/verified with exact missing proof"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c4463cc09ff1f1b027d9021255959329005ac7a925b99f1364a443250862417f",
+  "openQuestions": []
+}

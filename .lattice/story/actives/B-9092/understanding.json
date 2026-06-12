@@ -1,0 +1,29 @@
+{
+  "task": "Execute the F-009 Layer 2 Engineering formal proof closure path without weakening proof semantics.",
+  "outcome": "The terminal shows a final B-9092 summary saying either F-009 resolved with fresh formal Layer 2 evidence, or F-009 remains open/verified with exact missing proof; Layer 3, Production Safety, and global claims remain locked unless separately proven.",
+  "facts": [
+    "F-009 is open/high/suspected in B-META-framework-audit.",
+    "B-e155 produced f009-layer2-engineering-proof-gap-execution-plan.md but that document does not close F-009.",
+    "Current capability_claim_formal_evaluate --target=engineering returns LOCKED on default artifacts because existing development/engineering proof is stale or incomplete.",
+    "Formal proof commands exist, including baseline_run --formal, baseline_suite_report, and capability_claim_formal_evaluate.",
+    "All Lattice assets must stay under .lattice; .omx is disabled legacy material."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency of logic for localOnly, capabilityProof, formalProof, materialHash, suiteRunId, receiptRefs, and Authority boundaries.",
+    "Do not claim receiptVerified, productionDone, fullAuthorityDone, Layer 3, Layer 4, or global capability from this Layer 2 closure story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".lattice/artifacts/baseline/f009-layer2-closure-*",
+    ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json",
+    ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+    ".lattice/story/actives/B-9092/evidence/f009-host-verdicts.md",
+    ".lattice/story/actives/B-9092/evidence/f009-final-status.md",
+    ".lattice/story/actives/B-META-framework-audit/findings.json",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-12T16:13:10.074Z"
+}

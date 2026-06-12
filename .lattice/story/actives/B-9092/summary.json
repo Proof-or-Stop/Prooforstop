@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9092",
+  "changes": "Recorded F-009 closure audit evidence under .lattice, added machine-backed negative controls for malformed, wrong-target, wrong-suiteRunId, local-only, and Authority-overclaim cases, kept F-009 open/suspected instead of falsely unlocking Layer 2.",
+  "usage": "Review .lattice/story/actives/B-9092/evidence/f009-final-status.md and f009-negative-controls.md, then use lattice finding_list --storyId=B-META-framework-audit to see F-009 remains open/suspected.",
+  "expectedOutcome": "User sees whether F-009 can be closed. If proof is insufficient, the result must clearly retain F-009 and list exact missing proof without claiming Layer 2 or Authority production capability.",
+  "actualTranscript": "lattice validate --story=B-9092 --json returned status=pass, allPass=true, npm test passed, and verification intent coverage 10/10. F-009 remains open/suspected; B-9092:F-001 was resolved after negative controls were added.",
+  "outcomeDiff": "Expected possible closure; actual result is audit-only retention because the frozen proof root remains BLOCKED/LOCKED and does not contain fresh Development proof plus all 9 ENG final reports.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "audit_only",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "F-009 is not resolved; Layer 2 Engineering claim is not unlocked; Authority receipt verification, Production Safety, and global capability remain unproven.",
+  "pitfalls": "Do not treat local formal artifacts or host verdicts as Authority receipts. Negative-control docs must avoid embedding forbidden literal strings that make scans self-match.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 95549
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12687
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 392951
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2118560
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 766209
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 62555
+    }
+  },
+  "totalDurationMs": 3448518,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T17:03:10.412Z",
+  "updatedAt": "2026-06-12T17:03:10.412Z"
+}

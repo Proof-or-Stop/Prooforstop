@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Fail closed rather than manufacture proof.",
+    "Keep Layer 2 proof separate from Authority and higher-layer claims.",
+    "Use fresh, isolated .lattice artifacts and explicit material binding.",
+    "Resolve F-009 only with evidence, not prose."
+  ],
+  "drivers": [
+    "F-009 is currently a high suspected audit finding blocking convergence.",
+    "Existing formal evaluator is LOCKED on stale/incomplete artifacts.",
+    "User asked for two-host auditor-led execution under four anti-bloat principles."
+  ],
+  "options": [
+    {
+      "name": "A: Execute the existing F-009 evidence-closure plan without code semantic changes",
+      "pros": [
+        "Directly addresses the suspected finding with fresh artifacts and negative controls",
+        "Avoids arbitrary optimization or weakening proof semantics",
+        "Can honestly resolve, verify, or retain F-009 based on evidence"
+      ],
+      "cons": [
+        "May still end with F-009 open if required proof inputs are unavailable",
+        "Requires careful artifact hygiene and repeated freshness checks"
+      ]
+    },
+    {
+      "name": "B: Modify formal proof code now to force Layer 2 unlock",
+      "pros": [
+        "Could make a green result quickly if the implementation were truly missing"
+      ],
+      "cons": [
+        "Risks optimizing before confirming the gap",
+        "Could weaken localOnly/capabilityProof/formalProof semantics",
+        "Could create false capability claims"
+      ]
+    },
+    {
+      "name": "C: Leave F-009 open with only the existing plan document",
+      "pros": [
+        "No further implementation risk"
+      ],
+      "cons": [
+        "Does not satisfy convergence or user request",
+        "Leaves high suspected gap without closure evidence"
+      ]
+    }
+  ],
+  "chosen": "A: Execute the existing F-009 evidence-closure plan without code semantic changes",
+  "rationale": "Choose the evidence-closure path because the current source already has formal proof machinery, but the active blocker is missing fresh proof artifacts and closure evidence, not an established need to change semantics.",
+  "preMortem": [
+    {
+      "scenario": "False unlock from stale or mixed artifacts",
+      "trigger": "The suite scans a shared artifact root containing old baseline reports",
+      "consequence": "Layer 2 claim could appear unlocked from stale evidence",
+      "mitigation": "Use a clean .lattice artifact root and run stale/mismatch negative controls"
+    },
+    {
+      "scenario": "Authority overclaim from local host review",
+      "trigger": "Claude/Codex verdict text is treated as receipt proof",
+      "consequence": "F-009 is falsely closed and production authority is implied",
+      "mitigation": "Record host verdicts only as localNonAuthorityAudit and keep receiptVerified/productionDone/fullAuthorityDone false"
+    },
+    {
+      "scenario": "Closure without all ENG coverage",
+      "trigger": "Only a subset of ENG baselines gets formal final reports",
+      "consequence": "F-009 closure is incomplete and convergence is misleading",
+      "mitigation": "Require all nine ENG baseline reports and formal evaluator output before resolving F-009"
+    },
+    {
+      "scenario": "Code changes expand scope unnecessarily",
+      "trigger": "Executor starts changing proof semantics before reproducing the failure",
+      "consequence": "Bloat and regression risk increases",
+      "mitigation": "Only edit code if a verified correctness gap remains after source and artifact inventory"
+    }
+  ],
+  "timestamp": "2026-06-12T16:08:10.184Z"
+}
