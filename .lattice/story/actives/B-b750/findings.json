@@ -28,6 +28,19 @@
       "reviewRound": "2026-06-12T16:39:13.623Z",
       "reviewRunId": "B-b750:RR-003",
       "_hash": "0db4bacdb361c7aae3348a26a8b771c8b98a0c51bb8a09e7af5b4421211c54b3"
+    },
+    {
+      "id": "B-b750:F-003",
+      "desc": "packages/main/src/core/story-signed-workspace-resolution.ts:63 resolves story.worktree.path after only proving the path is a git worktree; it never checks that the worktree is on story.worktree.branch or story/<storyId>. A stale or tampered story worktree record can therefore make review_run_start sign HEAD/materialHash from an unrelated branch, defeating the signed workspace binding this story is adding.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-12T16:44:03.612Z",
+      "reviewRound": "2026-06-12T16:39:13.623Z",
+      "reviewRunId": "B-b750:RR-001",
+      "_hash": "bb42bc14ac7697fa15aa26dcea7b24e82a7214ee9c0be5fcfaf24bd0f08c21ca"
     }
   ]
 }
