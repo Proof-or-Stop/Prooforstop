@@ -162,9 +162,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T18:07:54.086Z",
       "userSees": "User sees done_closure listed as a read-only lifecycle observability command rather than gate evidence or Authority proof.",
       "files": {
         "modify": [
@@ -199,7 +199,39 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verifies done_closure exists in CLI schema, command policy, process fact levels, and registry as L0 read-only.",
+          "headHash": "613c4368f68c014bf36ba45fcce55ab0cf4ce567",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:54.135Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract includes a done_closure read-only invariant that fails if CLI/policy/level/registry surfaces drift or disappear.",
+          "headHash": "613c4368f68c014bf36ba45fcce55ab0cf4ce567",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:54.171Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract asserts done_closure is not gateEvidence, has no produced artifact, and has no lifecycle consumer gate.",
+          "headHash": "613c4368f68c014bf36ba45fcce55ab0cf4ce567",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:54.207Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
