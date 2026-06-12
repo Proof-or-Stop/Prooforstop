@@ -56,9 +56,9 @@
           "command": "node packages/main/dist/cli.js story_resolve --storyId=B-b750 --format=json",
           "result": "pass",
           "note": "story_resolve for B-b750 returned resolved=true with metadataRoot, signedWorkspaceRoot, repoRoot, authoritativeCwd, resolutionSource=story-worktree, and unresolvedReason=null.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression covers non-git wrapper metadataRoot without gitRoot: story_resolve returns resolved=false, signedWorkspaceRoot=null, authoritativeCwd=null, and review_run_start creates no run.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression covers wrapper root with nested git repo but no gitRoot and proves Lattice does not auto-select the nested repository.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression verifies review_run_start persists workspaceBinding with metadataRoot, signedWorkspaceRoot, workspaceMode, headHash, materialHash, and bindingHash for configured gitRoot split-root projects.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -149,9 +149,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "semantic scope guard smoke still passes after workspaceBinding; review evidence freshness and scope checks continue to reject stale reviewer runs using signed workspace facts.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,9 +159,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression mutates reviewRun.workspaceBinding.signedWorkspaceRoot after run creation and verifies review_pass_set rejects the tampered binding before accepting pass evidence.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
@@ -226,9 +226,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression covers ordinary git root, linked story worktree split-root, and explicit gitRoot split-root cases where story_resolve resolves and review_run_start captures HEAD/materialHash.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -236,9 +236,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression covers non-git wrapper root without gitRoot and verifies story_resolve/review_run_start fail closed with unresolved signedWorkspaceRoot and no reviewer run metadata.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -246,9 +246,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression keeps placeholder rollbackRef rejection, rejects tampered workspaceBinding, and does not report local reviewer evidence as Authority Server receipt-backed completion.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -318,9 +318,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression builds a non-git metadataRoot with config gitRoot=clawcreek, verifies story_resolve returns resolutionSource=configured-git-root, and review_run_start captures HEAD/materialHash from that git root.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -328,9 +328,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression verifies an unbound non-git wrapper root fails closed before currentReviewRound repair or review-run creation; resolver also validates configured gitRoot paths before use.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -338,9 +338,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "field regression creates a nested git repository under a wrapper metadataRoot and proves Lattice does not use it unless gitRoot is explicitly configured.",
-          "headHash": "bb40aada2963636e167de6f9c7810fdbf73b8f7a",
-          "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
-          "timestamp": "2026-06-12T16:54:43.082Z"
+          "headHash": "9cbb8167ce05c98387ed29be5b8d8d2d1d7dc2c2",
+          "materialHash": "97ba4a68577e55905a21f7d73384b6bbfd1eec5836ef3b3a1503a684e3422410",
+          "timestamp": "2026-06-12T17:14:39.621Z"
         },
         {
           "intentRef": "CHK-004:happy:0",
