@@ -151,9 +151,9 @@
       "id": "CHK-003",
       "title": "Apply the minimal reconciliation that unblocks B-9d6c DONE",
       "context": "Make main clean by committing valid assets or restoring confirmed stale/scratch changes, then verify B-9d6c can advance to DONE.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T14:19:29.953Z",
-      "endTime": null,
+      "endTime": "2026-06-12T14:19:47.429Z",
       "relatedDocs": [
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
@@ -194,7 +194,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "git status --short",
+          "result": "pass",
+          "note": "Main worktree is clean after committing Layer4 docs plus NAV, deferring stale/non-ready assets into stash, and completing B-9d6c DONE.",
+          "headHash": "741fe2c7d18abfd530a5e4b343225ebabbd2280f",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:19:47.485Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice story_advance {storyId:B-9d6c,phase:DONE}",
+          "result": "pass",
+          "note": "B-9d6c advanced to DONE successfully, merged story/B-9d6c back to main, cleaned its worktree, and produced merge commit a55a3f34.",
+          "headHash": "741fe2c7d18abfd530a5e4b343225ebabbd2280f",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:19:47.525Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git stash list and targeted cleanup transcript",
+          "result": "pass",
+          "note": "No .omx path was used. No git reset --hard was run. Stale baseline artifacts and non-ready docs were preserved in stash@{0}: B-d925 defer stale artifacts and non-ready docs before B-9d6c DONE.",
+          "headHash": "741fe2c7d18abfd530a5e4b343225ebabbd2280f",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:19:47.558Z"
+        }
+      ]
     }
   ]
 }
