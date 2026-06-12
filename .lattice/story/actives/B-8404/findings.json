@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-8404:F-001",
+      "desc": "Metadata filtering in active worktree overlap detection hard-codes broad roots/filenames instead of using the runtime artifact registry. It can hide material files with runtime-like basenames and treats .omx as ignored metadata despite local OMX being disabled, so real overlapping material changes can be missed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T20:02:07.587Z",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "reviewRunId": "B-8404:RR-001",
+      "_hash": "e900b3623a0a18c7c3175de717f30fc967bcc6bee17c4cd0c7be75ad17f40168",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/core/runtime-artifact-registry.ts",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ]
+    }
+  ]
+}

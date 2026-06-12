@@ -1,0 +1,260 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-8404:RR-001",
+      "storyId": "B-8404",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "startedAt": "2026-06-12T19:54:26.206Z",
+      "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+      "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+      "promptHash": "6a6e6e759c49f82a72a4538c58e9171e54f399b4fc4436909743ce6017b7c8a3",
+      "scopeBinding": {
+        "scopeContractHash": "81f5de3e28662554e331609eb88d976caeb1160e54de61d66751b5ea0c44ac01",
+        "diffPackHash": "dafd7d2c122e70f2f5e91e3f5a5a629371b48e6fa07d8e7d627258b5d17fee2d",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0",
+          "CHK-004:adversarial:0",
+          "CHK-004:edge:0",
+          "CHK-004:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "0c6a1e7793e66e5457db386185b8413b5d6fab615e6454b01272b4e4da1bba69",
+          "13353c84872fa1d8e81c4b081fe5d2ceaea568b7fe58824df6291e0946208f8e",
+          "28821ec29839380f47e0ffb16c04508ef138bba8b4d5f56a8934f4c988d6ae1c",
+          "2be612854a23e2502b03c8a087647a1d36f37dd26951032c3a357b1930c24576",
+          "59238eaaf576a166bd51590f950540c37119e4d377acf41a689a19d5b18e3573",
+          "6961fb8eae5bcc9904ee6e85c172d80ed6385930b2e90314206f367a5e5744d0",
+          "832db6933f4ee25ffbf6d5134ebd864b8ed9b9a0d604368f5fa97708926361a6",
+          "9e37071af100a86fa62507603481a5bd6ea43347488472eca8c15303cf85eed4",
+          "9f82a6471d7b5a0129d4f93dd19a6b041b43ffd95a878a62d3b3400bebcab755",
+          "b5289b061ad52068be3bd64d30c78501d4e5da90119f85846bab79aa39fad184",
+          "b59463235b4ebbee2485cc1db99bcde36d919c6cf54a0bb0bbf88e6e050b1e2c",
+          "ccf32b3fbfd586bb0ba3b09406fc3ebcd180188612fad2b8e31205e7ad6ee1c6",
+          "d842bab4616924725daffb64c19e5c62a937568073f514d1d4c4ac865c060a82",
+          "f7080259a4da0d901547197412497ab2f7d942a386f140e341307aee33952199",
+          "ff7c6ba1cef1c38395873d9247974ea9de9c53c6e135bfc7038bb912eb441b6a"
+        ],
+        "bindingHash": "cb0537316c0a99dcf98fada35b46445ab3c7e88eaa07542223d7883bf575906f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "workspaceMode": "story-worktree",
+        "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+        "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+        "bindingHash": "f8f2da10bfa10558c96b7d2021a4dacbc133a08e7ff1ec4fd3e76abab2f7e3f3"
+      },
+      "_hash": "45508cfaf41e63ab64447ec009edf4df54108040564f59c0ff877587e39fe301"
+    },
+    {
+      "reviewRunId": "B-8404:RR-002",
+      "storyId": "B-8404",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "startedAt": "2026-06-12T19:54:33.079Z",
+      "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+      "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+      "promptHash": "e38464eaa62e182630f40b39663188e2addf2538e68e8eee46742e5b37c42ae0",
+      "scopeBinding": {
+        "scopeContractHash": "81f5de3e28662554e331609eb88d976caeb1160e54de61d66751b5ea0c44ac01",
+        "diffPackHash": "dafd7d2c122e70f2f5e91e3f5a5a629371b48e6fa07d8e7d627258b5d17fee2d",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0",
+          "CHK-004:adversarial:0",
+          "CHK-004:edge:0",
+          "CHK-004:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "0c6a1e7793e66e5457db386185b8413b5d6fab615e6454b01272b4e4da1bba69",
+          "13353c84872fa1d8e81c4b081fe5d2ceaea568b7fe58824df6291e0946208f8e",
+          "28821ec29839380f47e0ffb16c04508ef138bba8b4d5f56a8934f4c988d6ae1c",
+          "2be612854a23e2502b03c8a087647a1d36f37dd26951032c3a357b1930c24576",
+          "59238eaaf576a166bd51590f950540c37119e4d377acf41a689a19d5b18e3573",
+          "6961fb8eae5bcc9904ee6e85c172d80ed6385930b2e90314206f367a5e5744d0",
+          "832db6933f4ee25ffbf6d5134ebd864b8ed9b9a0d604368f5fa97708926361a6",
+          "9e37071af100a86fa62507603481a5bd6ea43347488472eca8c15303cf85eed4",
+          "9f82a6471d7b5a0129d4f93dd19a6b041b43ffd95a878a62d3b3400bebcab755",
+          "b5289b061ad52068be3bd64d30c78501d4e5da90119f85846bab79aa39fad184",
+          "b59463235b4ebbee2485cc1db99bcde36d919c6cf54a0bb0bbf88e6e050b1e2c",
+          "ccf32b3fbfd586bb0ba3b09406fc3ebcd180188612fad2b8e31205e7ad6ee1c6",
+          "d842bab4616924725daffb64c19e5c62a937568073f514d1d4c4ac865c060a82",
+          "f7080259a4da0d901547197412497ab2f7d942a386f140e341307aee33952199",
+          "ff7c6ba1cef1c38395873d9247974ea9de9c53c6e135bfc7038bb912eb441b6a"
+        ],
+        "bindingHash": "cb0537316c0a99dcf98fada35b46445ab3c7e88eaa07542223d7883bf575906f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "workspaceMode": "story-worktree",
+        "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+        "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+        "bindingHash": "f8f2da10bfa10558c96b7d2021a4dacbc133a08e7ff1ec4fd3e76abab2f7e3f3"
+      },
+      "_hash": "6add3fcc70d7e6751b40531b1f54e11006fed455556a0fdd79eb241879bdcc50"
+    },
+    {
+      "reviewRunId": "B-8404:RR-003",
+      "storyId": "B-8404",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "startedAt": "2026-06-12T19:54:42.517Z",
+      "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+      "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+      "promptHash": "cb0e826ba3e1665301d2e3b4631c225dd11ffe7befddcd6981f106e73c4b0c21",
+      "scopeBinding": {
+        "scopeContractHash": "81f5de3e28662554e331609eb88d976caeb1160e54de61d66751b5ea0c44ac01",
+        "diffPackHash": "dafd7d2c122e70f2f5e91e3f5a5a629371b48e6fa07d8e7d627258b5d17fee2d",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0",
+          "CHK-004:adversarial:0",
+          "CHK-004:edge:0",
+          "CHK-004:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "0c6a1e7793e66e5457db386185b8413b5d6fab615e6454b01272b4e4da1bba69",
+          "13353c84872fa1d8e81c4b081fe5d2ceaea568b7fe58824df6291e0946208f8e",
+          "28821ec29839380f47e0ffb16c04508ef138bba8b4d5f56a8934f4c988d6ae1c",
+          "2be612854a23e2502b03c8a087647a1d36f37dd26951032c3a357b1930c24576",
+          "59238eaaf576a166bd51590f950540c37119e4d377acf41a689a19d5b18e3573",
+          "6961fb8eae5bcc9904ee6e85c172d80ed6385930b2e90314206f367a5e5744d0",
+          "832db6933f4ee25ffbf6d5134ebd864b8ed9b9a0d604368f5fa97708926361a6",
+          "9e37071af100a86fa62507603481a5bd6ea43347488472eca8c15303cf85eed4",
+          "9f82a6471d7b5a0129d4f93dd19a6b041b43ffd95a878a62d3b3400bebcab755",
+          "b5289b061ad52068be3bd64d30c78501d4e5da90119f85846bab79aa39fad184",
+          "b59463235b4ebbee2485cc1db99bcde36d919c6cf54a0bb0bbf88e6e050b1e2c",
+          "ccf32b3fbfd586bb0ba3b09406fc3ebcd180188612fad2b8e31205e7ad6ee1c6",
+          "d842bab4616924725daffb64c19e5c62a937568073f514d1d4c4ac865c060a82",
+          "f7080259a4da0d901547197412497ab2f7d942a386f140e341307aee33952199",
+          "ff7c6ba1cef1c38395873d9247974ea9de9c53c6e135bfc7038bb912eb441b6a"
+        ],
+        "bindingHash": "cb0537316c0a99dcf98fada35b46445ab3c7e88eaa07542223d7883bf575906f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "workspaceMode": "story-worktree",
+        "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+        "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+        "bindingHash": "f8f2da10bfa10558c96b7d2021a4dacbc133a08e7ff1ec4fd3e76abab2f7e3f3"
+      },
+      "_hash": "9112dbb0d6a73a660c43b7dc02c8dbdd5b14daea102c95c47e4bdd943f1c8814"
+    },
+    {
+      "reviewRunId": "B-8404:RR-004",
+      "storyId": "B-8404",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-12T19:53:38.579Z",
+      "startedAt": "2026-06-12T19:54:54.495Z",
+      "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+      "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+      "promptHash": "f8d1e2aff26267377793800b4d584a4c96e37ef899a90d57a7039838c174c4ae",
+      "scopeBinding": {
+        "scopeContractHash": "81f5de3e28662554e331609eb88d976caeb1160e54de61d66751b5ea0c44ac01",
+        "diffPackHash": "dafd7d2c122e70f2f5e91e3f5a5a629371b48e6fa07d8e7d627258b5d17fee2d",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0",
+          "CHK-004:adversarial:0",
+          "CHK-004:edge:0",
+          "CHK-004:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "0c6a1e7793e66e5457db386185b8413b5d6fab615e6454b01272b4e4da1bba69",
+          "13353c84872fa1d8e81c4b081fe5d2ceaea568b7fe58824df6291e0946208f8e",
+          "28821ec29839380f47e0ffb16c04508ef138bba8b4d5f56a8934f4c988d6ae1c",
+          "2be612854a23e2502b03c8a087647a1d36f37dd26951032c3a357b1930c24576",
+          "59238eaaf576a166bd51590f950540c37119e4d377acf41a689a19d5b18e3573",
+          "6961fb8eae5bcc9904ee6e85c172d80ed6385930b2e90314206f367a5e5744d0",
+          "832db6933f4ee25ffbf6d5134ebd864b8ed9b9a0d604368f5fa97708926361a6",
+          "9e37071af100a86fa62507603481a5bd6ea43347488472eca8c15303cf85eed4",
+          "9f82a6471d7b5a0129d4f93dd19a6b041b43ffd95a878a62d3b3400bebcab755",
+          "b5289b061ad52068be3bd64d30c78501d4e5da90119f85846bab79aa39fad184",
+          "b59463235b4ebbee2485cc1db99bcde36d919c6cf54a0bb0bbf88e6e050b1e2c",
+          "ccf32b3fbfd586bb0ba3b09406fc3ebcd180188612fad2b8e31205e7ad6ee1c6",
+          "d842bab4616924725daffb64c19e5c62a937568073f514d1d4c4ac865c060a82",
+          "f7080259a4da0d901547197412497ab2f7d942a386f140e341307aee33952199",
+          "ff7c6ba1cef1c38395873d9247974ea9de9c53c6e135bfc7038bb912eb441b6a"
+        ],
+        "bindingHash": "cb0537316c0a99dcf98fada35b46445ab3c7e88eaa07542223d7883bf575906f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8404",
+        "workspaceMode": "story-worktree",
+        "headHash": "c3cb8c5a83a03636104d6d28183e926249b2d932",
+        "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+        "bindingHash": "f8f2da10bfa10558c96b7d2021a4dacbc133a08e7ff1ec4fd3e76abab2f7e3f3"
+      },
+      "_hash": "d37b89840660f4214042c442282b8568be39188f8ec219ce81a2d20064d6aabb"
+    }
+  ]
+}
