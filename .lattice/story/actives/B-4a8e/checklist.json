@@ -96,7 +96,34 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "In a configured wrapper-root project, session_brief prints configured gitRoot and signed workspace OK; in an unresolved wrapper-root project, it still prints unresolved guidance."
+      "userSees": "The regression smoke proves the operator-visible configured and unresolved wrapper-root session_brief states remain stable.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "field-regression smoke asserts configured wrapper-root session_brief contains configured gitRoot and signed workspace OK output",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "field-regression smoke asserts unresolved wrapper-root session_brief still contains non-git/unresolved guidance and no OK claim",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "field-regression smoke asserts session_brief output does not mutate config while rendering wrapper-root state",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
