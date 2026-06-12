@@ -61,7 +61,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees review_run_start sign the resolved signedWorkspaceRoot, persist workspaceBinding on reviewer runs, and reject pass/finding evidence whose binding or material facts are stale or mismatched.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_run_start for a resolved signed workspace starts a run and persists workspaceBinding fields consistent with top-level headHash/materialHash.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "review_pass_set/finding_add freshness behavior still rejects stale reviewer runs after material changes using the same signed workspace facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tampered or mismatched workspaceBinding on a review run is rejected before pass/finding evidence can be accepted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
