@@ -38,13 +38,15 @@
       "desc": "packages/main/src/core/story-signed-workspace-resolution.ts:63 resolves story.worktree.path after only proving the path is a git worktree; it never checks that the worktree is on story.worktree.branch or story/<storyId>. A stale or tampered story worktree record can therefore make review_run_start sign HEAD/materialHash from an unrelated branch, defeating the signed workspace binding this story is adding.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T16:44:03.612Z",
       "reviewRound": "2026-06-12T16:39:13.623Z",
       "reviewRunId": "B-b750:RR-001",
-      "_hash": "bb42bc14ac7697fa15aa26dcea7b24e82a7214ee9c0be5fcfaf24bd0f08c21ca"
+      "_hash": "bb42bc14ac7697fa15aa26dcea7b24e82a7214ee9c0be5fcfaf24bd0f08c21ca",
+      "resolvedReason": "Fixed in bb40aada: persisted story.worktree.path resolution now verifies the worktree branch against story.worktree.branch / story/<storyId> before trusting it; branch-mismatched paths are rejected/fall through to valid linked story branch worktree resolution. Verified by npm --prefix packages/main run test:field-regression-cli-smoke and lattice validate --story=B-b750 --json.",
+      "resolvedAt": "2026-06-12T16:57:03.102Z"
     }
   ]
 }
