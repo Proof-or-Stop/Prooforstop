@@ -1,0 +1,35 @@
+{
+  "storyId": "B-4a8e",
+  "name": "session-brief-configured-gitroot-status",
+  "title": "Render configured gitRoot signed workspace in session brief",
+  "description": "When metadata root is not a git repository but gitRoot is explicitly configured and story_resolve can resolve a signed workspace, session_brief should not leave the user with only a Non-git project warning. It should show the configured gitRoot / signed workspace OK state so host status reflects the real resolved condition without auto-repairing or guessing repositories.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-06-12T20:59:22.144Z",
+  "startedAt": "2026-06-12T20:59:22.144Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T20:59:22.144Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T21:01:58.111Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4a8e",
+    "branch": "story/B-4a8e",
+    "createdAt": "2026-06-12T21:01:58.292Z"
+  }
+}
