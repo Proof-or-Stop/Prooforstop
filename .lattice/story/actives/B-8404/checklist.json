@@ -115,7 +115,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js -> exit 0 with fixture assertions covering: overlap detected without sharedHotspots, overlapping stories degraded out of parallel_dev, queue guidance lists file + peer story; WHY: deterministic regression proof of the end-to-end overlap behavior",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke fixtures where one story changes only Lattice/runtime metadata and another is clean non-overlapping -> no overlap reported for metadata-only diffs and the clean story remains a parallel candidate; WHY: negative coverage prevents false-positive regressions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts authority fields stay non-authoritative in overlap scenarios, and assertions are real (a deliberately broken expectation makes the smoke task exit non-zero); WHY: regression coverage that cannot fail is no coverage — the suite must go red when overlap behavior breaks",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
