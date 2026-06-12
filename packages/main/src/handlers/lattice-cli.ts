@@ -594,16 +594,29 @@ function validateRepairGitRootTarget(metadataRoot: string, requested: string): V
       `--set-git-root must be a relative path under the metadata root (${metadataRoot}); got an absolute path: ${requested}`,
     );
   }
+  // Lexical containment first: reject ../escapes before any existence check,
+  // without realpath so a /var metadata root (realpath /private/var) does not
+  // make a missing-but-contained target look like an escape.
+  const lexicalRoot = resolvePath(metadataRoot);
+  const lexicalCandidate = resolvePath(metadataRoot, requested);
+  const lexicalRel = relative(lexicalRoot, lexicalCandidate);
+  if (lexicalRel === '' || lexicalRel.startsWith('..') || isAbsolute(lexicalRel)) {
+    throw new Error(
+      `--set-git-root must stay strictly under the metadata root (${metadataRoot}); rejected unsafe path: ${requested}`,
+    );
+  }
+  if (!existsSync(lexicalCandidate)) {
+    throw new Error(`--set-git-root target does not exist: ${lexicalCandidate}`);
+  }
+  // Canonical containment second: the target exists, so realpath both sides to
+  // catch symlink escapes out of the metadata root.
   const canonicalMetadataRoot = canonicalFsPath(metadataRoot);
-  const candidate = canonicalFsPath(join(metadataRoot, requested));
+  const candidate = canonicalFsPath(lexicalCandidate);
   const rel = relative(canonicalMetadataRoot, candidate);
   if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) {
     throw new Error(
       `--set-git-root must stay strictly under the metadata root (${metadataRoot}); rejected unsafe path: ${requested}`,
     );
-  }
-  if (!existsSync(candidate)) {
-    throw new Error(`--set-git-root target does not exist: ${candidate}`);
   }
   const probe = gitProbe('git rev-parse --show-toplevel', { cwd: candidate });
   if (!probe.ok) {
