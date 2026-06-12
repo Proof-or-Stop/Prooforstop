@@ -27,6 +27,7 @@ import {
 } from '../core/scope-anti-expansion.js';
 import type { ChecklistData, ScopeFreezeCheckData, StoryInfo } from '../core/types.js';
 import { createScopeAntiExpansionHandlers } from '../handlers/scope-anti-expansion.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
 
 const NOW = '2026-06-12T12:00:00.000Z';
 const STORY_ID = 'B-scope-anti-expansion-smoke';
@@ -197,7 +198,9 @@ withTempContext('story_create persists initial scope and execution boundaries', 
     executionBoundary: {
       allowedCommands: ['npm --prefix packages/main run build'],
       allowedTools: ['shell'],
+      allowedPaths: ['packages/main/src'],
       excludedCommands: ['omx'],
+      blockedPaths: ['packages/main/dist'],
     },
     forceNew: true,
   });
@@ -207,6 +210,8 @@ withTempContext('story_create persists initial scope and execution boundaries', 
   assert.deepEqual(store.readScopeBoundary(storyId)?.excluded, ['Authority expansion']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.allowedCommands, ['npm --prefix packages/main run build']);
   assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedCommands, ['omx']);
+  assert.deepEqual(store.readExecutionBoundary(storyId)?.allowedPaths, ['packages/main/src']);
+  assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedPaths, ['packages/main/dist']);
 });
 
 withTempContext('story_create rejects malformed or blank scope boundary arrays', (root, store) => {
@@ -251,8 +256,89 @@ withTempStore('execution boundary rejects malformed arrays and unsafe paths', ()
   }), /executionBoundary\.allowedCommands must be an array of strings/);
   assert.throws(() => buildExecutionBoundary({
     storyId: STORY_ID,
+  }), /executionBoundary must include at least one allowed or excluded command\/tool\/path entry/);
+  assert.throws(() => buildExecutionBoundary({
+    storyId: STORY_ID,
     allowedPaths: ['../outside'],
   }), /executionBoundary\.allowedPaths must contain safe relative paths/);
+});
+
+withTempContext('INIT boundary handlers reject empty scope/execution and accept safe paths', (root, store) => {
+  seedStory(store);
+  const handlers = createScopeAntiExpansionHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  assert.throws(() => handlers.scope_boundary_set({
+    storyId: STORY_ID,
+    allowedScope: [],
+    userConfirmed: true,
+  }), /scopeBoundary\.allowed must include at least one non-empty entry/);
+  assert.throws(() => handlers.execution_boundary_set({
+    storyId: STORY_ID,
+  }), /executionBoundary must include at least one allowed or excluded command\/tool\/path entry/);
+  handlers.execution_boundary_set({
+    storyId: STORY_ID,
+    allowedPaths: ['packages/main/src'],
+    blockedPaths: ['packages/main/dist'],
+    actor: 'scope-anti-expansion-smoke',
+  });
+  assert.deepEqual(store.readExecutionBoundary(STORY_ID)?.allowedPaths, ['packages/main/src']);
+  assert.deepEqual(store.readExecutionBoundary(STORY_ID)?.excludedPaths, ['packages/main/dist']);
+});
+
+withTempContext('scope extension proposal persists proposal body separately from reason', (root, store) => {
+  seedStory(store);
+  const handlers = createScopeAntiExpansionHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  handlers.scope_extension_proposal({
+    storyId: STORY_ID,
+    proposal: 'Expand the story to include a documented migration recovery path.',
+    reason: 'Reviewer noticed a user-visible recovery gap.',
+    reviewer: 'koala-review-story-init',
+  });
+  const saved = store.readScopeExtensionProposals(STORY_ID).proposals[0];
+  assert.equal(saved.proposal, 'Expand the story to include a documented migration recovery path.');
+  assert.equal(saved.reason, 'Reviewer noticed a user-visible recovery gap.');
+  assert.ok(saved.proposalTextHash, 'proposalTextHash should be persisted');
+  assert.notEqual(saved.proposal, saved.reason, 'reason must not replace proposal body');
+});
+
+withTempContext('story_create refuses direct INIT_CHECK creation', (root, store) => {
+  const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  assert.throws(() => handlers.story_create({
+    name: 'direct-init-check-smoke',
+    title: 'Reject direct INIT_CHECK creation',
+    description: 'Direct INIT_CHECK creation must not bypass anti-expansion artifacts.',
+    type: 'bug',
+    priority: 'high',
+    background: validBackground(),
+    checklist: [{ title: 'Reject direct INIT_CHECK', context: 'Use normal INIT gates instead.' }],
+    phase: 'INIT_CHECK',
+    forceNew: true,
+  }), /story_create cannot directly create INIT_CHECK stories/);
+  assert.equal(store.listStoryIds().length, 0, 'direct INIT_CHECK rejection must not write a story');
+});
+
+withTempContext('INIT reviewers cannot mutate checklist definitions directly', (root, store) => {
+  seedStory(store);
+  writeGoodBoundaries(store);
+  const handlers = createChecklistHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  assert.throws(() => handlers.checklist_update({
+    storyId: STORY_ID,
+    itemId: 'CHK-001',
+    title: 'Reviewer tries to expand requirements',
+    agent: 'koala-review-story-init',
+  }), /init_reviewer_checklist_mutation_blocked/);
+  assert.throws(() => handlers.checklist_add({
+    storyId: STORY_ID,
+    title: 'Reviewer adds a requirement',
+    context: 'This must be a proposal instead.',
+    agent: 'product-reviewer',
+  }), /init_reviewer_checklist_mutation_blocked/);
+  handlers.checklist_update({
+    storyId: STORY_ID,
+    itemId: 'CHK-001',
+    title: 'Main agent applies an INIT fix',
+    actor: 'main-agent',
+  });
+  assert.equal(store.readChecklist(STORY_ID).items[0].title, 'Main agent applies an INIT fix');
 });
 
 withTempStore('missing scope boundary blocks before worktree creation', (store) => {

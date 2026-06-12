@@ -29,8 +29,11 @@ type StoryCreateScopeBoundaryInput = {
 type StoryCreateExecutionBoundaryInput = {
   allowedCommands?: string[];
   allowedTools?: string[];
+  allowedPaths?: string[];
   excludedCommands?: string[];
   excludedTools?: string[];
+  excludedPaths?: string[];
+  blockedPaths?: string[];
   confirmation?: string;
   actor?: string;
 };
@@ -324,7 +327,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           title: draftIndex.title,
           description: draftIndex.description,
           type: draftIndex.type || 'feature',
-          phase: 'INIT_CHECK' as StoryPhase,
+          phase: 'INIT' as StoryPhase,
           priority,
           ...(draftIndex.keywords?.length > 0 ? { keywords: draftIndex.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
@@ -332,7 +335,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           createdAt: now,
           startedAt: now,
           endedAt: null,
-          events: [collectContext('INIT_CHECK', 'create')],
+          events: [collectContext('INIT', 'create')],
         };
         store.writeStory(storyId, story);
 
@@ -348,7 +351,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // Delete draft directory
         rmSync(draftsDir, { recursive: true, force: true });
 
-        return `Story ${storyId} created from draft '${draftName}' (phase=INIT_CHECK)\n→ draft '${draftName}' deleted\n→ story_advance '{"storyId":"${storyId}","phase":"PLAN"}' to enter PLAN`;
+        return `Story ${storyId} created from draft '${draftName}' (INIT)\n→ draft '${draftName}' deleted\n→ run the normal INIT reviewer and scope anti-expansion gates, then story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
       }
 
       // B-45ed CHK-006: background is required + four-section validation.
@@ -486,8 +489,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             storyId,
             allowedCommands: args.executionBoundary.allowedCommands,
             allowedTools: args.executionBoundary.allowedTools,
+            allowedPaths: args.executionBoundary.allowedPaths,
             excludedCommands: args.executionBoundary.excludedCommands,
             excludedTools: args.executionBoundary.excludedTools,
+            excludedPaths: args.executionBoundary.excludedPaths ?? args.executionBoundary.blockedPaths,
             confirmedBy: args.executionBoundary.actor ?? 'story_create',
             confirmationNote: args.executionBoundary.confirmation,
             now,
@@ -617,6 +622,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
       // Directly specify phase (for onboard use: completed modules marked directly as DONE)
       if (args.phase) {
+        if (args.phase === 'INIT_CHECK') {
+          throw new Error(
+            'story_create cannot directly create INIT_CHECK stories. ' +
+            'Create the story in INIT, persist init-check/scope-boundary/execution-boundary/scope-freeze artifacts, then use story_advance phase=INIT_CHECK. [story_create_direct_init_check_forbidden]',
+          );
+        }
         const story: StoryInfo = {
           storyId,
           name: args.name,

@@ -3168,11 +3168,56 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/story-create.ts',
-        patterns: ['assertStoryCreateExplicitExcludes', 'scanExcludedKeywordHits', 'excluded_keyword_in_story_create'],
+        patterns: [
+          'assertStoryCreateExplicitExcludes',
+          'scanExcludedKeywordHits',
+          'excluded_keyword_in_story_create',
+          'story_create cannot directly create INIT_CHECK stories',
+          "created from draft '${draftName}' (INIT)",
+        ],
       },
       {
         relPath: 'packages/main/src/handlers/checklist.ts',
-        patterns: ['assertChecklistScopeChangeAllowed', 'effectiveExcludedKeywords', 'excluded_keyword_in_checklist'],
+        patterns: [
+          'assertChecklistScopeChangeAllowed',
+          'effectiveExcludedKeywords',
+          'excluded_keyword_in_checklist',
+          'INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS',
+          'init_reviewer_checklist_mutation_blocked',
+          'scope_extension_proposal',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/handlers/scope-anti-expansion.ts',
+        patterns: [
+          'allowedPaths: args.allowedPaths',
+          'excludedPaths: [...normalizeBoundaryArray(args.blockedPaths), ...normalizeBoundaryArray(args.excludedPaths)]',
+          'proposal: args.proposal',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/core/scope-anti-expansion.ts',
+        patterns: [
+          'scopeBoundary.allowed must include at least one non-empty entry',
+          'executionBoundary must include at least one allowed or excluded command/tool/path entry',
+          'proposalTextHash: proposalTextDigest(proposalText)',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/cli-engine.ts',
+        patterns: [
+          'allowedScope: z.array(z.string().min(1)).min(1)',
+          'allowedPaths: z.array(z.string().min(1)).optional()',
+          'excludedPaths: z.array(z.string().min(1)).optional()',
+          'INIT reviewer lane 不可直接改需求定义',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/core/command-policy.ts',
+        patterns: [
+          'INIT reviewer lanes cannot edit title/context/excludes',
+          'must use scope_extension_proposal',
+        ],
       },
       {
         relPath: 'packages/main/src/handlers/worktree.ts',

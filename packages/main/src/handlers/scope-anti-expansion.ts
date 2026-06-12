@@ -36,6 +36,7 @@ type ExecutionBoundarySetArgs = {
   excludedTools?: string[];
   allowedPaths?: string[];
   blockedPaths?: string[];
+  excludedPaths?: string[];
   notes?: string;
   actor?: string;
 };
@@ -82,17 +83,6 @@ function ensureInitStory(ctx: HandlerContext, storyId: string, command: string):
 function requireUserConfirmation(args: ScopeBoundarySetArgs): void {
   if (args.userConfirmed !== true) {
     throw new Error('userConfirmed must be true before the INIT scope boundary can be saved');
-  }
-}
-
-function requireNoPathBoundary(args: ExecutionBoundarySetArgs): void {
-  const allowedPaths = normalizeBoundaryArray(args.allowedPaths);
-  const blockedPaths = normalizeBoundaryArray(args.blockedPaths);
-  if (allowedPaths.length > 0 || blockedPaths.length > 0) {
-    throw new Error(
-      'execution_boundary_set no longer accepts path boundary fields because core ExecutionBoundaryData only defines command/tool fields. ' +
-      'Use allowedCommands/blockedCommands/allowedTools/excludedTools, or extend core before passing allowedPaths/blockedPaths.',
-    );
   }
 }
 
@@ -199,20 +189,21 @@ export function createScopeAntiExpansionHandlers(ctx: HandlerContext): Record<st
 
     execution_boundary_set(args: ExecutionBoundarySetArgs): string {
       ensureInitStory(ctx, args.storyId, 'execution_boundary_set');
-      requireNoPathBoundary(args);
 
       const boundary = buildExecutionBoundary({
         storyId: args.storyId,
         allowedCommands: args.allowedCommands,
         allowedTools: args.allowedTools,
+        allowedPaths: args.allowedPaths,
         excludedCommands: [...normalizeBoundaryArray(args.blockedCommands), ...normalizeBoundaryArray(args.excludedCommands)],
         excludedTools: args.excludedTools,
+        excludedPaths: [...normalizeBoundaryArray(args.blockedPaths), ...normalizeBoundaryArray(args.excludedPaths)],
         confirmedBy: actorFrom(args.actor),
         confirmationNote: args.notes,
       });
       ctx.store.writeExecutionBoundary(args.storyId, boundary);
 
-      return `Execution boundary saved for ${args.storyId}: ${boundary.allowedCommands.length} allowed commands, ${boundary.excludedCommands.length} excluded commands (_hash ${boundary._hash})`;
+      return `Execution boundary saved for ${args.storyId}: ${boundary.allowedCommands.length} allowed commands, ${boundary.excludedCommands.length} excluded commands, ${boundary.allowedPaths?.length ?? 0} allowed paths, ${boundary.excludedPaths?.length ?? 0} excluded paths (_hash ${boundary._hash})`;
     },
 
     scope_freeze_check(args: ScopeFreezeCheckArgs): string {
@@ -248,7 +239,8 @@ export function createScopeAntiExpansionHandlers(ctx: HandlerContext): Record<st
         proposalId: makeProposalId(args.storyId, existing.proposals.length),
         storyId: args.storyId,
         proposedBy: actorFrom(args.reviewer),
-        reason: args.reason?.trim() || args.proposal,
+        proposal: args.proposal,
+        reason: args.reason?.trim() || 'Reviewer proposed scope extension.',
         patch: typedProposalPatch(),
       });
       ctx.store.writeScopeExtensionProposals(args.storyId, {

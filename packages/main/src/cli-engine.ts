@@ -277,6 +277,16 @@ const storyTypeSchema = z.preprocess((value) => {
   return value;
 }, z.enum(['feature','bug','refactor','chore']));
 
+function hasNonEmptyStringArray(value: unknown): boolean {
+  return Array.isArray(value) && value.some(item => typeof item === 'string' && item.trim().length > 0);
+}
+
+function hasAnyNonEmptyStringArray(value: unknown, fields: string[]): boolean {
+  if (value === null || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  return fields.some(field => hasNonEmptyStringArray(record[field]));
+}
+
 /** main 自带的 CLI 工具定义 */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -299,20 +309,29 @@ export const MAIN_TOOLS: ToolDef[] = [
       userConfirmed: z.boolean().describe('必须为 true：确认这是用户确认过的 INIT scope 边界'),
       confirmation: z.string().optional().describe('确认说明或来源摘录'),
       actor: z.string().optional().describe('记录者；默认 story_create'),
-    }).optional().describe('可选：story_create 同步写入 scope-boundary.json；缺省时需 INIT 阶段运行 scope_boundary_set'),
+    }).refine(
+      value => hasAnyNonEmptyStringArray(value, ['allowed', 'allowedScope']),
+      { message: 'scopeBoundary requires at least one allowed/allowedScope entry' },
+    ).optional().describe('可选：story_create 同步写入 scope-boundary.json；缺省时需 INIT 阶段运行 scope_boundary_set'),
     executionBoundary: z.object({
       allowedCommands: z.array(z.string().min(1)).optional().describe('允许执行或验证的命令模式'),
       allowedTools: z.array(z.string().min(1)).optional().describe('允许使用的工具/adapter 名称'),
+      allowedPaths: z.array(z.string().min(1)).optional().describe('允许访问的相对路径；拒绝 absolute / .. traversal'),
       excludedCommands: z.array(z.string().min(1)).optional().describe('明确禁止的命令模式'),
       excludedTools: z.array(z.string().min(1)).optional().describe('明确禁止使用的工具/adapter 名称'),
+      excludedPaths: z.array(z.string().min(1)).optional().describe('明确禁止访问的相对路径；拒绝 absolute / .. traversal'),
+      blockedPaths: z.array(z.string().min(1)).optional().describe('excludedPaths 的兼容别名'),
       confirmation: z.string().optional().describe('执行边界确认说明'),
       actor: z.string().optional().describe('记录者；默认 story_create'),
-    }).optional().describe('可选：story_create 同步写入 execution-boundary.json；缺省时需 INIT 阶段运行 execution_boundary_set'),
+    }).refine(
+      value => hasAnyNonEmptyStringArray(value, ['allowedCommands', 'allowedTools', 'allowedPaths', 'excludedCommands', 'excludedTools', 'excludedPaths', 'blockedPaths']),
+      { message: 'executionBoundary requires at least one allowed/excluded command, tool, or path entry' },
+    ).optional().describe('可选：story_create 同步写入 execution-boundary.json；缺省时需 INIT 阶段运行 execution_boundary_set'),
     prefix: z.string().optional().describe('ID 前缀(默认 B)'),
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
     forceNew: z.boolean().optional().describe('B-0af4: 绕过同名 story idempotency 强制新建（同名未完成 story 默认会被复用）'),
     background: z.string().optional().describe('B-45ed CHK-006: 四段式 background.md 内容。需含 "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理" 4 段，每段 ≥ 50 字符，总长 ≥ 300，触发事件段须含具体编号（B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD）。fromDraft 模式下不需要'),
-    fromDraft: z.string().optional().describe('B-9975: 从已审查的 draft 创建 story（传 draft name）。三层 gate 校验后直接进 INIT_CHECK'),
+    fromDraft: z.string().optional().describe('B-9975: 从已审查的 draft 创建 story（传 draft name）。保守停在 INIT，再走正常 INIT_CHECK gates'),
   }},
   { name: 'story_advance', description: '推进 Story 到下一阶段', longHelp: STORY_ADVANCE_LONG, schema: {
     storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('目标阶段'),
@@ -403,6 +422,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明，story_review 做 touchpoints→files 覆盖校验）'),
     verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（PLAN 阶段）'),
     reason: z.string().optional().describe('PLAN 阶段追加 item 时必须提供的 replan/scope audit 理由（≥10 字符）'),
+    agent: z.string().optional().describe('操作者/agent lane；INIT reviewer lane 不可直接改需求定义'),
+    actor: z.string().optional().describe('操作者别名；INIT reviewer lane 不可直接改需求定义'),
   }},
   { name: 'checklist_remove', description: '从 story 中移除一个 checklist item（必须给出裁决 + 理由）', schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('要移除的项 ID'),
@@ -416,6 +437,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     context: z.string().optional().describe('新 context（PLAN 起冻结）'),
     relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
     userSees: z.string().optional().describe('用户完成此 item 后在终端/UI 看到的具体文本（PLAN 之前可写，DEV 起冻结）'),
+    excludes: z.array(z.string()).optional().describe('显式声明不做的功能点；INIT reviewer lane 不可直接修改'),
     files: z.object({
       modify: z.array(z.string()),
       create: z.array(z.string()),
@@ -424,6 +446,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（DEV 起冻结）'),
     verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('覆盖 verificationIntent 的证据列表'),
     reason: z.string().optional().describe('变更原因'), agent: z.string().optional().describe('操作者'),
+    actor: z.string().optional().describe('操作者别名；INIT reviewer lane 不可直接改需求定义'),
     success: z.boolean().optional().describe('subagent 结果是否成功（仅 status=done 时有效，默认 true）'),
   }},
   { name: 'verification_evidence_add', description: '为 checklist item 追加/更新 verificationIntent 覆盖证据', schema: {
@@ -501,13 +524,13 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'scope_boundary_set', description: 'INIT 阶段保存用户确认的 allowed/excluded scope 边界，供 INIT_CHECK anti-expansion gate 消费', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode；correctness_fix 会启用 future-capability keyword 默认排除'),
-    allowedScope: z.array(z.string().min(1)).describe('用户确认允许做的范围条目'),
+    allowedScope: z.array(z.string().min(1)).min(1).describe('用户确认允许做的范围条目'),
     excludedScope: z.array(z.string().min(1)).optional().describe('用户确认排除/不做的范围条目'),
     userConfirmed: z.boolean().describe('必须为 true：确认这是用户确认过的 INIT scope 边界'),
     confirmation: z.string().optional().describe('确认说明或来源摘录'),
     actor: z.string().optional().describe('记录者；默认 KOALA_AGENT/USER/main-agent'),
   }},
-  { name: 'execution_boundary_set', description: 'INIT 阶段保存执行边界（命令/tool allow/block），供 INIT_CHECK anti-expansion gate 消费', schema: {
+  { name: 'execution_boundary_set', description: 'INIT 阶段保存执行边界（命令/tool/path allow/block），供 INIT_CHECK anti-expansion gate 消费', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     allowedCommands: z.array(z.string().min(1)).optional().describe('允许执行或验证的命令模式'),
     blockedCommands: z.array(z.string().min(1)).optional().describe('明确禁止的命令模式（alias: excludedCommands）'),
@@ -516,6 +539,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     excludedTools: z.array(z.string().min(1)).optional().describe('明确禁止使用的工具/adapter 名称'),
     allowedPaths: z.array(z.string().min(1)).optional().describe('允许访问的相对路径；拒绝 absolute / .. traversal'),
     blockedPaths: z.array(z.string().min(1)).optional().describe('明确禁止访问的相对路径；拒绝 absolute / .. traversal'),
+    excludedPaths: z.array(z.string().min(1)).optional().describe('明确禁止访问的相对路径'),
     notes: z.string().optional().describe('执行边界补充说明'),
     actor: z.string().optional().describe('记录者；默认 KOALA_AGENT/USER/main-agent'),
   }},

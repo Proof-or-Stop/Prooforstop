@@ -14,6 +14,11 @@ import { createAuthoritySubmitter, resolveAuthoritySettings } from '../core/auth
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 
+const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
+  'koala-review-story-init',
+  'product-reviewer',
+]);
+
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
 
@@ -39,6 +44,31 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
   const story = store.readStory(storyId);
   assertCwdInWorktree(store, storyId);
   return story;
+}
+
+function checklistActorFrom(args: { agent?: string; actor?: string }): string {
+  const explicit = args.agent?.trim() || args.actor?.trim();
+  if (explicit) return explicit;
+  return process.env.KOALA_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+}
+
+function isInitReviewerChecklistActor(actor: string): boolean {
+  return INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS.has(actor.trim());
+}
+
+function assertInitReviewerChecklistMutationAllowed(args: {
+  story: StoryInfo;
+  command: 'checklist_add' | 'checklist_update';
+  actor: string;
+  mutatesDefinition: boolean;
+}): void {
+  if (args.story.phase !== 'INIT') return;
+  if (!args.mutatesDefinition) return;
+  if (!isInitReviewerChecklistActor(args.actor)) return;
+  throw new Error(
+    `${args.command} refused: INIT reviewer lane "${args.actor}" cannot directly modify checklist title/context/excludes in INIT. [init_reviewer_checklist_mutation_blocked]\n` +
+    `→ Record requested expansion with scope_extension_proposal; the main agent may then accept/reject via scope_extension_decide and rerun scope_freeze_check.`,
+  );
 }
 
 function assertChecklistScopeChangeAllowed(
@@ -135,6 +165,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       files?: { modify: string[]; create: string[]; test: string[] };
       verificationIntent?: VerificationIntent;
       reason?: string;
+      agent?: string;
+      actor?: string;
     }): string {
       if (!args.title) throw new Error('title is required');
 
@@ -143,6 +175,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (story.phase === 'PLAN' && (!args.reason || args.reason.trim().length < 10)) {
         throw new Error('checklist_add in PLAN phase must provide reason ≥ 10 characters as a replan/scope audit signal, to prevent bypassing title/context freeze');
       }
+      assertInitReviewerChecklistMutationAllowed({
+        story,
+        command: 'checklist_add',
+        actor: checklistActorFrom(args),
+        mutatesDefinition: true,
+      });
       assertChecklistScopeChangeAllowed(store, args.storyId, {
         title: args.title,
         context: args.context,
@@ -312,6 +350,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       verificationEvidence?: VerificationEvidenceInput[];
       reason?: string;
       agent?: string;
+      actor?: string;
       success?: boolean;
     }): string {
       if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
@@ -333,6 +372,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const verificationIntentProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
 
       const attemptedTitleContext = titleContextFields.filter(f => args[f] !== undefined);
+      assertInitReviewerChecklistMutationAllowed({
+        story,
+        command: 'checklist_update',
+        actor: checklistActorFrom(args),
+        mutatesDefinition: attemptedTitleContext.length > 0 || args.excludes !== undefined,
+      });
       if (attemptedTitleContext.length > 0 && titleContextProtectedPhases.includes(story.phase)) {
         throw new Error(
           `${attemptedTitleContext.join('/')} of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +

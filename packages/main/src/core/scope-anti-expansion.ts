@@ -99,6 +99,7 @@ export interface BuildScopeExtensionProposalInput {
   proposalId: string;
   storyId: string;
   proposedBy: string;
+  proposal?: string;
   reason: string;
   patch: ScopeExtensionPatch;
   reviewerRunId?: string;
@@ -127,10 +128,13 @@ interface HandlerExecutionBoundaryArgs {
   storyId: string;
   allowedCommands?: string[];
   blockedCommands?: string[];
+  excludedCommands?: string[];
   allowedPaths?: string[];
   blockedPaths?: string[];
+  excludedPaths?: string[];
   allowedTools?: string[];
   blockedTools?: string[];
+  excludedTools?: string[];
   notes?: string;
   actor?: string;
 }
@@ -275,11 +279,15 @@ export function digestExecutionBoundary(boundary: ExecutionBoundaryData): string
 
 export function buildScopeBoundary(input: BuildScopeBoundaryInput): ScopeBoundaryData {
   const now = input.now ?? new Date().toISOString();
+  const allowed = normalizeStrictBoundaryArray(input.allowed, 'scopeBoundary.allowed');
+  if (allowed.length === 0) {
+    throw new Error('scopeBoundary.allowed must include at least one non-empty entry');
+  }
   const boundary: ScopeBoundaryData = {
     schemaVersion: 'lattice.scope_boundary.v1',
     storyId: input.storyId,
     mode: input.mode,
-    allowed: normalizeStrictBoundaryArray(input.allowed, 'scopeBoundary.allowed'),
+    allowed,
     excluded: normalizeStrictBoundaryArray(input.excluded, 'scopeBoundary.excluded'),
     ...(nonEmpty(input.confirmedBy) ? { confirmedBy: normalizeTerm(input.confirmedBy) } : {}),
     ...(nonEmpty(input.confirmationNote) ? { confirmationNote: normalizeTerm(input.confirmationNote) } : {}),
@@ -292,15 +300,31 @@ export function buildScopeBoundary(input: BuildScopeBoundaryInput): ScopeBoundar
 
 export function buildExecutionBoundary(input: BuildExecutionBoundaryInput): ExecutionBoundaryData {
   const now = input.now ?? new Date().toISOString();
+  const allowedCommands = normalizeStrictBoundaryArray(input.allowedCommands, 'executionBoundary.allowedCommands');
+  const allowedTools = normalizeStrictBoundaryArray(input.allowedTools, 'executionBoundary.allowedTools');
+  const allowedPaths = normalizeBoundaryPathArray(input.allowedPaths, 'executionBoundary.allowedPaths');
+  const excludedCommands = normalizeStrictBoundaryArray(input.excludedCommands, 'executionBoundary.excludedCommands');
+  const excludedTools = normalizeStrictBoundaryArray(input.excludedTools, 'executionBoundary.excludedTools');
+  const excludedPaths = normalizeBoundaryPathArray(input.excludedPaths, 'executionBoundary.excludedPaths');
+  if (
+    allowedCommands.length === 0 &&
+    allowedTools.length === 0 &&
+    allowedPaths.length === 0 &&
+    excludedCommands.length === 0 &&
+    excludedTools.length === 0 &&
+    excludedPaths.length === 0
+  ) {
+    throw new Error('executionBoundary must include at least one allowed or excluded command/tool/path entry');
+  }
   const boundary: ExecutionBoundaryData = {
     schemaVersion: 'lattice.execution_boundary.v1',
     storyId: input.storyId,
-    allowedCommands: normalizeStrictBoundaryArray(input.allowedCommands, 'executionBoundary.allowedCommands'),
-    allowedTools: normalizeStrictBoundaryArray(input.allowedTools, 'executionBoundary.allowedTools'),
-    allowedPaths: normalizeBoundaryPathArray(input.allowedPaths, 'executionBoundary.allowedPaths'),
-    excludedCommands: normalizeStrictBoundaryArray(input.excludedCommands, 'executionBoundary.excludedCommands'),
-    excludedTools: normalizeStrictBoundaryArray(input.excludedTools, 'executionBoundary.excludedTools'),
-    excludedPaths: normalizeBoundaryPathArray(input.excludedPaths, 'executionBoundary.excludedPaths'),
+    allowedCommands,
+    allowedTools,
+    allowedPaths,
+    excludedCommands,
+    excludedTools,
+    excludedPaths,
     ...(nonEmpty(input.confirmedBy) ? { confirmedBy: normalizeTerm(input.confirmedBy) } : {}),
     ...(nonEmpty(input.confirmationNote) ? { confirmationNote: normalizeTerm(input.confirmationNote) } : {}),
     createdAt: now,
@@ -655,11 +679,14 @@ function normalizePatch(patch: ScopeExtensionPatch): ScopeExtensionPatch {
 
 export function buildScopeExtensionProposal(input: BuildScopeExtensionProposalInput): ScopeExtensionProposal {
   const proposedAt = input.proposedAt ?? new Date().toISOString();
+  const proposalText = normalizeTerm(input.proposal ?? input.reason);
   const proposal: ScopeExtensionProposal = {
     proposalId: normalizeTerm(input.proposalId),
     storyId: input.storyId,
     proposedBy: normalizeTerm(input.proposedBy),
     proposedAt,
+    proposal: proposalText,
+    proposalTextHash: proposalTextDigest(proposalText),
     reason: normalizeTerm(input.reason),
     patch: normalizePatch(input.patch),
     ...(nonEmpty(input.reviewerRunId) ? { reviewerRunId: normalizeTerm(input.reviewerRunId) } : {}),
@@ -853,9 +880,9 @@ export function buildExecutionBoundaryArtifact(input: {
     allowedCommands: input.args.allowedCommands,
     allowedTools: input.args.allowedTools,
     allowedPaths: input.args.allowedPaths,
-    excludedCommands: input.args.blockedCommands,
-    excludedTools: input.args.blockedTools,
-    excludedPaths: input.args.blockedPaths,
+    excludedCommands: [...normalizeBoundaryArray(input.args.blockedCommands), ...normalizeBoundaryArray(input.args.excludedCommands)],
+    excludedTools: [...normalizeBoundaryArray(input.args.blockedTools), ...normalizeBoundaryArray(input.args.excludedTools)],
+    excludedPaths: [...normalizeBoundaryArray(input.args.blockedPaths), ...normalizeBoundaryArray(input.args.excludedPaths)],
     confirmedBy: input.args.actor ?? input.actor,
     confirmationNote: input.args.notes,
     now: previous?.createdAt ?? input.now,
