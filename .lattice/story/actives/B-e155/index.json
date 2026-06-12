@@ -1,0 +1,42 @@
+{
+  "storyId": "B-e155",
+  "name": "f009-layer2-proof-gap-execution-plan",
+  "title": "Write F-009 Layer2 proof gap execution plan",
+  "description": "Create a decision execution document for B-META-framework-audit:F-009. The plan must be drafted with two host inputs from Claude CLI and Codex CLI, then audited by the main auditor. It must preserve Lattice host-neutral semantics, keep CLI non-authority separate from Authority Server receipts, and obey the four correctness principles.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "F-009",
+    "Layer2",
+    "Engineering Baseline",
+    "proof gap",
+    "Authority receipt"
+  ],
+  "createdAt": "2026-06-12T15:10:26.941Z",
+  "startedAt": "2026-06-12T15:10:26.941Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T15:10:26.947Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T15:12:06.816Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e155",
+    "branch": "story/B-e155",
+    "createdAt": "2026-06-12T15:12:07.013Z"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Collect F-009 and related Layer2 proof context",
+      "context": "Use Lattice commands and existing decision docs to identify the exact suspected gap without touching .omx or treating stale artifacts as proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Produce two host execution-plan drafts",
+      "context": "Run Claude CLI and Codex CLI as independent read-only hosts. Each should propose a minimal executable plan for resolving or disproving F-009 under the four principles.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Write audited F-009 execution document and NAV entry",
+      "context": "Synthesize only agreed correctness requirements into a decision doc under docs/requirements/decisions and update NAV count/link. Do not add capability claims.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Audit the finished document",
+      "context": "Final auditor checks executability, host-neutrality, non-authority boundary, fail-closed claim logic, and the four principles before DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
