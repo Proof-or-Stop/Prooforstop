@@ -39,6 +39,16 @@ Artifact root: `.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z
    - Scanned 12 JSON files.
    - Found `forbiddenTrueCount=0` for `receiptVerified`, `productionDone`, and `fullAuthorityDone`.
 
+6. CHK-002 adversarial negative controls:
+   - Evidence note: `.lattice/story/actives/B-9092/evidence/f009-negative-controls.md`
+   - Artifact root: `.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls`
+   - `forged-malformed-final-report`: `baseline_suite_report` returned `suiteStatus=BLOCKED` and refused malformed JSON plus mixed schema `forged.final_report.v0`.
+   - `wrong-claim-target`: `baseline_suite_report` returned `suiteStatus=BLOCKED` and refused `claimTarget must be engineering`.
+   - `mixed-suite-run-id`: `baseline_suite_report` returned `suiteStatus=BLOCKED` with `Engineering formal proof requires exactly one suiteRunId across all parsed reports in selected root; saw 2`.
+   - `local-only-final-report`: real `baseline_run` diagnostic output was rejected by `baseline_suite_report` because `localOnly=true diagnostic final-report cannot authorize suite proof`.
+   - `authority-overclaim`: `capability_claim_formal_evaluate` returned `authorized=false`, `outcome=EXPECTED_BLOCK`, `layer2EngineeringClaim=LOCKED`, and higher claims `LOCKED`.
+   - Forbidden claim scan found no `receiptVerified=true`, `productionDone=true`, `fullAuthorityDone=true`, or `layer2EngineeringClaim=UNLOCKED` strings in the negative controls or story evidence.
+
 ## Source Evidence
 
 - `packages/main/src/core/command-policy.ts:331` says `baseline_run` formal mode can write formal Engineering or Loop Engineering final-report artifacts, but never lifecycle gate evidence, signed server receipts, or production authority.
@@ -53,3 +63,5 @@ Artifact root: `.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z
 The original F-009 categorical statement that no formal producer path exists is not fully correct: `baseline_run --formal` is exposed by command policy and implemented by the formal baseline path. The fail-closed negative control reached that path and refused to mint a final report without required proof refs.
 
 The Layer 2 Engineering claim remains locked. This evidence pack did not produce fresh Development lower-layer proof or the 9 required ENG final reports, and it did not prove Authority receipt-backed production or global capability. F-009 should therefore not be resolved from CHK-001/CHK-002. The evidence narrows the issue from "no producer path exists" to "complete required proof artifacts are still absent in the frozen root."
+
+B-9092:F-001 closure note: the original CHK-002 adversarial evidence gap is closed by `f009-negative-controls.md` and the generated negative-control reports. This closure does not change the F-009 status; F-009 remains open/suspected and Layer 2 remains locked.

@@ -12,6 +12,7 @@ Decision: retain as `open` / `suspected`
 - The frozen Engineering suite report is `BLOCKED`.
 - The frozen formal claim report is `LOCKED`.
 - The stale/default-root negative control is also `LOCKED`.
+- CHK-002 now includes explicit negative controls for forged/malformed final reports, wrong claim target, wrong or mixed suiteRunId, local-only final reports, and Authority-overclaim. Their generated reports remain `BLOCKED` or `LOCKED`.
 - No artifact in the reviewed proof root claims receipt verification, production DONE, or full Authority DONE.
 
 ## What Was Not Proven
@@ -28,3 +29,7 @@ F-009 must remain open/suspected because resolving it would create a false DONE.
 > Complete required proof artifacts are still absent in the frozen root, so Layer 2 Engineering cannot be unlocked from this evidence pack.
 
 Future closure requires a fresh proof pack with Development lower-layer proof, all 9 ENG formal final reports, matching `suiteRunId`, fresh material binding, required review/verification/receipt refs, and a formal evaluator result that unlocks the Layer 2 Engineering claim. Until then, higher claims remain locked.
+
+## Finding B-9092:F-001
+
+`B-9092:F-001` is resolved by the new negative-control pack and `f009-negative-controls.md`. That finding only covered overstated CHK-002 adversarial evidence, not the underlying F-009 capability gap. `B-META-framework-audit:F-009` remains open/suspected.
