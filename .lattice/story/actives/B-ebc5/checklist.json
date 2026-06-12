@@ -12,7 +12,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A new decision document explains how to resolve the two signed-workspace gaps and the customerKeyRef future/blocked gap without false closure.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document names all three current gap_analyze high gaps and assigns each to an exact follow-up action.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document says customerKeyRef remains future/blocked unless a separate Layer4 implementation story provides redaction and Authority receipt evidence.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document forbids claiming F-009 closure, Layer2/Layer4 unlock, productionDone, receiptVerified, or Authority completion from this planning story.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

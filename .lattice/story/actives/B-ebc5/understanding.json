@@ -1,0 +1,23 @@
+{
+  "task": "Write a concrete execution plan for resolving the three current gap_analyze high-priority gaps.",
+  "outcome": "User can open docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md and see exactly which follow-up story resolves each gap, which commands prove closure, and which future capability wording must stay blocked.",
+  "facts": [
+    "lattice gap_analyze currently reports 3 high / 0 medium gaps.",
+    "Two high gaps reference signed workspace failure reasons in review-run-start-signed-workspace-resolution-execution-plan.md.",
+    "One high gap references customerKeyRef in unlock-layer4-production-safety-suite.md.",
+    "B-3a80 already created a triage/boundary plan and did not resolve these gaps."
+  ],
+  "constraints": [
+    "Do not claim any of the three gaps are already fixed.",
+    "Do not implement code in this story.",
+    "Do not unlock Layer2, Layer4, Production Safety, or Authority claims.",
+    "Avoid adding current-tense future requirements that would create new gap_analyze high gaps.",
+    "Exact implementation files for signed workspace closure must be confirmed by the future implementation story before code changes."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-12T18:43:52.387Z"
+}
