@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-12T19:56:56.284Z",
       "reviewRunId": "B-526c:RR-001",
       "_hash": "84d6599afff588356f275a516e08f09d296491a0e5825a2afc02857cb1a9054e"
+    },
+    {
+      "id": "B-526c:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: wrapper-root gitRoot doctor diagnostics + config repair verified. Path safety: validateRepairGitRootTarget rejects absolute paths, realpath-canonicalizes metadata root and candidate (symlink-escape safe), rejects rel==\"\"/.. escapes, requires existence and git toplevel==candidate; gitProbe uses constant command with cwd option (no injection). Mutation scope: writes only gitRoot via spread of existing config JSON, rejects invalid/non-object JSON, preview without --confirm is non-mutating, never guesses targets, ambiguous layouts fail closed. Process facts: lattice_config_repair registered L2/lattice-cli-config, command policy mainSharedMutating/metadata-write, phase tools whitelisted; npm run test:process-fact-contract green. CLI_META_SCHEMA widening is a justified fix (lease gate at cli-engine.ts:3695 reads post-validation args, takeover flags were previously stripped for non-autopilot commands). Verified: packages/main build green, test:field-regression-cli-smoke green covering none/ambiguous/single-candidate doctor, preview, unsafe-path and non-root rejections, confirmed repair, post-repair story_resolve and review_run_start.",
+      "createdAt": "2026-06-12T20:01:31.316Z",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "reviewRunId": "B-526c:RR-002",
+      "_hash": "d2be30692a9ebce89f4f68b8c70808baf5b594588f7f72603471eb9ede830efc"
     }
   ]
 }
