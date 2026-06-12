@@ -24,7 +24,7 @@
       "desc": "NAV count is stale: docs/requirements/NAV.md says `> 46 个文件`, but `find docs/requirements -type f -name '*.md' | wc -l` returns 47. The new decision doc link exists, but the count must be updated before docs review can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-12T18:53:19.812Z",
@@ -33,7 +33,9 @@
       "_hash": "e4bcf03719fa6611fb905bd9a97dfe6e03d3a978618b9ecb66ca47752a387f7a",
       "files": [
         "docs/requirements/NAV.md"
-      ]
+      ],
+      "resolvedReason": "Updated docs/requirements/NAV.md declared count from 46 to 47. Replayed Node count check: declared=47 and actual markdown files under docs/requirements=47.",
+      "resolvedAt": "2026-06-12T18:59:28.913Z"
     }
   ]
 }
