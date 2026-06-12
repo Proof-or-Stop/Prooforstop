@@ -175,7 +175,49 @@
       "context": "Run targeted package metadata checks, TypeScript/build verification, existing runtime contract verification scripts, and lattice validate so the rename does not break local wrappers, lab registration, or runtime environment diagnostics.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal evidence shows package metadata checks passed, `npm --prefix packages/main run build` passed, runtime contract scripts passed, and `lattice validate --story=B-50fb` reports pass/allPass true for B-50fb.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/utils/package.json",
+          "packages/lab/package.json",
+          "packages/cli-guess-number/package.json",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "bin/lattice.js"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run a targeted metadata assertion and repo-standard build or typecheck to prove @lattice-agent/* package metadata, dependency edges, and generated lock metadata are internally consistent after the rename.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run existing runtime contract checks, including entrypoint/global lab verification and verify_codex when adapter assets or prompt templates changed, to prove wrappers and adapter diagnostics still work with canonical package names.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run lattice validate --story=B-50fb after implementation evidence is recorded and confirm it passes only with fresh verificationEvidence covering CHK-001 through CHK-004, with no stale package rename evidence accepted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
