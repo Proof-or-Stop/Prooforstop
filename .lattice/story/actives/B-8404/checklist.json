@@ -245,6 +245,16 @@
           "headHash": "12b6a7db5cf2634826ad678c1ac0816841e33ce3",
           "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
           "timestamp": "2026-06-12T19:51:37.694Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes metadata-only and clean non-overlapping stories; metadata-only changes stay ignored and clean material changes remain parallel_dev candidates.",
+          "headHash": "6ac5dd101eff2b8fc950d98185bad11c45ec3d3b",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:53:15.671Z"
         }
       ]
     }
