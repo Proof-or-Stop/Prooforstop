@@ -16,6 +16,24 @@
         "packages/main/src/handlers/transition-orchestrator.ts",
         "packages/main/src/core/machine.ts"
       ]
+    },
+    {
+      "id": "B-50fb:F-002",
+      "desc": "Mixed canonical+legacy global installs can leave the legacy @koala-agent/core symlink pointing at a deleted story worktree. resolveGlobalCorePackagePath prefers @lattice-agent/core as soon as it exists (worktree.ts:66-72), and repairGlobalKoalaLinkBeforeWorktreeDelete then only inspects that one selected path (worktree.ts:90-110). During DONE cleanup, done-effects calls this once without an explicit legacy path, so if @lattice-agent/core exists but @koala-agent/core is the symlink into the story worktree, the legacy fallback required by decision option A is never repaired. The updated smoke coverage only exercises the canonical default plus explicit single-path calls, not the mixed transition install.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T21:38:25.657Z",
+      "reviewRound": "2026-06-12T21:34:37.455Z",
+      "reviewRunId": "B-50fb:RR-004",
+      "_hash": "5abeed50eb59c67f325e5f60cae26abf0036c45432172f08b2cf3c8a21e890a3",
+      "files": [
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
     }
   ]
 }
