@@ -88,9 +88,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T18:07:46.164Z",
       "userSees": "User sees localNonAuthorityAudit and authorityServerPath as separate sections, with Authority completion shown as NOT_CLAIMED unless verified receipt proof exists.",
       "files": {
         "modify": [
@@ -120,7 +120,39 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-cd1e\",\"json\":true}",
+          "result": "pass",
+          "note": "JSON output includes separate localNonAuthorityAudit and authorityServerPath objects.",
+          "headHash": "da79af7eee86ea479d53a7904061f641550dc624",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:46.202Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-cd1e\",\"json\":true}",
+          "result": "pass",
+          "note": "With no Authority receipt refs, authorityServerPath reports receiptVerified=false, receiptRefs=[], and mayClaimAuthorityDone=false.",
+          "headHash": "da79af7eee86ea479d53a7904061f641550dc624",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:46.237Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts serialized done_closure output does not include authorityDone=true, productionDone=true, or fullAuthorityDone=true from local evidence.",
+          "headHash": "da79af7eee86ea479d53a7904061f641550dc624",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:07:46.272Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
