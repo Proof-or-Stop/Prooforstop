@@ -4,8 +4,8 @@
   "facts": [
     "B-cd1e is high-risk because it touches lifecycle/DONE guidance and Authority-adjacent wording.",
     "The execution plan requires preserving TEST PASS != DONE and keeping delivery-check/summary as real gates.",
-    "core/done-oracle.ts already exposes buildDoneChecklist as the shared source for DONE gate and session_brief pre-check rows.",
-    "handlers/session.ts already renders DONE pre-check rows for TEST stories from buildDoneChecklist.",
+    "core/done-oracle.ts already exposes buildDoneChecklist as the shared read-only source for DONE gate and session_brief pre-check rows.",
+    "handlers/session.ts is a read-only reference for existing DONE pre-check rendering, not an implementation target for this story.",
     "Local CLI and host audit evidence is Non-authority and cannot set receiptVerified, authorityDone, productionDone, or fullAuthorityDone."
   ],
   "constraints": [
@@ -17,8 +17,7 @@
   ],
   "unknowns": [],
   "touchpoints": [
-    "packages/main/src/core/done-oracle.ts",
-    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/done-closure.ts",
     "packages/main/src/registry.ts",
     "packages/main/src/cli-engine.ts",
     "packages/main/src/core/command-policy.ts",
@@ -28,5 +27,5 @@
     "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/done-preflight-smoke.ts"
   ],
-  "timestamp": "2026-06-12T17:44:14.406Z"
+  "timestamp": "2026-06-12T17:52:15.941Z"
 }
