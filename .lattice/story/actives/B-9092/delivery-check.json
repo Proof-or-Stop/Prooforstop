@@ -1,0 +1,53 @@
+{
+  "storyId": "B-9092",
+  "checkedAt": "2026-06-12T17:05:15.468Z",
+  "reviewRound": "2026-06-12T16:55:59.050Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Requirements NAV is consistent with the actual decisions markdown inventory and still links the F-009 Layer 2 Engineering proof gap plan.",
+      "status": "verified",
+      "verifiedBy": "manual review plus validate coverage transcript",
+      "evidence": "docs/requirements/NAV.md declares 43 files and includes decisions/f009-layer2-engineering-proof-gap-execution-plan.md; validate transcript records NAV check files=43 declared=43 links=43 uniqueLinks=43 missing=[] extra=[]."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9092/evidence/f009-final-status.md",
+      "promise": "F-009 final status remains audit-only: B-META-framework-audit:F-009 is retained as open/suspected with exact missing proof, not falsely closed.",
+      "status": "verified",
+      "verifiedBy": "lattice finding_list and evidence review",
+      "evidence": "lattice finding_list --storyId=B-META-framework-audit shows B-META-framework-audit:F-009 status=open evidenceState=suspected; final status lists missing fresh Development proof and 9 ENG final reports."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9092/evidence/f009-negative-controls.md",
+      "promise": "Negative-control matrix is machine-backed and fails closed for forged/malformed, wrong-target, wrong or mixed suiteRunId, local-only, and Authority-overclaim cases.",
+      "status": "verified",
+      "verifiedBy": "evidence review, jq suite/claim checks, and forbidden-claim rg scan",
+      "evidence": "Negative-control doc lists the matrix; suite report is BLOCKED/not_authorized, formal claim is authorized=false outcome=EXPECTED_BLOCK layer2EngineeringClaim=LOCKED, and forbidden-claim scan returned no matches."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9092/evidence/transcript-diff.md",
+      "promise": "Non-authority boundary is preserved: local audit evidence does not claim Authority receipt verification, Production Safety, global capability, full Authority DONE, or unlocked Layer 2.",
+      "status": "verified",
+      "verifiedBy": "manual reverse scan plus rg forbidden-claim scan",
+      "evidence": "transcript-diff.md and final status explicitly reject forced closure; rg scan over story evidence and frozen artifact root found no receiptVerified=true, productionDone=true, fullAuthorityDone=true, layer2EngineeringClaim=UNLOCKED, or authorized=true matches."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-9092-validate",
+      "transcript": "lattice validate --story=B-9092 --json rerun: status=pass, allPass=true, provider=koala-verifier-fallback-commands, npm test passed, warnings=[], verification intent coverage 10/10 covered and 0 required missing."
+    },
+    {
+      "featureId": "B-9092-negative-controls",
+      "transcript": "Negative-control scan rerun: rg -n forbidden authority/unlock true patterns over .lattice/story/actives/B-9092/evidence and .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z exited 1 with no output; jq confirmed engineering suiteStatus=BLOCKED authorization=not_authorized formalProof=false falseDoneCount=0, and formal claim authorized=false outcome=EXPECTED_BLOCK layer2EngineeringClaim=LOCKED."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review passes as audit-only. B-9092 documents that F-009 cannot be closed from this evidence pack, keeps F-009 open/suspected, leaves Layer 2 locked, avoids Authority/Production overclaim, and has fresh validate evidence covering 10/10 verification intents."
+  },
+  "_hash": "6f5f4518b13f70df846a9273b1f88c1fc17528a420c99b7255c159273d826d55"
+}
