@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-12T13:31:18.544Z",
       "reviewRunId": "B-9d6c:RR-004",
       "_hash": "2411c5023b55bf05e66db5ac7a4dc7cf2ec0fe85e5f59f273efc163cdc02687f"
+    },
+    {
+      "id": "B-9d6c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed. Formal root invariant remains a local proof-root isolation guard for Layer 2/3 only: parsed final reports fail closed on mixed layer, stale materialHash, localOnly/formalProof/capabilityProof/suiteRunId/claimTarget defects, and authority overclaims including authorityDone/receiptVerified/productionDone/fullAuthorityDone. Formal claim outputs keep authorityReports empty, receiptVerified=false, productionDone=false, production/global claims locked; no Lattice Authority Server receipt semantics are confused with local non-authority proof bindings. Verified with git diff --check main...HEAD and node packages/main/dist/tasks/lattice-baseline-smoke.js.",
+      "createdAt": "2026-06-12T14:10:04.574Z",
+      "reviewRound": "2026-06-12T14:04:38.155Z",
+      "reviewRunId": "B-9d6c:RR-006",
+      "_hash": "fe76c201b5de33ed3b8c302b52afebdea002c7419451e573d6106a712586f5b5"
     }
   ]
 }
