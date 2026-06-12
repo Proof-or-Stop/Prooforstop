@@ -156,6 +156,17 @@
           "headHash": "4adc6d12ccd7e98498b064c32f83ed72d31ad025",
           "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
           "timestamp": "2026-06-12T16:21:02.881Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+          "command": "lattice capability_claim_formal_evaluate --target=engineering --outputDir=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/default-stale-root --format=json; lattice baseline_run --baselineId=ENG-BUGFIX-1 --formal --suiteRunId=f009-layer2-closure-20260612T161654Z --claimTarget=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/formal-run-missing-refs --format=json; node forbidden authority flag scan",
+          "result": "pass",
+          "note": "Default root claim stayed LOCKED; baseline_run --formal failed closed without required refs; recursive JSON scan found zero receiptVerified/productionDone/fullAuthorityDone=true.",
+          "headHash": "79b2c8e20230ddeb37973e06b9d16b6b0d97b7d2",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:21:12.425Z"
         }
       ]
     },
