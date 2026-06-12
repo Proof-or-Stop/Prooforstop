@@ -10,7 +10,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Metadata checks print \"@lattice-agent/core 0.3.5\" and a package scope scan prints \"package metadata scope check passed\"; the `koala` bin remains visible only as a legacy alias.",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/utils/package.json",
+          "packages/lab/package.json",
+          "packages/cli-guess-number/package.json",
+          "packages/cli-guess-number/package-lock.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect root and workspace package manifests plus lockfiles and confirm published package names use @lattice-agent/*, especially packages/main name @lattice-agent/core at version 0.3.5.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm package bin metadata keeps lattice as the primary command while koala remains only as an explicit legacy compatibility alias, with no accidental removal of existing CLI access.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run a package metadata scan that fails if any manifest or lockfile dependency still presents @koala-agent/* as a canonical package scope rather than a deliberate legacy bin alias or historical repository URL.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

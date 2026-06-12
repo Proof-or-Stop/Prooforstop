@@ -1,0 +1,42 @@
+{
+  "task": "Rename the canonical npm package scope and public package identity away from Koala branding.",
+  "outcome": "When the user inspects the package metadata they see name: @lattice-agent/core version: 0.3.5, and runtime diagnostics describe @lattice-agent/core as canonical while any koala wording is clearly marked legacy compatibility.",
+  "facts": [
+    "packages/main/package.json currently names the core package @koala-agent/core at version 0.3.5.",
+    "packages/utils and packages/lab depend on @koala-agent/core and are themselves under @koala-agent scope.",
+    "Runtime checks, worktree relink, bootstrap assets, prompt registry, and verification scripts hard-code @koala-agent/core paths.",
+    "The user explicitly asked to stop calling the package scope Koala and requested the Lattice flow for the change.",
+    "INIT reviewer recorded a medium advisory to include node bin/lattice.js verify_codex if adapter assets or agent templates are touched."
+  ],
+  "constraints": [
+    "Do not directly read or edit docs/story or packages/main/tests/fixtures JSON files.",
+    "Only modify code in DEV phase after PLAN review passes.",
+    "Preserve legacy koala CLI alias behavior unless a later explicit requirement removes it.",
+    "Treat @lattice-agent/* as canonical and @koala-agent/* as compatibility fallback where fallback is needed.",
+    "Update process/runtime verification contracts when hard-coded package facts change."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/utils/package.json",
+    "packages/lab/package.json",
+    "packages/cli-guess-number/package.json",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/cli-init.ts",
+    "scripts/verify-entrypoints.mjs",
+    "scripts/verify-global-lab-entrypoint.mjs",
+    "README.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/project-vision.md"
+  ],
+  "timestamp": "2026-06-12T20:37:12.775Z"
+}
