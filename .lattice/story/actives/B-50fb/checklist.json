@@ -188,7 +188,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T20:49:47.604Z",
-      "endTime": "2026-06-12T21:07:48.059Z",
+      "endTime": "2026-06-12T21:32:28.221Z",
       "userSees": "README and active requirement docs show \"@lattice-agent/core\" as the current package; `rg \"@koala-agent/core\" README.md docs/requirements/decisions scripts packages/main/src` returns only legacy-labelled or historical matches.",
       "files": {
         "modify": [
@@ -238,10 +238,10 @@
           "kind": "manual_transcript",
           "command": "rg @koala-agent/(core|utils|lab|cli-guess-number) packages/main/src packages/utils/src packages/lab/src packages/main/templates scripts README.md docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
-          "note": "Active current package identity comments and import examples in main/utils/lab source now use @lattice-agent/core, @lattice-agent/utils, and @lattice-agent/lab.",
-          "headHash": "93179a9a6ec6e6ba7e7008399fdeb7470bc717df",
-          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
-          "timestamp": "2026-06-12T21:07:48.105Z"
+          "note": "Active current package identity comments and import examples in main/utils/lab source use @lattice-agent/core, @lattice-agent/utils, and @lattice-agent/lab.",
+          "headHash": "c33cecf02de7a2a6859ba9a670d1f4930942dc81",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:28.262Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -249,19 +249,19 @@
           "command": "rg @koala-agent/(utils|lab|cli-guess-number) packages/main/src packages/utils/src packages/lab/src packages/main/templates README.md docs/requirements scripts",
           "result": "pass",
           "note": "No old @koala-agent/utils or @koala-agent/cli-guess-number current references remain; the only @koala-agent/lab hit is a negative dependency assertion in verify-global-lab-entrypoint.",
-          "headHash": "93179a9a6ec6e6ba7e7008399fdeb7470bc717df",
-          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
-          "timestamp": "2026-06-12T21:07:48.143Z"
+          "headHash": "c33cecf02de7a2a6859ba9a670d1f4930942dc81",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:28.298Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
           "command": "focused remaining @koala-agent/core classification search",
           "result": "pass",
-          "note": "Remaining @koala-agent/core matches are README/authority docs that say legacy fallback, runtime fallback constants/diagnostics, generated bootstrap fallback assertions, and the new test-auto LEGACY_CORE_PACKAGE_NAME compatibility guard.",
-          "headHash": "93179a9a6ec6e6ba7e7008399fdeb7470bc717df",
-          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
-          "timestamp": "2026-06-12T21:07:48.182Z"
+          "note": "Remaining @koala-agent/core matches are README/authority docs that say legacy fallback, runtime fallback constants/diagnostics, generated bootstrap fallback assertions, and the test-auto LEGACY_CORE_PACKAGE_NAME compatibility guard.",
+          "headHash": "c33cecf02de7a2a6859ba9a670d1f4930942dc81",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:28.332Z"
         }
       ]
     },
