@@ -1,0 +1,53 @@
+{
+  "storyId": "B-b750",
+  "checkedAt": "2026-06-12T17:11:40.358Z",
+  "reviewRound": "2026-06-12T16:56:23.170Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Signed workspace resolver separates metadataRoot, signedWorkspaceRoot, repoRoot, authoritativeCwd, resolutionSource, and unresolvedReason and exposes them through story_resolve.",
+      "status": "verified",
+      "verifiedBy": "reverse-scan plus real-machine story_resolve",
+      "evidence": "node packages/main/dist/cli.js story_resolve --storyId=B-b750 --format=json returned metadataRoot, signedWorkspaceRoot, repoRoot, authoritativeCwd, resolutionSource=story-worktree, unresolvedReason=null, resolved=true."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "review_run_start binds reviewer runs to the resolved signed workspace and REVIEW evidence consumers validate that binding before accepting pass or finding evidence.",
+      "status": "verified",
+      "verifiedBy": "source diff and regression evidence",
+      "evidence": "handlers/review-run.ts builds workspaceBinding from signedWorkspaceRoot; core/review-run.ts signs and validates workspaceBinding, rejects tampered or stale bindings, and uses signedWorkspaceRoot for freshness/scope checks; field-regression smoke covers persisted binding and tamper rejection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "promise": "Wrapper-root projects fail closed unless an explicit gitRoot is configured, and nested git repositories are never guessed as the signed workspace.",
+      "status": "verified",
+      "verifiedBy": "source diff and checklist/test evidence",
+      "evidence": "story-signed-workspace-resolution.ts only accepts persisted worktree, linked branch worktree, metadata git root, or configured gitRoot; unbound wrapper roots return unresolved; field-regression smoke covers configured-git-root success and nested repo no-guess behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "promise": "Local review evidence remains local and is not claimed as Authority Server receipt, production DONE, or Authority proof.",
+      "status": "verified",
+      "verifiedBy": "source/test/process fact scan",
+      "evidence": "summary limitations state no Authority Server receipt or production DONE is claimed; field-regression smoke asserts no authority completion claims or authority-receipt-refs from local review evidence; process-fact registry keeps Authority receipt proof under authority_receipt_verify, separate from review_run_start workspace binding."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: node packages/main/dist/cli.js story_resolve --storyId=B-b750 --format=json returned schemaVersion=lattice.story_resolve.v1, resolved=true, metadataRoot=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b750, signedWorkspaceRoot=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b750, repoRoot=/Users/jek/Documents/Work/Orchestrate, authoritativeCwd=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b750, resolutionSource=story-worktree, unresolvedReason=null."
+    },
+    {
+      "featureId": "CHK-001..CHK-004",
+      "transcript": "PASS: lattice validate --story=B-b750 --json returned status=pass, allPass=true, npm test passed, warnings=[], and Verification intent coverage: 12/12 covered with 0 required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scanned transcript-diff, summary, test-evidence, checklist evidence, and relevant code/test diffs. Delivery promises are met: story_resolve exposes signed workspace facts; wrapper roots fail closed unless gitRoot is explicit; review_run_start signs and validates workspaceBinding; local evidence remains non-authority. No real correctness issue found."
+  },
+  "_hash": "4637435c9f50f5580f1b60e9b8973e7a689af0e322978d7f99a9db66d3e14f1d"
+}
