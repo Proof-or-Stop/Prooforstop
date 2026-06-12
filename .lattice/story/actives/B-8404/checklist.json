@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T19:33:11.760Z",
-      "endTime": "2026-06-12T19:44:15.434Z",
+      "endTime": "2026-06-12T19:51:22.880Z",
       "verificationIntent": {
         "happy": [
           {
@@ -38,32 +38,12 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js && node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
           "result": "pass",
-          "note": "Build and smoke passed; smoke asserts committed-vs-main, uncommitted tracked, and untracked material changed files are collected and exposed on created Parallel Wave storyRefs.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:15.476Z"
-        },
-        {
-          "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
-          "result": "pass",
-          "note": "Smoke asserts .lattice and .koala metadata-only changes are recorded as ignoredChangedFiles and do not create material changed files or overlaps.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:15.512Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build",
-          "result": "pass",
-          "note": "Core represents missing or failed worktree changed-file probes as visible changedFiles status/degradations without dropping the story from output.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:15.545Z"
+          "note": "Regression now covers running parallel wave from inside a story worktree; real B-8404 parallel_merge_queue no longer resolves .worktrees/B-8404/.worktrees/B-8404 and still reads changed files from registered worktrees.",
+          "headHash": "05badef203a03ae99ade13cb2b360136bd366eae",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:51:22.918Z"
         }
       ]
     },
