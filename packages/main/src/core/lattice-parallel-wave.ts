@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { isAbsolute, resolve as resolvePath } from 'node:path';
+import { basename, dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 import { buildCapabilityProbe, type CapabilityStatus } from './capabilities.js';
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
 import {
@@ -352,8 +352,28 @@ function gitOutputLines(cwd: string, args: string[]): string[] {
   return output.split(/\r?\n/).map(normalizeChangedPath).filter((line): line is string => Boolean(line));
 }
 
+function resolveGitCommonWorktreeRoot(root: string): string | undefined {
+  try {
+    const gitCommonDir = execFileSync('git', ['-C', root, 'rev-parse', '--git-common-dir'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+    const absoluteGitCommonDir = isAbsolute(gitCommonDir) ? gitCommonDir : resolvePath(root, gitCommonDir);
+    return basename(absoluteGitCommonDir) === '.git' ? dirname(absoluteGitCommonDir) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function resolveWorktreePath(root: string, worktreePath: string): string {
-  return isAbsolute(worktreePath) ? worktreePath : resolvePath(root, worktreePath);
+  if (isAbsolute(worktreePath)) return worktreePath;
+
+  const rootCandidate = resolvePath(root, worktreePath);
+  const commonRoot = resolveGitCommonWorktreeRoot(root);
+  const commonRootCandidate = commonRoot ? resolvePath(commonRoot, worktreePath) : undefined;
+  const candidates = uniqueStrings([rootCandidate, commonRootCandidate]);
+  const existingCandidate = candidates.find(candidate => existsSync(candidate));
+  return existingCandidate ?? candidates[candidates.length - 1] ?? rootCandidate;
 }
 
 function collectStoryChangedFiles(root: string, story: StoryInfo): ParallelWaveChangedFiles {

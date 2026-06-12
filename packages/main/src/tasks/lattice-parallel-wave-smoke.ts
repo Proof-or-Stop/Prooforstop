@@ -547,6 +547,22 @@ function assertActiveWorktreeOverlapProjection(): void {
     assert.match(queueOverlapA!.guidance, /packages\/main\/src\/shared\.ts/);
     assert.match(queueOverlapA!.guidance, /B-overlap-b/);
     assertAuthorityBoundary(queue);
+
+    const waveFromStoryWorktree = createParallelWave(store, join(root, '.worktrees', 'B-overlap-a'), {
+      storyIds: [...OVERLAP_STORY_IDS],
+      hosts: ['codex'],
+      waveId: 'wave-overlap-story-worktree-smoke',
+    });
+    assertAuthorityBoundary(waveFromStoryWorktree);
+    const overlapAFromStoryWorktree = ref(waveFromStoryWorktree, 'B-overlap-a');
+    assert.equal(overlapAFromStoryWorktree.changedFiles!.status, 'ok');
+    assert.deepEqual(overlapAFromStoryWorktree.changedFiles!.materialChangedFiles, ['packages/main/src/shared.ts']);
+    assert.ok((overlapAFromStoryWorktree.actualFileOverlaps ?? []).some(overlap =>
+      overlap.path === 'packages/main/src/shared.ts' && overlap.peerStoryId === 'B-overlap-b'
+    ), 'relative worktree paths resolve from git common root when command runs inside a story worktree');
+    assert.ok(!overlapAFromStoryWorktree.degradations.some(degradation =>
+      /Registered worktree path does not exist/.test(degradation.reason)
+    ), 'story-worktree execution must not resolve relative worktree paths under the current worktree');
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
