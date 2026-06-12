@@ -196,9 +196,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:49:47.604Z",
-      "endTime": null,
+      "endTime": "2026-06-12T20:55:49.157Z",
       "userSees": "README and active requirement docs show \"@lattice-agent/core\" as the current package; `rg \"@koala-agent/core\" README.md docs/requirements/decisions scripts packages/main/src` returns only legacy-labelled or historical matches.",
       "files": {
         "modify": [
@@ -241,7 +241,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "node -e active docs package scope check over README.md and authority-client-role.md",
+          "result": "pass",
+          "note": "README and authority-client-role current package guidance include @lattice-agent/core as canonical.",
+          "headHash": "2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:49.226Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "node -e legacy package reference labelling check",
+          "result": "pass",
+          "note": "Retained @koala-agent/core references in active docs/scripts/runtime paths are explicitly labelled legacy fallback or compatibility.",
+          "headHash": "2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:49.540Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "if rg -n old canonical @koala-agent/core assertions in README, active authority doc, scripts, packages/main/src, and templates; then exit 1; else echo canonical package assertion scan passed; fi",
+          "result": "pass",
+          "note": "Focused scan found no old @koala-agent/core canonical install/runtime/template assertions.",
+          "headHash": "2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:49.626Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Runtime fact contract now guards @lattice-agent/core as canonical with bounded @koala-agent/core fallback; process fact contract still passes.",
+          "headHash": "2a5d9d77dcdfd328e6904ef9b2da13c7d0ef009d",
+          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
+          "timestamp": "2026-06-12T20:55:49.684Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
