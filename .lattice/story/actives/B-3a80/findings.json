@@ -5,7 +5,7 @@
       "desc": "CHK-002:edge and CHK-004:edge verificationEvidence claim the story diff excludes unrelated root/docs/code changes, but the recorded command is `git diff --name-status main...HEAD -- scoped docs`, which path-filters to docs and therefore cannot prove absence of non-doc or root-level changes. A full unfiltered diff or explicit negative path check is needed as checklist verificationEvidence for the docs-only scope claim.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-12T18:05:05.446Z",
@@ -15,7 +15,9 @@
       "files": [
         "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
         "docs/requirements/NAV.md"
-      ]
+      ],
+      "resolvedReason": "Refreshed CHK-002:edge and CHK-004:edge verificationEvidence to use an unfiltered git diff --name-status main...HEAD plus an allowlist negative path check. The check produced no output and exited 0, proving only B-3a80 Lattice metadata and the three scoped docs are present; path-filtered evidence is no longer relied on.",
+      "resolvedAt": "2026-06-12T18:06:39.369Z"
     }
   ]
 }
