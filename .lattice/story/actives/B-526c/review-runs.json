@@ -1,0 +1,163 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-526c:RR-001",
+      "storyId": "B-526c",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "startedAt": "2026-06-12T19:58:34.438Z",
+      "headHash": "d2540464a5a58f3ec9e365c999cdd20fb5df062d",
+      "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3844d8fedacc3a0ed4f47a87ee14a278ecbbf6373d8ff96ac19887cbf972c2d4",
+        "diffPackHash": "85f75ecd4b0a7bf11c67e07dc01318b751c6507930328c5432c149b9b9305cb0",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "19c82ae11dee45ae75bcc17ff7925e83f56ab5ddeb249b67db04ced4485d4399",
+          "298f1116c5aa56c1040ce19df57159d374c4cb6098089d386416d1487a38d60a",
+          "30ac8018cef827a166d2a762bad906e3adb0737ec4e16aadc4b4e3c10ff4046b",
+          "377ed3946c0b519d47f073853a383974148753800aab3427dd8ef6fee002e0ea",
+          "4c570357b7e1112f1f4944a1d8fadeaaa89100fee75ff057a462697e248a6bbb",
+          "5e4c432f6475f5827ece9ca290bba9fb06e9257930613acbdee4dd6e9f301251",
+          "829eb06534d676f89dcb3a9a09297d7d5bba2cb5d5b48a4e5e2c49d896fd5786",
+          "835d7b21a0073feb09c828cda280223f73dd90e072a3a64e55eff09ad2f0fec7",
+          "9033e86399f94a8365a44ef51990c2c0097ca677a7938c16dec5c03e55157c6d",
+          "950b8b58d9fb7ed8cb619745a88d52921a55e3d04b5090309c0ea7f1072a88f0",
+          "9cd8e1e68a2956a671b20cccbb6fd27664c13b20398ab495150f2555e5916d59",
+          "b60cb17f6d06841b23972e94109757a8b8708d3aea977fb49942661fd677fc72",
+          "bd97927e313d14f8f68e53674a57f60fa978c3ea1b344ea02bd397d678a12f1c",
+          "c7aac45ee12900f1772dfc395332ca74a3739528780bcddb97aa75590816c168"
+        ],
+        "bindingHash": "d06d71340db97a83e8d4511e0133f17a2c29d6775237a635e2cf31221a5dbc62"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "workspaceMode": "story-worktree",
+        "headHash": "d2540464a5a58f3ec9e365c999cdd20fb5df062d",
+        "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+        "bindingHash": "5d781ceace4c9fc240d171b6c53db037429fcbf0cfba5647d2c262104dfdcce0"
+      },
+      "_hash": "fde2054afda3c428821bfda794c3de6a4cdb49fa8c931cab46da22522857dbb6"
+    },
+    {
+      "reviewRunId": "B-526c:RR-002",
+      "storyId": "B-526c",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "startedAt": "2026-06-12T19:58:34.912Z",
+      "headHash": "d2540464a5a58f3ec9e365c999cdd20fb5df062d",
+      "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3844d8fedacc3a0ed4f47a87ee14a278ecbbf6373d8ff96ac19887cbf972c2d4",
+        "diffPackHash": "85f75ecd4b0a7bf11c67e07dc01318b751c6507930328c5432c149b9b9305cb0",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "19c82ae11dee45ae75bcc17ff7925e83f56ab5ddeb249b67db04ced4485d4399",
+          "298f1116c5aa56c1040ce19df57159d374c4cb6098089d386416d1487a38d60a",
+          "30ac8018cef827a166d2a762bad906e3adb0737ec4e16aadc4b4e3c10ff4046b",
+          "377ed3946c0b519d47f073853a383974148753800aab3427dd8ef6fee002e0ea",
+          "4c570357b7e1112f1f4944a1d8fadeaaa89100fee75ff057a462697e248a6bbb",
+          "5e4c432f6475f5827ece9ca290bba9fb06e9257930613acbdee4dd6e9f301251",
+          "829eb06534d676f89dcb3a9a09297d7d5bba2cb5d5b48a4e5e2c49d896fd5786",
+          "835d7b21a0073feb09c828cda280223f73dd90e072a3a64e55eff09ad2f0fec7",
+          "9033e86399f94a8365a44ef51990c2c0097ca677a7938c16dec5c03e55157c6d",
+          "950b8b58d9fb7ed8cb619745a88d52921a55e3d04b5090309c0ea7f1072a88f0",
+          "9cd8e1e68a2956a671b20cccbb6fd27664c13b20398ab495150f2555e5916d59",
+          "b60cb17f6d06841b23972e94109757a8b8708d3aea977fb49942661fd677fc72",
+          "bd97927e313d14f8f68e53674a57f60fa978c3ea1b344ea02bd397d678a12f1c",
+          "c7aac45ee12900f1772dfc395332ca74a3739528780bcddb97aa75590816c168"
+        ],
+        "bindingHash": "d06d71340db97a83e8d4511e0133f17a2c29d6775237a635e2cf31221a5dbc62"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "workspaceMode": "story-worktree",
+        "headHash": "d2540464a5a58f3ec9e365c999cdd20fb5df062d",
+        "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+        "bindingHash": "5d781ceace4c9fc240d171b6c53db037429fcbf0cfba5647d2c262104dfdcce0"
+      },
+      "_hash": "a296373ccac3feed42b59821e4858dc374df01dd47d6750eca8947400fd78114"
+    },
+    {
+      "reviewRunId": "B-526c:RR-003",
+      "storyId": "B-526c",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "startedAt": "2026-06-12T19:59:36.057Z",
+      "headHash": "d2540464a5a58f3ec9e365c999cdd20fb5df062d",
+      "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3844d8fedacc3a0ed4f47a87ee14a278ecbbf6373d8ff96ac19887cbf972c2d4",
+        "diffPackHash": "85f75ecd4b0a7bf11c67e07dc01318b751c6507930328c5432c149b9b9305cb0",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "19c82ae11dee45ae75bcc17ff7925e83f56ab5ddeb249b67db04ced4485d4399",
+          "298f1116c5aa56c1040ce19df57159d374c4cb6098089d386416d1487a38d60a",
+          "30ac8018cef827a166d2a762bad906e3adb0737ec4e16aadc4b4e3c10ff4046b",
+          "377ed3946c0b519d47f073853a383974148753800aab3427dd8ef6fee002e0ea",
+          "4c570357b7e1112f1f4944a1d8fadeaaa89100fee75ff057a462697e248a6bbb",
+          "5e4c432f6475f5827ece9ca290bba9fb06e9257930613acbdee4dd6e9f301251",
+          "829eb06534d676f89dcb3a9a09297d7d5bba2cb5d5b48a4e5e2c49d896fd5786",
+          "835d7b21a0073feb09c828cda280223f73dd90e072a3a64e55eff09ad2f0fec7",
+          "9033e86399f94a8365a44ef51990c2c0097ca677a7938c16dec5c03e55157c6d",
+          "950b8b58d9fb7ed8cb619745a88d52921a55e3d04b5090309c0ea7f1072a88f0",
+          "9cd8e1e68a2956a671b20cccbb6fd27664c13b20398ab495150f2555e5916d59",
+          "b60cb17f6d06841b23972e94109757a8b8708d3aea977fb49942661fd677fc72",
+          "bd97927e313d14f8f68e53674a57f60fa978c3ea1b344ea02bd397d678a12f1c",
+          "c7aac45ee12900f1772dfc395332ca74a3739528780bcddb97aa75590816c168"
+        ],
+        "bindingHash": "d06d71340db97a83e8d4511e0133f17a2c29d6775237a635e2cf31221a5dbc62"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-526c",
+        "workspaceMode": "story-worktree",
+        "headHash": "d2540464a5a58f3ec9e365c999cdd20fb5df062d",
+        "materialHash": "78ceb276f73e4b875e411678d16792bef6646e4fcdf6d99b4bc8b665fb95396c",
+        "bindingHash": "5d781ceace4c9fc240d171b6c53db037429fcbf0cfba5647d2c262104dfdcce0"
+      },
+      "_hash": "bdbf84536245354e92ad3150859456b5c021e767f5fb60073dc87288608d9ed2"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-526c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: wrapper-root gitRoot repair UX is conceptually sound and host-neutral. Verified: (1) doctor diagnostics are strictly read-only, scoped to immediate child dirs, deterministic classification (not-applicable/none/single-candidate/ambiguous); (2) ambiguous layouts fail-closed — no candidate chosen, story_resolve unresolved, review_run_start fails (smoke-tested); (3) single-candidate suggestion is operator-facing only — runtime resolution (story-signed-workspace-resolution.ts) consumes only the explicitly configured config.gitRoot, never doctor candidates; (4) repair requires explicit --set-git-root + --confirm, rejects absolute paths, realpath escape attempts, and non-git-root targets; without --confirm it is a pure preview; (5) write mutates only the gitRoot field, preserves other config fields, post-write verification via resetConfigCache reload; (6) host-neutrality preserved: repair classified mainSharedMutating/metadata-write, never gate evidence or automatic resolver input; doctor stays L0 read-only; CLI_META_SCHEMA merge only surfaces optional takeover flags in non-strict schemas, no regression. Field-regression smoke covers none/ambiguous/single-candidate/preview/traversal-rejection/confirmed-repair/end-to-end resolution.",
+      "createdAt": "2026-06-12T20:00:13.720Z",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "reviewRunId": "B-526c:RR-001",
+      "_hash": "84d6599afff588356f275a516e08f09d296491a0e5825a2afc02857cb1a9054e"
+    }
+  ]
+}
