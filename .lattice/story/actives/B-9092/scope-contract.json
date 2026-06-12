@@ -1,0 +1,28 @@
+{
+  "storyId": "B-9092",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/story/actives/B-9092/checklist.json",
+    "docs/requirements/NAV.md",
+    ".lattice/story/actives/B-META-framework-audit/findings.json"
+  ],
+  "allowedCreate": [
+    ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json",
+    ".lattice/artifacts/baseline/f009-layer2-closure-*",
+    ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md",
+    ".lattice/story/actives/B-9092/evidence/f009-host-verdicts.md",
+    ".lattice/story/actives/B-9092/evidence/f009-final-status.md"
+  ],
+  "allowedTest": [
+    "lattice baseline_suite_report --layer=engineering",
+    "lattice capability_claim_formal_evaluate --target=engineering",
+    "lattice finding_list --storyId=B-META-framework-audit",
+    "lattice convergence_check"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "B-9092 formal proof closure scope comes from PLAN checklist files and evidence artifacts; restrict writes to declared .lattice evidence/artifacts, B-META finding status, and NAV hygiene.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T16:14:43.026Z",
+  "updatedAt": "2026-06-12T16:14:43.026Z"
+}
