@@ -1,0 +1,29 @@
+{
+  "storyId": "B-de86",
+  "checkedAt": "2026-06-12T21:25:59.988Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-12T21:25:59.988Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-12T21:25:59.988Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Current agent tool policy only permits spawning subagents when the user explicitly requests delegation in this turn; I manually verified this is a documentation-only story with one narrow checklist item and no code mutation before INIT_CHECK.",
+    "actor": "Harmonygo",
+    "session": "sess-8864a631c29c54e1",
+    "attestedAt": "2026-06-12T21:25:59.988Z",
+    "headHash": "beddc9e18d670356416611b2c87d4644890a33db",
+    "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7"
+  },
+  "_hash": "65d87e38ba724f1068e9eb8983b4bc9cb38ae43881fba7cbea91b1f0d565254e"
+}
