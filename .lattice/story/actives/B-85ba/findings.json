@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-85ba:F-001",
+      "desc": "scope_extension_proposal does not persist the proposal body when a separate reason is supplied. The CLI schema asks for proposal plus optional reason, and ScopeExtensionProposal has proposal/proposalTextHash fields for the human-readable expansion proposal, but the handler calls buildScopeExtensionProposal with only reason: args.reason || args.proposal and patch: {}, so args.proposal is discarded whenever reason is present (packages/main/src/handlers/scope-anti-expansion.ts:246). The builder used by the handler never writes proposal/proposalTextHash (packages/main/src/core/scope-anti-expansion.ts:656), while the typed artifact builder below does preserve them (packages/main/src/core/scope-anti-expansion.ts:960). This means the gate-consumed scope-extension-proposals.json can block INIT_CHECK but not reliably record what expansion was proposed, undermining the proposal/discard/decision audit flow required for INIT reviewers to propose rather than mutate scope.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T20:42:27.962Z",
+      "reviewRound": "2026-06-12T20:36:30.829Z",
+      "reviewRunId": "B-85ba:RR-001",
+      "_hash": "3d2b80220861322a28bc89ceca960290914496cfb82411bd9ba82ea4ef6b0598",
+      "files": [
+        "packages/main/src/handlers/scope-anti-expansion.ts",
+        "packages/main/src/core/scope-anti-expansion.ts",
+        "packages/main/src/core/types.ts"
+      ]
+    }
+  ]
+}
