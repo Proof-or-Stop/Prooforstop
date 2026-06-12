@@ -12,7 +12,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T18:48:24.646Z",
-      "endTime": "2026-06-12T18:50:42.515Z",
+      "endTime": "2026-06-12T18:56:04.696Z",
       "userSees": "A new decision document explains how to resolve the two signed-workspace gaps and the customerKeyRef future/blocked gap without false closure.",
       "files": {
         "modify": [],
@@ -48,9 +48,9 @@
           "command": "rg -n \"GAP-SW-UNRESOLVED-1|GAP-SW-NO-BINDING-1|GAP-L4-CUSTOMER-KEY-1|Required Work Split|Recommended Execution Order\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
           "result": "pass",
           "note": "The execution plan names all three current high gaps and assigns them to bounded follow-up workstreams.",
-          "headHash": "b2b7ae047a4d1b41b8dbfaa420d64e7ef76cd039",
+          "headHash": "4aab04d2cba498cafdad68720c7d6bb26de7f99c",
           "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:50:42.555Z"
+          "timestamp": "2026-06-12T18:56:04.743Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,19 +58,19 @@
           "command": "rg -n \"future/blocked|Path B1: Keep It Future/Blocked|customerKeyRef remains a future Layer 4 requirement|Forbidden result wording\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
           "result": "pass",
           "note": "The document preserves customerKeyRef as future/blocked unless a separate Layer4 implementation story is opened.",
-          "headHash": "b2b7ae047a4d1b41b8dbfaa420d64e7ef76cd039",
+          "headHash": "4aab04d2cba498cafdad68720c7d6bb26de7f99c",
           "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:50:42.584Z"
+          "timestamp": "2026-06-12T18:56:04.775Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "command": "lattice gap_analyze",
+          "command": "lattice gap_analyze | node -e \"let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const json=JSON.parse(s.slice(s.indexOf(\"{\"),s.lastIndexOf(\"}\")+1)); const high=json.gaps.filter(g=>g.severity===\"high\").length; const medium=json.gaps.filter(g=>g.severity===\"medium\").length; if(high!==3||medium!==0){console.error(JSON.stringify({high,medium})); process.exit(1)} console.log(JSON.stringify({high,medium,ok:true}))})\"",
           "result": "pass",
-          "note": "After adding the document, gap_analyze reports the original 3 high / 0 medium gaps, proving the plan did not create an extra high gap or claim false closure.",
-          "headHash": "b2b7ae047a4d1b41b8dbfaa420d64e7ef76cd039",
+          "note": "Mechanical assertion proves the plan did not increase current high or medium gap count; expected state remains exactly 3 high and 0 medium.",
+          "headHash": "4aab04d2cba498cafdad68720c7d6bb26de7f99c",
           "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:50:42.611Z"
+          "timestamp": "2026-06-12T18:56:04.805Z"
         }
       ]
     },
