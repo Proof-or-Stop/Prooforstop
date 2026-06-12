@@ -271,7 +271,7 @@
       "context": "Run targeted package metadata checks, TypeScript/build verification, existing runtime contract verification scripts, and lattice validate so the rename does not break local wrappers, lab registration, or runtime environment diagnostics.",
       "status": "done",
       "startTime": "2026-06-12T20:50:03.372Z",
-      "endTime": "2026-06-12T21:18:56.191Z",
+      "endTime": "2026-06-12T21:32:45.354Z",
       "userSees": "Terminal evidence shows package metadata checks passed, `npm --prefix packages/main run build` passed, runtime contract scripts passed, and `lattice validate --story=B-50fb` reports pass/allPass true for B-50fb.",
       "files": {
         "modify": [],
@@ -320,10 +320,10 @@
           "kind": "manual_transcript",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "TypeScript build passed after replacing the brittle actor.getSnapshot().can call with a canSendStoryEvent helper that falls back to XState getNextSnapshot.",
-          "headHash": "762460d82fd40acb77554431bdf9a1b972853816",
-          "materialHash": "5aa38c241adfc4e0d64947de885d56e30fcb22824e0b3a721a72ce802fd83b78",
-          "timestamp": "2026-06-12T21:18:56.294Z"
+          "note": "TypeScript build passed after replacing the brittle transition guard preflight with canSendStoryEvent: it uses snapshot.can when present and otherwise falls back to the local phase/event guard table.",
+          "headHash": "c9156f1db15f2ac6414f3e4abf67382a44a64f03",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:45.401Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -331,19 +331,19 @@
           "command": "npm test",
           "result": "pass",
           "note": "Root npm test passed; packages/main/dist/tasks/cli-e2e.js story-lifecycle step 2 now completes without actor.getSnapshot(...).can errors.",
-          "headHash": "762460d82fd40acb77554431bdf9a1b972853816",
-          "materialHash": "5aa38c241adfc4e0d64947de885d56e30fcb22824e0b3a721a72ce802fd83b78",
-          "timestamp": "2026-06-12T21:18:56.349Z"
+          "headHash": "c9156f1db15f2ac6414f3e4abf67382a44a64f03",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:45.464Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
-          "command": "lattice scope_contract_check {storyId:B-50fb}",
+          "command": "lattice scope_contract_check {storyId:B-50fb} && node scripts/verify-entrypoints.mjs",
           "result": "pass",
-          "note": "Scope contract check passed with the narrow validation-blocker expansion for packages/main/src/handlers/transition-orchestrator.ts and 0 unacknowledged violations.",
-          "headHash": "762460d82fd40acb77554431bdf9a1b972853816",
-          "materialHash": "5aa38c241adfc4e0d64947de885d56e30fcb22824e0b3a721a72ce802fd83b78",
-          "timestamp": "2026-06-12T21:18:56.402Z"
+          "note": "Scope contract check passed with the narrow transition-orchestrator expansion and 0 unacknowledged violations; entrypoint verification passed 26/26 after removing optional XState API imports from the fallback.",
+          "headHash": "c9156f1db15f2ac6414f3e4abf67382a44a64f03",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:45.555Z"
         }
       ]
     }
