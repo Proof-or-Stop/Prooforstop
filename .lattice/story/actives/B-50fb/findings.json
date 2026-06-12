@@ -22,7 +22,7 @@
       "desc": "Mixed canonical+legacy global installs can leave the legacy @koala-agent/core symlink pointing at a deleted story worktree. resolveGlobalCorePackagePath prefers @lattice-agent/core as soon as it exists (worktree.ts:66-72), and repairGlobalKoalaLinkBeforeWorktreeDelete then only inspects that one selected path (worktree.ts:90-110). During DONE cleanup, done-effects calls this once without an explicit legacy path, so if @lattice-agent/core exists but @koala-agent/core is the symlink into the story worktree, the legacy fallback required by decision option A is never repaired. The updated smoke coverage only exercises the canonical default plus explicit single-path calls, not the mixed transition install.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-12T21:38:25.657Z",
@@ -33,7 +33,9 @@
         "packages/main/src/handlers/worktree.ts",
         "packages/main/src/handlers/done-effects.ts",
         "packages/main/src/tasks/flow-stability-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Repro: worktree-repair smoke simulates global node_modules containing canonical @lattice-agent/core plus legacy @koala-agent/core symlink into the story worktree. Root cause: resolveGlobalCorePackagePath selected only the first package path, so a canonical install masked a stale legacy symlink during DONE cleanup. Fix: repairGlobalKoalaLinkBeforeWorktreeDelete now resolves all present canonical and legacy core package entries and relinks every symlink pointing into the worktree pending deletion while preserving explicit single-path repair calls. ReproTest: npm --prefix packages/main run test:worktree-repair-smoke, npm --prefix packages/main run build, npm test, node scripts/verify-runtime-fact-contract.mjs, node scripts/verify-entrypoints.mjs all pass.",
+      "resolvedAt": "2026-06-12T21:52:33.446Z"
     }
   ]
 }
