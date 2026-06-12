@@ -68,9 +68,9 @@
           "command": "rg -n \"metadataRoot|signedWorkspaceRoot|Implementation Phases|Regression Matrix\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
           "result": "pass",
           "note": "Document defines the root mismatch issue, implementation phases, and regression matrix for explicit signed workspace resolution.",
-          "headHash": "ef94515dd7a1a6e6d6c9efc5c5cf9024c9aeec60",
-          "materialHash": "125c48f8a612b906c159b2fb1716262e27b486471bc0c5a3abc5178295f9e6fb",
-          "timestamp": "2026-06-12T16:00:30.064Z"
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -78,9 +78,9 @@
           "command": "rg -n \"localNonAuthorityAudit|Codex CLI|Claude CLI|Main Auditor Reconciliation|Final Claude CLI Review Record\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
           "result": "pass",
           "note": "Document records the two host perspectives, main auditor reconciliation, and final Claude CLI PASS as local non-authority audit only.",
-          "headHash": "ef94515dd7a1a6e6d6c9efc5c5cf9024c9aeec60",
-          "materialHash": "125c48f8a612b906c159b2fb1716262e27b486471bc0c5a3abc5178295f9e6fb",
-          "timestamp": "2026-06-12T16:00:30.064Z"
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -88,9 +88,9 @@
           "command": "rg -n \"Direct REVIEW|git-backed project root|not require a worktree\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
           "result": "pass",
           "note": "Document preserves direct REVIEW compatibility for normal git-backed project roots and does not require a worktree for every REVIEW story.",
-          "headHash": "ef94515dd7a1a6e6d6c9efc5c5cf9024c9aeec60",
-          "materialHash": "125c48f8a612b906c159b2fb1716262e27b486471bc0c5a3abc5178295f9e6fb",
-          "timestamp": "2026-06-12T16:00:30.064Z"
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -98,9 +98,9 @@
           "command": "rg -n \"Do not auto-discover|Do not guess|gitRoot|story_attach_worktree\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
           "result": "pass",
           "note": "Document rejects arbitrary nested repo discovery and requires explicit gitRoot or story worktree attachment for non-git metadata roots.",
-          "headHash": "ef94515dd7a1a6e6d6c9efc5c5cf9024c9aeec60",
-          "materialHash": "125c48f8a612b906c159b2fb1716262e27b486471bc0c5a3abc5178295f9e6fb",
-          "timestamp": "2026-06-12T16:00:30.064Z"
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -108,9 +108,9 @@
           "command": "rg -n \"receiptVerified|productionDone|authorityDone|fullAuthorityDone|gate_decision\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
           "result": "pass",
           "note": "Document separates localNonAuthorityAudit from authorityServerPath and forbids Authority completion claims from host prose or local reviewer runs.",
-          "headHash": "ef94515dd7a1a6e6d6c9efc5c5cf9024c9aeec60",
-          "materialHash": "125c48f8a612b906c159b2fb1716262e27b486471bc0c5a3abc5178295f9e6fb",
-          "timestamp": "2026-06-12T16:00:30.064Z"
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -118,9 +118,9 @@
           "command": "rg -n \"ambiguous nested|missing worktree binding|stale|forged|local-only\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md && git diff --check",
           "result": "pass",
           "note": "Document includes fail-closed matrix coverage for ambiguous nested repos, missing worktree binding, stale/mismatched facts, forged hashes, and local-only Authority evidence; whitespace check passed.",
-          "headHash": "ef94515dd7a1a6e6d6c9efc5c5cf9024c9aeec60",
-          "materialHash": "125c48f8a612b906c159b2fb1716262e27b486471bc0c5a3abc5178295f9e6fb",
-          "timestamp": "2026-06-12T16:00:30.064Z"
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
         }
       ]
     }
