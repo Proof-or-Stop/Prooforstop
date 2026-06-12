@@ -9,6 +9,7 @@ import {
   searchEntries,
   type DevMemoryEntry,
 } from './dev-memory.js';
+import { isMaterialExcludedPath } from './evidence-freshness.js';
 import { resolveStoryLane, type StoryLane } from './parallel-policy.js';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
@@ -56,6 +57,11 @@ export interface ParallelWaveChangedFiles {
   materialChangedFiles: string[];
   ignoredChangedFiles: string[];
   reason?: string;
+}
+
+interface ParallelWaveChangedFileProbeFailure {
+  storyId: string;
+  reason: string;
 }
 
 export interface ParallelWaveActualFileOverlap {
@@ -303,18 +309,7 @@ const MAX_EXPERIENCE_REFS = 20;
 
 const TERMINAL_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED']);
 const NON_ACTIVE_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED', 'IDEA', 'META']);
-const METADATA_PATH_ROOTS = new Set(['.lattice', '.koala', '.omx']);
-const RUNTIME_METADATA_FILENAMES = new Set([
-  'activity.log',
-  'activity.jsonl',
-  'debug.log',
-  'owner-lease.json',
-  'process-events.jsonl',
-  'process-metrics.json',
-  'runtime-cache.json',
-  'serve-metadata.json',
-  'trace-cache.json',
-]);
+const ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND = 'active-story-changed-file-probe-failed';
 
 function uniqueStrings(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => Boolean(value && value.trim())))].sort();
@@ -326,15 +321,6 @@ function normalizeChangedPath(rawPath: string): string | undefined {
   normalized = normalized.replace(/^\/+/, '');
   normalized = normalized.replace(/\/+/g, '/');
   return normalized ? normalized : undefined;
-}
-
-function isRuntimeMetadataPath(path: string): boolean {
-  const normalized = normalizeChangedPath(path);
-  if (!normalized) return true;
-  const parts = normalized.split('/');
-  if (METADATA_PATH_ROOTS.has(parts[0])) return true;
-  const filename = parts[parts.length - 1];
-  return RUNTIME_METADATA_FILENAMES.has(filename);
 }
 
 function errorText(error: unknown): string {
@@ -406,11 +392,13 @@ function collectStoryChangedFiles(root: string, story: StoryInfo): ParallelWaveC
       ...gitOutputLines(worktreePath, ['diff', '--name-only', '--']),
       ...gitOutputLines(worktreePath, ['ls-files', '--others', '--exclude-standard']),
     ]);
+    const ignoredChangedFiles = paths.filter(path => isMaterialExcludedPath(path, worktreePath));
+    const ignored = new Set(ignoredChangedFiles);
     return {
       source: 'git',
       status: 'ok',
-      materialChangedFiles: paths.filter(path => !isRuntimeMetadataPath(path)),
-      ignoredChangedFiles: paths.filter(isRuntimeMetadataPath),
+      materialChangedFiles: paths.filter(path => !ignored.has(path)),
+      ignoredChangedFiles,
     };
   } catch (error) {
     return {
@@ -429,6 +417,19 @@ function collectActiveStoryChangedFiles(root: string, allStories: StoryInfo[]): 
       .filter(isActiveStory)
       .map(story => [story.storyId, collectStoryChangedFiles(root, story)]),
   );
+}
+
+function activeStoryChangedFileProbeFailures(
+  changesByStory: Map<string, ParallelWaveChangedFiles>,
+  storyId: string,
+): ParallelWaveChangedFileProbeFailure[] {
+  return [...changesByStory.entries()]
+    .filter(([peerStoryId, changedFiles]) => peerStoryId !== storyId && changedFiles.status === 'failed')
+    .map(([peerStoryId, changedFiles]) => ({
+      storyId: peerStoryId,
+      reason: changedFiles.reason ?? 'git changed-file projection failed',
+    }))
+    .sort((a, b) => a.storyId.localeCompare(b.storyId));
 }
 
 function actualFileOverlapsByStory(
@@ -524,12 +525,20 @@ function changedFileProbeRiskReasons(ref: ParallelWaveStoryRef): string[] {
     : [];
 }
 
+function activeStoryChangedFileProbeRiskReasons(ref: ParallelWaveStoryRef): string[] {
+  const prefix = degradationId(ref.storyId, ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND, '');
+  return ref.degradations
+    .filter(degradation => degradation.id === prefix || degradation.id.startsWith(`${prefix}-`))
+    .map(degradation => degradation.reason);
+}
+
 function refBlockers(ref: ParallelWaveStoryRef): string[] {
   return uniqueStrings([
     ...ref.dependencies.active,
     ...ref.dependencies.blockingForActive,
     ...actualFileOverlapReasons(ref),
     ...changedFileProbeRiskReasons(ref),
+    ...activeStoryChangedFileProbeRiskReasons(ref),
     ...ref.degradations
       .filter(degradation => degradation.severity === 'block')
       .map(degradation => degradation.reason),
@@ -745,6 +754,7 @@ function resolveWaveSafety(
   sharedHotspots: ParallelWaveHotspotConflict[],
   changedFiles: ParallelWaveChangedFiles,
   actualFileOverlaps: ParallelWaveActualFileOverlap[],
+  activeStoryProbeFailures: ParallelWaveChangedFileProbeFailure[],
 ): { safety: ParallelWaveSafety; degradations: ParallelWaveDegradation[] } {
   const degradations: ParallelWaveDegradation[] = [];
   const explicit = story.parallelSafe;
@@ -812,6 +822,16 @@ function resolveWaveSafety(
       'Allow planning only until the worktree changed-file projection can be collected.',
     ));
   }
+  for (const failure of activeStoryProbeFailures) {
+    degradations.push(schedulingDegradation(
+      story.storyId,
+      ACTIVE_STORY_CHANGED_FILE_PROBE_FAILED_KIND,
+      failure.storyId,
+      'warn',
+      `Active story ${failure.storyId} changed-file projection failed: ${failure.reason}.${explicitOverrideNote}`,
+      'Allow planning only until every active story worktree changed-file projection can be collected.',
+    ));
+  }
   for (const overlap of actualFileOverlaps) {
     degradations.push(schedulingDegradation(
       story.storyId,
@@ -826,7 +846,13 @@ function resolveWaveSafety(
   if (dependencies.active.length > 0 || dependencies.blockingForActive.length > 0 || explicit === 'no') {
     return { safety: 'no', degradations };
   }
-  if (sharedHotspots.length > 0 || actualFileOverlaps.length > 0 || changedFiles.status === 'failed' || explicit === 'plan_only') {
+  if (
+    sharedHotspots.length > 0 ||
+    actualFileOverlaps.length > 0 ||
+    changedFiles.status === 'failed' ||
+    activeStoryProbeFailures.length > 0 ||
+    explicit === 'plan_only'
+  ) {
     return { safety: 'plan_only', degradations };
   }
   return { safety: 'yes', degradations };
@@ -898,7 +924,8 @@ function storyRef(
     reason: 'Story has no changed-file projection.',
   } satisfies ParallelWaveChangedFiles;
   const actualFileOverlaps = actualFileOverlapsByStory.get(story.storyId) ?? [];
-  const resolved = resolveWaveSafety(story, dependencies, sharedHotspots, changedFiles, actualFileOverlaps);
+  const activeStoryProbeFailures = activeStoryChangedFileProbeFailures(changedFilesByStory, story.storyId);
+  const resolved = resolveWaveSafety(story, dependencies, sharedHotspots, changedFiles, actualFileOverlaps, activeStoryProbeFailures);
   const recommendation = recommendationFor(resolved.safety, hostIds);
   return {
     storyId: story.storyId,
