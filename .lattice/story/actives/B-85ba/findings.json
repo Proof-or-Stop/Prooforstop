@@ -47,7 +47,7 @@
       "desc": "story_create can create INIT_CHECK stories that cannot satisfy or repair the new scope gate. Evidence: the fromDraft branch writes the new story directly with phase INIT_CHECK and deletes the draft without writing scope-boundary.json, execution-boundary.json, or scope-freeze-check.json (handlers/story-create.ts:247-351). The CLI then calls dev_start directly for that result (cli-engine.ts:3819-3829). dev_start now rejects INIT_CHECK/no-worktree stories when getScopeAntiExpansionGuardFailureReason reports missing scope artifacts (handlers/worktree.ts:632-638). The only commands that can create or refresh those artifacts are INIT-only by handler and policy (handlers/scope-anti-expansion.ts:74-79; core/command-policy.ts:287-291), so fromDraft leaves the story stuck in INIT_CHECK with no normal CLI repair path. The direct story_create phase=INIT_CHECK path has the same shape: it can write scope/execution artifacts but never writes a freeze check, and scope_freeze_check is no longer callable after phase INIT_CHECK.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T20:42:55.516Z",
@@ -60,7 +60,9 @@
         "packages/main/src/handlers/worktree.ts",
         "packages/main/src/handlers/scope-anti-expansion.ts",
         "packages/main/src/core/command-policy.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in 07ceb003: story_create refuses direct phase=INIT_CHECK and fromDraft now materializes at INIT so normal init-check and scope gates can run before worktree creation. Verified by direct INIT_CHECK smoke, build, and contract.",
+      "resolvedAt": "2026-06-12T20:59:51.539Z"
     },
     {
       "id": "B-85ba:F-004",
