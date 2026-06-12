@@ -80,7 +80,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run parallel_plan/parallel_status/parallel_merge_queue with detected overlaps -> JSON output keeps authority.productionDone=false, authority.authorityChanged=false, authority.receiptRefs=[]; WHY: overlap guard is L0 read-only guidance and must never claim Authority completion",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Overlap warns/blocks local parallel scheduling -> output text still states it did not prove DONE or Authority completion, and overlap facts are NOT encoded in Authority receipt fields; WHY: blocking guidance must not be misread as authority verdicts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Snapshot story metadata/evidence/receipt files before and after running overlap-detection commands -> byte-identical (no story authority mutation, no evidence writes, no receipt verification, no host spawn); WHY: read-only boundary must be proven under operation, not just asserted in docs",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
