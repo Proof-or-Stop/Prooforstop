@@ -52,9 +52,9 @@
           "command": "git diff --name-only HEAD~1..HEAD",
           "result": "pass",
           "note": "The material commit contains only packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, and the focused smoke test; the two restored Bucket A code paths are present.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "command": "git diff --name-status main...HEAD and git status --short --untracked-files=all",
           "result": "pass",
           "note": "No .gitignore, runtime registry, planner, smoke expectation, NAV, Layer4 doc, or .lattice/dev-memory/experience.jsonl path appears in the material change or worktree status.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,9 +72,9 @@
           "command": "git rev-parse stash@{0} and git diff --name-status main...HEAD",
           "result": "pass",
           "note": "stash@{0} remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and the final material diff is path-limited, proving no whole-stash apply/pop/drop result landed.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         }
       ]
     },
@@ -131,9 +131,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js",
           "result": "pass",
           "note": "Focused smoke passed and covers reading both current .lattice and legacy .koala project/global dev-memory entries.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,9 +142,9 @@
           "command": "node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js",
           "result": "pass",
           "note": "The smoke asserts duplicate ids across .lattice and .koala are deduped with the current .lattice entry winning.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,9 +153,9 @@
           "command": "node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js",
           "result": "pass",
           "note": "The smoke asserts capture writes .lattice/dev-memory/experience.jsonl, does not write .koala/dev-memory/experience.jsonl, and all entries remain gateEvidence=false and authority=non_authoritative.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         }
       ]
     },
@@ -207,9 +207,9 @@
           "command": "git status --short --untracked-files=all | rg .lattice/dev-memory/experience.jsonl || true",
           "result": "pass",
           "note": "git status showed no .lattice/dev-memory/experience.jsonl restored, staged, or tracked after Bucket A work.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -217,9 +217,9 @@
           "command": "git show stash@{0}^3:.lattice/dev-memory/experience.jsonl | wc -l",
           "result": "pass",
           "note": "The stashed data file remains inspectable from the third stash parent and contains 23 lines, while it is absent from the worktree status.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -227,9 +227,9 @@
           "command": "git diff --name-status main...HEAD | rg .lattice/dev-memory/experience.jsonl || true",
           "result": "pass",
           "note": "The final diff contains approved code, focused smoke test, and story metadata only; .lattice/dev-memory/experience.jsonl is not in the material diff.",
-          "headHash": "c4650ddd1252656cf01effcbf010d9b630deca19",
-          "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
-          "timestamp": "2026-06-11T23:52:22.739Z"
+          "headHash": "66d0ee4e1814599f9781516f96b8a58dacd9c7e5",
+          "materialHash": "e73b74ccb1d2db2eceb98a44d0747c8a445a9dc6ae580a8f1d621a15e136adae",
+          "timestamp": "2026-06-12T00:08:48.846Z"
         }
       ]
     }
