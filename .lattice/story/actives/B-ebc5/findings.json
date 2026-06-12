@@ -16,6 +16,22 @@
         ".lattice/story/actives/B-ebc5/checklist.json",
         "docs/requirements/NAV.md"
       ]
+    },
+    {
+      "id": "B-ebc5:F-002",
+      "desc": "NAV count is stale: docs/requirements/NAV.md says `> 46 个文件`, but `find docs/requirements -type f -name '*.md' | wc -l` returns 47. The new decision doc link exists, but the count must be updated before docs review can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-12T18:53:19.812Z",
+      "reviewRound": "2026-06-12T18:51:12.969Z",
+      "reviewRunId": "B-ebc5:RR-004",
+      "_hash": "e4bcf03719fa6611fb905bd9a97dfe6e03d3a978618b9ecb66ca47752a387f7a",
+      "files": [
+        "docs/requirements/NAV.md"
+      ]
     }
   ]
 }
