@@ -1,0 +1,80 @@
+{
+  "storyId": "B-5cc7",
+  "checkedAt": "2026-06-12T00:00:31.625Z",
+  "reviewRound": "2026-06-11T23:51:32.816Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md",
+      "promise": "Dev-memory canonical project/global/story-candidate storage is .lattice; legacy .koala files are read-only fallback inputs only, and writes must not append to .koala.",
+      "status": "verified",
+      "verifiedBy": "rg plus source inspection plus focused smoke",
+      "evidence": "rg docs lines 25-31 and code lines packages/main/src/core/dev-memory.ts:146-195, packages/main/src/handlers/dev-memory.ts:79-87 and 214-226; npm --prefix packages/main run build passed; node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js passed and asserts KOALA_GLOBAL_MEMORY_DIR does not redirect writable global storage."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md",
+      "promise": "Dev-memory entries and refs are non-authoritative context only: gateEvidence false, authority non_authoritative, and cannot satisfy review/test/delivery/receipt/DONE/production authority gates.",
+      "status": "verified",
+      "verifiedBy": "rg plus smoke assertions",
+      "evidence": "rg docs lines 53, 109-111, 128-130 and source lines packages/main/src/core/dev-memory.ts:74-79,317-318; smoke asserts all read/captured entries remain gateEvidence=false and authority=non_authoritative."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md",
+      "promise": "dev_memory_start guides users to run lattice dev_memory_finish, not koala dev_memory_finish.",
+      "status": "verified",
+      "verifiedBy": "source inspection plus focused smoke",
+      "evidence": "packages/main/src/handlers/dev-memory.ts:306-315 emits lattice dev_memory_finish variants; smoke asserts /lattice dev_memory_finish/ matches and /koala dev_memory_finish/ does not match the output."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "parallel_dispatch and parallel_report include experienceRefs only through fallback-aware dev-memory readers, using .lattice canonical project/global memory plus .koala and KOALA_GLOBAL_MEMORY_DIR legacy read fallback where appropriate.",
+      "status": "verified",
+      "verifiedBy": "docs/source inspection plus focused smoke",
+      "evidence": "rg docs lines 154-159; packages/main/src/core/lattice-parallel-wave.ts:313-321 uses readProjectMemoryEntries/readGlobalMemoryEntries; smoke verifies dispatch/report include legacy project .koala and KOALA_GLOBAL_MEMORY_DIR fallback entries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "Parallel-wave dev-memory refs remain operator context only and do not change production authority; outputs keep productionDone=false, authorityChanged=false, receiptRefs=[].",
+      "status": "verified",
+      "verifiedBy": "rg source/docs",
+      "evidence": "docs lines 10-13, 164-166, 183-188; packages/main/src/core/lattice-parallel-wave.ts:750-752 and 791-793 keep productionDone false, authorityChanged false, and receiptRefs empty; no production Authority receipt is claimed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "F-001..F-006",
+      "transcript": "lattice finding_list {storyId:B-5cc7} returned F-001 through F-006 with status=resolved and evidenceState=verified. F-003 resolves lattice-parallel-wave fallback readers; F-006 resolves the parallel-wave doc promise."
+    },
+    {
+      "featureId": "CHK-002-smoke",
+      "transcript": "npm --prefix packages/main run build exited 0 with tsc success. node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js exited 0 and printed dev-memory legacy read smoke passed."
+    },
+    {
+      "featureId": "TEST-validate",
+      "transcript": "lattice validate --story=B-5cc7 --json exited 0 with status=pass, allPass=true, npm test passed, and verification coverage 9/9 covered with 0 required missing."
+    },
+    {
+      "featureId": "stash-safety",
+      "transcript": "git rev-parse stash@{0} returned c4dcc3aff95fd999712d7f19dcf856f791cf0d05. git show stash@{0}^3:.lattice/dev-memory/experience.jsonl | wc -l returned 23. git status --short --untracked-files=all | rg .lattice/dev-memory/experience.jsonl returned no matches. git diff --name-status main...HEAD | rg .lattice/dev-memory/experience.jsonl returned no matches. git ls-files .lattice/dev-memory/experience.jsonl returned no tracked path."
+    },
+    {
+      "featureId": "transcript-diff",
+      "transcript": "test -s .lattice/story/actives/B-5cc7/evidence/transcript-diff.md exited 0, so transcript-diff.md exists and is non-empty."
+    },
+    {
+      "featureId": "scope-acknowledgement",
+      "transcript": "lattice scope_contract_show lists acknowledgements for packages/main/src/core/lattice-parallel-wave.ts and docs/requirements/decisions/lattice-parallel-wave.md. lattice scope_contract_check reports two OUT_OF_SCOPE warnings, both acknowledged. These are justified by F-003 for the fallback-aware parallel experienceRefs reader and F-006 for the parallel-wave truth-source correction."
+    },
+    {
+      "featureId": "authority-boundary",
+      "transcript": "rg over docs and source found productionDone=false, authorityChanged=false, receiptRefs=[], gateEvidence=false, and authority=non_authoritative. No command submitted or verified a production Authority receipt; this delivery check treats the work as local/non-authority only."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery is acceptable: the final diff, docs promises, resolved findings, fallback-aware readers, canonical .lattice write behavior, stash safety, TEST validation, transcript evidence, scope acknowledgements, and non-authority boundary were independently checked with real commands."
+  },
+  "_hash": "1a9720c4fdea8955e22118bc8fdf96eced79224c7c0b89805397c37aee270b7c"
+}
