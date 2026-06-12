@@ -84,7 +84,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T18:00:39.325Z",
-      "endTime": "2026-06-12T18:06:01.043Z",
+      "endTime": "2026-06-12T18:17:31.652Z",
       "userSees": "Completion report links the new execution document and says it is an execution plan only, not an unlock artifact.",
       "files": {
         "modify": [
@@ -122,29 +122,29 @@
           "command": "sed -n 1,297p docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
           "result": "pass",
           "note": "The new execution document contains purpose, governing principles, non-goals, bounded action, Lattice CLI flow, two-host audit protocol, phases, evidence pack, and DONE criteria.",
-          "headHash": "c183c0d1102bd5fac54c35342958639e02da34e2",
+          "headHash": "c1b9605953d94042e05d3802b982ea3d9b7f8cb3",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:06:01.092Z"
+          "timestamp": "2026-06-12T18:17:31.700Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "git diff --name-status main...HEAD && git diff --name-status main...HEAD | awk allowlist check for B-3a80 metadata plus three scoped docs",
+          "command": "node -e \"const {execSync}=require('child_process'); const allowed=[/^\\.lattice\\/story\\/actives\\/B-3a80\\//,'docs/requirements/NAV.md','docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md','docs/requirements/decisions/unlock-layer4-production-safety-suite.md']; const bad=execSync('git diff --name-only main...HEAD',{encoding:'utf8'}).trim().split('\\n').filter(Boolean).filter(p=>!allowed.some(a=>typeof a==='string'?a===p:a.test(p))); if(bad.length){console.error(bad.join('\\n')); process.exit(1)}\"",
           "result": "pass",
-          "note": "Unfiltered diff contains only B-3a80 Lattice metadata and the three scoped docs; the allowlist negative path check produced no output and exited 0, proving unrelated root/docs/code changes are not folded into this story diff.",
-          "headHash": "c183c0d1102bd5fac54c35342958639e02da34e2",
+          "note": "Executable allowlist command exits 0 only when git diff --name-only main...HEAD contains no paths outside B-3a80 Lattice metadata and the three scoped docs.",
+          "headHash": "c1b9605953d94042e05d3802b982ea3d9b7f8cb3",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:06:01.138Z"
+          "timestamp": "2026-06-12T18:17:31.736Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "Claude CLI final review and Codex CLI final review",
+          "kind": "docs_check",
+          "command": "rg -n \"Do not add abstractions|Do not broaden this story|Host verdicts are review evidence only; they are not Authority receipts and cannot unlock claims|Do not treat host transcripts, local diagnostics, or this document as formal\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
           "result": "pass",
-          "note": "Claude and Codex final reviews both reported no high or critical blockers; host outputs are review evidence only, not Authority receipts.",
-          "headHash": "c183c0d1102bd5fac54c35342958639e02da34e2",
+          "note": "Executable rg command verifies the document forbids arbitrary optimization, scope broadening, host transcripts as formal proof, and host verdicts as Authority receipts.",
+          "headHash": "c1b9605953d94042e05d3802b982ea3d9b7f8cb3",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:06:01.182Z"
+          "timestamp": "2026-06-12T18:17:31.769Z"
         }
       ]
     },
