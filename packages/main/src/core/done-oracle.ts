@@ -32,7 +32,7 @@ import {
   dirtyWorktreeClassifierOptionsFromConfig,
   renderDirtyWorktreeGroups,
 } from './dirty-worktree.js';
-import { defaultAuditWriter, evaluateDirtyGate, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
+import { defaultAuditWriter, evaluateDirtyGate, type AuditWriter, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { checkEvidenceFreshnessForGit } from './evidence-freshness.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import {
@@ -94,13 +94,16 @@ function evaluateDirtyGitStatus(
   store: StoryStore | undefined,
   gate: DirtyGateName,
   root: string,
+  auditWriter?: AuditWriter | null,
 ): { classification: ReturnType<typeof classifyGitStatusRows>; result: EvaluateDirtyGateResult } {
   const classification = classifyGitStatusRows(lines, classifierOptionsForCheck(config, storyId, store, root));
   // Writer is wired only when storyId+store are available (so we know where to
   // append). storyId-less paths (e.g. anonymous status snapshots) skip audit
   // intentionally and pass null writer to the evaluator.
   const writer = storyId
-    ? defaultAuditWriter(root, store ? store.storyDirRel() : config.storyDir, storyId)
+    ? (auditWriter === undefined
+      ? defaultAuditWriter(root, store ? store.storyDirRel() : config.storyDir, storyId)
+      : auditWriter)
     : null;
   const result = evaluateDirtyGate(classification, {
     storyId: storyId ?? 'anonymous',
@@ -147,6 +150,15 @@ function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot:
  */
 export type DoneCheckRow = OracleRow;
 
+export interface BuildDoneChecklistOptions {
+  /**
+   * Defaults to the production dirty-gate audit writer. Pass null for
+   * read-only projections such as done_closure; the DONE gate itself keeps the
+   * default so audit-write failures still block completion.
+   */
+  auditWriter?: AuditWriter | null;
+}
+
 function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean }): DoneCheckRow {
   return {
     blocking: row.blocking ?? row.status === 'fail',
@@ -154,7 +166,7 @@ function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean
   };
 }
 
-export function buildDoneChecklist(storyId: string, store: StoryStore, root: string): DoneCheckRow[] {
+export function buildDoneChecklist(storyId: string, store: StoryStore, root: string, options: BuildDoneChecklistOptions = {}): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
 
   // Resolve workflow policy for policy-aware gates
@@ -289,6 +301,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       store,
       'done-gate',
       root,
+      options.auditWriter,
     );
     const detail = result.allPass ? `pass: ${result.summary}` : `fail: ${result.summary}`;
     const hintHeader = result.auditFailure

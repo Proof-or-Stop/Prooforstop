@@ -1,0 +1,31 @@
+{
+  "storyId": "B-cd1e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/done-closure.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Implementation audit found two necessary correctness touchpoints: core/done-oracle.ts needs a no-write audit option so done_closure is genuinely read-only while still using the DONE oracle, and core/config.ts needs the read-only command in phase tool allowlists. No unrelated optimization scope is added.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T17:49:04.687Z",
+  "updatedAt": "2026-06-12T18:06:04.128Z"
+}

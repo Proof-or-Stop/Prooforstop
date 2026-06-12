@@ -1,0 +1,31 @@
+{
+  "task": "Implement a read-only DONE closure runbook assistant for Lattice CLI.",
+  "outcome": "When the user runs lattice done_closure --storyId=<story>, the terminal shows whether local DONE can be attempted, lists remaining closure blockers in gate order, and states Authority completion is NOT_CLAIMED unless a verified Authority receipt exists.",
+  "facts": [
+    "B-cd1e is high-risk because it touches lifecycle/DONE guidance and Authority-adjacent wording.",
+    "The execution plan requires preserving TEST PASS != DONE and keeping delivery-check/summary as real gates.",
+    "core/done-oracle.ts already exposes buildDoneChecklist as the shared read-only source for DONE gate and session_brief pre-check rows.",
+    "handlers/session.ts is a read-only reference for existing DONE pre-check rendering, not an implementation target for this story.",
+    "Local CLI and host audit evidence is Non-authority and cannot set receiptVerified, authorityDone, productionDone, or fullAuthorityDone."
+  ],
+  "constraints": [
+    "Do not weaken DONE gate behavior.",
+    "Do not duplicate DONE gate predicates when buildDoneChecklist can be reused.",
+    "Do not auto-write delivery-check.json or summary.json.",
+    "Do not claim Authority Server completion without receipt-backed proof.",
+    "Only fix the real correctness issue: agents need a stable closure runbook so TEST PASS is not mistaken for DONE."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts"
+  ],
+  "timestamp": "2026-06-12T17:52:15.941Z"
+}
