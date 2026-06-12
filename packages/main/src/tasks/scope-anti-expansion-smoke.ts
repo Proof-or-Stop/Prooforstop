@@ -278,6 +278,26 @@ withTempStore('correctness-fix default excluded keyword blocks future capability
   expectReason(store, /\[excluded_keyword\][\s\S]*Authority|Authority[\s\S]*\[excluded_keyword\]/);
 });
 
+withTempStore('feature scope does not apply correctness-fix default excluded keywords', (store) => {
+  seedStory(store, { checklistTitle: 'Add Authority scope handling' });
+  store.writeScopeBoundary(STORY_ID, buildScopeBoundary({
+    storyId: STORY_ID,
+    mode: 'feature',
+    allowed: ['Authority scope handling feature'],
+    confirmedBy: 'scope-anti-expansion-smoke',
+    now: NOW,
+  }));
+  store.writeExecutionBoundary(STORY_ID, buildExecutionBoundary({
+    storyId: STORY_ID,
+    allowedCommands: ['npm --prefix packages/main run build'],
+    allowedTools: ['shell'],
+    confirmedBy: 'scope-anti-expansion-smoke',
+    now: NOW,
+  }));
+  freeze(store);
+  assert.equal(getScopeAntiExpansionGuardFailureReason(STORY_ID, store, process.cwd()), null);
+});
+
 withTempStore('failed freeze check blocks with failed-freeze reason', (store) => {
   seedStory(store);
   writeGoodBoundaries(store);
