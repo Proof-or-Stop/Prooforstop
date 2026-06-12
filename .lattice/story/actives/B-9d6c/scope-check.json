@@ -1,0 +1,66 @@
+{
+  "storyId": "B-9d6c",
+  "checkedAt": "2026-06-12T13:15:46.855Z",
+  "features": [
+    {
+      "feature": "Formal Layer 2/3 root invariant guard in lattice-baseline.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.touchpoints[0], checklist CHK-001, plan §CHK-001"
+    },
+    {
+      "feature": "Smoke negative coverage for stale/mixed/localOnly/overclaim artifacts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.touchpoints[1], checklist CHK-002, plan §CHK-002"
+    },
+    {
+      "feature": "Decision doc materialization formal-unlock-artifact-isolation-execution-plan.md",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.touchpoints[2], checklist CHK-003, plan §CHK-003"
+    },
+    {
+      "feature": "Layer 4 Production Safety evaluator",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints + decision rationale: Production Safety requires separate Authority-backed evaluator and must remain locked in this story",
+      "source": "story description, understanding.constraints"
+    },
+    {
+      "feature": "Authority Server receipt verification",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints[1]: do not convert local CLI proof into Authority receipt proof",
+      "source": "understanding.constraints[1]"
+    },
+    {
+      "feature": "reportFiles/reportRoot API expansion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints[2] + decision option B rejection: broader API surface than needed for this correctness issue",
+      "source": "decision.options[1].cons"
+    },
+    {
+      "feature": ".omx legacy artifact paths",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints[0]: do not use .omx or any legacy OMX artifact path",
+      "source": "understanding.constraints[0]"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5c67c1906154185bbcec3fe9b685fcafd393227107da096e74e8568a6bd9e6d3",
+  "openQuestions": []
+}
