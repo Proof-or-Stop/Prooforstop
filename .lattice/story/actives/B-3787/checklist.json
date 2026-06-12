@@ -57,7 +57,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Regression coverage exercises direct REVIEW review_run_start in a git-backed story worktree and asserts the visible success line, stable reviewRunId, persisted run metadata, real HEAD hash, and non-empty materialHash are all present.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage proves legacy REVIEW stories missing currentReviewRound are repaired only after snapshot readiness succeeds; non-git, no-commit, and missing-materialHash cases fail without currentReviewRound or review-run writes.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression coverage includes wrong worktree and ctx.root/worktree mismatch cases, plus review_loop placeholder and empty-trigger preservation, so diagnostics do not regress unrelated REVIEW entry behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Authority boundary smoke proves local host output, local review_run_start success text, and local reviewRunId cannot set productionDone, receiptVerified, or authorityChanged; only an Authority receipt-backed gate decision may do that.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Coverage asserts review_run_start diagnostics describe local signed REVIEW evidence only and never overclaim an Authority Server gate receipt, production completion, or remote approval.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
