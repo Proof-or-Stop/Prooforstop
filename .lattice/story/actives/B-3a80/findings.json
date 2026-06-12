@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-3a80:F-001",
+      "desc": "CHK-002:edge and CHK-004:edge verificationEvidence claim the story diff excludes unrelated root/docs/code changes, but the recorded command is `git diff --name-status main...HEAD -- scoped docs`, which path-filters to docs and therefore cannot prove absence of non-doc or root-level changes. A full unfiltered diff or explicit negative path check is needed as checklist verificationEvidence for the docs-only scope claim.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T18:05:05.446Z",
+      "reviewRound": "2026-06-12T18:02:02.558Z",
+      "reviewRunId": "B-3a80:RR-003",
+      "_hash": "6da760966f4950acfebdd873eeec87a05868ebf147d9e8bd955f82ac9d588bfb",
+      "files": [
+        "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ]
+    }
+  ]
+}
