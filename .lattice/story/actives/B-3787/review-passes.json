@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-12T11:23:48.540Z",
       "reviewRunId": "B-3787:RR-005",
       "_hash": "f89b2d2963cd6a2a3cf33a7fee5f10da0d9c534c98f03afa0e45494c9499c279"
+    },
+    {
+      "id": "B-3787:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Second-round conceptual review passed: inspected review_run_start workspace resolution, snapshot diagnostics, and field regression smoke coverage. Root/worktree mismatch is rejected before stale phase mirror can mask it; empty material tree is classified as missing_material_hash; host wording denies material snapshot or Authority receipt manufacture. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:field-regression-cli-smoke.",
+      "createdAt": "2026-06-12T11:28:04.680Z",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "reviewRunId": "B-3787:RR-004",
+      "_hash": "27e0d2f1f43eeaaea73a83537ae39654fe7667e03481ba4bc8fa680c4717917a"
     }
   ]
 }
