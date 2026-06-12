@@ -222,9 +222,9 @@
       "id": "CHK-004",
       "title": "Verify convergence and audit backlog after F-009 triage",
       "context": "Run convergence_check, finding_list, and gap_analyze. Success means F-009 no longer remains a vague open high/suspected finding; any remaining high gap is explicitly scoped.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T20:27:40.825Z",
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
@@ -257,7 +257,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_list {\"storyId\":\"B-META-framework-audit\"} | rg -n \"F-009|status|resolvedReason|attention|suspected\" -C 4",
+          "result": "pass",
+          "note": "F-009 is status=resolved and attention.suspected is empty, so it is no longer a vague open high/suspected audit finding.",
+          "headHash": "56d6b4e96c872a9c532a0aa3745ce0734f10811b",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:27:40.863Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze still reports exactly one high gap: Layer4 customerKeyRef redacted/non-secret requirement at unlock-layer4-production-safety-suite.md:267; this is separate future/blocked Layer4 scope, not F-009.",
+          "headHash": "56d6b4e96c872a9c532a0aa3745ce0734f10811b",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:27:40.902Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check",
+          "result": "pass",
+          "note": "convergence_check is not fully converged: No high-priority gaps fails due customerKeyRef, All Stories completed fails due B-526c/B-8404/B-85ba/B-9833, but Audit backlog passes with no open audit findings.",
+          "headHash": "56d6b4e96c872a9c532a0aa3745ce0734f10811b",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:27:40.938Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -296,6 +328,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "F-009 state was updated through Lattice finding_resolve with claim-boundary evidence."
+    },
+    {
+      "timestamp": "2026-06-12T20:27:40.825Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Recorded post-triage verification for finding state, gap state, and convergence boundaries."
     }
   ]
 }
