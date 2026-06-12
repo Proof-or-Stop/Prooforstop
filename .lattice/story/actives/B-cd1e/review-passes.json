@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-cd1e:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review PASS. Verified process-fact contract passes and done-preflight-smoke passes, including TEST PASS != DONE, read-only no process-event/git-status mutation, local Non-authority vs Authority separation, and no authorityDone/productionDone/fullAuthorityDone overclaim. Local dist done_closure projects B-cd1e from DONE oracle rows with canAttemptDone=false and closure blockers. flow-stability-smoke currently fails before the new B-cd1e assertion on an unchanged artifact_declare runtime-artifact expectation; artifact_declare/runtime-artifact modules were not changed by this story, so treat as pre-existing unrelated risk rather than a B-cd1e coverage blocker.",
+      "createdAt": "2026-06-12T18:11:40.080Z",
+      "reviewRound": "2026-06-12T18:08:21.945Z",
+      "reviewRunId": "B-cd1e:RR-003",
+      "_hash": "d370e5927740a12c90c0c4e4150d60d5033bb44385860550141cee4f04def6f6"
+    }
+  ]
+}
