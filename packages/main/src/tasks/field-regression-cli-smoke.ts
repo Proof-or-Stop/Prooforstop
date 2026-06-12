@@ -123,10 +123,27 @@ function initProjectWithoutGit(prefix: string): string {
   return root;
 }
 
-function initWrapperProjectWithNestedGitRepo(prefix: string, configGitRoot?: string): { root: string; gitRoot: string } {
+function addImmediateChildGitRepo(root: string, name: string): string {
+  const gitRoot = join(root, name);
+  mkdirSync(gitRoot, { recursive: true });
+  git(gitRoot, ['init']);
+  git(gitRoot, ['checkout', '-B', 'main']);
+  git(gitRoot, ['config', 'user.email', 'smoke@example.test']);
+  git(gitRoot, ['config', 'user.name', 'Koala Smoke']);
+  write(gitRoot, 'README.md', `${name} nested git material root\n`);
+  write(gitRoot, 'packages/main/src/base.ts', `export const ${name.replace(/[^a-zA-Z0-9_$]/g, '_')} = true;\n`);
+  commit(gitRoot, `${name} nested git material base`);
+  resetConfigCache();
+  return gitRoot;
+}
+
+function initWrapperProjectWithNestedGitRepo(
+  prefix: string,
+  configGitRoot?: string,
+  configFilename = 'koala.config.json',
+): { root: string; gitRoot: string } {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  const gitRoot = join(root, 'clawcreek');
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, configFilename, JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -136,14 +153,7 @@ function initWrapperProjectWithNestedGitRepo(prefix: string, configGitRoot?: str
     ...(configGitRoot ? { gitRoot: configGitRoot } : {}),
   }, null, 2));
   write(root, 'README.md', 'wrapper metadata root without git\n');
-  mkdirSync(gitRoot, { recursive: true });
-  git(gitRoot, ['init']);
-  git(gitRoot, ['checkout', '-B', 'main']);
-  git(gitRoot, ['config', 'user.email', 'smoke@example.test']);
-  git(gitRoot, ['config', 'user.name', 'Koala Smoke']);
-  write(gitRoot, 'README.md', 'nested git material root\n');
-  write(gitRoot, 'packages/main/src/base.ts', 'export const base = true;\n');
-  commit(gitRoot, 'nested git material base');
+  const gitRoot = addImmediateChildGitRepo(root, 'clawcreek');
   resetConfigCache();
   return { root, gitRoot };
 }
@@ -192,6 +202,26 @@ function runKoalaRaw(
 ): Promise<{ code: number; stdout: string; stderr: string }> {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
+      cwd,
+      env: { ...process.env, LATTICE_PROJECT_ROOT: cwd, ...envOverrides },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', chunk => { stdout += String(chunk); });
+    child.stderr.on('data', chunk => { stderr += String(chunk); });
+    child.on('error', reject);
+    child.on('exit', code => resolvePromise({ code: code ?? 0, stdout, stderr }));
+  });
+}
+
+function runKoalaArgsRaw(
+  cwd: string,
+  args: string[],
+  envOverrides: Record<string, string | undefined> = {},
+): Promise<{ code: number; stdout: string; stderr: string }> {
+  return new Promise((resolvePromise, reject) => {
+    const child = spawn(process.execPath, [cliPath, ...args], {
       cwd,
       env: { ...process.env, LATTICE_PROJECT_ROOT: cwd, ...envOverrides },
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -855,6 +885,192 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     assert.match(rejected.stderr, /workspace binding|workspaceBinding|invalid signature|tampered/i);
   } finally {
     rmSync(bound.root, { recursive: true, force: true });
+  }
+}
+
+async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
+  type ConfigDoctor = {
+    wrapperGitRoot: {
+      metadataRootGitBacked: boolean;
+      configuredGitRoot: string | null;
+      status: string;
+      candidates: string[];
+      suggestedGitRoot: string | null;
+      repairCommand: string | null;
+      note: string;
+    };
+  };
+  type ConfigRepair = {
+    status: string;
+    mutated: boolean;
+    gitRoot: string;
+    write: string;
+    verification: string;
+    gitRootVerified: boolean;
+    confirmCommand?: string;
+  };
+
+  const noCandidatesRoot = initProjectWithoutGit('koala-field-config-doctor-none-');
+  try {
+    const doctor = await runKoalaJson<ConfigDoctor>(noCandidatesRoot, 'lattice_config_doctor');
+    assert.equal(doctor.wrapperGitRoot.metadataRootGitBacked, false);
+    assert.equal(doctor.wrapperGitRoot.configuredGitRoot, null);
+    assert.equal(doctor.wrapperGitRoot.status, 'none');
+    assert.deepEqual(doctor.wrapperGitRoot.candidates, []);
+    assert.equal(doctor.wrapperGitRoot.suggestedGitRoot, null);
+    assert.equal(doctor.wrapperGitRoot.repairCommand, null);
+  } finally {
+    rmSync(noCandidatesRoot, { recursive: true, force: true });
+  }
+
+  const ambiguous = initWrapperProjectWithNestedGitRepo('koala-field-config-doctor-ambiguous-');
+  try {
+    addImmediateChildGitRepo(ambiguous.root, 'othercreek');
+    const doctor = await runKoalaJson<ConfigDoctor>(ambiguous.root, 'lattice_config_doctor');
+    assert.equal(doctor.wrapperGitRoot.status, 'ambiguous');
+    assert.deepEqual(doctor.wrapperGitRoot.candidates, ['clawcreek', 'othercreek']);
+    assert.equal(doctor.wrapperGitRoot.suggestedGitRoot, null);
+    assert.equal(doctor.wrapperGitRoot.repairCommand, null);
+    assert.match(doctor.wrapperGitRoot.note, /ambiguous|no repair target is chosen/i);
+
+    const storyId = 'B-wrapamb';
+    const store = new StoryStore(ambiguous.root);
+    writeLegacyReviewStoryWithoutRound(store, storyId);
+    const resolved = await runKoalaJson<{
+      resolved: boolean;
+      resolutionSource: string;
+      signedWorkspaceRoot: string | null;
+      unresolvedReason: string | null;
+    }>(ambiguous.root, 'story_resolve', { storyId });
+    assert.equal(resolved.resolved, false);
+    assert.equal(resolved.resolutionSource, 'unresolved');
+    assert.equal(resolved.signedWorkspaceRoot, null);
+    assert.match(resolved.unresolvedReason || '', /no_worktree_or_gitRoot|requires_git_signed_workspace/);
+    const failed = await runKoalaRaw(ambiguous.root, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(failed.code, 0);
+    assert.match(failed.stderr, /cannot resolve a git-backed signed workspace/);
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'ambiguous wrapper root must not create a review run');
+  } finally {
+    rmSync(ambiguous.root, { recursive: true, force: true });
+  }
+
+  const repairable = initWrapperProjectWithNestedGitRepo(
+    'koala-field-config-repair-',
+    undefined,
+    'lattice.config.json',
+  );
+  try {
+    const storyId = 'B-wrapfix';
+    const store = new StoryStore(repairable.root);
+    writeLegacyReviewStoryWithoutRound(store, storyId);
+
+    const doctorAlias = await runKoalaArgsRaw(repairable.root, ['lattice', 'config', 'doctor', '--format=json']);
+    assert.equal(doctorAlias.code, 0, doctorAlias.stderr);
+    const doctor = JSON.parse(doctorAlias.stdout) as ConfigDoctor;
+    assert.equal(doctor.wrapperGitRoot.status, 'single-candidate');
+    assert.deepEqual(doctor.wrapperGitRoot.candidates, ['clawcreek']);
+    assert.equal(doctor.wrapperGitRoot.suggestedGitRoot, 'clawcreek');
+    assert.equal(
+      doctor.wrapperGitRoot.repairCommand,
+      'lattice config repair --set-git-root=clawcreek --confirm',
+    );
+    assert.match(doctor.wrapperGitRoot.note, /Operator suggestion only/i);
+
+    const doctorText = await runKoala(repairable.root, 'lattice_config_doctor');
+    assert.match(doctorText, /wrapperGitRoot:/);
+    assert.match(doctorText, /status: single-candidate/);
+    assert.match(doctorText, /suggestedGitRoot: clawcreek/);
+    assert.match(doctorText, /repairCommand: lattice config repair --set-git-root=clawcreek --confirm/);
+
+    const before = await runKoalaJson<{
+      resolved: boolean;
+      resolutionSource: string;
+      signedWorkspaceRoot: string | null;
+    }>(repairable.root, 'story_resolve', { storyId });
+    assert.equal(before.resolved, false);
+    assert.equal(before.resolutionSource, 'unresolved');
+    assert.equal(before.signedWorkspaceRoot, null);
+    const beforeRun = await runKoalaRaw(repairable.root, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(beforeRun.code, 0);
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'unrepaired wrapper root must not create review runs');
+
+    const preview = await runKoalaJson<ConfigRepair>(repairable.root, 'lattice_config_repair', {
+      setGitRoot: 'clawcreek',
+    });
+    assert.equal(preview.status, 'preview');
+    assert.equal(preview.mutated, false);
+    assert.equal(preview.gitRoot, 'clawcreek');
+    assert.equal(preview.write, 'preview-only');
+    assert.equal(preview.verification, 'configured-git-root verified');
+    assert.equal(preview.confirmCommand, 'lattice config repair --set-git-root=clawcreek --confirm');
+    assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
+
+    const unsafeOutside = await runKoalaRaw(repairable.root, 'lattice_config_repair', {
+      setGitRoot: '../outside',
+      confirm: true,
+    });
+    assert.notEqual(unsafeOutside.code, 0);
+    assert.match(unsafeOutside.stderr, /must stay strictly under the metadata root|unsafe path/);
+    assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
+
+    const nestedNonRoot = await runKoalaRaw(repairable.root, 'lattice_config_repair', {
+      setGitRoot: 'clawcreek/packages',
+      confirm: true,
+    });
+    assert.notEqual(nestedNonRoot.code, 0);
+    assert.match(nestedNonRoot.stderr, /not a git repository root|git top-level/);
+    assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
+
+    const confirmedAlias = await runKoalaArgsRaw(repairable.root, [
+      'lattice',
+      'config',
+      'repair',
+      '--set-git-root=clawcreek',
+      '--confirm',
+      '--format=json',
+    ]);
+    assert.equal(confirmedAlias.code, 0, confirmedAlias.stderr);
+    const confirmed = JSON.parse(confirmedAlias.stdout) as ConfigRepair;
+    assert.equal(confirmed.status, 'repaired');
+    assert.equal(confirmed.mutated, true);
+    assert.equal(confirmed.gitRoot, 'clawcreek');
+    assert.equal(confirmed.write, 'updated lattice.config.json');
+    assert.equal(confirmed.verification, 'configured-git-root verified');
+    assert.equal(confirmed.gitRootVerified, true);
+    const repairedConfig = JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8'));
+    assert.equal(repairedConfig.gitRoot, 'clawcreek');
+    assert.equal(repairedConfig.scanRoot, 'packages/main');
+    assert.deepEqual(repairedConfig.workflow, { profile: 'balanced' });
+
+    const after = await runKoalaJson<{
+      resolved: boolean;
+      metadataRoot: string;
+      signedWorkspaceRoot: string | null;
+      authoritativeCwd: string | null;
+      resolutionSource: string;
+    }>(repairable.root, 'story_resolve', { storyId });
+    assert.equal(after.resolved, true);
+    assert.equal(after.metadataRoot, canonicalPath(repairable.root));
+    assert.equal(after.signedWorkspaceRoot, canonicalPath(repairable.gitRoot));
+    assert.equal(after.authoritativeCwd, canonicalPath(repairable.gitRoot));
+    assert.equal(after.resolutionSource, 'configured-git-root');
+
+    const reviewRunId = await startReviewRun(repairable.root, storyId, 'koala-review-quality');
+    assert.match(reviewRunId, /^B-wrapfix:RR-001$/);
+    const runs = store.readReviewRuns(storyId).runs;
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0].workspaceBinding?.metadataRoot, canonicalPath(repairable.root));
+    assert.equal(runs[0].workspaceBinding?.signedWorkspaceRoot, canonicalPath(repairable.gitRoot));
+    assert.equal(runs[0].workspaceBinding?.workspaceMode, 'configured-git-root');
+    assert.equal(runs[0].headHash, git(repairable.gitRoot, ['rev-parse', 'HEAD']));
+  } finally {
+    rmSync(repairable.root, { recursive: true, force: true });
   }
 }
 
@@ -1628,6 +1844,7 @@ await assertDirectReviewStoryCreateInitializesReviewMetadata();
 await assertReviewRunStartCliSurface();
 await assertReviewRunStartWorkspaceDiagnostics();
 await assertReviewRunStartSplitRootGitRootBinding();
+await assertWrapperGitRootDoctorAndRepairCliSurface();
 await assertReviewerListForceReviewerLaneContract();
 await assertReviewPassConcurrentCliSurface();
 await assertPassOnlyFindingConvertsToReviewPassCliSurface();

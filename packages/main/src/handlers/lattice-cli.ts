@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from 'fs';
-import { join, resolve as resolvePath } from 'path';
+import { existsSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'fs';
+import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import { type AuthorityConfig, type AuthoritySettings } from '../core/authority-mode.js';
 import { loadAuthorityConfig, resolveAuthorityCustomerApiKey, type AuthorityConfigLoadOptions } from '../core/authority-client.js';
@@ -35,7 +35,13 @@ import {
 } from '../core/authority-gate-receipts.js';
 import { normalizeAuthorityGatePhase, type AuthorityGatePhase } from '../core/authority-gate-receipt-verifier.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
-import { loadConfig } from '../core/config.js';
+import {
+  LATTICE_CONFIG_FILENAME,
+  loadConfig,
+  pickProjectConfigPath,
+  resetConfigCache,
+} from '../core/config.js';
+import { gitProbe } from '../core/git-probe.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 
 type FormatArgs = { format?: LatticeFormat; json?: boolean };
@@ -338,6 +344,126 @@ function packageBinHasLattice(path: string): boolean {
   }
 }
 
+/**
+ * B-526c wrapper-root diagnostics (CHK-001).
+ *
+ * When the metadata root itself is not git-backed and no explicit `gitRoot`
+ * is configured, story_resolve / review_run_start cannot resolve a git-backed
+ * signed workspace. This diagnostic deterministically classifies the layout by
+ * inspecting ONLY immediate child directories for git repository roots:
+ *
+ *  - `not-applicable` — metadata root is git-backed or gitRoot is configured.
+ *  - `none`           — no immediate child git repository was found.
+ *  - `single-candidate` — exactly one candidate; an operator-facing repair
+ *                         suggestion is printed. This is a suggestion only and
+ *                         is NEVER consumed by runtime resolution.
+ *  - `ambiguous`      — multiple candidates; fail-closed, no target is chosen.
+ */
+type WrapperGitRootStatus = 'not-applicable' | 'none' | 'single-candidate' | 'ambiguous';
+
+interface WrapperGitRootDiagnostics {
+  metadataRoot: string;
+  metadataRootGitBacked: boolean;
+  configuredGitRoot: string | null;
+  status: WrapperGitRootStatus;
+  candidates: string[];
+  suggestedGitRoot: string | null;
+  repairCommand: string | null;
+  note: string;
+}
+
+function canonicalFsPath(path: string): string {
+  try {
+    return existsSync(path) ? realpathSync(path) : path;
+  } catch {
+    return path;
+  }
+}
+
+function isGitRepositoryRoot(candidate: string): boolean {
+  if (!existsSync(candidate)) return false;
+  const probe = gitProbe('git rev-parse --show-toplevel', { cwd: candidate });
+  if (!probe.ok) return false;
+  return canonicalFsPath(probe.output) === canonicalFsPath(candidate);
+}
+
+function listImmediateChildGitRoots(metadataRoot: string): string[] {
+  let entries;
+  try {
+    entries = readdirSync(metadataRoot, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  const names: string[] = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+    const candidate = join(metadataRoot, entry.name);
+    // Cheap pre-filter: a repo root has a .git directory (or worktree .git file).
+    if (!existsSync(join(candidate, '.git'))) continue;
+    if (!isGitRepositoryRoot(candidate)) continue;
+    names.push(entry.name);
+  }
+  return names.sort();
+}
+
+function configRepairCommandFor(gitRoot: string): string {
+  return `lattice config repair --set-git-root=${gitRoot} --confirm`;
+}
+
+function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDiagnostics {
+  const config = loadConfig(metadataRoot);
+  const configuredGitRoot =
+    typeof config.gitRoot === 'string' && config.gitRoot.trim().length > 0 ? config.gitRoot.trim() : null;
+  const metadataRootGitBacked = gitProbe('git rev-parse --show-toplevel', { cwd: metadataRoot }).ok;
+  const base = {
+    metadataRoot: canonicalFsPath(metadataRoot),
+    metadataRootGitBacked,
+    configuredGitRoot,
+  };
+  if (metadataRootGitBacked || configuredGitRoot) {
+    return {
+      ...base,
+      status: 'not-applicable',
+      candidates: [],
+      suggestedGitRoot: null,
+      repairCommand: null,
+      note: configuredGitRoot
+        ? `gitRoot is explicitly configured (${configuredGitRoot}); no wrapper-root repair is suggested.`
+        : 'metadataRoot is git-backed; no wrapper-root repair is needed.',
+    };
+  }
+  const candidates = listImmediateChildGitRoots(metadataRoot);
+  if (candidates.length === 0) {
+    return {
+      ...base,
+      status: 'none',
+      candidates,
+      suggestedGitRoot: null,
+      repairCommand: null,
+      note: 'metadataRoot is not git-backed, no gitRoot is configured, and no immediate child git repository was found. If the material root lives elsewhere, configure gitRoot explicitly.',
+    };
+  }
+  if (candidates.length === 1) {
+    return {
+      ...base,
+      status: 'single-candidate',
+      candidates,
+      suggestedGitRoot: candidates[0],
+      repairCommand: configRepairCommandFor(candidates[0]),
+      note: 'Operator suggestion only: Lattice never applies this repair automatically and runtime resolution never guesses child repositories. Run the repair command to configure gitRoot explicitly.',
+    };
+  }
+  return {
+    ...base,
+    status: 'ambiguous',
+    candidates,
+    suggestedGitRoot: null,
+    repairCommand: null,
+    note: 'Multiple immediate child git repositories were found; ambiguous layouts stay fail-closed and no repair target is chosen. Pick one explicitly: lattice config repair --set-git-root=<dir> --confirm.',
+  };
+}
+
 function buildConfigDoctor(ctx: HandlerContext) {
   const rootPackagePath = join(ctx.root, 'package.json');
   const mainPackagePath = join(ctx.root, 'packages', 'main', 'package.json');
@@ -387,6 +513,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
     },
     versions,
     checks,
+    wrapperGitRoot: buildWrapperGitRootDiagnostics(ctx.root),
     authority: {
       productionDone: false as const,
       receiptVerified: false as const,
@@ -406,8 +533,181 @@ function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): s
     'checks:',
     ...result.checks.map(check => `  - ${check.id}: ${check.ok ? 'pass' : 'warn'} — ${check.detail}`),
     '',
+    ...renderWrapperGitRootDiagnosticsText(result.wrapperGitRoot),
+    '',
     result.authority.note,
   ].join('\n');
+}
+
+function renderWrapperGitRootDiagnosticsText(wrapperGitRoot: WrapperGitRootDiagnostics): string[] {
+  const lines = [
+    'wrapperGitRoot:',
+    `  metadataRoot: ${wrapperGitRoot.metadataRoot}`,
+    `  metadataRootGitBacked: ${wrapperGitRoot.metadataRootGitBacked}`,
+    `  configuredGitRoot: ${wrapperGitRoot.configuredGitRoot ?? 'none'}`,
+    `  status: ${wrapperGitRoot.status}`,
+  ];
+  if (wrapperGitRoot.candidates.length > 0) {
+    lines.push(`  candidates: ${wrapperGitRoot.candidates.join(', ')}`);
+  }
+  if (wrapperGitRoot.suggestedGitRoot) {
+    lines.push(`  suggestedGitRoot: ${wrapperGitRoot.suggestedGitRoot}`);
+  }
+  if (wrapperGitRoot.repairCommand) {
+    lines.push(`  repairCommand: ${wrapperGitRoot.repairCommand}`);
+  }
+  lines.push(`  note: ${wrapperGitRoot.note}`);
+  return lines;
+}
+
+/**
+ * B-526c explicit confirmed gitRoot repair (CHK-002).
+ *
+ * Deterministic operator-confirmed repair for wrapper-root layouts:
+ *  - requires an explicit --set-git-root value (never guesses a target);
+ *  - requires --confirm before any write; without it the command is a
+ *    non-mutating preview that prints the exact confirm command;
+ *  - validates the target is a relative path that stays strictly under the
+ *    metadata root and is itself a git repository root;
+ *  - writes ONLY the `gitRoot` field of the existing project config file
+ *    (lattice.config.json preferred, legacy koala.config.json fallback);
+ *  - reports whether the configured git root verifies after the write. It
+ *    does not claim story resolution; check story_resolve separately.
+ */
+interface ConfigRepairArgs extends FormatArgs {
+  setGitRoot?: string;
+  confirm?: boolean;
+}
+
+interface ValidatedRepairGitRootTarget {
+  absolutePath: string;
+  relativePath: string;
+}
+
+function normalizeConfigRelativePath(path: string): string {
+  return sep === '/' ? path : path.split(sep).join('/');
+}
+
+function validateRepairGitRootTarget(metadataRoot: string, requested: string): ValidatedRepairGitRootTarget {
+  if (isAbsolute(requested)) {
+    throw new Error(
+      `--set-git-root must be a relative path under the metadata root (${metadataRoot}); got an absolute path: ${requested}`,
+    );
+  }
+  const canonicalMetadataRoot = canonicalFsPath(metadataRoot);
+  const candidate = canonicalFsPath(join(metadataRoot, requested));
+  const rel = relative(canonicalMetadataRoot, candidate);
+  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) {
+    throw new Error(
+      `--set-git-root must stay strictly under the metadata root (${metadataRoot}); rejected unsafe path: ${requested}`,
+    );
+  }
+  if (!existsSync(candidate)) {
+    throw new Error(`--set-git-root target does not exist: ${candidate}`);
+  }
+  const probe = gitProbe('git rev-parse --show-toplevel', { cwd: candidate });
+  if (!probe.ok) {
+    throw new Error(`--set-git-root target is not a git repository: ${candidate}`);
+  }
+  if (canonicalFsPath(probe.output) !== candidate) {
+    throw new Error(
+      `--set-git-root target is not a git repository root (its git top-level is ${probe.output}): ${candidate}`,
+    );
+  }
+  return {
+    absolutePath: candidate,
+    relativePath: normalizeConfigRelativePath(rel),
+  };
+}
+
+function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
+  const metadataRoot = ctx.root;
+  const requested = typeof args.setGitRoot === 'string' ? args.setGitRoot.trim() : '';
+  if (requested.length === 0) {
+    throw new Error(
+      'lattice_config_repair requires an explicit --set-git-root=<relative-dir>; it never guesses a repair target. Run `lattice config doctor` first to see wrapper-root candidates.',
+    );
+  }
+  const verifiedTarget = validateRepairGitRootTarget(metadataRoot, requested);
+  const picked = pickProjectConfigPath(metadataRoot);
+  if (!picked) {
+    throw new Error(
+      `Cannot repair gitRoot because no existing ${LATTICE_CONFIG_FILENAME} or koala.config.json was found at ${metadataRoot}. Initialize project config first.`,
+    );
+  }
+  const configPath = picked.path;
+  const configFilename = picked.filename;
+  const base = {
+    schemaVersion: 'lattice.config_repair.v1' as const,
+    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
+    metadataRoot: canonicalFsPath(metadataRoot),
+    gitRoot: verifiedTarget.relativePath,
+    verifiedGitRootPath: verifiedTarget.absolutePath,
+    configPath,
+    configFilename,
+  };
+
+  if (args.confirm !== true) {
+    return {
+      ...base,
+      mutated: false as const,
+      status: 'preview' as const,
+      write: 'preview-only' as const,
+      verification: 'configured-git-root verified' as const,
+      gitRootVerified: true,
+      confirmCommand: configRepairCommandFor(verifiedTarget.relativePath),
+      note: `No changes were written (missing --confirm). The target validates as a git repository root. To write gitRoot=${verifiedTarget.relativePath} into ${configFilename}, run: ${configRepairCommandFor(verifiedTarget.relativePath)}`,
+    };
+  }
+
+  let existing: Record<string, unknown> = {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(picked.path, 'utf-8'));
+  } catch {
+    throw new Error(`Cannot repair ${picked.path}: existing config is not valid JSON; fix it manually first.`);
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error(`Cannot repair ${picked.path}: existing config is not a JSON object; fix it manually first.`);
+  }
+  existing = parsed as Record<string, unknown>;
+
+  writeFileSync(configPath, `${JSON.stringify({ ...existing, gitRoot: verifiedTarget.relativePath }, null, 2)}\n`);
+  resetConfigCache();
+  const reloaded = loadConfig(metadataRoot);
+  const gitRootWritten = reloaded.gitRoot === verifiedTarget.relativePath;
+  const gitRootVerified = gitRootWritten && isGitRepositoryRoot(verifiedTarget.absolutePath);
+  return {
+    ...base,
+    mutated: true as const,
+    status: gitRootVerified ? ('repaired' as const) : ('repair-unverified' as const),
+    write: `updated ${configFilename}`,
+    verification: gitRootVerified ? ('configured-git-root verified' as const) : ('configured-git-root unverified' as const),
+    gitRootWritten,
+    gitRootVerified,
+    note: gitRootVerified
+      ? `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} and verifies as a git repository root. Story resolution is not claimed here; check with: lattice story_resolve '{"storyId":"B-xxx"}'`
+      : `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} but did not verify after reload; inspect ${configPath} manually.`,
+  };
+}
+
+function renderConfigRepairText(result: ReturnType<typeof buildConfigRepair>): string {
+  const lines = [
+    `${formatLatticeProductLine()} config repair (${result.schemaVersion})`,
+    `status: ${result.status}`,
+    `mutated: ${result.mutated}`,
+    `metadataRoot: ${result.metadataRoot}`,
+    `gitRoot: ${result.gitRoot}`,
+    `write: ${result.write}`,
+    `verification: ${result.verification}`,
+    `configPath: ${result.configPath}`,
+    `gitRootVerified: ${result.gitRootVerified}`,
+  ];
+  if (!result.mutated && 'confirmCommand' in result) {
+    lines.push(`confirmCommand: ${result.confirmCommand}`);
+  }
+  lines.push('', result.note);
+  return lines.join('\n');
 }
 
 export function buildAuthorityStatus(
@@ -924,6 +1224,10 @@ export function createLatticeCliHandlers(ctx: HandlerContext) {
     lattice_config_doctor(args: FormatArgs = {}) {
       const result = buildConfigDoctor(ctx);
       return wantsJson(args) ? result : renderConfigDoctorText(result);
+    },
+    lattice_config_repair(args: ConfigRepairArgs = {}) {
+      const result = buildConfigRepair(ctx, args);
+      return wantsJson(args) ? result : renderConfigRepairText(result);
     },
     authority_status(args: AuthorityStatusArgs = {}) {
       const result = buildAuthorityStatus(args, process.env, { cwd: ctx.root, root: ctx.root, store: ctx.store });
