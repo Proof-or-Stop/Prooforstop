@@ -43,7 +43,7 @@
       "desc": "Final test-coverage re-review remains BLOCKED because several verificationEvidence command fields are still not executable/replayable. CHK-002:edge and CHK-004:edge record `git diff --name-status main...HEAD && git diff --name-status main...HEAD | awk allowlist check for B-3a80 metadata plus three scoped docs`; replaying that exact command exits 2 with `awk: cannot open file check`, so the unfiltered diff allowlist proof is described in prose rather than recorded as an executable command. A separate concrete allowlist awk command exits 0, which shows the underlying claim is likely true, but that is not the command stored on the checklist. CHK-002:adversarial and CHK-004:adversarial record `Claude CLI final review and Codex CLI final review` / `Claude CLI final review; Codex CLI final review`; those are manual transcript labels, not deterministic verification commands, and replaying the semicolon form invokes the local Codex CLI with unexpected arguments. The corrected CHK-001 and CHK-003 rg commands do execute successfully, but all intents do not yet have executable verificationEvidence commands.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-12T18:15:47.245Z",
@@ -54,7 +54,9 @@
         "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
-      ]
+      ],
+      "resolvedReason": "Refreshed CHK-002:edge and CHK-004:edge verificationEvidence to store an executable node allowlist command, and replaced CHK-002:adversarial / CHK-004:adversarial manual host labels with executable rg commands. Reran the stored command shapes successfully: allowlist exits 0, optimization/Authority-proof rg exits 0, and forbidden-final-wording rg exits 0.",
+      "resolvedAt": "2026-06-12T18:18:23.070Z"
     }
   ]
 }
