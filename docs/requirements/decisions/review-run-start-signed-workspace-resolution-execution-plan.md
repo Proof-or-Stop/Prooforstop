@@ -150,7 +150,7 @@ interface StorySignedWorkspaceResolution {
   resolutionSource:
     | 'story-worktree'
     | 'linked-story-branch-worktree'
-    | 'current-git-cwd'
+    | 'metadata-git-root'
     | 'configured-git-root'
     | 'unresolved';
   unresolvedReason?: string;
@@ -217,11 +217,14 @@ Resolution order:
 1. If `story.worktree.path` exists and points to a valid git worktree, use it.
 2. If git worktree registry has branch `story/<storyId>`, use that linked
    worktree.
-3. If the story has no worktree and the current cwd is inside a git worktree,
-   use that cwd's git top-level for direct REVIEW compatibility.
+3. If the story has no worktree and `metadataRoot` itself is inside a git
+   worktree, use that git top-level for direct REVIEW compatibility.
 4. If the project config explicitly sets `gitRoot`, use
    `metadataRoot/gitRoot` only after verifying it is a git repository.
-5. Otherwise return `resolved=false` with a precise `unresolvedReason`.
+5. If `metadataRoot` is a non-git wrapper root, do not treat an arbitrary
+   nested `process.cwd()` git repo as sufficient proof. Require explicit
+   `gitRoot` or story worktree attachment.
+6. Otherwise return `resolved=false` with a precise `unresolvedReason`.
 
 Stop condition:
 
@@ -410,7 +413,8 @@ Authority completion may be claimed only when a verified server-signed
 | Metadata root is git root, no commit | Fails with `missing_head`; no reviewer run, no repair event. |
 | Metadata root is git root, material hash unavailable | Fails with `missing_material_hash`; no reviewer run. |
 | Wrapper root is non-git, cwd is wrapper root, missing worktree binding | Fails with `requires_git_signed_workspace_but_no_binding`; no reviewer run. |
-| Wrapper root is non-git, cwd is nested git repo, direct REVIEW | Succeeds only if resolver explicitly chooses `current-git-cwd`; metadata writes stay in `metadataRoot`. |
+| Wrapper root is non-git, cwd is nested git repo, no `gitRoot` or attachment | Fails closed; nested cwd alone is not a signed workspace binding. |
+| Wrapper root is non-git, explicit `gitRoot` points to nested repo | Succeeds only after `gitRoot` is verified as the signed workspace binding. |
 | Wrapper root has multiple nested repos | Fails closed unless explicit `gitRoot` or worktree binding is provided. |
 | Story has linked worktree, cwd is main repo | Fails with `wrong_worktree` and concrete `cd <worktree>` hint. |
 | Story has linked worktree, cwd is worktree, metadata root differs | Succeeds only if resolver explicitly returns both roots and all signing uses the worktree. |
@@ -516,7 +520,7 @@ The future implementation story is complete only when:
 - `review_run_start` signs only a proven git-backed `signedWorkspaceRoot`.
 - Direct REVIEW remains supported in a normal git-backed project root.
 - Wrapper-root projects fail closed until explicit `gitRoot` or worktree
-  attachment exists.
+  attachment exists; nested cwd alone is not enough.
 - `review_run_start`, pass/finding submission, and REVIEW gate freshness agree
   on the material root.
 - `workspaceBinding`, if added, is signed and gate-consumed with process-fact
