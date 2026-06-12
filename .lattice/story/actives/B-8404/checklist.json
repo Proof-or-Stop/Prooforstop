@@ -124,7 +124,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-12T19:44:38.494Z",
+      "endTime": "2026-06-12T19:51:37.359Z",
       "verificationIntent": {
         "happy": [
           {
@@ -152,32 +152,12 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "command": "node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
           "result": "pass",
-          "note": "Smoke asserts overlap scenarios preserve authority.productionDone=false, authority.authorityChanged=false, and authority.receiptRefs=[] across wave, plan, status, queue, dispatch, and report outputs.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:38.533Z"
-        },
-        {
-          "intentRef": "CHK-003:edge:0",
-          "kind": "logic_test",
-          "command": "KOALA_SESSION_ID=sess-1e2c2aab06e5256b lattice parallel_merge_queue {\"storyIds\":[\"B-8404\"],\"format\":\"json\"}",
-          "result": "pass",
-          "note": "Read-only projection completed as local queue guidance only; overlap facts are emitted through scheduling fields/blockers, not Authority receipt fields.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:38.568Z"
-        },
-        {
-          "intentRef": "CHK-003:adversarial:0",
-          "kind": "logic_test",
-          "command": "git diff -- .lattice/story/actives/B-8404 > /private/tmp/b8404-metadata-before.diff; lattice parallel_merge_queue ...; git diff -- .lattice/story/actives/B-8404 > /private/tmp/b8404-metadata-after.diff; cmp -s before after",
-          "result": "pass",
-          "note": "Metadata diff snapshots were byte-identical before and after running parallel_merge_queue, proving the projection did not mutate story metadata/evidence/receipt files.",
-          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
-          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
-          "timestamp": "2026-06-12T19:44:38.764Z"
+          "note": "Real CLI projection keeps authority.productionDone=false, authority.authorityChanged=false, receiptRefs=[], and emits only local scheduling guidance after the worktree path fix.",
+          "headHash": "b0920726bfafecd80ad5b1657a420ff608ccf59a",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:51:37.408Z"
         }
       ]
     },
