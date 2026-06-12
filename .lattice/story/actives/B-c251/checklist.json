@@ -137,7 +137,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the exact follow-up Lattice execution command/story proposal and a clear statement that implementation remains pending until that story reaches DONE.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final plan names the follow-up implementation story scope and the Lattice commands needed to execute it.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Execution handoff distinguishes document completion from implementation completion and requires normal lifecycle gates for the follow-up.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Execution handoff does not claim that Lattice already changed story_review/session behavior, nor that Authority Server has verified anything.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
