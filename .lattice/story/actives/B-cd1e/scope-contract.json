@@ -1,0 +1,29 @@
+{
+  "storyId": "B-cd1e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/done-closure.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Scope derived from B-cd1e PLAN checklist files for DONE closure runbook assistant implementation.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T17:49:04.687Z",
+  "updatedAt": "2026-06-12T17:49:04.687Z"
+}
