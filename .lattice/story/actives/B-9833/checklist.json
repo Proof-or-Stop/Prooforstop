@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Inspect F-009 original claim and current proof surfaces",
       "context": "Use Lattice CLI and source/doc reads to compare the open F-009 claim with current Layer2 formal proof/evaluator behavior. Do not edit code.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T20:25:51.690Z",
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
@@ -40,7 +40,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_list {\"storyId\":\"B-META-framework-audit\"} | rg -n \"F-009|Layer 2|localOnly|capabilityProof\" -C 4",
+          "result": "pass",
+          "note": "Confirmed original F-009 was open/high/suspected and claimed no verified non-local capability proof producer/import path exists.",
+          "headHash": "6ae4d2e5c7fa732bace28da29c76fa9b51d3cdd2",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:25:51.750Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"formal proof path|localOnly=false|capabilityProof=true|Production Safety|global Capability\" docs/requirements/decisions/unlock-layer2-ENG-suite.md docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "Docs distinguish Layer2 formal proof, current LOCKED/PASS semantics, and separate Layer4 customerKeyRef/Authority scope.",
+          "headHash": "6ae4d2e5c7fa732bace28da29c76fa9b51d3cdd2",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:25:51.791Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg -n \"writeFormalBaselineReport|localOnly=true diagnostic final-report cannot authorize suite proof|formalSuiteRevalidationProblems|evaluateFormalEngineeringClaim\" packages/main/src/core/lattice-baseline.ts && npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Source and smoke test evidence show the formal path exists and local-only/forged/stale/higher-layer overclaim paths fail closed.",
+          "headHash": "6ae4d2e5c7fa732bace28da29c76fa9b51d3cdd2",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:25:51.831Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -162,6 +194,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-12T20:25:51.690Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Recorded audit evidence for original F-009 claim and current formal proof surfaces."
     }
   ]
 }
