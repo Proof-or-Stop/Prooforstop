@@ -147,7 +147,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees regression tests pass, including a TEST PASS but not DONE-ready fixture that reports delivery-check and summary blockers.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Regression smoke proves TEST PASS with missing delivery-check/summary is not DONE-ready in done_closure output.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "done_closure remains read-only and does not create summary.json, delivery-check.json, test evidence, or phase transitions.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression smoke proves local Non-authority closure output cannot claim receipt-backed Authority completion.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
