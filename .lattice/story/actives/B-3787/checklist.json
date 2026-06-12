@@ -11,7 +11,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From the story worktree for a REVIEW story with a valid git HEAD and materialHash, review_run_start succeeds, prints Review run B-3787:RR-001 started for the requested reviewer lane, persists reviewer-run metadata with the real worktree HEAD/materialHash, and does not report any workspace diagnostic.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When the workspace lacks a usable signed snapshot source such as non-git directory, unborn HEAD, or missing materialHash, review_run_start exits nonzero with a precise diagnostic and concrete next action, and creates no reviewer run metadata or currentReviewRound repair write.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The workspace resolver validates that the canonical ctx.root used for story metadata is the same canonical worktree root used for HEAD/materialHash capture; a mismatch is rejected before snapshot capture or metadata mutation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If process.cwd is the story worktree but the caller passes a root that points at main or another checkout, review_run_start fails closed with a root/worktree mismatch diagnostic and leaves the story file, currentReviewRound, and review-runs collection unchanged.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A stale, placeholder, or otherwise unavailable materialHash cannot be signed into a reviewer run; the handler refuses to create local REVIEW evidence unless HEAD and materialHash are captured from the same verified workspace root.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

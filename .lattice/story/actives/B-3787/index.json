@@ -4,7 +4,7 @@
   "title": "Implement review_run_start workspace diagnostics",
   "description": "Implement the approved review_run_start workspace diagnostics plan so direct REVIEW review-only flows fail for the real missing git/worktree/material context instead of misleading currentReviewRound errors, while preserving host-neutral non-authority and Authority Server evidence boundaries.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "createdAt": "2026-06-12T10:43:05.610Z",
   "startedAt": "2026-06-12T10:43:05.610Z",
@@ -23,6 +23,14 @@
       "action": "advance",
       "timestamp": "2026-06-12T10:48:11.889Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T10:48:28.833Z",
+      "branch": "story/B-3787",
       "user": "Harmonygo",
       "agent": "main"
     }

@@ -1,0 +1,30 @@
+{
+  "task": "Implement review_run_start workspace diagnostics and Authority boundary regression coverage.",
+  "outcome": "When a user runs lattice review_run_start on a direct REVIEW story, the terminal either shows Review run B-xxxx:RR-001 started for koala-review-... with a real head hash, or shows a precise fail-closed message such as no reviewer run was created because git HEAD/materialHash cannot be captured from this workspace, with a concrete cd/init commit next action.",
+  "facts": [
+    "Direct REVIEW story creation now initializes currentReviewRound.",
+    "Legacy REVIEW stories missing currentReviewRound are currently repaired by reviewer command entrypoints.",
+    "review_run_start signs local REVIEW evidence with HEAD and materialHash.",
+    "Local reviewer runs are not Authority Server gate_decision receipts.",
+    "Current implementation captures snapshot from ctx.root after assertCwdInWorktree validates process.cwd().",
+    "context.ts has worktree path calculation but assertCwdInWorktree does not return the signed root, so a narrow resolver is needed."
+  ],
+  "constraints": [
+    "Do not allow review_run_start without real git HEAD and materialHash.",
+    "Do not write currentReviewRound repair or review-runs metadata before snapshot readiness succeeds.",
+    "Do not normalize only snapshot root while story metadata uses another root.",
+    "Do not let Claude/Codex host output set productionDone receiptVerified or authorityChanged.",
+    "Only fix correctness issues; avoid broad refactors."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/authority-boundary-smoke.ts",
+    "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+    "packages/main/src/tasks/baseline-local-certification-smoke.ts"
+  ],
+  "timestamp": "2026-06-12T10:49:44.361Z"
+}

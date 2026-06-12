@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Fail closed before writing signed reviewer evidence",
+    "Keep local REVIEW evidence separate from Authority Server receipts",
+    "Prefer narrow helper changes over broad lifecycle refactors",
+    "Preserve direct REVIEW review-only compatibility"
+  ],
+  "drivers": [
+    "Operators need the real workspace failure reason instead of another currentReviewRound-looking error",
+    "Signed reviewer runs must bind to the same workspace that story metadata uses",
+    "Authority-required completion must remain receipt-backed and not host-transcript-backed"
+  ],
+  "options": [
+    {
+      "name": "A: narrow review_run_start workspace resolver and diagnostic helper",
+      "pros": [
+        "Fixes the actual ctx.root versus cwd correctness risk",
+        "Keeps shared lifecycle cwd gates stable",
+        "Allows focused regression tests in existing smoke suites"
+      ],
+      "cons": [
+        "Adds a small amount of duplicated path-shape awareness near context.ts"
+      ]
+    },
+    {
+      "name": "B: rebase entire HandlerContext to verified worktree root",
+      "pros": [
+        "Could support more commands under explicit root rebasing later"
+      ],
+      "cons": [
+        "Larger cross-command behavior change than this defect requires",
+        "Higher risk of hidden store/artifact path changes",
+        "Would be arbitrary optimization for this story"
+      ]
+    },
+    {
+      "name": "C: wording-only change in captureReviewRunSnapshot",
+      "pros": [
+        "Smallest code diff"
+      ],
+      "cons": [
+        "Does not fix the real ctx.root/worktree mismatch correctness issue",
+        "Would still repair currentReviewRound before knowing a signed snapshot can be created"
+      ]
+    }
+  ],
+  "chosen": "A: narrow review_run_start workspace resolver and diagnostic helper",
+  "rationale": "Choose the narrow resolver because it fixes the real correctness issue without changing unrelated command roots or Authority semantics. It preserves review-only direct REVIEW success when a git-backed snapshot exists, and fails closed before metadata writes when it does not.",
+  "preMortem": [
+    {
+      "scenario": "The command repairs currentReviewRound in a non-git or unborn-HEAD project and then fails snapshot capture.",
+      "trigger": "ensureCurrentReviewRound remains before snapshot readiness checks.",
+      "consequence": "Story metadata changes even though no signed reviewer run can exist, confusing future diagnosis.",
+      "mitigation": "Order handler logic as story read and phase check, workspace/snapshot readiness, then ensureCurrentReviewRound."
+    },
+    {
+      "scenario": "The user runs from the story worktree but passes --root pointing at main.",
+      "trigger": "assertCwdInWorktree checks process.cwd while captureReviewRunSnapshot signs ctx.root.",
+      "consequence": "Reviewer run metadata is persisted under one root while hash evidence binds another root.",
+      "mitigation": "Resolver must fail closed when ctx.root canonical path differs from the verified worktree root."
+    },
+    {
+      "scenario": "Authority boundary tests accidentally treat local host text or local reviewRunId as a verified receipt.",
+      "trigger": "Regression coverage asserts only success output and not authority flags.",
+      "consequence": "Local CLI could overclaim productionDone or receiptVerified.",
+      "mitigation": "Run existing Authority smoke suites and add no-overclaim assertions only where directly tied to review_run_start."
+    },
+    {
+      "scenario": "Implementation expands into a general worktree rewrite.",
+      "trigger": "Trying to make all story commands rebase roots in one pass.",
+      "consequence": "Large arbitrary refactor with unrelated regressions.",
+      "mitigation": "Limit changes to review_run_start path and pure helper exports needed by tests."
+    }
+  ],
+  "timestamp": "2026-06-12T10:50:02.613Z"
+}
