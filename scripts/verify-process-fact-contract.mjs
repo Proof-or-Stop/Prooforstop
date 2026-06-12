@@ -156,6 +156,9 @@ const requiredReviewLoopReadOnlyCommands = [
   'review_loop_status',
   'review_loop_policy_show',
 ];
+const requiredDoneClosureReadOnlyCommands = [
+  'done_closure',
+];
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
@@ -1868,6 +1871,49 @@ function assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry
   }
 }
 
+function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  for (const commandName of requiredDoneClosureReadOnlyCommands) {
+    assert(cliToolNameSet.has(commandName), `CLI schema: required DONE closure read command missing from MAIN_TOOLS: ${commandName}`);
+    const policy = policyByName.get(commandName);
+    assert(policy, `${commandPolicyPath}: required DONE closure command missing lifecycle policy: ${commandName}`);
+    if (policy) {
+      assert(!policy.gateEvidence, `${commandPolicyPath}: ${commandName} must not be gateEvidence`);
+      assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
+      assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
+      assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} must stay readOnly`);
+      assert(
+        /without writing lifecycle artifacts|without mutating/i.test(policy.reason),
+        `${commandPolicyPath}: ${commandName} policy must state the read-only/no lifecycle mutation boundary`,
+      );
+      assert(
+        /receipt|Authority|authorityDone|productionDone/i.test(policy.reason),
+        `${commandPolicyPath}: ${commandName} policy must state the Authority receipt/no-overclaim boundary`,
+      );
+    }
+
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: required DONE closure command missing level entry: ${commandName}`);
+    if (levelEntry) {
+      assert(levelEntry.level === 'L0', `${processFactLevelRegistryPath}: ${commandName} must stay L0`);
+      assert(levelEntry.category === 'done-closure-read', `${processFactLevelRegistryPath}: ${commandName} category must stay done-closure-read`);
+      assert(levelEntry.owner === 'handlers/done-closure', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+      assert(!levelEntry.gateConsumer, `${processFactLevelRegistryPath}: ${commandName} must not declare a gateConsumer`);
+    }
+
+    const registryEntry = registry.get(commandName);
+    assert(registryEntry, `${processFactRegistryPath}: required DONE closure command missing registry entry: ${commandName}`);
+    if (registryEntry) {
+      assert(registryEntry.level === 'L0', `${processFactRegistryPath}: ${commandName} registry level must stay L0`);
+      assert(registryEntry.kind === 'command', `${processFactRegistryPath}: ${commandName} registry kind must stay command`);
+      assert(registryEntry.gateEvidence === false, `${processFactRegistryPath}: ${commandName} registry gateEvidence must stay false`);
+      assert(!registryEntry.artifact, `${processFactRegistryPath}: ${commandName} must not produce a process artifact`);
+      assert(!registryEntry.consumerGate, `${processFactRegistryPath}: ${commandName} must not be consumed by a lifecycle gate`);
+      assert(registryEntry.semantics.includes('command'), `${processFactRegistryPath}: ${commandName} must remain a command projection semantic`);
+      assert(!registryEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${commandName} must not gain gate-evidence semantic`);
+    }
+  }
+}
+
 function assertActiveLifecycleDocGuidance() {
   for (const relPath of activeLifecycleDocPaths) {
     const text = read(relPath);
@@ -2702,6 +2748,7 @@ function assertProcessFactCommandInventory() {
   assertCommandPolicyPhaseAlignment(policyEntries, configText);
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {

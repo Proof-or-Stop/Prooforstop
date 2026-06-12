@@ -78,6 +78,7 @@ import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-ef
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
+import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
@@ -2182,6 +2183,62 @@ function assertDoneChecklistUsesStableOracleRows(): void {
   }
 }
 
+function assertDoneClosureProjectionSeparatesAuthority(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-projection-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const testStory = store.readStory(storyId);
+    testStory.phase = 'TEST';
+    store.writeStory(storyId, testStory);
+    store.writeTestEvidence(storyId, {
+      command: 'koala validate --json',
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-05-15T12:25:00.000Z',
+      headHash: currentGitHead(root),
+      materialHash: currentMaterialHash(root),
+      verificationCoverage: {
+        total: 0,
+        required: 0,
+        covered: 0,
+        missingRequired: 0,
+        entries: [],
+      },
+    });
+
+    const runbook = buildDoneClosureRunbook({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }, storyId);
+    const byId = new Map(runbook.blockers.map(row => [row.id, row]));
+
+    assert.equal(runbook.schemaVersion, 'lattice.done_closure.v1');
+    assert.equal(runbook.phase, 'TEST');
+    assert.equal(runbook.canAttemptDone, false, 'TEST PASS with missing closure artifacts must not be DONE-ready');
+    assert.equal(byId.get('test-evidence')?.status, 'pass');
+    assert.equal(byId.get('delivery-check')?.status, 'fail', 'missing delivery-check must be projected as blocking');
+    assert.equal(byId.get('story-summary')?.status, 'fail', 'missing summary must be projected as blocking');
+    assert.equal(runbook.localNonAuthorityAudit.status, 'blocked');
+    assert.equal(runbook.authorityServerPath.receiptVerified, false);
+    assert.equal(runbook.authorityServerPath.mayClaimAuthorityDone, false);
+    assert.equal(JSON.stringify(runbook).includes('"authorityDone":true'), false);
+    assert.equal(JSON.stringify(runbook).includes('"productionDone":true'), false);
+    assert.equal(JSON.stringify(runbook).includes('"fullAuthorityDone":true'), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
 function assertGlobalLinkRepair(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-link-'));
   try {
@@ -3688,6 +3745,7 @@ assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
+assertDoneClosureProjectionSeparatesAuthority();
 assertDoneOracleSameSource();
 await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();

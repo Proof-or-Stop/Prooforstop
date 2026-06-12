@@ -715,6 +715,11 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'next', description: '只输出当前最可信的下一步（复用 session_brief 的权威 phase 判断）', schema: {
     concise: z.boolean().optional().describe('轻量模式（默认 true）'),
   }},
+  { name: 'done_closure', description: 'Project local DONE closure readiness from the DONE oracle without mutating lifecycle or claiming Authority completion. Alias: lattice done closure', schema: {
+    storyId: z.string().describe('Story ID'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'capsule_show', description: '显示 story session capsule（投影状态，不是 gate evidence）', schema: {
     storyId: z.string().optional().describe('Story ID'),
     story: z.string().optional().describe('Story ID alias'),
@@ -2605,6 +2610,7 @@ function resolveRootForCommand(cmd: string, explicit?: string): string {
 const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
   'next',
+  'done_closure',
   'status',
   'story_get',
   'story_list',
@@ -3378,6 +3384,7 @@ export async function runCli(opts?: {
   'planner run': 'planner_run',
   'planner source-manifest': 'planner_source_manifest',
   'story resolve': 'story_resolve',
+  'done closure': 'done_closure',
   'conduit status': 'conduit_status',
   'conduit explain': 'conduit_explain',
   'story authority resolve': 'story_authority_resolve',

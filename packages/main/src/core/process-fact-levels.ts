@@ -112,6 +112,7 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'dashboard', level: 'L0', category: 'status', owner: 'handlers/dashboard', rationale: 'Displays live project status and does not persist process facts.' },
   { name: 'session_brief', level: 'L0', category: 'status', owner: 'handlers/session', rationale: 'Reports current story status and inferred next step without mutation.' },
   { name: 'next', level: 'L0', category: 'status', owner: 'handlers/session', rationale: 'Reports the next step without mutation.' },
+  { name: 'done_closure', level: 'L0', category: 'done-closure-read', owner: 'handlers/done-closure', rationale: 'Projects local DONE closure readiness from the DONE oracle and keeps local Non-authority evidence separate from Authority receipt-backed completion claims without mutating process facts.' },
   { name: 'capsule_show', level: 'L0', category: 'capsule-read', owner: 'handlers/capsule', rationale: 'Reads the story capsule projection and reference health without mutating authoritative evidence.' },
   { name: 'capsule_update', level: 'L2', category: 'capsule', owner: 'handlers/capsule', rationale: 'Writes rebuildable story handoff projection state sourced from story/checklist/process-events.' },
   { name: 'capsule_handoff', level: 'L2', category: 'capsule', owner: 'handlers/capsule', rationale: 'Writes handoff.md and capsule next action as projection state, not lifecycle gate evidence.' },

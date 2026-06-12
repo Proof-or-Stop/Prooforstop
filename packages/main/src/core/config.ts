@@ -108,6 +108,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
     'session_brief', // read-only recovery entrypoint; must work in every phase
     'next',          // read-only single next action, shares session_brief authority rules
+    'done_closure',  // read-only DONE closure projection; local readiness only, no Authority claim
     'story_get', 'story_list', 'story_reconcile', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
@@ -241,6 +242,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
 const ALWAYS_ALLOWED_READ_ONLY_COMMANDS = new Set([
   'session_brief',
   'next',
+  'done_closure',
 ]);
 
 function isPhaseToolsRecord(value: unknown): value is Record<string, string[]> {

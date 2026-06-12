@@ -17,7 +17,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -71,6 +71,18 @@ function runKoalaFromCwdExpectFail(cwd: string, command: string, args: Record<st
   assert.fail(`${command} should have failed`);
 }
 
+function readIfExists(path: string): string {
+  return existsSync(path) ? readFileSync(path, 'utf-8') : '';
+}
+
+function gitStatus(root: string): string {
+  return execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-04T10:00:00.000Z';
   store.writeTestEvidence(storyId, {
@@ -112,6 +124,24 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   });
 }
 
+function writePassingTestEvidence(store: StoryStore, root: string, storyId: string): void {
+  store.writeTestEvidence(storyId, {
+    command: 'done_closure read-only smoke',
+    output: JSON.stringify({ allPass: true, summary: 'done_closure read-only smoke passed' }),
+    result: 'PASS',
+    timestamp: '2026-06-04T10:00:00.000Z',
+    headHash: currentGitHead(root),
+    materialHash: currentMaterialHash(root),
+    verificationCoverage: {
+      total: 0,
+      required: 0,
+      covered: 0,
+      missingRequired: 0,
+      entries: [],
+    },
+  });
+}
+
 /**
  * Build a minimal TEST-phase story with a linked worktree and DONE-gate
  * evidence committed on the story branch. Main stays on branch main throughout
@@ -120,6 +150,8 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
 function buildDoneReadyStoryWithLinkedWorktree(
   root: string,
   storyId: string,
+  workflowProfile: 'light' | 'balanced' = 'light',
+  writeClosureEvidence = true,
 ): { worktreePath: string; store: StoryStore } {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -127,7 +159,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
     storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
-    workflow: { profile: 'light' },
+    workflow: { profile: workflowProfile },
   }, null, 2));
   write(root, 'README.md', `done-preflight-smoke ${storyId}\n`);
   write(root, '.gitignore', '.worktrees/\n.linked-worktrees/\n.lattice/activity.jsonl\n');
@@ -180,11 +212,22 @@ function buildDoneReadyStoryWithLinkedWorktree(
 
   resetConfigCache();
   const worktreeStore = new StoryStore(worktreePath);
-  writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
-  git(worktreePath, ['add', '.']);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+  if (writeClosureEvidence) {
+    writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+  }
 
   return { worktreePath, store };
+}
+
+function buildTestPassedStoryMissingClosureArtifacts(root: string, storyId: string): { worktreePath: string } {
+  const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId, 'balanced', false);
+  const worktreeStore = new StoryStore(worktreePath);
+  writePassingTestEvidence(worktreeStore, worktreePath, storyId);
+  git(worktreePath, ['add', '.']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'test evidence only']);
+  return { worktreePath };
 }
 
 // ---------------------------------------------------------------------------
@@ -367,6 +410,54 @@ function assertDoneRejectsWhenMainIsDirty(): void {
   }
 }
 
+function assertDoneClosureIsReadOnlyAndNonAuthority(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-readonly-'));
+  try {
+    const storyId = 'B-done-closure-readonly';
+    const { worktreePath } = buildTestPassedStoryMissingClosureArtifacts(root, storyId);
+    const processEventsPath = join(worktreePath, '.lattice', 'story', 'actives', storyId, 'process-events.jsonl');
+
+    // This allowed story-metadata dirt used to be the risky path: the DONE
+    // oracle's default dirty gate writer can append process-events for
+    // non-blocking dirty categories. done_closure must project the same oracle
+    // rows with an explicit no-write audit option.
+    write(worktreePath, `.lattice/story/actives/${storyId}/readonly-dirty.json`, '{}\n');
+    const beforeStatus = gitStatus(worktreePath);
+    const beforeProcessEvents = readIfExists(processEventsPath);
+
+    const raw = runKoalaFromCwd(worktreePath, 'done_closure', { storyId, json: true });
+    const result = JSON.parse(raw) as {
+      schemaVersion: string;
+      readOnly: boolean;
+      canAttemptDone: boolean;
+      blockers: Array<{ id: string; status: string }>;
+      localNonAuthorityAudit: { status: string };
+      authorityServerPath: { receiptVerified: boolean; mayClaimAuthorityDone: boolean; receiptRefs: string[] };
+    };
+    const byId = new Map(result.blockers.map((row) => [row.id, row]));
+
+    assert.equal(result.schemaVersion, 'lattice.done_closure.v1');
+    assert.equal(result.readOnly, true);
+    assert.equal(result.canAttemptDone, false, 'TEST PASS is not DONE-ready while closure rows still block');
+    assert.equal(byId.get('test-evidence')?.status, 'pass');
+    assert.equal(byId.get('delivery-check')?.status, 'fail', 'missing delivery-check must remain a DONE blocker');
+    assert.equal(byId.get('story-summary')?.status, 'fail', 'missing summary must remain a DONE blocker');
+    assert.equal(result.localNonAuthorityAudit.status, 'blocked');
+    assert.equal(result.authorityServerPath.receiptVerified, false);
+    assert.equal(result.authorityServerPath.mayClaimAuthorityDone, false);
+    assert.deepEqual(result.authorityServerPath.receiptRefs, []);
+    assert.equal(JSON.stringify(result).includes('"authorityDone":true'), false);
+    assert.equal(JSON.stringify(result).includes('"productionDone":true'), false);
+    assert.equal(JSON.stringify(result).includes('"fullAuthorityDone":true'), false);
+
+    assert.equal(readIfExists(processEventsPath), beforeProcessEvents, 'done_closure must not append process-events');
+    assert.equal(gitStatus(worktreePath), beforeStatus, 'done_closure must leave git status byte-identical');
+    console.log('  ✓ done_closure smoke: PASS — read-only projection and non-Authority defaults');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
@@ -376,5 +467,6 @@ assertDoneSucceedsWhenMainBranchOwnedBySeparateWorktree();
 assertDoneRecoverUsesSeparateRegisteredMainWorktree();
 assertDoneRejectsWhenMainOnWrongBranch();
 assertDoneRejectsWhenMainIsDirty();
+assertDoneClosureIsReadOnlyAndNonAuthority();
 
 console.log('✓ done-preflight-smoke passed');
