@@ -5,7 +5,7 @@
       "desc": "Metadata filtering in active worktree overlap detection hard-codes broad roots/filenames instead of using the runtime artifact registry. It can hide material files with runtime-like basenames and treats .omx as ignored metadata despite local OMX being disabled, so real overlapping material changes can be missed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-12T20:02:07.587Z",
@@ -16,7 +16,9 @@
         "packages/main/src/core/lattice-parallel-wave.ts",
         "packages/main/src/core/runtime-artifact-registry.ts",
         "docs/requirements/decisions/lattice-parallel-wave.md"
-      ]
+      ],
+      "resolvedReason": "Fixed by removing local broad metadata root/filename filters from lattice-parallel-wave.ts and routing ignored changed files through isMaterialExcludedPath, which uses story metadata and runtime artifact registry semantics. Smoke now asserts packages/main/src/process-events.jsonl remains material and .lattice runtime/story metadata remains ignored. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/lattice-parallel-wave-smoke.js.",
+      "resolvedAt": "2026-06-12T20:15:32.325Z"
     },
     {
       "id": "B-8404:F-002",
