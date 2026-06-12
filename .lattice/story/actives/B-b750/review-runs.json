@@ -386,6 +386,71 @@
         "bindingHash": "094ae1ba58cbdd4c5893140443bde00f7721f857842807922bc17d4e60bef11f"
       },
       "_hash": "0c5956868252f1541acb97d48b99d60786ecd1c8e9d9625fdfaaca8bd339c70f"
+    },
+    {
+      "reviewRunId": "B-b750:RR-007",
+      "storyId": "B-b750",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-12T16:56:23.170Z",
+      "startedAt": "2026-06-12T17:00:35.866Z",
+      "headHash": "293054b10fc2dbc7b686b3f6d62676690b6da433",
+      "materialHash": "74931c0e853453414fbe776af04a863b56fbb611f8f43cc193ceee6589d4d80c",
+      "promptHash": "62b835c384a68661a1a9c0653731ef76d40e9adb65b2d64a4eb19cf57a2ebc36",
+      "scopeBinding": {
+        "scopeContractHash": "bf4816b1d2d7424ec20b0d87d5c36f654b521f42f5af1752b5962343b29a41be",
+        "diffPackHash": "bef66d91defbd36c45dc9f9cd43154ecdba2dd9f11edc8f06f7ef15ed09d3cf0",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-resolve.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "03b9087aa0b1c4f29c4cca476c906423387bb8adfc5f8ec07b50e3210412bfad",
+          "1439df59833585e21abd82798420de86835db5693aeed7152f5c92fa15104dc9",
+          "15167e531a78edbff5f2523679ba1525232b48914ff563b9192d6b944da5c440",
+          "170b13b9334e1d72ee0e28884afc669badaf19616114848c1357b108e6db6c98",
+          "1760cef270725847eba7eabf2c1aba5b6079854536d17b47869372c685852501",
+          "1bd4ddea13793f70804dc51ecc3e419de12cc36696a56369cb32ca89912fe787",
+          "2a0188fd19b71b9ad046395c0caa02ae167dcfe4eea0f55364721bc31636ef76",
+          "2cf5316672a1bb9ee850f31e84b19b248121ac3224100e380138e0d04bce297b",
+          "3475ae48e6965937be1b557597691d3843494bf7dab87344494d87d1a2dd6bed",
+          "45a960b611f7533e5206ea93eda638c746f44d0baf244573c9ff7e3a75b895f1",
+          "60ada3d403472ff29ddb47e9affaa0d1aeee012aa006377d555b12aa333de4b8",
+          "640d4e7053f8127f7e4a9fc28ae890de9a48d02006300a38b55a46abde1c350b",
+          "676d808029bc3afb1ad2c28e4e194fdc25c9acce25cf610d4480f5694892e913",
+          "6f3e2cde6253580430c3e8eeea9a52a7a8a5b364665b0bbe014ce8a9457589df",
+          "7209d0ab4d1dab9550384a11a1522ae1853dae284ce3c85ab83c29f50455318b",
+          "833a50efad23194895eb2c68019936ed5cafd475bf870a85bd6bb898533c4c0e",
+          "95649045c88cb52e440f0cd10028151a8ef911a0c6ac056daef1a70cd363f184",
+          "a727f3b11d767b01a933d4c99bc696c177e2b29a2396b9554e7c3c5bac77dcfd",
+          "a8d5fa797bb14abdb465658fb0eb03d2c61b54b95316c8966c13f227bfd1e6d5",
+          "b38f12fdbf769daa71e32364a906b0179971fb0dce9ec6ee2291df097108c549",
+          "baacd090ad5531b0573169cbe776b0bcdf44ca11fab1ff3e47a46a9bb8255023",
+          "c208b4efd927b4500147f998ac9006abd9efdb870c51f0b95df664a9dc185155",
+          "dcdc5719dcf52d4e7d8e4ffa0a831777c2a7c6b233170a4026645a159c349a5f",
+          "dd0be461e15c687303df91cfe3c38fb2991cf877b6e496eba46586ea5ef6294c",
+          "e1e0ddb030452db9f63d2c9a08484794ac86a8a22c163d168ea4a38c3d281acf",
+          "e443345b4fa20d22c7a1a2d5ab64577c00295cbe2e6b429f33c2eb3246bc7647",
+          "e6128d14c300c6e8509b04be1b7d89bec93737274502bb9ad0ae12a0512e75b4",
+          "f2ef903068458cefbb86e78f55c932730317caf99f08f57b22394a1306f00eef",
+          "f7524cba8f404985f0aed6b57af65cca33817f758758f0cc1cad3cfb51a7a140",
+          "f85bb4dafe5e44aa78f8002cd5e25bc7845570a6d05a67a1018a5de54408bde2",
+          "fb503f23acd45a0d005a8f02af661613ccf343f47e9e5b8ac2ac5005a0388bb5",
+          "fb5e134489d3be245474168a49eb4576bace47f92a3638b89d33dc42de53eeab"
+        ],
+        "bindingHash": "094ae1ba58cbdd4c5893140443bde00f7721f857842807922bc17d4e60bef11f"
+      },
+      "_hash": "ed123d0db48b5b7e0ba31e98751ffd2abd53d3e35e4f7a249834ad7aa9f59287"
     }
   ]
 }
