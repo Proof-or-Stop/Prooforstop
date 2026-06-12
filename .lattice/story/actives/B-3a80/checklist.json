@@ -131,7 +131,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Completion report lists verification commands and says docs/navigation consistency passed or identifies the remaining blocker.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV includes the new document with the correct count and relative link.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing unrelated dirty documentation is not included in this story diff.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final validation must not pass if the document says PASS or UNLOCKED for claims this story did not prove.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
