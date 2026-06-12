@@ -11,7 +11,35 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "lease parser probe"
+      "userSees": "Completion report states: current gap_analyze high gaps were triaged; signed workspace gaps require real consistency verification; Layer4 customerKeyRef is future/blocked.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze is rerun and the three high findings are classified without claiming they are resolved.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If customerKeyRef is future capability prose, the plan marks it future/blocked instead of starting implementation.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The triage must not mark F-009 resolved or Layer2/Layer4 unlocked without formal proof.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
