@@ -4,7 +4,7 @@
   "title": "Add wrapper-root gitRoot repair UX",
   "description": "Add a small deterministic Lattice CLI UX for projects where metadataRoot is a wrapper directory and the actual git-backed signed workspace is a nested child repository. The CLI should diagnose the layout, suggest an explicit gitRoot configuration when there is exactly one safe child git repo candidate, and provide a confirmed repair command that validates and writes gitRoot. It must stay host-neutral: hosts may execute the command, but Lattice owns the diagnosis and config write; no Claude/Codex auto-repair, no silent repository choice, no broad optimization, and no authority/production policy expansion.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "gitRoot",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-12T19:20:38.433Z",
   "startedAt": "2026-06-12T19:20:38.433Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T20:28:14.681Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,11 +38,70 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:24:46.845Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:31:16.200Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:56:56.284Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:02:20.641Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:13:54.209Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:19:48.619Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:28:14.681Z",
+      "branch": "story/B-526c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-526c",
-    "branch": "story/B-526c",
-    "createdAt": "2026-06-12T19:23:30.229Z"
-  }
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: production appears only in the excluded-scope boundary saying this story must not change authority or production readiness policy; the implementation is limited to config diagnostics and explicit repair UX.",
+      "at": "2026-06-12T19:25:08.145Z"
+    }
+  ],
+  "currentReviewRound": "2026-06-12T20:13:54.209Z"
 }

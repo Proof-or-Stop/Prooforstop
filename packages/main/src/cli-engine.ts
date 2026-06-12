@@ -844,8 +844,15 @@ export const MAIN_TOOLS: ToolDef[] = [
     host: z.string().describe('Host profile id to show guidance for'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'lattice_config_doctor', description: 'Report Lattice CLI 0.3.5 migration readiness and Mac App demotion status (text/json). Alias: lattice config doctor', schema: {
+  { name: 'lattice_config_doctor', description: 'Report Lattice CLI 0.3.5 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: lattice config doctor', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'lattice_config_repair', description: 'Explicit operator-confirmed wrapper-root repair: validates --set-git-root stays under the metadata root and is a git repository root, then writes only the gitRoot field of the existing project config when --confirm is given; without --confirm it is a non-mutating preview. Alias: lattice config repair', schema: {
+    setGitRoot: z.string().optional().describe('Relative directory under the metadata root that is the git repository root (use --set-git-root=<dir>); required, never guessed'),
+    confirm: z.boolean().optional().describe('Required to write; without --confirm the command previews the change and prints the exact confirm command'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
   { name: 'rollout_check', description: 'Run read-only cross-project Lattice rollout diagnostics for install drift, managed assets, runtime footprint, and transcript scope. Alias: lattice rollout check', schema: {
     projects: z.union([z.string(), z.array(z.string())]).optional().describe('Comma-separated project paths or JSON array; omit to scan the current root'),
@@ -2535,13 +2542,12 @@ function isAutopilotCommand(cmd: string): boolean {
 }
 
 function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Record<string, ZodType>> {
+  const schemaWithCliMeta = { ...tool.schema, ...CLI_META_SCHEMA };
   if (isAutopilotCommand(cmd)) {
-    const schema = STRICT_OWNER_META_COMMANDS.has(cmd)
-      ? { ...tool.schema, ...CLI_META_SCHEMA }
-      : tool.schema;
+    const schema = STRICT_OWNER_META_COMMANDS.has(cmd) ? schemaWithCliMeta : tool.schema;
     return z.object(schema).strict();
   }
-  return z.object(tool.schema);
+  return z.object(schemaWithCliMeta);
 }
 
 // ── Resolve root ──
@@ -3353,6 +3359,7 @@ export async function runCli(opts?: {
   'handoff receipt submit': 'handoff_receipt_submit',
   'handoff worktree create': 'handoff_worktree_create',
   'config doctor': 'lattice_config_doctor',
+  'config repair': 'lattice_config_repair',
   'codex verify': 'verify_codex',
   'codex doctor': 'codex_doctor',
   'rollout check': 'rollout_check',

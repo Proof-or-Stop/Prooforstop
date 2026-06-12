@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Only fix the real wrapper-root correctness UX; do not broaden signed-workspace resolution semantics.",
+    "Keep Lattice host-neutral: CLI policy and validation own the repair, hosts only run visible commands.",
+    "Fail closed whenever the candidate repository is absent, outside metadataRoot, not a git root, or ambiguous.",
+    "Separate read-only diagnosis from mutating repair so operator intent stays explicit."
+  ],
+  "drivers": [
+    "B-3938-style parent metadata root plus child git repo layouts currently require manual inference after failure.",
+    "Existing configured gitRoot resolver path is already authoritative and should be reused after config is written.",
+    "Command policy/process fact registries must remain consistent for any new CLI surface."
+  ],
+  "options": [
+    {
+      "name": "A: Add config doctor suggestion plus explicit confirmed config repair command",
+      "pros": [
+        "Solves the user-visible path from diagnosis to repair without changing runtime resolution semantics",
+        "Keeps host-neutral authority in Lattice CLI",
+        "Can be covered by existing wrapper-root smoke harness"
+      ],
+      "cons": [
+        "Adds one mutating CLI command and registry entries to maintain"
+      ]
+    },
+    {
+      "name": "B: Make story_resolve/review_run_start automatically choose a nested child repo",
+      "pros": [
+        "Would make the immediate failure disappear without a separate command"
+      ],
+      "cons": [
+        "Violates fail-closed signed-workspace policy",
+        "Silently guesses material root in ambiguous layouts",
+        "Makes host/runtime behavior harder to audit"
+      ]
+    },
+    {
+      "name": "C: Leave error message as-is and document manual gitRoot edits",
+      "pros": [
+        "No new command surface"
+      ],
+      "cons": [
+        "Does not fix the real UX gap the user hit",
+        "Continues requiring manual config edits and path inference",
+        "Harder for multi-host agents to execute consistently"
+      ]
+    }
+  ],
+  "chosen": "A: Add config doctor suggestion plus explicit confirmed config repair command",
+  "rationale": "Option A fixes the concrete wrapper-root repair path while preserving fail-closed runtime behavior and host-neutral command authority.",
+  "preMortem": [
+    {
+      "scenario": "Doctor suggestion becomes de facto automatic resolution",
+      "trigger": "Implementation feeds the single child candidate into story_resolve/review_run_start without config write",
+      "consequence": "Signed workspace can change silently and violate authority expectations",
+      "mitigation": "Keep candidate detection only in lattice_config_doctor output; resolver continues to use explicit gitRoot or story worktree only."
+    },
+    {
+      "scenario": "Repair accepts an unsafe path",
+      "trigger": "--set-git-root allows absolute outside paths or non-git directories",
+      "consequence": "Config can point at unrelated material root and produce invalid review evidence",
+      "mitigation": "Validate normalized relative path stays under metadataRoot and git rev-parse top-level equals target before writing."
+    },
+    {
+      "scenario": "Multiple child repos get guessed",
+      "trigger": "Doctor or repair chooses first candidate in a wrapper with several repos",
+      "consequence": "Wrong repository may become signed workspace",
+      "mitigation": "Doctor reports ambiguity and no repair suggestion; repair requires explicit provided path and validates it only."
+    },
+    {
+      "scenario": "New command is invisible to policy checks",
+      "trigger": "CLI schema/alias added without command policy/process-fact-level entry",
+      "consequence": "Phase tools, observability, and contract verification drift",
+      "mitigation": "Update COMMAND_POLICIES, PROCESS_FACT_LEVELS, aliases/read-only classification as appropriate and run process contract verification."
+    }
+  ],
+  "timestamp": "2026-06-12T19:26:00.621Z"
+}
