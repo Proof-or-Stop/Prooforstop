@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-ebc5:F-001",
+      "desc": "Verification evidence is not fully executable/replayable. CHK-002:edge:0 records result=pass for `node -e \"const fs=require(fs); ...\"`, but replay fails with ReferenceError because fs/path/utf8 are unquoted. CHK-001:adversarial:0 uses `lattice gap_analyze` as a manual transcript; it is replayable, but it does not mechanically assert exactly 3 high / 0 medium, so a future growth in high gaps could still exit 0 and be mis-recorded as pass. Fix only these evidence commands: replace NAV count with a quoted executable node check, and replace gap_analyze evidence with a command that parses output and fails unless high=3 and medium=0.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T18:53:13.119Z",
+      "reviewRound": "2026-06-12T18:51:12.969Z",
+      "reviewRunId": "B-ebc5:RR-003",
+      "_hash": "61bb2b2a2f56e48d7356bec35bde45b5b9077290993c4fd92d62555684821f9e",
+      "files": [
+        ".lattice/story/actives/B-ebc5/checklist.json",
+        "docs/requirements/NAV.md"
+      ]
+    }
+  ]
+}
