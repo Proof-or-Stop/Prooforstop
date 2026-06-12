@@ -12,7 +12,35 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A concise classification report of the main worktree dirty assets, grouped as baseline artifacts, docs, and story metadata, with a recommended action for each group."
+      "userSees": "Terminal report includes: \"B-d925 classification: baseline artifacts=<n>, docs=<n>, story metadata=<n>, recommended action=<commit|restore|defer>\".",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Classification report groups all current main dirty paths into baseline artifacts, docs, story metadata, and untracked docs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Deleted tracked baseline artifacts are classified separately from modified suite reports and untracked docs.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "No .omx path is read or used while classifying dirty assets.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

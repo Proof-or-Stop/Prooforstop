@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve logic and evidence ownership consistency."
+  ],
+  "drivers": [
+    "Unblock B-9d6c DONE without mixing unrelated dirty assets into its implementation.",
+    "Preserve valid Lattice proof artifacts while removing stale pollution only when verified.",
+    "Keep host-neutral and non-authority boundaries clear."
+  ],
+  "options": [
+    {
+      "name": "A: Audit then commit valid main dirty assets as a separate reconciliation commit",
+      "pros": [
+        "Preserves useful Lattice evidence.",
+        "Keeps B-9d6c implementation commit separate.",
+        "Produces an inspectable history for dirty asset ownership."
+      ],
+      "cons": [
+        "May commit stale artifacts if the audit is shallow.",
+        "Needs two-host agreement before action."
+      ]
+    },
+    {
+      "name": "B: Restore all main dirty changes to unblock B-9d6c quickly",
+      "pros": [
+        "Fastest path to a clean main.",
+        "Avoids committing stale or noisy artifacts."
+      ],
+      "cons": [
+        "Can destroy valid proof/document assets.",
+        "Violates the user request for audited handling if done blindly."
+      ]
+    },
+    {
+      "name": "C: Stash all main dirty changes temporarily",
+      "pros": [
+        "Quickly unblocks B-9d6c DONE without deleting data.",
+        "Reversible local operation."
+      ],
+      "cons": [
+        "Leaves evidence ownership unresolved.",
+        "Easy to forget and reintroduce stale pollution later."
+      ]
+    }
+  ],
+  "chosen": "A: Audit then commit valid main dirty assets as a separate reconciliation commit",
+  "rationale": "Choose audited reconciliation because the dirty set includes Lattice proof artifacts and decision docs. The user explicitly wants host-reviewed correctness handling, not blind cleanup. If audit proves a group is stale scratch, restore that group only with explicit evidence.",
+  "preMortem": [
+    {
+      "scenario": "Stale baseline artifacts are committed as formal proof assets.",
+      "trigger": "Two-host audit only checks filenames and not report freshness or claim boundaries.",
+      "consequence": "Future Layer 2/3 claim evaluation may be polluted or misleading.",
+      "mitigation": "Require Claude and Codex audit summaries to classify artifacts as valid, stale, duplicate, or deferred before commit."
+    },
+    {
+      "scenario": "A useful untracked decision doc is deleted while cleaning main.",
+      "trigger": "Cleanup treats all untracked docs as duplicate noise.",
+      "consequence": "Accepted planning context is lost and future readers cannot reconstruct the decision.",
+      "mitigation": "Compare untracked docs against existing/worktree versions and only remove exact duplicates or explicitly stale drafts."
+    },
+    {
+      "scenario": "B-d925 hides main cleanup inside B-9d6c or another story.",
+      "trigger": "DONE is retried after arbitrary manual changes without separate evidence.",
+      "consequence": "B-9d6c history gains unrelated changes or the cleanup becomes unauditable.",
+      "mitigation": "Keep B-9d6c frozen; record cleanup findings/evidence under B-d925 and commit main reconciliation separately."
+    }
+  ],
+  "timestamp": "2026-06-12T13:55:30.244Z"
+}

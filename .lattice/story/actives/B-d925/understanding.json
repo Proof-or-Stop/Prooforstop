@@ -1,0 +1,30 @@
+{
+  "task": "Reconcile dirty main assets that block B-9d6c DONE",
+  "outcome": "User sees main git status clean, B-9d6c story_advance DONE succeeds or reports only a new explicit blocker, and cleanup evidence shows which dirty assets were committed/restored/deferred.",
+  "facts": [
+    "B-9d6c is in TEST with all DONE pre-checks passing inside its worktree.",
+    "B-9d6c DONE failed because the main worktree has uncommitted tracked changes and untracked decision docs.",
+    "The dirty paths are under .lattice/artifacts/baseline plus docs/requirements files; .omx is disabled and must not be used.",
+    "B-d925 worktree does not contain main dirty paths, so main cleanup must be audited as a repository hygiene operation rather than hidden inside B-9d6c."
+  ],
+  "constraints": [
+    "Do not run omx or read/write .omx.",
+    "Do not revert or delete user changes without explicit classification.",
+    "Only fix real correctness issues; no arbitrary cleanup or optimization.",
+    "Keep B-9d6c implementation separate from main dirty reconciliation."
+  ],
+  "unknowns": [
+    "Which dirty baseline artifacts are valid proof assets versus stale scratch leftovers?",
+    "Whether untracked decision docs duplicate B-9d6c worktree docs or represent separate accepted documents."
+  ],
+  "touchpoints": [
+    ".lattice/artifacts/baseline/layer2-engineering-unlock",
+    ".lattice/artifacts/baseline/layer3-loop-engineering-unlock",
+    "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+    "docs/requirements/decisions/b3787-post-merge-two-host-three-round-audit-plan.md",
+    "docs/requirements/NAV.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-06-12T13:55:14.142Z"
+}
