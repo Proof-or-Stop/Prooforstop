@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write execution plan document for missing_scope_check guidance ergonomics",
+      "context": "The plan must distinguish missing scope evidence from missing CLI capability, preserve PLAN gate semantics, keep scope_check_save as reviewer-written signed evidence, and define how Lattice should execute the implementation later.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run two-host audit of the execution plan",
+      "context": "Use two independent host perspectives to audit only real correctness issues: no arbitrary optimization, no gate weakening, no Authority overclaim, and consistency with Lattice host-neutral CLI/Authority Server boundaries.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Incorporate audit findings and save final executable document",
+      "context": "Only incorporate real correctness findings. Final doc must include execution steps, verification, rollback, Non-authority vs Authority boundary, and criteria for Lattice execution.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hand final document to Lattice execution flow",
+      "context": "After the doc is audited and finalized, identify the exact Lattice story/commands needed to execute it, without claiming implementation is complete until the normal lifecycle reaches DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
