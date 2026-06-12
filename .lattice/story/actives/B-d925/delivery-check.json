@@ -1,0 +1,28 @@
+{
+  "storyId": "B-d925",
+  "checkedAt": "2026-06-12T14:22:57.597Z",
+  "reviewRound": "2026-06-12T14:20:10.683Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Classification evidence recorded: main dirty state was grouped into baseline artifacts, docs, and untracked docs without .omx."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Two-host Claude CLI and Codex CLI audits completed; final auditor reconciled disagreement fail-closed and did not convert host verdicts into Authority evidence."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Main worktree clean; B-9d6c advanced to DONE and merged to main; deferred stale/non-ready assets preserved in stash@{0}; lattice validate --story=B-d925 --json PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-d925 reconciled main dirty assets blocking B-9d6c DONE. It committed only validated Layer4 docs/NAV, deferred stale or non-ready assets, avoided .omx and destructive reset, and completed B-9d6c through Lattice DONE."
+  },
+  "_hash": "c46d3ab59e89f0ee7921c920f657f0018aba03a7471d624b4a1f4d60e0355c6c"
+}
