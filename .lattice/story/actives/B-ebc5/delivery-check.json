@@ -1,0 +1,35 @@
+{
+  "storyId": "B-ebc5",
+  "checkedAt": "2026-06-12T19:03:05.630Z",
+  "reviewRound": "2026-06-12T18:59:14.275Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "promise": "Document provides a concrete execution path for the three current gap_analyze high gaps without claiming closure or capability unlock.",
+      "status": "verified",
+      "verifiedBy": "fresh REVIEW + lattice validate + gap_analyze assertion",
+      "evidence": "Fresh concept, quality, test-coverage, and docs reviewers passed; validate covered 6/6 intents; gap_analyze remains exactly 3 high / 0 medium rather than growing."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV links the new execution plan, keeps the previous F-009 triage plan link, and has an accurate markdown file count.",
+      "status": "verified",
+      "verifiedBy": "rg + Node count check + docs reviewer",
+      "evidence": "NAV contains both F-009 triage and new resolution-plan links; Node count check reports declared=47 actual=47."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-002",
+      "transcript": "npm --prefix packages/main run build passed; lattice story_advance phase=TEST passed; lattice validate --story=B-ebc5 passed with verification intent coverage 6/6; lattice gap_analyze remained 3 high / 0 medium."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only execution plan is delivered. It defines bounded follow-up paths for the three high gaps, preserves future/blocked customerKeyRef scope, updates NAV, and does not claim gap closure or capability unlock."
+  },
+  "_hash": "8668e866f44821852230b0b752a175a194d4bc0ada3ab9d6d13f2a9e91e0b7bc"
+}
