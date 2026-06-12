@@ -67,7 +67,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice config repair --set-git-root=clawcreek --confirm validates the child git root, writes gitRoot to lattice.config.json/koala.config.json, and reports verified configured-git-root",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "repair without --confirm is non-mutating and tells the operator to rerun with --confirm; config file remains unchanged",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "repair rejects paths outside metadataRoot, missing paths, or directories whose git top-level is not the provided target; config file remains unchanged",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
