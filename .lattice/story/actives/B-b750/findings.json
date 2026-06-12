@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-b750:F-001",
+      "desc": "packages/main/src/core/review-run.ts:483 WHY validateRunWorkspaceBinding verifies workspaceBinding against itself and checks that signedWorkspaceRoot is still a usable git root, but it never re-resolves the story current signed workspace from metadataRoot/config. In split-root wrapper projects, changing gitRoot after review_run_start can leave existing pass/finding evidence valid against the old repo while story_resolve/review_run_start now point at a different signedWorkspaceRoot. That violates the intended start/consumer consistency and can let REVIEW pass on the wrong material root.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T16:43:21.049Z",
+      "reviewRound": "2026-06-12T16:39:13.623Z",
+      "reviewRunId": "B-b750:RR-002",
+      "_hash": "1f2bddb954af5b0934d4b8d370addc063490d7c71b1abecc4bb84269d08a84b8",
+      "files": [
+        "packages/main/src/core/review-run.ts"
+      ]
+    }
+  ]
+}
