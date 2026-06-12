@@ -231,6 +231,18 @@
           "headHash": "1e5c9046dbedf63077ae25d69bb10fc3db03c9c2",
           "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
           "timestamp": "2026-06-12T16:33:03.053Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-final-status.md",
+          "command": "lattice finding_list --storyId=B-META-framework-audit",
+          "result": "pass",
+          "note": "F-009 remains open/suspected because the frozen proof root is BLOCKED/LOCKED; the story records retention instead of falsely resolving the finding.",
+          "headHash": "abe5524240be66ff207871a34cf4a09553fd0ec5",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:33:09.238Z"
         }
       ]
     }
