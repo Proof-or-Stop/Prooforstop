@@ -41,9 +41,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js && node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
           "result": "pass",
           "note": "Regression now covers running parallel wave from inside a story worktree; real B-8404 parallel_merge_queue no longer resolves .worktrees/B-8404/.worktrees/B-8404 and still reads changed files from registered worktrees.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -51,9 +51,9 @@
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
           "note": "Smoke covers metadata-only active worktree changes under .lattice and .koala as ignoredChangedFiles with empty materialChangedFiles and no overlap degradation.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
           "note": "Core smoke preserves failed/not_configured changed-file projection as visible changedFiles status and degradation instead of dropping the story or throwing.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         }
       ]
     },
@@ -108,9 +108,9 @@
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
           "note": "Smoke asserts overlapping active worktrees degrade to plan_only and merge queue blockers/guidance include the shared file and peer story, including when the projection runs from a story worktree.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -118,9 +118,9 @@
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
           "note": "Smoke asserts non-overlapping material changes remain parallel_dev candidates while metadata-only changes do not create false overlap noise; existing sharedHotspots assertions still pass.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Safety resolution keeps stronger explicit/dependency blockers before plan_only overlap degradation, so actual file overlap detection does not downgrade stricter scheduling constraints.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         }
       ]
     },
@@ -175,9 +175,9 @@
           "command": "node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
           "result": "pass",
           "note": "Real CLI projection keeps authority.productionDone=false, authority.authorityChanged=false, receiptRefs=[], and emits only local scheduling guidance after the worktree path fix.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -185,9 +185,9 @@
           "command": "node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json",
           "result": "pass",
           "note": "Real CLI output reports local scheduling guidance only; overlap/worktree facts remain blockers/guidance fields and are not encoded as Authority receipt or production completion.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "git status --short before/after parallel_merge_queue remained clean",
           "result": "pass",
           "note": "Auditor observed git status clean before and after the read-only parallel_merge_queue projection; command did not mutate story metadata, evidence, receipts, or host state.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         }
       ]
     },
@@ -242,9 +242,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
           "note": "Build and smoke pass on the final DEV patch, including regression coverage for relative worktree path resolution from story worktrees and non-authoritative output fields.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -252,9 +252,9 @@
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
           "note": "Smoke includes metadata-only and clean non-overlapping stories; metadata-only changes stay ignored and clean material changes remain parallel_dev candidates.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -262,9 +262,9 @@
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
           "result": "pass",
           "note": "Smoke has hard assertions that authority.productionDone=false, authority.authorityChanged=false, and receiptRefs=[] across overlap outputs; assertion failure exits non-zero.",
-          "headHash": "54ad85241ba1a8b203098e32d3c74be835c51f4d",
-          "materialHash": "685783c96bc5c1263215235e764221aa81c7232bb3407730b5e896368c37808c",
-          "timestamp": "2026-06-12T20:27:24.478Z"
+          "headHash": "b70fa99a9c0bf33a5d75212aea49f357ab8089b7",
+          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
+          "timestamp": "2026-06-12T20:29:20.081Z"
         }
       ]
     }
