@@ -151,9 +151,9 @@
       "id": "CHK-003",
       "title": "Update B-META finding state through Lattice finding flow",
       "context": "Use finding_resolve, finding_dismiss, or an equivalent Lattice finding command only after evidence supports the decision. Do not mutate B-META files directly.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:26:09.263Z",
-      "endTime": null,
+      "endTime": "2026-06-12T20:27:29.945Z",
       "relatedDocs": [
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
       ],
@@ -187,14 +187,34 @@
       },
       "verificationEvidence": [
         {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_resolve {\"storyId\":\"B-META-framework-audit\",\"findingId\":\"B-META-framework-audit:F-009\",\"resolution\":\"...\"}",
+          "result": "pass",
+          "note": "F-009 was resolved through the Lattice finding flow in the B-META main-shared audit container, then merged into B-9833; no direct B-META file mutation was used.",
+          "headHash": "8760f81a9f443d6e82b50dc4a94be23f45b0d0c4",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:27:30.005Z"
+        },
+        {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
-          "command": "lattice finding_resolve ... attempted in DEV",
+          "command": "lattice finding_list {\"storyId\":\"B-META-framework-audit\"} | rg -n \"F-009|resolvedReason|attention\" -C 4",
           "result": "pass",
-          "note": "Lattice correctly rejected finding_resolve in DEV because finding_resolve is a REVIEW-phase gateEvidence mutation; F-009 state change must happen in REVIEW, preserving process consistency.",
-          "headHash": "dfb0de8d9dd82a32efa8c41704238b78d5aabaad",
+          "note": "ResolvedReason explicitly says this is not a Layer2 capability unlock and keeps Layer4 customerKeyRef, Production Safety, global claim, receiptVerified, productionDone, and fullAuthorityDone outside this resolution.",
+          "headHash": "8760f81a9f443d6e82b50dc4a94be23f45b0d0c4",
           "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
-          "timestamp": "2026-06-12T20:26:09.335Z"
+          "timestamp": "2026-06-12T20:27:30.045Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_resolve attempted from DEV worktree before REVIEW/main-shared handling",
+          "result": "pass",
+          "note": "The first DEV-phase attempt was rejected by Lattice phase policy, proving unsupported status mutation was not silently accepted.",
+          "headHash": "8760f81a9f443d6e82b50dc4a94be23f45b0d0c4",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:27:30.083Z"
         }
       ]
     },
@@ -267,6 +287,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Prepare for REVIEW-phase finding_resolve, since Lattice correctly gates finding_resolve out of DEV."
+    },
+    {
+      "timestamp": "2026-06-12T20:27:29.945Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-009 state was updated through Lattice finding_resolve with claim-boundary evidence."
     }
   ]
 }
