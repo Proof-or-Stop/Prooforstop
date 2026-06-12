@@ -5,7 +5,7 @@
       "desc": "CHK-002 adversarial verificationIntent explicitly requires repair to reject missing paths with config unchanged, but the recorded smoke coverage only exercises preview no-mutation, outside-path rejection, and nested non-root rejection. The implementation has a distinct missing-target branch at packages/main/src/handlers/lattice-cli.ts:605, while packages/main/src/tasks/field-regression-cli-smoke.ts:1014 and :1022 only cover ../outside and clawcreek/packages. Add a missing relative target assertion, e.g. setGitRoot=\"missing-creek\" with confirm true, asserting non-zero exit, /target does not exist/, and unchanged config.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-12T20:01:34.336Z",
@@ -17,7 +17,9 @@
         "packages/main/src/tasks/field-regression-cli-smoke.ts:1014",
         "packages/main/src/tasks/field-regression-cli-smoke.ts:1022",
         "packages/main/src/handlers/lattice-cli.ts:605"
-      ]
+      ],
+      "resolvedReason": "Resolved by d7b106e: validateRepairGitRootTarget now performs lexical containment before existence checks and canonical realpath containment only for existing targets, so missing relative children under /var metadata roots report target does not exist instead of unsafe path. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/field-regression-cli-smoke.js, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-12T20:14:03.924Z"
     }
   ]
 }
