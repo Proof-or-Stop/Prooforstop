@@ -4,7 +4,7 @@
   "title": "Resolve gap_analyze high gaps execution plan",
   "description": "Write a conservative execution plan for the remaining gap_analyze high gaps. The plan must separate real signed workspace consistency fixes from future Layer4 production safety scope, and mark customerKeyRef as future/blocked unless a separate Layer4 implementation story is opened. Use two-host Claude CLI and Codex CLI draft/review evidence, then final auditor review. Do not claim Layer2/Layer4 unlock from this document alone.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "gap-analyze",
@@ -70,6 +70,14 @@
       "branch": "story/B-3a80",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T18:06:33.192Z",
+      "branch": "story/B-3a80",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -77,5 +85,5 @@
     "branch": "story/B-3a80",
     "createdAt": "2026-06-12T17:40:28.180Z"
   },
-  "currentReviewRound": "2026-06-12T18:02:02.558Z"
+  "currentReviewRound": "2026-06-12T18:06:33.192Z"
 }
