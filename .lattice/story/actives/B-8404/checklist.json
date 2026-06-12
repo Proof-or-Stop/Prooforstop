@@ -8,9 +8,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-06-12T19:33:11.760Z",
+      "endTime": "2026-06-12T19:44:15.434Z",
       "verificationIntent": {
         "happy": [
           {
@@ -33,7 +33,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Build and smoke passed; smoke asserts committed-vs-main, uncommitted tracked, and untracked material changed files are collected and exposed on created Parallel Wave storyRefs.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:15.476Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts .lattice and .koala metadata-only changes are recorded as ignoredChangedFiles and do not create material changed files or overlaps.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:15.512Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Core represents missing or failed worktree changed-file probes as visible changedFiles status/degradations without dropping the story from output.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:15.545Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -43,9 +75,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/koala/legacy/root-markdown/Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T19:44:25.830Z",
       "verificationIntent": {
         "happy": [
           {
@@ -68,7 +100,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates two active worktrees with the same material file and no sharedHotspots; both are plan_only and queue blockers/guidance include the file and peer story id.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:25.883Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts metadata-only changes do not overlap and a separate non-overlapping material change remains a parallel_dev candidate; existing sharedHotspots assertions still pass.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:25.926Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Safety resolution preserves existing no/block conditions before plan_only overlap degradation, so active dependency blockers are not downgraded.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:25.961Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -78,9 +142,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T19:44:38.494Z",
       "verificationIntent": {
         "happy": [
           {
@@ -103,7 +167,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts overlap scenarios preserve authority.productionDone=false, authority.authorityChanged=false, and authority.receiptRefs=[] across wave, plan, status, queue, dispatch, and report outputs.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:38.533Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "KOALA_SESSION_ID=sess-1e2c2aab06e5256b lattice parallel_merge_queue {\"storyIds\":[\"B-8404\"],\"format\":\"json\"}",
+          "result": "pass",
+          "note": "Read-only projection completed as local queue guidance only; overlap facts are emitted through scheduling fields/blockers, not Authority receipt fields.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:38.568Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "git diff -- .lattice/story/actives/B-8404 > /private/tmp/b8404-metadata-before.diff; lattice parallel_merge_queue ...; git diff -- .lattice/story/actives/B-8404 > /private/tmp/b8404-metadata-after.diff; cmp -s before after",
+          "result": "pass",
+          "note": "Metadata diff snapshots were byte-identical before and after running parallel_merge_queue, proving the projection did not mutate story metadata/evidence/receipt files.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:38.764Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -113,9 +209,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T19:44:48.940Z",
       "verificationIntent": {
         "happy": [
           {
@@ -138,7 +234,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Build and smoke exit 0; smoke covers overlap detection without sharedHotspots, plan_only degradation, and queue guidance with file plus peer story.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:48.985Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers metadata-only ignored changes and a non-overlapping story that remains a parallel_dev candidate.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:49.027Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke contains hard assertions for non-authoritative Authority fields in overlap scenarios; assertion failures would make the task exit non-zero.",
+          "headHash": "44f7e5c7427eccc57273af1546e69659aa19c454",
+          "materialHash": "5879c8175069981e68e6293745ed66ad2e6c6f58866351c03d8f263ec13dc2f1",
+          "timestamp": "2026-06-12T19:44:49.060Z"
+        }
+      ]
     }
   ]
 }

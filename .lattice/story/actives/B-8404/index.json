@@ -4,7 +4,7 @@
   "title": "Detect active worktree file overlaps in parallel merge queue",
   "description": "Fix a real parallel-development correctness gap: multiple active story worktrees can modify the same source file without parallel_merge_queue seeing the overlap unless sharedHotspots were manually declared. Lattice CLI should mechanically detect actual changed-file overlaps across active worktrees and degrade or block parallel DEV guidance without claiming Authority completion.",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-06-12T19:20:53.843Z",
   "startedAt": "2026-06-12T19:20:53.843Z",
@@ -30,6 +30,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-12T19:23:19.215Z",
+      "branch": "story/B-8404",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:31:32.739Z",
       "branch": "story/B-8404",
       "user": "Harmonygo",
       "agent": "main"
