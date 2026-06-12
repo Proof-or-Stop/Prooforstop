@@ -54,7 +54,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Two independent host drafts from Claude CLI and Codex CLI are available as input to the final document synthesis.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude CLI and Codex CLI each produce a bounded F-009 execution-plan draft.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The final document records host input without making either host an Authority.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Host suggestions that add arbitrary optimization or false capability claims are excluded.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
