@@ -54,6 +54,16 @@
           "headHash": "7072377745838a4f937d16c74dcca36671bcd3ef",
           "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
           "timestamp": "2026-06-12T19:52:34.309Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Core smoke preserves failed/not_configured changed-file projection as visible changedFiles status and degradation instead of dropping the story or throwing.",
+          "headHash": "8e62227688b8afb913fd7c4939d1d6513592a454",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:52:41.303Z"
         }
       ]
     },
