@@ -4,7 +4,7 @@
   "title": "Resolve signed-workspace gaps and gitRoot repair UX",
   "description": "Resolve signed-workspace gap_analyze highs and add a deterministic gitRoot repair UX for wrapper-root projects where Lattice metadata lives above the git material repo. The repair must be explicit, fail closed for ambiguous nested repos, and must not auto-spawn host agents or silently guess signedWorkspaceRoot.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "gap_analyze",
@@ -23,6 +23,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:11:50.994Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-39d1",
+    "branch": "story/B-39d1",
+    "createdAt": "2026-06-12T19:11:51.311Z"
+  }
 }
