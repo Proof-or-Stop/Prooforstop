@@ -53,7 +53,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees two independent host audit summaries for the execution plan, each listing only real correctness findings or saying no blockers.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two independent host-style audit reports exist and both review the same draft plan artifact.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Audit prompts require no arbitrary optimization, only real correctness issues, and consistency of logic.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audits explicitly check that the plan does not weaken scope_check_save reviewer authority or confuse CLI Non-authority with Authority Server receipt proof.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
