@@ -1,0 +1,24 @@
+{
+  "task": "Resolve the two signed-workspace gap_analyze high gaps by binding existing fail-closed behavior to source/test coverage.",
+  "outcome": "After running lattice gap_analyze, the dashboard shows Gaps: 1 high / 0 medium, and the only remaining high gap is the Layer4 customerKeyRef requirement; the two signed-workspace lines 262 and 311 no longer appear.",
+  "facts": [
+    "gap_analyze currently reports three high gaps: two signed-workspace requirements and one customerKeyRef Layer4 requirement.",
+    "resolveStorySignedWorkspace already emits requires_git_signed_workspace_but_metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for wrapper roots without worktree/gitRoot binding.",
+    "review_run_start already fails closed when signedWorkspaceRoot is unresolved and does not create a reviewer run in that path.",
+    "gap_analyze matches truth requirements against @task title/description/changes text; source-level @task comments can provide coverage without becoming function-level test gaps.",
+    "customerKeyRef is explicitly Layer4 Production Safety scope and remains out of this story."
+  ],
+  "constraints": [
+    "Do not implement gitRoot repair UX or config repair commands in this story.",
+    "Do not touch Authority server, productionDone, fullAuthorityDone, receiptVerified, or customerKeyRef implementation.",
+    "Prefer minimal source/test/metadata binding over changing gap_analyze rules.",
+    "Follow host-neutral semantics: CLI remains non-authority and must not claim production authority."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "timestamp": "2026-06-12T19:32:34.836Z"
+}

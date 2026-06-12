@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Keep host-neutral CLI non-authority boundaries intact."
+  ],
+  "drivers": [
+    "Close exactly the two signed-workspace high gaps from gap_analyze.",
+    "Avoid adding gitRoot repair UX or Layer4/customerKeyRef work to this story.",
+    "Preserve existing fail-closed REVIEW behavior."
+  ],
+  "options": [
+    {
+      "name": "A: Add minimal source-level coverage bindings to existing signed-workspace implementation",
+      "pros": [
+        "Matches the actual gap_analyze failure mode.",
+        "Does not introduce new product behavior.",
+        "Keeps the story small and auditable."
+      ],
+      "cons": [
+        "Requires precise annotation text so the scanner recognizes both requirements."
+      ]
+    },
+    {
+      "name": "B: Change gap_analyze keyword matching logic",
+      "pros": [
+        "Could make future coverage matching less brittle."
+      ],
+      "cons": [
+        "Broader than the current correctness issue.",
+        "Risks changing convergence behavior for unrelated requirements."
+      ]
+    },
+    {
+      "name": "C: Implement gitRoot repair UX now",
+      "pros": [
+        "Could help wrapper-root users later."
+      ],
+      "cons": [
+        "Out of the approved scope.",
+        "Would mix a new product feature with a coverage binding fix.",
+        "Could create additional gates and token cost."
+      ]
+    }
+  ],
+  "chosen": "A: Add minimal source-level coverage bindings to existing signed-workspace implementation",
+  "rationale": "The code already contains the signed-workspace fail-closed behavior and regression coverage; gap_analyze is reporting uncovered requirements because the truth-source strings are not bound to source annotations. Minimal source-level binding fixes the real correctness issue without expanding scope.",
+  "preMortem": [
+    {
+      "scenario": "Annotation text is too generic and gap_analyze still reports the same two high gaps.",
+      "trigger": "The exact unresolved reason or no-binding diagnostic phrase is absent from title/description/changes.",
+      "consequence": "The story appears changed but does not unlock convergence for the signed-workspace requirements.",
+      "mitigation": "Include the exact requirement strings from lines 262 and 311 and verify with lattice gap_analyze before marking done."
+    },
+    {
+      "scenario": "The fix accidentally becomes gitRoot repair UX work.",
+      "trigger": "Implementation adds config repair commands or nested repo detection instead of coverage binding.",
+      "consequence": "Scope creep increases complexity and violates user constraints.",
+      "mitigation": "Scope contract excludes repair UX/config repair and REVIEW checks changed files against the contract."
+    },
+    {
+      "scenario": "The fix hides the customerKeyRef Layer4 gap.",
+      "trigger": "Annotation text accidentally mentions customerKeyRef as covered or analyzer logic is loosened globally.",
+      "consequence": "Layer4 capability could be falsely claimed as covered.",
+      "mitigation": "Do not touch customerKeyRef implementation or analyzer matching; require gap_analyze to still show customerKeyRef as the only remaining high gap."
+    }
+  ],
+  "timestamp": "2026-06-12T19:31:46.036Z"
+}

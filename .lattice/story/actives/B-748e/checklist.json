@@ -10,7 +10,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice gap_analyze no longer lists decisions/review-run-start-signed-workspace-resolution-execution-plan.md:262 as a high gap.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "gap_analyze no longer reports the unresolvedReason requirement at review-run-start-signed-workspace-resolution-execution-plan.md:262.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "resolveStorySignedWorkspace still emits requires_git_signed_workspace_but_metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for a wrapper root with no worktree or gitRoot.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The fix does not add gitRoot repair UX or loosen gap_analyze globally to hide unrelated requirements.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
