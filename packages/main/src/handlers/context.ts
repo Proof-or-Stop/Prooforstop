@@ -79,10 +79,68 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
   }
   if (story.phase === 'DONE' || story.phase === 'DISCARDED') return;
 
-  // B-9d95 CHK-001 whitelist: cwd gate — this function's responsibility is to verify whether the caller's cwd is inside the story's worktree.
-  // Must read process.cwd() here (caller's perspective); cannot use ctx.root (that is fixed at handler init,
-  // which is not equal to the caller's real cwd). So this process.cwd() call site is in the whitelist.
   const cwd = process.cwd();
+  const expectedAbsPath = resolveExpectedWorktreeRoot(store, storyId, cwd, story.worktree?.path);
+  if (!expectedAbsPath) return;
+
+  assertPathInsideWorktree(storyId, cwd, expectedAbsPath);
+}
+
+export interface StoryCommandWorkspace {
+  cwd: string;
+  contextRoot: string;
+  snapshotRoot: string;
+  expectedWorktreeRoot?: string;
+  mode: 'story-worktree' | 'direct-review-project';
+}
+
+export function resolveStoryCommandWorkspace(
+  store: StoryStore,
+  storyId: string,
+  contextRoot: string,
+): StoryCommandWorkspace {
+  const story = store.readStory(storyId);
+  const cwd = process.cwd();
+  const expectedAbsPath = resolveExpectedWorktreeRoot(store, storyId, cwd, story.worktree?.path);
+  if (!expectedAbsPath) {
+    return {
+      cwd,
+      contextRoot,
+      snapshotRoot: contextRoot,
+      mode: 'direct-review-project',
+    };
+  }
+
+  assertPathInsideWorktree(storyId, cwd, expectedAbsPath);
+
+  const normalizedContextRoot = canonicalPath(contextRoot);
+  const normalizedExpected = canonicalPath(expectedAbsPath);
+  if (normalizedContextRoot !== normalizedExpected) {
+    throw new Error(
+      `review_run_start: refusing to create reviewer evidence for ${storyId} because the Lattice root and story worktree differ.\n` +
+      `Expected signed workspace: ${normalizedExpected}\n` +
+      `Lattice root: ${normalizedContextRoot}\n` +
+      `Current cwd: ${cwd}\n` +
+      'No reviewer run was created. Signing one workspace while persisting story metadata through another would produce invalid reviewer evidence.\n' +
+      `→ cd ${normalizedExpected} and rerun lattice review_run_start without --root/LATTICE_PROJECT_ROOT pointing elsewhere.`
+    );
+  }
+
+  return {
+    cwd,
+    contextRoot,
+    snapshotRoot: normalizedExpected,
+    expectedWorktreeRoot: normalizedExpected,
+    mode: 'story-worktree',
+  };
+}
+
+function resolveExpectedWorktreeRoot(
+  store: StoryStore,
+  storyId: string,
+  cwd: string,
+  storedWorktreePath?: string,
+): string | null {
   let expectedAbsPath: string | null = null;
   let repoRoot = cwd;
   try {
@@ -91,7 +149,7 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     repoRoot = runtime.repoRoot;
   } catch { /* PROBE: fall back to stored story.worktree below */ }
 
-  if (!expectedAbsPath && !story.worktree) return; // no worktree, skip (compatible with legacy stories)
+  if (!expectedAbsPath && !storedWorktreePath) return null; // no worktree, skip (compatible with legacy stories)
 
   try {
     // Use git common-dir to find the MAIN repo root, not the worktree root.
@@ -109,13 +167,15 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     }
   } catch { /* not git */ }
 
-  if (!expectedAbsPath && story.worktree) {
-    expectedAbsPath = isAbsolute(story.worktree.path)
-      ? story.worktree.path
-      : join(repoRoot, story.worktree.path);
+  if (!expectedAbsPath && storedWorktreePath) {
+    expectedAbsPath = isAbsolute(storedWorktreePath)
+      ? storedWorktreePath
+      : join(repoRoot, storedWorktreePath);
   }
-  if (!expectedAbsPath) return;
+  return expectedAbsPath;
+}
 
+function assertPathInsideWorktree(storyId: string, cwd: string, expectedAbsPath: string): void {
   const normalizedCwd = canonicalPath(cwd);
   const normalizedExpected = canonicalPath(expectedAbsPath);
   if (normalizedCwd !== normalizedExpected && !normalizedCwd.startsWith(normalizedExpected + '/') && !normalizedCwd.startsWith(normalizedExpected + '\\')) {

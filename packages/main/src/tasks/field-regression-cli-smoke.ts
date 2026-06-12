@@ -99,11 +99,42 @@ function initRepo(prefix: string, storyDir = '.lattice/story/actives'): string {
   return root;
 }
 
-function runKoalaRaw(cwd: string, command: string, args: Record<string, unknown> = {}): Promise<{ code: number; stdout: string; stderr: string }> {
+function initProjectWithoutGit(prefix: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  write(root, 'koala.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    worktreeDir: '.worktrees',
+    workflow: { profile: 'balanced' },
+  }, null, 2));
+  write(root, 'README.md', 'field regression CLI smoke without git\n');
+  write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+  resetConfigCache();
+  return root;
+}
+
+function initRepoWithoutCommit(prefix: string): string {
+  const root = initProjectWithoutGit(prefix);
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  git(root, ['config', 'user.email', 'smoke@example.test']);
+  git(root, ['config', 'user.name', 'Koala Smoke']);
+  resetConfigCache();
+  return root;
+}
+
+function runKoalaRaw(
+  cwd: string,
+  command: string,
+  args: Record<string, unknown> = {},
+  envOverrides: Record<string, string | undefined> = {},
+): Promise<{ code: number; stdout: string; stderr: string }> {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: cwd },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: cwd, ...envOverrides },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -175,6 +206,24 @@ function writeReviewStory(store: StoryStore, storyId: string): void {
   };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
+}
+
+function writeLegacyReviewStoryWithoutRound(store: StoryStore, storyId: string): void {
+  const timestamp = now();
+  store.writeStory(storyId, {
+    storyId,
+    name: `${storyId.toLowerCase()}-legacy-review`,
+    title: `${storyId} legacy review`,
+    description: 'Synthetic legacy REVIEW story without currentReviewRound.',
+    type: 'chore',
+    phase: 'REVIEW',
+    priority: 'medium',
+    createdAt: timestamp,
+    startedAt: timestamp,
+    endedAt: null,
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp }],
+  });
+  store.writeChecklist(storyId, { items: [] });
 }
 
 async function assertPlanRemoveIsHardBlocked(): Promise<void> {
@@ -443,20 +492,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     assert.match(unsupported.stderr, /Invalid enum value|Invalid option: expected one of|not in supported REVIEW reviewer lane/);
 
     const mainStoryId = 'B-main';
-    store.writeStory(mainStoryId, {
-      storyId: mainStoryId,
-      name: 'review-run-dev-cli',
-      title: 'review run dev cli',
-      description: 'Synthetic REVIEW story without currentReviewRound.',
-      type: 'chore',
-      phase: 'REVIEW',
-      priority: 'medium',
-      createdAt: now(),
-      startedAt: now(),
-      endedAt: null,
-      events: [{ phase: 'REVIEW', action: 'advance', timestamp: now() }],
-    });
-    store.writeChecklist(mainStoryId, { items: [] });
+    writeLegacyReviewStoryWithoutRound(store, mainStoryId);
     git(root, ['checkout', '-b', `story/${mainStoryId}`]);
     const missingRound = await runKoalaRaw(root, 'review_run_start', {
       storyId: mainStoryId,
@@ -476,6 +512,93 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     assert.match(repairedLoop.stdout + repairedLoop.stderr, /Review loop .* started/);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
+  const nonGitRoot = initProjectWithoutGit('koala-field-review-run-nongit-');
+  try {
+    const storyId = 'B-nongit';
+    const store = new StoryStore(nonGitRoot);
+    writeLegacyReviewStoryWithoutRound(store, storyId);
+    const failed = await runKoalaRaw(nonGitRoot, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(failed.code, 0);
+    assert.match(failed.stderr, /not_git_repo/);
+    assert.match(failed.stderr, /No reviewer run was created/);
+    assert.match(failed.stderr, /No legacy currentReviewRound repair was written/);
+    assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'non-git failure must not repair legacy currentReviewRound');
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'non-git failure must not write reviewer runs');
+  } finally {
+    rmSync(nonGitRoot, { recursive: true, force: true });
+  }
+
+  const unbornRoot = initRepoWithoutCommit('koala-field-review-run-unborn-');
+  try {
+    const storyId = 'B-unborn';
+    const store = new StoryStore(unbornRoot);
+    writeLegacyReviewStoryWithoutRound(store, storyId);
+    const failed = await runKoalaRaw(unbornRoot, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(failed.code, 0);
+    assert.match(failed.stderr, /missing_head/);
+    assert.match(failed.stderr, /No reviewer run was created/);
+    assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'unborn HEAD failure must not repair legacy currentReviewRound');
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'unborn HEAD failure must not write reviewer runs');
+  } finally {
+    rmSync(unbornRoot, { recursive: true, force: true });
+  }
+
+  const worktreeRoot = initRepo('koala-field-review-run-worktree-');
+  try {
+    const storyId = 'B-wt';
+    const worktree = join(worktreeRoot, '.worktrees', storyId);
+    git(worktreeRoot, ['worktree', 'add', '-b', `story/${storyId}`, worktree]);
+    const store = new StoryStore(worktreeRoot);
+    const timestamp = now();
+    store.writeStory(storyId, {
+      storyId,
+      name: 'review-run-worktree-cli',
+      title: 'review run worktree cli',
+      description: 'Synthetic REVIEW story with linked worktree.',
+      type: 'chore',
+      phase: 'REVIEW',
+      priority: 'medium',
+      createdAt: timestamp,
+      startedAt: timestamp,
+      endedAt: null,
+      worktree: {
+        path: `.worktrees/${storyId}`,
+        branch: `story/${storyId}`,
+        createdAt: timestamp,
+      },
+      events: [{ phase: 'REVIEW', action: 'advance', timestamp }],
+    });
+    store.writeChecklist(storyId, { items: [] });
+
+    const wrongCwd = await runKoalaRaw(worktreeRoot, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(wrongCwd.code, 0);
+    assert.match(wrongCwd.stderr, /Expected cwd/);
+    assert.match(wrongCwd.stderr, new RegExp(storyId));
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'wrong cwd failure must not write reviewer runs');
+
+    const rootMismatch = await runKoalaRaw(worktree, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    }, { LATTICE_PROJECT_ROOT: worktreeRoot });
+    assert.notEqual(rootMismatch.code, 0);
+    assert.match(rootMismatch.stderr, /Lattice root and story worktree differ/);
+    assert.match(rootMismatch.stderr, /No reviewer run was created/);
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'root/worktree mismatch must not write reviewer runs through the wrong root');
+  } finally {
+    rmSync(worktreeRoot, { recursive: true, force: true });
   }
 }
 
@@ -1243,6 +1366,7 @@ await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
 await assertDirectReviewStoryCreateInitializesReviewMetadata();
 await assertReviewRunStartCliSurface();
+await assertReviewRunStartWorkspaceDiagnostics();
 await assertReviewerListForceReviewerLaneContract();
 await assertReviewPassConcurrentCliSurface();
 await assertPassOnlyFindingConvertsToReviewPassCliSurface();

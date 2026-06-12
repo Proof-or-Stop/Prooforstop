@@ -1,6 +1,6 @@
 import { mkdirSync, rmSync, statSync } from 'fs';
 import type { HandlerContext } from './context.js';
-import { assertCwdInWorktree } from './context.js';
+import { resolveStoryCommandWorkspace } from './context.js';
 import type { ReviewRun, ReviewScopeBinding } from '../core/types.js';
 import {
   ensureCurrentReviewRound,
@@ -45,12 +45,24 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
-      assertCwdInWorktree(store, args.storyId);
-      const story = ensureCurrentReviewRound(store, args.storyId, 'review_run_start');
+      const preflightStory = store.readStory(args.storyId);
+      if (preflightStory.phase !== 'REVIEW') {
+        throw new Error(
+          `review_run_start: story ${args.storyId} must be in REVIEW phase (current: ${preflightStory.phase})`,
+        );
+      }
+      const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
       const lane = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
-      const { headHash, materialHash } = captureReviewRunSnapshot(ctx.root);
+      const { headHash, materialHash } = captureReviewRunSnapshot(workspace.snapshotRoot, {
+        storyId: args.storyId,
+        storyPhase: preflightStory.phase,
+        currentReviewRound: preflightStory.currentReviewRound,
+        workspaceMode: workspace.mode,
+        expectedWorktreeRoot: workspace.expectedWorktreeRoot,
+      });
+      const story = ensureCurrentReviewRound(store, args.storyId, 'review_run_start');
 
       // B-6bfd CHK-005: for a scope-protected story, capture the scope/diff/hunk
       // binding so this run is bound to the EXACT scope contract + diff the
@@ -59,12 +71,12 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       const contract = store.readScopeContract(args.storyId);
       let scopeBinding: ReviewScopeBinding | undefined;
       if (contract) {
-        const diffPack = buildScopeDiffPack(ctx.root);
+        const diffPack = buildScopeDiffPack(workspace.snapshotRoot);
         scopeBinding = computeReviewScopeBinding({
           contract,
           diffPack,
           reviewedIntentRefs: args.reviewedIntentRefs,
-          projectRoot: ctx.root,
+          projectRoot: workspace.snapshotRoot,
         }) ?? undefined;
       }
 
