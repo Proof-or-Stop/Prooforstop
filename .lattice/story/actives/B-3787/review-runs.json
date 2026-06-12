@@ -104,6 +104,146 @@
         "bindingHash": "be657d566e78d6133198f176883dd3c368eade1e7213dcbf95aa9d94f316115b"
       },
       "_hash": "371c2f7fa6c29425de3fee7c794e2f45748ef34559f64296385c75b178b6176b"
+    },
+    {
+      "reviewRunId": "B-3787:RR-004",
+      "storyId": "B-3787",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "startedAt": "2026-06-12T11:25:28.414Z",
+      "headHash": "26135e57a2c0c6edad9ad15d0d2864d9f9f7b208",
+      "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+      "promptHash": "919da055127ae630fb26dd0b4038a8188f9f8807c3ab668d2cb7e7e2c9ce53f2",
+      "scopeBinding": {
+        "scopeContractHash": "3ee9c3c4ee0999a675c54ba57c5a7ac329921272a50b2268f8978456346e00e9",
+        "diffPackHash": "58a2b22e1dc9a52d75734d909ac112c37d1c45d514e3d4f85c781b9a3b1d6830",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f2d56302353adc25e116f32a9b6805c34e90e2c1aa7a98d3b2ec8a9440607ef",
+          "3e1d8b99614c62230affb60fedd27985b6b7a41144d948408ff911b46dae3b35",
+          "4dbe32ec8867163d235edb57faf0c641d6671638418cbdd7a4c51caf9f113708",
+          "52c4a5b7a988cb2857658e93531c1b79fce766d23cab8aa6e1c56aab7ec83def",
+          "69a63dbc8c602f011b4ab944685cd5d730a00f1d5caa97df092b6b65471a56df",
+          "85e014e11c69363460e752a73537e1e8b59e89a2dbf3420839b8e95de1d83268",
+          "c04b10d250e5535ff1fdb1ea9648a7130929911b682969d5ef1cecada24ed393",
+          "ca2858bde6f9b72c1b0bb6f004d08a4b95dcc6e808b0ddee2a774e2072fbea34",
+          "d85a80f7d3191247d5684e3781b6cf68ea6cf6611e97210de69a4f661d110f05"
+        ],
+        "bindingHash": "85f7727683cd679e9b50ade53e3e3e5292fddb3afee6e515b13c10c911f3d605"
+      },
+      "_hash": "3c0c9426746d775c8b9fcca564091b4c96429a5b62a71851a43b49289a96fa16"
+    },
+    {
+      "reviewRunId": "B-3787:RR-005",
+      "storyId": "B-3787",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "startedAt": "2026-06-12T11:25:33.945Z",
+      "headHash": "26135e57a2c0c6edad9ad15d0d2864d9f9f7b208",
+      "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3ee9c3c4ee0999a675c54ba57c5a7ac329921272a50b2268f8978456346e00e9",
+        "diffPackHash": "58a2b22e1dc9a52d75734d909ac112c37d1c45d514e3d4f85c781b9a3b1d6830",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f2d56302353adc25e116f32a9b6805c34e90e2c1aa7a98d3b2ec8a9440607ef",
+          "3e1d8b99614c62230affb60fedd27985b6b7a41144d948408ff911b46dae3b35",
+          "4dbe32ec8867163d235edb57faf0c641d6671638418cbdd7a4c51caf9f113708",
+          "52c4a5b7a988cb2857658e93531c1b79fce766d23cab8aa6e1c56aab7ec83def",
+          "69a63dbc8c602f011b4ab944685cd5d730a00f1d5caa97df092b6b65471a56df",
+          "85e014e11c69363460e752a73537e1e8b59e89a2dbf3420839b8e95de1d83268",
+          "c04b10d250e5535ff1fdb1ea9648a7130929911b682969d5ef1cecada24ed393",
+          "ca2858bde6f9b72c1b0bb6f004d08a4b95dcc6e808b0ddee2a774e2072fbea34",
+          "d85a80f7d3191247d5684e3781b6cf68ea6cf6611e97210de69a4f661d110f05"
+        ],
+        "bindingHash": "85f7727683cd679e9b50ade53e3e3e5292fddb3afee6e515b13c10c911f3d605"
+      },
+      "_hash": "13af28c577ecac16765cc7fb4e1ac0972996cb48e96db7a02d4dad24b4b25f82"
+    },
+    {
+      "reviewRunId": "B-3787:RR-006",
+      "storyId": "B-3787",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "startedAt": "2026-06-12T11:25:35.132Z",
+      "headHash": "26135e57a2c0c6edad9ad15d0d2864d9f9f7b208",
+      "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3ee9c3c4ee0999a675c54ba57c5a7ac329921272a50b2268f8978456346e00e9",
+        "diffPackHash": "58a2b22e1dc9a52d75734d909ac112c37d1c45d514e3d4f85c781b9a3b1d6830",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f2d56302353adc25e116f32a9b6805c34e90e2c1aa7a98d3b2ec8a9440607ef",
+          "3e1d8b99614c62230affb60fedd27985b6b7a41144d948408ff911b46dae3b35",
+          "4dbe32ec8867163d235edb57faf0c641d6671638418cbdd7a4c51caf9f113708",
+          "52c4a5b7a988cb2857658e93531c1b79fce766d23cab8aa6e1c56aab7ec83def",
+          "69a63dbc8c602f011b4ab944685cd5d730a00f1d5caa97df092b6b65471a56df",
+          "85e014e11c69363460e752a73537e1e8b59e89a2dbf3420839b8e95de1d83268",
+          "c04b10d250e5535ff1fdb1ea9648a7130929911b682969d5ef1cecada24ed393",
+          "ca2858bde6f9b72c1b0bb6f004d08a4b95dcc6e808b0ddee2a774e2072fbea34",
+          "d85a80f7d3191247d5684e3781b6cf68ea6cf6611e97210de69a4f661d110f05"
+        ],
+        "bindingHash": "85f7727683cd679e9b50ade53e3e3e5292fddb3afee6e515b13c10c911f3d605"
+      },
+      "_hash": "4d975bb859bfbaa68b0e9f546943b0b90fe965d9afbd6fb73cf744474162040b"
+    },
+    {
+      "reviewRunId": "B-3787:RR-007",
+      "storyId": "B-3787",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "startedAt": "2026-06-12T11:27:21.497Z",
+      "headHash": "26135e57a2c0c6edad9ad15d0d2864d9f9f7b208",
+      "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "3ee9c3c4ee0999a675c54ba57c5a7ac329921272a50b2268f8978456346e00e9",
+        "diffPackHash": "58a2b22e1dc9a52d75734d909ac112c37d1c45d514e3d4f85c781b9a3b1d6830",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f2d56302353adc25e116f32a9b6805c34e90e2c1aa7a98d3b2ec8a9440607ef",
+          "3e1d8b99614c62230affb60fedd27985b6b7a41144d948408ff911b46dae3b35",
+          "4dbe32ec8867163d235edb57faf0c641d6671638418cbdd7a4c51caf9f113708",
+          "52c4a5b7a988cb2857658e93531c1b79fce766d23cab8aa6e1c56aab7ec83def",
+          "69a63dbc8c602f011b4ab944685cd5d730a00f1d5caa97df092b6b65471a56df",
+          "85e014e11c69363460e752a73537e1e8b59e89a2dbf3420839b8e95de1d83268",
+          "c04b10d250e5535ff1fdb1ea9648a7130929911b682969d5ef1cecada24ed393",
+          "ca2858bde6f9b72c1b0bb6f004d08a4b95dcc6e808b0ddee2a774e2072fbea34",
+          "d85a80f7d3191247d5684e3781b6cf68ea6cf6611e97210de69a4f661d110f05"
+        ],
+        "bindingHash": "85f7727683cd679e9b50ade53e3e3e5292fddb3afee6e515b13c10c911f3d605"
+      },
+      "_hash": "0d10e57d967ca0e144dfb85a22a14f2efc9ccd592d05ebc57b0fd84184ae93b7"
     }
   ]
 }
