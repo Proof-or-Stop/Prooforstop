@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 38 个文件
+> 40 个文件
 
 ## decisions
 
@@ -24,6 +24,7 @@
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
 - [Unlock Layer 2 Engineering Baseline Suite](decisions/unlock-layer2-ENG-suite.md)
 - [Unlock Layer 3 Loop Engineering Baseline Suite](decisions/unlock-layer3-loop-engineering-suite.md)
+- [Unlock Layer 4 Production Safety Baseline Suite](decisions/unlock-layer4-production-safety-suite.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
 - [Lattice Authority Receipt Contract](decisions/lattice-authority-receipt-contract.md)
@@ -36,6 +37,7 @@
 - [Story 生命周期](decisions/story-lifecycle.md)
 - [Root Document Migration Guide](decisions/root-document-migration-guide.md)
 - [Root Markdown Migration Execution Solution](decisions/root-markdown-migration-execution-solution.md)
+- [Review Run Start Workspace Diagnostics Execution Plan](decisions/review-run-start-workspace-diagnostics-execution-plan.md)
 - [@test 注释与 Fixture 规范](decisions/test-fixture-spec.md)
 - [testIntent 对抗审查体系](decisions/test-intent-review.md)
 - [测试完整性决策](decisions/testing-completeness.md)
