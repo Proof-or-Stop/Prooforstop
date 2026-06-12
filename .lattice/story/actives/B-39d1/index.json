@@ -4,7 +4,7 @@
   "title": "Resolve signed-workspace gaps and gitRoot repair UX",
   "description": "Resolve signed-workspace gap_analyze highs and add a deterministic gitRoot repair UX for wrapper-root projects where Lattice metadata lives above the git material repo. The repair must be explicit, fail closed for ambiguous nested repos, and must not auto-spawn host agents or silently guess signedWorkspaceRoot.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DISCARDED",
   "priority": "high",
   "keywords": [
     "gap_analyze",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-12T19:09:53.649Z",
   "startedAt": "2026-06-12T19:09:53.649Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T19:13:37.571Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-12T19:13:37.571Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "Discarding because INIT review introduced CHK-004 gitRoot repair UX scope, and checklist removal is frozen after INIT_CHECK. The approved work should remain limited to resolving the two signed-workspace gap_analyze high gaps without arbitrary UX expansion."
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-39d1",
-    "branch": "story/B-39d1",
-    "createdAt": "2026-06-12T19:11:51.311Z"
-  }
+  ]
 }
