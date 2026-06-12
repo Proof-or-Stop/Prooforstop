@@ -5,11 +5,14 @@
       "title": "Classify main dirty baseline and doc assets",
       "context": "Use git status/diff to group tracked modifications, deletions, and untracked docs. Do not touch .omx and do not revert anything before classification.",
       "relatedDocs": [
-        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A concise classification report of the main worktree dirty assets, grouped as baseline artifacts, docs, and story metadata, with a recommended action for each group."
     },
     {
       "id": "CHK-002",
