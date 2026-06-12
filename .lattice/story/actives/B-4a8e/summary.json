@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4a8e",
+  "changes": "session_brief now renders a signed workspace status block for non-git metadata roots with a valid configured gitRoot, including Signed workspace: OK, configured gitRoot, resolutionSource, and signedWorkspaceRoot. Regression smoke covers configured, unresolved, invalid, and normal git-backed cases without changing resolver or repair policy.",
+  "usage": "Run lattice session_brief from the metadata root. In a wrapper-root project with gitRoot configured, the output now shows Signed workspace: OK and the child git repo path. If gitRoot is absent or invalid, session_brief keeps unresolved/non-git guidance and never repairs automatically.",
+  "expectedOutcome": "In /Users/jek/Documents/ClawCreek-style layout, session_brief should show Signed workspace: OK, configured gitRoot: clawcreek, resolutionSource: configured-git-root, and signedWorkspaceRoot: /Users/jek/Documents/ClawCreek/clawcreek instead of leaving only a Non-git project warning.",
+  "actualTranscript": "Running node /Users/jek/Documents/Work/Orchestrate/.worktrees/B-4a8e/bin/lattice.js session_brief from /Users/jek/Documents/ClawCreek printed: Signed workspace: OK; configured gitRoot: clawcreek; resolutionSource: configured-git-root; signedWorkspaceRoot: /Users/jek/Documents/ClawCreek/clawcreek. validate passed with 9/9 verification intents covered.",
+  "outcomeDiff": "No gap remains for the scoped Host visibility issue. Metadata root is still accurately reported as non-git, but session_brief now also shows that configured gitRoot supplies a valid signed workspace.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for configured-gitRoot session_brief visibility; this does not auto-repair config, choose child repos, or change signed workspace resolver policy.",
+  "pitfalls": "The important pitfall was avoiding an easy but wrong shortcut: treating metadataRoot as git-ready. The fix keeps metadata root status and signed workspace status separate so Host output stays truthful.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 155967
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 54978
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 345731
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 712019
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 807551
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 525211
+    }
+  },
+  "totalDurationMs": 2601457,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T21:42:43.601Z",
+  "updatedAt": "2026-06-12T21:42:43.601Z"
+}
