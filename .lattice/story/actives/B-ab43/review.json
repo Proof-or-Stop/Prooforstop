@@ -46,6 +46,24 @@
         }
       ],
       "_hash": "27d473c436680996fa336fda520071d70f8789ca89aa6619a2be6b9ad4fb4389"
+    },
+    {
+      "timestamp": "2026-06-12T15:40:30.196Z",
+      "issueCount": 2,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "scope check not run. Please start the koala-review-scope-plan agent first; the agent will automatically call scope_check_save to write the result"
+        }
+      ],
+      "_hash": "82f9c7e0883f0aa3fcca8ac80c66e90f7701b4bde215091685b5587e6645118f"
     }
   ]
 }

@@ -1,0 +1,94 @@
+{
+  "storyId": "B-ab43",
+  "checkedAt": "2026-06-12T15:41:34.388Z",
+  "features": [
+    {
+      "feature": "problem definition: metadataRoot differs from signedWorkspaceRoot for review_run_start follow-up",
+      "covered_by": "Story description, CHK-001 context, and CHK-001:happy:0 define metadataRoot != signed git workspace root as the review_run_start correctness problem.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get B-ab43"
+    },
+    {
+      "feature": "docs-only scope: write execution document and NAV entry, no code implementation",
+      "covered_by": "CHK-001 is an execution-plan document task; files.create only lists docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md and files.modify only lists docs/requirements/NAV.md; files.test is empty.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get/understanding_get B-ab43"
+    },
+    {
+      "feature": "explicit signed workspace binding/config path",
+      "covered_by": "Decision option A chooses explicit signed workspace binding; rationale requires explicit config or attach command before signing; CHK-001:edge:1 requires explicit gitRoot configuration or story worktree attachment.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision_get/checklist_get B-ab43"
+    },
+    {
+      "feature": "fail-closed non-goals and no arbitrary optimization",
+      "covered_by": "Understanding constraints reject arbitrary optimization and nested repo guessing; decision principles require fail-closed behavior when the signed workspace cannot be proven git-backed.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get/decision_get B-ab43"
+    },
+    {
+      "feature": "regression matrix for fail-closed and compatibility cases",
+      "covered_by": "CHK-001:adversarial:1 requires a regression matrix for non-git wrapper root, missing worktree binding, ambiguous nested repos, stale/mismatched hashes, and forged/local-only Authority evidence; related diagnostics plan M5 supplies precedent cases.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get plus review-run-start-workspace-diagnostics-execution-plan.md"
+    },
+    {
+      "feature": "authority boundary: local evidence must not become Authority proof",
+      "covered_by": "CHK-001 context requires CLI Non-authority and Authority Server paths; decision principle preserves that boundary; CHK-001:adversarial:0 forbids receiptVerified, productionDone, authorityDone, or fullAuthorityDone claims from host prose or local reviewer runs.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get/decision_get B-ab43"
+    },
+    {
+      "feature": "distinguish localNonAuthorityAudit from authorityServerPath",
+      "covered_by": "Decision preMortem mitigation explicitly says separate localNonAuthorityAudit from authorityServerPath and require verified gate_decision receipts; CHK-001:adversarial:0 repeats the requirement.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision_get/story_get B-ab43"
+    },
+    {
+      "feature": "host-neutral wording and execution-host boundaries",
+      "covered_by": "CHK-001 context says the plan must be host-neutral; understanding facts state local CLI reviewer runs are Non-authority evidence; related docs include host-neutral observability and Authority gate integration truth sources.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/understanding_get B-ab43"
+    },
+    {
+      "feature": "do not auto-guess nested repositories",
+      "covered_by": "Understanding constraint forbids nested git repo guessing; decision rejects option B auto-discovery as arbitrary and unsafe; CHK-001:edge:1 explicitly rejects automatic nested-repo guessing.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get/decision_get/story_get B-ab43"
+    },
+    {
+      "feature": "preserve direct REVIEW compatibility for git-backed roots",
+      "covered_by": "Decision preMortem mitigation keeps direct REVIEW supported when the metadata root is git-backed with HEAD/materialHash; CHK-001:edge:0 requires no worktree mandate for every REVIEW story.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision_get/story_get B-ab43"
+    },
+    {
+      "feature": "final Claude review requirement",
+      "covered_by": "Understanding outcome requires a final Claude host reviewer; CHK-001 userSees says final Claude host review completed; verification intent requires host audit inputs reconciled by the main auditor.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get/story_get B-ab43"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 11,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e172e9e1104ed95847006c2a5061ee5fbc666b7f0fe77e69c9962cb56ac036e2",
+  "openQuestions": []
+}
