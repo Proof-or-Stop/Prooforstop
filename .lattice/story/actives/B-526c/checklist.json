@@ -111,7 +111,7 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "After repair, story_resolve/review_run_start no longer report metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for the repaired project.",
+      "userSees": "After repair, `lattice story_resolve --storyId=<id> --format=json` prints `resolved: true`, `resolutionSource: configured-git-root`, and `signedWorkspaceRoot: <metadataRoot>/clawcreek`.",
       "excludes": [
         "claiming full Lattice convergence",
         "closing unrelated gap_analyze highs",
