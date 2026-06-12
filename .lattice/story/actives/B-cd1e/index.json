@@ -4,7 +4,7 @@
   "title": "Implement DONE closure runbook assistant",
   "description": "Implement a host-neutral Lattice CLI DONE closure runbook/assistant capability from docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md. The capability must prevent agents from mistaking TEST PASS for DONE, stay read-only by default, reuse existing DONE pre-check/oracle logic, and keep local Non-authority lifecycle evidence separate from receipt-backed Authority Server proof.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "createdAt": "2026-06-12T17:40:28.818Z",
   "startedAt": "2026-06-12T17:40:28.818Z",
@@ -17,6 +17,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T17:43:11.669Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-cd1e",
+    "branch": "story/B-cd1e",
+    "createdAt": "2026-06-12T17:43:11.762Z"
+  }
 }
