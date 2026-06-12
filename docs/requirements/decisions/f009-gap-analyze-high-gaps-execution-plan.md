@@ -98,8 +98,17 @@ After scoped docs are updated, verify the result with repository-safe commands:
 
 ```bash
 lattice gap_analyze
+git add -N docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md
 git diff -- docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md docs/requirements/NAV.md
 git status --short
+```
+
+After the docs commit exists, use the commit-bound form so newly created files
+cannot be omitted from evidence:
+
+```bash
+git diff main...HEAD -- docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md docs/requirements/NAV.md
+git show --stat --name-only HEAD
 ```
 
 Commit only the scoped documentation changes. Existing unrelated story metadata
@@ -252,7 +261,9 @@ B-3a80 must produce or reference:
 - `lattice aux_doc_list` output for requirements context;
 - `lattice checklist_get '{"storyId":"B-3a80"}'` output for scoped checklist;
 - `lattice gap_analyze` output showing the three high gaps;
-- diff of the three scoped docs files;
+- diff of the three scoped docs files, using `git add -N` before commit or
+  `git diff main...HEAD` / `git show --name-only HEAD` after commit so newly
+  created docs are included;
 - commit hash containing only scoped documentation changes.
 
 This evidence pack supports documentation triage only. It does not support
