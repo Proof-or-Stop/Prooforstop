@@ -10,7 +10,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees 'F-009 target frozen' with current HEAD, materialHash, suiteRunId, clean .lattice artifact root, and finding snapshot path.",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-9092/checklist.json"
+        ],
+        "create": [
+          ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The frozen scope evidence records current main/story HEAD, materialHash, suiteRunId, clean .lattice artifact root, and F-009 finding snapshot.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The selected artifact root is under .lattice and is clean/isolated from stale default baseline artifacts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The frozen scope explicitly excludes .omx and does not allow disabled legacy roots or mixed stale proof roots.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

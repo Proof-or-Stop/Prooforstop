@@ -4,7 +4,7 @@
   "title": "Execute F-009 Layer 2 proof gap closure evidence pack",
   "description": "Execute the existing F-009 execution plan against current main. The work must freeze a clean .lattice artifact root, verify whether the formal Layer 2 proof path is sufficient, run fail-closed checks, collect two-host review evidence, and only then resolve or keep B-META-framework-audit:F-009. This is not a Layer 3, Production Safety, or global capability claim unlock story.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "F-009",
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-06-12T16:07:17.450Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T16:07:30.137Z",
+      "branch": "story/B-9092",
       "user": "Harmonygo",
       "agent": "main"
     }
