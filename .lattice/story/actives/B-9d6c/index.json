@@ -4,7 +4,7 @@
   "title": "Implement formal unlock artifact isolation invariant guard",
   "description": "Implement the formal unlock artifact isolation execution plan by adding a narrow machine-checkable root invariant for Layer 2/3 formal baseline proof roots. The change must keep Lattice CLI non-authority, keep Production Safety and global claims locked unless Authority proof exists, and only fix real correctness issues around stale or mixed artifacts polluting formal unlock proof.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -47,11 +47,20 @@
       "branch": "story/B-9d6c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T13:31:18.544Z",
+      "branch": "story/B-9d6c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-9d6c",
     "branch": "story/B-9d6c",
     "createdAt": "2026-06-12T13:11:54.838Z"
-  }
+  },
+  "currentReviewRound": "2026-06-12T13:31:18.544Z"
 }
