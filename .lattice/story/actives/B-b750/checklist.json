@@ -157,7 +157,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User can repair wrapper-root projects by setting an explicit gitRoot; Lattice validates that gitRoot is a real git repository and uses it as signedWorkspaceRoot without guessing nested repositories.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/story-resolve.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A non-git metadataRoot with config gitRoot pointing to a real git repository resolves signedWorkspaceRoot to that gitRoot and review_run_start captures HEAD/materialHash there.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An explicit gitRoot that is missing, outside the project contract, or not a git repository fails closed with a clear unresolvedReason and does not create a review run.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When metadataRoot contains multiple nested git repositories, Lattice only uses the explicit gitRoot/worktree binding and never chooses one by directory scan.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
