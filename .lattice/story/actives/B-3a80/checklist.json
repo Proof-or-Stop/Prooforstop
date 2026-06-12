@@ -228,7 +228,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T18:01:19.322Z",
-      "endTime": "2026-06-12T18:06:10.403Z",
+      "endTime": "2026-06-12T18:17:46.869Z",
       "userSees": "Completion report lists verification commands and says docs/navigation consistency passed or identifies the remaining blocker.",
       "files": {
         "modify": [
@@ -261,32 +261,32 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "docs_check",
-          "command": "rg -n F-009.gap_analyze.High.Gaps.Execution.Plan docs/requirements/NAV.md && rg -n 45.个文件 docs/requirements/NAV.md",
+          "command": "rg -n \"F-009 gap_analyze High Gaps Execution Plan\" docs/requirements/NAV.md && rg -n \"45 个文件\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV lists the new F-009 gap_analyze document and the count is updated to 45 files.",
-          "headHash": "94f61301ccf2a1f3c367d64ba646f5140ae1fb66",
+          "headHash": "a68f2309da44022518235af38dee153183816276",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:06:10.442Z"
+          "timestamp": "2026-06-12T18:17:46.909Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
-          "command": "git diff --name-status main...HEAD && git diff --name-status main...HEAD | awk allowlist check for B-3a80 metadata plus three scoped docs",
+          "command": "node -e \"const {execSync}=require('child_process'); const allowed=[/^\\.lattice\\/story\\/actives\\/B-3a80\\//,'docs/requirements/NAV.md','docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md','docs/requirements/decisions/unlock-layer4-production-safety-suite.md']; const bad=execSync('git diff --name-only main...HEAD',{encoding:'utf8'}).trim().split('\\n').filter(Boolean).filter(p=>!allowed.some(a=>typeof a==='string'?a===p:a.test(p))); if(bad.length){console.error(bad.join('\\n')); process.exit(1)}\"",
           "result": "pass",
-          "note": "Unfiltered diff contains only B-3a80 Lattice metadata and the three scoped docs; the allowlist negative path check produced no output and exited 0, proving unrelated root/docs/code changes are absent from this story diff.",
-          "headHash": "94f61301ccf2a1f3c367d64ba646f5140ae1fb66",
+          "note": "Executable allowlist command exits 0 only when git diff --name-only main...HEAD contains no paths outside B-3a80 Lattice metadata and the three scoped docs.",
+          "headHash": "a68f2309da44022518235af38dee153183816276",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:06:10.479Z"
+          "timestamp": "2026-06-12T18:17:46.942Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "Claude CLI final review; Codex CLI final review",
+          "kind": "docs_check",
+          "command": "rg -n \"Forbidden final wording|F-009 as closed|Layer 2 or Layer 4 as unlocked|productionDone.*receiptVerified|Authority work as complete\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
           "result": "pass",
-          "note": "Both final reviews checked forbidden claim language and reported PASS with no high or critical blockers after the evidence-diff guidance fix.",
-          "headHash": "94f61301ccf2a1f3c367d64ba646f5140ae1fb66",
+          "note": "Executable rg command verifies the final wording section forbids claiming F-009 closed, Layer2/Layer4 unlocked, productionDone or receiptVerified proven, or Authority work complete.",
+          "headHash": "a68f2309da44022518235af38dee153183816276",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:06:10.511Z"
+          "timestamp": "2026-06-12T18:17:46.975Z"
         }
       ]
     }
