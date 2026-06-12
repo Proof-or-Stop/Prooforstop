@@ -10,7 +10,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two active story worktrees each with committed-vs-main and uncommitted tracked/untracked changes -> parallel_plan/parallel_status/parallel_merge_queue --format=json expose repo-relative POSIX material changed files per story; WHY: core mechanical detection must work without manual sharedHotspots declaration",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Active worktree whose only changes are .lattice/** / .koala/** / .omx/** / owner-lease/runtime/cache/log artifacts -> material changed-file set is empty, no overlap reported; WHY: runtime/story-metadata noise must be excluded or every parallel story pair falsely overlaps",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git probing fails for one story (worktree path missing or git error) -> story kept with a visible degradation marker instead of being silently dropped or throwing; WHY: detection failure must not erase the risk signal or crash the planning surface",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
