@@ -89,7 +89,38 @@
       "context": "Use finding_resolve, finding_dismiss, or an equivalent Lattice finding command only after evidence supports the decision. Do not mutate B-META files directly.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+      ],
+      "userSees": "B-META-framework-audit:F-009 state is updated only through a Lattice finding command, with resolution text that names source evidence and boundaries.",
+      "files": {
+        "modify": [
+          "B-META-framework-audit:F-009 via Lattice finding command"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "finding_resolve or equivalent Lattice command updates F-009 with evidence-backed resolution text.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The resolution does not mark Layer4 customerKeyRef, Production Safety, global Capability, productionDone, or fullAuthorityDone as complete.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Direct file mutation or unsupported status edits fail this checklist item even if the visible text looks correct.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
