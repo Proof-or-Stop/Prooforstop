@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Only fix the misleading status rendering, not resolver policy.",
+    "Host-neutral output must report configured facts without making host choices.",
+    "Fail-closed unresolved layouts must remain visibly unresolved.",
+    "Regression tests must exercise user-visible CLI output."
+  ],
+  "drivers": [
+    "Users currently see Non-git project even after configured-git-root resolution succeeds.",
+    "The real correctness issue is mismatch between signed workspace state and host/status presentation.",
+    "B-526c already added explicit repair; this story should consume that state rather than invent a second repair path."
+  ],
+  "options": [
+    {
+      "name": "A: Add session_brief display logic for configured gitRoot resolution",
+      "pros": [
+        "Smallest fix to the actual user-visible mismatch",
+        "Reuses existing resolver/config facts",
+        "Keeps automatic repair out of session_brief"
+      ],
+      "cons": [
+        "Adds another status block to session_brief output"
+      ]
+    },
+    {
+      "name": "B: Change isGitRepository to treat configured gitRoot as git-ready",
+      "pros": [
+        "Would suppress the old warning with less rendering code"
+      ],
+      "cons": [
+        "Conflates metadata root git status with signed workspace status",
+        "Could mislead worktree/bootstrap guidance and hide unresolved states"
+      ]
+    },
+    {
+      "name": "C: Auto-run config repair from session_brief when one child repo exists",
+      "pros": [
+        "Would make future users avoid a manual command"
+      ],
+      "cons": [
+        "Violates host-neutral policy",
+        "Mutates config from a read-only command",
+        "Optimizes arbitrarily instead of fixing presentation correctness"
+      ]
+    }
+  ],
+  "chosen": "A: Add session_brief display logic for configured gitRoot resolution",
+  "rationale": "Choose A because the bug is a display mismatch: configured gitRoot resolution is already authoritative, so session_brief should show it without changing resolver or mutating config.",
+  "preMortem": [
+    {
+      "scenario": "session_brief claims OK for a non-git metadata root with invalid gitRoot",
+      "trigger": "display code trusts config.gitRoot text without verifying resolver output",
+      "consequence": "review_run_start can still fail while Host says OK",
+      "mitigation": "Only show signed workspace OK after story signed workspace resolver returns resolved configured-git-root or equivalent verified state."
+    },
+    {
+      "scenario": "unresolved wrapper roots lose their fail-closed warning",
+      "trigger": "new branch suppresses Non-git project warning whenever a child repo exists",
+      "consequence": "users think Lattice will choose a repo automatically",
+      "mitigation": "Do not scan or choose child repos in session_brief; unresolved projects keep explicit non-git/unresolved guidance."
+    },
+    {
+      "scenario": "status output becomes too noisy on normal git projects",
+      "trigger": "new block renders for all projects rather than non-git configured wrapper roots",
+      "consequence": "session_brief becomes harder to scan",
+      "mitigation": "Render the new configured-gitRoot block only when metadata root is non-git and configured gitRoot resolution is available or configured but invalid."
+    }
+  ],
+  "timestamp": "2026-06-12T21:03:42.305Z"
+}

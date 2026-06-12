@@ -11,7 +11,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "session_brief in a configured wrapper-root project prints configured gitRoot, signed workspace OK, and resolutionSource configured-git-root instead of only Non-git project.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "metadataRoot is non-git and config.gitRoot points to a valid child repo; session_brief output includes configured gitRoot, signed workspace OK, signedWorkspaceRoot path, and resolutionSource configured-git-root",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "normal git-backed project session_brief output does not render the configured-gitRoot wrapper-root block",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "configured gitRoot is invalid or missing; session_brief does not claim signed workspace OK",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
