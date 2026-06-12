@@ -155,9 +155,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T18:01:04.699Z",
-      "endTime": null,
+      "endTime": "2026-06-12T18:01:14.589Z",
       "userSees": "Completion report says Layer4 customerKeyRef is explicitly future/blocked unless a separate Layer4 implementation story is opened.",
       "files": {
         "modify": [
@@ -185,7 +185,39 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n B-3a80.customerKeyRef.Scope.Note docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "Layer4 document now includes a B-3a80 customerKeyRef scope note classifying the row as future/blocked unless a separate Layer4 implementation story is opened.",
+          "headHash": "39544928907e2170c515840f60847e3fea84ca40",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:01:14.631Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "sed -n 252,305p docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "The future Layer4 customerKeyRef evidence field is preserved and the redaction rule remains intact; the note does not remove the planned production safety concept.",
+          "headHash": "39544928907e2170c515840f60847e3fea84ca40",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:01:14.666Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n implement.customerKeyRef.receiptVerified.productionDone.unlock.Layer.4 docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "The note explicitly states it does not implement customerKeyRef, set receiptVerified, set productionDone, or unlock Layer4 Production Safety.",
+          "headHash": "39544928907e2170c515840f60847e3fea84ca40",
+          "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
+          "timestamp": "2026-06-12T18:01:14.700Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
