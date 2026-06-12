@@ -66,6 +66,17 @@
           "headHash": "2e84ae67cab19b2d6c9c3242833208b9f4a30043",
           "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
           "timestamp": "2026-06-12T16:20:32.728Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-9092/evidence/f009-scope-freeze.json",
+          "command": "lattice baseline_suite_report/capability_claim_formal_evaluate with .lattice artifact root; no omx commands or paths used",
+          "result": "pass",
+          "note": "Freeze explicitly excludes .omx and binds proof work to .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z only.",
+          "headHash": "50fd4d2f14a4f5a5c55a8f9f51bf0b513de07132",
+          "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+          "timestamp": "2026-06-12T16:20:39.403Z"
         }
       ]
     },
