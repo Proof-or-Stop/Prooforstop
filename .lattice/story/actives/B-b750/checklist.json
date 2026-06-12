@@ -91,9 +91,9 @@
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T16:22:04.050Z",
-      "endTime": null,
+      "endTime": "2026-06-12T16:38:35.162Z",
       "userSees": "User sees review_run_start sign the resolved signedWorkspaceRoot, persist workspaceBinding on reviewer runs, and reject pass/finding evidence whose binding or material facts are stale or mismatched.",
       "files": {
         "modify": [
@@ -131,7 +131,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression verifies review_run_start persists workspaceBinding with metadataRoot, signedWorkspaceRoot, workspaceMode, headHash, materialHash, and bindingHash for configured gitRoot split-root projects.",
+          "headHash": "bcd8d71752cb10fca9e9d58ce442466070641a82",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:35.212Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "semantic scope guard smoke still passes after workspaceBinding; review evidence freshness and scope checks continue to reject stale reviewer runs using signed workspace facts.",
+          "headHash": "bcd8d71752cb10fca9e9d58ce442466070641a82",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:35.385Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression mutates reviewRun.workspaceBinding.signedWorkspaceRoot after run creation and verifies review_pass_set rejects the tampered binding before accepting pass evidence.",
+          "headHash": "bcd8d71752cb10fca9e9d58ce442466070641a82",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:35.447Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process fact contract verifies review_run_start semantics include workspace-binding and the review-runs artifact signature contract folds workspaceBinding.bindingHash into gate-consumed evidence.",
+          "headHash": "bcd8d71752cb10fca9e9d58ce442466070641a82",
+          "materialHash": "d7ff937c31b7441e803e6ed9daf3e0ef37025f9c20e10ae93241b21afb97663b",
+          "timestamp": "2026-06-12T16:38:35.479Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
