@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-12T13:31:18.544Z",
       "reviewRunId": "B-9d6c:RR-001",
       "_hash": "78760755080b334e6e3b5ea3b0b8b7421bc3b317c6fb0f86455ca95fbf1357c2"
+    },
+    {
+      "id": "B-9d6c:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Execution plan doc (formal-unlock-artifact-isolation-execution-plan.md) accurately reflects implementation. Section 3 invariant table: all conditions (layer, materialHash, suiteRunId, claimTarget, localOnly, capabilityProof, formalProof, falseDone, authority.receiptVerified, authority.productionDone, authority.fullAuthorityDone) are enforced in code. Minor presentation note: doc presents all as root-invariant conditions but code splits them between parseFinalReport parse-time checks (layer, materialHash, authorityOverclaim, schemaVersion) and per-report formalRootInvariantProblems (the remainder); this is a tighter implementation than the doc implies, not a weaker one. Section 4 negative-root separation is correctly implemented: parseFinalReport scopes to layerDir and smoke tests use isolated temp repos for negative artifacts. Section 5 Layer 4 boundary: formalClaimTargetForLayer returns null for production-safety; explicit BLOCKED reason added by layerRequiresProductionProof; doc boundary table (L2=can unlock, L3=can unlock, L4=LOCKED) matches runtime behavior confirmed by smoke test. Section 6 non-goals: verified correct—no receipt verification, no new capability layers, no host verdict conversion to Authority evidence, no BLOCKED-to-PASS downgrade. Section 7 implementation locations match actual file paths. The doc's headHash note ('not a current-HEAD root invariant, materialHash is used instead') is confirmed correct by the implementation. No doc promises violated, no Layer 4 production safety claims made anywhere in the doc or code.",
+      "createdAt": "2026-06-12T13:36:19.337Z",
+      "reviewRound": "2026-06-12T13:31:18.544Z",
+      "reviewRunId": "B-9d6c:RR-002",
+      "_hash": "935cd858068b80f51de9d117549c2e2f2a5d1342a779306ae37f925e37e1b98a"
     }
   ]
 }
