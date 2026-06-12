@@ -128,7 +128,40 @@
       "context": "Run convergence_check, finding_list, and gap_analyze. Success means F-009 no longer remains a vague open high/suspected finding; any remaining high gap is explicitly scoped.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+      ],
+      "userSees": "Verification output shows F-009 is no longer an open vague high/suspected advisory, and any remaining high gap is explicitly scoped outside this story.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "lattice convergence_check",
+          "lattice finding_list",
+          "lattice gap_analyze"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "finding_list confirms F-009 is resolved/dismissed/narrowed according to the recorded decision.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gap_analyze may still report customerKeyRef, but it must be clearly scoped to Layer4 future/blocked work rather than this F-009 closure.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence output must not be presented as fully clean if active stories or unrelated high gaps remain.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
