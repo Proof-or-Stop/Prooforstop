@@ -65,8 +65,8 @@
         "writing unrelated config fields",
         "accepting paths outside metadataRoot"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-12T19:33:06.033Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -156,6 +156,15 @@
       "timestamp": "2026-06-12T19:32:32.644Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation starts; diagnostic, repair, and verification are coupled."
+    },
+    {
+      "timestamp": "2026-06-12T19:33:06.033Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
