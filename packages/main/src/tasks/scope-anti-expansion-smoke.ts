@@ -26,6 +26,7 @@ import {
   normalizeBoundaryArray,
 } from '../core/scope-anti-expansion.js';
 import type { ChecklistData, ScopeFreezeCheckData, StoryInfo } from '../core/types.js';
+import { createScopeAntiExpansionHandlers } from '../handlers/scope-anti-expansion.js';
 
 const NOW = '2026-06-12T12:00:00.000Z';
 const STORY_ID = 'B-scope-anti-expansion-smoke';
@@ -304,6 +305,37 @@ withTempStore('pending proposal blocks until explicit decision', (store) => {
     proposals: [proposal],
   });
   expectReason(store, /\[scope_extension_proposal_pending\]/);
+});
+
+withTempContext('accepted proposal invalidates previous freeze evidence', (root, store) => {
+  seedStory(store);
+  writeGoodBoundaries(store);
+  freeze(store);
+  const proposal = buildScopeExtensionProposal({
+    proposalId: 'SEP-smoke-accepted',
+    storyId: STORY_ID,
+    proposedBy: 'koala-review-story-init',
+    reason: 'Reviewer proposes a user-decided scope extension.',
+    patch: {},
+    proposedAt: NOW,
+  });
+  store.writeScopeExtensionProposals(STORY_ID, {
+    storyId: STORY_ID,
+    updatedAt: NOW,
+    proposals: [proposal],
+  });
+  const handlers = createScopeAntiExpansionHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  handlers.scope_extension_decide({
+    storyId: STORY_ID,
+    proposalId: proposal.proposalId,
+    decision: 'accepted',
+    reason: 'User explicitly accepts this scope extension for smoke verification.',
+    decider: 'scope-anti-expansion-smoke',
+  });
+  expectReason(store, /\[scope_freeze_check_stale\]/);
+
+  freeze(store);
+  assert.equal(getScopeAntiExpansionGuardFailureReason(STORY_ID, store, process.cwd()), null);
 });
 
 withTempStore('stale freeze check blocks after checklist mutation', (store) => {
