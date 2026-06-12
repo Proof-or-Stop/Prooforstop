@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-e155:F-001",
+      "desc": "CHK-002:happy:0 is not covered by real two-host evidence. checklist_get records only a manual_transcript with command \"claude --print ...; codex exec -s read-only ...\" and no file/transcript artifact; evidence_inspect confirms the only transcriptRef for this intent is checklist.verificationEvidence. The final document honestly states the two-host/Authority limitation, but the required proof that Claude CLI and Codex CLI each produced bounded drafts is currently an assertion rather than inspectable evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T15:30:16.690Z",
+      "reviewRound": "2026-06-12T15:26:58.477Z",
+      "reviewRunId": "B-e155:RR-005",
+      "_hash": "499b8e6393099b032b0e37cd18a5018a608574d428bb14c916e4381020d4af03",
+      "files": [
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+      ]
+    }
+  ]
+}
