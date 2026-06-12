@@ -151,8 +151,8 @@
       "id": "CHK-003",
       "title": "Update B-META finding state through Lattice finding flow",
       "context": "Use finding_resolve, finding_dismiss, or an equivalent Lattice finding command only after evidence supports the decision. Do not mutate B-META files directly.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-12T20:26:09.263Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
@@ -184,7 +184,19 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice finding_resolve ... attempted in DEV",
+          "result": "pass",
+          "note": "Lattice correctly rejected finding_resolve in DEV because finding_resolve is a REVIEW-phase gateEvidence mutation; F-009 state change must happen in REVIEW, preserving process consistency.",
+          "headHash": "dfb0de8d9dd82a32efa8c41704238b78d5aabaad",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:26:09.335Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -246,6 +258,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Recorded evidence-backed decision to resolve the original stale F-009 gap while preserving locked capability boundaries."
+    },
+    {
+      "timestamp": "2026-06-12T20:26:09.263Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Prepare for REVIEW-phase finding_resolve, since Lattice correctly gates finding_resolve out of DEV."
     }
   ]
 }
