@@ -81,7 +81,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
-const CANONICAL_ROOT_PACKAGE_NAME = '@lattice/game';
+const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
 const LEGACY_ROOT_PACKAGE_NAME = 'koala';
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
 const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core';
