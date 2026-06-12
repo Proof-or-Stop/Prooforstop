@@ -1,13 +1,11 @@
 
 import { StoryStore } from '../core/store.js';
 import type { StoryPhase, StoryEvent } from '../core/types.js';
-import { execSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
-import { join, isAbsolute } from 'path';
 import { randomBytes } from 'crypto';
 import { gitProbe } from '../core/git-probe.js';
-import { getStoryWorktreeRuntime, resolveLinkedWorktreePath } from '../core/worktree-runtime.js';
 import { CWD_GATED_LIFECYCLE_PHASES, PHASE_EVENT_BY_TARGET } from '../core/lifecycle-registry.js';
+import { resolveStorySignedWorkspace, type StorySignedWorkspaceResolutionSource } from '../core/story-signed-workspace-resolution.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -80,7 +78,13 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
   if (story.phase === 'DONE' || story.phase === 'DISCARDED') return;
 
   const cwd = process.cwd();
-  const expectedAbsPath = resolveExpectedWorktreeRoot(store, storyId, cwd, story.worktree?.path);
+  const resolution = resolveStorySignedWorkspace({ store, storyId, metadataRoot: cwd, cwd });
+  const expectedAbsPath = (
+    resolution.resolutionSource === 'story-worktree'
+    || resolution.resolutionSource === 'linked-story-branch-worktree'
+  )
+    ? resolution.authoritativeCwd
+    : null;
   if (!expectedAbsPath) return;
 
   assertPathInsideWorktree(storyId, cwd, expectedAbsPath);
@@ -89,8 +93,16 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
 export interface StoryCommandWorkspace {
   cwd: string;
   contextRoot: string;
+  metadataRoot: string;
   snapshotRoot: string;
   expectedWorktreeRoot?: string;
+  signedWorkspaceRoot: string;
+  authoritativeCwd: string;
+  repoRoot: string | null;
+  resolved: true;
+  resolutionSource: StorySignedWorkspaceResolutionSource;
+  workspaceMode: StorySignedWorkspaceResolutionSource;
+  unresolvedReason: null;
   mode: 'story-worktree' | 'direct-review-project';
 }
 
@@ -100,84 +112,43 @@ export function resolveStoryCommandWorkspace(
   contextRoot: string,
 ): StoryCommandWorkspace {
   const cwd = process.cwd();
-  let storedWorktreePath = store.readStory(storyId).worktree?.path;
-  if (!storedWorktreePath && canonicalPath(contextRoot) !== canonicalPath(cwd)) {
-    try {
-      storedWorktreePath = new StoryStore(cwd).readStory(storyId).worktree?.path;
-    } catch { /* PROBE: cwd may be a subdir or unrelated workspace */ }
-  }
-  const expectedAbsPath = resolveExpectedWorktreeRoot(store, storyId, cwd, storedWorktreePath);
-  if (!expectedAbsPath) {
-    return {
-      cwd,
-      contextRoot,
-      snapshotRoot: contextRoot,
-      mode: 'direct-review-project',
-    };
+  const resolution = resolveStorySignedWorkspace({ store, storyId, metadataRoot: contextRoot, cwd });
+  if (!resolution.resolved || !resolution.signedWorkspaceRoot || !resolution.authoritativeCwd) {
+    throw new Error(formatUnresolvedSignedWorkspace(storyId, resolution.metadataRoot, resolution.unresolvedReason));
   }
 
-  assertPathInsideWorktree(storyId, cwd, expectedAbsPath);
-
-  const normalizedContextRoot = canonicalPath(contextRoot);
-  const normalizedExpected = canonicalPath(expectedAbsPath);
-  if (normalizedContextRoot !== normalizedExpected) {
-    throw new Error(
-      `review_run_start: refusing to create reviewer evidence for ${storyId} because the Lattice root and story worktree differ.\n` +
-      `Expected signed workspace: ${normalizedExpected}\n` +
-      `Lattice root: ${normalizedContextRoot}\n` +
-      `Current cwd: ${cwd}\n` +
-      'No reviewer run was created. Signing one workspace while persisting story metadata through another would produce invalid reviewer evidence.\n' +
-      `→ cd ${normalizedExpected} and rerun lattice review_run_start without --root/LATTICE_PROJECT_ROOT pointing elsewhere.`
-    );
+  const isWorktreeResolution = resolution.resolutionSource === 'story-worktree'
+    || resolution.resolutionSource === 'linked-story-branch-worktree';
+  if (isWorktreeResolution) {
+    assertPathInsideWorktree(storyId, cwd, resolution.authoritativeCwd);
   }
 
   return {
     cwd,
-    contextRoot,
-    snapshotRoot: normalizedExpected,
-    expectedWorktreeRoot: normalizedExpected,
-    mode: 'story-worktree',
+    contextRoot: resolution.metadataRoot,
+    metadataRoot: resolution.metadataRoot,
+    snapshotRoot: resolution.signedWorkspaceRoot,
+    signedWorkspaceRoot: resolution.signedWorkspaceRoot,
+    authoritativeCwd: resolution.authoritativeCwd,
+    repoRoot: resolution.repoRoot,
+    resolved: true,
+    resolutionSource: resolution.resolutionSource,
+    workspaceMode: resolution.resolutionSource,
+    unresolvedReason: null,
+    ...(isWorktreeResolution ? { expectedWorktreeRoot: resolution.authoritativeCwd } : {}),
+    mode: isWorktreeResolution ? 'story-worktree' : 'direct-review-project',
   };
 }
 
-function resolveExpectedWorktreeRoot(
-  store: StoryStore,
-  storyId: string,
-  cwd: string,
-  storedWorktreePath?: string,
-): string | null {
-  let expectedAbsPath: string | null = null;
-  let repoRoot = cwd;
-  try {
-    const runtime = getStoryWorktreeRuntime(storyId, store, cwd);
-    expectedAbsPath = resolveLinkedWorktreePath(runtime);
-    repoRoot = runtime.repoRoot;
-  } catch { /* PROBE: fall back to stored story.worktree below */ }
-
-  if (!expectedAbsPath && !storedWorktreePath) return null; // no worktree, skip (compatible with legacy stories)
-
-  try {
-    // Use git common-dir to find the MAIN repo root, not the worktree root.
-    // From a linked worktree, --show-toplevel returns the worktree itself,
-    // but worktree.path is stored relative to the main repo, so joining
-    // ".worktrees/B-xxx" with itself produces a nested non-existent path.
-    const commonDir = execSync('git rev-parse --git-common-dir', { cwd, encoding: 'utf-8' }).trim();
-    const absCommonDir = isAbsolute(commonDir)
-      ? commonDir
-      : join(execSync('git rev-parse --show-toplevel', { cwd, encoding: 'utf-8' }).trim(), commonDir);
-    if (absCommonDir.endsWith('/.git') || absCommonDir.endsWith('\\.git')) {
-      repoRoot = absCommonDir.slice(0, -5);
-    } else {
-      repoRoot = execSync('git rev-parse --show-toplevel', { cwd, encoding: 'utf-8' }).trim();
-    }
-  } catch { /* not git */ }
-
-  if (!expectedAbsPath && storedWorktreePath) {
-    expectedAbsPath = isAbsolute(storedWorktreePath)
-      ? storedWorktreePath
-      : join(repoRoot, storedWorktreePath);
-  }
-  return expectedAbsPath;
+function formatUnresolvedSignedWorkspace(storyId: string, metadataRoot: string, unresolvedReason: string | null): string {
+  return [
+    `review_run_start: story ${storyId} cannot resolve a git-backed signed workspace.`,
+    `metadataRoot: ${metadataRoot}`,
+    'signedWorkspaceRoot: unresolved',
+    `Reason [${unresolvedReason || 'requires_git_signed_workspace_but_no_binding'}]: no explicit git-backed story worktree or configured gitRoot could be verified.`,
+    'No reviewer run was created.',
+    'Next action: configure gitRoot, attach the story to a git worktree, or recreate/advance the story through a git-backed Lattice worktree flow.',
+  ].join('\n');
 }
 
 function assertPathInsideWorktree(storyId: string, cwd: string, expectedAbsPath: string): void {

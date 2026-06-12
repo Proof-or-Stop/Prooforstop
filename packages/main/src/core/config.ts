@@ -69,6 +69,8 @@ export interface KoalaConfig {
   phaseTools?: Record<string, string[]>;
   /** Story worktree 根目录（相对 git repo root，默认 .worktrees） */
   worktreeDir?: string;
+  /** Explicit git-backed material root for wrapper-root projects (relative to metadata root by default). */
+  gitRoot?: string;
   /** doc_list 扫描的文档目录（相对项目根，默认 ['docs', 'requirements']） */
   docDirs?: string[];
   /** Workflow profile：治理强度配置 */

@@ -44,7 +44,8 @@ export type ProcessFactSemantic =
   | 'validation-result'
   | 'validation-status'
   | 'verification-evidence'
-  | 'verification-policy';
+  | 'verification-policy'
+  | 'workspace-binding';
 
 export interface ProcessFactArtifactRef {
   name: string;
@@ -95,7 +96,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  review_run_start: ['review-run', 'schema-contract', 'gate-evidence'],
+  review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -167,7 +168,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun',
+    signature: 'signReviewRun/verifyReviewRun; workspaceBinding.bindingHash is folded into new review-run signatures',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -475,7 +476,7 @@ function commandFactSemantics(name: string, level: ProcessFactLevel): ProcessFac
 function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSemantic[] {
   const semantics: ProcessFactSemantic[] = ['artifact'];
   if (artifact.signed) semantics.push('signed-artifact');
-  if (artifact.path === 'review-runs.json') semantics.push('review-run', 'schema-contract');
+  if (artifact.path === 'review-runs.json') semantics.push('review-run', 'schema-contract', 'workspace-binding');
   if (artifact.path === 'review-loops.jsonl') semantics.push('blocker-state', 'schema-contract');
   if (artifact.path === 'test-evidence.json') semantics.push('validation-result', 'test-evidence');
   if (artifact.path === 'eval-evidence.json') semantics.push('validation-result');
@@ -595,7 +596,7 @@ export const PROCESS_FACT_ARTIFACTS = [
   {
     name: 'artifact:review-runs.json',
     kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-run', 'schema-contract'],
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-run', 'schema-contract', 'workspace-binding'],
     level: 'L4',
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',

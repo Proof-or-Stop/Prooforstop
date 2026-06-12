@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
-import type { Finding, ReviewPass, ReviewRun, StoryInfo } from './types.js';
+import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
 import {
@@ -34,6 +34,8 @@ export type ReviewRunIssueCode =
   | 'wrong_round'
   | 'stale_run'
   | 'stale_run_hash'
+  | 'workspace_binding_tampered'
+  | 'stale_workspace_binding'
   // B-6bfd CHK-005: scope-binding lane codes (only for scope-protected stories).
   | 'missing_scope_binding'
   | 'stale_scope_binding'
@@ -112,6 +114,97 @@ export function resolveReviewPromptHash(prompt?: string, promptHash?: string): s
   return computed;
 }
 
+export const REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION = 'lattice.review_run_workspace_binding.v1';
+export const REVIEW_RUN_WORKSPACE_BINDING_SALT = 'koala-review-run-workspace-binding-v1';
+
+export interface ReviewRunWorkspaceBindingInput {
+  metadataRoot: string;
+  invocationCwd: string;
+  repoRoot?: string | null;
+  signedWorkspaceRoot: string;
+  workspaceMode: string;
+  headHash: string;
+  materialHash: string;
+}
+
+function requireBindingText(field: string, value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error(`review_run_start: workspaceBinding.${field} must be a non-empty string`);
+  }
+  return trimmed;
+}
+
+function normalizeOptionalBindingText(value: string | null | undefined): string | null {
+  const trimmed = value?.trim() || '';
+  return trimmed ? trimmed : null;
+}
+
+function workspaceBindingPayload(binding: Omit<ReviewRunWorkspaceBinding, 'bindingHash'>): Record<string, unknown> {
+  return {
+    schemaVersion: binding.schemaVersion,
+    metadataRoot: binding.metadataRoot,
+    invocationCwd: binding.invocationCwd,
+    repoRoot: binding.repoRoot,
+    signedWorkspaceRoot: binding.signedWorkspaceRoot,
+    workspaceMode: binding.workspaceMode,
+    headHash: binding.headHash,
+    materialHash: binding.materialHash,
+    salt: REVIEW_RUN_WORKSPACE_BINDING_SALT,
+  };
+}
+
+export function signReviewRunWorkspaceBinding(binding: Omit<ReviewRunWorkspaceBinding, 'bindingHash'>): string {
+  return createHash('sha256')
+    .update(JSON.stringify(workspaceBindingPayload(binding)))
+    .digest('hex');
+}
+
+export function buildReviewRunWorkspaceBinding(input: ReviewRunWorkspaceBindingInput): ReviewRunWorkspaceBinding {
+  const unsigned = {
+    schemaVersion: REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION,
+    metadataRoot: requireBindingText('metadataRoot', input.metadataRoot),
+    invocationCwd: requireBindingText('invocationCwd', input.invocationCwd),
+    repoRoot: normalizeOptionalBindingText(input.repoRoot),
+    signedWorkspaceRoot: requireBindingText('signedWorkspaceRoot', input.signedWorkspaceRoot),
+    workspaceMode: requireBindingText('workspaceMode', input.workspaceMode),
+    headHash: requireBindingText('headHash', input.headHash),
+    materialHash: requireBindingText('materialHash', input.materialHash),
+  } satisfies Omit<ReviewRunWorkspaceBinding, 'bindingHash'>;
+  return {
+    ...unsigned,
+    bindingHash: signReviewRunWorkspaceBinding(unsigned),
+  };
+}
+
+export function verifyReviewRunWorkspaceBinding(
+  binding: ReviewRunWorkspaceBinding | null | undefined,
+  run?: Pick<ReviewRun, 'headHash' | 'materialHash'>,
+): boolean {
+  if (!binding || !binding.bindingHash) return false;
+  if (binding.schemaVersion !== REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION) return false;
+  if (
+    !binding.metadataRoot || !binding.invocationCwd || !binding.signedWorkspaceRoot
+    || !binding.workspaceMode || !binding.headHash || !binding.materialHash
+  ) {
+    return false;
+  }
+  if (run && (run.headHash !== binding.headHash || run.materialHash !== binding.materialHash)) {
+    return false;
+  }
+  const expected = signReviewRunWorkspaceBinding({
+    schemaVersion: binding.schemaVersion,
+    metadataRoot: binding.metadataRoot,
+    invocationCwd: binding.invocationCwd,
+    repoRoot: binding.repoRoot ?? null,
+    signedWorkspaceRoot: binding.signedWorkspaceRoot,
+    workspaceMode: binding.workspaceMode,
+    headHash: binding.headHash,
+    materialHash: binding.materialHash,
+  });
+  return binding.bindingHash === expected;
+}
+
 export type ReviewRunSnapshotFailureCode = 'not_git_repo' | 'missing_head' | 'missing_material_hash';
 const EMPTY_MATERIAL_HASH = createHash('sha256').update('').digest('hex');
 
@@ -125,7 +218,7 @@ export interface ReviewRunSnapshotContext {
   storyId?: string;
   storyPhase?: string;
   currentReviewRound?: string;
-  workspaceMode?: 'story-worktree' | 'direct-review-project';
+  workspaceMode?: string;
   expectedWorktreeRoot?: string;
 }
 
@@ -213,6 +306,10 @@ export function signReviewRun(
   // pre-CHK-005 algorithm and stay verifiable. A new run on a scope-protected
   // story appends its bindingHash, making the binding tamper-evident.
   scopeBindingHash?: string,
+  // B-b750: workspace binding hash, appended only when present so legacy runs
+  // without workspaceBinding remain verifiable while new split-root-aware runs
+  // bind HEAD/materialHash to the exact signed workspace interpretation.
+  workspaceBindingHash?: string,
 ): string {
   const parts = [
     storyId,
@@ -226,6 +323,7 @@ export function signReviewRun(
     promptHash,
   ];
   if (scopeBindingHash) parts.push(scopeBindingHash);
+  if (workspaceBindingHash) parts.push(workspaceBindingHash);
   parts.push(REVIEW_RUN_SALT);
   return createHash('sha256').update(parts.join(':')).digest('hex');
 }
@@ -286,8 +384,10 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.materialHash,
     run.promptHash || '',
     run.scopeBinding?.bindingHash,
+    run.workspaceBinding?.bindingHash,
   );
-  return run._hash === expected;
+  return run._hash === expected
+    && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run));
 }
 
 function compareRunRecency(a: ReviewRun, b: ReviewRun): number {
@@ -373,6 +473,48 @@ function scopeBindingMessage(
   );
 }
 
+interface RunWorkspaceBindingValidation {
+  ok: boolean;
+  projectRoot: string;
+  code?: Extract<ReviewRunIssueCode, 'workspace_binding_tampered' | 'stale_workspace_binding'>;
+  message?: string;
+}
+
+function validateRunWorkspaceBinding(
+  run: ReviewRun,
+  fallbackProjectRoot: string,
+): RunWorkspaceBindingValidation {
+  if (!run.workspaceBinding) {
+    return { ok: true, projectRoot: fallbackProjectRoot };
+  }
+
+  if (!verifyReviewRunWorkspaceBinding(run.workspaceBinding, run)) {
+    return {
+      ok: false,
+      projectRoot: run.workspaceBinding.signedWorkspaceRoot || fallbackProjectRoot,
+      code: 'workspace_binding_tampered',
+      message: `reviewRunId ${run.reviewRunId} has tampered workspaceBinding or mismatched headHash/materialHash`,
+    };
+  }
+
+  const signedWorkspaceRoot = run.workspaceBinding.signedWorkspaceRoot;
+  const failure = diagnoseReviewRunSnapshot(signedWorkspaceRoot);
+  if (failure) {
+    return {
+      ok: false,
+      projectRoot: signedWorkspaceRoot,
+      code: 'stale_workspace_binding',
+      message: `reviewRunId ${run.reviewRunId} workspaceBinding signedWorkspaceRoot is no longer a usable git material root: ${failure.reason}`,
+    };
+  }
+
+  return { ok: true, projectRoot: signedWorkspaceRoot };
+}
+
+function workspaceBindingHint(storyId: string, lane: string): string {
+  return `→ Re-run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
+}
+
 export function assertCurrentReviewRunForEvidence(
   store: StoryStore,
   story: StoryInfo,
@@ -395,6 +537,13 @@ export function assertCurrentReviewRunForEvidence(
   if (!run) {
     throw new Error(`review evidence for ${agent} references unknown reviewRunId ${reviewRunId}. ${startRunHint(story.storyId, agent)}`);
   }
+  const workspaceValidation = validateRunWorkspaceBinding(run, projectRoot);
+  if (!workspaceValidation.ok) {
+    throw new Error(
+      `review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid workspace binding: ` +
+      `${workspaceValidation.message}. ${workspaceBindingHint(story.storyId, agent)}`,
+    );
+  }
   if (!verifyReviewRun(run)) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid signature. ${startRunHint(story.storyId, agent)}`);
   }
@@ -408,7 +557,8 @@ export function assertCurrentReviewRunForEvidence(
   if (currentRun && currentRun.reviewRunId !== reviewRunId) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is not the current latest reviewer run (current: ${currentRun.reviewRunId}). ${latestRunHint(story.storyId, agent, currentRun.reviewRunId)}`);
   }
-  const freshness = checkEvidenceFreshnessForGit(projectRoot, run.headHash, run.materialHash);
+  const signedProjectRoot = workspaceValidation.projectRoot;
+  const freshness = checkEvidenceFreshnessForGit(signedProjectRoot, run.headHash, run.materialHash);
   if (!freshness.fresh) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, agent)}`);
   }
@@ -416,7 +566,7 @@ export function assertCurrentReviewRunForEvidence(
   // still match the live scope contract + diff. A reviewer must capture a fresh
   // binding (via review_run_start) before recording evidence; natural-language
   // evidence with no/stale binding is rejected here at write time.
-  const scopeContext = currentScopeContextForStory(store, story.storyId, projectRoot);
+  const scopeContext = currentScopeContextForStory(store, story.storyId, signedProjectRoot);
   if (scopeContext) {
     const cmp = compareScopeBinding(run.scopeBinding, scopeContext);
     if (!cmp.ok) {
@@ -429,6 +579,7 @@ export function assertCurrentReviewRunForEvidence(
 }
 
 function validateEvidenceRunBinding(
+  store: StoryStore,
   story: StoryInfo,
   projectRoot: string,
   runs: ReviewRun[],
@@ -476,6 +627,17 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} references unknown reviewRunId ${evidence.reviewRunId}. ${startRunHint(story.storyId, evidence.agent)}`,
     };
   }
+  const workspaceValidation = validateRunWorkspaceBinding(run, projectRoot);
+  if (!workspaceValidation.ok) {
+    return {
+      code: workspaceValidation.code ?? 'workspace_binding_tampered',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has invalid workspace binding: ${workspaceValidation.message}. ${workspaceBindingHint(story.storyId, evidence.agent)}`,
+    };
+  }
   if (!verifyReviewRun(run)) {
     return {
       code: 'invalid_run_signature',
@@ -517,7 +679,8 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId}: Not the latest run on the current lane (current: ${currentRun.reviewRunId}). ${latestRunHint(story.storyId, evidence.agent, currentRun.reviewRunId)}`,
     };
   }
-  const freshness = checkEvidenceFreshnessForGit(projectRoot, run.headHash, run.materialHash);
+  const signedProjectRoot = workspaceValidation.projectRoot;
+  const freshness = checkEvidenceFreshnessForGit(signedProjectRoot, run.headHash, run.materialHash);
   if (!freshness.fresh) {
     return {
       code: 'stale_run_hash',
@@ -532,8 +695,11 @@ function validateEvidenceRunBinding(
   // match the live scope contract + diff. Checked last so it only applies to the
   // current, otherwise-valid run. scopeContext is null for unprotected/legacy
   // stories → this whole block is skipped (backward compatible).
-  if (scopeContext) {
-    const cmp = compareScopeBinding(run.scopeBinding, scopeContext);
+  const effectiveScopeContext = run.workspaceBinding
+    ? currentScopeContextForStory(store, story.storyId, signedProjectRoot)
+    : scopeContext;
+  if (effectiveScopeContext) {
+    const cmp = compareScopeBinding(run.scopeBinding, effectiveScopeContext);
     if (!cmp.ok) {
       return {
         code: scopeComparisonToIssueCode(cmp),
@@ -602,7 +768,7 @@ export function collectReviewerEvidenceState(
   const rawInvalid: ReviewRunIssue[] = [];
 
   for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
-    const issue = validateEvidenceRunBinding(story, projectRoot, runs, evidence, scopeContext);
+    const issue = validateEvidenceRunBinding(store, story, projectRoot, runs, evidence, scopeContext);
     if (issue) {
       rawInvalid.push(issue);
     } else {

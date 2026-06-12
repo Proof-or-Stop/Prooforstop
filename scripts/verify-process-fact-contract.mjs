@@ -107,7 +107,7 @@ const requiredProcessFactSemantics = {
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  review_run_start: ['review-run', 'schema-contract', 'gate-evidence'],
+  review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -136,7 +136,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:init-check.json', path: 'init-check.json', signed: true, signaturePattern: /signInitCheck\/recomputeInitCheckHash/ },
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
-  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun/ },
+  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; workspaceBinding\.bindingHash/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
@@ -221,6 +221,15 @@ const requiredRuntimeEntries = [
     level: 'L4',
     owner: 'core/advisory',
     line: '- runtime:finding_evidence_state_review_gate [L4] owner=core/advisory gate=storyMachine.canPassReview REVIEW to TEST gate',
+  },
+  {
+    // B-b750: ReviewRun.workspaceBinding is gate-consumed structured evidence.
+    // review_run_start signs it, and REVIEW consumers reject tampered bindings
+    // while using signedWorkspaceRoot for freshness and scope checks.
+    name: 'runtime:review_run_workspace_binding_gate',
+    level: 'L4',
+    owner: 'core/review-run',
+    line: '- runtime:review_run_workspace_binding_gate [L4] owner=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate',
   },
 ];
 const requiredFlowFactPolicies = [
@@ -2936,7 +2945,7 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/review-run.ts',
-        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
       },
       {
         relPath: 'packages/main/src/cli-engine.ts',

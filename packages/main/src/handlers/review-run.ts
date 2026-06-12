@@ -1,8 +1,10 @@
 import { mkdirSync, rmSync, statSync } from 'fs';
+import { execFileSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import type { ReviewRun, ReviewScopeBinding } from '../core/types.js';
 import {
+  buildReviewRunWorkspaceBinding,
   ensureCurrentReviewRound,
   captureReviewRunSnapshot,
   resolveReviewPromptHash,
@@ -41,11 +43,40 @@ function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T)
   }
 }
 
+type ResolvedReviewWorkspace = ReturnType<typeof resolveStoryCommandWorkspace>;
+
+function resolveSignedWorkspaceRoot(workspace: ResolvedReviewWorkspace, storyId: string): string {
+  const signedWorkspaceRoot = workspace.signedWorkspaceRoot || workspace.snapshotRoot;
+  if (!signedWorkspaceRoot) {
+    throw new Error(
+      `review_run_start: story ${storyId} cannot resolve a git-backed signed workspace.\n` +
+      `metadataRoot: ${workspace.metadataRoot}\n` +
+      `signedWorkspaceRoot: unresolved\n` +
+      `Reason: ${workspace.unresolvedReason || 'requires_git_signed_workspace_but_no_binding'}\n` +
+      'No reviewer run was created. Local host output is localNonAuthorityAudit only; no Authority Server receipt was produced.',
+    );
+  }
+  return signedWorkspaceRoot;
+}
+
+function resolveGitTopLevel(projectRoot: string): string | null {
+  try {
+    return execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
 export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
       const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
+      const signedWorkspaceRoot = resolveSignedWorkspaceRoot(workspace, args.storyId);
       const preflightStory = store.readStory(args.storyId);
       if (preflightStory.phase !== 'REVIEW') {
         throw new Error(
@@ -55,12 +86,21 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       const lane = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
-      const { headHash, materialHash } = captureReviewRunSnapshot(workspace.snapshotRoot, {
+      const { headHash, materialHash } = captureReviewRunSnapshot(signedWorkspaceRoot, {
         storyId: args.storyId,
         storyPhase: preflightStory.phase,
         currentReviewRound: preflightStory.currentReviewRound,
-        workspaceMode: workspace.mode,
+        workspaceMode: workspace.workspaceMode || workspace.resolutionSource || workspace.mode,
         expectedWorktreeRoot: workspace.expectedWorktreeRoot,
+      });
+      const workspaceBinding = buildReviewRunWorkspaceBinding({
+        metadataRoot: workspace.metadataRoot || ctx.root,
+        invocationCwd: workspace.cwd || process.cwd(),
+        repoRoot: workspace.repoRoot ?? resolveGitTopLevel(signedWorkspaceRoot),
+        signedWorkspaceRoot,
+        workspaceMode: workspace.workspaceMode || workspace.resolutionSource || workspace.mode,
+        headHash,
+        materialHash,
       });
       const story = ensureCurrentReviewRound(store, args.storyId, 'review_run_start');
 
@@ -71,12 +111,12 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       const contract = store.readScopeContract(args.storyId);
       let scopeBinding: ReviewScopeBinding | undefined;
       if (contract) {
-        const diffPack = buildScopeDiffPack(workspace.snapshotRoot);
+        const diffPack = buildScopeDiffPack(signedWorkspaceRoot);
         scopeBinding = computeReviewScopeBinding({
           contract,
           diffPack,
           reviewedIntentRefs: args.reviewedIntentRefs,
-          projectRoot: workspace.snapshotRoot,
+          projectRoot: signedWorkspaceRoot,
         }) ?? undefined;
       }
 
@@ -98,6 +138,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           materialHash,
           promptHash,
           ...(scopeBinding ? { scopeBinding } : {}),
+          workspaceBinding,
           _hash: signReviewRun(
             args.storyId,
             reviewRunId,
@@ -109,6 +150,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             materialHash,
             promptHash,
             scopeBinding?.bindingHash,
+            workspaceBinding.bindingHash,
           ),
         };
         data.runs.push(run);
@@ -117,6 +159,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         if (
           !persisted || persisted._hash !== run._hash || persisted.materialHash !== materialHash
           || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
+          || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
         ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);
         }

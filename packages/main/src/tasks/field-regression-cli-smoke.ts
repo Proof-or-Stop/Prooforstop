@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,6 +35,14 @@ function git(cwd: string, args: string[]): string {
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+function canonicalPath(path: string): string {
+  try {
+    return realpathSync(path);
+  } catch {
+    return path;
+  }
 }
 
 function commit(cwd: string, message: string, author = 'Koala Smoke'): string {
@@ -115,6 +123,31 @@ function initProjectWithoutGit(prefix: string): string {
   return root;
 }
 
+function initWrapperProjectWithNestedGitRepo(prefix: string, configGitRoot?: string): { root: string; gitRoot: string } {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  const gitRoot = join(root, 'clawcreek');
+  write(root, 'koala.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    worktreeDir: '.worktrees',
+    workflow: { profile: 'balanced' },
+    ...(configGitRoot ? { gitRoot: configGitRoot } : {}),
+  }, null, 2));
+  write(root, 'README.md', 'wrapper metadata root without git\n');
+  mkdirSync(gitRoot, { recursive: true });
+  git(gitRoot, ['init']);
+  git(gitRoot, ['checkout', '-B', 'main']);
+  git(gitRoot, ['config', 'user.email', 'smoke@example.test']);
+  git(gitRoot, ['config', 'user.name', 'Koala Smoke']);
+  write(gitRoot, 'README.md', 'nested git material root\n');
+  write(gitRoot, 'packages/main/src/base.ts', 'export const base = true;\n');
+  commit(gitRoot, 'nested git material base');
+  resetConfigCache();
+  return { root, gitRoot };
+}
+
 function initRepoWithoutCommit(prefix: string): string {
   const root = initProjectWithoutGit(prefix);
   git(root, ['init']);
@@ -178,6 +211,10 @@ async function runKoala(cwd: string, command: string, args: Record<string, unkno
     throw new Error(`${command} exited ${result.code}\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}`);
   }
   return result.stdout;
+}
+
+async function runKoalaJson<T>(cwd: string, command: string, args: Record<string, unknown> = {}): Promise<T> {
+  return JSON.parse(await runKoala(cwd, command, { ...args, json: true })) as T;
 }
 
 function extractReviewRunId(output: string): string {
@@ -552,9 +589,9 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
       agent: 'koala-review-quality',
     });
     assert.notEqual(failed.code, 0);
-    assert.match(failed.stderr, /not_git_repo/);
+    assert.match(failed.stderr, /cannot resolve a git-backed signed workspace/);
+    assert.match(failed.stderr, /signedWorkspaceRoot: unresolved/);
     assert.match(failed.stderr, /No reviewer run was created/);
-    assert.match(failed.stderr, /No legacy currentReviewRound repair was written/);
     assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'non-git failure must not repair legacy currentReviewRound');
     assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'non-git failure must not write reviewer runs');
   } finally {
@@ -633,16 +670,106 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     assert.match(wrongCwd.stderr, new RegExp(storyId));
     assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'wrong cwd failure must not write reviewer runs');
 
-    const rootMismatch = await runKoalaRaw(worktree, 'review_run_start', {
+    const splitRootRun = await runKoalaRaw(worktree, 'review_run_start', {
       storyId,
       agent: 'koala-review-quality',
     }, { LATTICE_PROJECT_ROOT: worktreeRoot });
-    assert.notEqual(rootMismatch.code, 0);
-    assert.match(rootMismatch.stderr, /Lattice root and story worktree differ/);
-    assert.match(rootMismatch.stderr, /No reviewer run was created/);
-    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'root/worktree mismatch must not write reviewer runs through the wrong root');
+    assert.equal(splitRootRun.code, 0, splitRootRun.stderr);
+    assert.match(splitRootRun.stdout + splitRootRun.stderr, /Review run B-wt:RR-001 started/);
+    const run = store.readReviewRuns(storyId).runs[0];
+    assert.equal(run.workspaceBinding?.metadataRoot, canonicalPath(worktreeRoot));
+    assert.equal(run.workspaceBinding?.signedWorkspaceRoot, canonicalPath(worktree));
+    assert.equal(run.workspaceBinding?.workspaceMode, 'story-worktree');
   } finally {
     rmSync(worktreeRoot, { recursive: true, force: true });
+  }
+}
+
+async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
+  const unbound = initWrapperProjectWithNestedGitRepo('koala-field-review-run-wrapper-unbound-');
+  try {
+    const storyId = 'B-wrapno';
+    const store = new StoryStore(unbound.root);
+    writeLegacyReviewStoryWithoutRound(store, storyId);
+    const resolved = await runKoalaJson<{
+      resolved: boolean;
+      metadataRoot: string;
+      signedWorkspaceRoot: string | null;
+      authoritativeCwd: string | null;
+      resolutionSource: string;
+      unresolvedReason: string | null;
+    }>(unbound.root, 'story_resolve', { storyId });
+    assert.equal(resolved.resolved, false);
+    assert.equal(resolved.metadataRoot, canonicalPath(unbound.root));
+    assert.equal(resolved.signedWorkspaceRoot, null);
+    assert.equal(resolved.authoritativeCwd, null);
+    assert.equal(resolved.resolutionSource, 'unresolved');
+    assert.match(resolved.unresolvedReason || '', /no_worktree_or_gitRoot|requires_git_signed_workspace/);
+
+    const failed = await runKoalaRaw(unbound.root, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(failed.code, 0);
+    assert.match(failed.stderr, /cannot resolve a git-backed signed workspace/);
+    assert.match(failed.stderr, /signedWorkspaceRoot: unresolved/);
+    assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'unresolved wrapper root must not repair currentReviewRound');
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'unresolved wrapper root must not create a review run');
+  } finally {
+    rmSync(unbound.root, { recursive: true, force: true });
+  }
+
+  const bound = initWrapperProjectWithNestedGitRepo('koala-field-review-run-wrapper-bound-', 'clawcreek');
+  try {
+    const storyId = 'B-wrapok';
+    const store = new StoryStore(bound.root);
+    writeReviewStory(store, storyId);
+    const resolved = await runKoalaJson<{
+      resolved: boolean;
+      metadataRoot: string;
+      signedWorkspaceRoot: string | null;
+      authoritativeCwd: string | null;
+      resolutionSource: string;
+    }>(bound.root, 'story_resolve', { storyId });
+    assert.equal(resolved.resolved, true);
+    assert.equal(resolved.metadataRoot, canonicalPath(bound.root));
+    assert.equal(resolved.signedWorkspaceRoot, canonicalPath(bound.gitRoot));
+    assert.equal(resolved.authoritativeCwd, canonicalPath(bound.gitRoot));
+    assert.equal(resolved.resolutionSource, 'configured-git-root');
+
+    const reviewRunId = await startReviewRun(bound.root, storyId, 'koala-review-quality');
+    const runs = store.readReviewRuns(storyId).runs;
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0].workspaceBinding?.metadataRoot, canonicalPath(bound.root));
+    assert.equal(runs[0].workspaceBinding?.signedWorkspaceRoot, canonicalPath(bound.gitRoot));
+    assert.equal(runs[0].workspaceBinding?.workspaceMode, 'configured-git-root');
+    assert.equal(runs[0].workspaceBinding?.headHash, runs[0].headHash);
+    assert.equal(runs[0].workspaceBinding?.materialHash, runs[0].materialHash);
+    assert.ok(runs[0].workspaceBinding?.bindingHash);
+    assert.equal(runs[0].headHash, git(bound.gitRoot, ['rev-parse', 'HEAD']));
+    assert.equal(runs[0].materialHash, currentMaterialHash(bound.gitRoot));
+
+    const pass = await runKoalaRaw(bound.root, 'review_pass_set', {
+      storyId,
+      agent: 'koala-review-quality',
+      reviewRunId,
+      note: 'split-root review pass should validate against configured gitRoot.',
+    });
+    assert.equal(pass.code, 0, pass.stderr);
+
+    const tampered = store.readReviewRuns(storyId);
+    tampered.runs[0].workspaceBinding!.signedWorkspaceRoot = bound.root;
+    store.writeReviewRuns(storyId, tampered);
+    const rejected = await runKoalaRaw(bound.root, 'review_pass_set', {
+      storyId,
+      agent: 'koala-review-quality',
+      reviewRunId,
+      note: 'tampered workspace binding should be rejected before pass evidence.',
+    });
+    assert.notEqual(rejected.code, 0);
+    assert.match(rejected.stderr, /workspace binding|workspaceBinding|invalid signature|tampered/i);
+  } finally {
+    rmSync(bound.root, { recursive: true, force: true });
   }
 }
 
@@ -1411,6 +1538,7 @@ await assertDirectFindingAutoResolveCliSurface();
 await assertDirectReviewStoryCreateInitializesReviewMetadata();
 await assertReviewRunStartCliSurface();
 await assertReviewRunStartWorkspaceDiagnostics();
+await assertReviewRunStartSplitRootGitRootBinding();
 await assertReviewerListForceReviewerLaneContract();
 await assertReviewPassConcurrentCliSurface();
 await assertPassOnlyFindingConvertsToReviewPassCliSurface();
