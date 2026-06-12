@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write audited execution plan for signed workspace resolution",
+      "context": "Document the correctness boundary after B-3787: currentReviewRound diagnostics are fixed, but metadataRoot != signed git workspace root still blocks review_run_start. The plan must be host-neutral, support CLI Non-authority and Authority Server paths, avoid arbitrary optimization, and follow consistency of logic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
