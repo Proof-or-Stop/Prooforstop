@@ -53,7 +53,35 @@
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "userSees": "Two independent host audit summaries from Claude CLI and Codex CLI agree on whether each dirty asset group should be committed, restored, or deferred."
+      "userSees": "Audit output includes: \"Claude=PASS/BLOCK, Codex=PASS/BLOCK, agreed action=<commit|restore|defer>, blockers=<none|list>\".",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Claude CLI and Codex CLI both produce independent audit conclusions for the dirty asset groups.",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "If the hosts disagree, the cleanup does not proceed until the disagreement is explicitly resolved.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Host audit does not convert local evidence or host verdicts into Authority Server receipt evidence.",
+            "type": "manual"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
