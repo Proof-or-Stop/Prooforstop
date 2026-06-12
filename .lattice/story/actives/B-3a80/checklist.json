@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T18:00:05.830Z",
-      "endTime": "2026-06-12T18:00:14.776Z",
+      "endTime": "2026-06-12T18:11:22.918Z",
       "userSees": "Completion report states: current gap_analyze high gaps were triaged; signed workspace gaps require real consistency verification; Layer4 customerKeyRef is future/blocked.",
       "files": {
         "modify": [
@@ -48,29 +48,29 @@
           "command": "lattice gap_analyze",
           "result": "pass",
           "note": "gap_analyze rerun reported exactly 3 high / 0 medium gaps and the execution plan classifies them without closure claims.",
-          "headHash": "e348773c41c0a88171f3a10c3dc10193fc449fd7",
+          "headHash": "4b66c4b9438c6817ecaf2a199d75eca36f909399",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:00:14.818Z"
+          "timestamp": "2026-06-12T18:11:22.977Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
-          "command": "rg future/blocked docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "command": "rg -n \"future/blocked\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
           "result": "pass",
           "note": "customerKeyRef is explicitly marked future/blocked unless a separate Layer 4 implementation story is opened.",
-          "headHash": "e348773c41c0a88171f3a10c3dc10193fc449fd7",
+          "headHash": "4b66c4b9438c6817ecaf2a199d75eca36f909399",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:00:14.856Z"
+          "timestamp": "2026-06-12T18:11:23.018Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
-          "command": "rg claim boundary docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+          "command": "rg -n \"Claim boundary: this document does not resolve F-009\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
           "result": "pass",
-          "note": "The plan states it does not resolve F-009, unlock Layer 2, unlock Layer 4, set productionDone, set receiptVerified, or complete Authority work.",
-          "headHash": "e348773c41c0a88171f3a10c3dc10193fc449fd7",
+          "note": "The executable rg command finds the claim boundary stating the document does not resolve F-009, unlock Layer 2, unlock Layer 4, set productionDone, set receiptVerified, or complete Authority work.",
+          "headHash": "4b66c4b9438c6817ecaf2a199d75eca36f909399",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:00:14.895Z"
+          "timestamp": "2026-06-12T18:11:23.082Z"
         }
       ]
     },
