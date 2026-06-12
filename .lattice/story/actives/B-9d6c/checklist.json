@@ -159,9 +159,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T13:30:42.352Z",
-      "endTime": null,
+      "endTime": "2026-06-12T13:31:04.254Z",
       "userSees": "The artifact isolation execution plan states that the invariant guard is implemented for Layer 2/3, stale traps use a negative-check root, and Layer 4 remains gated by its own Authority-backed evaluator.",
       "files": {
         "modify": [],
@@ -192,7 +192,39 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan documents the implemented Layer 2/3 root invariant guard and its implementation files.",
+          "headHash": "ad0aa36e74c344dd1f1b79a1c5d890f8ffd0b408",
+          "materialHash": "1ea80accd6a3ec2c3eaa7c6a4d060c3e2d46b964971e9eec3eb0cb21702f54dd",
+          "timestamp": "2026-06-12T13:31:04.318Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan keeps Layer 4 as LOCKED and describes artifact isolation only as a precondition until a production-safety evaluator and Authority proof chain exist.",
+          "headHash": "ad0aa36e74c344dd1f1b79a1c5d890f8ffd0b408",
+          "materialHash": "1ea80accd6a3ec2c3eaa7c6a4d060c3e2d46b964971e9eec3eb0cb21702f54dd",
+          "timestamp": "2026-06-12T13:31:04.355Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan explicitly states Lattice CLI remains non-authority, does not verify Authority Server receipts, and does not convert Claude or Codex verdicts into Authority evidence.",
+          "headHash": "ad0aa36e74c344dd1f1b79a1c5d890f8ffd0b408",
+          "materialHash": "1ea80accd6a3ec2c3eaa7c6a4d060c3e2d46b964971e9eec3eb0cb21702f54dd",
+          "timestamp": "2026-06-12T13:31:04.393Z"
+        }
+      ]
     }
   ]
 }
