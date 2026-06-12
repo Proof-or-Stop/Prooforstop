@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-12T18:21:09.306Z",
       "reviewRunId": "B-cd1e:RR-006",
       "_hash": "09a299d192912ea97494d3b7c0212d81c45b833747849727448ffc6e4bce3dfe"
+    },
+    {
+      "id": "B-cd1e:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage re-review PASS after Authority DONE receipt readiness fix. Inspected packages/main/src/handlers/done-closure.ts, packages/main/src/tasks/done-preflight-smoke.ts, packages/main/src/tasks/flow-stability-smoke.ts, packages/main/src/core/command-policy.ts, packages/main/src/core/process-fact-levels.ts, scripts/verify-process-fact-contract.mjs. Verified coverage pins TEST PASS != DONE readiness, read-only no lifecycle/process-event/git-status mutation, Authority enforce missing receipt blocks canAttemptDone, eligible production receipt reports receiptVerified while mayClaimAuthorityDone remains false, and done_closure process fact stays L0/readOnly/non-gate-evidence. Reran node packages/main/dist/tasks/done-preflight-smoke.js PASS and npm run test:process-fact-contract PASS. npm run test:flow-stability-smoke still fails at pre-existing unrelated artifact_declare runtime artifact path assertion before the done_closure projection check.",
+      "createdAt": "2026-06-12T18:24:41.648Z",
+      "reviewRound": "2026-06-12T18:21:09.306Z",
+      "reviewRunId": "B-cd1e:RR-008",
+      "_hash": "7ed4e9a57c5a94ff5e1d7671cc8b78ad5bc8ca638204b44e4347149ebe7b0698"
     }
   ]
 }
