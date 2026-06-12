@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-3787:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: direct REVIEW remains supported for git-backed project roots without a recorded worktree; review_run_start resolves and validates the signed workspace before ensureCurrentReviewRound repair; recorded/linked worktree mismatches fail closed instead of signing one root while persisting through another; diagnostics and regression coverage keep local REVIEW evidence separate from Authority receipt/productionDone/receiptVerified/authorityChanged semantics. Reviewed packages/main/src/handlers/review-run.ts, packages/main/src/handlers/context.ts, packages/main/src/core/review-run.ts, packages/main/src/tasks/field-regression-cli-smoke.ts against the review-run-start workspace diagnostics and Authority receipt boundary docs.",
+      "createdAt": "2026-06-12T11:18:24.932Z",
+      "reviewRound": "2026-06-12T11:15:04.727Z",
+      "reviewRunId": "B-3787:RR-001",
+      "_hash": "52149ba9f94054f68cf00acc3d0ae1e743501840dec54bfb39b9b73124c15201"
+    },
+    {
+      "id": "B-3787:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Second-round coverage review passed: F-001 is fixed by the field-regression missing_material_hash scenario with no currentReviewRound repair or review-run write, and review-loop plus Authority boundary/gate/local-certification smokes passed.",
+      "createdAt": "2026-06-12T11:27:54.684Z",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "reviewRunId": "B-3787:RR-005",
+      "_hash": "f89b2d2963cd6a2a3cf33a7fee5f10da0d9c534c98f03afa0e45494c9499c279"
+    },
+    {
+      "id": "B-3787:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Second-round conceptual review passed: inspected review_run_start workspace resolution, snapshot diagnostics, and field regression smoke coverage. Root/worktree mismatch is rejected before stale phase mirror can mask it; empty material tree is classified as missing_material_hash; host wording denies material snapshot or Authority receipt manufacture. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:field-regression-cli-smoke.",
+      "createdAt": "2026-06-12T11:28:04.680Z",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "reviewRunId": "B-3787:RR-004",
+      "_hash": "27e0d2f1f43eeaaea73a83537ae39654fe7667e03481ba4bc8fa680c4717917a"
+    },
+    {
+      "id": "B-3787:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Second-round quality review passed: verified F-002 via current-worktree core CLI with LATTICE_PROJECT_ROOT and --root pointing at main; both fail closed with root/worktree mismatch before stale phase. Checked diagnostic wording stays local/host-neutral and does not claim Authority receipt, productionDone, receiptVerified, or authorityChanged; field-regression, authority-boundary smoke, and build passed.",
+      "createdAt": "2026-06-12T11:29:06.563Z",
+      "reviewRound": "2026-06-12T11:23:48.540Z",
+      "reviewRunId": "B-3787:RR-007",
+      "_hash": "eb41c3171fe855d0330e1b22ce42cd97207d78ec6ed13be0ac1938d8c781b6ec"
+    }
+  ]
+}

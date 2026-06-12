@@ -1,4 +1,5 @@
 import { createHash } from 'crypto';
+import { execFileSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import type { Finding, ReviewPass, ReviewRun, StoryInfo } from './types.js';
@@ -111,13 +112,90 @@ export function resolveReviewPromptHash(prompt?: string, promptHash?: string): s
   return computed;
 }
 
-export function captureReviewRunSnapshot(projectRoot: string): { headHash: string; materialHash: string } {
-  const headHash = currentGitHead(projectRoot) || '';
-  const materialHash = currentMaterialHash(projectRoot) || '';
-  if (!headHash || !materialHash) {
-    throw new Error('review_run_start: unable to capture current git HEAD/materialHash, please run inside the story worktree');
+export type ReviewRunSnapshotFailureCode = 'not_git_repo' | 'missing_head' | 'missing_material_hash';
+const EMPTY_MATERIAL_HASH = createHash('sha256').update('').digest('hex');
+
+export interface ReviewRunSnapshotFailure {
+  code: ReviewRunSnapshotFailureCode;
+  reason: string;
+  nextAction: string;
+}
+
+export interface ReviewRunSnapshotContext {
+  storyId?: string;
+  storyPhase?: string;
+  currentReviewRound?: string;
+  workspaceMode?: 'story-worktree' | 'direct-review-project';
+  expectedWorktreeRoot?: string;
+}
+
+function isGitRepository(projectRoot: string): boolean {
+  try {
+    const result = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return result === 'true';
+  } catch {
+    return false;
   }
-  return { headHash, materialHash };
+}
+
+export function diagnoseReviewRunSnapshot(projectRoot: string): ReviewRunSnapshotFailure | null {
+  if (!isGitRepository(projectRoot)) {
+    return {
+      code: 'not_git_repo',
+      reason: `signed workspace is not a git repository: ${projectRoot}`,
+      nextAction: 'Run inside a git-backed Lattice project/worktree, or initialize git and create an initial commit before starting a signed reviewer run.',
+    };
+  }
+  if (!currentGitHead(projectRoot)) {
+    return {
+      code: 'missing_head',
+      reason: `git HEAD cannot be resolved from signed workspace: ${projectRoot}`,
+      nextAction: 'Create at least one commit in the signed workspace before starting a reviewer run.',
+    };
+  }
+  const materialHash = currentMaterialHash(projectRoot);
+  if (!materialHash || materialHash === EMPTY_MATERIAL_HASH) {
+    return {
+      code: 'missing_material_hash',
+      reason: `materialHash cannot be computed from signed workspace: ${projectRoot}`,
+      nextAction: 'Check git tree/materialHash exclusions and rerun from the project or story worktree root.',
+    };
+  }
+  return null;
+}
+
+function formatSnapshotFailure(failure: ReviewRunSnapshotFailure, context?: ReviewRunSnapshotContext): string {
+  const storyPrefix = context?.storyId
+    ? `story ${context.storyId}${context.storyPhase ? ` is in ${context.storyPhase}` : ''}`
+    : 'the story';
+  const roundStatus = context?.currentReviewRound
+    ? ' and currentReviewRound is initialized'
+    : '';
+  const workspaceHint = context?.workspaceMode === 'story-worktree' && context.expectedWorktreeRoot
+    ? `\nExpected story worktree: ${context.expectedWorktreeRoot}`
+    : '';
+  return [
+    `review_run_start: ${storyPrefix}${roundStatus}, but this command cannot capture a git HEAD/materialHash from the signed workspace.`,
+    `Reason [${failure.code}]: ${failure.reason}`,
+    'No reviewer run was created. No legacy currentReviewRound repair was written before signed snapshot readiness succeeded.',
+    'Host runners such as Claude CLI or Codex CLI may execute this command, but they do not manufacture material snapshots or Authority receipts.',
+    `Next action: ${failure.nextAction}${workspaceHint}`,
+  ].join('\n');
+}
+
+export function captureReviewRunSnapshot(projectRoot: string, context?: ReviewRunSnapshotContext): { headHash: string; materialHash: string } {
+  const failure = diagnoseReviewRunSnapshot(projectRoot);
+  if (failure) {
+    throw new Error(formatSnapshotFailure(failure, context));
+  }
+  return {
+    headHash: currentGitHead(projectRoot)!,
+    materialHash: currentMaterialHash(projectRoot)!,
+  };
 }
 
 export function signReviewRun(

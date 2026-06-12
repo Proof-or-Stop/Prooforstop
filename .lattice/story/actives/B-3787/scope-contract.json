@@ -1,0 +1,22 @@
+{
+  "storyId": "B-3787",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/context.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/authority-boundary-smoke.ts",
+    "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+    "packages/main/src/tasks/baseline-local-certification-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize scope from PLAN files before implementing review_run_start diagnostics.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T10:58:58.897Z",
+  "updatedAt": "2026-06-12T10:58:58.897Z"
+}

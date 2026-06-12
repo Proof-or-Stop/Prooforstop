@@ -1,0 +1,206 @@
+{
+  "command": "koala validate --story=B-3787 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-CjUjfd; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-L3fB7J; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 10/10 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test — From the story worktree for a REVIEW story with a valid git HEAD and materialHash, review_run_start succeeds, prints Review run B-3787:RR-001 started for the requested reviewer lane, persists reviewer-run metadata with the real worktree HEAD/materialHash, and does not report any workspace diagnostic.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — When the workspace lacks a usable signed snapshot source such as non-git directory, unborn HEAD, or missing materialHash, review_run_start exits nonzero with a precise diagnostic and concrete next action, and creates no reviewer run metadata or currentReviewRound repair write.\",\"  ✓ CHK-001:edge:1 [edge/must/logic] covered via logic_test — The workspace resolver validates that the canonical ctx.root used for story metadata is the same canonical worktree root used for HEAD/materialHash capture; a mismatch is rejected before snapshot capture or metadata mutation.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test — If process.cwd is the story worktree but the caller passes a root that points at main or another checkout, review_run_start fails closed with a root/worktree mismatch diagnostic and leaves the story file, currentReviewRound, and review-runs collection unchanged.\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/logic] covered via logic_test — A stale, placeholder, or otherwise unavailable materialHash cannot be signed into a reviewer run; the handler refuses to create local REVIEW evidence unless HEAD and materialHash are captured from the same verified workspace root.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test — Regression coverage exercises direct REVIEW review_run_start in a git-backed story worktree and asserts the visible success line, stable reviewRunId, persisted run metadata, real HEAD hash, and non-empty materialHash are all present.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test — Regression coverage proves legacy REVIEW stories missing currentReviewRound are repaired only after snapshot readiness succeeds; non-git, no-commit, and missing-materialHash cases fail without currentReviewRound or review-run writes.\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test — Regression coverage includes wrong worktree and ctx.root/worktree mismatch cases, plus review_loop placeholder and empty-trigger preservation, so diagnostics do not regress unrelated REVIEW entry behavior.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — Authority boundary smoke proves local host output, local review_run_start success text, and local reviewRunId cannot set productionDone, receiptVerified, or authorityChanged; only an Authority receipt-backed gate decision may do that.\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via logic_test — Coverage asserts review_run_start diagnostics describe local signed REVIEW evidence only and never overclaim an Authority Server gate receipt, production completion, or remote approval.\"],\"warnings\":[],\"timestamp\":\"2026-06-12T11:32:37.421Z\",\"headSha\":\"a20ab95aad1dc014c8ba4ba61eb57de0687d3f4c\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-CjUjfd; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-L3fB7J; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1088}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":10,\"reason\":\"verificationIntent entries present (10)\"},\"verificationCoverage\":{\"total\":10,\"required\":10,\"covered\":10,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"From the story worktree for a REVIEW story with a valid git HEAD and materialHash, review_run_start succeeds, prints Review run B-3787:RR-001 started for the requested reviewer lane, persists reviewer-run metadata with the real worktree HEAD/materialHash, and does not report any workspace diagnostic.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Build passed and field-regression smoke asserted REVIEW review_run_start success persists real headHash/materialHash and stable reviewRunId.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"When the workspace lacks a usable signed snapshot source such as non-git directory, unborn HEAD, or missing materialHash, review_run_start exits nonzero with a precise diagnostic and concrete next action, and creates no reviewer run metadata or currentReviewRound repair write.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers non-git and unborn HEAD review_run_start failures and asserts no currentReviewRound repair or review-runs write occurs before snapshot readiness.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The workspace resolver validates that the canonical ctx.root used for story metadata is the same canonical worktree root used for HEAD/materialHash capture; a mismatch is rejected before snapshot capture or metadata mutation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"resolveStoryCommandWorkspace now canonicalizes ctx.root versus expected worktree root; smoke asserts mismatched LATTICE_PROJECT_ROOT fails before writes.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"If process.cwd is the story worktree but the caller passes a root that points at main or another checkout, review_run_start fails closed with a root/worktree mismatch diagnostic and leaves the story file, currentReviewRound, and review-runs collection unchanged.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Smoke runs from story worktree with LATTICE_PROJECT_ROOT pointing at main and asserts root/worktree mismatch plus no reviewer-run write.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A stale, placeholder, or otherwise unavailable materialHash cannot be signed into a reviewer run; the handler refuses to create local REVIEW evidence unless HEAD and materialHash are captured from the same verified workspace root.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"diagnoseReviewRunSnapshot refuses missing git HEAD/materialHash before signing; placeholder user hashes are still not accepted for reviewer runs.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Regression coverage exercises direct REVIEW review_run_start in a git-backed story worktree and asserts the visible success line, stable reviewRunId, persisted run metadata, real HEAD hash, and non-empty materialHash are all present.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Field regression smoke covers direct REVIEW review_run_start success, reviewRunId output, persisted run metadata, headHash, and materialHash.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Regression coverage proves legacy REVIEW stories missing currentReviewRound are repaired only after snapshot readiness succeeds; non-git, no-commit, and missing-materialHash cases fail without currentReviewRound or review-run writes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Field regression smoke proves legacy REVIEW currentReviewRound repair happens only after snapshot readiness; non-git and no-commit cases leave story and review-runs unchanged.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Regression coverage includes wrong worktree and ctx.root/worktree mismatch cases, plus review_loop placeholder and empty-trigger preservation, so diagnostics do not regress unrelated REVIEW entry behavior.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Field regression covers wrong cwd and ctx.root/worktree mismatch; review-loop smoke confirms placeholder rollback hash and empty trigger validation still pass.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Authority boundary smoke proves local host output, local review_run_start success text, and local reviewRunId cannot set productionDone, receiptVerified, or authorityChanged; only an Authority receipt-backed gate decision may do that.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:baseline-local-certification-smoke\",\"result\":\"pass\",\"note\":\"Authority boundary, gate-consumption, and baseline-local-certification smoke passed; local host output and local review evidence cannot set productionDone, receiptVerified, or authorityChanged.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Coverage asserts review_run_start diagnostics describe local signed REVIEW evidence only and never overclaim an Authority Server gate receipt, production completion, or remote approval.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:authority-boundary-smoke\",\"result\":\"pass\",\"note\":\"review_run_start diagnostics remain local signed REVIEW evidence wording only, while Authority boundary smoke pins that no Authority Server gate receipt or production completion is inferred from local output.\",\"headHash\":\"e08c0c847703049a1074d18a0dd55c3bd3eb0c83\",\"materialHash\":\"51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e\",\"timestamp\":\"2026-06-12T11:24:10.035Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-12T11:32:37.762Z",
+  "headHash": "a20ab95aad1dc014c8ba4ba61eb57de0687d3f4c",
+  "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+  "verificationCoverage": {
+    "total": 10,
+    "required": 10,
+    "covered": 10,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "From the story worktree for a REVIEW story with a valid git HEAD and materialHash, review_run_start succeeds, prints Review run B-3787:RR-001 started for the requested reviewer lane, persists reviewer-run metadata with the real worktree HEAD/materialHash, and does not report any workspace diagnostic.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Build passed and field-regression smoke asserted REVIEW review_run_start success persists real headHash/materialHash and stable reviewRunId.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "When the workspace lacks a usable signed snapshot source such as non-git directory, unborn HEAD, or missing materialHash, review_run_start exits nonzero with a precise diagnostic and concrete next action, and creates no reviewer run metadata or currentReviewRound repair write.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Smoke covers non-git and unborn HEAD review_run_start failures and asserts no currentReviewRound repair or review-runs write occurs before snapshot readiness.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The workspace resolver validates that the canonical ctx.root used for story metadata is the same canonical worktree root used for HEAD/materialHash capture; a mismatch is rejected before snapshot capture or metadata mutation.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "resolveStoryCommandWorkspace now canonicalizes ctx.root versus expected worktree root; smoke asserts mismatched LATTICE_PROJECT_ROOT fails before writes.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "If process.cwd is the story worktree but the caller passes a root that points at main or another checkout, review_run_start fails closed with a root/worktree mismatch diagnostic and leaves the story file, currentReviewRound, and review-runs collection unchanged.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Smoke runs from story worktree with LATTICE_PROJECT_ROOT pointing at main and asserts root/worktree mismatch plus no reviewer-run write.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A stale, placeholder, or otherwise unavailable materialHash cannot be signed into a reviewer run; the handler refuses to create local REVIEW evidence unless HEAD and materialHash are captured from the same verified workspace root.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "diagnoseReviewRunSnapshot refuses missing git HEAD/materialHash before signing; placeholder user hashes are still not accepted for reviewer runs.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Regression coverage exercises direct REVIEW review_run_start in a git-backed story worktree and asserts the visible success line, stable reviewRunId, persisted run metadata, real HEAD hash, and non-empty materialHash are all present.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke covers direct REVIEW review_run_start success, reviewRunId output, persisted run metadata, headHash, and materialHash.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Regression coverage proves legacy REVIEW stories missing currentReviewRound are repaired only after snapshot readiness succeeds; non-git, no-commit, and missing-materialHash cases fail without currentReviewRound or review-run writes.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke proves legacy REVIEW currentReviewRound repair happens only after snapshot readiness; non-git and no-commit cases leave story and review-runs unchanged.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Regression coverage includes wrong worktree and ctx.root/worktree mismatch cases, plus review_loop placeholder and empty-trigger preservation, so diagnostics do not regress unrelated REVIEW entry behavior.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Field regression covers wrong cwd and ctx.root/worktree mismatch; review-loop smoke confirms placeholder rollback hash and empty trigger validation still pass.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Authority boundary smoke proves local host output, local review_run_start success text, and local reviewRunId cannot set productionDone, receiptVerified, or authorityChanged; only an Authority receipt-backed gate decision may do that.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:baseline-local-certification-smoke",
+          "result": "pass",
+          "note": "Authority boundary, gate-consumption, and baseline-local-certification smoke passed; local host output and local review evidence cannot set productionDone, receiptVerified, or authorityChanged.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Coverage asserts review_run_start diagnostics describe local signed REVIEW evidence only and never overclaim an Authority Server gate receipt, production completion, or remote approval.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "review_run_start diagnostics remain local signed REVIEW evidence wording only, while Authority boundary smoke pins that no Authority Server gate receipt or production completion is inferred from local output.",
+          "headHash": "e08c0c847703049a1074d18a0dd55c3bd3eb0c83",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T11:24:10.035Z"
+        }
+      }
+    ]
+  }
+}

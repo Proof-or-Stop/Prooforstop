@@ -1,0 +1,66 @@
+{
+  "storyId": "B-3787",
+  "checkedAt": "2026-06-12T10:58:08.698Z",
+  "features": [
+    {
+      "feature": "review_run_start signed workspace resolver rejects cwd/worktree and ctx.root mismatch before signing",
+      "covered_by": "CHK-001 files.modify packages/main/src/handlers/context.ts and packages/main/src/handlers/review-run.ts; plan.md CHK-001 Scope/Implementation steps 1 and 3",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md M2/M3"
+    },
+    {
+      "feature": "snapshot readiness diagnostics distinguish non-git, missing HEAD, and missing materialHash without user-supplied hashes",
+      "covered_by": "CHK-001 files.modify packages/main/src/core/review-run.ts; plan.md CHK-001 Implementation step 2",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md M1"
+    },
+    {
+      "feature": "no metadata mutation before signed snapshot readiness, including legacy currentReviewRound repair and review-runs writes",
+      "covered_by": "CHK-001 files.modify packages/main/src/handlers/review-run.ts and packages/main/src/core/review-run.ts; plan.md CHK-001 Implementation step 3",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md M3/M5"
+    },
+    {
+      "feature": "review scope binding remains tied to the same verified root used for HEAD/materialHash",
+      "covered_by": "CHK-001 files.modify packages/main/src/handlers/review-run.ts; plan.md CHK-001 Implementation step 4",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md M2"
+    },
+    {
+      "feature": "regression coverage for direct REVIEW success, non-git/no-commit failure, wrong worktree/root mismatch, legacy repair ordering, and review_loop preservation",
+      "covered_by": "CHK-002 files.test packages/main/src/tasks/field-regression-cli-smoke.ts; plan.md CHK-002 Implementation steps 1-4; verify command npm --prefix packages/main run test:review-loop-smoke",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md M5/M6"
+    },
+    {
+      "feature": "Authority no-overclaim: local host output, local reviewRunId, and local success text cannot set productionDone, receiptVerified, or authorityChanged",
+      "covered_by": "CHK-002 files.test packages/main/src/tasks/authority-boundary-smoke.ts, packages/main/src/tasks/authority-gate-consumption-smoke.ts, and packages/main/src/tasks/baseline-local-certification-smoke.ts; plan.md CHK-002 Implementation step 5",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md Local Review Run vs Authority Server Evidence and M5"
+    },
+    {
+      "feature": "broad Authority server/client abstractions or lifecycle rewrites are outside this story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints avoid broad refactors; decision option A chosen over broad HandlerContext rebase; plan.md opening boundary and CHK-002 Scope",
+      "source": "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md Non-Goals and Principles"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 6,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5534bf8de13c9bd00361c9f9a178ed15c7e4bb507c41ae5408a08a11cd158775",
+  "openQuestions": []
+}

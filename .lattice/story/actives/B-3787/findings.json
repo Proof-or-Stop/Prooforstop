@@ -1,0 +1,38 @@
+{
+  "findings": [
+    {
+      "id": "B-3787:F-001",
+      "desc": "packages/main/src/tasks/field-regression-cli-smoke.ts:518 covers non-git, unborn HEAD, wrong cwd, and root/worktree mismatch, but no test forces diagnoseReviewRunSnapshot to return missing_material_hash from packages/main/src/core/review-run.ts:159. CHK-001 and CHK-002 both mark missing materialHash / unavailable materialHash as must-cover behavior, so this branch can regress without the claimed no-write diagnostic coverage. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T11:19:12.607Z",
+      "reviewRound": "2026-06-12T11:15:04.727Z",
+      "reviewRunId": "B-3787:RR-003",
+      "_hash": "c78aeb72f674aec4441567c7cf13c965d7d3a6e4b4db712ceef60c52a735887f",
+      "resolvedReason": "Fixed in e5779c23: field-regression now creates an empty-HEAD material tree to force missing_material_hash and asserts no currentReviewRound repair or review-run write; build and field-regression/review-loop/authority smokes pass.",
+      "resolvedAt": "2026-06-12T11:24:00.221Z"
+    },
+    {
+      "id": "B-3787:F-002",
+      "desc": "review_run_start checks the story phase from ctx.root before resolving the signed workspace, so when cwd is the story worktree but --root/LATTICE_PROJECT_ROOT points at main with stale story metadata, the command fails with \"story B-3787 must be in REVIEW phase (current: INIT_CHECK)\" instead of the intended root/worktree mismatch diagnostic. Repro: from /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3787, run lattice --root /Users/jek/Documents/Work/Orchestrate review_run_start {storyId:B-3787,agent:koala-review-delivery}; no reviewer run is created, but the operator guidance is misleading and misses the hard mismatch check promised by CHK-001/CHK-002.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-12T11:19:16.786Z",
+      "reviewRound": "2026-06-12T11:15:04.727Z",
+      "reviewRunId": "B-3787:RR-002",
+      "_hash": "aa3d470ae365efd9568534adb19d19f16e5fe32fd9c73c70e55bb9ff753a49cb",
+      "files": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/handlers/context.ts"
+      ],
+      "resolvedReason": "Fixed in e5779c23: review_run_start resolves story worktree/root mismatch before phase validation and field-regression asserts LATTICE_PROJECT_ROOT pointing at main fails with the root/worktree mismatch diagnostic.",
+      "resolvedAt": "2026-06-12T11:24:00.588Z"
+    }
+  ]
+}
