@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-12T21:35:24.407Z",
       "reviewRunId": "B-85ba:RR-014",
       "_hash": "babe07af5ed5884efdfac6a0982317df6f7b3a99e14acc82236c5f7d5779cb80"
+    },
+    {
+      "id": "B-85ba:RP-008",
+      "agent": "koala-review-quality",
+      "note": "PASS: reviewed latest HEAD 2291676 for empty boundary blocking, safe path-field acceptance, fromDraft/direct INIT_CHECK non-deadlock behavior, and F-006 worktree-authority-smoke update. Verified with npx tsc -p packages/main/tsconfig.json --noEmit; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; node scripts/verify-process-fact-contract.mjs. No quality blockers found.",
+      "createdAt": "2026-06-12T21:43:13.401Z",
+      "reviewRound": "2026-06-12T21:35:24.407Z",
+      "reviewRunId": "B-85ba:RR-013",
+      "_hash": "eda81c5a3fec67d52a749aaf57fe8cb06bb44ab0c1a3b53afbdc88b5869cd565"
     }
   ]
 }
