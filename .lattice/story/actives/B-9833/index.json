@@ -4,7 +4,7 @@
   "title": "Triage F-009 Layer2 proof audit finding",
   "description": "Audit and resolve, narrow, or supersede B-META-framework-audit:F-009. The story only determines whether current Layer2 formal proof paths already refute the suspected high finding, or whether the finding should be narrowed to a remaining Layer4/Authority receipt scope. Explicitly out of scope: implementing customerKeyRef, connecting Authority Server, changing Layer2 proof code, changing baseline evaluator logic, and claiming production authority.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -52,6 +52,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-12T20:27:54.104Z",
+      "branch": "story/B-9833",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:35:16.263Z",
       "branch": "story/B-9833",
       "user": "Harmonygo",
       "agent": "main"
