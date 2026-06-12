@@ -1,0 +1,55 @@
+{
+  "storyId": "B-d925",
+  "changes": "Reconciled the dirty main worktree that blocked B-9d6c DONE. Committed only the validated Layer4 production-safety unlock plan plus synchronized NAV, deferred stale/BLOCKED baseline artifacts and non-ready docs into stash, and completed B-9d6c through Lattice DONE.",
+  "usage": "Use git status --short on main to confirm cleanliness, git stash list to locate the deferred B-d925 stash, and lattice story_get B-9d6c to confirm the formal unlock artifact isolation story is DONE.",
+  "expectedOutcome": "Main becomes clean, no .omx path is used, stale baseline artifacts are not committed as proof, host audit stays non-authority, and B-9d6c can advance to DONE.",
+  "actualTranscript": "git status --short on main returned no output. git stash list shows stash@{0}: B-d925 defer stale artifacts and non-ready docs before B-9d6c DONE. lattice story_advance B-9d6c DONE succeeded and produced merge commit a55a3f34. lattice validate --story=B-d925 --json passed with 9/9 verification intents covered.",
+  "outcomeDiff": "Expected and actual match. The only remaining limitation is intentional: deferred stale/non-ready artifacts remain in stash for later scoped handling instead of being committed or deleted.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Deferred assets remain in stash@{0}: stale/BLOCKED baseline artifacts, the non-ready story-lifecycle policy draft, the obsolete main formal-unlock draft, and the B3787 audit plan draft. They are preserved for separate scoped stories and are not active proof.",
+  "pitfalls": "Do not treat the deferred stash as proof. Do not apply it wholesale. Revisit it path-by-path with the same fail-closed rules and keep local host audit separate from Authority receipt evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 89916
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19283
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 243884
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1293673
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 139145
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 44690
+    }
+  },
+  "totalDurationMs": 1830599,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T14:23:14.518Z",
+  "updatedAt": "2026-06-12T14:23:14.518Z"
+}

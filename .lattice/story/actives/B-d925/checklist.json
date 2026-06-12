@@ -5,27 +5,228 @@
       "title": "Classify main dirty baseline and doc assets",
       "context": "Use git status/diff to group tracked modifications, deletions, and untracked docs. Do not touch .omx and do not revert anything before classification.",
       "relatedDocs": [
-        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T14:02:00.603Z",
+      "endTime": "2026-06-12T14:02:25.561Z",
+      "userSees": "Terminal report includes: \"B-d925 classification: baseline artifacts=<n>, docs=<n>, story metadata=<n>, recommended action=<commit|restore|defer>\".",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Classification report groups all current main dirty paths into baseline artifacts, docs, story metadata, and untracked docs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Deleted tracked baseline artifacts are classified separately from modified suite reports and untracked docs.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "No .omx path is read or used while classifying dirty assets.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git status --short",
+          "result": "pass",
+          "note": "Main dirty classification grouped as 3 untracked docs, 119 tracked deletes, and 23 tracked modifications. Paths were separated into baseline artifacts, docs, and untracked docs for reconciliation.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-status -- .lattice/artifacts/baseline",
+          "result": "pass",
+          "note": "Tracked deleted baseline artifacts were identified separately: Layer2 has 117 deletes and 4 modifications; Layer3 has 2 deletes and 17 modifications.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short -- .omx",
+          "result": "pass",
+          "note": "No .omx path appeared in the dirty status classification.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Run two-host audit on the cleanup decision",
       "context": "Claude CLI and Codex CLI should independently review whether dirty assets should be committed, restored, or deferred. Only real correctness issues may drive changes.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T14:02:31.055Z",
+      "endTime": "2026-06-12T14:19:24.227Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "userSees": "Audit output includes: \"Claude=PASS/BLOCK, Codex=PASS/BLOCK, agreed action=<commit|restore|defer>, blockers=<none|list>\".",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Claude CLI and Codex CLI both produce independent audit conclusions for the dirty asset groups.",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "If the hosts disagree, the cleanup does not proceed until the disagreement is explicitly resolved.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Host audit does not convert local evidence or host verdicts into Authority Server receipt evidence.",
+            "type": "manual"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "Claude CLI and Codex CLI read-only audits",
+          "result": "pass",
+          "note": "Claude docs auditor and Codex docs auditor both found the main formal-unlock document obsolete/conflicting with B-9d6c. Codex baseline auditor found baseline artifacts BLOCKED/not_authorized and recommended restore/defer rather than commit. Claude baseline auditor also returned BLOCK, though its inventory was incomplete; final auditor did not rely on its optimistic commit suggestion.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "Final auditor reconciliation of four host outputs",
+          "result": "pass",
+          "note": "Disagreement was handled by fail-closed logic: stale/BLOCKED baseline artifacts were not committed; only Layer4 document plus synchronized NAV was committed; story-lifecycle and B3787 audit plan were deferred in stash.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Host audit claim boundary check",
+          "result": "pass",
+          "note": "All host audit outputs were treated as local non-authority evidence only. No Authority receipt, productionDone, fullAuthorityDone, or global capability claim was inferred from Claude or Codex host verdicts.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Apply the minimal reconciliation that unblocks B-9d6c DONE",
       "context": "Make main clean by committing valid assets or restoring confirmed stale/scratch changes, then verify B-9d6c can advance to DONE.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T14:19:29.953Z",
+      "endTime": "2026-06-12T14:19:47.429Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ],
+      "userSees": "Terminal output includes: \"main clean: yes\" and \"B-9d6c DONE: success\" or an explicit non-dirty blocker.",
+      "files": {
+        "modify": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock",
+          ".lattice/artifacts/baseline/layer3-loop-engineering-unlock",
+          "docs/requirements/NAV.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/b3787-post-merge-two-host-three-round-audit-plan.md",
+          "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "Main worktree becomes clean after the audited reconciliation and B-9d6c can retry DONE.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "If B-9d6c DONE exposes a new explicit blocker, the blocker is reported without further arbitrary cleanup.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Cleanup does not use .omx, git reset --hard, or unreviewed deletion of useful Lattice evidence.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "git status --short",
+          "result": "pass",
+          "note": "Main worktree is clean after committing Layer4 docs plus NAV, deferring stale/non-ready assets into stash, and completing B-9d6c DONE.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice story_advance {storyId:B-9d6c,phase:DONE}",
+          "result": "pass",
+          "note": "B-9d6c advanced to DONE successfully, merged story/B-9d6c back to main, cleaned its worktree, and produced merge commit a55a3f34.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git stash list and targeted cleanup transcript",
+          "result": "pass",
+          "note": "No .omx path was used. No git reset --hard was run. Stale baseline artifacts and non-ready docs were preserved in stash@{0}: B-d925 defer stale artifacts and non-ready docs before B-9d6c DONE.",
+          "headHash": "9de6dc3a7b85951fd8ed0baf72411ca69e9a6fab",
+          "materialHash": "1132e9824640de1657f002223f118f0613c3d665fc34a6af7bda4707f5316603",
+          "timestamp": "2026-06-12T14:20:17.597Z"
+        }
+      ]
     }
   ]
 }

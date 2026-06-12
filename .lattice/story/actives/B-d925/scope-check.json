@@ -1,0 +1,58 @@
+{
+  "storyId": "B-d925",
+  "checkedAt": "2026-06-12T13:58:15.674Z",
+  "features": [
+    {
+      "feature": "Classify main dirty baseline and doc assets (CHK-001)",
+      "covered_by": "CHK-001: git status/diff classification of baseline artifacts, decision docs, story metadata, and untracked docs; plan.md CHK-001 section; verificationIntent happy/edge/adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json#CHK-001 + plan.md#CHK-001"
+    },
+    {
+      "feature": "Two-host audit on cleanup decision (CHK-002)",
+      "covered_by": "CHK-002: Claude CLI and Codex CLI produce independent audit conclusions per dirty asset group; disagreement halts cleanup; verdicts are review evidence only",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json#CHK-002 + plan.md#CHK-002 + decision.json#rationale"
+    },
+    {
+      "feature": "Minimal main reconciliation to unblock B-9d6c DONE (CHK-003)",
+      "covered_by": "CHK-003: separate cleanup commit for valid assets, restore stale groups, retry B-9d6c DONE and report result; files list in checklist covers baseline artifacts + decision docs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json#CHK-003 + plan.md#CHK-003 + understanding.json#outcome"
+    },
+    {
+      "feature": "B-9d6c implementation changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope: B-9d6c remains frozen; understanding constraint #4 and preMortem scenario 3 both forbid mixing B-9d6c implementation into this story",
+      "source": "understanding.json#constraints + decision.json#preMortem[2]"
+    },
+    {
+      "feature": "Authority Server receipt verification",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-002 adversarial intent and plan.md CHK-002 explicitly state host verdicts are review evidence only, not Authority Server receipts; formal-unlock-artifact-isolation-execution-plan.md forbids local CLI artifacts becoming Authority evidence",
+      "source": "checklist.json#CHK-002:adversarial:0 + plan.md#CHK-002 + formal-unlock-artifact-isolation-execution-plan.md"
+    },
+    {
+      "feature": ".omx cleanup",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraint #1 and checklist adversarial intents for CHK-001/CHK-003 explicitly prohibit any read, write, or use of .omx; not explicitly requested",
+      "source": "understanding.json#constraints[0] + checklist.json#CHK-001:adversarial:0 + checklist.json#CHK-003:adversarial:0"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "38820a0a8f059871245247f7347b19b63c9a72e9f3dd8d2cbf834c0e32838076"
+}
