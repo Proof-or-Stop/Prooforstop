@@ -112,7 +112,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees regression coverage prove split-root behavior: git-backed roots work, wrapper roots fail closed unless explicitly bound, placeholders/tampering remain rejected, and local reviewer evidence is never reported as Authority proof.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/review-run-workspace-binding.test.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Regression smoke covers ordinary git root and explicit gitRoot split-root cases where story_resolve resolves and review_run_start can capture HEAD/materialHash.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression smoke covers non-git wrapper root without gitRoot/worktree and verifies story_resolve/review_run_start fail closed with clear unresolvedReason/not_git_repo diagnostics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression coverage proves placeholder hashes, tampered workspaceBinding, and local-only reviewer evidence cannot be treated as Authority Server completion or receipt-backed proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
