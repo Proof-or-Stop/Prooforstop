@@ -100,6 +100,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "User sees the required smoke commands pass, including field-regression, review-loop, authority-boundary, authority-gate-consumption, and baseline-local-certification checks, with no productionDone/receiptVerified/authorityChanged overclaim from local host output.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+          "packages/main/src/tasks/baseline-local-certification-smoke.ts"
+        ]
       }
     }
   ]
