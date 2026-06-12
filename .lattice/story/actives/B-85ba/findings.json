@@ -69,7 +69,7 @@
       "desc": "execution_boundary_set path-boundary support is inconsistent across CLI, handler, core, and policy. Evidence: cli-engine.ts:510-520 exposes allowedPaths/blockedPaths; core/scope-anti-expansion.ts:293-310 builds and hashes allowedPaths/excludedPaths with safe relative path validation; types.ts defines ExecutionBoundaryData path fields; command-policy.ts:288 says the execution boundary covers commands and paths. But handlers/scope-anti-expansion.ts:88-96 rejects any allowedPaths/blockedPaths and claims core ExecutionBoundaryData only defines command/tool fields. This makes the documented CLI surface unusable and leaves registry/policy claims out of sync with runtime behavior.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T20:43:04.508Z",
@@ -82,7 +82,9 @@
         "packages/main/src/core/scope-anti-expansion.ts",
         "packages/main/src/core/types.ts",
         "packages/main/src/core/command-policy.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in 07ceb003: execution_boundary_set accepts allowedPaths/blockedPaths/excludedPaths and delegates safe relative path validation to core. Verified by handler safe-path smoke and build.",
+      "resolvedAt": "2026-06-12T20:59:52.104Z"
     },
     {
       "id": "B-85ba:F-005",
