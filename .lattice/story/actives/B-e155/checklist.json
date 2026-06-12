@@ -243,9 +243,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T15:26:44.590Z",
       "userSees": "Final audit reports PASS for executability, host-neutrality, non-authority boundary, and logical consistency, or records blockers explicitly.",
       "files": {
         "modify": [
@@ -342,6 +342,15 @@
       "from": "pending",
       "to": "done",
       "reason": "The F-009 execution document was created and NAV was updated."
+    },
+    {
+      "timestamp": "2026-06-12T15:26:44.590Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "The final auditor checks for executability, host-neutrality, non-authority boundary, and fail-closed logic passed."
     }
   ]
 }
