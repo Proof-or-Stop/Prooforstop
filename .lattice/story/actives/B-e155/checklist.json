@@ -43,7 +43,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "lattice finding_list --storyId=B-META-framework-audit; rg -n \"F-009|Current Facts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document cites F-009, its suspected status, and the current fact anchors used for execution.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"suspected|verified|disproven|Required Decision Outcomes\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document separates suspected, verified, and disproven outcomes and requires mechanical evidence before status changes.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"disabled legacy artifact roots|clean artifact root|formal proof roots\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The execution plan requires clean formal roots and forbids disabled legacy artifact roots as proof roots.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -85,7 +120,41 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "claude --print ...; codex exec -s read-only ...",
+          "result": "pass",
+          "note": "Claude CLI produced a text-only A/B/C plan; Codex CLI produced a read-only phase/fail-closed plan. Both were consumed as drafting input, not authority proof.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Host Draft Inputs|Host output is review/drafting input only|Authority Server\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The host section records both host inputs while explicitly preventing either host from becoming Authority.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Do not optimize|Non-Goals|Forbidden fixes|host transcripts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document excludes arbitrary optimizations, false capability claims, and converting host transcripts into Authority receipt proof.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -130,7 +199,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"41 个文件|F-009 Layer 2 Engineering Proof Gap Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The new F-009 decision document exists and NAV count/link were updated to include it.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"does not unlock|This document alone does\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly states that it is plan-only and cannot unlock Layer2 by itself.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Do not unlock Loop Engineering|Layer 3|Layer 4|global Capability|Production Safety\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The plan keeps Layer3, Layer4, Production Safety, fullAuthorityDone, and global Capability Claim out of scope.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -173,7 +277,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "auditor rg checks over F-009 doc and NAV after commit",
+          "result": "pass",
+          "note": "Final audit found a concrete phase plan, decision outcomes, fail-closed matrix, evidence pack, and DONE criteria for resolving/disproving F-009.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"unlock-layer2|formal-unlock|lifecycle|Authority Receipt|Current Facts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "Audit confirmed the plan aligns with existing Layer2 unlock, artifact isolation, lifecycle receipt, and Authority receipt boundaries.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Forbidden fixes|Fail-Closed Tests|local diagnostic|Authority overclaim|This document alone\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "Audit confirmed false PASS language, missing fail-closed rules, and local CLI Authority overclaim are explicitly blocked.",
+          "headHash": "0c4cc6bc6e52019a0863836530f2aeb2bb46ef21",
+          "materialHash": "b46bbc460bc41946be81e03a87e004e22d30b13816066b0f470b3a4ea7ee99ff",
+          "timestamp": "2026-06-12T15:26:31.651Z"
+        }
+      ]
     }
   ]
 }
