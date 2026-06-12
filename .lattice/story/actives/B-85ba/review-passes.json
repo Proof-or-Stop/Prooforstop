@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-12T20:36:30.829Z",
       "reviewRunId": "B-85ba:RR-002",
       "_hash": "e34f1e74ee31db88adf78fed0642ff6cc6c48c2b43f27e45d31374143cb06457"
+    },
+    {
+      "id": "B-85ba:RP-002",
+      "agent": "koala-review-concept",
+      "note": "PASS: rerun reviewed current HEAD 22ac980 after 07ceb003 fixes. scope_extension_proposal now persists proposal separately from reason with proposalTextHash; INIT reviewer lanes are mechanically blocked from checklist title/context/excludes mutation and directed to scope_extension_proposal; correctness_fix default denylist remains scoped to repair UX/Authority/Layer4/customerKeyRef and is not applied to feature mode; scope anti-expansion commands/artifacts are L4 gate-consumed facts in process/lifecycle registries. Verified with node scripts/verify-process-fact-contract.mjs and npm --prefix packages/main run test:scope-anti-expansion-smoke.",
+      "createdAt": "2026-06-12T21:03:23.832Z",
+      "reviewRound": "2026-06-12T20:59:32.965Z",
+      "reviewRunId": "B-85ba:RR-007",
+      "_hash": "af4028802baa23e5b1c1763ee26a7e72a937e306707d36e9f1fb3e6c27b5caf5"
     }
   ]
 }
