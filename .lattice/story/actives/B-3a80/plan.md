@@ -8,8 +8,8 @@
 
 **Steps**:
 1. Run `lattice gap_analyze` in the story worktree.
-2. Record the exact high findings in the execution document.
-3. Classify signed workspace findings as real consistency or coverage candidates requiring follow-up proof.
+2. Record the exact high findings in the new F-009 execution document.
+3. Classify signed workspace findings as real consistency or coverage candidates requiring follow-up proof, without modifying the signed workspace design document in this story.
 4. Classify Layer4 `customerKeyRef` as future/blocked scope unless a separate Layer4 implementation story is opened.
 
 **Verify**:
