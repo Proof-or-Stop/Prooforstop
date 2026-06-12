@@ -56,7 +56,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice gap_analyze no longer lists Reason [requires_git_signed_workspace_but_no_binding] from line 311, while unresolved review_run_start still says No reviewer run was created.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/context.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "gap_analyze no longer reports the no-binding REVIEW diagnostic requirement at review-run-start-signed-workspace-resolution-execution-plan.md:311.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "review_run_start still fails closed for unresolved signed workspace and does not create a reviewer run.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "The diagnostic remains explicit and does not silently sign a non-git metadata root or create REVIEW metadata on failure.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
