@@ -84,7 +84,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T18:00:39.325Z",
-      "endTime": "2026-06-12T18:00:48.690Z",
+      "endTime": "2026-06-12T18:06:01.043Z",
       "userSees": "Completion report links the new execution document and says it is an execution plan only, not an unlock artifact.",
       "files": {
         "modify": [
@@ -122,19 +122,19 @@
           "command": "sed -n 1,297p docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
           "result": "pass",
           "note": "The new execution document contains purpose, governing principles, non-goals, bounded action, Lattice CLI flow, two-host audit protocol, phases, evidence pack, and DONE criteria.",
-          "headHash": "3d05f9da06d888c7f28dc48fb3adc1ce3bcdba7c",
+          "headHash": "c183c0d1102bd5fac54c35342958639e02da34e2",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:00:48.730Z"
+          "timestamp": "2026-06-12T18:06:01.092Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "docs_check",
-          "command": "git diff --name-status main...HEAD -- scoped docs",
+          "kind": "manual_transcript",
+          "command": "git diff --name-status main...HEAD && git diff --name-status main...HEAD | awk allowlist check for B-3a80 metadata plus three scoped docs",
           "result": "pass",
-          "note": "The story diff is limited to the new F-009 plan, NAV, Layer4 future/blocked note, and Lattice story metadata; unrelated root dirty docs are not folded into this worktree commit.",
-          "headHash": "3d05f9da06d888c7f28dc48fb3adc1ce3bcdba7c",
+          "note": "Unfiltered diff contains only B-3a80 Lattice metadata and the three scoped docs; the allowlist negative path check produced no output and exited 0, proving unrelated root/docs/code changes are not folded into this story diff.",
+          "headHash": "c183c0d1102bd5fac54c35342958639e02da34e2",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:00:48.770Z"
+          "timestamp": "2026-06-12T18:06:01.138Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -142,9 +142,9 @@
           "command": "Claude CLI final review and Codex CLI final review",
           "result": "pass",
           "note": "Claude and Codex final reviews both reported no high or critical blockers; host outputs are review evidence only, not Authority receipts.",
-          "headHash": "3d05f9da06d888c7f28dc48fb3adc1ce3bcdba7c",
+          "headHash": "c183c0d1102bd5fac54c35342958639e02da34e2",
           "materialHash": "f98188c109c346bb3201f9f890c19a7dccbf4ecaee945336dbd45ed42b905ab3",
-          "timestamp": "2026-06-12T18:00:48.804Z"
+          "timestamp": "2026-06-12T18:06:01.182Z"
         }
       ]
     },
