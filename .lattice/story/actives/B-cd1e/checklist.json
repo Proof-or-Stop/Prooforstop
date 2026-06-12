@@ -58,7 +58,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees localNonAuthorityAudit and authorityServerPath as separate sections, with Authority completion shown as NOT_CLAIMED unless verified receipt proof exists.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-closure.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_closure JSON includes localNonAuthorityAudit and authorityServerPath as separate objects.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When no Authority receipt refs exist, authorityServerPath reports receiptVerified=false and mayClaimAuthorityDone=false.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Local validation/reviewer evidence cannot cause done_closure to emit receiptVerified, authorityDone, productionDone, or fullAuthorityDone success claims.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
