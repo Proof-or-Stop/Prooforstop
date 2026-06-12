@@ -95,7 +95,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the final execution plan document saved with an audit incorporation section and no unresolved high or critical plan blockers.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final plan incorporates accepted audit findings and records rejected non-correctness suggestions with rationale.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Final plan includes verification and rollback steps specific to missing_scope_check guidance, not a broad lifecycle rewrite.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final plan preserves scope_check_save as PLAN-only reviewer-written signed evidence and excludes auto-signing or Authority overclaim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
