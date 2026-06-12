@@ -1,0 +1,24 @@
+{
+  "task": "Write an audited execution document for F-009 Layer2 Engineering proof gap handling.",
+  "outcome": "User sees a committed decision document that explains exactly how to resolve or disprove F-009 before any Layer2 capability claim is made, with Claude/Codex host input and final auditor checks recorded.",
+  "facts": [
+    "F-009 is an open high suspected framework-audit finding about Layer2 Engineering proof legitimacy.",
+    "Local Lattice CLI is non-authority and must not mint production Authority receipts or claim production DONE.",
+    "Existing Layer2 docs require fresh lower-layer proof, Engineering final reports, review evidence, receipt refs, and fail-closed behavior.",
+    "The user asked for two hosts, Claude CLI and Codex CLI, to produce the execution document and for the main agent to audit it."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Do not optimize for optimization; only fix or specify real correctness issues.",
+    "Do not unlock or advertise Layer2 capability from this document alone.",
+    "Keep Lattice assets under .lattice and docs under docs/requirements/decisions.",
+    "Use Lattice story flow and preserve host-neutral semantics.",
+    "This story writes the execution plan; verifying or disproving F-009 belongs to a later execution story using mechanical evidence."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-12T15:12:42.620Z"
+}

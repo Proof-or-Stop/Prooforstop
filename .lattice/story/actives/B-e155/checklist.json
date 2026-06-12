@@ -12,7 +12,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Context evidence lists F-009 text, suspected gap, source anchors, and related Layer2/Authority docs without using .omx.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "F-009 finding text and related Layer2/Authority decision docs are cited in the execution plan.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan distinguishes suspected evidence from verified evidence and does not treat stale artifacts as proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No .omx path or legacy artifact root is used as source of truth.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
