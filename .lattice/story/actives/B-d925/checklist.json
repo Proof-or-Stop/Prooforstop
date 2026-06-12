@@ -9,9 +9,9 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T14:02:00.603Z",
-      "endTime": null,
+      "endTime": "2026-06-12T14:02:25.561Z",
       "userSees": "Terminal report includes: \"B-d925 classification: baseline artifacts=<n>, docs=<n>, story metadata=<n>, recommended action=<commit|restore|defer>\".",
       "files": {
         "modify": [],
@@ -40,7 +40,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git status --short",
+          "result": "pass",
+          "note": "Main dirty classification grouped as 3 untracked docs, 119 tracked deletes, and 23 tracked modifications. Paths were separated into baseline artifacts, docs, and untracked docs for reconciliation.",
+          "headHash": "a5e129d73b812c6b3e9137c61ab2fef2ba3e91d4",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:02:25.721Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-status -- .lattice/artifacts/baseline",
+          "result": "pass",
+          "note": "Tracked deleted baseline artifacts were identified separately: Layer2 has 117 deletes and 4 modifications; Layer3 has 2 deletes and 17 modifications.",
+          "headHash": "a5e129d73b812c6b3e9137c61ab2fef2ba3e91d4",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:02:25.759Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short -- .omx",
+          "result": "pass",
+          "note": "No .omx path appeared in the dirty status classification.",
+          "headHash": "a5e129d73b812c6b3e9137c61ab2fef2ba3e91d4",
+          "materialHash": "51987261efd2de5c02dcf036683d5f7fdba2bf43c13faacb7bcb26465b26788e",
+          "timestamp": "2026-06-12T14:02:25.793Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
