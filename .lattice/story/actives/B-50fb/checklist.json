@@ -124,7 +124,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "README and active requirement docs show \"@lattice-agent/core\" as the current package; `rg \"@koala-agent/core\" README.md docs/requirements/decisions scripts packages/main/src` returns only legacy-labelled or historical matches.",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Review README and active truth-source docs and confirm current install/runtime package guidance names @lattice-agent/core as canonical instead of @koala-agent/core.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm retained Koala references in active docs are explicitly framed as legacy compatibility, historical context, repository URLs, or command aliases, not as the current npm package identity.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run a focused search across README, active requirement docs, verification scripts, and active runtime sources that fails if @koala-agent/core is still asserted as canonical or protected by verification scripts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
