@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-12T14:04:38.155Z",
       "reviewRunId": "B-9d6c:RR-009",
       "_hash": "97c4a57075de6b94a3ed5ba3de486dc2ef2552c787c1a7cf5827db48c580fc6c"
+    },
+    {
+      "id": "B-9d6c:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "No correctness issue found. packages/main/src/tasks/lattice-baseline-smoke.ts covers formal root invariant authority overclaims for top-level authorityDone and nested authority.authorityDone, both routed through baseline_suite_report and assertFormalSuiteBlocked; checklist verificationIntent/evidence remains 9/9 covered. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:lattice-baseline-smoke after build.",
+      "createdAt": "2026-06-12T14:12:26.043Z",
+      "reviewRound": "2026-06-12T14:04:38.155Z",
+      "reviewRunId": "B-9d6c:RR-007",
+      "_hash": "99b4f2ded6a20c40a5792ad64e49451d82ef40c286d3f2a954cc49e93124b575"
     }
   ]
 }
