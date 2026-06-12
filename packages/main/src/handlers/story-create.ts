@@ -467,7 +467,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           if (args.scopeBoundary.userConfirmed !== true) {
             throw new Error('story_create scopeBoundary requires userConfirmed:true');
           }
-          const allowed = normalizeBoundaryArray(args.scopeBoundary.allowed ?? args.scopeBoundary.allowedScope);
+          const allowed = normalizeBoundaryArray(args.scopeBoundary.allowed ?? args.scopeBoundary.allowedScope, 'scopeBoundary.allowed');
           if (allowed.length === 0) {
             throw new Error('story_create scopeBoundary requires at least one allowed scope entry');
           }

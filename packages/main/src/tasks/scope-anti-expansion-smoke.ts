@@ -208,6 +208,52 @@ withTempContext('story_create persists initial scope and execution boundaries', 
   assert.deepEqual(store.readExecutionBoundary(storyId)?.excludedCommands, ['omx']);
 });
 
+withTempContext('story_create rejects malformed or blank scope boundary arrays', (root, store) => {
+  const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  assert.throws(() => handlers.story_create({
+    name: 'scope-boundary-malformed-smoke',
+    title: 'Fix malformed boundary regression',
+    description: 'Reject malformed scope boundary arrays before gate evidence can be saved.',
+    type: 'bug',
+    priority: 'high',
+    background: validBackground(),
+    checklist: [{ title: 'Reject malformed boundary arrays', context: 'Boundary arrays must stay typed.' }],
+    scopeBoundary: {
+      mode: 'correctness_fix',
+      allowed: 'INIT scope freeze correctness' as unknown as string[],
+      userConfirmed: true,
+    },
+    forceNew: true,
+  }), /scopeBoundary\.allowed must be an array of strings/);
+
+  assert.throws(() => handlers.story_create({
+    name: 'scope-boundary-blank-smoke',
+    title: 'Fix blank boundary regression',
+    description: 'Reject blank scope boundary terms before gate evidence can be saved.',
+    type: 'bug',
+    priority: 'high',
+    background: validBackground(),
+    checklist: [{ title: 'Reject blank boundary terms', context: 'Boundary arrays must stay meaningful.' }],
+    scopeBoundary: {
+      mode: 'correctness_fix',
+      allowed: ['   '],
+      userConfirmed: true,
+    },
+    forceNew: true,
+  }), /story_create scopeBoundary requires at least one allowed scope entry/);
+});
+
+withTempStore('execution boundary rejects malformed arrays and unsafe paths', () => {
+  assert.throws(() => buildExecutionBoundary({
+    storyId: STORY_ID,
+    allowedCommands: 'npm test' as unknown as string[],
+  }), /executionBoundary\.allowedCommands must be an array of strings/);
+  assert.throws(() => buildExecutionBoundary({
+    storyId: STORY_ID,
+    allowedPaths: ['../outside'],
+  }), /executionBoundary\.allowedPaths must contain safe relative paths/);
+});
+
 withTempStore('missing scope boundary blocks before worktree creation', (store) => {
   seedStory(store);
   expectReason(store, /\[missing_scope_boundary\]/);

@@ -182,16 +182,48 @@ function digest(value: unknown): string {
   return canonicalDigest(value);
 }
 
-export function normalizeBoundaryArray(values: readonly string[] | null | undefined): string[] {
+export function normalizeBoundaryArray(values: readonly string[] | null | undefined, fieldName = 'boundary array'): string[] {
+  if (values == null) return [];
+  if (!Array.isArray(values)) {
+    throw new Error(`${fieldName} must be an array of strings`);
+  }
   const byKey = new Map<string, string>();
-  for (const value of values ?? []) {
-    if (typeof value !== 'string') continue;
+  for (const value of values) {
+    if (typeof value !== 'string') {
+      throw new Error(`${fieldName} must be an array of strings`);
+    }
     const normalized = normalizeTerm(value);
     if (normalized.length === 0) continue;
     const key = normalized.toLowerCase();
     if (!byKey.has(key)) byKey.set(key, normalized);
   }
   return [...byKey.values()].sort((a, b) => termKey(a).localeCompare(termKey(b)));
+}
+
+function normalizeStrictBoundaryArray(values: readonly string[] | null | undefined, fieldName: string): string[] {
+  if (values == null) return [];
+  const normalized = normalizeBoundaryArray(values, fieldName);
+  if (Array.isArray(values) && values.some(value => normalizeTerm(value).length === 0)) {
+    throw new Error(`${fieldName} cannot include blank entries`);
+  }
+  return normalized;
+}
+
+function normalizeBoundaryPathArray(values: readonly string[] | null | undefined, fieldName: string): string[] {
+  const paths = normalizeStrictBoundaryArray(values, fieldName);
+  for (const path of paths) {
+    const segments = path.split(/[\\/]+/);
+    const unsafe =
+      path.includes('\0') ||
+      path.startsWith('/') ||
+      path.startsWith('~') ||
+      /^[A-Za-z]:[\\/]/.test(path) ||
+      segments.includes('..');
+    if (unsafe) {
+      throw new Error(`${fieldName} must contain safe relative paths without absolute, home, drive, NUL, or traversal segments`);
+    }
+  }
+  return paths;
 }
 
 export function normalizeScopeBoundary(boundary: ScopeBoundaryData): ScopeBoundaryData {
@@ -247,8 +279,8 @@ export function buildScopeBoundary(input: BuildScopeBoundaryInput): ScopeBoundar
     schemaVersion: 'lattice.scope_boundary.v1',
     storyId: input.storyId,
     mode: input.mode,
-    allowed: normalizeBoundaryArray(input.allowed),
-    excluded: normalizeBoundaryArray(input.excluded),
+    allowed: normalizeStrictBoundaryArray(input.allowed, 'scopeBoundary.allowed'),
+    excluded: normalizeStrictBoundaryArray(input.excluded, 'scopeBoundary.excluded'),
     ...(nonEmpty(input.confirmedBy) ? { confirmedBy: normalizeTerm(input.confirmedBy) } : {}),
     ...(nonEmpty(input.confirmationNote) ? { confirmationNote: normalizeTerm(input.confirmationNote) } : {}),
     createdAt: now,
@@ -263,12 +295,12 @@ export function buildExecutionBoundary(input: BuildExecutionBoundaryInput): Exec
   const boundary: ExecutionBoundaryData = {
     schemaVersion: 'lattice.execution_boundary.v1',
     storyId: input.storyId,
-    allowedCommands: normalizeBoundaryArray(input.allowedCommands),
-    allowedTools: normalizeBoundaryArray(input.allowedTools),
-    allowedPaths: normalizeBoundaryArray(input.allowedPaths),
-    excludedCommands: normalizeBoundaryArray(input.excludedCommands),
-    excludedTools: normalizeBoundaryArray(input.excludedTools),
-    excludedPaths: normalizeBoundaryArray(input.excludedPaths),
+    allowedCommands: normalizeStrictBoundaryArray(input.allowedCommands, 'executionBoundary.allowedCommands'),
+    allowedTools: normalizeStrictBoundaryArray(input.allowedTools, 'executionBoundary.allowedTools'),
+    allowedPaths: normalizeBoundaryPathArray(input.allowedPaths, 'executionBoundary.allowedPaths'),
+    excludedCommands: normalizeStrictBoundaryArray(input.excludedCommands, 'executionBoundary.excludedCommands'),
+    excludedTools: normalizeStrictBoundaryArray(input.excludedTools, 'executionBoundary.excludedTools'),
+    excludedPaths: normalizeBoundaryPathArray(input.excludedPaths, 'executionBoundary.excludedPaths'),
     ...(nonEmpty(input.confirmedBy) ? { confirmedBy: normalizeTerm(input.confirmedBy) } : {}),
     ...(nonEmpty(input.confirmationNote) ? { confirmationNote: normalizeTerm(input.confirmationNote) } : {}),
     createdAt: now,
