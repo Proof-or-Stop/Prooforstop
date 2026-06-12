@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Only document and fix real correctness or consistency issues.",
+    "Separate local Lattice CLI Non-authority evidence from Authority Server proof.",
+    "Mark future Layer4 capability as future/blocked instead of implying current implementation.",
+    "Keep the execution plan small and auditable."
+  ],
+  "drivers": [
+    "Current gap_analyze high findings must not be fake-resolved.",
+    "User explicitly wants future capability prose adjusted to future/blocked scope.",
+    "The story must follow Lattice lifecycle with two-host audit evidence."
+  ],
+  "options": [
+    {
+      "name": "A: Write a narrow execution plan and future/blocked Layer4 note",
+      "pros": [
+        "Directly answers the user request.",
+        "Avoids premature Authority/customerKeyRef implementation.",
+        "Creates a clear follow-up path for the signed workspace consistency gaps."
+      ],
+      "cons": [
+        "Does not make convergence green by itself.",
+        "Requires a later implementation story if the signed workspace gaps prove real code/doc drift."
+      ]
+    },
+    {
+      "name": "B: Implement customerKeyRef and all gap fixes now",
+      "pros": [
+        "Could eventually remove more gap_analyze findings in one wave."
+      ],
+      "cons": [
+        "Violates the user choice to mark future capability as future/blocked.",
+        "Would expand into Layer4 Production Safety without a dedicated unlock story.",
+        "Risks arbitrary optimization and false capability claims."
+      ]
+    },
+    {
+      "name": "C: Only mark F-009 resolved without new evidence",
+      "pros": [
+        "Fastest way to reduce visible backlog text."
+      ],
+      "cons": [
+        "False closure risk is high.",
+        "Contradicts B-9092 audit conclusion.",
+        "Would weaken the no false DONE/no false claim discipline."
+      ]
+    }
+  ],
+  "chosen": "A: Write a narrow execution plan and future/blocked Layer4 note",
+  "rationale": "Option A is the only option that satisfies the requested scope while preserving Host Neutral, Non-authority, and no-false-claim boundaries.",
+  "preMortem": [
+    {
+      "scenario": "The document accidentally claims Layer2 or Layer4 unlock.",
+      "trigger": "Wording says PASS, unlocked, production-ready, or receipt verified without formal artifacts.",
+      "consequence": "Future agents may treat local docs work as capability proof.",
+      "mitigation": "Include explicit non-goals and DONE criteria stating no capability unlock occurs from this document alone."
+    },
+    {
+      "scenario": "customerKeyRef is implemented or described as current behavior without a Layer4 story.",
+      "trigger": "The edit changes code or current contract fields instead of marking future/blocked scope.",
+      "consequence": "Production safety boundary becomes inconsistent and overclaims Authority capability.",
+      "mitigation": "Limit this story to future/blocked wording and require a separate Layer4 implementation story for real customerKeyRef support."
+    },
+    {
+      "scenario": "The signed workspace gaps are dismissed without checking reality.",
+      "trigger": "The execution plan labels them documentation-only without confirming code/doc relation.",
+      "consequence": "A real correctness issue could remain hidden behind prose.",
+      "mitigation": "Document exact triage steps, commands, and acceptance criteria for a follow-up story to verify code output, docs wording, and process fact coverage."
+    }
+  ],
+  "timestamp": "2026-06-12T17:41:39.379Z"
+}

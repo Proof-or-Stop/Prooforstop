@@ -1,0 +1,52 @@
+{
+  "storyId": "B-3a80",
+  "checkedAt": "2026-06-12T17:49:50.911Z",
+  "features": [
+    {
+      "feature": "Create conservative F-009 gap_analyze high-gaps execution plan",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get: CHK-001 records exact high findings in new F-009 execution document; CHK-002 creates docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md"
+    },
+    {
+      "feature": "Modify docs/requirements/NAV.md only to link/count the new execution document",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get: CHK-002 adds new document to NAV; CHK-004 verifies NAV count/link"
+    },
+    {
+      "feature": "Modify Layer4 production safety suite only to mark customerKeyRef future/blocked",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/plan_get: customerKeyRef is future/blocked unless separate Layer4 implementation story is opened; no current CLI or Authority support implied"
+    },
+    {
+      "feature": "Reference signed workspace decision document without modifying it",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get: signed workspace findings require follow-up proof without modifying signed workspace design document in this story; checklist files do not list that doc for modification"
+    },
+    {
+      "feature": "Avoid false closure or unlock claims for F-009, Layer2, Layer4, Authority, or production safety",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get/checklist_get: verification forbids resolved/unlocked claims without formal proof"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8408c38b3ad4d2f5cbe1f405b443453a33a438695afe882ad71b708b2128c8a0",
+  "openQuestions": []
+}

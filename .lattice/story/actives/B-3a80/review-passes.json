@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-3a80:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review PASS: lattice gap_analyze still reports exactly the three high gaps recorded in the plan; docs diff is limited to NAV, the new F-009 execution plan, and the Layer4 customerKeyRef boundary note; the plan explicitly keeps signed-workspace gaps open and marks customerKeyRef future/blocked without claiming F-009 closure, Layer2/Layer4 unlock, productionDone, receiptVerified, or Authority completion.",
+      "createdAt": "2026-06-12T18:04:09.257Z",
+      "reviewRound": "2026-06-12T18:02:02.558Z",
+      "reviewRunId": "B-3a80:RR-001",
+      "_hash": "48384ea690f242f719084cfe262552d5e065d25cdfac8359cedb0d8071424602"
+    },
+    {
+      "id": "B-3a80:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Docs diff quality/correctness reviewed only. Evidence: lattice gap_analyze still reports 3 high / 0 medium with anchors 262, 311, 267; NAV decision count is 45 and link was added; signed-workspace plan has no diff; packages/main src/tests contain no customerKeyRef; wording preserves future/blocked boundary and avoids F-009, Layer 2, Layer 4, productionDone, receiptVerified, or Authority completion claims.",
+      "createdAt": "2026-06-12T18:04:40.902Z",
+      "reviewRound": "2026-06-12T18:02:02.558Z",
+      "reviewRunId": "B-3a80:RR-002",
+      "_hash": "8ac857ba87a2b8033d09cfe3719adbadf8f40d871d4400d4b243a35870cfecdc"
+    },
+    {
+      "id": "B-3a80:RP-003",
+      "agent": "koala-review-docs",
+      "note": "PASS docs review. Ran session_brief, aux_doc_list, gap_analyze, scoped git diff, NAV link/count check, and customerKeyRef/claim-boundary scan. NAV header=45, linkCount=45, decisionFileCount=45, missing=[], unlinked=[]. gap_analyze reproduced 3 high / 0 medium with the same signed-workspace and customerKeyRef anchors. docs/requirements/decisions/unlock-layer4-production-safety-suite.md:284-298 keeps customerKeyRef future/blocked and explicitly denies receiptVerified, productionDone, and Layer 4 unlock. docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md:12-14,55-67,269-297 avoids false F-009, Layer 2, Layer 4, or Authority completion claims.",
+      "createdAt": "2026-06-12T18:04:53.933Z",
+      "reviewRound": "2026-06-12T18:02:02.558Z",
+      "reviewRunId": "B-3a80:RR-004",
+      "_hash": "150b3744c9fe0b23d259f106a8fb115242ec9990ed0b46bb386faf2c097a3062"
+    },
+    {
+      "id": "B-3a80:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept PASS after F-001 resolution: current gap_analyze remains 3 high / 0 medium; B-3a80 classifies signed-workspace gaps as future implementation/verification candidates, marks customerKeyRef future/blocked unless a separate Layer 4 implementation story opens, and avoids F-009 closure, Layer2/Layer4 unlock, Authority completion, productionDone, and receiptVerified claims.",
+      "createdAt": "2026-06-12T18:09:06.177Z",
+      "reviewRound": "2026-06-12T18:06:33.192Z",
+      "reviewRunId": "B-3a80:RR-005",
+      "_hash": "9792a626ec10d2f1f5a0bad2437294507ae1e51ace881531305a2cecd449baec"
+    },
+    {
+      "id": "B-3a80:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-reviewed B-3a80:F-001: CHK-002:edge and CHK-004:edge now record unfiltered git diff --name-status main...HEAD plus a negative allowlist check. I reran the full diff and allowlist check; only B-3a80 Lattice metadata and the three scoped docs are present, with no unrelated paths emitted. No test-coverage blocker remains.",
+      "createdAt": "2026-06-12T18:09:39.155Z",
+      "reviewRound": "2026-06-12T18:06:33.192Z",
+      "reviewRunId": "B-3a80:RR-008",
+      "_hash": "5258e0c51e865cb4ebfd0e9f3bce9acaf70c10f60e7394583ad252ee893d8d89"
+    },
+    {
+      "id": "B-3a80:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Docs re-review PASS. NAV.md line 3 says 45 files; mechanical link check found 45 NAV entries and missing=[]; NAV line 17 links f009-gap-analyze-high-gaps-execution-plan.md. f009 plan lines 12-14, 57-65, 269-297 explicitly forbid F-009 closure, Layer2/Layer4 unlock, productionDone/receiptVerified, and Authority completion claims. Layer4 plan lines 284-298 preserve customerKeyRef as future/blocked B-3a80 scope and state it is not implemented/proven. Claim-like Layer4 examples are guarded as future formal-unlock/precondition wording, including lines 724-748. git diff main...HEAD under docs/requirements shows only NAV, the new f009 plan, and unlock-layer4-production-safety-suite.",
+      "createdAt": "2026-06-12T18:10:02.093Z",
+      "reviewRound": "2026-06-12T18:06:33.192Z",
+      "reviewRunId": "B-3a80:RR-007",
+      "_hash": "34a6d6547bac3828761fedafdfc3f0da4840a56d7a6a422c9ee211d6421e609e"
+    },
+    {
+      "id": "B-3a80:RP-007",
+      "agent": "koala-review-quality",
+      "note": "PASS: final re-review after B-3a80:F-002 resolution. Reran exact CHK-001:adversarial command `rg -n \"Claim boundary: this document does not resolve F-009\" docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md` and it exited 0. Reran exact CHK-003:adversarial command `rg -n \"current implemented support|implement .customerKeyRef.|receiptVerified=true|productionDone=true|unlock Layer 4 Production\" docs/requirements/decisions/unlock-layer4-production-safety-suite.md` and it exited 0. Reviewed scoped docs diff and current gap_analyze output; no false F-009 closure, Layer2/Layer4 unlock, productionDone/receiptVerified proof claim, or scope creep found.",
+      "createdAt": "2026-06-12T18:14:14.182Z",
+      "reviewRound": "2026-06-12T18:12:01.199Z",
+      "reviewRunId": "B-3a80:RR-009",
+      "_hash": "8b86ef8412a9388461b9ec4e71df25ce39be01e78cfd7008d0238529d5f76f58"
+    },
+    {
+      "id": "B-3a80:RP-008",
+      "agent": "koala-review-concept",
+      "note": "Concept re-review PASS. lattice gap_analyze still reports the expected 3 high gaps; the new F-009 execution plan classifies the two signed-workspace gaps as real future implementation/verification candidates, marks customerKeyRef as future/blocked Layer 4 scope, and explicitly denies F-009 closure, Layer2 unlock, Layer4 unlock, Authority completion, productionDone, and receiptVerified claims. The Layer4 scope note preserves customerKeyRef as a future evidence requirement and does not claim current CLI/report/receipt/evaluator support.",
+      "createdAt": "2026-06-12T18:14:44.069Z",
+      "reviewRound": "2026-06-12T18:12:01.199Z",
+      "reviewRunId": "B-3a80:RR-010",
+      "_hash": "0d3e16fb6f8c605977b98d49d591e21be5971d3b8d0d2635d167badd200f44c2"
+    },
+    {
+      "id": "B-3a80:RP-009",
+      "agent": "koala-review-docs",
+      "note": "PASS docs touchpoints: NAV count/link verified at docs/requirements/NAV.md:3 and :17 with rg -c showing 45 links; Layer 4 customerKeyRef scope note is future/blocked and requires a separate implementation story at docs/requirements/decisions/unlock-layer4-production-safety-suite.md:284-297; F-009 plan keeps claim boundary/non-goals against F-009 closure, Layer 2/Layer 4 unlock, Authority completion, productionDone, and receiptVerified at docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md:12-13 and :55-66; evidence guidance includes git add -N and commit-bound diff at :101 and :106-110, with required evidence reiterated at :264-265. No docs blocker found.",
+      "createdAt": "2026-06-12T18:14:49.526Z",
+      "reviewRound": "2026-06-12T18:12:01.199Z",
+      "reviewRunId": "B-3a80:RR-011",
+      "_hash": "202325f120c599e5fa352daf2010e6336374eec2ab507d9167c52019d94e5399"
+    },
+    {
+      "id": "B-3a80:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Concept PASS: F-001/F-002/F-003 are resolved; lattice gap_analyze still reports the same 3 high gaps; B-3a80 classifies signed-workspace gaps as future implementation/verification candidates, marks customerKeyRef as future/blocked Layer 4 scope, and avoids claims that F-009 is closed, Layer 2/Layer 4 are unlocked, productionDone/receiptVerified are true, or Authority work is complete.",
+      "createdAt": "2026-06-12T18:20:23.708Z",
+      "reviewRound": "2026-06-12T18:18:16.480Z",
+      "reviewRunId": "B-3a80:RR-013",
+      "_hash": "e279edcba0db924e77e5c55010da2a2c5115cf4c64e4c20aef5e085c8c4a84b2"
+    },
+    {
+      "id": "B-3a80:RP-011",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: final test-coverage review after F-003 resolution. Replayed every recorded verificationEvidence command successfully: lattice gap_analyze still reports 3 high / 0 medium gaps; all sed and rg documentation checks exit 0; CHK-002/CHK-004 node allowlist commands exit 0 and confirm git diff main...HEAD contains only B-3a80 Lattice metadata plus docs/requirements/NAV.md, docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md, and docs/requirements/decisions/unlock-layer4-production-safety-suite.md. No open blocker remains in this lane.",
+      "createdAt": "2026-06-12T18:21:10.974Z",
+      "reviewRound": "2026-06-12T18:18:16.480Z",
+      "reviewRunId": "B-3a80:RR-015",
+      "_hash": "73e5a376a82103070dcb6af01eb0ded53cda172ede15f8d97e5fd9a410129f43"
+    },
+    {
+      "id": "B-3a80:RP-012",
+      "agent": "koala-review-docs",
+      "note": "PASS docs review. Verified NAV has 45 decision links and the new F-009 gap_analyze link resolves; decisions directory also has 45 markdown files. Verified the Layer 4 customerKeyRef note marks the row future/blocked unless a separate implementation story is opened and does not implement customerKeyRef, set receiptVerified, set productionDone, or unlock Layer 4. Verified the F-009 execution plan preserves no false F-009/Layer2/Layer4/Authority claims and evidence guidance includes git add -N before commit plus commit-bound git diff main...HEAD / git show --name-only after commit so new docs are included. Replayed lattice gap_analyze: still 3 high / 0 medium.",
+      "createdAt": "2026-06-12T18:21:34.815Z",
+      "reviewRound": "2026-06-12T18:18:16.480Z",
+      "reviewRunId": "B-3a80:RR-016",
+      "_hash": "f9674be8ae6f97d8364c39e21a914991086766e84256fc22647abcae6d0db8b0"
+    },
+    {
+      "id": "B-3a80:RP-013",
+      "agent": "koala-review-quality",
+      "note": "PASS quality/correctness: reran lattice gap_analyze and the stored evidence command shapes; F-001/F-002/F-003 are resolved; scoped diff is docs-only plus Lattice metadata; no false F-009/Layer2/Layer4/Authority closure claim found.",
+      "createdAt": "2026-06-12T18:21:48.656Z",
+      "reviewRound": "2026-06-12T18:18:16.480Z",
+      "reviewRunId": "B-3a80:RR-017",
+      "_hash": "743eb63af998d96da2b5f3c36ad2b6783af4384799e9858f8b200f6000177186"
+    }
+  ]
+}
