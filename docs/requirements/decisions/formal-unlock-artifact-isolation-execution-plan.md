@@ -47,6 +47,7 @@ selected root violates any of the following conditions:
 | `capabilityProof` | Must be `true` | Non-proof artifact in proof root |
 | `formalProof` | Must be `true` | Non-formal artifact in formal root |
 | `falseDone` | Must be `false` | False DONE artifact |
+| `authority.authorityDone` | Must be `false` for Layer 2/3 CLI proof | Authority overclaim |
 | `authority.receiptVerified` | Must be `false` for Layer 2/3 CLI proof | Authority overclaim |
 | `authority.productionDone` | Must be `false` for Layer 2/3 CLI proof | Authority overclaim |
 | `authority.fullAuthorityDone` | Must be `false` for Layer 2/3 CLI proof | Authority overclaim |
