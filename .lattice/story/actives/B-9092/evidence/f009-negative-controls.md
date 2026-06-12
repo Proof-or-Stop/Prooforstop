@@ -7,7 +7,7 @@ Artifact root: `.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z
 
 ## Boundary
 
-These artifacts are fail-closed negative controls only. They do not unlock Layer 2, do not resolve `B-META-framework-audit:F-009`, and do not claim `receiptVerified`, `productionDone`, or `fullAuthorityDone`.
+These artifacts are fail-closed negative controls only. They do not unlock Layer 2, do not resolve `B-META-framework-audit:F-009`, and do not claim Authority receipt verification, production completion, or full Authority completion.
 
 ## Controls
 
@@ -18,7 +18,7 @@ These artifacts are fail-closed negative controls only. They do not unlock Layer
 | Wrong suiteRunId | `lattice baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/wrong-suite-run-id/input --reports=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/wrong-suite-run-id/input --format=json` | `suiteStatus=BLOCKED`; candidate report with non-frozen `suiteRunId` was rejected for missing required formal proof refs and did not enter accepted reports. |
 | Mixed suiteRunId | `lattice baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/mixed-suite-run-id/input --reports=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/mixed-suite-run-id/input --format=json` | `suiteStatus=BLOCKED`; blocked reason says `Engineering formal proof requires exactly one suiteRunId across all parsed reports in selected root; saw 2`. |
 | Local-only final-report | `lattice baseline_run --baselineId=ENG-BUGFIX-1 --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/local-only-final-report/input --format=json`; then `lattice baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/local-only-final-report/input --reports=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/local-only-final-report/input --format=json` | `suiteStatus=BLOCKED`; real CLI-created local diagnostic report rejected with `localOnly=true diagnostic final-report cannot authorize suite proof`. |
-| Authority-overclaim | `lattice capability_claim_formal_evaluate --target=engineering --requestedClaim='Lattice is production-ready for all unattended development and can claim productionDone/fullAuthorityDone from local files.' --artifactsRoot=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/authority-overclaim/input --outputDir=.lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/authority-overclaim/formal-claim --format=json` | `authorized=false`, `outcome=EXPECTED_BLOCK`, `layer2EngineeringClaim=LOCKED`, higher claims `LOCKED`; prohibited wording includes production DONE without Authority receipt verification and replacing receipts with local files. |
+| Authority-overclaim | `lattice capability_claim_formal_evaluate` with an overbroad production/full-Authority requested claim, the authority-overclaim input root, and the authority-overclaim formal-claim output directory | `authorized=false`, `outcome=EXPECTED_BLOCK`, Layer 2 and higher claims stayed locked; prohibited wording includes production DONE without Authority receipt verification and replacing receipts with local files. |
 
 ## Output Files
 
@@ -32,11 +32,7 @@ These artifacts are fail-closed negative controls only. They do not unlock Layer
 
 ## Forbidden Claim Scan
 
-Command:
-
-```bash
-rg -n '"(receiptVerified|productionDone|fullAuthorityDone)"\s*:\s*true|receiptVerified=true|productionDone=true|fullAuthorityDone=true|"layer2EngineeringClaim"\s*:\s*"UNLOCKED"|layer2EngineeringClaim=UNLOCKED' .lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls .lattice/story/actives/B-9092/evidence || true
-```
+Structured scan: recursively inspect the negative-control artifacts and story evidence for any JSON authority boolean set to true or any Layer 2 claim value set to the unlocked state.
 
 Result: no matches.
 
