@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-9833:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: resolving F-009 as stale/superseded is logically consistent with current evidence when scoped to the original no-formal-path/no-producer-importer claim. finding_list shows F-009 resolved with explicit boundary text; lattice capability_claim_formal_evaluate --target=engineering --format=json returns EXPECTED_BLOCK with layer2EngineeringClaim LOCKED, Production/global claims LOCKED, receiptVerified=false, productionDone=false, and fullAuthorityDone=false. Source inspection confirms formal writer/evaluator paths exist and fail closed on localOnly/capabilityProof/formalProof/stale/missing evidence; gap_analyze still reports customerKeyRef only as separate future Layer4 scope. No blocker found.",
+      "createdAt": "2026-06-12T20:30:32.104Z",
+      "reviewRound": "2026-06-12T20:27:54.104Z",
+      "reviewRunId": "B-9833:RR-001",
+      "_hash": "ab69bddd23f2b3d9e115683d2ef5c73ad818991d2bb7698a725cec71898f862a"
+    }
+  ]
+}
