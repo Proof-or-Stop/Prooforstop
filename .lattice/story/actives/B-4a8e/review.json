@@ -40,6 +40,24 @@
         }
       ],
       "_hash": "283857c466fbd870899ffbebb2e646e2a3a4ce2083d979ec6973db9636e9ff9f"
+    },
+    {
+      "timestamp": "2026-06-12T21:05:57.558Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Show configured gitRoot status in non-git session brief + Keep fail-closed behavior for unresolved wrapper roots are performed simultaneously?)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "scope check not run. Please start the koala-review-scope-plan agent first; the agent will automatically call scope_check_save to write the result"
+        }
+      ],
+      "_hash": "2b60ca746b6a9331d65d5281a3e29d616d3ff8ca9f21e8c41d50d28df308b6c3"
     }
   ]
 }
