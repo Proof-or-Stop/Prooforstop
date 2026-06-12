@@ -1073,6 +1073,161 @@ export interface InitCheckData {
   _hash: string;
 }
 
+// ── Scope Anti-Expansion (B-85ba: INIT→INIT_CHECK boundary freeze gate) ──
+
+export type ScopeBoundaryMode = 'correctness_fix' | 'feature' | 'maintenance' | 'custom';
+
+export interface ScopeBoundaryData {
+  schemaVersion: 'lattice.scope_boundary.v1';
+  storyId: string;
+  mode: ScopeBoundaryMode;
+  /** User-confirmed in-scope semantic directions, normalized and deduplicated by the core evaluator. */
+  allowed: string[];
+  /** User-confirmed out-of-scope semantic directions, normalized and deduplicated by the core evaluator. */
+  excluded: string[];
+  confirmedBy?: string;
+  confirmationNote?: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Stable sha256 over schemaVersion/storyId/mode/allowed/excluded/confirmationNote. */
+  _hash: string;
+}
+
+export interface ExecutionBoundaryData {
+  schemaVersion: 'lattice.execution_boundary.v1';
+  storyId: string;
+  /** Commands/tool invocations explicitly allowed for this story's INIT_CHECK/DEV execution envelope. */
+  allowedCommands: string[];
+  allowedTools: string[];
+  /** Commands/tool invocations explicitly excluded from this story's execution envelope. */
+  excludedCommands: string[];
+  excludedTools: string[];
+  confirmedBy?: string;
+  confirmationNote?: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Stable sha256 over schemaVersion/storyId and normalized execution boundary arrays. */
+  _hash: string;
+}
+
+export interface ScopeFreezeTextSource {
+  source: 'story.title' | 'story.description' | 'checklist.title' | 'checklist.context' | 'checklist.excludes' | 'scopeBoundary.allowed' | 'scopeBoundary.excluded';
+  text: string;
+  itemId?: string;
+  /** True when the source is an explicit exclusion channel rather than an in-scope promise. */
+  excluded?: boolean;
+}
+
+export interface ScopeFreezeKeywordHit {
+  keyword: string;
+  source: ScopeFreezeTextSource['source'];
+  text: string;
+  itemId?: string;
+  excluded: boolean;
+}
+
+export interface ScopeFreezeDiscardOverlap {
+  digest: string;
+  overlapTerms: string[];
+  overlapRatio: number;
+  previousStoryId?: string;
+  previousReason?: string;
+  previousDiscardedAt?: string;
+  mitigation?: string;
+}
+
+export type ScopeFreezeIssueCode =
+  | 'missing_scope_boundary'
+  | 'missing_execution_boundary'
+  | 'future_capability_keyword'
+  | 'repeat_discard_without_mitigation';
+
+export interface ScopeFreezeIssue {
+  code: ScopeFreezeIssueCode;
+  severity: 'hard' | 'warning';
+  message: string;
+  keyword?: string;
+  source?: ScopeFreezeTextSource['source'];
+  itemId?: string;
+  digest?: string;
+  overlapTerms?: string[];
+}
+
+export interface ScopeFreezeCheckData {
+  schemaVersion: 'lattice.scope_freeze_check.v1';
+  storyId: string;
+  checkedAt: string;
+  mode: ScopeBoundaryMode;
+  status: 'pass' | 'fail';
+  scopeBoundaryHash?: string;
+  executionBoundaryHash?: string;
+  /** Hash over bounded story/checklist projection plus boundary hashes; changes when handlers should rerun the check. */
+  freshnessHash: string;
+  effectiveExcludedKeywords: string[];
+  keywordHits: ScopeFreezeKeywordHit[];
+  repeatDiscardOverlaps: ScopeFreezeDiscardOverlap[];
+  issues: ScopeFreezeIssue[];
+  /** Stable sha256 over the check result fields above. */
+  _hash: string;
+}
+
+export type ScopeExtensionDecisionValue = 'approved' | 'rejected';
+export type ScopeExtensionProposalStatus = 'pending' | ScopeExtensionDecisionValue | 'withdrawn';
+
+export interface ScopeExtensionPatch {
+  allowed?: string[];
+  excluded?: string[];
+  executionAllowedCommands?: string[];
+  executionAllowedTools?: string[];
+  executionExcludedCommands?: string[];
+  executionExcludedTools?: string[];
+}
+
+export interface ScopeExtensionDecision {
+  decision: ScopeExtensionDecisionValue;
+  decidedBy: string;
+  decidedAt: string;
+  rationale: string;
+  /** Stable sha256 over proposalId/decision/decidedBy/decidedAt/rationale. */
+  _hash: string;
+}
+
+export interface ScopeExtensionProposal {
+  proposalId: string;
+  storyId: string;
+  proposedBy: string;
+  proposedAt: string;
+  reason: string;
+  patch: ScopeExtensionPatch;
+  reviewerRunId?: string;
+  status: ScopeExtensionProposalStatus;
+  decision?: ScopeExtensionDecision;
+  /** Stable sha256 over proposal identity, reason, patch, reviewerRunId, status, and decision hash. */
+  _hash: string;
+}
+
+export interface ScopeExtensionProposalData {
+  storyId: string;
+  updatedAt: string;
+  proposals: ScopeExtensionProposal[];
+}
+
+export interface ScopeDiscardDigestEntry {
+  digest: string;
+  /** Normalized semantic terms for overlap checks; no raw transcript is required. */
+  terms: string[];
+  reason: string;
+  discardedAt: string;
+  storyId?: string;
+  mitigation?: string;
+}
+
+export interface ScopeDiscardDigestData {
+  storyId: string;
+  updatedAt: string;
+  entries: ScopeDiscardDigestEntry[];
+}
+
 // ── Delivery Check (B-35ed: TEST→DONE hard gate) ──
 
 export interface DocsPromise {
