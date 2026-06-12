@@ -1,0 +1,73 @@
+{
+  "storyId": "B-8404",
+  "checkedAt": "2026-06-12T19:30:54.847Z",
+  "features": [
+    {
+      "feature": "Git-derived material changed-file detection per active story worktree (committed-vs-main + uncommitted, repo-relative POSIX paths)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001; understanding.facts[4]"
+    },
+    {
+      "feature": "Runtime/story-metadata noise exclusion (.lattice/**, .koala/**, .omx/**, lease/cache/log artifacts) so metadata-only diffs report no overlap",
+      "covered_by": "CHK-001, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001 rules; checklist CHK-001 edge intent; decision preMortem[0]"
+    },
+    {
+      "feature": "Visible degradation instead of silent drop/throw when git probing fails for a story",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-001 adversarial intent; plan.md CHK-001 rules"
+    },
+    {
+      "feature": "Overlap feeds parallel safety model: overlapping stories degrade to plan_only, parallel_merge_queue blockers/guidance list file + peer story id, stronger existing blockers preserved",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-002; checklist CHK-002 happy/adversarial intents"
+    },
+    {
+      "feature": "Existing sharedHotspots semantics preserved and non-overlapping stories remain parallel_dev candidates",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-002 rules; checklist CHK-002 edge intent; docs/requirements/decisions/lattice-parallel-wave.md fail-closed hotspot rule"
+    },
+    {
+      "feature": "L0 read-only + host-neutral Authority boundary preserved (productionDone=false, authorityChanged=false, receiptRefs=[]; no story metadata/evidence/receipt writes, no host spawn), proven by byte-identical snapshot check",
+      "covered_by": "CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-003; docs/requirements/decisions/lattice-parallel-wave.md Authority Boundary; decision preMortem[2]"
+    },
+    {
+      "feature": "Deterministic smoke regression coverage incl. negative cases and assertions that can actually fail (deliberately broken expectation goes red)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-004; checklist CHK-004 adversarial intent"
+    },
+    {
+      "feature": "Docs reflection: docs/requirements/decisions/lattice-parallel-wave.md listed as touchpoint to document the new overlap guidance contract",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.touchpoints[3]; checklist relatedDocs"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 8,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d9d79351d74d89170870864c0508366c5e68d5db091b317c08db25cff2b7a150",
+  "openQuestions": []
+}

@@ -1,0 +1,28 @@
+{
+  "storyId": "B-8404",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-parallel-wave.ts",
+    "packages/main/src/handlers/lattice-parallel-wave.ts",
+    "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+    "docs/requirements/decisions/lattice-parallel-wave.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/authority-gate-receipts.ts"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "packages/main/tests/fixtures/**",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "B-8404 is limited to read-only Parallel Wave changed-file overlap detection plus smoke/doc coverage; owner lease, main write lock, Authority receipt logic, story JSON, fixtures, and .omx are out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T19:24:26.517Z",
+  "updatedAt": "2026-06-12T19:24:44.912Z"
+}
