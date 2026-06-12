@@ -1,0 +1,29 @@
+{
+  "task": "Add deterministic CLI diagnosis and explicit repair for wrapper-root gitRoot layouts.",
+  "outcome": "User runs `lattice config doctor` in a wrapper root and sees `gitRoot suggestion: clawcreek` plus `repairCommand: lattice config repair --set-git-root=clawcreek --confirm`; after running the repair command, `lattice story_resolve --storyId=B-3938 --format=json` reports `resolved: true`, `resolutionSource: configured-git-root`, and the signed workspace points at the child git repo.",
+  "facts": [
+    "B-3938 exposed a wrapper-root layout where metadataRoot is not git-backed and the actual git repo is a child directory.",
+    "story_resolve/review_run_start already fail closed when metadataRoot is not git and no worktree/gitRoot binding exists.",
+    "Project config already has a gitRoot field and split-root resolver support for configured gitRoot.",
+    "lattice_config_doctor is the existing read-only config diagnostic surface and has the alias `lattice config doctor`.",
+    "field-regression-cli-smoke already has helper coverage for wrapper root projects with nested git repos."
+  ],
+  "constraints": [
+    "Do not make runtime signed-workspace resolution silently guess child repositories.",
+    "Do not let Claude/Codex hosts become authoritative repair agents; hosts can only execute visible Lattice commands.",
+    "Do not optimize broadly or introduce arbitrary discovery depth; only fix the concrete wrapper-root correctness UX.",
+    "Repair must require explicit gitRoot and confirmation, validate the target, and avoid unrelated config writes.",
+    "Multiple child git repositories must remain fail-closed with a diagnostic ambiguity message."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-12T19:25:42.998Z"
+}

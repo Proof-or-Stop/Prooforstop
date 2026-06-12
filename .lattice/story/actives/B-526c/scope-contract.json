@@ -1,0 +1,23 @@
+{
+  "storyId": "B-526c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize enforce scope contract from PLAN checklist files before implementation.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T19:31:46.108Z",
+  "updatedAt": "2026-06-12T19:31:46.108Z"
+}

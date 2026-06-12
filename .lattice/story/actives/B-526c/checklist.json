@@ -8,15 +8,79 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
       ],
-      "userSees": "lattice config doctor reports metadataRoot is not git-backed and, when exactly one child git repo exists, prints a concrete gitRoot suggestion and repair command.",
+      "userSees": "`lattice config doctor` prints `wrapperGitRoot.status: single-candidate`, `suggestedGitRoot: clawcreek`, and `repairCommand: lattice config repair --set-git-root=clawcreek --confirm`.",
       "excludes": [
         "using the suggested child repo automatically for signed-workspace resolution",
         "scanning deep arbitrary directory trees",
         "choosing among multiple child repos"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T19:32:32.644Z",
+      "endTime": "2026-06-12T19:54:13.718Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper metadata root is not git-backed, has no configured gitRoot, and has exactly one immediate child git repo; lattice config doctor JSON/text reports a gitRoot suggestion and explicit repair command without marking the project as repaired",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wrapper root has no child git repo candidates; config doctor reports no candidates and no repair command",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrapper root has multiple immediate child git repo candidates; config doctor reports ambiguity and refuses to choose a repair target",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers single immediate child git repo doctor output with wrapperGitRoot.status single-candidate, suggestedGitRoot, and repairCommand.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers wrapper metadata root with no child git repo candidates and no repair command.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers ambiguous multiple immediate child git repos and verifies no suggested repair target is chosen.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -26,16 +90,82 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md"
       ],
-      "userSees": "lattice config repair --set-git-root=clawcreek --confirm writes gitRoot and reports that the configured git root resolves successfully.",
+      "userSees": "`lattice config repair --set-git-root=clawcreek --confirm` prints `gitRoot: clawcreek`, `write: updated lattice.config.json`, and `verification: configured-git-root verified`.",
       "excludes": [
         "host-agent auto repair",
         "implicit --confirm",
         "writing unrelated config fields",
         "accepting paths outside metadataRoot"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T19:33:06.033Z",
+      "endTime": "2026-06-12T19:54:30.324Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice config repair --set-git-root=clawcreek --confirm validates the child git root, writes gitRoot to lattice.config.json/koala.config.json, and reports verified configured-git-root",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "repair without --confirm is non-mutating and tells the operator to rerun with --confirm; config file remains unchanged",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "repair rejects paths outside metadataRoot, missing paths, or directories whose git top-level is not the provided target; config file remains unchanged",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers confirmed lattice config repair --set-git-root=clawcreek --confirm writing gitRoot to existing lattice.config.json and reporting configured-git-root verified.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers repair without --confirm as non-mutating preview with confirmCommand and unchanged config file.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers unsafe outside path and nested non-root git target rejection with config remaining unchanged.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -45,15 +175,105 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "After repair, story_resolve/review_run_start no longer report metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for the repaired project.",
+      "userSees": "After repair, `lattice story_resolve --storyId=<id> --format=json` prints `resolved: true`, `resolutionSource: configured-git-root`, and `signedWorkspaceRoot: <metadataRoot>/clawcreek`.",
       "excludes": [
         "claiming full Lattice convergence",
         "closing unrelated gap_analyze highs",
         "modifying Layer4 authority readiness"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T19:33:12.350Z",
+      "endTime": "2026-06-12T19:54:39.096Z",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "after confirmed repair in a wrapper-root fixture, story_resolve reports resolved true with resolutionSource configured-git-root and review_run_start creates a signed reviewer run bound to the child git repo",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "before repair, story_resolve/review_run_start still fail closed with unresolved signed workspace and do not create review runs",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "ambiguous multi-child wrapper-root fixture remains unresolved until an explicit valid gitRoot repair is provided",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers story_resolve resolving via configured-git-root and review_run_start creating a signed reviewer run bound to the child git root after repair.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers story_resolve and review_run_start failing closed before repair with no review run created.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Field regression smoke covers ambiguous multi-child wrapper roots remaining unresolved until an explicit valid gitRoot repair is provided.",
+          "headHash": "4058a870a120a643d0570fe323f6ec1c70bd4b5d",
+          "materialHash": "0fa5ea87ff615e79841aad3ab3ac307a54bcde7c27e0ae5c569b17b6d229f63d",
+          "timestamp": "2026-06-12T20:27:40.623Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-12T19:32:32.644Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation starts; diagnostic, repair, and verification are coupled."
+    },
+    {
+      "timestamp": "2026-06-12T19:33:06.033Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation starts; diagnostic, repair, and verification are coupled."
+    },
+    {
+      "timestamp": "2026-06-12T19:33:12.350Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation starts; diagnostic, repair, and verification are coupled."
     }
   ]
 }

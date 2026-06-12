@@ -1,0 +1,66 @@
+{
+  "storyId": "B-526c",
+  "checkedAt": "2026-06-12T19:30:13.769Z",
+  "features": [
+    {
+      "feature": "Deterministic wrapper-root gitRoot diagnosis in config doctor (none/single/ambiguous states with suggestion + repair command for single safe candidate)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md#L303-L336"
+    },
+    {
+      "feature": "Explicit confirmed gitRoot repair command (lattice config repair --set-git-root --confirm) with path validation under metadataRoot, git-backed verification, gitRoot-only write, and command-policy/process-fact registration",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md#L222-L223"
+    },
+    {
+      "feature": "Post-repair signed-workspace verification: story_resolve resolves via configured-git-root and review_run_start binds signed reviewer run to child repo; pre-repair and ambiguous layouts remain fail-closed",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md#L415-L418"
+    },
+    {
+      "feature": "Changing runtime signed-workspace resolution to auto-discover/guess nested child repositories",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints + decision option B rejected + preMortem 1; resolution doc forbids auto-discovery (L73)",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md#L73"
+    },
+    {
+      "feature": "Host (Claude/Codex) auto-repair authority or implicit --confirm",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes host-agent auto repair and implicit --confirm; story description requires host-neutral execution-only role",
+      "source": "story description + decision principles"
+    },
+    {
+      "feature": "Layer4 / Authority / production readiness policy changes and global convergence or unrelated gap_analyze-high closure claims",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes convergence claims, unrelated gap_analyze highs, Layer4 authority readiness; plan core constraints; Production/Emergency riskSignal dismissed as mention-only",
+      "source": "plan.md core constraints"
+    },
+    {
+      "feature": "Deep arbitrary directory-tree scanning or choosing among multiple child repos",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes deep scanning and multi-candidate choice; plan limits inspection to immediate child directories with ambiguous fail-closed",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md#L418"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7509f354a6ff446a31fa5870c45c697fafd867c6816f3a577f103b9b3b89f792",
+  "openQuestions": []
+}

@@ -159,6 +159,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b: dispatch runtime readiness probes for fake/claude-code/gemini/codex
     'lattice_config_doctor', // Lattice CLI 0.3.5: CLI-first migration/config status; no Mac App dependency
+    'lattice_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
     'codex_doctor',          // Codex adapter diagnostics (read-only); does not write process-event evidence
     'rollout_check', // Lattice CLI 0.3.5: read-only cross-project rollout diagnostics
     'baseline_run', 'baseline_suite', 'baseline_suite_report', // Lattice baseline execution and suite reporting; writes baseline artifacts only
