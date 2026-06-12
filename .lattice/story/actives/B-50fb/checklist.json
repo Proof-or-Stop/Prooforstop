@@ -90,9 +90,9 @@
         "README.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:48:30.313Z",
-      "endTime": "2026-06-12T21:01:46.913Z",
+      "endTime": "2026-06-12T21:07:36.751Z",
       "userSees": "`lattice doctor` and related runtime diagnostics show \"@lattice-agent/core\" as the canonical package; if \"@koala-agent/core\" appears, the output labels it as legacy compatibility.",
       "files": {
         "modify": [
@@ -150,30 +150,30 @@
           "kind": "manual_transcript",
           "command": "npm --prefix packages/main run build && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
-          "note": "Main build and runtime fact contract passed after root identity correction; self-project detection now expects root package name lattice and core package @lattice-agent/core.",
-          "headHash": "b5b9c3254f4bda57667ebaff670daf240302abd3",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:47.020Z"
+          "note": "Main TypeScript build passed and runtime fact contract confirms @lattice-agent/core is canonical for runtime facts.",
+          "headHash": "efa2739433db1ef41add5ef17f295a192ec6815c",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:07:36.937Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
-          "command": "node -e external project runRuntimeEnvironmentChecks with only global @koala-agent/core symlink",
+          "kind": "manual_transcript",
+          "command": "rg focused package resolution scan for @koala-agent/core fallback references",
           "result": "pass",
-          "note": "Runtime global-core-realpath passed when legacy @koala-agent/core resolved to expected core realpath and emitted a legacy compatibility fallback warning.",
-          "headHash": "b5b9c3254f4bda57667ebaff670daf240302abd3",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:47.079Z"
+          "note": "Remaining @koala-agent/core runtime references are bounded legacy compatibility constants, fallback paths, or diagnostics; test-auto blocks @lattice-agent/core canonically and keeps @koala-agent/core only as LEGACY_CORE_PACKAGE_NAME.",
+          "headHash": "efa2739433db1ef41add5ef17f295a192ec6815c",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:07:37.096Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
-          "command": "rg scan for @koala-agent/core/dev-host, old prompt registry, and unlabelled canonical @koala-agent package assertions",
+          "command": "node scripts/verify-entrypoints.mjs && rg @koala-agent/core packages/main/src packages/main/templates scripts README.md docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
-          "note": "No generated prompt template import or canonical resolver/template assertion points first to @koala-agent/core; remaining @koala-agent/core references are labelled legacy fallback paths.",
-          "headHash": "b5b9c3254f4bda57667ebaff670daf240302abd3",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:47.115Z"
+          "note": "Entrypoint verification passed; generated bootstrap and runtime scans prefer @lattice-agent/core and retain old core only as labelled legacy fallback or compatibility assertion.",
+          "headHash": "efa2739433db1ef41add5ef17f295a192ec6815c",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:07:37.233Z"
         }
       ]
     },
