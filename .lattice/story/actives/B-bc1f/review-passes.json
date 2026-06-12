@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-bc1f:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: docs/requirements/decisions/story-lifecycle.md now records that direct story_create --phase=REVIEW must initialize currentReviewRound for review-only/backfill compatibility. README only has CLI/bootstrap and general story_create mentions, not lifecycle invariant guidance, so no README update is required.",
+      "createdAt": "2026-06-11T23:44:46.153Z",
+      "reviewRound": "2026-06-11T23:38:10.576Z",
+      "reviewRunId": "B-bc1f:RR-002",
+      "_hash": "87b8bf68186d3bdd9b09af7236aa577104422cb2260c3a36384ee178fd932a76"
+    },
+    {
+      "id": "B-bc1f:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: story_create direct REVIEW now persists currentReviewRound at creation time; review_run_start and review_loop_start keep malformed legacy REVIEW stories fail-closed with specific diagnostics; the field smoke covers direct REVIEW create followed by review_run_start and review_loop_start. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:field-regression-cli-smoke.",
+      "createdAt": "2026-06-11T23:46:47.278Z",
+      "reviewRound": "2026-06-11T23:38:10.576Z",
+      "reviewRunId": "B-bc1f:RR-001",
+      "_hash": "6223731da562fa9da6a9809d1df7866f0f7aa793818d9777e21dce58f2ad6075"
+    },
+    {
+      "id": "B-bc1f:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test-coverage review passed: checklist evidence maps CHK-001 happy/edge/adversarial to field-regression-cli-smoke; reran npm --prefix packages/main run test:field-regression-cli-smoke successfully; smoke asserts direct REVIEW currentReviewRound is ISO/createdAt, review_run_start succeeds, review_loop_start succeeds, and a corrupt REVIEW story without currentReviewRound fails closed with direct --phase=REVIEW repair/recreate guidance.",
+      "createdAt": "2026-06-11T23:46:47.737Z",
+      "reviewRound": "2026-06-11T23:38:10.576Z",
+      "reviewRunId": "B-bc1f:RR-004",
+      "_hash": "356c9e2bbdf5eca9e1a00984e695e2c0154085f0f349d14bbedf6e6319a75bd5"
+    },
+    {
+      "id": "B-bc1f:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: direct story_create --phase=REVIEW now persists currentReviewRound using the same ISO timestamp shape consumed by review_run_start/review_loop_start; the change is scoped to args.phase===REVIEW and does not broaden direct TEST/DONE/other phase behavior. story_advance still creates new review rounds on REVIEW transitions, and advisory round-count fallback treats direct REVIEW creation as round 1. Lifecycle docs mention the invariant. Attempted field-regression smoke hit stale dist import mismatch for resolveMainRepoRoot unrelated to this diff; source exports that symbol and this story did not touch that module.",
+      "createdAt": "2026-06-11T23:47:43.496Z",
+      "reviewRound": "2026-06-11T23:38:10.576Z",
+      "reviewRunId": "B-bc1f:RR-003",
+      "_hash": "91d73e6fc9ffe9f70f4217e70b0d15d4ffabd78ac96c0ed9c04550d62a283f66"
+    }
+  ]
+}

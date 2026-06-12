@@ -4,7 +4,7 @@
   "title": "Fix direct REVIEW story missing review round metadata",
   "description": "story_create with phase REVIEW can create a story whose phase is REVIEW but currentReviewRound is missing, causing review_run_start and review_loop_start to fail. Fix direct REVIEW creation or reject unsupported direct phases so REVIEW metadata cannot be half-initialized.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "story_create",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-11T23:21:36.044Z",
   "startedAt": "2026-06-11T23:21:36.044Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T00:01:10.158Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,11 +38,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:22:45.960Z",
+      "branch": "story/B-bc1f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:27:11.563Z",
+      "branch": "story/B-bc1f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:38:10.576Z",
+      "branch": "story/B-bc1f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:48:59.801Z",
+      "branch": "story/B-bc1f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-12T00:01:10.158Z",
+      "branch": "story/B-bc1f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-bc1f",
-    "branch": "story/B-bc1f",
-    "createdAt": "2026-06-11T23:22:33.625Z"
-  }
+  "currentReviewRound": "2026-06-11T23:38:10.576Z"
 }

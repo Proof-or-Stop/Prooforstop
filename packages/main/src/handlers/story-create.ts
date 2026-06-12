@@ -535,6 +535,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           createdAt: now,
           startedAt: args.phase !== 'IDEA' ? now : null,
           endedAt: args.phase === 'DONE' ? now : null,
+          ...(args.phase === 'REVIEW' ? { currentReviewRound: now } : {}),
           events: [collectContext(args.phase, 'create')],
         };
         store.writeStory(storyId, story);

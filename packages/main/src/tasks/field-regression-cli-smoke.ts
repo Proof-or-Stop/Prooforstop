@@ -308,6 +308,60 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
   }
 }
 
+async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise<void> {
+  const root = initRepo('koala-field-direct-review-create-');
+  try {
+    const store = new StoryStore(root);
+    const directCreated = await runKoala(root, 'story_create', {
+      name: 'direct-review-round',
+      title: 'Direct review round',
+      description: 'Synthetic direct REVIEW creation should initialize review metadata.',
+      type: 'chore',
+      priority: 'medium',
+      phase: 'REVIEW',
+      background: [
+        '## Trigger Event',
+        '2026-06-12 B-direct-review-round reproduces a direct phase REVIEW story that previously lacked currentReviewRound and blocked reviewer commands.',
+        '',
+        '## Key Insights',
+        'The direct create path must persist the same review round metadata expected by review_run_start and review_loop_start.',
+        '',
+        '## Solution Tradeoffs',
+        'Initialize only the REVIEW direct phase instead of changing other onboarding/backfill phases.',
+        '',
+        '## Conversational Texture',
+        'The operator expects a review-only docs pass to start immediately after creating the story in REVIEW.',
+      ].join('\n'),
+      checklist: [{ title: 'Start review commands after direct creation', context: 'Covers review-only usage' }],
+    });
+    const directStoryId = directCreated.match(/B-[a-f0-9]+/)?.[0];
+    assert.ok(directStoryId, `expected direct story id in output: ${directCreated}`);
+    const directStory = store.readStory(directStoryId);
+    assert.equal(directStory.phase, 'REVIEW');
+    assertIsoReviewRound(directStory.currentReviewRound, directStory.createdAt, 'direct REVIEW story_create currentReviewRound');
+
+    const directRun = await runKoala(root, 'review_run_start', {
+      storyId: directStoryId,
+      agent: 'koala-review-quality',
+      prompt: 'direct REVIEW creation smoke',
+    });
+    assert.match(directRun, /Review run .* started/);
+
+    const directLoop = await runKoala(root, 'review_loop_start', {
+      storyId: directStoryId,
+      trigger: { findingIds: [`${directStoryId}:F-001`] },
+      rollbackRef: {
+        headHash: '0'.repeat(40),
+        diffHash: '1'.repeat(40),
+        materialHash: '2'.repeat(40),
+      },
+    });
+    assert.match(directLoop, /Review loop .* started/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertReviewRunStartCliSurface(): Promise<void> {
   const root = initRepo('koala-field-review-run-');
   try {
@@ -372,7 +426,9 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       agent: 'koala-review-quality',
     });
     assert.notEqual(missingRound.code, 0);
-    assert.match(missingRound.stderr, /no currentReviewRound/);
+    assert.match(missingRound.stderr, /marked REVIEW but missing currentReviewRound/);
+    assert.match(missingRound.stderr, /direct --phase=REVIEW creation/);
+    assert.match(missingRound.stderr, /repair\/init-review-round|story_advance/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1140,6 +1196,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
 await assertPlanRemoveIsHardBlocked();
 await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
+await assertDirectReviewStoryCreateInitializesReviewMetadata();
 await assertReviewRunStartCliSurface();
 await assertReviewerListForceReviewerLaneContract();
 await assertReviewPassConcurrentCliSurface();

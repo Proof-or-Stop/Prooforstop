@@ -1,0 +1,35 @@
+{
+  "storyId": "B-bc1f",
+  "checkedAt": "2026-06-11T23:54:56.019Z",
+  "reviewRound": "2026-06-11T23:38:10.576Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Direct story_create --phase=REVIEW must initialize currentReviewRound so REVIEW commands do not see a half-initialized story.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus npm --prefix packages/main run test:field-regression-cli-smoke",
+      "evidence": "Diff adds the lifecycle invariant and the field smoke passes direct REVIEW creation through review_run_start and review_loop_start."
+    },
+    {
+      "docPath": "README.md",
+      "promise": "Related-doc judgment: README has no direct currentReviewRound or review_run_start/review_loop_start contract that must be changed for this fix.",
+      "status": "verified",
+      "verifiedBy": "rg README.md for story_create REVIEW currentReviewRound review_run_start review_loop_start phase plus git diff main...HEAD -- README.md",
+      "evidence": "README diff is empty; rg shows broad CLI/lifecycle references but no currentReviewRound or direct REVIEW metadata promise."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "summary_get transcript shows Story B-f8a9 created (REVIEW) with 1 checklist items; Review run B-f8a9:RR-001 started; Review loop B-f8a9:RL-001 started. Delivery reran lattice validate --story=B-bc1f (pass), npm --prefix packages/main run test:field-regression-cli-smoke (pass), node scripts/verify-process-fact-contract.mjs (pass), and npm --prefix packages/main run build (pass)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepts CHK-001: implementation is scoped to direct REVIEW metadata, corrupt legacy REVIEW states fail closed with clearer guidance, docs lifecycle promise is updated, README requires no change, validate/smoke/contract/build pass. Branch is behind main but git merge-tree --write-tree HEAD main exits 0; main sync remains the normal DONE merge step rather than a delivery blocker."
+  },
+  "_hash": "d2f862a1443f7fd5553760d0abdc361059bf5d9c9182878e0b80743453b818f3"
+}
