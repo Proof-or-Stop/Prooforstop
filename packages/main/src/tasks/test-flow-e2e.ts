@@ -345,6 +345,49 @@ function ensureSandboxReady(
     const detail = handlers.story_get({ storyId, detail: true });
     const phase = detail?.index?.phase || context.phase;
     if (phase === 'INIT') {
+      handlers.scope_boundary_set({
+        storyId,
+        mode: 'feature',
+        allowedScope: [
+          'Run the story lifecycle e2e through the minimal generated checklist.',
+          'Exercise lifecycle gate evidence required before INIT_CHECK.',
+        ],
+        excludedScope: [
+          'Do not expand the generated e2e story beyond lifecycle validation.',
+        ],
+        userConfirmed: true,
+        confirmation: 'E2E sandbox uses a fixed user-confirmed boundary for the generated lifecycle story.',
+        actor: 'flow-e2e',
+      });
+      handlers.execution_boundary_set({
+        storyId,
+        allowedCommands: [
+          'story_create',
+          'scope_boundary_set',
+          'execution_boundary_set',
+          'scope_freeze_check',
+          'init_check_set',
+          'story_advance',
+          'checklist_update',
+          'task_coverage',
+          'test_auto',
+        ],
+        allowedTools: ['lattice-flow-e2e'],
+        allowedPaths: [
+          'docs/story/actives',
+          'packages/main/src',
+          'packages/main/tests',
+        ],
+        excludedPaths: ['docs/story/drafts'],
+        notes: 'Flow e2e sandbox may only touch generated story metadata and source/test paths needed for lifecycle validation.',
+        actor: 'flow-e2e',
+      });
+      handlers.scope_freeze_check({
+        storyId,
+        status: 'PASS',
+        note: 'E2E sandbox scope and execution boundaries are fixed before INIT_CHECK.',
+        actor: 'flow-e2e',
+      });
       handlers.init_check_set({ storyId, issues: [], agentId: 'koala-review-story-init' });
       handlers.init_check_set({ storyId, issues: [], agentId: 'product-reviewer' });
     }
