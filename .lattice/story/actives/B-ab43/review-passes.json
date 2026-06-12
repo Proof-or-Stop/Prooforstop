@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-ab43:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "koala-review-test-coverage reviewed CHK-001 verificationIntent coverage against checklist evidence and docs/requirements plan. All six must intents are covered by current docs evidence; related truth-source boundaries for host-neutral localNonAuthorityAudit versus Authority Server receipts remain consistent. No blocker found.",
+      "createdAt": "2026-06-12T15:53:04.354Z",
+      "reviewRound": "2026-06-12T15:49:32.878Z",
+      "reviewRunId": "B-ab43:RR-004",
+      "_hash": "e32f9195117e9e89d0e6159a996138b20aabc711ce6ab3b7dbc6041d7f94b08d"
+    },
+    {
+      "id": "B-ab43:RP-002",
+      "agent": "koala-review-concept",
+      "note": "PASS after verified correction: wrapper-root nested cwd no longer conflicts with acceptance criteria; explicit gitRoot/worktree binding is required, preserving direct REVIEW only for normal git-backed metadata roots.",
+      "createdAt": "2026-06-12T16:00:49.881Z",
+      "reviewRound": "2026-06-12T16:00:03.736Z",
+      "reviewRunId": "B-ab43:RR-008",
+      "_hash": "7ebf3702ba2dfbbe6ebef81bb710e5ae7165d5d4acef784de21b14433f807788"
+    },
+    {
+      "id": "B-ab43:RP-003",
+      "agent": "koala-review-quality",
+      "note": "PASS after NAV repair and consistency check: decision count is 42, formal unlock artifact isolation is listed, and signed workspace resolution semantics remain narrow and non-authority.",
+      "createdAt": "2026-06-12T16:01:05.026Z",
+      "reviewRound": "2026-06-12T16:00:03.736Z",
+      "reviewRunId": "B-ab43:RR-009",
+      "_hash": "bc4d414142ceb0668ee6131ba9d1c0cd325b12ef33f920b0adac07e5ef814bba"
+    },
+    {
+      "id": "B-ab43:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: verification commands cover root-binding wording, NAV count, nested-cwd fail-closed behavior, Authority overclaim boundaries, and git diff whitespace checks for this docs-only plan.",
+      "createdAt": "2026-06-12T16:01:16.040Z",
+      "reviewRound": "2026-06-12T16:00:03.736Z",
+      "reviewRunId": "B-ab43:RR-010",
+      "_hash": "6af3ca10af7c4cc0baac080ea112168c4eca447462000258b0899bf53f978289"
+    },
+    {
+      "id": "B-ab43:RP-005",
+      "agent": "koala-review-docs",
+      "note": "PASS: NAV now matches the 42 decision markdown files and includes the formal unlock artifact isolation plan; the new signed workspace resolution document is linked and internally consistent.",
+      "createdAt": "2026-06-12T16:01:26.429Z",
+      "reviewRound": "2026-06-12T16:00:03.736Z",
+      "reviewRunId": "B-ab43:RR-011",
+      "_hash": "880f5b07f1f40386d7d359b689589921c22eeeb8906d1944d1e209c4eed4f803"
+    },
+    {
+      "id": "B-ab43:RP-006",
+      "agent": "koala-review-concept",
+      "note": "PASS on latest concept run: split-root semantics are now consistent; wrapper-root nested cwd fails closed unless explicit gitRoot/worktree attachment binds the signed workspace.",
+      "createdAt": "2026-06-12T16:01:57.322Z",
+      "reviewRound": "2026-06-12T16:00:03.736Z",
+      "reviewRunId": "B-ab43:RR-012",
+      "_hash": "742579a46b4014f1285cb235b40ff76199b05f9b9955f155b36d573e3d672d05"
+    },
+    {
+      "id": "B-ab43:RP-007",
+      "agent": "koala-review-quality",
+      "note": "PASS on latest quality run: NAV count and decision link set now match 42 markdown files, and no Authority or host-neutral overclaim was introduced.",
+      "createdAt": "2026-06-12T16:02:04.192Z",
+      "reviewRound": "2026-06-12T16:00:03.736Z",
+      "reviewRunId": "B-ab43:RR-013",
+      "_hash": "e7c74fc45cca3e7eb8d1ae1bb89c79a1d56718b9a0709c66a8e7e750bac32063"
+    },
+    {
+      "id": "B-ab43:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS on latest test-coverage run: docs checks cover NAV count, formal unlock link, nested-cwd fail-closed wording, explicit gitRoot path, and whitespace validation.",
+      "createdAt": "2026-06-12T16:02:10.827Z",
+      "reviewRound": "2026-06-12T16:00:03.736Z",
+      "reviewRunId": "B-ab43:RR-014",
+      "_hash": "86f1448d761882898ecd32e90004d88d519e9eed5985a93541fddd66f6f7483b"
+    }
+  ]
+}

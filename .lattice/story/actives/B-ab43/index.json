@@ -4,11 +4,11 @@
   "title": "Review run signed workspace resolution execution plan",
   "description": "Write an audited execution plan for the follow-up correctness issue where Lattice metadata root can differ from the git-backed signed workspace root, causing review_run_start to fail with not_git_repo in wrapper-root projects such as ClawCreek.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-12T15:32:46.182Z",
   "startedAt": "2026-06-12T15:32:46.182Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T16:04:39.390Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T15:35:09.373Z",
+      "branch": "story/B-ab43",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T15:42:36.938Z",
+      "branch": "story/B-ab43",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T15:49:32.878Z",
+      "branch": "story/B-ab43",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T15:58:37.982Z",
+      "branch": "story/B-ab43",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T16:00:03.736Z",
+      "branch": "story/B-ab43",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-12T16:02:26.138Z",
+      "branch": "story/B-ab43",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-12T16:04:39.390Z",
+      "branch": "story/B-ab43",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-ab43",
-    "branch": "story/B-ab43",
-    "createdAt": "2026-06-12T15:34:55.390Z"
-  }
+  "currentReviewRound": "2026-06-12T16:00:03.736Z"
 }

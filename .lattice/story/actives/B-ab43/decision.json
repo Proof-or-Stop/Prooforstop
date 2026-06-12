@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Fail closed when signed workspace cannot be proven git-backed.",
+    "Keep metadata root and signed workspace root explicit rather than inferred.",
+    "Preserve CLI Non-authority and Authority Server receipt boundaries.",
+    "Avoid arbitrary topology discovery or broad refactors."
+  ],
+  "drivers": [
+    "ClawCreek wrapper-root topology makes the current fallback authoritativeCwd unsafe for signed evidence.",
+    "review_run_start correctness depends on binding the same workspace that provides HEAD/materialHash.",
+    "Future implementation needs a narrow plan with tests before code changes."
+  ],
+  "options": [
+    {
+      "name": "A: Explicit signed workspace binding plan",
+      "pros": [
+        "Fixes the real root mismatch contract.",
+        "Avoids guessing nested repositories.",
+        "Can support both local CLI and Authority receipt paths."
+      ],
+      "cons": [
+        "Requires adding or documenting a new resolver surface and repair/config path before implementation."
+      ]
+    },
+    {
+      "name": "B: Auto-discover nested git repository",
+      "pros": [
+        "Could make the ClawCreek example work with less operator input."
+      ],
+      "cons": [
+        "Arbitrary when multiple repos exist.",
+        "Could sign the wrong workspace.",
+        "Violates consistency of logic for host-neutral evidence."
+      ]
+    },
+    {
+      "name": "C: Only improve the error message again",
+      "pros": [
+        "Smallest implementation surface."
+      ],
+      "cons": [
+        "Does not solve end-to-end review_run_start for wrapper-root projects.",
+        "Leaves no mechanical path to attach or configure a signed workspace."
+      ]
+    }
+  ],
+  "chosen": "A: Explicit signed workspace binding plan",
+  "rationale": "Choose explicit signed workspace binding because the observed failure is a correctness contract gap, not a wording problem. The plan should specify fail-closed behavior plus explicit config or attach command before any signing occurs.",
+  "preMortem": [
+    {
+      "scenario": "Implementation guesses the nested repo automatically.",
+      "trigger": "A wrapper root contains exactly one nested git repo in local testing.",
+      "consequence": "The CLI may later sign the wrong repo in multi-repo projects.",
+      "mitigation": "Require explicit gitRoot config or story worktree attachment; tests cover multiple nested repo ambiguity as fail-closed."
+    },
+    {
+      "scenario": "Local reviewer run is described as Authority proof.",
+      "trigger": "Documentation merges host review output and Authority Server language.",
+      "consequence": "DONE or production readiness can be overclaimed without receipts.",
+      "mitigation": "Separate localNonAuthorityAudit from authorityServerPath and require verified gate_decision receipts for Authority claims."
+    },
+    {
+      "scenario": "Resolver changes break direct REVIEW compatibility.",
+      "trigger": "Implementation mandates story.worktree for every REVIEW story.",
+      "consequence": "Review-only stories in a normal git-backed project stop working.",
+      "mitigation": "Keep direct REVIEW supported when the metadata root itself is git-backed with HEAD/materialHash."
+    }
+  ],
+  "timestamp": "2026-06-12T15:35:50.911Z"
+}

@@ -10,9 +10,119 @@
         "docs/requirements/decisions/host-neutral-observability-console.md",
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T15:42:46.161Z",
+      "endTime": "2026-06-12T15:48:55.809Z",
+      "userSees": "User sees \"Executable plan written: review-run-start-signed-workspace-resolution-execution-plan.md; two-host drafts reconciled; final Claude host review completed.\"",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new execution document defines the metadataRoot versus signedWorkspaceRoot correctness issue and gives concrete implementation phases for explicit binding/configuration, fail-closed diagnostics, tests, and rollout.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The document records that Claude CLI and Codex CLI host perspectives were used as local non-authority audit inputs and reconciled by the main auditor.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document preserves direct REVIEW compatibility for normal git-backed project roots and does not require a worktree for every REVIEW story.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The plan explicitly rejects automatic nested-repo guessing and requires explicit gitRoot configuration or story worktree attachment when metadata root is non-git.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document separates localNonAuthorityAudit from authorityServerPath and forbids claiming receiptVerified, productionDone, authorityDone, or fullAuthorityDone from host prose or local reviewer runs.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The regression matrix includes fail-closed cases for non-git wrapper root, missing worktree binding, ambiguous nested repos, stale/mismatched hashes, and forged/local-only Authority evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"metadataRoot|signedWorkspaceRoot|Implementation Phases|Regression Matrix\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "result": "pass",
+          "note": "Document defines the root mismatch issue, implementation phases, and regression matrix for explicit signed workspace resolution.",
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "command": "rg -n \"localNonAuthorityAudit|Codex CLI|Claude CLI|Main Auditor Reconciliation|Final Claude CLI Review Record\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "result": "pass",
+          "note": "Document records the two host perspectives, main auditor reconciliation, and final Claude CLI PASS as local non-authority audit only.",
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Direct REVIEW|git-backed project root|not require a worktree\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "result": "pass",
+          "note": "Document preserves direct REVIEW compatibility for normal git-backed project roots and does not require a worktree for every REVIEW story.",
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "command": "rg -n \"Do not auto-discover|Do not guess|gitRoot|story_attach_worktree\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "result": "pass",
+          "note": "Document rejects arbitrary nested repo discovery and requires explicit gitRoot or story worktree attachment for non-git metadata roots.",
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"receiptVerified|productionDone|authorityDone|fullAuthorityDone|gate_decision\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "result": "pass",
+          "note": "Document separates localNonAuthorityAudit from authorityServerPath and forbids Authority completion claims from host prose or local reviewer runs.",
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "command": "rg -n \"ambiguous nested|missing worktree binding|stale|forged|local-only\" docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md && git diff --check",
+          "result": "pass",
+          "note": "Document includes fail-closed matrix coverage for ambiguous nested repos, missing worktree binding, stale/mismatched facts, forged hashes, and local-only Authority evidence; whitespace check passed.",
+          "headHash": "f8611a9b6ee928fbca9a2cd46b2413672b17312e",
+          "materialHash": "1623717030e2c3f45736bc5b747767780f6be180771c91750e5a102b14acb6c2",
+          "timestamp": "2026-06-12T16:04:11.453Z"
+        }
+      ]
     }
   ]
 }
