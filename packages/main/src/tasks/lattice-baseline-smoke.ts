@@ -56,6 +56,7 @@ const repoRoot = join(here, '..', '..', '..', '..');
 const PASS_LINE = '✓ lattice baseline smoke passed';
 const AUTHORITY_FALSE_KEYS = [
   'authorityChanged',
+  'authorityDone',
   'receiptVerified',
   'productionDone',
   'fullAuthorityDone',
@@ -1433,6 +1434,27 @@ for (const defect of [
       };
     },
     pattern: /authority-overclaim|productionDone|root invariant/i,
+  },
+  {
+    label: 'top-level-authority-done',
+    mutate(report: JsonObject, _root: string): void {
+      report.authorityDone = true;
+    },
+    pattern: /authority-overclaim|authorityDone|root invariant/i,
+  },
+  {
+    label: 'nested-authority-done',
+    mutate(report: JsonObject, _root: string): void {
+      report.authority = {
+        authorityChanged: false,
+        authorityDone: true,
+        receiptVerified: false,
+        productionDone: false,
+        fullAuthorityDone: false,
+        receiptRefs: [],
+      };
+    },
+    pattern: /authority-overclaim|authorityDone|root invariant/i,
   },
 ] as const) {
   const root = initRepo(`formal-root-invariant-${defect.label}`);

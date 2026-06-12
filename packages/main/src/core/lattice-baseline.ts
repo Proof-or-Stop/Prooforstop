@@ -1366,7 +1366,7 @@ function assertFreshMaterial(root: string, artifactMaterialHash: string | undefi
 
 function hasAuthorityOverclaim(record: Record<string, unknown>): string | null {
   const authority = isRecord(record.authority) ? record.authority : {};
-  const keys = ['authorityChanged', 'receiptVerified', 'productionDone', 'fullAuthorityDone', 'canClaimProductionDone'];
+  const keys = ['authorityChanged', 'authorityDone', 'receiptVerified', 'productionDone', 'fullAuthorityDone', 'canClaimProductionDone'];
   for (const key of keys) {
     const top = record[key];
     const nested = authority[key];
