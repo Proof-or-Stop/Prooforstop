@@ -162,7 +162,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "correctness_fix stories block default future denylist keywords in story/checklist text before INIT_CHECK",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "feature/refactor stories do not use correctness-fix default denylist unless excluded keywords are explicitly user-confirmed",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "discarded-story digest overlap blocks repeat creation unless repeatMitigation is recorded",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
