@@ -49,9 +49,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Build passed and field-regression smoke asserts configured wrapper-root session_brief includes Signed workspace: OK, configured gitRoot: clawcreek, signedWorkspaceRoot path, and resolutionSource: configured-git-root.",
-          "headHash": "d4b0bc570096040d3f61dfe79bfd0af9b1b6d9e1",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:17:47.054Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,9 +59,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Build passed and field-regression smoke asserts a normal git-backed project does not render the wrapper-root configured gitRoot signed workspace block.",
-          "headHash": "d4b0bc570096040d3f61dfe79bfd0af9b1b6d9e1",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:17:47.093Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -69,9 +69,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Build passed and field-regression smoke asserts missing configured gitRoot renders unresolved status and never claims Signed workspace: OK.",
-          "headHash": "d4b0bc570096040d3f61dfe79bfd0af9b1b6d9e1",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:17:47.129Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         }
       ]
     },
@@ -123,9 +123,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Build passed and field-regression smoke asserts an unconfigured non-git wrapper root keeps Non-git project guidance and does not include Signed workspace: OK.",
-          "headHash": "e417cfada93a1d57c3dff8ceb7c744b4a935263b",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:17:55.130Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -133,9 +133,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Build passed and field-regression smoke asserts configured gitRoot=missing-creek renders signed workspace unresolved with configured_gitRoot_missing and no OK claim.",
-          "headHash": "e417cfada93a1d57c3dff8ceb7c744b4a935263b",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:17:55.180Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -143,9 +143,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Build passed and field-regression smoke asserts a wrapper root with a child git repo but no configured gitRoot does not guess the child repo and does not mutate config.",
-          "headHash": "e417cfada93a1d57c3dff8ceb7c744b4a935263b",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:17:55.241Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         }
       ]
     },
@@ -195,9 +195,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Field-regression smoke now asserts configured wrapper-root session_brief contains configured gitRoot, signedWorkspaceRoot, Signed workspace: OK, and resolutionSource: configured-git-root.",
-          "headHash": "75ac2902123e4d11848f3d24eb0dc0d1e804ad9b",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:18:01.983Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -205,9 +205,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Field-regression smoke now asserts unresolved wrapper-root session_brief keeps Non-git or unresolved guidance and never emits Signed workspace: OK.",
-          "headHash": "75ac2902123e4d11848f3d24eb0dc0d1e804ad9b",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:18:02.020Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -215,9 +215,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Field-regression smoke now snapshots config before and after session_brief for configured, unconfigured, and invalid wrapper roots to prove rendering does not mutate config.",
-          "headHash": "75ac2902123e4d11848f3d24eb0dc0d1e804ad9b",
-          "materialHash": "c61ae29852fc51a3899f42ef8e0587b89f3bb763a0c126dc2502db2ab7cebea7",
-          "timestamp": "2026-06-12T21:18:02.053Z"
+          "headHash": "93ebed511eb9850a58a33c26dd2b98c862441ef2",
+          "materialHash": "4e702edfaeeb0df345bc4081f67148d028c501a248c2b5136641f98368c1ba32",
+          "timestamp": "2026-06-12T21:20:05.062Z"
         }
       ]
     }
