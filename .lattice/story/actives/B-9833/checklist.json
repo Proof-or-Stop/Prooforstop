@@ -78,9 +78,9 @@
       "id": "CHK-002",
       "title": "Decide F-009 closure state with evidence",
       "context": "Determine whether F-009 is resolved, superseded, or should be narrowed. The decision must distinguish Layer2 Engineering proof from Layer4/Authority/customerKeyRef scope.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T20:26:02.229Z",
       "relatedDocs": [
         "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
@@ -113,7 +113,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "two-host audit lanes plus local source/doc inspection; lattice capability_claim_formal_evaluate --target=engineering --format=json",
+          "result": "pass",
+          "note": "Combined audit decision: original no-producer/importer claim is stale because formal writer/suite/evaluator path exists; current claim remains LOCKED due missing baseline-suite-report artifacts, which is expected fail-closed behavior, not a Layer2 proof-path absence.",
+          "headHash": "cf564149756b8b456f0c9c51b06e4e6958a9f6dd",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:26:02.267Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"customerKeyRef|Layer 4|future Layer 4 evidence requirement|LOCKED|BLOCKED\" docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "result": "pass",
+          "note": "Remaining customerKeyRef coverage is documented as future Layer4 evidence scope and must not be treated as current implemented support or folded into F-009.",
+          "headHash": "cf564149756b8b456f0c9c51b06e4e6958a9f6dd",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:26:02.303Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "lattice capability_claim_formal_evaluate --target=engineering --format=json",
+          "result": "pass",
+          "note": "Evaluator returned authorized=false, outcome=EXPECTED_BLOCK, layer2EngineeringClaim=LOCKED, and Production/global claims LOCKED when proof artifacts are missing; no fake unlock was observed.",
+          "headHash": "cf564149756b8b456f0c9c51b06e4e6958a9f6dd",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T20:26:02.338Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -205,6 +237,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Recorded audit evidence for original F-009 claim and current formal proof surfaces."
+    },
+    {
+      "timestamp": "2026-06-12T20:26:02.229Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Recorded evidence-backed decision to resolve the original stale F-009 gap while preserving locked capability boundaries."
     }
   ]
 }
