@@ -25,7 +25,7 @@
       "desc": "packages/main/src/handlers/done-closure.ts:121 and :129-133 compute canAttemptDone and authorityServerPath without checking Authority mode or receipt eligibility. In Authority enforce mode, packages/main/src/handlers/phase-gates.ts:347-405 can still block TEST/DONE on consumeAuthorityGateReceiptDocument, so done_closure can report local blockers clear, required=false, receiptVerified=false instead of the required Authority receipt path. This violates docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md:261-287, which requires the runbook to reflect the story_advance DONE pre-check and keep receiptVerified tied to verified receipts. Severity high because the assistant can mislead agents about DONE closure in Authority mode, even though the underlying gate still blocks.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T18:12:18.348Z",
@@ -36,7 +36,9 @@
         "packages/main/src/handlers/done-closure.ts",
         "packages/main/src/handlers/phase-gates.ts",
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Fixed in a0a87ceb8: done_closure no longer derives full readiness from local DONE rows only. Authority enforce mode now projects receipt requirement and blocks canAttemptDone unless the existing authority receipt eligibility check accepts a production gate_decision ref for DONE. The command still does not write consumption events or claim Authority DONE. Verified by build, done-preflight smoke, authority gate receipts, authority gate consumption, and process fact contract.",
+      "resolvedAt": "2026-06-12T18:21:29.992Z"
     }
   ]
 }
