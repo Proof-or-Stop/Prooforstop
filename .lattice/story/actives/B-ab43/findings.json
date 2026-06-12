@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-ab43:F-001",
+      "desc": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md:413 and docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md:518 disagree on split-root direct REVIEW behavior. The regression matrix allows a non-git wrapper root with cwd inside a nested git repo to succeed via explicit current-git-cwd, but the acceptance criteria require wrapper-root projects to fail closed until gitRoot or worktree attachment exists. Future implementation/tests cannot satisfy both semantics; severity high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T15:53:03.616Z",
+      "reviewRound": "2026-06-12T15:49:32.878Z",
+      "reviewRunId": "B-ab43:RR-001",
+      "_hash": "6105d2cb3b3b3276b0ffb6710e17e500fd3cc611cc767af4e1f88e997048f878",
+      "files": [
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+      ]
+    }
+  ]
+}
