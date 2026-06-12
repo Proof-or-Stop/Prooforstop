@@ -18,6 +18,23 @@
       ],
       "resolvedReason": "Refreshed CHK-002:edge and CHK-004:edge verificationEvidence to use an unfiltered git diff --name-status main...HEAD plus an allowlist negative path check. The check produced no output and exited 0, proving only B-3a80 Lattice metadata and the three scoped docs are present; path-filtered evidence is no longer relied on.",
       "resolvedAt": "2026-06-12T18:06:39.369Z"
+    },
+    {
+      "id": "B-3a80:F-002",
+      "desc": "CHK-001:adversarial and CHK-003:adversarial still record verificationEvidence as result=pass even though the exact commands fail when rerun. `rg claim boundary docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md` exits 2 because `boundary` is parsed as a missing path; `rg -n implement.customerKeyRef.receiptVerified.productionDone.unlock.Layer.4 docs/requirements/decisions/unlock-layer4-production-safety-suite.md` exits 1 with no match because the regex does not match the actual note text. The docs claim boundaries look conservative and F-001 scoped-diff evidence is materially refreshed, but these pass-marked evidence commands are inconsistent with their recorded result and need refreshed executable evidence or corrected command text before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-12T18:09:47.271Z",
+      "reviewRound": "2026-06-12T18:06:33.192Z",
+      "reviewRunId": "B-3a80:RR-006",
+      "_hash": "19682548a3b8feb3ed9ee73dc89be1ac8451beb5d5949e12b3adfbe32e37c47b",
+      "files": [
+        "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+        "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+      ]
     }
   ]
 }
