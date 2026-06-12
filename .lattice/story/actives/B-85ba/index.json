@@ -1,0 +1,52 @@
+{
+  "storyId": "B-85ba",
+  "name": "scope-anti-expansion-gate",
+  "title": "Add scope anti-expansion gate before INIT_CHECK",
+  "description": "Add a lightweight INIT to INIT_CHECK gate that freezes user-confirmed scope before any worktree is created. Canonical boundary source is scope-boundary.json written from story_create inputs or an explicit INIT-only scope_boundary_set repair; absent boundary blocks INIT_CHECK. The gate blocks excluded future-capability keywords for correctness_fix stories by default, routes reviewer expansion through explicit proposals, and treats discard digest repeats as blockers unless a mitigation is recorded.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "scope-anti-expansion",
+    "init-boundary",
+    "freeze-check",
+    "execution-boundary",
+    "discard-digest"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-06-12T19:33:45.515Z",
+  "startedAt": "2026-06-12T19:33:45.515Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T19:33:45.523Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T19:38:13.547Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-85ba",
+    "branch": "story/B-85ba",
+    "createdAt": "2026-06-12T19:38:13.678Z"
+  }
+}
