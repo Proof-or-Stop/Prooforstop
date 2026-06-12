@@ -54,7 +54,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "session_brief still warns when metadataRoot is non-git and no valid configured gitRoot signed workspace exists; it never suggests that Lattice guessed a child repo.",
+      "userSees": "Terminal still includes quoted guidance like \"Non-git project\" or \"signed workspace unresolved\" and does not include \"Signed workspace: OK\" when no valid configured gitRoot exists.",
       "files": {
         "modify": [
           "packages/main/src/handlers/session.ts"
