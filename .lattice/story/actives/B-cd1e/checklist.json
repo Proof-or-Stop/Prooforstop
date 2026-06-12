@@ -53,9 +53,9 @@
           "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-cd1e\",\"json\":true}",
           "result": "pass",
           "note": "done_closure renders DONE oracle rows from buildDoneChecklist with canAttemptDone=false and ordered next commands for the active DEV story.",
-          "headHash": "fb09b7f7761671c1819db4341e05c342af507f08",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:37.185Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after adding the handler, CLI schema, registry wiring, and read-only oracle option.",
-          "headHash": "fb09b7f7761671c1819db4341e05c342af507f08",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:37.225Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "done-preflight smoke includes TEST PASS but missing closure artifacts and confirms done_closure stays not DONE-ready.",
-          "headHash": "fb09b7f7761671c1819db4341e05c342af507f08",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:37.258Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         }
       ]
     },
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-cd1e\",\"json\":true}",
           "result": "pass",
           "note": "JSON output includes separate localNonAuthorityAudit and authorityServerPath objects.",
-          "headHash": "da79af7eee86ea479d53a7904061f641550dc624",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:46.202Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,9 +138,9 @@
           "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-cd1e\",\"json\":true}",
           "result": "pass",
           "note": "With no Authority receipt refs, authorityServerPath reports receiptVerified=false, receiptRefs=[], and mayClaimAuthorityDone=false.",
-          "headHash": "da79af7eee86ea479d53a7904061f641550dc624",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:46.237Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,9 +148,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "Smoke asserts serialized done_closure output does not include authorityDone=true, productionDone=true, or fullAuthorityDone=true from local evidence.",
-          "headHash": "da79af7eee86ea479d53a7904061f641550dc624",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:46.272Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         }
       ]
     },
@@ -207,9 +207,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verifies done_closure exists in CLI schema, command policy, process fact levels, and registry as L0 read-only.",
-          "headHash": "613c4368f68c014bf36ba45fcce55ab0cf4ce567",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:54.135Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -217,9 +217,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Contract includes a done_closure read-only invariant that fails if CLI/policy/level/registry surfaces drift or disappear.",
-          "headHash": "613c4368f68c014bf36ba45fcce55ab0cf4ce567",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:54.171Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -227,9 +227,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Contract asserts done_closure is not gateEvidence, has no produced artifact, and has no lifecycle consumer gate.",
-          "headHash": "613c4368f68c014bf36ba45fcce55ab0cf4ce567",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:07:54.207Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         }
       ]
     },
@@ -283,9 +283,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "Smoke builds a TEST story with PASS validation but missing delivery-check/summary and asserts done_closure returns canAttemptDone=false with those blockers.",
-          "headHash": "6467300a54747e660e7c45e7b0317fadda3569aa",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:08:06.082Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -293,9 +293,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "Smoke snapshots git status and process-events before/after done_closure and asserts both remain byte-identical, so no lifecycle artifacts or evidence are created.",
-          "headHash": "6467300a54747e660e7c45e7b0317fadda3569aa",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:08:06.116Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -303,9 +303,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "Smoke asserts local Non-authority done_closure output cannot claim Authority receipt verification or authorityDone/productionDone/fullAuthorityDone.",
-          "headHash": "6467300a54747e660e7c45e7b0317fadda3569aa",
-          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
-          "timestamp": "2026-06-12T18:08:06.164Z"
+          "headHash": "47249607c8790b9b752a7e841de2e43db84aad2a",
+          "materialHash": "5b405491664ed9fe4d4ea2605e47493981af3a38192774adcc45d05a8aed1135",
+          "timestamp": "2026-06-12T18:21:48.465Z"
         }
       ]
     }
