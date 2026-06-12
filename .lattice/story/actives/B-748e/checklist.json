@@ -87,9 +87,9 @@
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T19:44:34.535Z",
       "userSees": "lattice gap_analyze no longer lists Reason [requires_git_signed_workspace_but_no_binding] from line 311, while unresolved review_run_start still says No reviewer run was created.",
       "files": {
         "modify": [
@@ -260,6 +260,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Code committed in 11b5b21f1 and verification evidence covers CHK-001 happy/edge/adversarial intents."
+    },
+    {
+      "timestamp": "2026-06-12T19:44:34.535Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Code committed in 11b5b21f1 and verification evidence covers CHK-002 happy/edge/adversarial intents."
     }
   ]
 }
