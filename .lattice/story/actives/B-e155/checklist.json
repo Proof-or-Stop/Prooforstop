@@ -141,7 +141,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Final audit reports PASS for executability, host-neutrality, non-authority boundary, and logical consistency, or records blockers explicitly.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final audit confirms the document gives an executable path to resolve or disprove F-009.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Audit checks consistency with existing Layer2 unlock, artifact isolation, lifecycle receipt, and Authority receipt docs.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audit rejects false PASS language, missing fail-closed rules, and any local CLI Authority overclaim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
