@@ -1,0 +1,29 @@
+{
+  "storyId": "B-b750",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/story-resolve.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/story-signed-workspace-resolution.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/story-signed-workspace-resolution.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/tests/review-run-workspace-binding.test.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T16:20:09.660Z",
+  "updatedAt": "2026-06-12T16:20:09.660Z"
+}
