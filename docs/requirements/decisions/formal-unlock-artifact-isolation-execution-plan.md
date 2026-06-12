@@ -40,7 +40,6 @@ selected root violates any of the following conditions:
 | Condition | Required value | Violation meaning |
 |---|---|---|
 | `layer` | Must match the expected layer (`engineering` or `loop-engineering`) | Mixed-layer artifact in the root |
-| `headHash` | Must match the current git HEAD | Stale code revision |
 | `materialHash` | Must match the current material hash | Stale evidence state |
 | `suiteRunId` | Must be present and identical across all reports in the root | Mixed or missing suite run identity |
 | `claimTarget` | Must match the expected claim target (`engineering` or `loop-engineering`) | Wrong proof target |
@@ -51,6 +50,13 @@ selected root violates any of the following conditions:
 | `authority.receiptVerified` | Must be `false` for Layer 2/3 CLI proof | Authority overclaim |
 | `authority.productionDone` | Must be `false` for Layer 2/3 CLI proof | Authority overclaim |
 | `authority.fullAuthorityDone` | Must be `false` for Layer 2/3 CLI proof | Authority overclaim |
+
+`headHash` remains a source binding on generated final reports and suite
+reports, but it is not a current-HEAD root invariant. Formal proof artifacts may
+be generated against a source HEAD and then committed as artifact material,
+which legitimately changes git HEAD while preserving the same proof material
+hash. The mechanical stale gate therefore uses `materialHash` plus stored-vs-
+rebuilt accepted report bindings for this story.
 
 When the invariant blocks, the suite report emits explicit blocked reasons
 naming the specific field and mismatch (e.g. `suiteRunId`, `claimTarget`,
