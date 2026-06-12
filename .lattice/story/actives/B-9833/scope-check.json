@@ -1,0 +1,52 @@
+{
+  "storyId": "B-9833",
+  "checkedAt": "2026-06-12T20:17:20.186Z",
+  "features": [
+    {
+      "feature": "Audit current F-009 claim against Layer2 formal proof source and docs",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request and B-META-framework-audit:F-009"
+    },
+    {
+      "feature": "Update F-009 state only through Lattice finding flow when evidence supports closure or narrowing",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "AGENTS.md Lattice flow and user request"
+    },
+    {
+      "feature": "Verify post-triage audit/convergence state without claiming unrelated work is complete",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request"
+    },
+    {
+      "feature": "Implement Layer4 customerKeyRef or Authority receipt semantics",
+      "covered_by": "excluded from B-9833",
+      "status": "excluded",
+      "excluded_by": "Out of scope: separate Layer4 Production Safety/customerKeyRef future or blocked scope; this story only triages F-009 Layer2 proof finding.",
+      "source": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+    },
+    {
+      "feature": "Unlock Production Safety, global Capability, productionDone, or fullAuthorityDone",
+      "covered_by": "excluded from B-9833",
+      "status": "excluded",
+      "excluded_by": "Out of scope and explicitly prohibited by Layer2/Layer4 claim boundary docs.",
+      "source": "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e4fd38342357f27c598d154497c4db5004bd4c973dde05f9a483c09694e18ac3",
+  "openQuestions": []
+}
