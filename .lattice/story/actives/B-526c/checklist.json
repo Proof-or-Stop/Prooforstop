@@ -117,8 +117,8 @@
         "closing unrelated gap_analyze highs",
         "modifying Layer4 authority readiness"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-12T19:33:12.350Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -165,6 +165,15 @@
       "timestamp": "2026-06-12T19:33:06.033Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation starts; diagnostic, repair, and verification are coupled."
+    },
+    {
+      "timestamp": "2026-06-12T19:33:12.350Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
