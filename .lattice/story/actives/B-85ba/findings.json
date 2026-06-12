@@ -77,6 +77,27 @@
         "packages/main/src/core/types.ts",
         "packages/main/src/core/command-policy.ts"
       ]
+    },
+    {
+      "id": "B-85ba:F-005",
+      "desc": "Docs/prompt say the INIT reviewer must route scope expansion through scope_extension_proposal and must not mutate checklist/scope boundary (docs/requirements/decisions/story-lifecycle.md:86; packages/main/templates/agents/koala-review-story-init.md:513), but the mechanical contract still exposes a direct checklist mutation path in INIT: DEFAULT_PHASE_TOOLS includes checklist_update in INIT (packages/main/src/core/config.ts:184-190), COMMAND_POLICIES allows checklist_update in INIT as storyScopedMutating (packages/main/src/core/command-policy.ts:147), and checklist_update can change title/context/excludes while story.phase is INIT because title/context are protected only from INIT_CHECK onward and the handler writes item.title/item.context/item.excludes (packages/main/src/handlers/checklist.ts:331,373,377,388-390). scripts/verify-process-fact-contract.mjs inventories scope_extension_proposal/decide and checklist_update separately but does not assert the INIT-reviewer-only-proposal invariant (scripts/verify-process-fact-contract.mjs:118-119,3154-3187). This leaves the anti-expansion rule prompt-only rather than prompt + CLI/contract protected, so a reviewer or misrouted INIT actor can widen checklist scope without producing a pending proposal/explicit decision trail.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-12T20:43:21.649Z",
+      "reviewRound": "2026-06-12T20:36:30.829Z",
+      "reviewRunId": "B-85ba:RR-006",
+      "_hash": "6d7ed0d4825b9d2bccadb73cf5e1f60951dc03e998d322f2226580a53bf4492b",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/templates/agents/koala-review-story-init.md",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ]
     }
   ]
 }
