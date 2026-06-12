@@ -11,7 +11,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs lattice done_closure --storyId=B-cd1e and sees local DONE readiness, ordered closure blockers, and next commands derived from DONE pre-check rows.",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/done-closure.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_closure on a TEST story renders local DONE readiness from buildDoneChecklist rows and lists blockers in gate order.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "done_closure on a non-TEST or already-DONE story returns a clear read-only projection without mutating phase or artifacts.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "done_closure output stays consistent with session_brief/DONE oracle rows and cannot report canAttemptDone=true while blocking DONE rows remain.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
