@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T20:42:13.930Z",
-      "endTime": "2026-06-12T21:07:19.118Z",
+      "endTime": "2026-06-12T21:32:08.004Z",
       "userSees": "Metadata checks print \"@lattice-agent/core 0.3.5\" and a package scope scan prints \"package metadata scope check passed\"; the `koala` bin remains visible only as a legacy alias.",
       "files": {
         "modify": [
@@ -56,9 +56,9 @@
           "command": "node manifest and lock package identity assertion",
           "result": "pass",
           "note": "Checked 10 manifest and lock files: root package name is lattice, packages/main is @lattice-agent/core, packages/game is @lattice/game, and no manifest or lock contains old @koala-agent package scopes or @koala/game.",
-          "headHash": "a21f039a78cd6e67d7330a67b0115357a6c02902",
-          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
-          "timestamp": "2026-06-12T21:07:19.231Z"
+          "headHash": "9ed624524b4d59be4a3f941fbf0c4682cee5bccf",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:08.097Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,19 +66,19 @@
           "command": "node packages/main/package.json bin alias assertion",
           "result": "pass",
           "note": "Verified bin.lattice remains primary and legacy bin.koala remains mapped to dist/cli.js.",
-          "headHash": "a21f039a78cd6e67d7330a67b0115357a6c02902",
-          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
-          "timestamp": "2026-06-12T21:07:19.286Z"
+          "headHash": "9ed624524b4d59be4a3f941fbf0c4682cee5bccf",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:08.136Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "command": "rg package metadata for @koala-agent scopes, @koala/game, and mistaken root @lattice/game",
+          "command": "rg package metadata for @koala-agent scopes and @koala/game",
           "result": "pass",
-          "note": "Package manifests and lockfiles do not expose old @koala-agent package scopes or @koala/game, and root package identity is not @lattice/game.",
-          "headHash": "a21f039a78cd6e67d7330a67b0115357a6c02902",
-          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
-          "timestamp": "2026-06-12T21:07:19.366Z"
+          "note": "No package manifest or lockfile exposes old @koala-agent package scopes or @koala/game.",
+          "headHash": "9ed624524b4d59be4a3f941fbf0c4682cee5bccf",
+          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
+          "timestamp": "2026-06-12T21:32:08.175Z"
         }
       ]
     },
