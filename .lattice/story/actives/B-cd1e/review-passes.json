@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-12T18:08:21.945Z",
       "reviewRunId": "B-cd1e:RR-003",
       "_hash": "d370e5927740a12c90c0c4e4150d60d5033bb44385860550141cee4f04def6f6"
+    },
+    {
+      "id": "B-cd1e:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Re-reviewed commits 090f7caba and a0a87ceb8 plus resolved findings B-cd1e:F-001/B-cd1e:F-002. The original under-reporting in 090f7caba was fixed in a0a87ceb8: done_closure now projects Authority enforce DONE receipt readiness with the same receipt eligibility inputs as runAuthorityReceiptTransitionGate, combines that blocker into canAttemptDone, keeps localNonAuthorityAudit separate from authorityServerPath, and always leaves mayClaimAuthorityDone=false. Verified by source review and node packages/main/dist/tasks/done-preflight-smoke.js passing, including missing-receipt blocks readiness and eligible receipt verifies read-only cases.",
+      "createdAt": "2026-06-12T18:23:59.326Z",
+      "reviewRound": "2026-06-12T18:21:09.306Z",
+      "reviewRunId": "B-cd1e:RR-006",
+      "_hash": "09a299d192912ea97494d3b7c0212d81c45b833747849727448ffc6e4bce3dfe"
     }
   ]
 }
