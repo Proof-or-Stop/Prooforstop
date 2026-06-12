@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-e155:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept PASS: docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md:101 defines exactly one of three outcomes, lines 116-383 give executable freeze/reproduce/classify/verify/implement/test/close phases, lines 54-57 and 304-323 prevent arbitrary new layers or broad redesign, and lines 281-290 keep Layer 3/4/5/global/production claims locked. NAV includes the new decision doc at docs/requirements/NAV.md:16 with count updated at line 3. Cross-checks against unlock-layer2-ENG-suite.md and formal-unlock-artifact-isolation-execution-plan.md show the proof-root and higher-layer-lock concepts are existing requirements, not invented here.",
+      "createdAt": "2026-06-12T15:29:05.761Z",
+      "reviewRound": "2026-06-12T15:26:58.477Z",
+      "reviewRunId": "B-e155:RR-001",
+      "_hash": "50ec52dd52c1d3e9f519d447b930e89efdb3c4817743c26530f5223b5f3f0b51"
+    },
+    {
+      "id": "B-e155:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review PASS. Inspected docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md and docs/requirements/NAV.md plus source/decision anchors for Layer2 and Authority boundaries. The document is plan-only, internally consistent, keeps F-009 suspected unless mechanically proven, does not claim local CLI Authority proof, and avoids arbitrary optimization or broader Layer3/Layer4/global unlock claims. NAV count/link are consistent. Non-blocking nit: git diff --check reports a trailing blank line at EOF in the new doc.",
+      "createdAt": "2026-06-12T15:29:18.858Z",
+      "reviewRound": "2026-06-12T15:26:58.477Z",
+      "reviewRunId": "B-e155:RR-002",
+      "_hash": "d2674654c9dce52ce34927ded3671d1af56cd861407790dc367e345561b615b0"
+    },
+    {
+      "id": "B-e155:RP-003",
+      "agent": "koala-review-docs",
+      "note": "PASS docs re-review. F-002 resolved: NAV declares 42 files and node comparison found actualCount=42, linkCount=42, no missing/extra/duplicates; NAV includes F-009 and formal-unlock links at docs/requirements/NAV.md:16-17, satisfying the NAV sync requirement. Placement is correct: the new execution plan is under docs/requirements/decisions and git diff shows only NAV plus the F-009 decision doc in requirements. Executable structure is present: status/story/finding/claim boundary, host transcript evidence, required outcomes, phases 0-10 with stop conditions, fail-closed tests, minimum evidence pack, and DONE criteria.",
+      "createdAt": "2026-06-12T15:37:52.650Z",
+      "reviewRound": "2026-06-12T15:34:21.590Z",
+      "reviewRunId": "B-e155:RR-009",
+      "_hash": "0037f0c3e401c7d7d700d61490614d04d324c67e9822eb376e96c8328e04062f"
+    },
+    {
+      "id": "B-e155:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality re-review PASS. Inspected final F-009 execution plan and NAV plus resolved findings F-001/F-002. The document is internally consistent, plan-only, does not claim Layer 2 unlock by itself, does not turn host transcripts or local CLI output into Authority evidence, excludes arbitrary optimization/scope broadening, NAV is synchronized 42/42, and git diff --check main...HEAD passes for the touched docs.",
+      "createdAt": "2026-06-12T15:38:07.688Z",
+      "reviewRound": "2026-06-12T15:34:21.590Z",
+      "reviewRunId": "B-e155:RR-008",
+      "_hash": "72a4f522f5250879c0d501745869b4c65d29a14c51031595fbed970f6c846195"
+    },
+    {
+      "id": "B-e155:RP-005",
+      "agent": "koala-review-concept",
+      "note": "PASS concept re-review after fixes. Inspected B-META-framework-audit:F-009, resolved B-e155:F-001/F-002, docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md, and docs/requirements/NAV.md. The plan is executable as a future F-009 resolution/disproof story: it freezes target/material/artifact root, inventories proof writers/readers, runs baseline_suite_report and capability_claim_formal_evaluate, requires fail-closed negative controls, and closes only as disproven/resolved/remains-open. No new proof layer is introduced without a mechanically verified need; local diagnostics and host transcripts are explicitly barred from Authority proof; Layer 2-only claim boundary remains narrow; NAV has 42 decision files and 42 links.",
+      "createdAt": "2026-06-12T15:38:14.387Z",
+      "reviewRound": "2026-06-12T15:34:21.590Z",
+      "reviewRunId": "B-e155:RR-007",
+      "_hash": "426365df273b348c67e2d54b58a09592365406b60018037c6f1b3f8d7a4ea03f"
+    },
+    {
+      "id": "B-e155:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: F-001 is genuinely resolved for test coverage. CHK-002:happy now points to docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md Host Transcript Evidence, which includes Claude and Codex command trails plus captured draft content; host output is explicitly non-Authority. lattice evidence_inspect --storyId=B-e155 --format=json reports 12/12 checklist evidence refs fresh, no staleRefs, and all happy/edge/adversarial intents have command/file-backed evidence. Rechecked F-009 source finding remains open/suspected in B-META, NAV has 42 decision links for 42 decision docs, git diff --check is clean, and scope_contract_check passes.",
+      "createdAt": "2026-06-12T15:38:32.583Z",
+      "reviewRound": "2026-06-12T15:34:21.590Z",
+      "reviewRunId": "B-e155:RR-010",
+      "_hash": "212a4ca21e7da6f45c75e81816ba78c02c3d2414d43c7f505ae495f6114d36ba"
+    }
+  ]
+}

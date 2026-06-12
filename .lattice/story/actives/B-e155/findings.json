@@ -1,0 +1,42 @@
+{
+  "findings": [
+    {
+      "id": "B-e155:F-001",
+      "desc": "CHK-002:happy:0 is not covered by real two-host evidence. checklist_get records only a manual_transcript with command \"claude --print ...; codex exec -s read-only ...\" and no file/transcript artifact; evidence_inspect confirms the only transcriptRef for this intent is checklist.verificationEvidence. The final document honestly states the two-host/Authority limitation, but the required proof that Claude CLI and Codex CLI each produced bounded drafts is currently an assertion rather than inspectable evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-12T15:30:16.690Z",
+      "reviewRound": "2026-06-12T15:26:58.477Z",
+      "reviewRunId": "B-e155:RR-005",
+      "_hash": "499b8e6393099b032b0e37cd18a5018a608574d428bb14c916e4381020d4af03",
+      "files": [
+        "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+      ],
+      "resolvedReason": "Added inspectable Host Transcript Evidence section with Claude/Codex exact command trail and captured draft excerpts; CHK-002:happy evidence now points to rg checks over that section.",
+      "resolvedAt": "2026-06-12T15:34:33.012Z"
+    },
+    {
+      "id": "B-e155:F-002",
+      "desc": "NAV is not fully synchronized after this story adds a decision guide. docs/requirements/NAV.md was updated from 40 to 41 files and includes the new F-009 link at line 16, but there are currently 42 Markdown files under docs/requirements/decisions while NAV has 41 decision links; the missing link is decisions/formal-unlock-artifact-isolation-execution-plan.md. This violates root-document-migration-guide.md:105-108, which requires NAV count and decision links to match the decisions list when decision guides are added. Verified with rg --files docs/requirements/decisions -g md-count command => 42; rg dash-link count on docs/requirements/NAV.md => 41; node link comparison => missing decisions/formal-unlock-artifact-isolation-execution-plan.md.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-12T15:30:53.154Z",
+      "reviewRound": "2026-06-12T15:26:58.477Z",
+      "reviewRunId": "B-e155:RR-006",
+      "_hash": "25463fc45b5634b850bf1b704cdf11a9979f1801bf874b363da50b266b242ce3",
+      "files": [
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+        "docs/requirements/decisions/root-document-migration-guide.md"
+      ],
+      "resolvedReason": "Updated NAV to 42 files and added the missing formal-unlock-artifact-isolation-execution-plan link; counts now match decisions markdown files.",
+      "resolvedAt": "2026-06-12T15:34:33.033Z"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only address real correctness issues or define how to prove/disprove them.",
+    "Keep host-neutral and non-authority boundaries explicit.",
+    "Preserve logical consistency with existing Layer2 unlock and Authority receipt decisions."
+  ],
+  "drivers": [
+    "F-009 is high severity and affects whether Layer2 Engineering PASS can be legitimately claimed.",
+    "The user asked for an executable document before implementation.",
+    "Existing docs already define much of the Layer2 proof contract, so the new doc should bridge the suspected gap instead of inventing a new layer."
+  ],
+  "options": [
+    {
+      "name": "A: Write a narrow F-009 execution plan document",
+      "pros": [
+        "Directly addresses the open suspected finding.",
+        "Keeps proof, Authority, and claim boundaries explicit.",
+        "Avoids unlocking any capability from prose alone."
+      ],
+      "cons": [
+        "Requires a later execution story before F-009 can be closed."
+      ]
+    },
+    {
+      "name": "B: Immediately implement a proof producer/import path",
+      "pros": [
+        "Could resolve F-009 faster if the finding is already verified."
+      ],
+      "cons": [
+        "Risks arbitrary optimization before mechanical reproduction/disproof.",
+        "Could blur local CLI non-authority boundaries."
+      ]
+    },
+    {
+      "name": "C: Treat F-009 as advisory and leave it for later",
+      "pros": [
+        "No immediate implementation risk."
+      ],
+      "cons": [
+        "Leaves a high suspected claim-gating gap without an executable handling path.",
+        "Does not satisfy the user request for a concrete execution document."
+      ]
+    }
+  ],
+  "chosen": "A: Write a narrow F-009 execution plan document",
+  "rationale": "Option A matches the user request and the four principles: it creates the exact execution path for F-009 without prematurely implementing or claiming Layer2 unlock. It also preserves host-neutrality by using Claude and Codex as independent drafting hosts while the main auditor owns final consistency.",
+  "preMortem": [
+    {
+      "scenario": "Document accidentally claims Layer2 is unlocked.",
+      "trigger": "Language says PASS/unlocked instead of plan-only or future execution criteria.",
+      "consequence": "False capability claim and contradiction with F-009.",
+      "mitigation": "Add explicit non-goals and final audit checks for no unlock language."
+    },
+    {
+      "scenario": "Document invents a new baseline layer or broad architecture.",
+      "trigger": "Host drafts suggest extra abstractions unrelated to F-009.",
+      "consequence": "Optimization for optimization and future maintenance burden.",
+      "mitigation": "Synthesize only correctness requirements needed to resolve/disprove F-009."
+    },
+    {
+      "scenario": "Document treats local CLI as Authority server.",
+      "trigger": "Plan allows local commands to mint production receipts or production DONE.",
+      "consequence": "Violates Lattice CLI non-authority and host-neutral trust boundaries.",
+      "mitigation": "State local CLI can verify shape/import/gate consumption only; production receipt verification remains Authority-backed."
+    }
+  ],
+  "timestamp": "2026-06-12T15:12:58.428Z"
+}

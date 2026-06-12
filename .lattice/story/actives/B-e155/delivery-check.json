@@ -1,0 +1,61 @@
+{
+  "storyId": "B-e155",
+  "checkedAt": "2026-06-12T15:44:02.424Z",
+  "reviewRound": "2026-06-12T15:34:21.590Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "promise": "Create a plan-only F-009 execution document that defines how to resolve or disprove the Layer 2 proof gap without unlocking Layer 2 by itself.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD and targeted rg over F-009 document",
+      "evidence": "Diff adds the F-009 execution plan with explicit claim boundary, outcomes, execution phases, fail-closed tests, evidence pack, and DONE criteria; rg confirms document says it does not unlock Layer 2 by itself."
+    },
+    {
+      "docPath": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "promise": "Record Claude CLI and Codex CLI host input while preserving host-neutral and non-authority boundaries.",
+      "status": "verified",
+      "verifiedBy": "rg Host Transcript Evidence plus transcript-diff inspection",
+      "evidence": "Document includes Claude and Codex command trails and captured draft excerpts, while stating host output is review/drafting input only and neither host transcript can replace signed receipt or formal artifact evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "promise": "Preserve local diagnostic, formal proof, and Authority boundary semantics with no false capability or production authority claim.",
+      "status": "verified",
+      "verifiedBy": "rg over F-009 document and source-policy anchors",
+      "evidence": "Document forbids local diagnostics as Authority proof, forbids host verdicts as Authority receipts, keeps Layer 3/4/global claims locked, and matches command-policy source lines for baseline_suite_report, authority_receipt_fetch, and capability_claim_formal_evaluate."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Update truth-source NAV count and links for the new F-009 decision guide and missing formal-unlock artifact isolation guide.",
+      "status": "verified",
+      "verifiedBy": "node count command and git diff",
+      "evidence": "decisionMarkdownFiles=42, navDecisionLinks=42, hasF009=true, hasFormalUnlock=true; NAV diff updates 40 to 42 and adds both links."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-003/CHK-004",
+      "transcript": "git diff main...HEAD over NAV and F-009 document was inspected; rg confirmed claim boundary, non-goals, suspected/verified/disproven handling, fail-closed tests, and no false Layer2 unlock claim."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Transcript-diff and F-009 Host Transcript Evidence were inspected; Claude and Codex command trails and draft excerpts are present, and the document explicitly keeps host drafts non-authoritative."
+    },
+    {
+      "featureId": "VALIDATION",
+      "transcript": "lattice test_list --storyId=B-e155 reported PASS; validation coverage 12/12 required intents covered, evidence fresh; finding_list showed B-e155:F-001 and B-e155:F-002 resolved."
+    },
+    {
+      "featureId": "NAV",
+      "transcript": "node count command returned decisionMarkdownFiles=42, navDecisionLinks=42, hasF009=true, hasFormalUnlock=true."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS. Inspected final git diff, F-009 document, NAV count/link state, checklist evidence, validation evidence, transcript-diff, source-policy anchors, scope gate, and resolved findings. Test coverage is real for this docs/story scope, host-neutral and non-authority boundaries are preserved, and no false capability claim is made. evidence_inspect has no transcriptRefs, but the host draft evidence is embedded in the committed document and transcript-diff and is treated only as non-authority review input."
+  },
+  "_hash": "782a5c7b4cfe722d6294e5ee4560db69569d0d30bb74da3748c44141dd1a3059"
+}

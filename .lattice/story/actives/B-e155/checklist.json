@@ -10,9 +10,75 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T15:18:15.819Z",
+      "endTime": "2026-06-12T15:26:43.248Z",
+      "userSees": "Context evidence lists F-009 text, suspected gap, source anchors, and related Layer2/Authority docs without using .omx.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "F-009 finding text and related Layer2/Authority decision docs are cited in the execution plan.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan distinguishes suspected evidence from verified evidence and does not treat stale artifacts as proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No .omx path or legacy artifact root is used as source of truth.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "lattice finding_list --storyId=B-META-framework-audit; rg -n \"F-009|Current Facts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document cites F-009, its suspected status, and the current fact anchors used for execution.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"suspected|verified|disproven|Required Decision Outcomes\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document separates suspected, verified, and disproven outcomes and requires mechanical evidence before status changes.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"disabled legacy artifact roots|clean artifact root|formal proof roots\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The execution plan requires clean formal roots and forbids disabled legacy artifact roots as proof roots.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +87,75 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T15:26:43.693Z",
+      "userSees": "Two independent host drafts from Claude CLI and Codex CLI are available as input to the final document synthesis.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude CLI and Codex CLI each produce a bounded F-009 execution-plan draft.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The final document records host input without making either host an Authority.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Host suggestions that add arbitrary optimization or false capability claims are excluded.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Host Transcript Evidence|Claude CLI command trail|Captured Claude draft|Codex CLI command trail|Captured Codex draft\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The F-001 fix makes both host drafts inspectable in the decision document with command trails and captured draft content, rather than relying on an uninspectable manual assertion.",
+          "headHash": "591175dc6974df97ed961b407b99030fcf98661a",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:34:07.064Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Host Draft Inputs|Host output is review/drafting input only|Authority Server\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The host section records both host inputs while explicitly preventing either host from becoming Authority.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Do not optimize|Non-Goals|Forbidden fixes|host transcripts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document excludes arbitrary optimizations, false capability claims, and converting host transcripts into Authority receipt proof.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,9 +165,77 @@
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T15:26:44.131Z",
+      "userSees": "A new decision document appears under docs/requirements/decisions and NAV links to it with the updated count.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The F-009 execution document is created and NAV count/link are updated.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document states it is plan-only and cannot unlock Layer2 by itself.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not broaden scope into Layer3/Layer4/global claims or production Authority implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg --files docs/requirements/decisions -g \"*.md\" | wc -l; rg -n \"^-\" docs/requirements/NAV.md | wc -l; rg -n \"42 个文件|formal-unlock-artifact-isolation\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The F-002 fix synchronizes NAV to 42 decision links and includes the previously missing formal-unlock-artifact-isolation decision document.",
+          "headHash": "591175dc6974df97ed961b407b99030fcf98661a",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:34:07.064Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"does not unlock|This document alone does\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly states that it is plan-only and cannot unlock Layer2 by itself.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Do not unlock Loop Engineering|Layer 3|Layer 4|global Capability|Production Safety\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "The plan keeps Layer3, Layer4, Production Safety, fullAuthorityDone, and global Capability Claim out of scope.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -44,9 +244,114 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-12T15:26:44.590Z",
+      "userSees": "Final audit reports PASS for executability, host-neutrality, non-authority boundary, and logical consistency, or records blockers explicitly.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final audit confirms the document gives an executable path to resolve or disprove F-009.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Audit checks consistency with existing Layer2 unlock, artifact isolation, lifecycle receipt, and Authority receipt docs.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audit rejects false PASS language, missing fail-closed rules, and any local CLI Authority overclaim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "git diff --check -- docs/requirements/NAV.md docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md; lattice scope_contract_check --storyId=B-e155",
+          "result": "pass",
+          "note": "Post-finding audit checks pass for whitespace and scope after host transcript and NAV synchronization fixes.",
+          "headHash": "591175dc6974df97ed961b407b99030fcf98661a",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:34:07.064Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"unlock-layer2|formal-unlock|lifecycle|Authority Receipt|Current Facts\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "Audit confirmed the plan aligns with existing Layer2 unlock, artifact isolation, lifecycle receipt, and Authority receipt boundaries.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "command": "rg -n \"Forbidden fixes|Fail-Closed Tests|local diagnostic|Authority overclaim|This document alone\" docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+          "result": "pass",
+          "note": "Audit confirmed false PASS language, missing fail-closed rules, and local CLI Authority overclaim are explicitly blocked.",
+          "headHash": "877449c40b01338d3b72d8d38f9e6e32e922e543",
+          "materialHash": "1276e559cc3b9258d829f76faf74092944f6d277f355c11bb5db76c6fc7fd6ab",
+          "timestamp": "2026-06-12T15:35:08.121Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-12T15:26:43.248Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-009 context, source anchors, and existing proof-boundary docs were captured in the execution plan."
+    },
+    {
+      "timestamp": "2026-06-12T15:26:43.693Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Claude CLI and Codex CLI host drafts were produced/consumed with host limitations recorded."
+    },
+    {
+      "timestamp": "2026-06-12T15:26:44.131Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "The F-009 execution document was created and NAV was updated."
+    },
+    {
+      "timestamp": "2026-06-12T15:26:44.590Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "The final auditor checks for executability, host-neutrality, non-authority boundary, and fail-closed logic passed."
     }
   ]
 }
