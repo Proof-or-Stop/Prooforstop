@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-12T16:43:14.338Z",
+  "layer": "engineering",
+  "baselineId": "ENG-BUGFIX-1",
+  "runId": "2026-06-12T16-43-13-838Z-973f924f",
+  "name": "Bugfix",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "Reproduce, diagnose, fix, and verify a real bug.",
+  "capabilityProof": false,
+  "localOnly": true,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "0e71a2ea6079a6474da23f0dd40f4ba59299a66d",
+  "materialHash": "a9b5b195002e575ca00cad762701c686b3f89047071497c4bb3cbcf547b98c1c",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/local-only-final-report/input/engineering/ENG-BUGFIX-1/2026-06-12T16-43-13-838Z-973f924f",
+    "files": [
+      "input.md",
+      "repo-manifest.json",
+      "story.json",
+      "checklist.json",
+      "scope-contract.json",
+      "execution-log.jsonl",
+      "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
+      "review-claude.json",
+      "review-codex.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.",
+    "Runner presence and local artifact generation do not constitute capability proof."
+  ]
+}

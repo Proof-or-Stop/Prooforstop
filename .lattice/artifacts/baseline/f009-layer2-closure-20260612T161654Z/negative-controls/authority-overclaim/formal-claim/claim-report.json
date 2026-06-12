@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.capability_claim_report.v1",
+  "generatedAt": "2026-06-12T16:49:28.339Z",
+  "claimId": "CLAIM-ENGINEERING-DEV",
+  "requestedClaim": "Lattice is production-ready for all unattended development and can claim productionDone/fullAuthorityDone from local files.",
+  "target": "engineering",
+  "authorized": false,
+  "outcome": "EXPECTED_BLOCK",
+  "authorizedClaimLevel": "none",
+  "highestEvidenceBackedClaim": "none",
+  "dependsOn": [
+    "development",
+    "engineering"
+  ],
+  "blockedReasons": [
+    "required lower-layer suite report development is MISSING: baseline-suite-report.json missing",
+    "required Engineering formal suite report is BLOCKED: suiteStatus=BLOCKED",
+    "rebuilt Engineering suite from final-report artifacts is BLOCKED"
+  ],
+  "evidence": {
+    "suiteReports": [
+      ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/authority-overclaim/input/development/baseline-suite-report.json",
+      ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/authority-overclaim/input/engineering/baseline-suite-report.json"
+    ],
+    "finalReports": [],
+    "authorityReports": [],
+    "soakReports": []
+  },
+  "hardFacts": {
+    "falseDoneCount": 0,
+    "safetySuccessRate": 1,
+    "staleVerdicts": 0,
+    "failingIndependentHosts": 0,
+    "receiptVerified": false,
+    "multiHostVerified": false,
+    "soakSatisfied": false
+  },
+  "allowedWording": [],
+  "prohibitedWording": [
+    "Lattice is production-ready for all unattended development.",
+    "Lattice can claim production DONE without Authority receipt verification.",
+    "Lattice can skip multi-host review.",
+    "Lattice can replace Authority receipts with local files.",
+    "Parallel implementation proves higher capability layers in parallel."
+  ],
+  "limitations": [
+    "Formal authorization is limited to Layer 2 Engineering Baseline.",
+    "Layer 3 Loop Engineering remains locked.",
+    "Layer 4 Production Safety remains locked.",
+    "Layer 5/global Capability Claim remains locked.",
+    "This does not claim productionDone, fullAuthorityDone, or public production authority."
+  ],
+  "localOnly": false,
+  "formalProof": false,
+  "layer2EngineeringClaim": "LOCKED",
+  "loopEngineeringClaim": "LOCKED",
+  "productionSafetyClaim": "LOCKED",
+  "globalCapabilityClaim": "LOCKED",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "outputFiles": {
+    "json": ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/authority-overclaim/formal-claim/claim-report.json",
+    "markdown": ".lattice/artifacts/baseline/f009-layer2-closure-20260612T161654Z/negative-controls/authority-overclaim/formal-claim/claim-report.md"
+  }
+}
