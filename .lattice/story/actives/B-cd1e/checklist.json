@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Expose DONE closure runbook from existing DONE pre-check data",
+      "context": "Add or extend a CLI surface that projects remaining closure gates between the current phase and DONE. Prefer reusing session_brief/next or existing done-oracle data over duplicating gate predicates. The surface must be read-only by default and include branch sync, delivery-check, summary, validation, bug, evidence freshness, declared artifact, and related-doc advisory state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Separate localNonAuthorityAudit from authorityServerPath in output",
+      "context": "The runbook must mechanically distinguish local lifecycle/DONE readiness from Authority Server receipt-backed completion. Local CLI/two-host evidence must not set or imply receiptVerified, authorityDone, productionDone, or fullAuthorityDone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register process-fact and command contracts consistently",
+      "context": "If adding a command or extending an existing surface, update CLI schema/registry, command policy/process-fact registry, and contract verification so the capability is classified as read-only lifecycle observability rather than gate evidence or Authority proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression coverage for TEST PASS not equal DONE",
+      "context": "Add focused tests proving a TEST story with passing validation but missing delivery-check/summary is reported as not DONE, local Non-authority closure cannot claim Authority fields, and Authority guidance remains receipt-backed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/lattice-unattended-completion-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
