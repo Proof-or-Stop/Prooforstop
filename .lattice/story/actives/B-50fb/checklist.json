@@ -269,9 +269,9 @@
       "id": "CHK-004",
       "title": "Verify package rename behavior",
       "context": "Run targeted package metadata checks, TypeScript/build verification, existing runtime contract verification scripts, and lattice validate so the rename does not break local wrappers, lab registration, or runtime environment diagnostics.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:50:03.372Z",
-      "endTime": "2026-06-12T21:01:10.993Z",
+      "endTime": "2026-06-12T21:08:11.581Z",
       "userSees": "Terminal evidence shows package metadata checks passed, `npm --prefix packages/main run build` passed, runtime contract scripts passed, and `lattice validate --story=B-50fb` reports pass/allPass true for B-50fb.",
       "files": {
         "modify": [],
@@ -318,42 +318,32 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
-          "command": "node -e root/game package identity assertion && npm --prefix packages/main run build",
+          "command": "npm --prefix packages/main run build; node scripts/verify-runtime-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
           "result": "pass",
-          "note": "Root/game metadata assertion passed and main TypeScript build passed after updating the self-project root identity to lattice.",
-          "headHash": "592456f5307b57ce93f09b91cb3af82f12ecc5dd",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:11.039Z"
+          "note": "Main package build, runtime fact contract, and entrypoint verification all passed after the second follow-up source cleanup.",
+          "headHash": "6b839f1cee440b1685eb781a9d9c60b7de9ab8e7",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:08:12.429Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
-          "command": "node scripts/verify-global-lab-entrypoint.mjs",
-          "result": "pass",
-          "note": "Global lab entrypoint verification passed after package metadata correction.",
-          "headHash": "592456f5307b57ce93f09b91cb3af82f12ecc5dd",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:11.078Z"
-        },
-        {
-          "intentRef": "CHK-004:adversarial:0",
-          "kind": "manual_transcript",
           "command": "lattice scope_contract_check {storyId:B-50fb}",
           "result": "pass",
-          "note": "Scope contract check exited 0 with only acknowledged warnings for user-requested packages/game/package.json and package-lock.json.",
-          "headHash": "592456f5307b57ce93f09b91cb3af82f12ecc5dd",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:11.115Z"
+          "note": "Scope contract check passed with 56 changed files and 0 unacknowledged violations under the expanded story scope.",
+          "headHash": "6b839f1cee440b1685eb781a9d9c60b7de9ab8e7",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:08:12.720Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
-          "command": "rg package metadata for @koala/game and mistaken root @lattice/game",
+          "command": "focused rg classification for @koala-agent/core/utils/lab/cli-guess-number plus node package manifest assertions",
           "result": "pass",
-          "note": "Search proved @koala/game is absent from package manifests/lockfiles and root package metadata is not @lattice/game.",
-          "headHash": "592456f5307b57ce93f09b91cb3af82f12ecc5dd",
-          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
-          "timestamp": "2026-06-12T21:01:11.151Z"
+          "note": "Focused searches and manifest assertions show canonical @lattice-agent package names are active; remaining old-scope references are legacy fallback, compatibility assertions, or negative dependency checks.",
+          "headHash": "6b839f1cee440b1685eb781a9d9c60b7de9ab8e7",
+          "materialHash": "8a1f3bcd56e869ea45e56c5e1ed48dc2a31e646f305df2f8b0ea67fb6d437646",
+          "timestamp": "2026-06-12T21:08:13.054Z"
         }
       ]
     }
