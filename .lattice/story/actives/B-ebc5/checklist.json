@@ -83,7 +83,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T18:50:49.156Z",
-      "endTime": "2026-06-12T18:51:01.010Z",
+      "endTime": "2026-06-12T18:56:18.819Z",
       "userSees": "NAV lists the new three-high-gap resolution plan and the decision document count remains consistent.",
       "files": {
         "modify": [
@@ -119,19 +119,19 @@
           "command": "rg -n \"Resolve gap_analyze Three High Gaps Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV includes the new resolution plan link.",
-          "headHash": "8ce8e6fc810b5229adf56fdff9a8d97f2da8e2a0",
+          "headHash": "d27f3bfb368faa31272fbc007adbe4638afdfff1",
           "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:51:01.058Z"
+          "timestamp": "2026-06-12T18:56:18.874Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "node -e \"const fs=require(fs); const s=fs.readFileSync(docs/requirements/NAV.md,utf8); const count=Number((s.match(/^> (\\\\d+) 个文件/m)||[])[1]); const links=[...s.matchAll(/^- \\[/gm)].length; if(count!==links){console.error(JSON.stringify({count,links})); process.exit(1)} console.log(JSON.stringify({count,links,ok:true}));\"",
+          "command": "node -e \"const fs=require(\"fs\"),path=require(\"path\"); function walk(d){return fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{const p=path.join(d,e.name); return e.isDirectory()?walk(p):(p.endsWith(\".md\")?[p]:[])})} const s=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const declared=Number((s.match(/^> (\\\\d+) 个文件/m)||[])[1]); const actual=walk(\"docs/requirements\").length; if(declared!==actual){console.error(JSON.stringify({declared,actual}));process.exit(1)} console.log(JSON.stringify({declared,actual,ok:true}))\"",
           "result": "pass",
-          "note": "NAV count equals the number of decision links after adding the new document.",
-          "headHash": "8ce8e6fc810b5229adf56fdff9a8d97f2da8e2a0",
+          "note": "NAV declared file count equals the actual markdown file count under docs/requirements.",
+          "headHash": "d27f3bfb368faa31272fbc007adbe4638afdfff1",
           "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:51:01.088Z"
+          "timestamp": "2026-06-12T18:56:18.904Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -139,9 +139,9 @@
           "command": "rg -n \"F-009 gap_analyze High Gaps Execution Plan|Resolve gap_analyze Three High Gaps Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV keeps the prior B-3a80 triage plan link and adds the new resolution plan link.",
-          "headHash": "8ce8e6fc810b5229adf56fdff9a8d97f2da8e2a0",
+          "headHash": "d27f3bfb368faa31272fbc007adbe4638afdfff1",
           "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
-          "timestamp": "2026-06-12T18:51:01.121Z"
+          "timestamp": "2026-06-12T18:56:18.934Z"
         }
       ]
     }
