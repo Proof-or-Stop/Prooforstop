@@ -9,8 +9,8 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-12T10:59:06.315Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -112,6 +112,17 @@
           "packages/main/src/tasks/baseline-local-certification-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-12T10:59:06.315Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start implementing review_run_start signed workspace diagnostics."
     }
   ]
 }
