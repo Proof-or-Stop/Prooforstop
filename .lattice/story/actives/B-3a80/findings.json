@@ -24,7 +24,7 @@
       "desc": "CHK-001:adversarial and CHK-003:adversarial still record verificationEvidence as result=pass even though the exact commands fail when rerun. `rg claim boundary docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md` exits 2 because `boundary` is parsed as a missing path; `rg -n implement.customerKeyRef.receiptVerified.productionDone.unlock.Layer.4 docs/requirements/decisions/unlock-layer4-production-safety-suite.md` exits 1 with no match because the regex does not match the actual note text. The docs claim boundaries look conservative and F-001 scoped-diff evidence is materially refreshed, but these pass-marked evidence commands are inconsistent with their recorded result and need refreshed executable evidence or corrected command text before REVIEW can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T18:09:47.271Z",
@@ -34,7 +34,9 @@
       "files": [
         "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
-      ]
+      ],
+      "resolvedReason": "Refreshed CHK-001:adversarial and CHK-003:adversarial verificationEvidence to use executable rg commands. Reran both exact commands successfully: the F-009 claim boundary command exits 0, and the customerKeyRef current-support/receiptVerified/productionDone/Layer4 command exits 0 with matching lines.",
+      "resolvedAt": "2026-06-12T18:12:08.190Z"
     }
   ]
 }
