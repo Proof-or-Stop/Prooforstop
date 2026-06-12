@@ -1099,9 +1099,13 @@ export interface ExecutionBoundaryData {
   /** Commands/tool invocations explicitly allowed for this story's INIT_CHECK/DEV execution envelope. */
   allowedCommands: string[];
   allowedTools: string[];
+  /** Optional path envelope used by the INIT command surface; kept separate from tool names. */
+  allowedPaths?: string[];
   /** Commands/tool invocations explicitly excluded from this story's execution envelope. */
   excludedCommands: string[];
   excludedTools: string[];
+  /** Optional path exclusions used by the INIT command surface; kept separate from tool names. */
+  excludedPaths?: string[];
   confirmedBy?: string;
   confirmationNote?: string;
   createdAt: string;
@@ -1171,7 +1175,7 @@ export interface ScopeFreezeCheckData {
   _hash: string;
 }
 
-export type ScopeExtensionDecisionValue = 'approved' | 'rejected';
+export type ScopeExtensionDecisionValue = 'approved' | 'accepted' | 'rejected';
 export type ScopeExtensionProposalStatus = 'pending' | ScopeExtensionDecisionValue | 'withdrawn';
 
 export interface ScopeExtensionPatch {
@@ -1193,14 +1197,23 @@ export interface ScopeExtensionDecision {
 }
 
 export interface ScopeExtensionProposal {
+  /** Compatibility alias for older handler surfaces; proposalId is canonical. */
+  id?: string;
   proposalId: string;
   storyId: string;
   proposedBy: string;
   proposedAt: string;
+  /** Human-readable reviewer expansion proposal; does not change scope until accepted. */
+  proposal?: string;
+  proposalTextHash?: string;
   reason: string;
   patch: ScopeExtensionPatch;
   reviewerRunId?: string;
+  findingId?: string;
+  evidenceRefs?: string[];
+  rejectedDirectionCount?: number;
   status: ScopeExtensionProposalStatus;
+  decidedAt?: string;
   decision?: ScopeExtensionDecision;
   /** Stable sha256 over proposal identity, reason, patch, reviewerRunId, status, and decision hash. */
   _hash: string;
@@ -1210,6 +1223,28 @@ export interface ScopeExtensionProposalData {
   storyId: string;
   updatedAt: string;
   proposals: ScopeExtensionProposal[];
+}
+
+export interface ScopeExtensionDecisionRecord {
+  id: string;
+  storyId: string;
+  proposalId: string;
+  proposalTextHash?: string | null;
+  decision: 'accepted' | 'rejected';
+  reason: string;
+  decider: string;
+  invalidatesFreezeCheckHash?: string | null;
+  priorFreezeCheckStatus?: string | null;
+  createdAt: string;
+  actor?: string;
+  _hash: string;
+}
+
+export interface ScopeExtensionDecisionData {
+  storyId: string;
+  updatedAt: string;
+  decisions: ScopeExtensionDecisionRecord[];
+  _hash?: string;
 }
 
 export interface ScopeDiscardDigestEntry {

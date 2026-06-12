@@ -8,7 +8,7 @@ import type {
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData,
-  ScopeExtensionProposalData, ScopeDiscardDigestData,
+  ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -502,6 +502,19 @@ export class StoryStore {
 
   writeScopeExtensionProposals(storyId: string, data: ScopeExtensionProposalData): void {
     this.writeJson(storyId, 'scope-extension-proposals.json', data);
+  }
+
+  readScopeExtensionDecisions(storyId: string): ScopeExtensionDecisionData {
+    try {
+      return this.readJson<ScopeExtensionDecisionData>(storyId, 'scope-extension-decisions.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return { storyId, updatedAt: '', decisions: [] };
+      throw e;
+    }
+  }
+
+  writeScopeExtensionDecisions(storyId: string, data: ScopeExtensionDecisionData): void {
+    this.writeJson(storyId, 'scope-extension-decisions.json', data);
   }
 
   readScopeDiscardDigest(storyId: string): ScopeDiscardDigestData {
