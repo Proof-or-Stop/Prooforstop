@@ -111,6 +111,16 @@
           "headHash": "f332af88e7a7d84fc14ad35098228878d3414132",
           "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
           "timestamp": "2026-06-12T19:51:37.955Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts non-overlapping material changes remain parallel_dev candidates while metadata-only changes do not create false overlap noise; existing sharedHotspots assertions still pass.",
+          "headHash": "21017af47efb7ff13c32af04786a3ddbda68a2b5",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:52:49.751Z"
         }
       ]
     },
