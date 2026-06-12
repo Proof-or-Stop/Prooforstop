@@ -241,9 +241,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "docs/requirements/decisions/lattice-unattended-completion-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T18:08:06.039Z",
       "userSees": "User sees regression tests pass, including a TEST PASS but not DONE-ready fixture that reports delivery-check and summary blockers.",
       "files": {
         "modify": [
@@ -275,7 +275,39 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke builds a TEST story with PASS validation but missing delivery-check/summary and asserts done_closure returns canAttemptDone=false with those blockers.",
+          "headHash": "6467300a54747e660e7c45e7b0317fadda3569aa",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:08:06.082Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke snapshots git status and process-events before/after done_closure and asserts both remain byte-identical, so no lifecycle artifacts or evidence are created.",
+          "headHash": "6467300a54747e660e7c45e7b0317fadda3569aa",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:08:06.116Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts local Non-authority done_closure output cannot claim Authority receipt verification or authorityDone/productionDone/fullAuthorityDone.",
+          "headHash": "6467300a54747e660e7c45e7b0317fadda3569aa",
+          "materialHash": "87a5ff3af2348cc371c96eadac72e59dca5b6ae0929264fc69adae9fe6a3af58",
+          "timestamp": "2026-06-12T18:08:06.164Z"
+        }
+      ]
     }
   ]
 }
