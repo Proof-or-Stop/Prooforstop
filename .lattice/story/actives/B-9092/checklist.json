@@ -55,7 +55,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees formal Layer 2 proof output showing Engineering suite PASS/LOCKED, formal claim evaluator result, and fail-closed negative controls.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md",
+          ".lattice/story/actives/B-9092/checklist.json"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/f009-layer2-closure-*",
+          ".lattice/story/actives/B-9092/evidence/f009-formal-proof-audit.md"
+        ],
+        "test": [
+          "lattice baseline_suite_report --layer=engineering",
+          "lattice capability_claim_formal_evaluate --target=engineering"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Formal proof commands run against the frozen clean artifact root and produce a clear Engineering suite and claim evaluator result.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Requirements NAV count and links match the actual decisions markdown files after any scope hygiene repair.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If fresh Development proof or any of the 9 ENG final reports are missing, the suite/evaluator remains LOCKED or BLOCKED with explicit reasons.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Local-only, stale, forged, wrong-target, wrong-suiteRunId, and Authority-overclaim artifacts fail closed and cannot unlock Layer 2.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
