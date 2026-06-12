@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "Do not add a new capability layer for presentation value.",
+    "Only distinguish proof tiers where the distinction prevents a real overclaim.",
+    "Keep the execution plan mechanically verifiable through Lattice lifecycle evidence.",
+    "Preserve Layer3 claim boundaries and keep Production Safety/global claims locked."
+  ],
+  "drivers": [
+    "The existing formal UDM unlock did not execute real Story lifecycle scenarios.",
+    "The user needs a plan that avoids inflated capability claims.",
+    "The document should be executable by future Lattice stories and host-neutral audits."
+  ],
+  "options": [
+    {
+      "name": "A: Create a separate real execution UDM decision document",
+      "pros": [
+        "Keeps formal unlock doc stable",
+        "Makes second-tier evidence boundary explicit",
+        "Avoids hiding the correction inside an existing long document"
+      ],
+      "cons": [
+        "Adds one more decision document that must be linked from future Layer3 work"
+      ]
+    },
+    {
+      "name": "B: Patch only the existing Layer3 formal unlock document",
+      "pros": [
+        "Fewer documents",
+        "Keeps all Layer3 text in one place"
+      ],
+      "cons": [
+        "Can blur formal proof path and real execution proof",
+        "Makes it harder to audit exactly what the second-tier plan requires"
+      ]
+    }
+  ],
+  "chosen": "A: Create a separate real execution UDM decision document",
+  "rationale": "Choose a separate document because the user identified a real correctness issue in the claim boundary: formal artifacts are not the same as real lifecycle execution. A dedicated execution plan keeps the correction visible and auditable without changing the already-valid formal unlock path.",
+  "preMortem": [
+    {
+      "scenario": "The document accidentally implies Production Safety is unlocked by real UDM execution.",
+      "trigger": "Allowed wording says production-grade or arbitrary unattended development.",
+      "consequence": "Capability claim becomes inflated and inconsistent with Layer4 locks.",
+      "mitigation": "Include explicit claim boundaries and prohibited wording."
+    },
+    {
+      "scenario": "The document defines synthetic artifact generation again instead of real lifecycle runs.",
+      "trigger": "Pass criteria reference only final-report artifacts and not Story phases or gate evidence.",
+      "consequence": "The second-tier plan fails to fix the user-raised correctness gap.",
+      "mitigation": "Require real story_create through DONE/BLOCKED runs for key UDM scenarios."
+    },
+    {
+      "scenario": "The plan becomes too broad and delays useful validation.",
+      "trigger": "It requires every UDM baseline to be a full product build before any claim can improve.",
+      "consequence": "The work becomes bulky and violates no-arbitrary-optimization principle.",
+      "mitigation": "Use a minimal required set of real execution scenarios plus mapping to the 10 UDM IDs."
+    }
+  ],
+  "timestamp": "2026-06-12T21:27:14.748Z"
+}

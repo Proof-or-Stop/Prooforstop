@@ -1,0 +1,38 @@
+{
+  "storyId": "B-de86",
+  "checkedAt": "2026-06-12T21:36:37.306Z",
+  "features": [
+    {
+      "feature": "Create one new decision document at docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "covered_by": "understanding.touchpoints + CHK-001 context",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story B-de86 scope"
+    },
+    {
+      "feature": "Anchor the new document to the existing Layer3 formal UDM suite and the two-host multi-agent baseline plan",
+      "covered_by": "CHK-001 relatedDocs + docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md + docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "related decision docs"
+    },
+    {
+      "feature": "Preserve claim boundaries: real lifecycle execution beyond formal artifacts without unlocking Production Safety/global capability claims",
+      "covered_by": "background.md key insights + understanding constraints + Layer3 suite non-goals/fail-closed rules + two-host final claim rules",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope review"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "061c4b874d1747eb657879180a10a90ceb8c0613b819f175317593c7571d8603",
+  "openQuestions": []
+}
