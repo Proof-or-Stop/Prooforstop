@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-12T16:55:59.050Z",
       "reviewRunId": "B-9092:RR-007",
       "_hash": "22a7e78c19ddbc85291078c3de326e454004201d91130e2c7f609cfa5fd90dd2"
+    },
+    {
+      "id": "B-9092:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality pass after B-9092:F-001 fix. Inspected f009-negative-controls.md, f009-formal-proof-audit.md, f009-final-status.md, f009-host-verdicts.md, scope freeze, checklist evidence, F-001 resolution, and generated negative-control JSON artifacts. Forged/malformed and wrong-target reports are BLOCKED with refused/rejected artifacts; wrong-suiteRunId is BLOCKED with the non-frozen report rejected before acceptance, and mixed-suiteRunId is BLOCKED with the exact saw 2 suiteRunId invariant; local-only final-report is BLOCKED and rejected as localOnly/diagnostic; Authority-overclaim evaluator is EXPECTED_BLOCK with authorized=false and Layer 2/Production claims locked. Forbidden authority/unlock scan found no receiptVerified/productionDone/fullAuthorityDone/authorized true or Layer 2 UNLOCKED claims. Evidence retains B-META-framework-audit:F-009 open/suspected and does not overclaim Authority or Layer 2 completion.",
+      "createdAt": "2026-06-12T17:00:08.533Z",
+      "reviewRound": "2026-06-12T16:55:59.050Z",
+      "reviewRunId": "B-9092:RR-009",
+      "_hash": "59b11b80f341d2991f443c635620e4b2e7cb22c0edddd59df7612ab2e821c825"
     }
   ]
 }
