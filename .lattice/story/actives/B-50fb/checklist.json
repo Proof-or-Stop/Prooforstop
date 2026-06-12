@@ -92,7 +92,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-12T20:48:30.313Z",
-      "endTime": "2026-06-12T21:51:09.332Z",
+      "endTime": "2026-06-12T21:52:14.263Z",
       "userSees": "`lattice doctor` and related runtime diagnostics show \"@lattice-agent/core\" as the canonical package; if \"@koala-agent/core\" appears, the output labels it as legacy compatibility.",
       "files": {
         "modify": [
@@ -146,14 +146,34 @@
       },
       "verificationEvidence": [
         {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Runtime fact contract and entrypoint verification passed: canonical runtime/package resolution remains @lattice-agent/core and generated wrappers search canonical core before legacy fallback.",
+          "headHash": "054082c3b2de16a795b645b3846f794041c48f17",
+          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
+          "timestamp": "2026-06-12T21:52:14.302Z"
+        },
+        {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "Focused mixed-install smoke passed: canonical @lattice-agent/core directory present while legacy @koala-agent/core symlink pointed at the story worktree; repairGlobalKoalaLinkBeforeWorktreeDelete relinked the legacy symlink to packages/main before deletion.",
-          "headHash": "37e81951b11c676c8e12f135b517196d0f69767e",
-          "materialHash": "f2c3ecaeab889f839030bf3cf4dbe3d90ce7d871ff561c6d566ca5e85b1b1c06",
-          "timestamp": "2026-06-12T21:51:09.384Z"
+          "headHash": "054082c3b2de16a795b645b3846f794041c48f17",
+          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
+          "timestamp": "2026-06-12T21:52:14.332Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n @koala-agent/core|@lattice-agent/core packages/main/src packages/main/templates scripts README.md docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Focused scan shows @lattice-agent/core as canonical in runtime/template/script paths; remaining @koala-agent/core matches are legacy fallback constants, compatibility diagnostics, or negative dependency assertions.",
+          "headHash": "054082c3b2de16a795b645b3846f794041c48f17",
+          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
+          "timestamp": "2026-06-12T21:52:14.360Z"
         }
       ]
     },
