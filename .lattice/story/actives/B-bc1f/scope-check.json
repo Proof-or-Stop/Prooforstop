@@ -1,0 +1,45 @@
+{
+  "storyId": "B-bc1f",
+  "checkedAt": "2026-06-11T23:26:22.100Z",
+  "features": [
+    {
+      "feature": "Direct REVIEW creation initializes currentReviewRound",
+      "covered_by": "packages/main/src/handlers/story-create.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 happy"
+    },
+    {
+      "feature": "review_run_start legacy missing-round error is specific and fail-closed",
+      "covered_by": "packages/main/src/handlers/review-run.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 adversarial"
+    },
+    {
+      "feature": "review_loop_start legacy missing-round error is specific and fail-closed",
+      "covered_by": "packages/main/src/handlers/review-loop.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 edge/adversarial"
+    },
+    {
+      "feature": "Black-box CLI regression covers direct REVIEW creation, reviewer run, review loop, and corrupt legacy failure",
+      "covered_by": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 verification"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "680592cad083073f921add8d158570c396b53f86e4512b5497ddae1f83c00d34",
+  "openQuestions": []
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bc1f",
+  "changes": "Initialized currentReviewRound for direct story_create --phase=REVIEW stories, improved missing-round diagnostics for review_run_start and review_loop_start, added field regression coverage, and documented the lifecycle invariant.",
+  "usage": "Run lattice story_create with phase REVIEW for a review-only story, then run lattice review_run_start and lattice review_loop_start immediately; both commands should start against the initialized review round.",
+  "expectedOutcome": "After direct REVIEW story creation, the terminal shows Review run B-xxxx:RR-001 started instead of a no currentReviewRound error.",
+  "actualTranscript": "Story B-f8a9 created (REVIEW) with 1 checklist items\nReview run B-f8a9:RR-001 started for koala-review-quality (round 2026-06-11T23:50:13.429Z, head dc5f2b4)\nReview loop B-f8a9:RL-001 started for B-f8a9 (round 2026-06-11T23:50:13.429Z).",
+  "outcomeDiff": "Expected and actual match: direct REVIEW creation now produces usable REVIEW metadata and both REVIEW commands start successfully.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No migration command was added for already-existing half-initialized REVIEW stories; they remain fail-closed with clearer repair/recreate guidance.",
+  "pitfalls": "Direct REVIEW creation is still a compatibility path for review-only or backfill workflows, not a replacement for the normal INIT to DEV lifecycle when implementation work is required.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 57322
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 12579
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 265603
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 659013
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 649225
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 123533
+    }
+  },
+  "totalDurationMs": 1767290,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-11T23:51:03.334Z",
+  "updatedAt": "2026-06-11T23:51:03.334Z"
+}

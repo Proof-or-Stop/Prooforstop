@@ -1,0 +1,41 @@
+{
+  "task": "Execute the approved root Markdown cleanup so agent-generated legacy Markdown no longer remains at repository root.",
+  "outcome": "User runs `find . -maxdepth 1 -type f -name \"*.md\" -exec basename {} \\; | sort` and sees exactly AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, and jek.md. User also sees validation PASS and no root KOALA.md, koala-project-overview.md, or root Lattice*.md files.",
+  "facts": [
+    "The approved final root Markdown set is README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md.",
+    "Current root inventory still includes KOALA.md, koala-project-overview.md, and multiple Lattice*.md legacy documents.",
+    "root-markdown-migration-execution-solution.md requires KOALA.md not remain at root after cleanup.",
+    "The legacy root documents contain historical and advisory material; active truth-source documents already live under docs/requirements/decisions.",
+    "B-5cc7 is an unrelated active story and must not be touched."
+  ],
+  "constraints": [
+    "Use the Lattice story flow and worktree for all changes.",
+    "Do not migrate, rewrite, archive, or delete jek.md.",
+    "Do not remove README.md, AGENTS.md, CLAUDE.md, or CHANGELOG.md from root.",
+    "Do not create root compatibility stubs for KOALA.md or Lattice*.md.",
+    "Do not add new Production Safety, authority, capability, or unattended-readiness claims.",
+    "Do not touch .omx or use old .omx artifact paths as output.",
+    "Only make changes needed to clean the root inventory and keep references coherent."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "KOALA.md",
+    "koala-project-overview.md",
+    "Lattice-baseline.md",
+    "Lattice-Capability-Claim-baseline.md",
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+    "Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+    "Lattice-Loop-Engineering-baseline.md",
+    "Lattice-Parallel-Development-Capability.md",
+    "Lattice-Production-Safety-baseline.md",
+    "Lattice-Review-reflection-loop.md",
+    "Lattice-lifecycle-memory-Evolving.md",
+    "docs/koala/legacy/root-markdown/",
+    "docs/requirements/decisions/root-document-migration-guide.md",
+    "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+    "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+    "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+  ],
+  "timestamp": "2026-06-11T23:04:47.296Z"
+}

@@ -1,0 +1,25 @@
+{
+  "task": "修复 story_create --phase=REVIEW 产生缺失 currentReviewRound 的半初始化 Story",
+  "outcome": "用户在终端运行 story_create --phase=REVIEW 后，紧接着运行 review_run_start 会看到 Review run B-xxxx:RR-001 started，而不是 no currentReviewRound 错误。",
+  "facts": [
+    "story_create 的 direct phase 分支当前直接把 phase 写成 args.phase，但没有为 REVIEW 写 currentReviewRound。",
+    "story_advance 进入 REVIEW 时会用当前 ISO 时间写 story.currentReviewRound。",
+    "review_run_start 和 review_loop_start 都依赖 currentReviewRound；缺失时会报 enter/advance to REVIEW。",
+    "docs/requirements/decisions/story-lifecycle.md 将 REVIEW reviewer run 和 reviewRound 视为 gate-consumed 流程事实。"
+  ],
+  "constraints": [
+    "只在 DEV 阶段改代码。",
+    "不得直接读写 docs/story/ 或 tests/fixtures/；story 和 fixture 操作必须走 Lattice CLI。",
+    "保持 direct phase onboarding/backfill 兼容，不扩大重构范围。",
+    "改流程事实时要有机械测试覆盖。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/review-loop.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-06-11T23:24:22.218Z"
+}

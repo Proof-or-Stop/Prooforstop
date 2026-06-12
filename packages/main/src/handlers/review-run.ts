@@ -47,6 +47,13 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
       const story = store.readStory(args.storyId);
       if (!story.currentReviewRound) {
+        if (story.phase === 'REVIEW') {
+          throw new Error(
+            `review_run_start: story ${args.storyId} is marked REVIEW but missing currentReviewRound. ` +
+            `This likely came from direct --phase=REVIEW creation before review metadata initialization; ` +
+            `repair/init-review-round if available, or recreate by entering REVIEW via story_advance.`,
+          );
+        }
         throw new Error(`review_run_start: story ${args.storyId} currently has no currentReviewRound; advance to REVIEW before starting reviewer run`);
       }
       const lane = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT, args.lane);

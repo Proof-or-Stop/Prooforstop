@@ -1,0 +1,83 @@
+{
+  "storyId": "B-7f61",
+  "name": "execute-root-markdown-cleanup",
+  "title": "Execute root Markdown cleanup",
+  "description": "Execute the approved root Markdown migration solution by removing agent-generated legacy Markdown from the repository root, preserving only the allowed root entrypoints and user-owned jek.md. Move or archive legacy content, update references, and verify the root inventory is clean.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "root-markdown",
+    "migration",
+    "cleanup",
+    "docs"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-11T23:00:36.901Z",
+  "startedAt": "2026-06-11T23:00:36.901Z",
+  "endedAt": "2026-06-11T23:29:54.123Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-11T23:00:36.914Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:01:35.976Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:03:42.043Z",
+      "branch": "story/B-7f61",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:08:45.672Z",
+      "branch": "story/B-7f61",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:17:38.217Z",
+      "branch": "story/B-7f61",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:24:45.325Z",
+      "branch": "story/B-7f61",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-11T23:29:54.124Z",
+      "branch": "story/B-7f61",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-11T23:17:38.217Z"
+}

@@ -1,0 +1,104 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Ensure direct REVIEW story creation cannot leave review metadata missing",
+      "context": "Reproduce from external project: story_create --phase=REVIEW succeeds, then review_run_start fails because currentReviewRound is absent. Either initialize the same review-round fields as story_advance into REVIEW or block direct REVIEW creation with a precise validation error; prefer the smallest behavior-compatible fix.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "README.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-11T23:37:54.630Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create --phase=REVIEW creates a Story with an ISO currentReviewRound, and review_run_start immediately returns a Review run ... started message for a supported reviewer lane.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_create --phase=REVIEW also allows review_loop_start to use the initialized currentReviewRound instead of failing with missing metadata.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A legacy/corrupt REVIEW Story that is manually missing currentReviewRound still fails closed, but the error identifies the half-initialized REVIEW state and points to repair or recreate guidance.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "review_run_start shows Review run B-xxxx:RR-001 started immediately after story_create --phase=REVIEW, and review_loop_start no longer reports missing currentReviewRound for the new story.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke creates a direct --phase=REVIEW story, asserts ISO currentReviewRound, and confirms review_run_start returns a Review run started message.",
+          "headHash": "a4111a9de4d1afb96b9cc5c4307971fa839ec119",
+          "materialHash": "45e0095246279bfaa6b296bf89d0a84464da81b5ab23af129e9845ea1ca21bdb",
+          "timestamp": "2026-06-11T23:57:24.043Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "The same smoke starts review_loop_start on the direct REVIEW story using the initialized currentReviewRound, proving review loop startup no longer fails on missing metadata.",
+          "headHash": "a4111a9de4d1afb96b9cc5c4307971fa839ec119",
+          "materialHash": "45e0095246279bfaa6b296bf89d0a84464da81b5ab23af129e9845ea1ca21bdb",
+          "timestamp": "2026-06-11T23:57:24.043Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "The smoke keeps a manually corrupt REVIEW story without currentReviewRound and asserts review_run_start still fails closed with the clearer marked REVIEW but missing currentReviewRound guidance.",
+          "headHash": "a4111a9de4d1afb96b9cc5c4307971fa839ec119",
+          "materialHash": "45e0095246279bfaa6b296bf89d0a84464da81b5ab23af129e9845ea1ca21bdb",
+          "timestamp": "2026-06-11T23:57:24.043Z"
+        },
+        {
+          "intentRef": "CHK-001:process-contract",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact registry and prompt/handler contract still verify after documenting direct REVIEW currentReviewRound behavior.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        },
+        {
+          "intentRef": "CHK-001:build",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes at the implementation HEAD.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-11T23:37:54.630Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented direct REVIEW currentReviewRound initialization, clearer legacy missing-round errors, lifecycle doc note, and passing field regression/build/process contract evidence."
+    }
+  ]
+}
