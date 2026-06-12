@@ -34,7 +34,20 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Required integration for the new INIT-only scope anti-expansion commands: command-policy marks them allowed in INIT, and DEFAULT_PHASE_TOOLS must expose the same commands so the phase gate and process-fact contract do not drift.",
+      "timestamp": "2026-06-12T20:20:15.845Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "anchors": [
+        "DEFAULT_PHASE_TOOLS.INIT",
+        "scope_anti_expansion_INIT_command_allowlist"
+      ]
+    }
+  ],
   "createdAt": "2026-06-12T19:48:39.680Z",
-  "updatedAt": "2026-06-12T19:48:39.680Z"
+  "updatedAt": "2026-06-12T20:20:15.845Z"
 }

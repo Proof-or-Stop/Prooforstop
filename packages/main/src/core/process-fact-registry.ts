@@ -101,6 +101,11 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_close: ['blocker-state', 'schema-contract', 'gate-evidence'],
+  scope_boundary_set: ['schema-contract', 'gate-evidence'],
+  execution_boundary_set: ['schema-contract', 'workspace-binding', 'gate-evidence'],
+  scope_freeze_check: ['validation-result', 'schema-contract', 'gate-evidence'],
+  scope_extension_proposal: ['blocker-state', 'schema-contract', 'gate-evidence'],
+  scope_extension_decide: ['blocker-state', 'schema-contract', 'gate-evidence'],
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
@@ -113,6 +118,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'story_advance',
     consumerGate: 'storyMachine phase guards and story_advance preflight gates',
+  },
+  story_discard: {
+    name: 'scope-discard-digest.json',
+    path: 'scope-discard-digest.json',
+    signed: false,
+    producerCommand: 'story_discard',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
   },
   story_review: {
     name: 'review.json',
@@ -240,6 +252,46 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signInitCheck/recomputeInitCheckHash',
     producerCommand: 'init_check_repair',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+  },
+  scope_boundary_set: {
+    name: 'scope-boundary.json',
+    path: 'scope-boundary.json',
+    signed: true,
+    signature: 'stable scope boundary _hash over schemaVersion/storyId/mode/allowed/excluded/confirmationNote',
+    producerCommand: 'scope_boundary_set',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+  },
+  execution_boundary_set: {
+    name: 'execution-boundary.json',
+    path: 'execution-boundary.json',
+    signed: true,
+    signature: 'stable execution boundary _hash over schemaVersion/storyId/allowedCommands/allowedTools/excludedCommands/excludedTools',
+    producerCommand: 'execution_boundary_set',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+  },
+  scope_freeze_check: {
+    name: 'scope-freeze-check.json',
+    path: 'scope-freeze-check.json',
+    signed: true,
+    signature: 'stable scope freeze _hash plus freshnessHash over bounded story/checklist projection and boundary hashes',
+    producerCommand: 'scope_freeze_check',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+  },
+  scope_extension_proposal: {
+    name: 'scope-extension-proposals.json',
+    path: 'scope-extension-proposals.json',
+    signed: true,
+    signature: 'stable proposal _hash over proposal identity, reason, patch, reviewerRunId, status, and decision hash',
+    producerCommand: 'scope_extension_proposal',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+  },
+  scope_extension_decide: {
+    name: 'scope-extension-proposals.json',
+    path: 'scope-extension-proposals.json',
+    signed: true,
+    signature: 'stable decision _hash folded into proposal _hash; accepted proposals require a fresh scope freeze check',
+    producerCommand: 'scope_extension_decide',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
   },
   delivery_check_set: {
@@ -480,6 +532,10 @@ function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSem
   if (artifact.path === 'review-loops.jsonl') semantics.push('blocker-state', 'schema-contract');
   if (artifact.path === 'test-evidence.json') semantics.push('validation-result', 'test-evidence');
   if (artifact.path === 'eval-evidence.json') semantics.push('validation-result');
+  if (artifact.path === 'scope-boundary.json' || artifact.path === 'execution-boundary.json') semantics.push('schema-contract');
+  if (artifact.path === 'scope-freeze-check.json') semantics.push('validation-result', 'schema-contract');
+  if (artifact.path === 'scope-extension-proposals.json') semantics.push('blocker-state', 'schema-contract');
+  if (artifact.path === 'scope-discard-digest.json') semantics.push('supersession-policy');
   return semantics;
 }
 
@@ -572,6 +628,56 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
     rationale: 'Init-check signature is checked before worktree bootstrap.',
+  },
+  {
+    name: 'artifact:scope-boundary.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'schema-contract'],
+    level: 'L4',
+    producer: 'handlers/scope-anti-expansion',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_boundary_set,
+    rationale: 'User-confirmed allowed/excluded scope is mandatory before INIT_CHECK worktree bootstrap.',
+  },
+  {
+    name: 'artifact:execution-boundary.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'schema-contract', 'workspace-binding'],
+    level: 'L4',
+    producer: 'handlers/scope-anti-expansion',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.execution_boundary_set,
+    rationale: 'User-confirmed execution boundary is mandatory before INIT_CHECK worktree bootstrap.',
+  },
+  {
+    name: 'artifact:scope-freeze-check.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'validation-result', 'schema-contract'],
+    level: 'L4',
+    producer: 'handlers/scope-anti-expansion',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_freeze_check,
+    rationale: 'Fresh pass/fail anti-expansion evidence is consumed before a worktree can be created.',
+  },
+  {
+    name: 'artifact:scope-extension-proposals.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'blocker-state', 'schema-contract'],
+    level: 'L4',
+    producer: 'handlers/scope-anti-expansion',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_extension_proposal,
+    rationale: 'Pending reviewer scope expansion proposals block INIT_CHECK until explicitly decided.',
+  },
+  {
+    name: 'artifact:scope-discard-digest.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'gate-evidence', 'supersession-policy'],
+    level: 'L4',
+    producer: 'handlers/worktree story_discard',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.story_discard,
+    rationale: 'Discarded story direction digests prevent repeated discarded work from being recreated without mitigation.',
   },
   {
     name: 'artifact:scope-check.json',

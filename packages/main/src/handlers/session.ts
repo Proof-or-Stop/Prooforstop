@@ -42,6 +42,7 @@ import type { ScopeContractData, GuardSessionData, ScopeDiffPack, ReviewRun } fr
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import type { ReviewLoopIteration } from '../core/types.js';
+import { renderScopeAntiExpansionSummary } from '../core/machine.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -872,6 +873,13 @@ export function createSessionHandlers(ctx: HandlerContext) {
           );
           for (const l of renderOwnershipBlock(view)) lines.push(l);
         } catch { /* probe — never block session_brief on ownership-render failure */ }
+      }
+
+      if (story.phase === 'INIT' || story.phase === 'INIT_CHECK') {
+        try {
+          lines.push('');
+          for (const l of renderScopeAntiExpansionSummary(storyId, ctx.store, ctx.root)) lines.push(l);
+        } catch { /* probe — anti-expansion summary must never block session_brief */ }
       }
 
       // B-6bfd CHK-006: aggregate "Scope protection summary" — path gate,

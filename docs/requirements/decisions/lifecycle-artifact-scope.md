@@ -77,6 +77,13 @@ Both reviewers and tests must continue to assert:
 - `delivery_check_set` and `summary_set` may freely write
   `.koala/story/actives/<id>/delivery-check.json` and `summary.json` during
   TEST without expanding scope or triggering an `OUT_OF_SCOPE` violation.
+- INIT scope anti-expansion commands may write `scope-boundary.json`,
+  `execution-boundary.json`, `scope-freeze-check.json`,
+  `scope-extension-proposals.json`, and `scope-discard-digest.json` as
+  lifecycle artifacts. Classification only
+  recognizes these filenames as provenance; INIT_CHECK gate satisfaction still
+  requires the machine guard to verify hashes, freshness, pending proposal
+  state, excluded keyword hits, and repeat-discard mitigation.
 - A user-value acceptance transcript may write
   `.koala/story/actives/<id>/evidence/transcript-diff.md` during TEST as a
   lifecycle transcript artifact. This exemption is path-specific; sibling files
@@ -99,8 +106,8 @@ Mechanical evidence lives in:
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
   known lifecycle filenames plus `evidence/transcript-diff.md` under a story
   id, rejects arbitrary `.koala/foo.json` and nearby non-transcript evidence
-  files, and rejects ordinary product source files when scope is
-  unacknowledged.
+  files, includes the INIT scope anti-expansion artifact filenames, and rejects
+  ordinary product source files when scope is unacknowledged.
 - `scripts/verify-gap-convergence.mjs` — asserts derived `.build` symlink
   loops do not crash `convergence_check` and do not hide real `docs/story` /
   truth-source content.

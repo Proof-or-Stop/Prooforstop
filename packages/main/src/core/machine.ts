@@ -4,7 +4,7 @@ import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import type { Finding } from './types.js';
+import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue } from './types.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from './review-loop.js';
 import type { ReviewLoopIteration } from './types.js';
@@ -18,6 +18,11 @@ import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
 import { evaluateReviewerQuorum } from './reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
+import {
+  digestScopeFreezeCheck,
+  evaluateScopeFreeze,
+  type ScopeFreezeChecklistProjection,
+} from './scope-anti-expansion.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -68,6 +73,184 @@ export interface StoryMachineContext {
   projectRoot: string;
 }
 
+export interface ScopeAntiExpansionGateResult {
+  ok: boolean;
+  reason: string | null;
+}
+
+function projectScopeFreezeStory(store: StoryStore, storyId: string) {
+  const story = store.readStory(storyId);
+  return {
+    title: story.title,
+    description: story.description,
+  };
+}
+
+function projectScopeFreezeChecklist(store: StoryStore, storyId: string): ScopeFreezeChecklistProjection[] {
+  try {
+    return store.readChecklist(storyId).items.map(item => ({
+      id: item.id,
+      title: item.title,
+      ...(item.context ? { context: item.context } : {}),
+      ...(item.excludes && item.excludes.length > 0 ? { excludes: [...item.excludes] } : {}),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function firstHardScopeIssue(check: ScopeFreezeCheckData): ScopeFreezeIssue | null {
+  return check.issues.find(issue => issue.severity === 'hard') ?? null;
+}
+
+function renderScopeFreezeIssue(storyId: string, issue: ScopeFreezeIssue): string {
+  if (issue.code === 'missing_scope_boundary') {
+    return `Cannot enter INIT_CHECK: scope-boundary.json is missing or invalid for ${storyId}. [missing_scope_boundary]\n` +
+      `→ Run scope_boundary_set with userConfirmed:true before creating the worktree.`;
+  }
+  if (issue.code === 'missing_execution_boundary') {
+    return `Cannot enter INIT_CHECK: execution-boundary.json is missing or invalid for ${storyId}. [missing_execution_boundary]\n` +
+      `→ Run execution_boundary_set before creating the worktree.`;
+  }
+  if (issue.code === 'future_capability_keyword') {
+    const source = issue.source ? ` in ${issue.source}${issue.itemId ? ` (${issue.itemId})` : ''}` : '';
+    const keyword = issue.keyword ? `"${issue.keyword}"` : 'an excluded keyword';
+    return `Cannot enter INIT_CHECK: excluded scope keyword ${keyword} appears${source}. [excluded_keyword]\n` +
+      `→ Remove the expansion from the frozen INIT text, or record a scope_extension_proposal and explicit decision before rerunning scope_freeze_check.`;
+  }
+  if (issue.code === 'repeat_discard_without_mitigation') {
+    const digest = issue.digest ? ` ${issue.digest}` : '';
+    return `Cannot enter INIT_CHECK: current direction repeats a discarded direction${digest} without mitigation. [repeat_discarded_direction]\n` +
+      `→ Provide repeatDiscardMitigation when rerunning scope_freeze_check, or choose a different scope boundary.`;
+  }
+  return `Cannot enter INIT_CHECK: scope-freeze-check failed for ${storyId}. [scope_freeze_check_failed]`;
+}
+
+function readScopeGateFailure<T>(label: string, fn: () => T): { value: T; reason: null } | { value: null; reason: string } {
+  try {
+    return { value: fn(), reason: null };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      value: null,
+      reason: `Cannot enter INIT_CHECK: ${label} could not be read. [${label.replace(/\.json$/, '').replaceAll('-', '_')}_unreadable]\n  - ${msg}`,
+    };
+  }
+}
+
+export function evaluateScopeAntiExpansionGate(
+  storyId: string,
+  store: StoryStore,
+): ScopeAntiExpansionGateResult {
+  const scopeBoundary = readScopeGateFailure('scope-boundary.json', () => store.readScopeBoundary(storyId));
+  if (scopeBoundary.reason) return { ok: false, reason: scopeBoundary.reason };
+
+  const executionBoundary = readScopeGateFailure('execution-boundary.json', () => store.readExecutionBoundary(storyId));
+  if (executionBoundary.reason) return { ok: false, reason: executionBoundary.reason };
+
+  const freezeCheck = readScopeGateFailure('scope-freeze-check.json', () => store.readScopeFreezeCheck(storyId));
+  if (freezeCheck.reason) return { ok: false, reason: freezeCheck.reason };
+
+  const proposals = readScopeGateFailure('scope-extension-proposals.json', () => store.readScopeExtensionProposals(storyId));
+  if (proposals.reason) return { ok: false, reason: proposals.reason };
+  if (!proposals.value) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: scope-extension-proposals.json could not be read. [scope_extension_proposals_unreadable]`,
+    };
+  }
+
+  const discardDigest = readScopeGateFailure('scope-discard-digest.json', () => store.readScopeDiscardDigest(storyId));
+  if (discardDigest.reason) return { ok: false, reason: discardDigest.reason };
+
+  const current = evaluateScopeFreeze({
+    storyId,
+    scopeBoundary: scopeBoundary.value,
+    executionBoundary: executionBoundary.value,
+    story: projectScopeFreezeStory(store, storyId),
+    checklist: projectScopeFreezeChecklist(store, storyId),
+    discardDigest: discardDigest.value,
+    repeatDiscardMitigation: freezeCheck.value?.repeatDiscardOverlaps.find(overlap => overlap.mitigation)?.mitigation,
+  });
+  const currentIssue = firstHardScopeIssue(current.check);
+  if (currentIssue) {
+    return { ok: false, reason: renderScopeFreezeIssue(storyId, currentIssue) };
+  }
+
+  const pending = proposals.value.proposals.filter(proposal => proposal.status === 'pending');
+  if (pending.length > 0) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: ${pending.length} scope extension proposal(s) are still pending: ${pending.map(p => p.proposalId).join(', ')}. [scope_extension_proposal_pending]\n` +
+        `→ Run scope_extension_decide for each proposal, then rerun scope_freeze_check.`,
+    };
+  }
+
+  const storedCheck = freezeCheck.value;
+  if (!storedCheck) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: scope-freeze-check.json is missing. [missing_scope_freeze_check]\n` +
+        `→ Run scope_freeze_check after scope_boundary_set and execution_boundary_set.`,
+    };
+  }
+  if (storedCheck._hash !== digestScopeFreezeCheck(storedCheck)) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: scope-freeze-check.json hash is stale or tampered. [scope_freeze_check_stale]\n` +
+        `→ Rerun scope_freeze_check before creating the worktree.`,
+    };
+  }
+  if (storedCheck.status !== 'pass') {
+    const storedIssue = firstHardScopeIssue(storedCheck);
+    return {
+      ok: false,
+      reason: storedIssue
+        ? renderScopeFreezeIssue(storyId, storedIssue)
+        : `Cannot enter INIT_CHECK: scope-freeze-check.json status is ${storedCheck.status}. [scope_freeze_check_failed]\n→ Resolve the freeze issues and rerun scope_freeze_check.`,
+    };
+  }
+  if (
+    storedCheck.freshnessHash !== current.check.freshnessHash ||
+    storedCheck.scopeBoundaryHash !== current.check.scopeBoundaryHash ||
+    storedCheck.executionBoundaryHash !== current.check.executionBoundaryHash
+  ) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: scope-freeze-check.json is stale relative to current scope/checklist/proposal inputs. [scope_freeze_check_stale]\n` +
+        `→ Rerun scope_freeze_check before creating the worktree.`,
+    };
+  }
+
+  return { ok: true, reason: null };
+}
+
+export function getScopeAntiExpansionGuardFailureReason(
+  storyId: string,
+  store: StoryStore,
+  _projectRoot?: string,
+): string | null {
+  return evaluateScopeAntiExpansionGate(storyId, store).reason;
+}
+
+export function renderScopeAntiExpansionSummary(
+  storyId: string,
+  store: StoryStore,
+  projectRoot?: string,
+): string[] {
+  const reason = getScopeAntiExpansionGuardFailureReason(storyId, store, projectRoot);
+  if (!reason) {
+    return [
+      'Scope anti-expansion: ready',
+      '  - scope boundary, execution boundary, freeze check, proposals, and discard digest are current',
+    ];
+  }
+  return [
+    'Scope anti-expansion: blocked',
+    `  - ${reason.split('\n')[0]}`,
+  ];
+}
+
 export const storyMachine = setup({
   types: {
     context: {} as StoryMachineContext,
@@ -99,6 +282,7 @@ export const storyMachine = setup({
       try {
         const story = context.store.readStory(context.storyId);
         if (story.phase !== 'INIT') return true; // Other sources such as IDEA→INIT_CHECK are not gated
+        if (getScopeAntiExpansionGuardFailureReason(context.storyId, context.store, context.projectRoot)) return false;
         const initCheck = context.store.readInitCheck(context.storyId);
         if (!initCheck) return false;
         const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot);
@@ -347,6 +531,8 @@ export function getGuardFailureReason(
   if (targetPhase === 'INIT_CHECK') {
     const story = store.readStory(storyId);
     if (story.phase !== 'INIT') return null;
+    const scopeAntiExpansionFailure = getScopeAntiExpansionGuardFailureReason(storyId, store, projectRoot);
+    if (scopeAntiExpansionFailure) return scopeAntiExpansionFailure;
     const initCheck = store.readInitCheck(storyId);
     if (!initCheck) {
       return `Cannot enter INIT_CHECK: init-check.json is missing. [missing_init_check]\n` +

@@ -500,6 +500,18 @@ Rules:
 
 **Mechanism**: After `story_create` completes, it stops at the INIT phase. The main agent must `Agent({ subagent_type: "koala-review-story-init" })` to spawn a reviewer to review the initial version of background + checklist. The reviewer calls `koala init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` to write a signed `docs/story/actives/B-xxx/init-check.json`. `story_advance INIT_CHECK` validates in both the xstate guard `canEnterInitCheck` and `getGuardFailureReason`.
 
+### INIT Scope Anti-Expansion Gate (B-85ba)
+
+Before INIT_CHECK creates a worktree, scope must already be frozen by user-confirmed artifacts:
+
+- `scope-boundary.json`: allowed and excluded semantic scope.
+- `execution-boundary.json`: allowed and excluded command/tool envelope.
+- `scope-freeze-check.json`: signed freshness result over the current story title/description, checklist title/context/excludes, boundary hashes, pending proposals, and discard digest.
+- `scope-extension-proposals.json`: reviewer proposals only; pending proposals block INIT_CHECK.
+- `scope-discard-digest.json`: discarded direction digest used to detect repeated discarded work without mitigation.
+
+Reviewer discipline: if you believe the story needs broader scope, call `scope_extension_proposal`. Do not mutate checklist items, scope boundary, execution boundary, or freeze evidence yourself, and do not treat proposal text as accepted scope. Expansion only becomes active after an explicit `scope_extension_decide` decision and a fresh `scope_freeze_check`. You must still call `init_check_set` after recording issues/proposals.
+
 **Signature domain** ([init-check.ts](packages/koala/packages/main/src/handlers/init-check.ts) `signInitCheck`):
 
 ```

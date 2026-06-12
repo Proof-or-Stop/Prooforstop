@@ -136,9 +136,9 @@ export const LIFECYCLE_TRANSITIONS = [
     to: 'INIT_CHECK',
     event: 'INIT_CHECK',
     kind: 'forward',
-    gates: ['init-check'],
+    gates: ['init-check', 'scope-boundary', 'execution-boundary', 'scope-freeze-check', 'scope-extension-proposals', 'scope-discard-digest'],
     effects: ['story-worktree-create'],
-    oracleRows: ['init-check'],
+    oracleRows: ['init-check', 'scope-boundary', 'execution-boundary', 'scope-freeze-check', 'scope-extension-proposals', 'scope-discard-digest'],
     rendererRow: 'INIT_CHECK gate',
   },
   {
@@ -314,6 +314,11 @@ export const LIFECYCLE_ARTIFACTS = [
   'review.json',
   'checklist.json',
   'init-check.json',
+  'scope-boundary.json',
+  'execution-boundary.json',
+  'scope-freeze-check.json',
+  'scope-extension-proposals.json',
+  'scope-discard-digest.json',
   'scope-check.json',
   'delivery-check.json',
   'review-runs.json',
@@ -362,8 +367,14 @@ export interface LifecyclePhaseArtifacts {
  */
 export const LIFECYCLE_PHASE_ARTIFACTS = {
   IDEA: { produces: ['index.json'], consumes: [] },
-  INIT: { produces: ['index.json', 'init-check.json', 'draft-check.json'], consumes: [] },
-  INIT_CHECK: { produces: ['index.json'], consumes: ['init-check.json'] },
+  INIT: {
+    produces: ['index.json', 'init-check.json', 'draft-check.json', 'scope-boundary.json', 'execution-boundary.json', 'scope-freeze-check.json', 'scope-extension-proposals.json'],
+    consumes: ['scope-discard-digest.json'],
+  },
+  INIT_CHECK: {
+    produces: ['index.json'],
+    consumes: ['init-check.json', 'scope-boundary.json', 'execution-boundary.json', 'scope-freeze-check.json', 'scope-extension-proposals.json', 'scope-discard-digest.json'],
+  },
   PLAN: {
     produces: ['review.json', 'scope-check.json', 'checklist.json'],
     consumes: ['init-check.json', 'review.json', 'scope-check.json'],
@@ -384,6 +395,10 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     produces: ['summary.json'],
     consumes: ['test-evidence.json', 'delivery-check.json', 'summary.json', 'declared-artifacts.json', 'eval-evidence.json'],
   },
+  DISCARDED: {
+    produces: ['index.json', 'scope-discard-digest.json'],
+    consumes: [],
+  },
 } as const satisfies Partial<Record<StoryPhase, LifecyclePhaseArtifacts>>;
 
 export interface LifecycleTransitionArtifacts {
@@ -402,6 +417,11 @@ export interface LifecycleTransitionArtifacts {
  */
 export const LIFECYCLE_ORACLE_ARTIFACT_REFS = {
   'init-check': 'init-check.json',
+  'scope-boundary': 'scope-boundary.json',
+  'execution-boundary': 'execution-boundary.json',
+  'scope-freeze-check': 'scope-freeze-check.json',
+  'scope-extension-proposals': 'scope-extension-proposals.json',
+  'scope-discard-digest': 'scope-discard-digest.json',
   'plan-review': 'review.json',
   'scope-check': 'scope-check.json',
   'verification-coverage': 'checklist.json',

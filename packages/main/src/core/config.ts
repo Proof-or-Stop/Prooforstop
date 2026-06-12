@@ -185,6 +185,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_update', 'checklist_update',
     'init_check_set', // B-e71f CHK-003: koala-review-story-init reviewer 在 INIT 阶段写 init-check.json
     'init_check_repair', // B-95d8 CHK-001: 受控 fallback——无 subagent 环境下显式生成签名 init-check.json
+    'scope_boundary_set', 'execution_boundary_set',
+    'scope_freeze_check',
+    'scope_extension_proposal', 'scope_extension_decide',
   ],
   INIT_CHECK: [
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
