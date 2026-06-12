@@ -5,7 +5,7 @@
       "desc": "XState fallback can produce a false-positive PLAN→DEV preflight when config loading fails. transition-orchestrator.ts:157/165 treats getGuardFailureReason(..., DEV) === null as the fallback canSend decision, but machine.ts:117-133 canStartDev returns false on any loadConfig/read/review exception, while machine.ts:413-445 lets getGuardFailureReason fall through to null on the same config-load failure. On runtimes where snapshot.can is unavailable, story_advance DEV can proceed into actor.send/post-effects and report a successful transition even though the actor guard keeps the state in PLAN. The fallback should fail closed or share the actual guard predicate, and the orchestrator should verify newState matches the requested target before writing DEV-side effects.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T21:37:52.966Z",
@@ -15,7 +15,9 @@
       "files": [
         "packages/main/src/handlers/transition-orchestrator.ts",
         "packages/main/src/core/machine.ts"
-      ]
+      ],
+      "resolvedReason": "Repro: validation-protocol smoke seeds PLAN story then makes loadConfig throw via legacy .koala storyDir; getGuardFailureReason(...,DEV) still returns null. Root cause: transition-orchestrator fallback used that human-facing renderer as canSend oracle while machine canStartDev fails closed on config/read/review errors. Fix: machine guard predicates are exported/shared through canSendStoryEventWithoutSnapshotCan; orchestrator fallback no longer uses getGuardFailureReason and assertStoryTransitionReachedTarget verifies actor.send reached DEV before any DEV side effects. ReproTest: npm --prefix packages/main run test:validation-protocol, npm --prefix packages/main run build, npm test, node scripts/verify-process-fact-contract.mjs all pass.",
+      "resolvedAt": "2026-06-12T21:52:47.681Z"
     },
     {
       "id": "B-50fb:F-002",
