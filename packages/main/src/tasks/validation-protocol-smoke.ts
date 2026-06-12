@@ -889,7 +889,7 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(invalidVerificationIntent.status, 0, 'invalid nested verificationIntent enum should fail');
-  assert.match(invalidVerificationIntent.stderr, /parameter validation failed/);
+  assert.match(invalidVerificationIntent.stderr, /parameter validation failed|参数校验失败/);
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
@@ -907,8 +907,8 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(malformedJson.status, 0, 'malformed JSON body should fail');
-  assert.match(malformedJson.stderr, /JSON parse failed|JSON parse|Unexpected end of JSON input/);
-  assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON parse failed|JSON parse/);
+  assert.match(malformedJson.stderr, /JSON parse failed|JSON parse|Unexpected end of JSON input|JSON 解析失败/);
+  assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON parse failed|JSON parse|JSON 解析失败/);
   assert.equal(existsSync(join(malformedJsonCwd, '.lattice')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
@@ -920,7 +920,7 @@ try {
     const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
       commandResolver: () => localBin,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'project-local-package');
@@ -960,7 +960,7 @@ try {
     const report = runRuntimeEnvironmentChecks(latticeConflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
@@ -988,7 +988,7 @@ try {
     const report = runRuntimeEnvironmentChecks(conflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(conflictRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+      corePackageRoot: join(conflictRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');

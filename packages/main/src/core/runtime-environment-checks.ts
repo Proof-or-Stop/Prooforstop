@@ -81,11 +81,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
+const CANONICAL_ROOT_PACKAGE_NAME = '@lattice/game';
+const LEGACY_ROOT_PACKAGE_NAME = 'koala';
+const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
+const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core';
+const CORE_PACKAGE_NAMES = [CANONICAL_CORE_PACKAGE_NAME, LEGACY_CORE_PACKAGE_NAME] as const;
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/gi;
 const HOST_PORT_RE = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}:\d{2,5}\b/g;
 const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::\d+)?(?:[/?#]|$)/i;
 const HEALTH_SEMANTICS_RE = /\b(health\s*check|healthcheck|health\s*command|doctor|ping|readiness|liveness)\b|health check|health command/i;
 const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-only';
+
+interface CorePackageCandidate {
+  path: string;
+  packageName: typeof CORE_PACKAGE_NAMES[number];
+  isLegacyFallback: boolean;
+  exists: boolean;
+}
 
 export function runRuntimeEnvironmentChecks(
   projectRoot: string,
@@ -214,23 +226,28 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
 
 function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'warnings'> {
   const globalRoot = context.globalNpmRoot;
-  const globalPackagePath = globalRoot ? join(globalRoot, '@koala-agent', 'core') : null;
-  const globalRealpath = globalPackagePath && existsSync(globalPackagePath) ? safeRealpath(globalPackagePath) : null;
+  const globalPackage = globalRoot ? resolveCorePackageCandidate(globalRoot) : null;
+  const globalPackagePath = globalPackage?.path ?? null;
+  const globalRealpath = globalPackage && globalPackage.exists ? safeRealpath(globalPackage.path) : null;
   const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : context.corePackageRoot;
-  if (!globalPackagePath || !globalRealpath) {
+  if (!globalPackage || !globalPackagePath || !globalRealpath) {
     return {
       status: statusForDrift(severity),
-      actual: { npmRoot: globalRoot, packagePath: globalPackagePath, realpath: null },
+      actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName ?? CANONICAL_CORE_PACKAGE_NAME, packagePath: globalPackagePath, realpath: null },
       expected,
-      warnings: ['global @koala-agent/core could not be resolved from `npm root -g`'],
+      warnings: [`global ${CANONICAL_CORE_PACKAGE_NAME} could not be resolved from \`npm root -g\` (legacy ${LEGACY_CORE_PACKAGE_NAME} fallback also checked)`],
     };
   }
   const status = samePath(globalRealpath, expected) ? 'pass' : statusForDrift(severity);
+  const warnings = [
+    ...(globalPackage?.isLegacyFallback ? [`global ${LEGACY_CORE_PACKAGE_NAME} is being used as a legacy compatibility fallback; ${CANONICAL_CORE_PACKAGE_NAME} is canonical`] : []),
+    ...(status === 'pass' ? [] : [`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`]),
+  ];
   return {
     status,
-    actual: { npmRoot: globalRoot, packagePath: globalPackagePath, realpath: globalRealpath },
+    actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName, packagePath: globalPackagePath, realpath: globalRealpath },
     expected,
-    ...(status === 'pass' ? {} : { warnings: [`global @koala-agent/core resolves to ${globalRealpath}, expected ${expected}`] }),
+    ...(warnings.length > 0 ? { warnings } : {}),
   };
 }
 
@@ -365,16 +382,16 @@ function runtimeEntrypointRealpath(context: RuntimeCheckContext): { path: string
 
 function runtimeModeSource(context: RuntimeCheckContext, activeRealpath: string): RuntimeModeSource {
   const selfDistRoot = join(context.projectRoot, 'packages', 'main', 'dist');
-  const projectNodeModulesCore = join(context.projectRoot, 'node_modules', '@koala-agent', 'core');
-  const globalCoreRoot = context.globalNpmRoot ? join(context.globalNpmRoot, '@koala-agent', 'core') : null;
+  const projectNodeModulesCore = resolveCorePackageCandidate(join(context.projectRoot, 'node_modules'));
+  const globalCoreRoot = context.globalNpmRoot ? resolveCorePackageCandidate(context.globalNpmRoot) : null;
 
   if (pathContains(selfDistRoot, activeRealpath) || samePath(context.corePackageRoot, join(context.projectRoot, 'packages', 'main'))) {
     return 'repo-local-dist';
   }
-  if (pathContains(projectNodeModulesCore, activeRealpath) || pathContains(projectNodeModulesCore, context.corePackageRoot)) {
+  if (pathContains(projectNodeModulesCore.path, activeRealpath) || pathContains(projectNodeModulesCore.path, context.corePackageRoot)) {
     return 'project-node-modules';
   }
-  if (globalCoreRoot && (pathContains(globalCoreRoot, activeRealpath) || pathContains(globalCoreRoot, context.corePackageRoot))) {
+  if (globalCoreRoot && (pathContains(globalCoreRoot.path, activeRealpath) || pathContains(globalCoreRoot.path, context.corePackageRoot))) {
     return 'global-cli';
   }
   if (pathContains(context.corePackageRoot, activeRealpath) || !pathContains(context.projectRoot, context.corePackageRoot)) {
@@ -415,7 +432,8 @@ function checkPackageVersion(context: RuntimeCheckContext, severity: RuntimeFact
   const runtimePackage = readPackageJson(context.corePackageRoot);
   const rootPackage = readPackageJson(context.projectRoot);
   const selfCorePackage = context.isSelfProject ? readPackageJson(join(context.projectRoot, 'packages', 'main')) : null;
-  const globalPackagePath = context.globalNpmRoot ? join(context.globalNpmRoot, '@koala-agent', 'core') : null;
+  const globalPackageCandidate = context.globalNpmRoot ? resolveCorePackageCandidate(context.globalNpmRoot) : null;
+  const globalPackagePath = globalPackageCandidate?.path ?? null;
   const globalPackage = globalPackagePath ? readPackageJson(globalPackagePath) : null;
   const versions = [
     runtimePackage?.version,
@@ -434,7 +452,7 @@ function checkPackageVersion(context: RuntimeCheckContext, severity: RuntimeFact
       globalCore: globalPackagePath ? packageSummary(globalPackage, globalPackagePath) : null,
     },
     expected: context.isSelfProject ? 'root, packages/main, runtime, and global core versions match' : 'runtime package version readable',
-    ...(ok ? {} : { warnings: ['Koala package versions are missing or inconsistent'] }),
+    ...(ok ? {} : { warnings: ['Lattice package versions are missing or inconsistent'] }),
   };
 }
 
@@ -724,7 +742,34 @@ function currentCorePackageRoot(): string {
 function detectSelfProject(projectRoot: string): boolean {
   const rootPackage = readPackageJson(projectRoot);
   const corePackage = readPackageJson(join(projectRoot, 'packages', 'main'));
-  return rootPackage?.name === 'koala' && corePackage?.name === '@koala-agent/core';
+  const rootName = rootPackage?.name;
+  const coreName = corePackage?.name;
+  return (rootName === CANONICAL_ROOT_PACKAGE_NAME || rootName === LEGACY_ROOT_PACKAGE_NAME)
+    && (coreName === CANONICAL_CORE_PACKAGE_NAME || coreName === LEGACY_CORE_PACKAGE_NAME);
+}
+
+function packagePathFromName(root: string, packageName: string): string {
+  const [scope, name] = packageName.split('/');
+  if (!scope || !name) throw new Error(`invalid package name: ${packageName}`);
+  return join(root, scope, name);
+}
+
+function resolveCorePackageCandidate(root: string): CorePackageCandidate {
+  const canonicalPath = packagePathFromName(root, CANONICAL_CORE_PACKAGE_NAME);
+  if (existsSync(canonicalPath)) {
+    return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, isLegacyFallback: false, exists: true };
+  }
+  const legacyPath = packagePathFromName(root, LEGACY_CORE_PACKAGE_NAME);
+  if (existsSync(legacyPath)) {
+    return { path: legacyPath, packageName: LEGACY_CORE_PACKAGE_NAME, isLegacyFallback: true, exists: true };
+  }
+  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, isLegacyFallback: false, exists: false };
+}
+
+function describeCorePackageCandidate(candidate: CorePackageCandidate): string {
+  return candidate.isLegacyFallback
+    ? `${candidate.packageName} (legacy fallback for ${CANONICAL_CORE_PACKAGE_NAME})`
+    : candidate.packageName;
 }
 
 function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {

@@ -767,7 +767,7 @@ if (withStarter && !existsSync(debugPath)) {
   writeFileSync(debugPath, `// debug.ts — 调试入口
 // 框架的 devHost() 负责：WS server + .koala-serve.json + cleanup
 
-import { devHost } from '@koala-agent/core/dev-host';
+import { devHost } from '@lattice-agent/core/dev-host';
 import { createApp } from './app.js';
 // import { GameMachine } from './machines/game/machine.js';
 
