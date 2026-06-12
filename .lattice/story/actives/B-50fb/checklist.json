@@ -8,9 +8,9 @@
         "README.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T20:42:13.930Z",
-      "endTime": "2026-06-12T20:55:23.332Z",
+      "endTime": "2026-06-12T21:01:03.709Z",
       "userSees": "Metadata checks print \"@lattice-agent/core 0.3.5\" and a package scope scan prints \"package metadata scope check passed\"; the `koala` bin remains visible only as a legacy alias.",
       "files": {
         "modify": [
@@ -53,32 +53,32 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "node -e package metadata assertion over root/core/utils/lab/cli manifests and locks",
+          "command": "node -e root/core/game package metadata assertion",
           "result": "pass",
-          "note": "Printed @lattice-agent/core 0.3.5 and package metadata scope check passed; root is @lattice/game and workspace manifests/locks use @lattice-agent/* names.",
-          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
-          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
-          "timestamp": "2026-06-12T20:55:23.451Z"
+          "note": "Verified root package name is lattice, packages/main remains @lattice-agent/core 0.3.5, and packages/game is @lattice/game with matching lockfile roots.",
+          "headHash": "8afbc31da13ac1014583f0af41d86a11d1eeb179",
+          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
+          "timestamp": "2026-06-12T21:01:03.769Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
-          "command": "node -e package metadata assertion over packages/main/package.json bin aliases",
+          "command": "node -e packages/main/package.json bin alias assertion",
           "result": "pass",
           "note": "Verified bin.lattice remains primary and legacy bin.koala remains mapped to dist/cli.js.",
-          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
-          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
-          "timestamp": "2026-06-12T20:55:23.502Z"
+          "headHash": "8afbc31da13ac1014583f0af41d86a11d1eeb179",
+          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
+          "timestamp": "2026-06-12T21:01:03.823Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "command": "if rg -n old @koala-agent canonical package names in package manifests and lockfiles; then exit 1; else echo package metadata legacy canonical scan passed; fi",
+          "command": "rg package metadata for @koala/game and mistaken root @lattice/game",
           "result": "pass",
-          "note": "No package manifest or lockfile presents @koala-agent/* or root koala as canonical package identity.",
-          "headHash": "fc1e869c0225bd75d45cdfb5ed4aae034a930a2e",
-          "materialHash": "9a947d89527a95f975dd26b0c93ad053ca557edda9750ddc3dd8415b16a58e55",
-          "timestamp": "2026-06-12T20:55:23.562Z"
+          "note": "No package manifest or lockfile still has @koala/game, and root package.json/package-lock.json are not named @lattice/game.",
+          "headHash": "8afbc31da13ac1014583f0af41d86a11d1eeb179",
+          "materialHash": "82e13073b2cc7c10f2a91a1f37f26350dbd9c4a30f13d247e767cf8dc90023c0",
+          "timestamp": "2026-06-12T21:01:03.889Z"
         }
       ]
     },
