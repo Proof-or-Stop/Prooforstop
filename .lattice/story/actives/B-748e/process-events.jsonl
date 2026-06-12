@@ -2,3 +2,12 @@
 {"type":"dispatch","storyId":"B-748e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-12T19:18:16.451Z"}
 {"type":"dispatch","storyId":"B-748e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-06-12T19:27:55.343Z"}
 {"type":"dispatch","storyId":"B-748e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-12T19:28:05.285Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":10,"issueCount":16,"timestamp":"2026-06-12T19:32:03.200Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":5,"timestamp":"2026-06-12T19:37:02.555Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-12T19:44:28.042Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-12T19:44:34.535Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-12T19:44:39.812Z"}
+{"type":"review_pass","storyId":"B-748e","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-748e:RP-001","timestamp":"2026-06-12T19:46:30.291Z"}
+{"type":"review_pass","storyId":"B-748e","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-748e:RP-002","timestamp":"2026-06-12T19:46:39.478Z"}
+{"type":"review_pass","storyId":"B-748e","command":"review_pass_set","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","reviewPassId":"B-748e:RP-003","timestamp":"2026-06-12T19:46:42.713Z"}
+{"type":"dirty_gate_audit","storyId":"B-748e","gate":"done-gate","category":"koala_metadata_changes","pathCount":3,"paths":[".lattice/story/actives/B-748e/index.json",".lattice/story/actives/B-748e/process-metrics.json",".lattice/story/actives/B-748e/test-evidence.json"],"reason":"koala-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-12T19:48:47.662Z"}
