@@ -3184,7 +3184,7 @@ function preflightFromDraftMetadataBootstrap(root: string): void {
   }
 }
 
-function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
+function commitFromDraftMetadataOnMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
   preflightFromDraftMetadataBootstrap(root);
 
   const storyRel = boundedMetadataPath(store.storyDirRel(), storyId, 'active story');
@@ -3197,7 +3197,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   const staged = gitCli(root, ['diff', '--cached', '--name-only']);
   const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
   if (stagedPaths.length === 0) {
-    throw new Error(`from-draft metadata commit found no changes under ${boundedPaths.join(', ')}`);
+    return '';
   }
   const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, boundedPaths));
   if (outOfBounds.length > 0) {
@@ -3221,6 +3221,11 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
     );
   }
 
+  return `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`;
+}
+
+function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
+  const metadataResult = commitFromDraftMetadataOnMain(root, store, storyId, draftName);
   const story = store.readStory(storyId);
   const worktreePath = story.worktree?.path;
   const storyBranch = story.worktree?.branch || `story/${storyId}`;
@@ -3238,9 +3243,9 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   gitCli(worktreeAbs, ['merge-base', '--is-ancestor', 'main', storyBranch]);
 
   return [
-    `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`,
+    metadataResult,
     `✓ main merged into ${storyBranch}`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 /**
@@ -3862,10 +3867,15 @@ export async function runCli(opts?: {
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;
       if (result.includes('当前目录不是 git 仓库')) return result;
+      let fromDraftMetadataSegment = '';
+      if (fromDraftName && result.includes('created from draft') && gitReady) {
+        fromDraftMetadataSegment = commitFromDraftMetadataOnMain(root, store, storyId, fromDraftName);
+      }
       if (!gitReady) {
         return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'`;
       }
-      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
+      const metadataLine = fromDraftMetadataSegment ? `\n${fromDraftMetadataSegment}` : '';
+      return `${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
     });
     return;
   }
@@ -3909,7 +3919,8 @@ export async function runCli(opts?: {
         // B-f60c CHK-002: close F-008. dev_start leaves an uncommitted
         // story-metadata mirror in the main checkout that blocks the DONE
         // `git merge story/<id>`. Commit it on the base branch (mirroring the
-        // from-draft path) so DONE has nothing uncommitted to collide with.
+        // metadata-commit part of the from-draft path) so DONE has nothing
+        // uncommitted to collide with.
         let syncResult = '';
         if (gitReady) {
           syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);
