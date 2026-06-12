@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-ebc5:RP-001",
+      "agent": "koala-review-quality",
+      "note": "PASS: The execution plan is actionable and bounded. It separates signed-workspace implementation from Layer4 customerKeyRef future/blocked scope, avoids false closure or capability unlock claims, and includes anti-new-gap and stop-condition rules without arbitrary optimization.",
+      "createdAt": "2026-06-12T18:52:33.479Z",
+      "reviewRound": "2026-06-12T18:51:12.969Z",
+      "reviewRunId": "B-ebc5:RR-002",
+      "_hash": "33d4cdc0ea4f2d38fae611f1e813575c5fd0352ff947f10c3db7e265568304c3"
+    },
+    {
+      "id": "B-ebc5:RP-002",
+      "agent": "koala-review-concept",
+      "note": "PASS: The execution plan names all three current high gap_analyze gaps, splits signed-workspace closure from Layer4 customerKeyRef boundary work, and preserves fail-closed wording. It does not claim the gaps are closed, does not unlock Layer 2 or Layer 4, and treats host review as review evidence rather than Authority receipt.",
+      "createdAt": "2026-06-12T18:52:34.765Z",
+      "reviewRound": "2026-06-12T18:51:12.969Z",
+      "reviewRunId": "B-ebc5:RR-001",
+      "_hash": "e940c72a34c69ba9be1245706cc1505c9e84867f1a717de750d8549b8ea5956b"
+    },
+    {
+      "id": "B-ebc5:RP-003",
+      "agent": "koala-review-quality",
+      "note": "PASS. Fresh quality review after F-001/F-002 fixes: the plan is actionable, scoped to the three current high gaps, separates signed-workspace implementation from Layer4/customerKeyRef boundary work, marks customerKeyRef as future/blocked unless a dedicated Layer4 story is opened, and does not claim Layer2/Layer4/Authority unlock or current production receipt support. No arbitrary optimization or false current requirement found.",
+      "createdAt": "2026-06-12T19:00:52.694Z",
+      "reviewRound": "2026-06-12T18:59:14.275Z",
+      "reviewRunId": "B-ebc5:RR-006",
+      "_hash": "7e463bcc70c8725bec8ba5b517e4b6eb3115f91e950c52ee6556dbb928c2c165"
+    },
+    {
+      "id": "B-ebc5:RP-004",
+      "agent": "koala-review-concept",
+      "note": "PASS: concept boundaries remain correct after F-001/F-002 fixes. The plan names the three current high gaps, does not claim they are closed, keeps customerKeyRef as future/blocked or separate Layer 4 implementation scope, and preserves host-neutral/non-authority boundaries by not treating host review as Authority receipt. NAV count is conceptually consistent with 47 total docs including NAV.md.",
+      "createdAt": "2026-06-12T19:00:53.067Z",
+      "reviewRound": "2026-06-12T18:59:14.275Z",
+      "reviewRunId": "B-ebc5:RR-005",
+      "_hash": "4b438342f7784dc9f9a434a8e092ba35b896c7daa0e3a6b75e0d7a117f8da75f"
+    },
+    {
+      "id": "B-ebc5:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS. Replayed all stored verificationEvidence commands for CHK-001 and CHK-002. The gap_analyze assertion returned exactly high=3 and medium=0, NAV declared count matched actual markdown count 47/47, and both NAV links were present. No test coverage blocker remains.",
+      "createdAt": "2026-06-12T19:01:02.662Z",
+      "reviewRound": "2026-06-12T18:59:14.275Z",
+      "reviewRunId": "B-ebc5:RR-007",
+      "_hash": "86adc580636c88f75a8734f6ccbd0ccac6c60d5da250c3bf6f93b511ae81c210"
+    },
+    {
+      "id": "B-ebc5:RP-006",
+      "agent": "koala-review-docs",
+      "note": "PASS: NAV count matches actual docs/requirements markdown count (47/47); new resolve-gap-analyze plan link and prior F-009 triage link are present; plan keeps Layer2/Layer4/Authority/current receipt claims explicitly blocked or forbidden rather than asserting them.",
+      "createdAt": "2026-06-12T19:01:24.647Z",
+      "reviewRound": "2026-06-12T18:59:14.275Z",
+      "reviewRunId": "B-ebc5:RR-008",
+      "_hash": "9a9c1bb87b0baea4928bb023206db1886b121c0d3d70a1de520eff0d702ed106"
+    }
+  ]
+}

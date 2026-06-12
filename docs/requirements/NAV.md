@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 45 个文件
+> 47 个文件
 
 ## decisions
 
@@ -16,6 +16,7 @@
 - [framework](decisions/framework.md)
 - [F-009 gap_analyze High Gaps Execution Plan](decisions/f009-gap-analyze-high-gaps-execution-plan.md)
 - [F-009 Layer 2 Engineering Proof Gap Execution Plan](decisions/f009-layer2-engineering-proof-gap-execution-plan.md)
+- [Resolve gap_analyze Three High Gaps Execution Plan](decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md)
 - [Host-Neutral Observability Console（CLI-backed read-only Dashboard 设计）](decisions/host-neutral-observability-console.md)
 - [Lattice Host Overflow](decisions/host-overflow.md)
 - [Lattice Baseline Two-Host Multi-Agent Execution Plan](decisions/lattice-baseline-two-host-multi-agent-execution-plan.md)

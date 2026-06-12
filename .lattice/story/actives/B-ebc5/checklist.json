@@ -10,9 +10,69 @@
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T18:48:24.646Z",
+      "endTime": "2026-06-12T18:57:52.412Z",
+      "userSees": "A new decision document explains how to resolve the two signed-workspace gaps and the customerKeyRef future/blocked gap without false closure.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document names all three current gap_analyze high gaps and assigns each to an exact follow-up action.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document says customerKeyRef remains future/blocked unless a separate Layer4 implementation story provides redaction and Authority receipt evidence.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document forbids claiming F-009 closure, Layer2/Layer4 unlock, productionDone, receiptVerified, or Authority completion from this planning story.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"GAP-SW-UNRESOLVED-1|GAP-SW-NO-BINDING-1|GAP-L4-CUSTOMER-KEY-1|Required Work Split|Recommended Execution Order\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "The execution plan names all three current high gaps and assigns them to bounded follow-up workstreams.",
+          "headHash": "5d21a91af7cb75be5f978f6f31f39affc4df55be",
+          "materialHash": "271a14553c7bdf43032c4d37863133042b52680e108638ad573dc8cd9607a279",
+          "timestamp": "2026-06-12T19:03:49.051Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"future/blocked|Path B1: Keep It Future/Blocked|customerKeyRef remains a future Layer 4 requirement|Forbidden result wording\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves customerKeyRef as future/blocked unless a separate Layer4 implementation story is opened.",
+          "headHash": "5d21a91af7cb75be5f978f6f31f39affc4df55be",
+          "materialHash": "271a14553c7bdf43032c4d37863133042b52680e108638ad573dc8cd9607a279",
+          "timestamp": "2026-06-12T19:03:49.051Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const json=JSON.parse(s.slice(s.indexOf(\"{\"),s.lastIndexOf(\"}\")+1)); const high=json.gaps.filter(g=>g.severity===\"high\").length; const medium=json.gaps.filter(g=>g.severity===\"medium\").length; if(high!==3||medium!==0){console.error(JSON.stringify({high,medium})); process.exit(1)} console.log(JSON.stringify({high,medium,ok:true}))})'",
+          "result": "pass",
+          "note": "Mechanical assertion proves the plan did not increase current high or medium gap count; expected state remains exactly 3 high and 0 medium.",
+          "headHash": "5d21a91af7cb75be5f978f6f31f39affc4df55be",
+          "materialHash": "271a14553c7bdf43032c4d37863133042b52680e108638ad573dc8cd9607a279",
+          "timestamp": "2026-06-12T19:03:49.051Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +81,69 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-12T18:50:49.156Z",
+      "endTime": "2026-06-12T18:58:53.736Z",
+      "userSees": "NAV lists the new three-high-gap resolution plan and the decision document count remains consistent.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV includes a relative link to resolve-gap-analyze-three-high-gaps-execution-plan.md.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV decision document count matches the number of decision links after the new document is added.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "NAV does not remove or overwrite the prior B-3a80 triage plan link.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Resolve gap_analyze Three High Gaps Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV includes the new resolution plan link.",
+          "headHash": "5d21a91af7cb75be5f978f6f31f39affc4df55be",
+          "materialHash": "271a14553c7bdf43032c4d37863133042b52680e108638ad573dc8cd9607a279",
+          "timestamp": "2026-06-12T19:03:49.051Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e 'const fs=require(\"fs\"),path=require(\"path\"); function walk(d){return fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{const p=path.join(d,e.name); return e.isDirectory()?walk(p):(p.endsWith(\".md\")?[p]:[])})} const s=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const declared=Number((s.match(/^> (\\d+) 个文件/m)||[])[1]); const actual=walk(\"docs/requirements\").length; if(declared!==actual){console.error(JSON.stringify({declared,actual}));process.exit(1)} console.log(JSON.stringify({declared,actual,ok:true}))'",
+          "result": "pass",
+          "note": "NAV declared file count equals the actual markdown file count under docs/requirements.",
+          "headHash": "5d21a91af7cb75be5f978f6f31f39affc4df55be",
+          "materialHash": "271a14553c7bdf43032c4d37863133042b52680e108638ad573dc8cd9607a279",
+          "timestamp": "2026-06-12T19:03:49.051Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"F-009 gap_analyze High Gaps Execution Plan|Resolve gap_analyze Three High Gaps Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV keeps the prior B-3a80 triage plan link and adds the new resolution plan link.",
+          "headHash": "5d21a91af7cb75be5f978f6f31f39affc4df55be",
+          "materialHash": "271a14553c7bdf43032c4d37863133042b52680e108638ad573dc8cd9607a279",
+          "timestamp": "2026-06-12T19:03:49.051Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency of logic."
+  ],
+  "drivers": [
+    "User needs confidence that closing these three gaps will not create new high gaps.",
+    "Current work request is a document, not code implementation.",
+    "Existing B-3a80 document is a triage plan, not a closure execution plan."
+  ],
+  "options": [
+    {
+      "name": "A: Add a dedicated resolution execution plan document",
+      "pros": [
+        "Gives the user a concrete next-step plan without pretending the gaps are fixed.",
+        "Keeps implementation stories separate and bounded.",
+        "Can define anti-regression guards to prevent new uncovered future requirements."
+      ],
+      "cons": [
+        "Adds one more requirements document and NAV entry."
+      ]
+    },
+    {
+      "name": "B: Modify the existing B-3a80 triage document only",
+      "pros": [
+        "Avoids another document."
+      ],
+      "cons": [
+        "Blurs triage with implementation closure and makes the previous story less stable as a historical record."
+      ]
+    },
+    {
+      "name": "C: Start implementing the three gaps immediately",
+      "pros": [
+        "Could reduce gap_analyze count sooner."
+      ],
+      "cons": [
+        "Violates the current request for an execution document and risks mixing signed workspace work with future Layer4 Authority work."
+      ]
+    }
+  ],
+  "chosen": "A: Add a dedicated resolution execution plan document",
+  "rationale": "Choose A because the user asked for an execution document, and the safest way to avoid new gap churn is to define exact follow-up work, closure commands, and future-scope wording before implementing anything.",
+  "preMortem": [
+    {
+      "scenario": "The document accidentally states customerKeyRef is current functionality.",
+      "trigger": "Using current-tense requirement language instead of future/blocked language.",
+      "consequence": "gap_analyze may report another high uncovered requirement or readers may infer Layer4 is unlocked.",
+      "mitigation": "Use explicit future/blocked wording and forbid receiptVerified/productionDone claims."
+    },
+    {
+      "scenario": "The document claims signed workspace gaps are resolved by planning.",
+      "trigger": "Conflating resolution plan with implementation evidence.",
+      "consequence": "False closure of real REVIEW correctness issues.",
+      "mitigation": "State that closure requires separate implementation story, tests, and gap_analyze going to 0 high."
+    },
+    {
+      "scenario": "NAV update creates count/link drift.",
+      "trigger": "Adding the new document without updating NAV count or link.",
+      "consequence": "Documentation navigation becomes inconsistent.",
+      "mitigation": "Verify NAV count and link with deterministic shell commands."
+    }
+  ],
+  "timestamp": "2026-06-12T18:44:20.095Z"
+}
