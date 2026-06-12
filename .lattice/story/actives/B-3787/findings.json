@@ -5,13 +5,15 @@
       "desc": "packages/main/src/tasks/field-regression-cli-smoke.ts:518 covers non-git, unborn HEAD, wrong cwd, and root/worktree mismatch, but no test forces diagnoseReviewRunSnapshot to return missing_material_hash from packages/main/src/core/review-run.ts:159. CHK-001 and CHK-002 both mark missing materialHash / unavailable materialHash as must-cover behavior, so this branch can regress without the claimed no-write diagnostic coverage. Severity: high.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-12T11:19:12.607Z",
       "reviewRound": "2026-06-12T11:15:04.727Z",
       "reviewRunId": "B-3787:RR-003",
-      "_hash": "c78aeb72f674aec4441567c7cf13c965d7d3a6e4b4db712ceef60c52a735887f"
+      "_hash": "c78aeb72f674aec4441567c7cf13c965d7d3a6e4b4db712ceef60c52a735887f",
+      "resolvedReason": "Fixed in e5779c23: field-regression now creates an empty-HEAD material tree to force missing_material_hash and asserts no currentReviewRound repair or review-run write; build and field-regression/review-loop/authority smokes pass.",
+      "resolvedAt": "2026-06-12T11:24:00.221Z"
     },
     {
       "id": "B-3787:F-002",
