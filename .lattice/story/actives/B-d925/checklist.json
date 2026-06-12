@@ -33,7 +33,11 @@
       "context": "Make main clean by committing valid assets or restoring confirmed stale/scratch changes, then verify B-9d6c can advance to DONE.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md"
+      ],
+      "userSees": "The main worktree is clean, B-9d6c can advance to DONE, and any retained cleanup commit is clearly separate from the B-9d6c implementation commit."
     }
   ]
 }
