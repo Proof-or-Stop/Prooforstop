@@ -121,6 +121,16 @@
           "headHash": "21017af47efb7ff13c32af04786a3ddbda68a2b5",
           "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
           "timestamp": "2026-06-12T19:52:49.751Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Safety resolution keeps stronger explicit/dependency blockers before plan_only overlap degradation, so actual file overlap detection does not downgrade stricter scheduling constraints.",
+          "headHash": "28aa03c2aecadbb952ab06bcb9bb7fc1b1d76185",
+          "materialHash": "f19734569f63c52110ad61d5ee6d941abe4b0dbaf45f671041887fb3cd0efdae",
+          "timestamp": "2026-06-12T19:52:55.951Z"
         }
       ]
     },
