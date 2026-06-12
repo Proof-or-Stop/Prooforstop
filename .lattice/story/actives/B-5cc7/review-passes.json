@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-5cc7:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test coverage: verified all 9 verificationIntent refs have concrete evidence. Reran npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js; smoke covers legacy .koala read fallback for project/global, deterministic .lattice-wins dedupe, .lattice write path only, and non-authoritative gateEvidence=false/authority=non_authoritative. Also verified git status has no .lattice/dev-memory/experience.jsonl restore, stash@{0}=c4dcc3aff95fd999712d7f19dcf856f791cf0d05, stash^3 data file remains inspectable, and final diff excludes data-file/.gitignore/runtime registry/planner/NAV/Layer4 paths.",
+      "createdAt": "2026-06-11T23:07:21.132Z",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "reviewRunId": "B-5cc7:RR-003",
+      "_hash": "128d0c3f68fbeaf021af533afeaad4839d7a3cc2b220f93d50765759f451a3f7"
+    },
+    {
+      "id": "B-5cc7:RP-002",
+      "agent": "koala-review-concept",
+      "note": "PASS Bucket A conceptual correctness: legacy .koala dev-memory paths are read-only fallback through read helpers; capture/finish writes remain on canonical .lattice/story paths; final diff does not restore .lattice/dev-memory/experience.jsonl; entries and smoke coverage keep gateEvidence=false and authority=non_authoritative without Authority production overclaim. Verified with git diff/read-path inspection and npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "createdAt": "2026-06-11T23:07:27.015Z",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "reviewRunId": "B-5cc7:RR-005",
+      "_hash": "c60f790b49cef7d0f9298690678e1de234f1b60240b9db3b90c397a7ee1ca9a9"
+    },
+    {
+      "id": "B-5cc7:RP-003",
+      "agent": "koala-review-quality",
+      "note": "PASS: reviewed main...HEAD for minimality and correctness. Material code delta is limited to packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, and packages/main/src/tasks/dev-memory-legacy-read-smoke.ts; no .koala path writes, no .omx paths, no .lattice/dev-memory/experience.jsonl, no .gitignore/runtime/planner/NAV/Layer4 paths, and stash@{0}=c4dcc3aff95fd999712d7f19dcf856f791cf0d05 remains intact. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "createdAt": "2026-06-11T23:08:42.188Z",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "reviewRunId": "B-5cc7:RR-009",
+      "_hash": "294d4b8299a56668c97ed8bd1d5e0ad5ae6f22accf68d9fcaa9b686d9372d1a3"
+    },
+    {
+      "id": "B-5cc7:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: B-5cc7:F-001 is resolved. docs/requirements/decisions/dev-memory.md now states canonical .lattice project/global/story-candidate paths, .koala as legacy read-only fallback only, lattice dev_memory_* commands, and gateEvidence:false / authority:non_authoritative non-gate semantics. Checked against four review principles: no optimization-only or arbitrary change, real docs correctness issue fixed, logic consistency preserved.",
+      "createdAt": "2026-06-11T23:24:39.549Z",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "reviewRunId": "B-5cc7:RR-012",
+      "_hash": "f254347ac8b642c4dcca7b13f88b61afc31add0c3ffbb175bb0773721390edf6"
+    },
+    {
+      "id": "B-5cc7:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: inspected Bucket A scope in stash-split plan, material diff, dev-memory core/handler/doc/smoke changes, .koala/data/gitignore/runtime/planner/NAV/Layer4 path exclusions, whitespace diff, build, and focused smoke. Changes are narrow to dev-memory read fallback plus focused verification/docs; no data file restored and no legacy .koala write path added.",
+      "createdAt": "2026-06-11T23:26:03.979Z",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "reviewRunId": "B-5cc7:RR-011",
+      "_hash": "ead8d9a1dc2458d369cc0452333b0c17d6686aa96d6258dec706992aa9d33a9b"
+    },
+    {
+      "id": "B-5cc7:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage pass for B-5cc7. Verified all verificationIntent lanes with fresh reruns: npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js passed; git diff --name-status main...HEAD is limited to story metadata, docs/requirements/decisions/dev-memory.md, packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, and packages/main/src/tasks/dev-memory-legacy-read-smoke.ts; .lattice/dev-memory/experience.jsonl is absent from worktree, status, diff, and HEAD; stash@{0} remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and stash@{0}^3 still contains .lattice/dev-memory/experience.jsonl with 23 lines / 13983 bytes. Smoke covers .lattice plus legacy .koala reads, deterministic dedupe, LATTICE_GLOBAL_MEMORY_DIR masking, canonical .lattice write-only behavior, and non-authoritative gateEvidence=false/authority=non_authoritative entries. No blocker.",
+      "createdAt": "2026-06-11T23:26:21.991Z",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "reviewRunId": "B-5cc7:RR-013",
+      "_hash": "a3c97d15e7b38a02d9f1e37108563d314e0c1e3ac44a98c056ba786908de2004"
+    },
+    {
+      "id": "B-5cc7:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test-coverage: reran npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js successfully. Smoke covers project/global current plus legacy read fallback, duplicate ids with current .lattice winning, LATTICE_GLOBAL_MEMORY_DIR masking legacy fallback, KOALA_GLOBAL_MEMORY_DIR remaining read-only fallback without redirecting writable global path, global read paths current-first then legacy fallback, capture writing only .lattice and non-authoritative entries. Also verified git diff/status contain no .lattice/dev-memory/experience.jsonl restored, tracked, or present in worktree.",
+      "createdAt": "2026-06-11T23:33:47.089Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-016",
+      "_hash": "01aa32dd4a9ed4be5aafc199c3e025a40779d92666bfb6fda46fe22bbb7b6413"
+    },
+    {
+      "id": "B-5cc7:RP-008",
+      "agent": "koala-review-quality",
+      "note": "PASS quality final REVIEW: Bucket A remains path-limited to dev-memory code plus focused doc/test/story metadata; final main...HEAD diff has no .gitignore, runtime registry, planner, NAV, Layer4, .lattice/dev-memory/experience.jsonl, or .koala artifact paths. F-001 and F-002 are resolved in finding_list; code now uses .lattice write paths with .koala read-only fallback, and KOALA_GLOBAL_MEMORY_DIR no longer redirects writable global memory. Verified with git diff --check main...HEAD, git stash list pinned stash@0=c4dcc3aff95fd999712d7f19dcf856f791cf0d05, git status/ls-files checks for no restored data file, rg write-path checks, npx tsc --noEmit -p packages/main/tsconfig.json, and node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "createdAt": "2026-06-11T23:34:33.048Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-015",
+      "_hash": "28381e9296397131d47f30962f751a926fdcaee4f41b822d8a05ad8ba3d76e6c"
+    },
+    {
+      "id": "B-5cc7:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test-coverage final-final: reran npm --prefix packages/main run build (pass) and node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js (pass). Verified smoke assertions cover parallel dispatch/report experienceRefs legacy fallback, KOALA_GLOBAL_MEMORY_DIR as read fallback not writable path, lattice dev_memory_start command prefix, .lattice-only capture, non-authoritative gateEvidence=false entries, and current-first dedupe. git status/diff show no .lattice/dev-memory/experience.jsonl restored; stash@{0}=c4dcc3aff95fd999712d7f19dcf856f791cf0d05 remains inspectable.",
+      "createdAt": "2026-06-11T23:47:14.904Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-018",
+      "_hash": "a383799cd36921c254bbab57ea7c1419acc52fc16c34361199b0c1865b1e8dd1"
+    },
+    {
+      "id": "B-5cc7:RP-010",
+      "agent": "koala-review-quality",
+      "note": "final-final quality pass: F-004/F-005 command-prefix consistency is resolved; docs and dev_memory_start now use lattice dev_memory_finish while production files have no koala dev_memory_finish guidance. F-003 scope acknowledgement is justified because the only acknowledged Bucket B path, packages/main/src/core/lattice-parallel-wave.ts, changes only experienceRefs from direct resolve/readEntries calls to readProjectMemoryEntries/readGlobalMemoryEntries so the F-003 legacy-read fallback applies to that consumer. Checked .lattice/dev-memory/experience.jsonl is absent/untracked and not in the diff; no Bucket C/D/E paths and no unrelated Bucket B paths are in the material diff; no production .koala write path was found, with legacy .koala paths limited to read fallback helpers.",
+      "createdAt": "2026-06-11T23:47:47.357Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-019",
+      "_hash": "3bac03f0d44666a72899704635da056525d3690bb6a8dd0d22d734a5a9642c96"
+    },
+    {
+      "id": "B-5cc7:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs lane pass: docs/requirements/decisions/dev-memory.md and the worktree implementation agree that public dev-memory commands use lattice dev_memory_*, canonical writes target .lattice, legacy .koala paths are read-only fallback inputs, dev_memory_start emits lattice dev_memory_finish reminders, and entries/parallel refs remain non-authoritative gateEvidence=false authority=non_authoritative. Checked source and local dist; node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js passed; node packages/main/dist/cli.js dev_memory_start emitted lattice dev_memory_finish. Observed globally installed lattice still emits stale koala dev_memory_finish from the parent/global install, not this worktree implementation.",
+      "createdAt": "2026-06-11T23:48:26.278Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-022",
+      "_hash": "8f00b46654eef030094a7a70882dcc789f37b1f890004d754583097ab8b16912"
+    },
+    {
+      "id": "B-5cc7:RP-012",
+      "agent": "koala-review-docs",
+      "note": "Docs final REVIEW after F-006 passed. Reviewed docs/requirements/decisions/dev-memory.md and docs/requirements/decisions/lattice-parallel-wave.md against packages/main/src/core/dev-memory.ts, packages/main/src/core/lattice-parallel-wave.ts, packages/main/src/handlers/dev-memory.ts, and packages/main/src/tasks/dev-memory-legacy-read-smoke.ts. dev-memory.md documents canonical .lattice project/global/story-candidate storage, .koala read-only legacy fallback, lattice dev_memory_* commands, and non-authoritative gateEvidence:false / authority:non_authoritative semantics. lattice-parallel-wave.md now matches implementation: includeExperience reads .lattice first, .koala only as legacy fallback including KOALA_GLOBAL_MEMORY_DIR fallback, dedupes by id, caps refs, and emits non-authoritative experienceRefs. Read-only sweeps found no stale koala dev_memory_finish in docs/requirements and no .koala-only storage contract in touched truth sources; remaining .koala mentions are explicitly fallback/read-only. No blocking docs finding.",
+      "createdAt": "2026-06-11T23:54:58.198Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-023",
+      "_hash": "5a5d26213a6885e0ad54c985e4382d246d1322db6abb152f7a825d98787037e6"
+    },
+    {
+      "id": "B-5cc7:RP-013",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: reran npm --prefix packages/main run build and node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js; both passed. evidence_inspect reports all checklist evidence fresh against current materialHash 4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf after stale evidence refresh. Stash object remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05; .lattice/dev-memory/experience.jsonl is absent from status, main...HEAD diff, and tracked files while stash@{0}^3 still contains 23 lines. Smoke coverage includes F-002 KOALA_GLOBAL_MEMORY_DIR not redirecting writable global path while remaining legacy read fallback, F-003/F-006 parallel dispatch/report reading legacy project and KOALA_GLOBAL_MEMORY_DIR experienceRefs through current read APIs, and F-004 lattice dev_memory_finish guidance with no koala dev_memory_finish reminder. No test-coverage blocker.",
+      "createdAt": "2026-06-11T23:55:07.003Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-025",
+      "_hash": "8665d441eed82be3d984b9b40c6eede9646dd8dba5f31c76dd2d0f0785249af1"
+    },
+    {
+      "id": "B-5cc7:RP-014",
+      "agent": "koala-review-quality",
+      "note": "PASS: final quality review after F-006. Minimality and scope hold: material paths are dev-memory core/handler, focused legacy-read smoke, dev-memory decision doc, and the two acknowledged parallel-wave touchpoints justified by verified findings F-003/F-006. No unrelated stash bucket paths (.gitignore, runtime registry, planner, NAV, Layer4 doc, flow-stability smoke, fixtures) appear in main...HEAD. Pinned stash remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05; stash^3 still contains the 23-line .lattice/dev-memory/experience.jsonl, while HEAD/main do not contain that data file. .koala is read-only fallback only: writes resolve through .lattice paths, KOALA_GLOBAL_MEMORY_DIR cannot redirect the writable global path, and handler/docs no longer emit stale koala dev_memory_finish guidance. Existing dist smoke node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js passed; git diff --check passed.",
+      "createdAt": "2026-06-11T23:55:10.850Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-026",
+      "_hash": "0a2c1be88fed8017e0b88b59bc1f4259cc4ae68ce09bd7eab3b99fbf8e2ff929"
+    },
+    {
+      "id": "B-5cc7:RP-015",
+      "agent": "koala-review-concept",
+      "note": "Final concept review after F-006: no blocker. Verified lattice finding_list shows F-001..F-006 resolved. Source now keeps writable dev-memory paths canonical to .lattice; .koala is exposed through read-only legacy read helpers, handlers use readProjectMemoryEntries/readGlobalMemoryEntries, and lattice-parallel-wave experienceRefs use the same readers. Active docs/requirements/decisions/dev-memory.md and lattice-parallel-wave.md agree on .lattice canonical storage, .koala read-only fallback, bounded non-authoritative experienceRefs, and no production-authority claim. Ran targeted built smoke node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js and git diff --check main...HEAD successfully. Repo-wide residue grep found only expected compatibility/legacy references; Lattice-lifecycle-memory-Evolving.md is explicitly listed as a legacy move/merge candidate outside the active decision docs, so it is not a concept blocker for this story.",
+      "createdAt": "2026-06-11T23:55:30.315Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-024",
+      "_hash": "daecc208a5c8465e83af05cf3fbcc692e58d1a2f49482178c5a944baa32d4c3e"
+    }
+  ]
+}

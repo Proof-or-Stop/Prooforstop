@@ -1,0 +1,49 @@
+{
+  "storyId": "B-5cc7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+  ],
+  "allowedTest": [
+    "docs/requirements/decisions/stash-split-execution-plan.md",
+    "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+    "docs/requirements/decisions/dev-memory.md"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Required by verified finding B-5cc7:F-003: lattice-parallel-wave is a dev-memory projection consumer for parallel dispatch/report experienceRefs, so it must use the same read-only legacy fallback helpers as the rest of Bucket A instead of bypassing them.",
+      "timestamp": "2026-06-11T23:41:48.550Z",
+      "paths": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "anchors": [
+        "finding.B_5cc7_F_003",
+        "dev_memory_legacy_read_fallback",
+        "parallel_experience_refs"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Required by verified finding B-5cc7:F-006: the parallel wave decision document describes the dev-memory experienceRefs consumer and must match the new .lattice canonical plus .koala read-only fallback semantics used by code.",
+      "timestamp": "2026-06-11T23:49:16.693Z",
+      "paths": [
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "anchors": [
+        "finding.B_5cc7_F_006",
+        "parallel_wave_decision_doc",
+        "dev_memory_experience_refs"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-11T23:04:42.042Z",
+  "updatedAt": "2026-06-11T23:49:16.693Z"
+}

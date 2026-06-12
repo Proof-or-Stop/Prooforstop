@@ -1,0 +1,940 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-5cc7:RR-001",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:05:39.480Z",
+      "headHash": "dea57101d1a8a1f8c50acf56c6dfbad38308f8f0",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "1cc5655fdb6c44dce114f4db8d82d09db0980b6eae01c20b6d0cdaff06b02aa3"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-002",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:05:43.505Z",
+      "headHash": "dea57101d1a8a1f8c50acf56c6dfbad38308f8f0",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "dec95a7db9e11d6cb315b7c566b9d83b251eac7460ab05b21507613a3c09c107"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-003",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:05:57.937Z",
+      "headHash": "dea57101d1a8a1f8c50acf56c6dfbad38308f8f0",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "3adb90536ae5a536771dfa44778d39914611e21a59ed45cb02607228eb186c5f"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-004",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:06:05.849Z",
+      "headHash": "dea57101d1a8a1f8c50acf56c6dfbad38308f8f0",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "e98ba0c046f7ccfbee0fc23654ce703afe4ba168bfb2d26c80fd58e6e8d7a22d"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-005",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:07:17.378Z",
+      "headHash": "dea57101d1a8a1f8c50acf56c6dfbad38308f8f0",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "833253d33c2c7d613a2946cd96bfc77178e911a7ffab1536cea6970fa28a19b0"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-006",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:07:40.386Z",
+      "headHash": "a2c411e4c587cc46ce9b9617bfb9a40140ac82ea",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "35ebc212a03e3a39494f2ad769f5bc6d440ef77a2810b6753bc0dd2fc807e22e"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-007",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:07:58.238Z",
+      "headHash": "a2c411e4c587cc46ce9b9617bfb9a40140ac82ea",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "dcab9ebfb9ce5e79a5ab067c95896fa6f08f4b02ee7cb5ccb18e4fae99ad0b96"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-008",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:08:30.574Z",
+      "headHash": "238f30c5409ddacee1f5a8918e7eb6abbf944228",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "f0f9871e655706b73f7d1fb113f527ba1f691e035e404fd3f95e56ff8cd3d268"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-009",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "startedAt": "2026-06-11T23:08:35.826Z",
+      "headHash": "238f30c5409ddacee1f5a8918e7eb6abbf944228",
+      "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "2c59480882d35b3410d207c31334877bffc42c200593559b7a8e1484da36418a",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "6f638c93fe4fca36eab33658f7811323229bae0d17ab382f5362264ad41161f1"
+      },
+      "_hash": "9ccd1d3c62d201ab15e1de452e5f9fc7062eb4546b3f3f8375f20ad873f2225f"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-010",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "startedAt": "2026-06-11T23:23:22.552Z",
+      "headHash": "5924713f1b6ab0577f1ec3da9ee590116e184ed5",
+      "materialHash": "347c8773e826f762bc9c7acdf8284f897d1d28982e85638f6828d9ce934eea75",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "c4a356faccead405634bde491210f3963d099207d56b1949e33cff7cadd6f3e9",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "3340023b474aaf5dc79df901cffd8dcaef88793738a4c7fb5ecb61821293835d"
+      },
+      "_hash": "3d2acc507e1835d88db0eb3432e0f318b94fe5e475295afaf9fea24a12325595"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-011",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "startedAt": "2026-06-11T23:23:47.243Z",
+      "headHash": "5924713f1b6ab0577f1ec3da9ee590116e184ed5",
+      "materialHash": "347c8773e826f762bc9c7acdf8284f897d1d28982e85638f6828d9ce934eea75",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "c4a356faccead405634bde491210f3963d099207d56b1949e33cff7cadd6f3e9",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "3340023b474aaf5dc79df901cffd8dcaef88793738a4c7fb5ecb61821293835d"
+      },
+      "_hash": "0d7da4c8da796b831a26a0edd8619edb829676abe38480334dec8a234a621c5a"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-012",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "startedAt": "2026-06-11T23:23:48.732Z",
+      "headHash": "5924713f1b6ab0577f1ec3da9ee590116e184ed5",
+      "materialHash": "347c8773e826f762bc9c7acdf8284f897d1d28982e85638f6828d9ce934eea75",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "c4a356faccead405634bde491210f3963d099207d56b1949e33cff7cadd6f3e9",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "3340023b474aaf5dc79df901cffd8dcaef88793738a4c7fb5ecb61821293835d"
+      },
+      "_hash": "3f206b97184215d6ba968a788cab35da8eb8e978c57b33bd464fdf463c8890cd"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-013",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "startedAt": "2026-06-11T23:23:56.880Z",
+      "headHash": "5924713f1b6ab0577f1ec3da9ee590116e184ed5",
+      "materialHash": "347c8773e826f762bc9c7acdf8284f897d1d28982e85638f6828d9ce934eea75",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "c4a356faccead405634bde491210f3963d099207d56b1949e33cff7cadd6f3e9",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "288a4e2a3709a4aa3226d8c73d57b26335b8a82b9a355bba01bbe003d571d8c8",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "c45507639547780de6e6669819689a5b48cdbf45d49dc88a9460d4603d665985",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "3340023b474aaf5dc79df901cffd8dcaef88793738a4c7fb5ecb61821293835d"
+      },
+      "_hash": "c18c4262a5be16098fc309bd97761c20245848ab319dec3b5ca49075f3d4b0c1"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-014",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "startedAt": "2026-06-11T23:31:50.614Z",
+      "headHash": "c059d447f9c0ae1f27ab7b43a4e6c0b28b110c66",
+      "materialHash": "7b130e6b506c1cf20245b6acf5bfe92458a05acc2860183e90dc3a8d69484fd8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "fb3200c6d1425731e08f183f03e5abdcf9947be39268e70496ead5adbd49a6a6",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "1f611717ea19712499296ee8b1244b6834fe7e1e86cd63fe9dfb413a69026804",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "99ff3d1ddf67f1345e70e5f408bb158bc3e93c01e42e618bf03102922eef0f6b"
+      },
+      "_hash": "f10843c5b42fc20707dc0b88bbee87a46d0aea5f04fa5f899885565621d011a8"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-015",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "startedAt": "2026-06-11T23:31:53.508Z",
+      "headHash": "c059d447f9c0ae1f27ab7b43a4e6c0b28b110c66",
+      "materialHash": "7b130e6b506c1cf20245b6acf5bfe92458a05acc2860183e90dc3a8d69484fd8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "fb3200c6d1425731e08f183f03e5abdcf9947be39268e70496ead5adbd49a6a6",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "1f611717ea19712499296ee8b1244b6834fe7e1e86cd63fe9dfb413a69026804",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "99ff3d1ddf67f1345e70e5f408bb158bc3e93c01e42e618bf03102922eef0f6b"
+      },
+      "_hash": "aaf2b403d8ba4dd2c5fc936785fd03c8614c6727a1e9dd4340a3dca93c20e39d"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-016",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "startedAt": "2026-06-11T23:31:55.844Z",
+      "headHash": "c059d447f9c0ae1f27ab7b43a4e6c0b28b110c66",
+      "materialHash": "7b130e6b506c1cf20245b6acf5bfe92458a05acc2860183e90dc3a8d69484fd8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "fb3200c6d1425731e08f183f03e5abdcf9947be39268e70496ead5adbd49a6a6",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "1f611717ea19712499296ee8b1244b6834fe7e1e86cd63fe9dfb413a69026804",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "99ff3d1ddf67f1345e70e5f408bb158bc3e93c01e42e618bf03102922eef0f6b"
+      },
+      "_hash": "c13f2ad77234dfff5bb49e922248670622dce5d14fe94a51277583520eb78e22"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-017",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "startedAt": "2026-06-11T23:31:58.428Z",
+      "headHash": "c059d447f9c0ae1f27ab7b43a4e6c0b28b110c66",
+      "materialHash": "7b130e6b506c1cf20245b6acf5bfe92458a05acc2860183e90dc3a8d69484fd8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "fb3200c6d1425731e08f183f03e5abdcf9947be39268e70496ead5adbd49a6a6",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "1f611717ea19712499296ee8b1244b6834fe7e1e86cd63fe9dfb413a69026804",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "99ff3d1ddf67f1345e70e5f408bb158bc3e93c01e42e618bf03102922eef0f6b"
+      },
+      "_hash": "d79b14ae49e6a60f522ae71763049a6c8790186f3e918a096926739f4ef74429"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-018",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "startedAt": "2026-06-11T23:44:56.377Z",
+      "headHash": "61b7b44bb48d01f9afcedb24ed131e249488cbe2",
+      "materialHash": "49a53dca227b347cc1b575d6aefd33e7ca28a566c8efdffb6ca46c89a2140ca7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "5120a7df7e435a59f68912492c89f9cabdccf146e380029f41dfc6fea3278ef7",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "573d4e941c5ef455ed680513686c286e0183fbd27969ddf62d53c4b239b0f392"
+      },
+      "_hash": "e1da6c46910f3943101ad6dbcf17fa8ee3847943a1a6d47f70dd2824990e38f8"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-019",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "startedAt": "2026-06-11T23:44:57.383Z",
+      "headHash": "61b7b44bb48d01f9afcedb24ed131e249488cbe2",
+      "materialHash": "49a53dca227b347cc1b575d6aefd33e7ca28a566c8efdffb6ca46c89a2140ca7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "5120a7df7e435a59f68912492c89f9cabdccf146e380029f41dfc6fea3278ef7",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "573d4e941c5ef455ed680513686c286e0183fbd27969ddf62d53c4b239b0f392"
+      },
+      "_hash": "a2a38926fa4e52028fc91cf8797ad8e0a2e2b22e6453e2781b64a65f96a547b0"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-020",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "startedAt": "2026-06-11T23:44:59.928Z",
+      "headHash": "61b7b44bb48d01f9afcedb24ed131e249488cbe2",
+      "materialHash": "49a53dca227b347cc1b575d6aefd33e7ca28a566c8efdffb6ca46c89a2140ca7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "5120a7df7e435a59f68912492c89f9cabdccf146e380029f41dfc6fea3278ef7",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "573d4e941c5ef455ed680513686c286e0183fbd27969ddf62d53c4b239b0f392"
+      },
+      "_hash": "f0d0e4e3445a95fb3e81a03f70c1d20ae67524a6e76076af44a60db66d1fe82e"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-021",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "startedAt": "2026-06-11T23:45:16.073Z",
+      "headHash": "61b7b44bb48d01f9afcedb24ed131e249488cbe2",
+      "materialHash": "49a53dca227b347cc1b575d6aefd33e7ca28a566c8efdffb6ca46c89a2140ca7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "5120a7df7e435a59f68912492c89f9cabdccf146e380029f41dfc6fea3278ef7",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "573d4e941c5ef455ed680513686c286e0183fbd27969ddf62d53c4b239b0f392"
+      },
+      "_hash": "cdeadffb3ce7b5f05e0106cbfa2f05b2832fcbcf80c3ae1ff0e5284a3c649664"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-022",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "startedAt": "2026-06-11T23:48:06.648Z",
+      "headHash": "e4c433241a86c9e6af1681b1f5a06c9b3548c100",
+      "materialHash": "49a53dca227b347cc1b575d6aefd33e7ca28a566c8efdffb6ca46c89a2140ca7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "5120a7df7e435a59f68912492c89f9cabdccf146e380029f41dfc6fea3278ef7",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8"
+        ],
+        "bindingHash": "573d4e941c5ef455ed680513686c286e0183fbd27969ddf62d53c4b239b0f392"
+      },
+      "_hash": "736a4b643ee502812dfabadabda59b2eec0b15a8d3753f3eee49c25479d00fb3"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-023",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "startedAt": "2026-06-11T23:53:02.144Z",
+      "headHash": "381dca2cb2ebcb289020af72c022041dce7f7ab0",
+      "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "9cb967c5476478676f34b59a32e0bacd497dc16ed785c77533d14aa87e892235",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8",
+          "feff4c6ec99f1c5c5b865e8f6993b2dd88e0fe06d627d565d65af715fac9a902"
+        ],
+        "bindingHash": "93849ce03c2078d0d74bfad7383e791906d77cf5837c682c1ba93451bafe8d09"
+      },
+      "_hash": "baac2625f870bf308a0d8127cb419b621d4649bbe8eea7ef23b96586b5606fa4"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-024",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "startedAt": "2026-06-11T23:53:02.206Z",
+      "headHash": "381dca2cb2ebcb289020af72c022041dce7f7ab0",
+      "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "9cb967c5476478676f34b59a32e0bacd497dc16ed785c77533d14aa87e892235",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8",
+          "feff4c6ec99f1c5c5b865e8f6993b2dd88e0fe06d627d565d65af715fac9a902"
+        ],
+        "bindingHash": "93849ce03c2078d0d74bfad7383e791906d77cf5837c682c1ba93451bafe8d09"
+      },
+      "_hash": "0c00aebcdb1ad0350d2b1c8b0294d891c6877762281e05718e0270ff3af225c4"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-025",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "startedAt": "2026-06-11T23:53:02.222Z",
+      "headHash": "381dca2cb2ebcb289020af72c022041dce7f7ab0",
+      "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "9cb967c5476478676f34b59a32e0bacd497dc16ed785c77533d14aa87e892235",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8",
+          "feff4c6ec99f1c5c5b865e8f6993b2dd88e0fe06d627d565d65af715fac9a902"
+        ],
+        "bindingHash": "93849ce03c2078d0d74bfad7383e791906d77cf5837c682c1ba93451bafe8d09"
+      },
+      "_hash": "050ee335938bd0362ec841b1a8cbcf06664f0a652ce42ca57f8fbe246b0a0fe8"
+    },
+    {
+      "reviewRunId": "B-5cc7:RR-026",
+      "storyId": "B-5cc7",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "startedAt": "2026-06-11T23:53:03.106Z",
+      "headHash": "381dca2cb2ebcb289020af72c022041dce7f7ab0",
+      "materialHash": "4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "96fc9f1decc980c3cb2d50c415ef454ff4f677e42c43be5cdd92977f1c029bdb",
+        "diffPackHash": "9cb967c5476478676f34b59a32e0bacd497dc16ed785c77533d14aa87e892235",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f0ab55893c35a7918d9e7442357fef0ffcdff5fb16a1aa0e667a0baf4b5cc09",
+          "2f0da84af0366c4c255efdc8a16f08871d4120b95b7306a9bda5fca312a59e03",
+          "49e4c8184599a7b312417b7f1742dbe91b5c77e3227546ee35bf081b644e7f12",
+          "64cdef9dd8cc30b4c77ed4f1abb86a5741e3b3f031308697899c6bd0fb3230d0",
+          "9f3bd3015623d8b6ec2b15c07fe783332553151c34658c913a563bc80e32947e",
+          "ad906c34df13caa0c1e1b17a82f5a2c2958b05c7f9fefea80e3d210ffcf88117",
+          "b05bb7db182bc7dc2e99fa1d7be6f5400bdd39bba985213613312c082f93aae7",
+          "b2ee30aa5f2ddc659b68a8f3ee6edcf2c9359cb098c9b342f6020a7fa6e7c3c3",
+          "d16dec648f675b07d6f32c47cdc7a404772f92048d479d21febbcdadfdde6a7b",
+          "dd1c4ad45fcbf2b025bf5d0d52140f25de9835e4ef42d5757cc9c06eafea0b3b",
+          "e368e1b680754940f24bb7076187a9e2feeed90c2c99a6b267dfb2396376c4cc",
+          "e932387a85d1d15ecbe91740d8b80edbaefe155562b3186857fcac65a56bdff8",
+          "feff4c6ec99f1c5c5b865e8f6993b2dd88e0fe06d627d565d65af715fac9a902"
+        ],
+        "bindingHash": "93849ce03c2078d0d74bfad7383e791906d77cf5837c682c1ba93451bafe8d09"
+      },
+      "_hash": "49e46de4b85b555552687adbc94fe2031b81dd24d59f28b81c50fb41c1043b6e"
+    }
+  ]
+}

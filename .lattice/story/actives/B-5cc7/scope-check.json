@@ -1,0 +1,66 @@
+{
+  "storyId": "B-5cc7",
+  "checkedAt": "2026-06-11T22:57:54.192Z",
+  "features": [
+    {
+      "feature": "Bucket A dev-memory tracked code hunk only",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/stash-split-execution-plan.md#Bucket A"
+    },
+    {
+      "feature": "Focused dev-memory legacy read fallback smoke coverage",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/dev-memory.md"
+    },
+    {
+      "feature": "Stashed .lattice/dev-memory/experience.jsonl remains unrestored and uncommitted",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/stash-split-execution-plan.md#Non-Negotiable Rules"
+    },
+    {
+      "feature": "Bucket B runtime artifact cleanup",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "separate future Lattice story per stash split plan",
+      "source": "docs/requirements/decisions/stash-split-execution-plan.md#Bucket B"
+    },
+    {
+      "feature": "Bucket C smoke expectation repairs",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "requires separate failing repro story",
+      "source": "docs/requirements/decisions/stash-split-execution-plan.md#Bucket C"
+    },
+    {
+      "feature": "Bucket D Layer 4 documentation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "separate documentation story after current catalog recalculation",
+      "source": "docs/requirements/decisions/stash-split-execution-plan.md#Bucket D"
+    },
+    {
+      "feature": "Bucket E planner hash hunk",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "deferred until focused failing repro exists",
+      "source": "docs/requirements/decisions/stash-split-execution-plan.md#Bucket E"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5091dc8bdfcc5952105bff1ea1260a5cdf6584dba6746baaad86d6b21a9256b1",
+  "openQuestions": []
+}

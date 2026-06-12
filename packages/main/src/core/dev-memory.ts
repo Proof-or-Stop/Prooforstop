@@ -6,6 +6,7 @@
  *   - Paths: project  → <projectRoot>/.lattice/dev-memory/experience.jsonl
  *            global   → ~/.lattice/dev-memory/experience.jsonl
  *            story    → <storyDir>/<storyId>/dev-memory-candidates.jsonl
+ *            legacy   → read-only fallback from matching .koala/dev-memory files
  *   - Non-authoritative: entries CANNOT satisfy Koala gate evidence
  *   - No .omx, no structured schema that looks like gate artifacts
  *   - Deterministic: path resolution works without Koala daemon running
@@ -22,7 +23,7 @@ import { join, resolve } from 'path';
 import { homedir } from 'os';
 import { createHash } from 'crypto';
 import { hasProjectConfigFile } from './config.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -147,14 +148,51 @@ export function resolveProjectMemoryPath(projectRoot?: string): string {
   return join(root, LATTICE_DIR, 'dev-memory', 'experience.jsonl');
 }
 
+export function resolveLegacyProjectMemoryPath(projectRoot?: string): string {
+  const root = projectRoot || resolveProjectRoot();
+  return join(root, LEGACY_KOALA_DIR, 'dev-memory', 'experience.jsonl');
+}
+
+function uniquePaths(paths: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const path of paths) {
+    if (seen.has(path)) continue;
+    seen.add(path);
+    result.push(path);
+  }
+  return result;
+}
+
+export function resolveProjectMemoryReadPaths(projectRoot?: string): string[] {
+  return uniquePaths([
+    resolveProjectMemoryPath(projectRoot),
+    resolveLegacyProjectMemoryPath(projectRoot),
+  ]);
+}
+
 /**
  * Resolve the global experience file path.
  * Uses LATTICE_GLOBAL_MEMORY_DIR env override (useful in tests).
  */
 export function resolveGlobalMemoryPath(): string {
-  const override = process.env.LATTICE_GLOBAL_MEMORY_DIR || process.env.KOALA_GLOBAL_MEMORY_DIR;
+  const override = process.env.LATTICE_GLOBAL_MEMORY_DIR;
   if (override) return join(override, 'experience.jsonl');
   return join(homedir(), LATTICE_DIR, 'dev-memory', 'experience.jsonl');
+}
+
+export function resolveLegacyGlobalMemoryPath(): string {
+  const override = process.env.KOALA_GLOBAL_MEMORY_DIR;
+  if (override && !process.env.LATTICE_GLOBAL_MEMORY_DIR) return join(override, 'experience.jsonl');
+  return join(homedir(), LEGACY_KOALA_DIR, 'dev-memory', 'experience.jsonl');
+}
+
+export function resolveGlobalMemoryReadPaths(): string[] {
+  if (process.env.LATTICE_GLOBAL_MEMORY_DIR) return [resolveGlobalMemoryPath()];
+  return uniquePaths([
+    resolveGlobalMemoryPath(),
+    resolveLegacyGlobalMemoryPath(),
+  ]);
 }
 
 /**
@@ -205,6 +243,27 @@ export function readEntries(filePath: string): DevMemoryEntry[] {
     }
   }
   return results;
+}
+
+export function readEntriesFromPaths(filePaths: string[]): DevMemoryEntry[] {
+  const seen = new Set<string>();
+  const entries: DevMemoryEntry[] = [];
+  for (const filePath of filePaths) {
+    for (const entry of readEntries(filePath)) {
+      if (seen.has(entry.id)) continue;
+      seen.add(entry.id);
+      entries.push(entry);
+    }
+  }
+  return entries;
+}
+
+export function readProjectMemoryEntries(projectRoot?: string): DevMemoryEntry[] {
+  return readEntriesFromPaths(resolveProjectMemoryReadPaths(projectRoot));
+}
+
+export function readGlobalMemoryEntries(): DevMemoryEntry[] {
+  return readEntriesFromPaths(resolveGlobalMemoryReadPaths());
 }
 
 export function appendEntry(filePath: string, entry: DevMemoryEntry): void {
@@ -361,11 +420,8 @@ export interface PreflightResult {
 }
 
 export function buildPreflightPack(opts: PreflightOptions): PreflightResult {
-  const projectPath = resolveProjectMemoryPath(opts.projectRoot);
-  const globalPath = resolveGlobalMemoryPath();
-
-  const projectEntries = readEntries(projectPath);
-  const globalEntries = readEntries(globalPath);
+  const projectEntries = readProjectMemoryEntries(opts.projectRoot);
+  const globalEntries = readGlobalMemoryEntries();
 
   // Merge, project-scoped first, global next; deduplicate by id
   const seen = new Set<string>();

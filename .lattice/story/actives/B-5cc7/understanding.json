@@ -1,0 +1,28 @@
+{
+  "task": "Execute only Bucket A from the stash split plan: dev-memory legacy read fallback.",
+  "outcome": "User runs the focused Bucket A verification and sees: dev-memory legacy read fallback smoke passed; validation passes; git status shows no .lattice/dev-memory/experience.jsonl restored, staged, or tracked; Authority remains non-production.",
+  "facts": [
+    "Pinned stash object is c4dcc3aff95fd999712d7f19dcf856f791cf0d05.",
+    "Bucket A tracked hunk touches packages/main/src/core/dev-memory.ts and packages/main/src/handlers/dev-memory.ts.",
+    "The stash also contains .lattice/dev-memory/experience.jsonl as untracked runtime data, which must not be restored or committed.",
+    "Existing dev-memory design says entries are non-authoritative and cannot satisfy gate evidence.",
+    "LATTICE_DIR and LEGACY_KOALA_DIR constants already exist in lattice-paths.ts."
+  ],
+  "constraints": [
+    "Do not run git stash pop or whole-stash apply.",
+    "Restore only approved Bucket A tracked paths by explicit path.",
+    "Do not restore, stage, or commit .lattice/dev-memory/experience.jsonl.",
+    "Do not touch .omx or OMX-derived paths.",
+    "Do not claim Authority production receipt from local CLI validation.",
+    "Only fix real correctness issues and keep logic consistent."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+    "docs/requirements/decisions/stash-split-execution-plan.md",
+    "docs/requirements/decisions/dev-memory.md"
+  ],
+  "timestamp": "2026-06-11T22:56:49.039Z"
+}

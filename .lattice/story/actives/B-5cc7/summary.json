@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5cc7",
+  "changes": "Added dev-memory legacy read fallback using canonical .lattice writes and legacy read paths for .koala, updated global path handling, parallel-wave experienceRefs, and focused smoke and docs updates.",
+  "usage": "Run existing lattice dev_memory_* commands; migrated .koala dev-memory remains read-only context, and run node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js to verify behavior.",
+  "expectedOutcome": "Lattice can consume migrated .koala project and global dev-memory as advisory context without restoring legacy files or writing back to .koala paths.",
+  "actualTranscript": "build and smoke passed, lattice validate --story=B-5cc7 --json passed with allPass true and 9 of 9 coverage, evidence freshness was fresh, and no .koala restore or write happened during verification.",
+  "outcomeDiff": "No functional gap from expected: behavior matched expected scope with acknowledged scope-expansion items and review-compliant evidence.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No production authority receipt is claimed; dev-memory remains non-authoritative context only.",
+  "pitfalls": "Do not use KOALA_GLOBAL_MEMORY_DIR as a write override. Avoid raw readEntries for dev-memory consumers. Keep .lattice as canonical writable path and keep authority boundaries explicit.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 70662
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 31002
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 178894
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 1223952
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 2224472
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 709678
+    }
+  },
+  "totalDurationMs": 4438662,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T00:08:09.840Z",
+  "updatedAt": "2026-06-12T00:08:09.840Z"
+}

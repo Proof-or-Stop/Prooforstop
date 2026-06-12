@@ -1,0 +1,123 @@
+{
+  "findings": [
+    {
+      "id": "B-5cc7:F-001",
+      "desc": "docs/requirements/decisions/dev-memory.md still presents .koala/dev-memory and .koala/story paths as the storage contract, but B-5cc7 implementation now makes .lattice/dev-memory the canonical read/write path and adds .koala only as a read-only legacy fallback. The docs oracle therefore no longer describes the implemented path semantics; update the decision doc to state .lattice canonical storage plus .koala legacy read fallback, or adjust implementation to match the documented .koala contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-11T23:08:45.663Z",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "reviewRunId": "B-5cc7:RR-008",
+      "_hash": "c20bbdafc64db630586d1f515b458001fabd0c0e26696a02dea33d7ebd0c0a4d",
+      "files": [
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/handlers/dev-memory.ts"
+      ],
+      "resolvedReason": "Resolved by commit a24a78aa updating docs/requirements/decisions/dev-memory.md to make .lattice the canonical dev-memory/story-candidate storage, restrict .koala to read-only legacy fallback, rename commands to lattice dev_memory_*, and retain non-authoritative gateEvidence:false / authority:non_authoritative semantics. Verified with rg checks for stale Koala/.koala command/path claims and git diff --check.",
+      "resolvedAt": "2026-06-11T23:21:11.284Z"
+    },
+    {
+      "id": "B-5cc7:F-002",
+      "desc": "Global dev-memory writes can still target the legacy KOALA_GLOBAL_MEMORY_DIR path, violating the story contract that .lattice is canonical writable storage and .koala is read-only fallback. docs/requirements/decisions/dev-memory.md:30-31 says legacy .koala files are read-only fallback and writes must not append to .koala. But packages/main/src/core/dev-memory.ts:178-181 resolves the writable global path from LATTICE_GLOBAL_MEMORY_DIR || KOALA_GLOBAL_MEMORY_DIR, and packages/main/src/handlers/dev-memory.ts:79-87 plus 214-226 append global capture/promotion through resolveGlobalMemoryPath. In a migrated shell with only KOALA_GLOBAL_MEMORY_DIR set, dev_memory_capture --scope=global or dev_memory_finish --scope=global appends to the legacy location instead of canonical ~/.lattice storage.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T23:25:08.200Z",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "reviewRunId": "B-5cc7:RR-010",
+      "_hash": "f53a7c1142d132b313b00e1a4e8c42f64969a0965cb2dd57c42e31e73644b930",
+      "files": [
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/handlers/dev-memory.ts",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "resolvedReason": "Resolved by commit 8f59161: resolveGlobalMemoryPath now only honors LATTICE_GLOBAL_MEMORY_DIR for writable global storage and otherwise uses canonical ~/.lattice/dev-memory/experience.jsonl. KOALA_GLOBAL_MEMORY_DIR remains available only through resolveLegacyGlobalMemoryPath / resolveGlobalMemoryReadPaths as read fallback. Focused smoke now asserts KOALA_GLOBAL_MEMORY_DIR alone cannot redirect the writable global path and that read paths remain current-first plus legacy fallback. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "resolvedAt": "2026-06-11T23:30:33.940Z"
+    },
+    {
+      "id": "B-5cc7:F-003",
+      "desc": "concept-cleanup: dev-memory legacy read fallback incomplete: packages/main/src/core/lattice-parallel-wave.ts still builds experienceRefs with readEntries(resolveProjectMemoryPath(...)) and readEntries(resolveGlobalMemoryPath()), bypassing readProjectMemoryEntries/readGlobalMemoryEntries. That read-only consumer therefore ignores legacy .koala project/global fallback and KOALA_GLOBAL_MEMORY_DIR fallback promised by F-002/docs.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T23:33:09.439Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-017",
+      "_hash": "05a31cf158fa6b8697fa8e1de1a619fd78923299b9deaa1a26e0c43be72fe8e6",
+      "files": [
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "resolvedReason": "Resolved by commit bf001e43: lattice-parallel-wave experienceRefs now use readProjectMemoryEntries/readGlobalMemoryEntries so parallel dispatch/report include the same .lattice canonical plus .koala read-only legacy fallback as other dev-memory read consumers. Scope expansion was explicitly acknowledged in scope-contract.json because F-003 identified this file as a necessary dev-memory projection consumer. Verified by npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "resolvedAt": "2026-06-11T23:43:01.548Z"
+    },
+    {
+      "id": "B-5cc7:F-004",
+      "desc": "docs/requirements/decisions/dev-memory.md documents the dev-memory user-facing commands as lattice dev_memory_* (lines 75-96), matching the F-001/F-002 review expectation. The implementation mostly registers dev_memory_* under the lattice CLI, but dev_memory_start still emits legacy koala dev_memory_finish reminders in packages/main/src/handlers/dev-memory.ts:310-313. That leaves the decision doc and implementation guidance inconsistent on the required command prefix.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-11T23:33:13.894Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-014",
+      "_hash": "cbe1e24dade0eefcec4eed69c4b69bde90f86722fa298e9205825b49bc9fd804",
+      "files": [
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/handlers/dev-memory.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Resolved by commit bf001e43: dev_memory_start user-facing reminders now use lattice dev_memory_finish, lattice dev_memory_finish --scope=global, and lattice dev_memory_finish --storyId=<id>, matching docs/requirements/decisions/dev-memory.md. Focused smoke asserts lattice reminder is present and koala dev_memory_finish is absent.",
+      "resolvedAt": "2026-06-11T23:43:16.267Z"
+    },
+    {
+      "id": "B-5cc7:F-005",
+      "desc": "Quality consistency confirmation of existing F-004: docs/requirements/decisions/dev-memory.md documents the user-facing dev-memory commands as lattice dev_memory_* after the .lattice canonical path update, but packages/main/src/handlers/dev-memory.ts:310-313 still tells users to run koala dev_memory_finish. That leaves the changed handler guidance inconsistent with the canonical Lattice command prefix and the F-001/F-002 resolution docs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T23:35:52.958Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-015",
+      "_hash": "8cc521fe95a6853264c64abc5c2199c3914ee234c34ffed3969af64b87021935",
+      "files": [
+        "packages/main/src/handlers/dev-memory.ts",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "resolvedReason": "Resolved with the same concrete fix as B-5cc7:F-004 in commit bf001e43: dev_memory_start no longer emits koala dev_memory_finish guidance and the smoke test verifies the lattice command prefix.",
+      "resolvedAt": "2026-06-11T23:42:26.611Z"
+    },
+    {
+      "id": "B-5cc7:F-006",
+      "desc": "B-5cc7:F-003 runtime path is fixed, but the parallel-wave truth-source doc still describes the old .koala-only dev-memory boundary. packages/main/src/core/lattice-parallel-wave.ts:313-330 now builds experienceRefs from readProjectMemoryEntries/readGlobalMemoryEntries, and docs/requirements/decisions/dev-memory.md:25-31 says .lattice is canonical read/write with .koala read-only legacy fallback. However docs/requirements/decisions/lattice-parallel-wave.md:152-157 still says parallel dispatch/report reads project memory from <projectRoot>/.koala/dev-memory/experience.jsonl and global memory from ~/.koala/dev-memory/experience.jsonl. That contradicts the implemented contract and the canonical dev-memory decision, so future consumers of the parallel-wave requirement would reimplement F-003 incorrectly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T23:46:53.790Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-020",
+      "_hash": "fdb7c65358d03553d237a1c3556e97d91768c227a34042d0a6daf60fa62126bb",
+      "files": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/core/dev-memory.ts"
+      ],
+      "resolvedReason": "Resolved by commit ca87d7b: docs/requirements/decisions/lattice-parallel-wave.md now documents .lattice canonical dev-memory reads, .koala read-only legacy fallback, KOALA_GLOBAL_MEMORY_DIR legacy global fallback, and non-authoritative experienceRefs fields consistent with dev-memory.md and the lattice-parallel-wave implementation. Scope expansion was explicitly acknowledged for the decision doc.",
+      "resolvedAt": "2026-06-11T23:51:43.742Z"
+    }
+  ]
+}
