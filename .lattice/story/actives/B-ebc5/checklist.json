@@ -10,9 +10,9 @@
         "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T18:48:24.646Z",
-      "endTime": null,
+      "endTime": "2026-06-12T18:50:42.515Z",
       "userSees": "A new decision document explains how to resolve the two signed-workspace gaps and the customerKeyRef future/blocked gap without false closure.",
       "files": {
         "modify": [],
@@ -40,7 +40,39 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"GAP-SW-UNRESOLVED-1|GAP-SW-NO-BINDING-1|GAP-L4-CUSTOMER-KEY-1|Required Work Split|Recommended Execution Order\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "The execution plan names all three current high gaps and assigns them to bounded follow-up workstreams.",
+          "headHash": "b2b7ae047a4d1b41b8dbfaa420d64e7ef76cd039",
+          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
+          "timestamp": "2026-06-12T18:50:42.555Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"future/blocked|Path B1: Keep It Future/Blocked|customerKeyRef remains a future Layer 4 requirement|Forbidden result wording\" docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves customerKeyRef as future/blocked unless a separate Layer4 implementation story is opened.",
+          "headHash": "b2b7ae047a4d1b41b8dbfaa420d64e7ef76cd039",
+          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
+          "timestamp": "2026-06-12T18:50:42.584Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "After adding the document, gap_analyze reports the original 3 high / 0 medium gaps, proving the plan did not create an extra high gap or claim false closure.",
+          "headHash": "b2b7ae047a4d1b41b8dbfaa420d64e7ef76cd039",
+          "materialHash": "2fe25cfe95b9e5d8068f7dade6e83986f9e5641d116a604f94edfb654d0277fd",
+          "timestamp": "2026-06-12T18:50:42.611Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
