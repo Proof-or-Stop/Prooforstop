@@ -117,9 +117,9 @@
         "docs/requirements/decisions/lattice-authority-receipt-contract.md",
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-12T11:13:58.668Z",
-      "endTime": null,
+      "endTime": "2026-06-12T11:14:30.462Z",
       "verificationIntent": {
         "happy": [
           {
@@ -163,7 +163,59 @@
           "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
           "packages/main/src/tasks/baseline-local-certification-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke covers direct REVIEW review_run_start success, reviewRunId output, persisted run metadata, headHash, and materialHash.",
+          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:14:30.511Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke proves legacy REVIEW currentReviewRound repair happens only after snapshot readiness; non-git and no-commit cases leave story and review-runs unchanged.",
+          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:14:30.552Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Field regression covers wrong cwd and ctx.root/worktree mismatch; review-loop smoke confirms placeholder rollback hash and empty trigger validation still pass.",
+          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:14:30.591Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:baseline-local-certification-smoke",
+          "result": "pass",
+          "note": "Authority boundary, gate-consumption, and baseline-local-certification smoke passed; local host output and local review evidence cannot set productionDone, receiptVerified, or authorityChanged.",
+          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:14:30.631Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "review_run_start diagnostics remain local signed REVIEW evidence wording only, while Authority boundary smoke pins that no Authority Server gate receipt or production completion is inferred from local output.",
+          "headHash": "b2de646b7f068b5f2954d7e036c2a138d6cdb478",
+          "materialHash": "ad4d2dc3028df7479e0a2a7e3ba6c1e9d677fb14573f4106c44b380f07ca0def",
+          "timestamp": "2026-06-12T11:14:30.675Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -193,6 +245,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start recording regression coverage evidence after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-12T11:14:30.462Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Regression coverage committed in 479e8982 and verified with required smoke commands."
     }
   ]
 }
