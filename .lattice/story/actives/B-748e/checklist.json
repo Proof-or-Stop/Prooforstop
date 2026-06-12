@@ -8,9 +8,9 @@
         "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
         "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-12T19:44:28.042Z",
       "userSees": "lattice gap_analyze no longer lists decisions/review-run-start-signed-workspace-resolution-execution-plan.md:262 as a high gap.",
       "files": {
         "modify": [
@@ -249,6 +249,17 @@
           "timestamp": "2026-06-12T19:44:22.353Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-12T19:44:28.042Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Code committed in 11b5b21f1 and verification evidence covers CHK-001 happy/edge/adversarial intents."
     }
   ]
 }
