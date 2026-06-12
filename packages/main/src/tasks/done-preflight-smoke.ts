@@ -17,7 +17,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +25,10 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import {
+  upsertAuthorityGateReceiptRef,
+  type AuthorityGateDecisionReceiptRef,
+} from '../core/authority-gate-receipts.js';
 import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -47,9 +51,23 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): string {
+function runKoalaFromCwd(
+  cwd: string,
+  command: string,
+  args: Record<string, unknown>,
+  envOverride: Record<string, string | undefined> = {},
+): string {
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
+  for (const key of Object.keys(env)) {
+    if (key.startsWith('LATTICE_AUTHORITY_') || key.startsWith('KOALA_AUTHORITY_')) {
+      delete env[key];
+    }
+  }
+  for (const [key, value] of Object.entries(envOverride)) {
+    if (value === undefined) delete env[key];
+    else env[key] = value;
+  }
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd,
     env,
@@ -69,6 +87,18 @@ function runKoalaFromCwdExpectFail(cwd: string, command: string, args: Record<st
     ].join('\n');
   }
   assert.fail(`${command} should have failed`);
+}
+
+function readIfExists(path: string): string {
+  return existsSync(path) ? readFileSync(path, 'utf-8') : '';
+}
+
+function gitStatus(root: string): string {
+  return execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
 }
 
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
@@ -112,6 +142,59 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   });
 }
 
+function writePassingTestEvidence(store: StoryStore, root: string, storyId: string): void {
+  store.writeTestEvidence(storyId, {
+    command: 'done_closure read-only smoke',
+    output: JSON.stringify({ allPass: true, summary: 'done_closure read-only smoke passed' }),
+    result: 'PASS',
+    timestamp: '2026-06-04T10:00:00.000Z',
+    headHash: currentGitHead(root),
+    materialHash: currentMaterialHash(root),
+    verificationCoverage: {
+      total: 0,
+      required: 0,
+      covered: 0,
+      missingRequired: 0,
+      entries: [],
+    },
+  });
+}
+
+function authorityDoneRefFor(root: string, storyId: string): AuthorityGateDecisionReceiptRef {
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  assert.ok(headHash, 'smoke repo must have git HEAD');
+  assert.ok(materialHash, 'smoke repo must have material hash');
+  return {
+    receiptId: 'AR-DONE-CLOSURE',
+    receiptKind: 'gate_decision',
+    classification: 'production-gate-decision',
+    authorityUrl: 'https://authority.example',
+    authorityKeyId: 'server-key-1',
+    authorityPublicKeyDigest: 'sha256:key',
+    decisionId: 'GD-DONE-CLOSURE',
+    stateVersion: 7,
+    gateInputDigest: 'sha256:input',
+    decisionDigest: 'sha256:decision',
+    decisionVerdict: 'pass',
+    storyId,
+    targetPhase: 'DONE',
+    headHash,
+    materialHash,
+    policyMode: 'light',
+    authorityMode: 'enforce',
+    producerRunIds: ['run-producer-1'],
+    verifierRunIds: ['run-verifier-1'],
+    runnerSessionIds: ['session-1'],
+    evidenceDigests: ['sha256:evidence-1'],
+    verifiedAt: new Date().toISOString(),
+    verifiedBy: 'lattice authority receipt verify',
+    eligibleGates: ['DONE'],
+    status: 'active',
+    consumptionEvents: [],
+  };
+}
+
 /**
  * Build a minimal TEST-phase story with a linked worktree and DONE-gate
  * evidence committed on the story branch. Main stays on branch main throughout
@@ -120,6 +203,8 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
 function buildDoneReadyStoryWithLinkedWorktree(
   root: string,
   storyId: string,
+  workflowProfile: 'light' | 'balanced' = 'light',
+  writeClosureEvidence = true,
 ): { worktreePath: string; store: StoryStore } {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -127,7 +212,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
     storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
-    workflow: { profile: 'light' },
+    workflow: { profile: workflowProfile },
   }, null, 2));
   write(root, 'README.md', `done-preflight-smoke ${storyId}\n`);
   write(root, '.gitignore', '.worktrees/\n.linked-worktrees/\n.lattice/activity.jsonl\n');
@@ -180,11 +265,22 @@ function buildDoneReadyStoryWithLinkedWorktree(
 
   resetConfigCache();
   const worktreeStore = new StoryStore(worktreePath);
-  writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
-  git(worktreePath, ['add', '.']);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+  if (writeClosureEvidence) {
+    writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+  }
 
   return { worktreePath, store };
+}
+
+function buildTestPassedStoryMissingClosureArtifacts(root: string, storyId: string): { worktreePath: string } {
+  const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId, 'balanced', false);
+  const worktreeStore = new StoryStore(worktreePath);
+  writePassingTestEvidence(worktreeStore, worktreePath, storyId);
+  git(worktreePath, ['add', '.']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'test evidence only']);
+  return { worktreePath };
 }
 
 // ---------------------------------------------------------------------------
@@ -367,6 +463,152 @@ function assertDoneRejectsWhenMainIsDirty(): void {
   }
 }
 
+function assertDoneClosureIsReadOnlyAndNonAuthority(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-readonly-'));
+  try {
+    const storyId = 'B-done-closure-readonly';
+    const { worktreePath } = buildTestPassedStoryMissingClosureArtifacts(root, storyId);
+    const processEventsPath = join(worktreePath, '.lattice', 'story', 'actives', storyId, 'process-events.jsonl');
+
+    // This allowed story-metadata dirt used to be the risky path: the DONE
+    // oracle's default dirty gate writer can append process-events for
+    // non-blocking dirty categories. done_closure must project the same oracle
+    // rows with an explicit no-write audit option.
+    write(worktreePath, `.lattice/story/actives/${storyId}/readonly-dirty.json`, '{}\n');
+    const beforeStatus = gitStatus(worktreePath);
+    const beforeProcessEvents = readIfExists(processEventsPath);
+
+    const raw = runKoalaFromCwd(worktreePath, 'done_closure', { storyId, json: true });
+    const result = JSON.parse(raw) as {
+      schemaVersion: string;
+      readOnly: boolean;
+      canAttemptDone: boolean;
+      blockers: Array<{ id: string; status: string }>;
+      localNonAuthorityAudit: { status: string };
+      authorityServerPath: { receiptVerified: boolean; mayClaimAuthorityDone: boolean; receiptRefs: string[] };
+    };
+    const byId = new Map(result.blockers.map((row) => [row.id, row]));
+
+    assert.equal(result.schemaVersion, 'lattice.done_closure.v1');
+    assert.equal(result.readOnly, true);
+    assert.equal(result.canAttemptDone, false, 'TEST PASS is not DONE-ready while closure rows still block');
+    assert.equal(byId.get('test-evidence')?.status, 'pass');
+    assert.equal(byId.get('delivery-check')?.status, 'fail', 'missing delivery-check must remain a DONE blocker');
+    assert.equal(byId.get('story-summary')?.status, 'fail', 'missing summary must remain a DONE blocker');
+    assert.equal(result.localNonAuthorityAudit.status, 'blocked');
+    assert.equal(result.authorityServerPath.receiptVerified, false);
+    assert.equal(result.authorityServerPath.mayClaimAuthorityDone, false);
+    assert.deepEqual(result.authorityServerPath.receiptRefs, []);
+    assert.equal(JSON.stringify(result).includes('"authorityDone":true'), false);
+    assert.equal(JSON.stringify(result).includes('"productionDone":true'), false);
+    assert.equal(JSON.stringify(result).includes('"fullAuthorityDone":true'), false);
+
+    assert.equal(readIfExists(processEventsPath), beforeProcessEvents, 'done_closure must not append process-events');
+    assert.equal(gitStatus(worktreePath), beforeStatus, 'done_closure must leave git status byte-identical');
+    console.log('  ✓ done_closure smoke: PASS — read-only projection and non-Authority defaults');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertDoneClosureAuthorityEnforceWithoutReceiptBlocksReadiness(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-authority-missing-'));
+  try {
+    const storyId = 'B-done-closure-authority-missing';
+    const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
+    const processEventsPath = join(worktreePath, '.lattice', 'story', 'actives', storyId, 'process-events.jsonl');
+    const beforeStatus = gitStatus(worktreePath);
+    const beforeProcessEvents = readIfExists(processEventsPath);
+
+    const raw = runKoalaFromCwd(worktreePath, 'done_closure', { storyId, json: true }, {
+      LATTICE_AUTHORITY_MODE: 'enforce',
+    });
+    const result = JSON.parse(raw) as {
+      readOnly: boolean;
+      canAttemptDone: boolean;
+      blockers: Array<{ id: string; status: string; blocking: boolean }>;
+      localNonAuthorityAudit: { status: string };
+      authorityServerPath: {
+        required: boolean;
+        receiptVerified: boolean;
+        mayClaimAuthorityDone: boolean;
+        receiptRefs: string[];
+      };
+    };
+
+    assert.equal(result.readOnly, true);
+    assert.equal(
+      result.blockers.filter((row) => row.blocking && row.status === 'fail').length,
+      0,
+      'pre-condition: local DONE oracle rows must be clear',
+    );
+    assert.equal(result.localNonAuthorityAudit.status, 'passed');
+    assert.equal(result.authorityServerPath.required, true);
+    assert.equal(result.authorityServerPath.receiptVerified, false);
+    assert.equal(result.authorityServerPath.mayClaimAuthorityDone, false);
+    assert.deepEqual(result.authorityServerPath.receiptRefs, []);
+    assert.equal(result.canAttemptDone, false, 'Authority enforce without verified DONE receipt blocks attempt readiness');
+    assert.equal(readIfExists(processEventsPath), beforeProcessEvents, 'done_closure must not append process-events');
+    assert.equal(gitStatus(worktreePath), beforeStatus, 'done_closure must leave git status byte-identical');
+    console.log('  ✓ done_closure authority enforce: missing receipt blocks canAttemptDone');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertDoneClosureAuthorityEnforceEligibleReceiptReportsVerifiedReadOnly(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-authority-verified-'));
+  try {
+    const storyId = 'B-done-closure-authority-verified';
+    const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
+    const store = new StoryStore(worktreePath);
+    const ref = authorityDoneRefFor(worktreePath, storyId);
+    store.writeAuthorityReceiptRefs(storyId, upsertAuthorityGateReceiptRef(undefined, ref, ref.verifiedAt!));
+
+    const processEventsPath = join(worktreePath, '.lattice', 'story', 'actives', storyId, 'process-events.jsonl');
+    const beforeStatus = gitStatus(worktreePath);
+    const beforeProcessEvents = readIfExists(processEventsPath);
+
+    const raw = runKoalaFromCwd(worktreePath, 'done_closure', { storyId, json: true }, {
+      LATTICE_AUTHORITY_MODE: 'enforce',
+    });
+    const result = JSON.parse(raw) as {
+      readOnly: boolean;
+      canAttemptDone: boolean;
+      blockers: Array<{ id: string; status: string; blocking: boolean }>;
+      localNonAuthorityAudit: { status: string };
+      authorityServerPath: {
+        required: boolean;
+        receiptVerified: boolean;
+        mayClaimAuthorityDone: boolean;
+        receiptRefs: string[];
+      };
+    };
+
+    assert.equal(result.readOnly, true);
+    assert.equal(
+      result.blockers.filter((row) => row.blocking && row.status === 'fail').length,
+      0,
+      'pre-condition: local DONE oracle rows must be clear',
+    );
+    assert.equal(result.localNonAuthorityAudit.status, 'passed');
+    assert.equal(result.authorityServerPath.required, true);
+    assert.equal(
+      result.authorityServerPath.receiptVerified,
+      true,
+      'eligible production gate_decision ref is reported as verified',
+    );
+    assert.deepEqual(result.authorityServerPath.receiptRefs, ['AR-DONE-CLOSURE']);
+    assert.equal(result.authorityServerPath.mayClaimAuthorityDone, false, 'read-only projection must not claim Authority DONE');
+    assert.equal(result.canAttemptDone, true, 'eligible Authority receipt clears the Authority readiness blocker');
+    assert.equal(readIfExists(processEventsPath), beforeProcessEvents, 'done_closure must not append process-events');
+    assert.equal(gitStatus(worktreePath), beforeStatus, 'done_closure must leave git status byte-identical');
+    console.log('  ✓ done_closure authority enforce: eligible receipt is verified without writes');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
@@ -376,5 +618,8 @@ assertDoneSucceedsWhenMainBranchOwnedBySeparateWorktree();
 assertDoneRecoverUsesSeparateRegisteredMainWorktree();
 assertDoneRejectsWhenMainOnWrongBranch();
 assertDoneRejectsWhenMainIsDirty();
+assertDoneClosureIsReadOnlyAndNonAuthority();
+assertDoneClosureAuthorityEnforceWithoutReceiptBlocksReadiness();
+assertDoneClosureAuthorityEnforceEligibleReceiptReportsVerifiedReadOnly();
 
 console.log('✓ done-preflight-smoke passed');

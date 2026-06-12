@@ -1,0 +1,52 @@
+{
+  "storyId": "B-cd1e",
+  "checkedAt": "2026-06-12T17:51:25.260Z",
+  "features": [
+    {
+      "feature": "Expose read-only done_closure runbook from existing DONE oracle rows",
+      "covered_by": "CHK-001; packages/main/src/handlers/done-closure.ts; packages/main/src/cli-engine.ts; packages/main/src/registry.ts; packages/main/src/tasks/flow-stability-smoke.ts; packages/main/src/tasks/done-preflight-smoke.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md#CHK-001"
+    },
+    {
+      "feature": "Separate localNonAuthorityAudit from authorityServerPath without Authority overclaim",
+      "covered_by": "CHK-002; packages/main/src/handlers/done-closure.ts; packages/main/src/tasks/flow-stability-smoke.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md#CHK-002"
+    },
+    {
+      "feature": "Register done_closure as read-only lifecycle observability in command and process-fact contracts",
+      "covered_by": "CHK-003; packages/main/src/core/command-policy.ts; packages/main/src/core/process-fact-levels.ts; packages/main/src/core/process-fact-registry.ts; scripts/verify-process-fact-contract.mjs; packages/main/src/cli-engine.ts; packages/main/src/registry.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md#CHK-003"
+    },
+    {
+      "feature": "Regression coverage proves TEST PASS is not DONE and done_closure remains read-only",
+      "covered_by": "CHK-004; packages/main/src/tasks/flow-stability-smoke.ts; packages/main/src/tasks/done-preflight-smoke.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md#CHK-004"
+    },
+    {
+      "feature": "Avoid unrelated lifecycle or Authority redesign while reusing exported buildDoneChecklist as read-only input",
+      "covered_by": "scope_contract allowedModify set; execution plan Non-Goals; buildDoneChecklist is already exported for import-only reuse",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope_contract_show + execution plan"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "75b1c71ffd7d596daed9b22fb762b09adc33f9c85c6b87b4560f53e7c209ead8",
+  "openQuestions": []
+}

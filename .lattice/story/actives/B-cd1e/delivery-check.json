@@ -1,0 +1,66 @@
+{
+  "storyId": "B-cd1e",
+  "checkedAt": "2026-06-12T18:30:36.929Z",
+  "reviewRound": "2026-06-12T18:21:09.306Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "promise": "done_closure is a conservative read-only DONE closure assistant that reuses DONE oracle/pre-check data, reports branch sync, delivery-check, summary, validation, bug, evidence freshness, declared artifact, and related-doc advisory state, and does not optimize arbitrarily.",
+      "status": "verified",
+      "verifiedBy": "diff + done_closure transcript + lattice validate",
+      "evidence": "packages/main/src/handlers/done-closure.ts calls buildDoneChecklist(...,{auditWriter:null}); sampled node packages/main/dist/cli.js done_closure shows 11 oracle rows including branch-synced-main, delivery-check, story-summary, validation and advisory related-docs; lattice validate --story=B-cd1e --json PASS 12/12."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#Host-Neutral-Authority-Boundary",
+      "promise": "Local CLI closure evidence must not prove or imply Authority receipt acceptance, receiptVerified=true, authorityDone=true, productionDone=true, or fullAuthorityDone=true.",
+      "status": "verified",
+      "verifiedBy": "handler diff + smoke tests + sampled JSON output",
+      "evidence": "done_closure JSON exposes localNonAuthorityAudit and authorityServerPath separately; current output has authorityServerPath.required=false, receiptVerified=false, receiptRefs=[], mayClaimAuthorityDone=false. done-preflight smoke asserts no authorityDone/productionDone/fullAuthorityDone success claim from local evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md + docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "promise": "Authority completion remains receipt-backed and may only be projected from eligible verified production gate_decision receipts in Authority enforce mode.",
+      "status": "verified",
+      "verifiedBy": "authority receipt projection diff + authority gate receipt tests",
+      "evidence": "authorityReceiptProjection uses consumeAuthorityGateReceiptDocument with targetPhase DONE, current head/material hash, acceptable policy modes, and acceptableAuthorityModes [enforce]; authority-gate-receipts and authority-gate-consumption tests passed; missing receipt blocks canAttemptDone in enforce-mode smoke."
+    },
+    {
+      "docPath": "AGENTS.md#流程事实双层契约",
+      "promise": "A new lifecycle/process-fact command must be registered mechanically, not only in prose, and must not become gate evidence unless intended.",
+      "status": "verified",
+      "verifiedBy": "process fact contract verification",
+      "evidence": "done_closure is in CLI schema, DEFAULT_PHASE_TOOLS, read-only command policy, PROCESS_FACT_LEVELS as L0 done-closure-read, and registry wiring. node scripts/verify-process-fact-contract.mjs PASS and asserts no gateEvidence, no produced artifact, no consumer gate."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real-machine transcript exists at .lattice/story/actives/B-cd1e/evidence/transcript-diff.md. Sampled node packages/main/dist/cli.js done_closure {storyId:B-cd1e} shows schema lattice.done_closure.v1, phase TEST, readOnly true, canAttemptDone false, DONE oracle rows in gate order, and expected blockers branch-synced-main, delivery-check, story-summary."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Sampled JSON output contains separate localNonAuthorityAudit:{status:blocked,...} and authorityServerPath:{required:false,receiptVerified:false,receiptRefs:[],mayClaimAuthorityDone:false}; text output states local DONE readiness is not Authority DONE readiness."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node scripts/verify-process-fact-contract.mjs PASS per committed evidence; diff adds done_closure to CLI schema, read-only command policy, PROCESS_FACT_LEVELS L0, and contract assertions that it is not gateEvidence and produces no lifecycle artifact."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/done-preflight-smoke.js PASS per committed evidence. Smoke covers TEST PASS but missing delivery-check/summary not DONE-ready, read-only no process-events/git-status mutation, Authority enforce missing receipt blocks readiness, and eligible receipt reports receiptVerified without mayClaimAuthorityDone."
+    },
+    {
+      "featureId": "CHK-004-flow-stability-smoke",
+      "transcript": "flow-stability-smoke contains a pre-existing unrelated artifact_declare failure before the new B-cd1e assertion, so I did not use it as positive delivery evidence for this story.",
+      "waiverReason": "The failure occurs before the B-cd1e assertion and was already treated as unrelated by reviewers; B-cd1e delivery coverage is supplied by done-preflight-smoke, Authority receipt tests, process-fact contract verification, sampled done_closure output, and fresh lattice validate coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Accepted. The diff delivers the requested read-only done_closure assistant, keeps local Non-authority closure separate from Authority Server receipt semantics, preserves receipt-backed completion rules, includes a committed transcript diff, and has fresh validation coverage. Remaining DONE blockers shown by done_closure are expected lifecycle closure items outside this delivery acceptance: branch sync, summary, and this delivery-check artifact itself before this command."
+  },
+  "_hash": "cf9d365b530b06b1d0dda1165f51f67afe404a0091b4f6d7c991835fe94c1145"
+}

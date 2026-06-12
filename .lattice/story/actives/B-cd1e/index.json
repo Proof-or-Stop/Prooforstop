@@ -4,11 +4,11 @@
   "title": "Implement DONE closure runbook assistant",
   "description": "Implement a host-neutral Lattice CLI DONE closure runbook/assistant capability from docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md. The capability must prevent agents from mistaking TEST PASS for DONE, stay read-only by default, reuse existing DONE pre-check/oracle logic, and keep local Non-authority lifecycle evidence separate from receipt-backed Authority Server proof.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-12T17:40:28.818Z",
   "startedAt": "2026-06-12T17:40:28.818Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T18:53:12.600Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,68 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T17:43:28.512Z",
+      "branch": "story/B-cd1e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T17:53:58.157Z",
+      "branch": "story/B-cd1e",
+      "user": "Harmonygo",
+      "sessionId": "sess-0158be79e88a9af2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T18:08:21.945Z",
+      "branch": "story/B-cd1e",
+      "user": "Harmonygo",
+      "sessionId": "sess-0158be79e88a9af2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T18:12:49.678Z",
+      "branch": "story/B-cd1e",
+      "user": "Harmonygo",
+      "sessionId": "sess-0158be79e88a9af2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T18:21:09.306Z",
+      "branch": "story/B-cd1e",
+      "user": "Harmonygo",
+      "sessionId": "sess-0158be79e88a9af2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-12T18:26:20.974Z",
+      "branch": "story/B-cd1e",
+      "user": "Harmonygo",
+      "sessionId": "sess-0158be79e88a9af2",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-12T18:53:12.600Z",
+      "branch": "story/B-cd1e",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-cd1e",
-    "branch": "story/B-cd1e",
-    "createdAt": "2026-06-12T17:43:11.762Z"
-  }
+  "currentReviewRound": "2026-06-12T18:21:09.306Z"
 }

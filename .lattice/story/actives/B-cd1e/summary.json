@@ -1,0 +1,56 @@
+{
+  "storyId": "B-cd1e",
+  "changes": "Added a read-only Lattice CLI done_closure command that projects DONE readiness from the shared DONE oracle, registers the command as L0/read-only, and covers Authority receipt readiness without writing lifecycle or Authority artifacts.",
+  "usage": "Run node packages/main/dist/cli.js done_closure with storyId B-cd1e, or pass json true for machine-readable localNonAuthorityAudit and authorityServerPath output.",
+  "expectedOutcome": "A TEST story can show validation PASS while still listing real DONE blockers such as delivery-check and story-summary, with Authority completion left unclaimed unless receipt-backed proof is verified.",
+  "actualTranscript": "done_closure reported phase TEST, canAttemptDone false, readOnly true, localNonAuthorityAudit blocked, authorityServerPath receiptVerified false, mayClaimAuthorityDone false, and blockers delivery-check plus story-summary before closure artifacts were written. validate passed with 12 of 12 verification intents covered.",
+  "outcomeDiff": "Actual matches expected: local closure is visible and conservative; no Authority Server completion is claimed from local evidence.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Authority Server receipt verification is not performed by done_closure; it only projects existing verified receipt refs and keeps mayClaimAuthorityDone false. flow-stability-smoke still has a pre-existing unrelated artifact_declare runtime-artifact failure, waived by delivery review.",
+  "pitfalls": "Global lattice may not expose done_closure until this story is merged and built; use the story worktree dist CLI before merge. The command must use the no-write DONE oracle path so read-only runs do not append dirty-gate audit events.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 162851
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16843
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 629645
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1363416
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 579401
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 320385
+    }
+  },
+  "totalDurationMs": 3072541,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T18:31:41.359Z",
+  "updatedAt": "2026-06-12T18:31:41.359Z"
+}

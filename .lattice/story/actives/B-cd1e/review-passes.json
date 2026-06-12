@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-cd1e:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review PASS. Verified process-fact contract passes and done-preflight-smoke passes, including TEST PASS != DONE, read-only no process-event/git-status mutation, local Non-authority vs Authority separation, and no authorityDone/productionDone/fullAuthorityDone overclaim. Local dist done_closure projects B-cd1e from DONE oracle rows with canAttemptDone=false and closure blockers. flow-stability-smoke currently fails before the new B-cd1e assertion on an unchanged artifact_declare runtime-artifact expectation; artifact_declare/runtime-artifact modules were not changed by this story, so treat as pre-existing unrelated risk rather than a B-cd1e coverage blocker.",
+      "createdAt": "2026-06-12T18:11:40.080Z",
+      "reviewRound": "2026-06-12T18:08:21.945Z",
+      "reviewRunId": "B-cd1e:RR-003",
+      "_hash": "d370e5927740a12c90c0c4e4150d60d5033bb44385860550141cee4f04def6f6"
+    },
+    {
+      "id": "B-cd1e:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Re-reviewed commits 090f7caba and a0a87ceb8 plus resolved findings B-cd1e:F-001/B-cd1e:F-002. The original under-reporting in 090f7caba was fixed in a0a87ceb8: done_closure now projects Authority enforce DONE receipt readiness with the same receipt eligibility inputs as runAuthorityReceiptTransitionGate, combines that blocker into canAttemptDone, keeps localNonAuthorityAudit separate from authorityServerPath, and always leaves mayClaimAuthorityDone=false. Verified by source review and node packages/main/dist/tasks/done-preflight-smoke.js passing, including missing-receipt blocks readiness and eligible receipt verifies read-only cases.",
+      "createdAt": "2026-06-12T18:23:59.326Z",
+      "reviewRound": "2026-06-12T18:21:09.306Z",
+      "reviewRunId": "B-cd1e:RR-006",
+      "_hash": "09a299d192912ea97494d3b7c0212d81c45b833747849727448ffc6e4bce3dfe"
+    },
+    {
+      "id": "B-cd1e:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage re-review PASS after Authority DONE receipt readiness fix. Inspected packages/main/src/handlers/done-closure.ts, packages/main/src/tasks/done-preflight-smoke.ts, packages/main/src/tasks/flow-stability-smoke.ts, packages/main/src/core/command-policy.ts, packages/main/src/core/process-fact-levels.ts, scripts/verify-process-fact-contract.mjs. Verified coverage pins TEST PASS != DONE readiness, read-only no lifecycle/process-event/git-status mutation, Authority enforce missing receipt blocks canAttemptDone, eligible production receipt reports receiptVerified while mayClaimAuthorityDone remains false, and done_closure process fact stays L0/readOnly/non-gate-evidence. Reran node packages/main/dist/tasks/done-preflight-smoke.js PASS and npm run test:process-fact-contract PASS. npm run test:flow-stability-smoke still fails at pre-existing unrelated artifact_declare runtime artifact path assertion before the done_closure projection check.",
+      "createdAt": "2026-06-12T18:24:41.648Z",
+      "reviewRound": "2026-06-12T18:21:09.306Z",
+      "reviewRunId": "B-cd1e:RR-008",
+      "_hash": "7ed4e9a57c5a94ff5e1d7671cc8b78ad5bc8ca638204b44e4347149ebe7b0698"
+    },
+    {
+      "id": "B-cd1e:RP-004",
+      "agent": "koala-review-quality",
+      "note": "PASS: Re-reviewed DONE closure runbook quality after Authority DONE receipt readiness fix. Inspected packages/main/src/handlers/done-closure.ts, packages/main/src/core/done-oracle.ts, CLI/policy/process-fact registration, and smoke coverage. Source keeps DONE oracle projection read-only via auditWriter:null, does not persist consumptionEvents, separates localNonAuthorityAudit from authorityServerPath, keeps mayClaimAuthorityDone=false, and registers done_closure as L0/readOnly/non-gate evidence. Verified npx tsc --noEmit -p packages/main/tsconfig.json, npm run test:process-fact-contract, and local core CLI node packages/main/dist/cli.js done_closure JSON/status unchanged.",
+      "createdAt": "2026-06-12T18:25:42.211Z",
+      "reviewRound": "2026-06-12T18:21:09.306Z",
+      "reviewRunId": "B-cd1e:RR-007",
+      "_hash": "9e0d7423fde2095823615b79d2230ead35ec7ddb5ec3fbdb5a67e3301f4eec49"
+    }
+  ]
+}
