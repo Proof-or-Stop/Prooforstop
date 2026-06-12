@@ -10,14 +10,26 @@
     "packages/lab/package.json",
     "packages/cli-guess-number/package.json",
     "packages/cli-guess-number/package-lock.json",
+    "packages/game/package.json",
+    "packages/game/package-lock.json",
     "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/test-auto.ts",
     "packages/main/src/core/runtime-environment-checks.ts",
     "packages/main/src/core/runtime-fact-registry.ts",
     "packages/main/src/core/codex-adapter-checks.ts",
     "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/core/zod.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli.ts",
     "packages/main/src/init-assets.ts",
     "packages/main/src/cli-init.ts",
+    "packages/utils/src/index.ts",
+    "packages/utils/src/register.ts",
+    "packages/utils/src/tool-defs.ts",
+    "packages/lab/src/index.ts",
+    "packages/lab/src/register.ts",
+    "packages/lab/src/tool-defs.ts",
     "packages/main/templates/agents/koala-implementer.md",
     "packages/main/templates/agents/koala-review-behavior.md",
     "packages/main/templates/agents/koala-review-channel.md",
@@ -52,11 +64,13 @@
     "packages/utils/package.json",
     "packages/lab/package.json",
     "packages/cli-guess-number/package.json",
+    "packages/game/package.json",
+    "packages/game/package-lock.json",
     "bin/lattice.js"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Main-agent integration review found current source comments and test-auto package identity logic still exposing @koala-agent names; expanding scope to finish the package identity rename without touching historical docs.",
   "acknowledgements": [
     {
       "actor": "koala-implementer",
@@ -69,5 +83,5 @@
     }
   ],
   "createdAt": "2026-06-12T20:41:39.210Z",
-  "updatedAt": "2026-06-12T21:00:07.655Z"
+  "updatedAt": "2026-06-12T21:03:09.195Z"
 }
