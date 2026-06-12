@@ -45,7 +45,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two active stories modify the same material source file (no sharedHotspots declared) -> both degrade to plan_only in parallel safety output and parallel_merge_queue blockers/guidance include the overlapping file path + peer story id; WHY: this is the core gap the story fixes — overlap must mechanically block simultaneous DEV recommendation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A third non-overlapping active story alongside the overlapping pair -> it remains a parallel_dev candidate when host capability and dependency checks pass, and manually declared sharedHotspots behavior is preserved unchanged; WHY: overlap detection must not over-block clean stories or regress existing hotspot semantics",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Overlapping story already carries a stronger existing dependency/blocker -> the stronger blocker is preserved (not downgraded or replaced by the overlap degradation) and guidance still surfaces both facts; WHY: precedence under conflicting safety signals must not weaken the stricter constraint",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
