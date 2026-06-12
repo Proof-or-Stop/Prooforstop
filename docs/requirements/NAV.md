@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 43 个文件
+> 44 个文件
 
 ## decisions
 
@@ -23,6 +23,7 @@
 - [Lattice Authority Remote Evidence Bundle](decisions/lattice-authority-remote-evidence-bundle.md)
 - [Lattice Authority Unattended Development Requirements](decisions/lattice-authority-live-integration.md)
 - [Lattice Unattended Completion Plan](decisions/lattice-unattended-completion-plan.md)
+- [DONE Closure Runbook Assistant Execution Plan](decisions/done-closure-runbook-assistant-execution-plan.md)
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
 - [Unlock Layer 2 Engineering Baseline Suite](decisions/unlock-layer2-ENG-suite.md)
 - [Unlock Layer 3 Loop Engineering Baseline Suite](decisions/unlock-layer3-loop-engineering-suite.md)
