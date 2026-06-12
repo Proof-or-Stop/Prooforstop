@@ -61,7 +61,7 @@
       "desc": "CHK-001 adversarial coverage requires a registered-but-missing or broken worktree to remain visible as changedFiles.status=failed with degradation and plan_only fallback. The smoke only asserts not_configured and ok statuses, so failed probe behavior is not mechanically covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-12T20:02:28.529Z",
@@ -71,7 +71,9 @@
       "files": [
         "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
         "packages/main/src/core/lattice-parallel-wave.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed smoke coverage by adding B-missing-worktree with a registered but absent relative worktree path. Tests assert changedFiles.status=failed, warning degradation, plan_only recommendation, and collection-level degradation of a selected clean story when another active probe failed.",
+      "resolvedAt": "2026-06-12T20:15:52.698Z"
     }
   ]
 }
