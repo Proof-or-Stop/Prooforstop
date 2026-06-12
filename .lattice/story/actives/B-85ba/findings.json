@@ -25,7 +25,7 @@
       "desc": "The INIT scope anti-expansion gate can be satisfied with empty boundary artifacts. Evidence: cli-engine.ts:501-520 declares scope_boundary_set.allowedScope as an array without min(1), and execution_boundary_set has all boundary fields optional. handlers/scope-anti-expansion.ts:183-215 writes scope/execution artifacts without requiring any allowed/excluded scope term or command/tool policy; this differs from story-create.ts:466-472, which does require a non-empty initial allowed scope. core/scope-anti-expansion.ts:532-616 evaluates existing empty artifacts as a pass when no keyword/repeat issues exist, and machine.ts:189-225 then only checks stored pass/hash/freshness. A caller can save empty scope/execution boundaries, run scope_freeze_check, and satisfy the scope gate with no effective user-confirmed boundary.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-12T20:42:43.038Z",
@@ -38,7 +38,9 @@
         "packages/main/src/core/scope-anti-expansion.ts",
         "packages/main/src/core/machine.ts",
         "packages/main/src/handlers/story-create.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in 07ceb003: scope boundary builder/CLI require non-empty allowed scope and execution boundary builder/CLI require at least one command/tool/path allow/block entry. Verified by scope anti-expansion smoke empty-boundary cases, build, and process fact contract.",
+      "resolvedAt": "2026-06-12T20:59:51.037Z"
     },
     {
       "id": "B-85ba:F-003",
