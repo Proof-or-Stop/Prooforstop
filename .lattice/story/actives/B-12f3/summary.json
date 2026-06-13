@@ -1,0 +1,56 @@
+{
+  "storyId": "B-12f3",
+  "changes": "Updated packages/main/src/handlers/story-review.ts so missing_scope_check now says scope-check.json is missing PLAN gate evidence, scope_check_save already exists, a scope-plan reviewer must write it, and the main agent must not self-sign. Updated packages/main/src/cli-engine.ts help for scope_check_save to identify reviewer-written PLAN evidence. Added targeted assertions in packages/main/src/tasks/story-review-ergonomics-smoke.ts.",
+  "usage": "Run story_review as usual. When missing_scope_check appears, follow the printed guidance: launch a koala-review-scope-plan/scope-plan reviewer and persist reviewer-written evidence with scope_check_save. Use node packages/main/dist/cli.js scope_check_save --help to see the updated local compiled help.",
+  "expectedOutcome": "The terminal guidance for missing_scope_check should identify scope-check.json as missing PLAN gate evidence, point to existing scope_check_save, forbid self-signing, and avoid Authority completion claims.",
+  "actualTranscript": "Build passed. story-review-ergonomics smoke passed. Local compiled scope_check_save --help shows reviewer-written PLAN scope evidence consumed by story_review. lattice validate passed with npm test PASS and 12/12 verificationIntent coverage. REVIEW lanes and final two-host audit passed. Authority dry-run failed closed with authorityDone=false, fullAuthorityDone=false, and no receipt provided.",
+  "outcomeDiff": "Actual local CLI outcome matches expected. Authority completion is intentionally not achieved because Authority is not configured and no verified gate_decision receipt was provided.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This is local Lattice CLI Non-authority completion only. Authority Server completion remains blocked: authorityMode is off/not configured, receiptVerified=false, productionDone=false, and no verified native gate_decision receipt was provided. Global installed lattice may still show old help until main is rebuilt/reinstalled after merge.",
+  "pitfalls": "A reviewer noted global lattice help still reflects the old installed version while the worktree compiled CLI shows the new help. Treat the branch-local compiled CLI as the tested surface until the DONE merge and global update path are run. Also keep Authority fail-closed wording explicit; local reviewer passes are not receipts.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 120659
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10440
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 316029
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 379023
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 207921
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 405182
+    }
+  },
+  "totalDurationMs": 1439255,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T10:34:44.195Z",
+  "updatedAt": "2026-06-13T10:34:44.195Z"
+}
