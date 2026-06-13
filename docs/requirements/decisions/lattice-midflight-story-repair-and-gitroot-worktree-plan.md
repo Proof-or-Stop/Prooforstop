@@ -176,11 +176,29 @@ Phase policy:
 | DEV / REVIEW / TEST | Allow only with `legacyRepair:true` and a substantial `reason`. |
 | DONE / DISCARDED | Refuse by default. |
 
+Command policy registration must be explicit. `verification_intent_repair` is
+not a read-only diagnostic; it mutates checklist metadata that is consumed by
+review and validation gates. Register it with these fields:
+
+| Policy field | Required value |
+| --- | --- |
+| `status` | `gateEvidence` |
+| `gateEvidence` | `true` |
+| `ownershipClass` | `storyScopedMutating` |
+| `allowedPhases` | `['PLAN', 'DEV', 'REVIEW', 'TEST']` |
+| `destructiveRisk` | `metadata-write` |
+| `reason` | States that the command performs explicit, audited legacy repair of missing `verificationIntent` from existing passing evidence. |
+
+`DISCARDED` is not part of the current `CommandPhase` enum, so the handler must
+also perform a runtime terminal-story check and refuse DISCARDED stories before
+any write. Do not rely on `allowedPhases` alone for that terminal case.
+
 Repair semantics:
 
 1. Read checklist through the normal store and command handler.
 2. For each selected item, inspect existing `verificationEvidence`.
-3. Parse evidence `intentRef` values in the form `CHK-001:happy:0`.
+3. Parse evidence `intentRef` values with a strict parser for
+   `^CHK-\d+:(happy|edge|adversarial):\d+$`.
 4. For every lane/index with evidence but no intent, synthesize an intent entry.
 5. Do not overwrite existing intent unless `replaceExisting:true`.
 6. Report malformed `intentRef` values and fail closed without writing any
@@ -191,6 +209,20 @@ Repair semantics:
 8. Write an audit event that records story id, item ids, lanes, count,
    source evidence refs, phase, operator reason, and current HEAD/material hash
    when available.
+
+For repair, a malformed `intentRef` includes any ref that is not a string,
+does not match the regex above, points to a checklist item that does not exist,
+or uses an index that cannot be associated with a generated intent entry for the
+selected item and lane. A ref with an explicit failing result is not malformed,
+but it is ineligible evidence. Only passing evidence may be used; use the
+project's current evidence result schema (`result: "pass"` or equivalent
+existing pass marker) and treat missing, failed, or ambiguous result state as
+ineligible.
+
+Do not reuse silent fixture-scanning behavior for this repair path. Existing
+coverage helpers may ignore malformed fixture files while collecting coverage,
+but `verification_intent_repair` must surface malformed evidence refs in its
+own output and leave the story unchanged for that run.
 
 Generated intent text should be honest and visibly reconstructed:
 
@@ -234,16 +266,19 @@ Structured issue fields should include:
 
 | Field | Example |
 | --- | --- |
-| `type` | `missing_verification_intent_with_evidence` |
+| `type` | `missing_verification_intent` |
 | `severity` | `blocker` |
 | `itemId` | `CHK-001` |
 | `lane` | `happy` |
+| `evidenceAware` | `true` |
 | `evidenceRefs` | `["CHK-001:happy:0"]` |
+| `repairHint` | `legacy_evidence_present` |
 | `suggestedCommand` | `lattice verification_intent_repair ...` |
 
-The old `missing_verification_intent` type may remain for the no-evidence case.
-If external tests depend on the old type, preserve it and add a subfield instead
-of renaming the issue.
+Preserve `type: "missing_verification_intent"` for compatibility. The
+evidence-aware case is distinguished by `evidenceAware: true`,
+`evidenceRefs`, `repairHint`, and `suggestedCommand`; no smoke should require
+callers to handle a second blocker type for the same missing-intent condition.
 
 ### validate Diagnostic Upgrade
 
@@ -296,9 +331,14 @@ Likely files:
 | `packages/main/src/core/process-fact-registry.ts` | Keep command facts and gate-consumed facts consistent. |
 | `scripts/verify-process-fact-contract.mjs` | Update if new process facts are registered. |
 
-If the repair command only writes checklist metadata and audit events that are
-not gate-consumed, process fact registration can be minimal. If review or
-validate gates consume a new repair artifact, it must be registered.
+Because the command writes gate-relevant checklist intent, it must appear in
+`COMMAND_POLICIES` and the command fact projection produced by
+`process-fact-registry.ts`. If implementation adds a separate repair audit
+artifact that any gate consumes directly, register that artifact in
+`process-fact-levels.ts` and update `scripts/verify-process-fact-contract.mjs`.
+If the audit event is recorded only for traceability and gates consume the
+resulting checklist `verificationIntent`, do not overstate it as an independent
+gate-consumed artifact.
 
 ### Worktree Bootstrap
 
@@ -311,7 +351,25 @@ Likely files:
 | `packages/main/src/handlers/context.ts` | Reuse existing unresolved workspace formatting if bootstrap fails. |
 | `packages/main/src/handlers/session.ts` | Only update if hints need to mention the repaired bootstrap path. |
 | `packages/main/src/tasks/worktree-authority-smoke.ts` | Add nested `gitRoot` bootstrap coverage. |
-| `scripts/verify-init-check-bootstrap.mjs` | Extend bootstrap regression coverage if this script owns INIT_CHECK checks. |
+| `scripts/verify-init-check-bootstrap.mjs` | Extend the existing bootstrap regression script with nested `gitRoot` coverage. |
+
+The nested `gitRoot` smoke fixture must exercise the wrapper-root shape, not a
+plain repository root. Use a temporary layout equivalent to:
+
+```text
+tmp-root/
+  lattice.config.json        # metadata root, not a git repository
+  .lattice/story/actives/... # story metadata under wrapper root
+  clawcreek/                 # configured gitRoot and actual git repository
+    .git/
+    package.json or minimal tracked file
+```
+
+The fixture `lattice.config.json` must set `gitRoot: "clawcreek"` and a story
+store path under the wrapper root. The smoke passes only if
+`session_brief` resolves the material repo and `story_advance INIT_CHECK`
+creates the story branch/worktree by running git operations from
+`tmp-root/clawcreek`, while preserving metadata under `tmp-root`.
 
 ## Execution Boundary
 
