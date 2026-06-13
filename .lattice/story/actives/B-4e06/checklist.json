@@ -152,7 +152,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke suite creates a legacy story with passing evidence refs and no intent -> it proves story_review blocks with a repair hint, verification_intent_repair dryRun shows generated intent, repair writes missing intent, and story_review no longer reports missing intent for repaired lanes; WHY: covers the core incident path end to end.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The bootstrap smoke creates a temporary wrapper-root project with nested valid gitRoot -> it proves session_brief resolves the signed workspace and INIT_CHECK creates the branch/worktree from the material repo; WHY: covers the gitRoot bootstrap regression in an isolated project.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke data includes existing authored intent plus missing evidenced lanes -> assertions prove repair fills only missing entries and preserves authored text exactly; WHY: locks non-overwrite behavior into regression coverage.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke data exercises DEV/REVIEW/TEST repair attempts without legacyRepair or with too-short reasons, then with a valid reason -> assertions prove protected phase policy and audit fields are enforced; WHY: ensures late repair is deliberate rather than a generic checklist bypass.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A read-only smoke runs lattice checklist_update --help -> it exits zero while no sourceManifestDigest implementation change is required unless the failure reproduces separately; WHY: keeps the excluded P3 regression visible without expanding this story scope.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke data includes malformed evidence refs and invalid gitRoot setups -> assertions prove repair and INIT_CHECK fail closed with actionable diagnostics and no partial story/worktree mutation; WHY: exercises failure paths that could otherwise corrupt metadata or git state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
