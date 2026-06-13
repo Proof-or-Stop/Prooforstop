@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T12:43:26.573Z",
       "reviewRunId": "B-c3b0:RR-010",
       "_hash": "276a22b89d5f42fae9ae0c9e6a77597940d0c77bb6282b8c7df01f26b902b79b"
+    },
+    {
+      "id": "B-c3b0:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: inspected done-effects, done-recover, context, worktree-authority-smoke, and story-lifecycle docs. Runtime-input predicate matches the documented package/main src/package/tsconfig and root package inputs; build command executes from mainMergeRoot; failure path surfaces stale dist, recovery command, and captured output; done_recover performs merge/cleanup/branch-delete before recovery build under the main write lock. Type check passed: npm --prefix packages/main run build -- --noEmit. Residual advisory: story_advance DONE runtime-change branch is covered via helper predicate plus metadata-only DONE smoke, while injected build-runner coverage is stronger on done_recover.",
+      "createdAt": "2026-06-13T12:50:09.899Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-011",
+      "_hash": "b318d1a97c04995a3d1a9b65907deaa2fa42a24dfa5d12ed5894e1aa9d638299"
     }
   ]
 }
