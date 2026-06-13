@@ -50,7 +50,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "When story_review reports missing_scope_check, the terminal explains that scope-check.json is missing, scope_check_save already exists, the scope-plan reviewer must persist evidence, and local guidance is not Authority completion.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_review missing_scope_check guidance mentions missing scope-check.json, existing scope_check_save, and scope-plan reviewer-written evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "scope_check_save help clarifies reviewer-written PLAN gate evidence without changing command schema or allowed phase semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guidance does not instruct the main implementation agent to self-sign, manually edit story metadata, or claim Authority receipt verification/production completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
