@@ -8,9 +8,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T10:24:15.469Z",
       "userSees": "When a validate command times out, terminal output includes a line like `✗ timeout: node -e ... (timed out after 100ms)` plus `Timeout diagnostic: command was killed by the configured timeout; increase lattice.config.json validate.commands[].timeoutMs if the command is legitimately long-running`.",
       "files": {
         "modify": [
@@ -40,7 +40,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol smoke asserts timed-out validation remains status=fail and details include configured timeoutMs plus lattice.config.json validate.commands[].timeoutMs recovery guidance.",
+          "headHash": "5e91c9810863248172dfa399e98ec81aff9ab146",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:15.507Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol smoke exercises non-timeout validation paths in the same executor without matching timeout-only diagnostics.",
+          "headHash": "5e91c9810863248172dfa399e98ec81aff9ab146",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:15.538Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol smoke keeps timedOut true and status fail, proving the diagnostic text does not change pass/fail gate semantics.",
+          "headHash": "5e91c9810863248172dfa399e98ec81aff9ab146",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:15.567Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
