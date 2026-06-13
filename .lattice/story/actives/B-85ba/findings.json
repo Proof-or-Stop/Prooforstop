@@ -251,6 +251,27 @@
       ],
       "resolvedReason": "Fixed in 532fdc314 and ec448fead: runtime-artifact-registry now classifies both .koala-serve.json and .lattice-serve.json as serve metadata, flow-stability smoke covers the runtime-artifact/declared-artifact separation, and managed-asset assertions now match current global-thin/Lattice contracts while preserving true local drift checks. Reverified with npm --prefix packages/main run build, npm --prefix packages/main run test:flow-stability-smoke, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, node scripts/verify-process-fact-contract.mjs, and npm run test:runtime-fact-contract.",
       "resolvedAt": "2026-06-13T02:24:03.496Z"
+    },
+    {
+      "id": "B-85ba:F-013",
+      "desc": "INIT scope anti-expansion still has a story_update bypass for story-level scope expansion. The freeze/gate consumes story.title and story.description (packages/main/src/core/scope-anti-expansion.ts:392-399,597-600; packages/main/src/core/machine.ts:169-176), but story_update directly writes title/description with no phase-local scope check, no reviewer-lane block, and no proposal/decision requirement (packages/main/src/handlers/story-query.ts:332-347). Command policy and phaseTools explicitly allow story_update in INIT (packages/main/src/core/command-policy.ts:130; packages/main/src/core/config.ts:184-190), while F-005 only mechanically blocks INIT reviewer checklist mutations and the contract asserts checklist-only proposal discipline (packages/main/src/handlers/checklist.ts:59-72; scripts/verify-process-fact-contract.mjs:3180-3188). Verified with an isolated temp-root CLI repro using node packages/main/dist/cli.js: create INIT story with allowed scope \"INIT scope gate only\", run scope_freeze_check PASS, run KOALA_AGENT=koala-review-story-init story_update to retitle it \"Fix INIT scope gate and add native mobile app builder\", then rerun scope_freeze_check PASS. That leaves a reviewer/agent able to mix a future capability into current story title/description without any scope_extension_proposal or scope_extension_decide trail, contradicting the anti-expansion gate proposal-only invariant.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T02:29:34.832Z",
+      "reviewRound": "2026-06-13T02:23:44.219Z",
+      "reviewRunId": "B-85ba:RR-037",
+      "_hash": "fc0b49be4948c0d3f1c49611fdbc0f710c5073664a050b377a9c11fabcdc1f71",
+      "files": [
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/scope-anti-expansion.ts",
+        "packages/main/src/core/machine.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ]
     }
   ]
 }
