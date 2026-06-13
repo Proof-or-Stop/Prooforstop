@@ -542,7 +542,6 @@ function discardCorpusIdentity(discardDigest: ScopeDiscardDigestData | null | un
   }));
   entries.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
   return {
-    updatedAt: nonEmpty(discardDigest?.updatedAt) ? normalizeTerm(discardDigest.updatedAt) : undefined,
     entryCount: entries.length,
     entries,
   };

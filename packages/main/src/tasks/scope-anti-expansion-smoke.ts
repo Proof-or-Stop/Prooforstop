@@ -20,11 +20,12 @@ import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import {
   buildExecutionBoundary,
   buildScopeBoundary,
+  buildScopeDiscardDigestEntry,
   buildScopeExtensionProposal,
   digestScopeFreezeCheck,
   evaluateScopeFreeze,
 } from '../core/scope-anti-expansion.js';
-import type { ChecklistData, ScopeFreezeCheckData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, ScopeDiscardDigestData, ScopeFreezeCheckData, StoryInfo } from '../core/types.js';
 import { createScopeAntiExpansionHandlers } from '../handlers/scope-anti-expansion.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { createWorktreeHandlers } from '../handlers/worktree.js';
@@ -507,6 +508,86 @@ withTempStore('stale freeze check blocks after checklist mutation', (store) => {
   const checklist = store.readChecklist(STORY_ID);
   checklist.items[0] = { ...checklist.items[0], title: 'Wire the scope freeze gate after mutation' };
   store.writeChecklist(STORY_ID, checklist);
+  expectReason(store, /\[scope_freeze_check_stale\]/);
+});
+
+withTempStore('discard digest updatedAt does not stale freeze but entry or overlap changes do', (store) => {
+  seedStory(store);
+  writeGoodBoundaries(store);
+  const baseEntry = buildScopeDiscardDigestEntry({
+    terms: ['unrelated archived scope direction'],
+    reason: 'Unrelated archived attempt should be part of the semantic corpus.',
+    discardedAt: '2026-06-10T10:00:00.000Z',
+    storyId: 'B-discarded-base',
+  });
+  const extraEntry = buildScopeDiscardDigestEntry({
+    terms: ['another unrelated archived direction'],
+    reason: 'A new discarded entry should alter the semantic corpus.',
+    discardedAt: '2026-06-10T11:00:00.000Z',
+    storyId: 'B-discarded-extra',
+  });
+  const overlapEntry = buildScopeDiscardDigestEntry({
+    terms: ['Wire the scope freeze gate'],
+    reason: 'A new overlap should invalidate previous freeze evidence.',
+    discardedAt: '2026-06-10T12:00:00.000Z',
+    storyId: 'B-discarded-overlap',
+  });
+  const digestAtFirst: ScopeDiscardDigestData = {
+    storyId: STORY_ID,
+    updatedAt: '2026-06-10T10:00:00.000Z',
+    entries: [baseEntry],
+  };
+  const digestAtSecond: ScopeDiscardDigestData = {
+    storyId: STORY_ID,
+    updatedAt: '2026-06-10T13:00:00.000Z',
+    entries: [baseEntry],
+  };
+  const digestWithExtraEntry: ScopeDiscardDigestData = {
+    storyId: STORY_ID,
+    updatedAt: '2026-06-10T14:00:00.000Z',
+    entries: [baseEntry, extraEntry],
+  };
+  const digestWithOverlap: ScopeDiscardDigestData = {
+    storyId: STORY_ID,
+    updatedAt: '2026-06-10T15:00:00.000Z',
+    entries: [baseEntry, overlapEntry],
+  };
+  const evaluateWithDigest = (discardDigest: ScopeDiscardDigestData): ScopeFreezeCheckData => evaluateScopeFreeze({
+    storyId: STORY_ID,
+    scopeBoundary: store.readScopeBoundary(STORY_ID),
+    executionBoundary: store.readExecutionBoundary(STORY_ID),
+    story: projectStory(store),
+    checklist: projectChecklist(store),
+    discardDigest,
+    now: NOW,
+  }).check;
+
+  const firstCheck = evaluateWithDigest(digestAtFirst);
+  const timestampOnlyCheck = evaluateWithDigest(digestAtSecond);
+  assert.equal(
+    timestampOnlyCheck.freshnessHash,
+    firstCheck.freshnessHash,
+    'discardDigest.updatedAt metadata changes must not affect freshnessHash',
+  );
+
+  const extraEntryCheck = evaluateWithDigest(digestWithExtraEntry);
+  assert.notEqual(
+    extraEntryCheck.freshnessHash,
+    firstCheck.freshnessHash,
+    'new discarded corpus entries must affect freshnessHash',
+  );
+  const overlapCheck = evaluateWithDigest(digestWithOverlap);
+  assert.notEqual(
+    overlapCheck.freshnessHash,
+    firstCheck.freshnessHash,
+    'new discarded overlaps must affect freshnessHash',
+  );
+
+  store.writeScopeDiscardDigest(STORY_ID, digestAtFirst);
+  store.writeScopeFreezeCheck(STORY_ID, firstCheck);
+  store.writeScopeDiscardDigest(STORY_ID, digestAtSecond);
+  assert.equal(getScopeAntiExpansionGuardFailureReason(STORY_ID, store, process.cwd()), null);
+  store.writeScopeDiscardDigest(STORY_ID, digestWithOverlap);
   expectReason(store, /\[scope_freeze_check_stale\]/);
 });
 
