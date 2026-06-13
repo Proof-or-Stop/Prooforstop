@@ -63,7 +63,7 @@
       "desc": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md:27 still allows the post-formal unlock claim \"Lattice has validated a correctness-protected Loop Engineering model\"; docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:38 and :98 define formal-only as only a formal claim-path unlock and require real execution before a strong operational Loop Engineering claim. These two truth sources now conflict, so the formal doc can still authorize overbroad wording before real UDM lifecycle evidence exists.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-13T01:54:17.117Z",
@@ -73,7 +73,9 @@
       "files": [
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
         "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by narrowing unlock-layer3-loop-engineering-suite.md allowed wording to formal Loop Engineering claim path validation for fresh UDM proof artifacts, and adding forbidden wording that real Lattice Story lifecycle execution is not proven without the real-execution UDM baseline.",
+      "resolvedAt": "2026-06-13T01:56:31.004Z"
     },
     {
       "id": "B-de86:F-005",
