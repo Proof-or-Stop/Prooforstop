@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-3cca:F-001",
+      "desc": "The branding smoke has a false negative: packages/main/src/cli-engine.ts:3353 still says \"runCli — koala CLI 运行时入口\", and packages/main/src/tasks/cli-engine-branding-smoke.ts:55 classifies any line matching /koala CLI/ as allowed. The new npm smoke passes (src unclassified=0 dist unclassified=0), so this scoped cleanup can leave a current CLI-engine branding remnant undetected. Narrow the allowlist to explicit legacy alias contexts or update the source/dist comment so the smoke fails on real Koala-branding remnants.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T10:49:39.175Z",
+      "reviewRound": "2026-06-13T10:47:51.054Z",
+      "reviewRunId": "B-3cca:RR-001",
+      "_hash": "ce25fe208c5bce45ade84c88a244766251c87d714c1e8c5285698d092a1f11a0",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
+    }
+  ]
+}
