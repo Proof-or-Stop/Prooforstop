@@ -114,7 +114,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "MSG=$(sed -n '378p' packages/main/src/handlers/story-review.ts); printf '%s\\\\n' \"$MSG\" | rg -q 'scope-check\\\\.json is missing PLAN gate evidence' && printf '%s\\\\n' \"$MSG\" | rg -q 'scope_check_save.*already exists' && printf '%s\\\\n' \"$MSG\" | rg -q 'koala-review-scope-plan / scope-plan reviewer'",
+          "result": "pass",
+          "note": "The implemented missing_scope_check message names the missing scope-check.json artifact, existing scope_check_save command, and reviewer-written evidence path.",
+          "headHash": "3e42f7810aa29d57ab21704982cdd780c74e9349",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:39.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
