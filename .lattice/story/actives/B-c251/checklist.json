@@ -190,7 +190,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"Audit Incorporation|unsupported `agent` / `status` / `items`|features|summary|openQuestions\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Final plan records the accepted two-host audit finding and updates the scope_check_save example to current features/summary/openQuestions schema.",
+          "headHash": "b3fd6793b11dab49fe6b4f44a780428870f30085",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:33.722Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
