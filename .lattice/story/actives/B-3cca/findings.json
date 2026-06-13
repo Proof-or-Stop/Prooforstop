@@ -107,6 +107,23 @@
         "docs/guide-hooks.md",
         "packages/main/src/tasks/cli-engine-branding-smoke.ts"
       ]
+    },
+    {
+      "id": "B-3cca:F-007",
+      "desc": "Test coverage for F-004 is still a false negative for full branding cleanup: npm --prefix packages/main run test:cli-engine-branding-smoke passes and reports guide-hooks doc unclassified=0, but docs/guide-hooks.md still has user-facing current-product Koala wording at line 3 (configure hooks in koala.config.json), line 45 (add hooks field to koala.config.json), line 91 (KOALA_COMMAND is described as koala command name), and line 93 (KOALA_ROOT is described as koala project root). The smoke misses these because packages/main/src/tasks/cli-engine-branding-smoke.ts classifies any line with KOALA_ via /KOALA_/ and any line with koala.config via /koala\\.config/i, so current-product prose on those lines is allowed solely due to compatibility tokens. Exact repro: npm --prefix packages/main run test:cli-engine-branding-smoke output cli-engine src unclassified=0, cli-engine dist unclassified=0, hooks src unclassified=0, hooks dist unclassified=0, guide-hooks doc unclassified=0.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T11:15:50.656Z",
+      "reviewRound": "2026-06-13T11:12:44.397Z",
+      "reviewRunId": "B-3cca:RR-012",
+      "_hash": "400070819d9bd56175bf6ff7187bc98d5b4bb0e52a6b923c75f8ad91fa54fcf3",
+      "files": [
+        "docs/guide-hooks.md",
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
     }
   ]
 }
