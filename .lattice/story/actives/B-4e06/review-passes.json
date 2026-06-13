@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-4e06:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 0 exported symbols changed in the doc-only diff. Step 2: reviewed the Delivered (B-4e06) section appended to lattice-midflight-story-repair-and-gitroot-worktree-plan.md — 18 doc claims cross-checked against checklist.ts, cli-engine.ts, core/verification.ts, core/config.ts, core/command-policy.ts, core/process-fact-levels.ts, and handlers/worktree.ts. All claims verified accurate: ownershipClass=storyScopedMutating, process-fact L2, allowed phases PLAN/DEV/REVIEW/TEST, preflight checks, priority=should synthesized intents, evidence-to-type mapping, fail-closed on malformed refs, authored-intent protection, nice-priority sparse padding, shared detectLegacyEvidenceWithoutIntent helper used by both story_review and validate, additive-only validate hint, resolveStorySignedWorkspace reuse in both dev_start and INIT_CHECK reconcile, fail-closed on unresolvable gitRoot, byte-for-byte unchanged plain-repo path, realpath canonicalization on both sides, and metadata-outside-gitRoot fail-closed check. No blockers.",
+      "createdAt": "2026-06-13T18:30:46.733Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-002",
+      "_hash": "57fb9a596457f11cd40179d6e4cc974242a55d19ea446a54e35332b41ef80f65"
+    }
+  ]
+}
