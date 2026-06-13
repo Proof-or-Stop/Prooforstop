@@ -267,7 +267,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"Proposed follow-up story intent|Example creation command|lattice story_create|Improve missing_scope_check guidance ergonomics\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Final plan names the follow-up implementation story scope and includes a concrete lattice story_create command for Lattice execution.",
+          "headHash": "802a48ad95dea427006fefec93dc1874b5c02c26",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:49.153Z"
+        }
+      ]
     }
   ]
 }
