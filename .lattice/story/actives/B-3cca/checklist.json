@@ -119,7 +119,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "git diff main...HEAD packages/main/src/cli-engine.ts | grep '^[+-].*[Kk]oala'",
+          "result": "pass",
+          "note": "Changed: file header comment (Lattice CLI 引擎), description in @description tag, recover_evidence description, capability_list/probe descriptions, story_export description, check/upgrade descriptions, audit framework description, guard_session_start description, dev_memory_capture/finish descriptions, help text reviewer line, init description, error message (line 3117), stale warnings label (line 3603); all user-visible Koala→Lattice",
+          "headHash": "1e9ea278e3638fac5dfe8b4d0fa6db4faff4f0f8",
+          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
+          "timestamp": "2026-06-13T10:41:47.632Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
