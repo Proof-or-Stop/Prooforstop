@@ -136,7 +136,7 @@
       "desc": "Scope discard digest protection is only exercised when a prior digest is preloaded into the same current story, but the real discard path writes scope-discard-digest.json back to the story being discarded and the INIT_CHECK gate reads only store.readScopeDiscardDigest(currentStoryId). A newly created replacement story therefore starts with an empty digest and can repeat a discarded direction without mitigation, contrary to CHK-004/user-visible repeat-discard protection. Source: packages/main/src/handlers/worktree.ts:568-599 writes the digest under the discarded storyId; packages/main/src/core/machine.ts:163-173 consumes only the current storyId digest; packages/main/src/tasks/scope-anti-expansion-smoke.ts:469-478 seeds the previous digest into the same story instead of driving the real discard→new-story flow.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-13T01:45:15.254Z",
@@ -147,7 +147,9 @@
         "packages/main/src/handlers/worktree.ts",
         "packages/main/src/core/machine.ts",
         "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in ee07fc0: scope_freeze_check and INIT_CHECK gate now consume readScopeDiscardDigestForFreeze, which merges the current story digest with scope-discard-digest entries from all DISCARDED stories. The smoke now drives a real discarded story followed by a replacement story: freeze fails without repeatDiscardMitigation and passes with mitigation. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-13T01:51:27.959Z"
     }
   ]
 }
