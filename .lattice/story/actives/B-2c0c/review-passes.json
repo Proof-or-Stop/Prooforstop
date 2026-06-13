@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-2c0c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: local DONE gate is scoped to changed docs/requirements/decisions/*.md only, requires fresh structured host_verdict quorum with 3 distinct runId rounds and 2 distinct PASS hostIds per round, ignores prose/stale/duplicate/non-pass events, exposes read-only diagnostics, updates process fact registry/verifier, and preserves the non-Authority/no productionDone boundary without auto-spawn.",
+      "createdAt": "2026-06-13T22:22:29.232Z",
+      "reviewRound": "2026-06-13T22:20:57.467Z",
+      "reviewRunId": "B-2c0c:RR-001",
+      "_hash": "4c666a9f8881f73f8334a1bae4bbf48a52b36d017e0cacff6ecbe8253bc3bcc3"
+    },
+    {
+      "id": "B-2c0c:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Docs review PASS: story-lifecycle.md and lifecycle-gate-receipt-consumption.md accurately describe decision-doc quorum as a local DONE gate requiring 3 distinct rounds with 2 distinct PASSing hosts per round over the current material digest; stale/duplicate/fail/blocked/ignored verdicts do not count; decision_doc_quorum_check is described as read-only; autopilot_review_submit host_verdict evidence is described as reviewer/host evidence write exempt from story owner lease; wording explicitly avoids Authority Server receipt completion, authorityDone, fullAuthorityDone, and productionDone overclaim.",
+      "createdAt": "2026-06-13T22:23:19.021Z",
+      "reviewRound": "2026-06-13T22:20:57.467Z",
+      "reviewRunId": "B-2c0c:RR-004",
+      "_hash": "b43c07314c5481ef62644d68cebc88a725efe583b026d310fdb2ccd9ba86ddeb"
+    },
+    {
+      "id": "B-2c0c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed decision-doc quorum evaluator, DONE gate integration, CLI diagnostic handler, command policy/process-fact ownership, and verdict producer shape; build, smoke test, contract check, and current-worktree diagnostic passed with no quality blocker.",
+      "createdAt": "2026-06-13T22:23:41.118Z",
+      "reviewRound": "2026-06-13T22:20:57.467Z",
+      "reviewRunId": "B-2c0c:RR-002",
+      "_hash": "fd962964fda58ca7c7b179077fc45e656dba7ae3aacf380bbb50820f3f6be259"
+    },
+    {
+      "id": "B-2c0c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: focused smoke covers no decision-doc changes, valid 3-round/2-host fresh-digest quorum, duplicate hosts, duplicate runIds, stale digest/prose-only ignored events, and non-pass decisions; live decision_doc_quorum_check reports pass for current changed decision docs with three fresh two-host rounds; process fact verifier pins decision_doc_quorum_check as read-only and autopilot_review_submit as L4 host-verdict gate evidence; command ownership contract passes for reviewerWrite/owner-lease boundaries. evidence_inspect still reports two older build evidence refs stale, but quorum/process-fact coverage refs and test-evidence material hashes are fresh.",
+      "createdAt": "2026-06-13T22:23:57.849Z",
+      "reviewRound": "2026-06-13T22:20:57.467Z",
+      "reviewRunId": "B-2c0c:RR-006",
+      "_hash": "d5197f53bfb2b2a3062a0194a1c6f566d7725dd32a0901ace9a365621fe0b0ac"
+    },
+    {
+      "id": "B-2c0c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept review PASS: decision-doc quorum is enforced as a local DONE gate only. evaluateDecisionDocQuorum requires changed direct docs/requirements/decisions/*.md, fresh materialDigest, three distinct runId rounds, and two distinct PASS host_verdict hostIds per round; stale, prose-only, duplicate-host, and non-pass verdicts are ignored. machine.ts consumes the evaluator in DONE guard/failure path without deriving Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone. command policy/process fact registry classify autopilot_review_submit as local host-verdict gate evidence and decision_doc_quorum_check as read-only diagnostics. Verified with npm --prefix packages/main run test:decision-doc-quorum-smoke and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T22:29:15.513Z",
+      "reviewRound": "2026-06-13T22:27:08.733Z",
+      "reviewRunId": "B-2c0c:RR-008",
+      "_hash": "87a6d9bdc3785024711d7d8364a55442b4f659af0baea3a7f6be265029619a8c"
+    },
+    {
+      "id": "B-2c0c:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: inspected decision-doc quorum core evaluator, DONE guard integration, CLI handler/registration, command policy/process fact registry/contract verifier, docs contract, and metadata freshness cleanup. Verified npm --prefix packages/main run build, npm --prefix packages/main run test:decision-doc-quorum-smoke, node scripts/verify-process-fact-contract.mjs, lattice evidence_inspect fresh staleRefs=0, and local CLI decision_doc_quorum_check JSON pass. No blocker found. Caveat: global lattice binary in this shell does not expose the newly added command yet; project-local dist CLI does.",
+      "createdAt": "2026-06-13T22:30:07.199Z",
+      "reviewRound": "2026-06-13T22:27:08.733Z",
+      "reviewRunId": "B-2c0c:RR-012",
+      "_hash": "b8886b2386583ff7fcd54e5e85d454e2d562d01e4009ce0a21723ff56676b73d"
+    },
+    {
+      "id": "B-2c0c:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage reviewed for decision-doc quorum DONE gate. Focused smoke covers pass, no decision-doc no-op, duplicate hosts, duplicate run/round collapse, stale materialDigest plus prose-only review_pass ignored, and non-pass decisions ignored. Local decision_doc_quorum_check on current story reports 3 fresh rounds x 2 hosts and stale old digest/prose events ignored. evidence_inspect reports fresh with staleRefs=0; validate reports 12/12 coverage. No blocking test-coverage finding.",
+      "createdAt": "2026-06-13T22:30:38.019Z",
+      "reviewRound": "2026-06-13T22:27:08.733Z",
+      "reviewRunId": "B-2c0c:RR-007",
+      "_hash": "833a1e8af89c9cdcb9b6c1b54cd266b1ee72d8e106d71836aba05db191a2c6af"
+    },
+    {
+      "id": "B-2c0c:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Docs reviewed at HEAD e69e51e: lifecycle-gate-receipt-consumption.md and story-lifecycle.md accurately describe local decision-doc quorum as a local DONE gate: 3 distinct runId rounds, 2 distinct PASS hosts per round, fresh decision-doc materialDigest, read-only decision_doc_quorum_check diagnostic, autopilot_review_submit as reviewerWrite/owner-lease-exempt local host_verdict evidence, and no equivalence to Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone. Verified against core decision-doc quorum evaluator, verdict handler, command policy/process-fact registry, and branch-local core CLI diagnostic output.",
+      "createdAt": "2026-06-13T22:30:52.336Z",
+      "reviewRound": "2026-06-13T22:27:08.733Z",
+      "reviewRunId": "B-2c0c:RR-013",
+      "_hash": "195f583d20cb2c417dea5b302c5d70cc97548769ef4060c82caff0c90493ca32"
+    }
+  ]
+}

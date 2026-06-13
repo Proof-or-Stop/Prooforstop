@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2c0c",
+  "changes": "Added a local decision-doc quorum evaluator, DONE gate integration, CLI diagnostic, process fact registry coverage, command ownership semantics, focused smoke tests, and lifecycle docs for 3-round 2-host host_verdict verification.",
+  "usage": "Run node packages/main/dist/cli.js decision_doc_quorum_check --storyId=<storyId> to inspect quorum, then use normal lattice story_advance --phase=DONE; DONE blocks changed decision docs without fresh 3x2 host_verdict quorum.",
+  "expectedOutcome": "For direct docs/requirements/decisions/*.md changes, DONE requires three distinct review rounds with at least two distinct PASSing hosts per round bound to the current material digest.",
+  "actualTranscript": "decision_doc_quorum_check reports pass for B-2c0c with materialDigest 2cdbd05456e9596f0f7b20fe740fe2e6d945f26ffa944abcffd456817e23b82c and three fresh rounds; lattice validate reports allPass true and 12/12 verification intents covered; evidence_inspect reports fresh staleRefs 0.",
+  "outcomeDiff": "No product-level diff: actual output matches expected quorum behavior and rejects stale/prose-only evidence as non-quorum.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The source and built local CLI are verified; global lattice exposure depends on the normal main merge/build synchronization after DONE.",
+  "pitfalls": "Two old duplicate build evidence entries stayed stale even after fresh evidence was added; fixed by returning to DEV and replacing the evidence arrays through checklist_update instead of editing story JSON.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 69430
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10082
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 483255
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 924363
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 597193
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 62885
+    }
+  },
+  "totalDurationMs": 2147215,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T22:32:44.385Z",
+  "updatedAt": "2026-06-13T22:32:44.385Z"
+}

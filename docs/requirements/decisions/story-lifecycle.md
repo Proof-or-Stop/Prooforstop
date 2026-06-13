@@ -187,6 +187,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - **Grill 只澄清意图**：`grill_start` / `grill_record` / `grill_close` 写 PLAN 阶段的 `grill.json` planning artifact，`grill_get` 可全阶段读取。Grill clarifies intent; evidence proves behavior. Grill transcript 不能替代 `verificationEvidence`、review pass、delivery check 或 `lattice validate` validation evidence。
 - **evidence kind 允许自然 aliases**：持久化 kind 仍是 `logic_test` / `manual_transcript` 等规范值；CLI 接受 `logic`→`logic_test`、`cli`→`manual_transcript`，避免 plan.md 和命令表面口径打架。
 - **DONE evidence 必须新鲜**：`lattice validate --story` 写入测试运行时的 git HEAD/material hash。DONE gate 比对当前 story 分支，验证语义相关文件变化会让旧 evidence stale。
+- **Decision doc quorum 是本地 DONE gate**：当 story 改动决策文档时，DONE 还必须满足本地 decision-doc quorum：当前 material digest 下有 3 个 distinct review rounds，每轮至少 2 个 distinct PASSing hosts；旧 material digest、重复 host、FAIL/BLOCKED verdict 或被忽略 verdict 不能计数。`decision_doc_quorum_check` 只读报告同一状态；`autopilot_review_submit` 写入的 `host_verdict` 是独立 host/reviewer evidence write，不要求 story owner lease，但它仍只是本地 workflow evidence，不是 Authority Server receipt completion，不能推出 `authorityDone` / `fullAuthorityDone` / `productionDone`。
 - **stale evidence 不能被“测试通过”覆盖**：`lattice validate` 如果发现 verification coverage missing/stale，JSON 必须是 `allPass:false`，提示也必须指向补 evidence，而不是说“验证全绿”。可用 `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` 查看需刷新项；重跑对应验证命令后去掉 dryRun 刷新 metadata。
 - **Gate oracle 与 renderer 分离**：DONE pre-check 等 gate 输出必须先形成稳定 row contract（`id/status/detail/hint/source/blocking`），`status` / `session_brief` / `next` 只渲染这些 row。展示层不能用 phase 或 label 文案复制一份 gate 规则。
 - **下一步提示必须 phase-aware**：`lattice validate` 通过只代表验证命令通过，不代表可以跨过当前 phase。DEV 通过后提示 commit + REVIEW，REVIEW 通过后提示 TEST，TEST 通过后仍要渲染 DONE pre-check 的失败 row 和补救 hint。
@@ -260,6 +261,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 | `bug_report` / `bug_update` / `bug_list` | 管理验证失败产生的 bug |
 | `summary_set` | 写 DONE 前用户价值、actual transcript、diff、outcomeKind 和使用说明 |
 | `delivery_check_set` | 记录 delivery reviewer 签名 |
+| `decision_doc_quorum_check` | 只读查看 decision-doc 本地 quorum DONE gate 状态；不等于 Authority receipt completion |
 | `story_advance -> DONE` | DONE checklist 全通过后合并清理 |
 
 ### 关键行为差异

@@ -1,0 +1,94 @@
+{
+  "storyId": "B-2c0c",
+  "checkedAt": "2026-06-13T22:06:08.173Z",
+  "features": [
+    {
+      "feature": "Hard DONE gate activates only when main...HEAD changes docs/requirements/decisions/*.md",
+      "covered_by": "CHK-001 DoneWhen + verificationIntent edge path; understanding outcome/facts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-001;understanding;plan:CHK-001"
+    },
+    {
+      "feature": "Gate requires current changed decision-doc material digest, not prose or stale evidence",
+      "covered_by": "CHK-001 context/verificationIntent and CHK-003 fail-path tests",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-001,CHK-003;plan:CHK-001,CHK-003"
+    },
+    {
+      "feature": "Gate requires three distinct rounds with at least two distinct PASSing host ids per round",
+      "covered_by": "CHK-001 happy/adversarial tests and DoneWhen requirements",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-001;plan:CHK-001"
+    },
+    {
+      "feature": "CLI-visible diagnostics identify missing rounds, host diversity, digest freshness, ignored stale/duplicate/prose evidence",
+      "covered_by": "CHK-002 diagnostic command/failure text requirements",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-002;plan:CHK-002"
+    },
+    {
+      "feature": "Focused tests cover pass, not-applicable, missing verdicts, insufficient hosts/rounds, stale digest, duplicate hosts, prose-only evidence",
+      "covered_by": "CHK-003 verificationIntent and smoke test plan",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-003;plan:CHK-003"
+    },
+    {
+      "feature": "Process fact contract registers decision-doc host_verdict quorum as gate-consumed L4 DONE evidence",
+      "covered_by": "CHK-004 registry/process-fact verifier/docs requirements",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-004;understanding.touchpoints;plan:CHK-004"
+    },
+    {
+      "feature": "scripts/verify-process-fact-contract.mjs is a touched file and must assert L4/gateEvidence/DONE consumer/no Authority overclaim",
+      "covered_by": "Updated understanding touchpoints and CHK-004 Files/Verify/DoneWhen",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding;plan:CHK-004"
+    },
+    {
+      "feature": "Do not auto-spawn hosts from DONE or diagnostic paths",
+      "covered_by": "Decision option C rejected; understanding constraint; CHK-001 excludes",
+      "status": "excluded",
+      "excluded_by": "explicit non-goal: no host orchestration/autospawn",
+      "source": "checklist:CHK-001;understanding.constraints;decision"
+    },
+    {
+      "feature": "Do not claim Authority Server receipt completion, productionDone, authorityDone, or fullAuthorityDone from local host quorum",
+      "covered_by": "Understanding constraint plus CHK-004 DoneWhen/verifier assertion requirement",
+      "status": "excluded",
+      "excluded_by": "explicit non-goal: local quorum only, no Authority receipt completion",
+      "source": "understanding.constraints;plan:CHK-004;decision"
+    },
+    {
+      "feature": "Do not touch OMX or .omx paths",
+      "covered_by": "Understanding constraint and repo/user rule",
+      "status": "excluded",
+      "excluded_by": "explicit OMX ban",
+      "source": "understanding.constraints;user-rule"
+    },
+    {
+      "feature": "Do not broaden unrelated review/test/delivery/scope gates or weaken existing review_pass gates",
+      "covered_by": "CHK-001 DoneWhen and understanding constraint preserve existing DONE guards",
+      "status": "excluded",
+      "excluded_by": "explicit non-goal: preserve unrelated gates",
+      "source": "checklist:CHK-001;understanding.constraints;plan:CHK-001"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 7,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "46d7512d272df04fd6cea329d52cd4daef4fb62e49be7324133363dd53532694",
+  "openQuestions": []
+}

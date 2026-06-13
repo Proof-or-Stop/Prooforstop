@@ -815,6 +815,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
+  { name: 'decision_doc_quorum_check', description: 'Read-only decision-doc local quorum diagnostics for the DONE gate; not Authority receipt completion. Alias: lattice decision doc quorum check', schema: {
+    storyId: z.string().describe('Story ID'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'capsule_show', description: '显示 story session capsule（投影状态，不是 gate evidence）', schema: {
     storyId: z.string().optional().describe('Story ID'),
     story: z.string().optional().describe('Story ID alias'),
@@ -3512,6 +3517,7 @@ export async function runCli(opts?: {
   'autopilot doctor': 'autopilot_doctor',
   'autopilot review submit': 'autopilot_review_submit',
   'autopilot review status': 'autopilot_review_status',
+  'decision doc quorum check': 'decision_doc_quorum_check',
   'planner draft': 'planner_draft',
   'planner review': 'planner_review',
   'planner create-story': 'planner_create_story',

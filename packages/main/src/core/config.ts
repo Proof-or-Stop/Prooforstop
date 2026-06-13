@@ -122,6 +122,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
     'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
     'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
+    'decision_doc_quorum_check', // B-2c0c: read-only local decision-doc quorum diagnostics for the DONE gate
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
