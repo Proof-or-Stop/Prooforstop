@@ -52,27 +52,27 @@
           "command": "grep -n koala packages/main/src/cli-engine.ts",
           "result": "pass",
           "note": "All koala/Koala hits classified: KOALA_* env vars, koala.config.json, .koala path, koala-codex, koala-review-* lanes, koala-hook, koala-implementer, git commit tokens preserved; user-visible Koala changed to Lattice (lines 3117, 3603)",
-          "headHash": "b70fe2426fed0236f6fc96b12984453336986e1b",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:26.499Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Verified: koala CLI alias (bin/koala→dist/cli.js), koala.config.json legacy fallback comment at line 2646, .koala path via LEGACY_KOALA_DIR, koala-codex at line 2780, koala-review-* lanes at lines 577-592 all preserved unchanged",
-          "headHash": "b70fe2426fed0236f6fc96b12984453336986e1b",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:26.499Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "branding smoke regex patterns compiled without matching KOALA_* env vars or process lanes; branding smoke test output: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0",
-          "headHash": "b70fe2426fed0236f6fc96b12984453336986e1b",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:26.499Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "git show --patch --stat 202077355",
           "result": "pass",
           "note": "F-003 fixed by commit 202077355: removed broad legacy.*koala/koala.*legacy line-level allowlist and replaced it with exact patterns only: alias: koala, Lattice/Koala, legacy alias.",
-          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:14.822Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,9 +150,9 @@
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
           "note": "Branding smoke passed after F-003 fix, still scanning cli-engine src/dist and hooks src/dist with all unclassified counts at 0.",
-          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:14.822Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         }
       ]
     },
@@ -208,9 +208,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed after narrowing legacy allowlist; tsc exit 0.",
-          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:14.822Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -229,9 +229,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
           "result": "pass",
           "note": "Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified.",
-          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:14.822Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         }
       ]
     },
@@ -291,18 +291,18 @@
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Worktree isolation confirmed: git status shows only story/B-3cca branch files modified; no stash operations performed; no files outside packages/main scope touched",
-          "headHash": "b70fe2426fed0236f6fc96b12984453336986e1b",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:26.499Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Session used forceTakeover to recover stale lease from previous interrupted session (sess-bc4bd082f0301eed). All writes confirmed via lattice CLI audit trail in process-events.jsonl.",
-          "headHash": "b70fe2426fed0236f6fc96b12984453336986e1b",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:26.499Z"
+          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:13:04.186Z"
         }
       ]
     }
