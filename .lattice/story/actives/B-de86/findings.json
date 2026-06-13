@@ -1,0 +1,100 @@
+{
+  "findings": [
+    {
+      "id": "B-de86:F-001",
+      "desc": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:197 declares productionSafetyClaim=LOCKED and globalCapabilityClaim=LOCKED as Phase 1 success criteria, and lines 680-705 make higher-layer locks part of DONE. But the required final report schema and PASS rejection contract at lines 523-645 only carry claimBoundary prose plus Authority booleans; they do not require structured productionSafetyClaim=LOCKED/globalCapabilityClaim=LOCKED fields or matching rejection predicates. A report could therefore satisfy the documented realExecutionUdm=PASS contract while omitting machine-checkable proof that Production Safety and the global Capability Claim remained locked. This weakens the claim boundary and conflicts with the process rule that gate-consumed facts must be structured rather than inferred from prose. Add explicit higher-layer lock fields/summary and require them in the PASS rejection predicates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T01:48:11.429Z",
+      "reviewRound": "2026-06-13T01:45:08.363Z",
+      "reviewRunId": "B-de86:RR-005",
+      "_hash": "04798e09ebbe5dc0790dac60e3f754fbb924efbd6b7363c170d61211f961a470",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+      ],
+      "resolvedReason": "Resolved by adding structured higherLayerClaims.productionSafetyClaim=LOCKED and higherLayerClaims.globalCapabilityClaim=LOCKED fields to the real execution coordinator final report schema, requiring both in PASS rejection predicates, and adding fail-closed checks for missing or unlocked higher-layer claim fields.",
+      "resolvedAt": "2026-06-13T01:51:03.851Z"
+    },
+    {
+      "id": "B-de86:F-002",
+      "desc": "doc-code-drift: docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md still says capability_claim_formal_evaluate is Layer-2-only and Layer 3 execution is BLOCKED until a Layer 3 evaluator exists (lines 100-109), but the current CLI exposes capability_claim_formal_evaluate as Engineering or Loop Engineering and accepts target=loop-engineering (packages/main/src/cli-engine.ts:788-790), and the evaluator returns loopEngineeringClaim from loop-engineering proof state (packages/main/src/core/lattice-baseline.ts:2798-2863). The new real-execution plan depends on running the Layer 3 formal evaluator and rejects PASS unless formalLayer3Claim=UNLOCKED, so the related formal-suite doc now gives operators a stale blocked status for a prerequisite path that exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-13T01:48:12.281Z",
+      "reviewRound": "2026-06-13T01:45:08.363Z",
+      "reviewRunId": "B-de86:RR-003",
+      "_hash": "5369c656e202ab91b1940b8fbcc32e20774f34d2eab5f521d73bb7ecf5faf82a",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/lattice-baseline.ts"
+      ],
+      "resolvedReason": "Resolved by updating unlock-layer3-loop-engineering-suite.md to state that capability_claim_formal_evaluate supports the loop-engineering target, and that Layer 3 execution must verify this path while keeping Production Safety and global capability claim locked.",
+      "resolvedAt": "2026-06-13T01:51:25.300Z"
+    },
+    {
+      "id": "B-de86:F-003",
+      "desc": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:259-263 defines UDM-REAL-REPAIR as DEV implementation -> validation FAIL -> repair attempt -> validation PASS -> REVIEW -> TEST -> DONE. In this project validation is the TEST-stage lattice validate step: AGENTS.md:72 defines the lifecycle as INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE, AGENTS.md:87 assigns lattice validate to TEST, AGENTS.md:110 says story_advance --phase=TEST then run lattice validate, and AGENTS.md:133-139 says validation FAIL writes evidence and hints back to DEV. The new real-execution plan is supposed to prove actual Lattice lifecycle behavior, but this sequence places validation before REVIEW and before TEST, so it documents an impossible or misleading repair loop. A future UDM-REAL-REPAIR run could follow this plan and either skip the required REVIEW-before-TEST path or record non-gate validation as if it were lattice validate. The repair scenario should spell the real loop as DEV -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE, or explicitly distinguish a DEV-local verification command from TEST-stage lattice validate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T01:53:46.436Z",
+      "reviewRound": "2026-06-13T01:50:47.467Z",
+      "reviewRunId": "B-de86:RR-006",
+      "_hash": "1ce0b5e2ef8e585f048fc6385ac6ce5824ceb7428a16fb6e5bd93a780f1c5161",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+        "AGENTS.md"
+      ],
+      "resolvedReason": "Resolved by changing UDM-REAL-REPAIR to the actual lifecycle sequence: DEV implementation -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE, and by renaming the pass criteria to firstTestValidation/finalTestValidation.",
+      "resolvedAt": "2026-06-13T01:56:24.846Z"
+    },
+    {
+      "id": "B-de86:F-004",
+      "desc": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md:27 still allows the post-formal unlock claim \"Lattice has validated a correctness-protected Loop Engineering model\"; docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:38 and :98 define formal-only as only a formal claim-path unlock and require real execution before a strong operational Loop Engineering claim. These two truth sources now conflict, so the formal doc can still authorize overbroad wording before real UDM lifecycle evidence exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-13T01:54:17.117Z",
+      "reviewRound": "2026-06-13T01:50:47.467Z",
+      "reviewRunId": "B-de86:RR-009",
+      "_hash": "453193704dbe8b736455b05b89f3003d1a8133475cad31141e3fbccb92c858f9",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+      ],
+      "resolvedReason": "Resolved by narrowing unlock-layer3-loop-engineering-suite.md allowed wording to formal Loop Engineering claim path validation for fresh UDM proof artifacts, and adding forbidden wording that real Lattice Story lifecycle execution is not proven without the real-execution UDM baseline.",
+      "resolvedAt": "2026-06-13T01:56:31.004Z"
+    },
+    {
+      "id": "B-de86:F-005",
+      "desc": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:259-263 makes UDM-REAL-REPAIR execute validation FAIL/PASS before REVIEW and TEST. AGENTS.md:71-88 and :131-139 define the real lifecycle as DEV -> REVIEW -> TEST, with lattice validate running in TEST and failing back to DEV. Because this real-execution plan is meant to be executable against actual Lattice stories, the current repair scenario can only be followed by either skipping REVIEW-before-TEST or treating a DEV-local command as TEST-stage validation. The scenario must state the actual loop as DEV -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE, or explicitly rename the early check as DEV-local verification and keep lattice validate in TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T01:54:53.090Z",
+      "reviewRound": "2026-06-13T01:50:47.467Z",
+      "reviewRunId": "B-de86:RR-008",
+      "_hash": "253d9672b29ca0f796f2d769054fc927388b56d0fd3187fc971377a85d7a598a",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+        "AGENTS.md"
+      ],
+      "resolvedReason": "Resolved with the same lifecycle correction as F-003: TEST-stage lattice validate remains after REVIEW, failed validation returns to DEV repair, and final pass occurs in TEST before DONE.",
+      "resolvedAt": "2026-06-13T01:56:31.368Z"
+    }
+  ]
+}
