@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-13T11:12:44.397Z",
       "reviewRunId": "B-3cca:RR-012",
       "_hash": "e7ee5d2e215363b8211cc69290eef845eb10511ad7d5dcb3ff3a592a91f9f5d5"
+    },
+    {
+      "id": "B-3cca:RP-007",
+      "agent": "koala-review-concept",
+      "note": "PASS: latest HEAD presents Lattice/lattice as the current product wording in cli-engine, hook diagnostics, and docs/guide-hooks.md. Remaining Koala references are explicit legacy alias/fallback/runtime/env compatibility tokens (koala.config.json, .koala health path, KOALA_* env vars, reviewer lane names). Verified with npm --prefix packages/main run test:cli-engine-branding-smoke: cli-engine/hooks/guide-hooks all unclassified=0.",
+      "createdAt": "2026-06-13T11:25:53.894Z",
+      "reviewRound": "2026-06-13T11:24:39.834Z",
+      "reviewRunId": "B-3cca:RR-018",
+      "_hash": "4a536851454ca1726e804a23d69ea43f37b115ccbc3223b43e0d38951b64b405"
     }
   ]
 }
