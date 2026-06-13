@@ -219,6 +219,16 @@
           "headHash": "9ebd93b3e30c56b738a103d6c521c8f0a03b39ae",
           "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
           "timestamp": "2026-06-13T10:42:16.449Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified; entrypoints ok 26/26; tsc recursive lint clean (packages/main build exit 0)",
+          "headHash": "74c8ab50b20298a3166b273c8fbbc89173917f23",
+          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
+          "timestamp": "2026-06-13T10:42:16.783Z"
         }
       ]
     },
