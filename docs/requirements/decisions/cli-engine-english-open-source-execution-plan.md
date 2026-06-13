@@ -528,7 +528,7 @@ M168	449	schema	覆盖 verificationIntent 的证据列表	Evidence list covering
 M169	450	schema	变更原因 / 操作者	Change reason. / Actor.	review-draft
 M170	451	schema	操作者别名；INIT reviewer lane 不可直接改需求定义	Actor alias; INIT reviewer lanes may not directly change requirement definitions.	review-draft
 M171	452	schema	subagent 结果是否成功（仅 status=done 时有效，默认 true）	Whether the subagent result succeeded; only valid when status=done, default true.	review-draft
-M172	454	command-description	为 checklist item 追加/更新 verificationIntent 覆盖证据	as checklist item append/update verificationIntent coverevidence	review-draft
+M172	454	command-description	为 checklist item 追加/更新 verificationIntent 覆盖证据	Add or update verification evidence covering a checklist item's verificationIntent.	review-draft
 M173	457	schema	如 CHK-001:happy:0 或自定义 intent id	For example CHK-001:happy:0 or a custom intent ID.	review-draft
 M174	459	schema	证据结论语义；不覆盖 result pass/fail gate	Evidence verdict semantics; does not override the result pass/fail gate.	review-draft
 M175	460	schema	kind=waiver 时可标记为临时 gate 自测 evidence	When kind=waiver, this can mark temporary gate self-test evidence.	review-draft
@@ -1027,13 +1027,13 @@ M667	2201	comment	非 git 目录或其他错误，不过滤	Not a git directory 
 M668	2303	other	if (/始终为 dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {	if (/always dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {	review-draft
 M669	2306	other	if (/默认 dry run|默认 dry-run|default dry run|default dry-run|默认 true/i.test(combined)) {	if (/default dry run|default dry-run|default dry run|default dry-run|default true/i.test(combined)) {	review-draft
 M670	2364	comment	如果有 longHelp（核心命令），先打印完整 PROMPT	If longHelp exists for a core command, print the full PROMPT first.	review-draft
-M671	2372	cli-output	无参数\n	noargument\n	review-draft
+M671	2372	cli-output	无参数\n	No arguments\n	review-draft
 M672	2373	cli-output	用法: ${brand.primaryBin} ${tool.name}	Usage: ${brand.primaryBin} ${tool.name}	review-draft
-M673	2380	cli-output	参数:	argument:	review-draft
+M673	2380	cli-output	参数:	Arguments:	review-draft
 M674	2395	other	--${k}=值	--${k}=value	review-draft
 M675	2399	other	[--${k}=值]	[--${k}=value]	review-draft
 M676	2401	cli-output	\n 用法: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}	\n  Usage: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}	review-draft
-M677	2402	cli-output	兼容: ${brand.legacyAlias} ${tool.name} ...	compatible: ${brand.legacyAlias} ${tool.name} ...	review-draft
+M677	2402	cli-output	兼容: ${brand.legacyAlias} ${tool.name} ...	Compatible: ${brand.legacyAlias} ${tool.name} ...	review-draft
 M678	2403	cli-output	(* = 必填)	(* = required).	review-draft
 M679	2417	cli-output	参数校验失败:\n	Argument validation failed:\n	review-draft
 M680	2420	cli-output	\n参数校验失败（摘要）:\n	\nArgument validation failed (summary):\n	review-draft
@@ -1042,12 +1042,12 @@ M682	2430	cli-output	${brand.primaryBin} <command> --help 查看参数	${brand.p
 M683	2431	cli-output	${brand.primaryBin} help 显示此帮助	${brand.primaryBin} help                          Show this help	review-draft
 M684	2432	cli-output	${brand.primaryBin} --version 显示版本	${brand.primaryBin} --version                     Show version	review-draft
 M685	2433	cli-output	${brand.primaryBin} --root <path> ... 指定项目根目录\n	${brand.primaryBin} --root <path> ...             Specify project root directory\n	review-draft
-M686	2436	cli-output	当前 Story: ${activeStory.storyId} 阶段: ${activeStory.phase}\n	current Story: ${activeStory.storyId} phase: ${activeStory.phase}\n	review-draft
+M686	2436	cli-output	当前 Story: ${activeStory.storyId} 阶段: ${activeStory.phase}\n	Current Story: ${activeStory.storyId} phase: ${activeStory.phase}\n	review-draft
 M687	2442	comment	已知前缀 → 显示分组名（特殊情况优先）	Known prefix maps to display group name (special cases first).	review-draft
 M688	2464	comment	已知分组的展示顺序；不在列表里的分组（来自 extras）按字母序追加	Display order for known groups; groups not in the list (from extras) are appended alphabetically.	review-draft
 M689	2469	comment	有 active story 时只列出当前阶段可用命令	When an active story exists, list only commands available in the current phase.	review-draft
 M690	2475	other	未知前缀：首字母大写	Unknown prefix: capitalize first letter.	review-draft
-M691	2491	other	开发流程:	Development flow.:	review-draft
+M691	2491	other	开发流程:	Development flow:	review-draft
 M692	2493	other	{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}	{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}	review-draft
 M693	2494	other	2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建本地 worktree/local branch	2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # Create local worktree/local branch	review-draft
 M694	2496	other	4. lattice story_review --storyId=B-xxx # 审查通过后进 DEV	4. lattice story_review --storyId=B-xxx                     # Review passes, then enter DEV	review-draft
@@ -1056,10 +1056,10 @@ M696	2501	other	7. lattice validate # 验证（按项目语言自动发现或读
 M697	2505	other	9. lattice story_advance --storyId=B-xxx --phase=REVIEW # 进入代码审查	9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review	review-draft
 M698	2506	other	10. Lattice reviewer 审查代码，提 finding # critical/high 必须 resolve	10. Lattice reviewer reviews code and raises findings       # critical/high must resolve	review-draft
 M699	2510	other	12. lattice story_advance --storyId=B-xxx --phase=DONE # 合并回本地 main 并清理 worktree	12. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree	review-draft
-M700	2512	other	并行/分支纪律:	Parallelism and branch discipline.:	review-draft
+M700	2512	other	并行/分支纪律:	Parallelism and branch discipline:	review-draft
 M701	2513	other	Lattice 并行开发只使用本地 git worktree + 本地分支；不要创建或 push GitHub/origin feature branch。	Lattice parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.	review-draft
 M702	2514	other	如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再由人类显式运行 lattice release_approve_push --confirm，然后手动 git push origin main。	If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs lattice release_approve_push --confirm, and then manually runs git push origin main.	review-draft
-M703	2516	other	初始化新项目:	Initialize new project.:	review-draft
+M703	2516	other	初始化新项目:	Initialize a new project:	review-draft
 M704	2517	other	lattice init # 在当前目录初始化 Lattice project state	lattice init                          # Initialize Lattice project state in the current directory	review-draft
 M705	2519	other	提示: 简单参数用 --key=value，复杂参数(array/object)用 JSON 格式	Tip: use --key=value for simple arguments; use JSON format for complex arguments (array/object).	review-draft
 M706	2520	help	出错? 用 lattice <command> --help 查看完整参数说明	Error? Use lattice <command> --help to view complete argument help.	review-draft
@@ -1094,7 +1094,7 @@ M734	3617	comment	心跳：默认 5 分钟无输出 = 卡死；15 分钟绝对�
 M735	3618	comment	可通过 KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS 覆盖，	Can be overridden with KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS,	review-draft
 M736	3619	comment	真机 smoke 的单轮 LLM 调用偶尔 > 2 分钟（text-adventure 卸载等非确定性 case）。	A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).	review-draft
 M737	3630	cli-output	${cmd} 超过 10 分钟，强制退出	${cmd} exceeded 10 minutes; forcing exit	review-draft
-M738	3634	cli-output	${cmd} 卡死：${IDLE_TIMEOUT / 1000} 秒无输出，强制退出	${cmd} stuck:${IDLE_TIMEOUT / 1000} seconds without output; forcing exit	review-draft
+M738	3634	cli-output	${cmd} 卡死：${IDLE_TIMEOUT / 1000} 秒无输出，强制退出	${cmd} stuck: ${IDLE_TIMEOUT / 1000} seconds without output; forcing exit	review-draft
 M739	3640	comment	统一日志：写入 .lattice/activity.jsonl（双源模块，legacy 路径只读兼容）	Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).	review-draft
 M740	3641	comment	写入失败属于 PERSIST 类（audit 不完整 → 事后无法回溯），改为 reportHealthIssue	Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.	review-draft
 M741	3642	comment	staleWarnings 也一并落盘，便于事后做趋势分析（agent 多久会忘记 advance 一次）	staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).	review-draft
