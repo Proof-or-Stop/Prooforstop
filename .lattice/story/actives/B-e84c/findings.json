@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-e84c:F-001",
+      "desc": "Recorded verification evidence does not cover fail-closed rejected commands. checklist_get shows allowed CLI help checks for codex_doctor/verify_codex, forbidden-guidance rg scans, NAV count, residual-boundary, and no-overclaim evidence, but no evidence item executes a forbidden Codex-prefixed workflow command and records the expected rejection/non-zero fail-closed behavior. The closest CHK-002 adversarial evidence is a repository scan plus a note about negative smoke-test assertions, which does not by itself prove the command boundary rejects forbidden workflow commands.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T13:39:33.533Z",
+      "reviewRound": "2026-06-13T13:37:59.600Z",
+      "reviewRunId": "B-e84c:RR-003",
+      "_hash": "8563f5ae9322c91a2aac79c0653d6dabc74ad5f53f262d493608226b7641308e",
+      "files": [
+        "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+      ]
+    }
+  ]
+}
