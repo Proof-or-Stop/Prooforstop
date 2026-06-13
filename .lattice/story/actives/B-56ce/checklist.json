@@ -178,7 +178,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "When a user runs `lattice codex session_brief` or `lattice codex aux_doc_list`, the CLI exits non-zero and says `Use lattice session_brief` or `Use lattice aux_doc_list`; it still lists `lattice codex verify` / `lattice codex doctor` for adapter checks.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Unsupported codex-prefixed core commands suggest the equivalent ordinary lattice command.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Supported codex adapter aliases verify and doctor continue resolving to verify_codex and codex_doctor.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The fix does not create a broad second codex namespace for arbitrary lifecycle commands.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
