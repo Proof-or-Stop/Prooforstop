@@ -1,7 +1,7 @@
 # Lattice CLI
 
 Lattice CLI 0.3.5 是 Koala Story 工作流的 CLI-first 产品入口。`lattice`
-是主入口，`koala` 保留为 legacy alias；两者仍指向同一套 project state、
+是主入口，指向同一套 project state、
 phase、gate、review、evidence 和 handoff 语义。
 
 这个仓库当前包含：
@@ -9,9 +9,7 @@ phase、gate、review、evidence 和 handoff 语义。
 - `packages/main`：Lattice/Koala 核心 CLI
 - `packages/utils`：`aux_*`、`truth_*`、`tool_status` 等扩展工具
 - `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）；仅此仓库自身使用，新项目 global-thin 默认 init 不生成此文件
-- `bin/koala.js`：legacy bootstrap alias（`main + utils`）
 - `bin/lattice-codex.js`：Codex 专用本地入口，会把活动记成 `source=codex`；full/thin 模式显式 opt-in 才生成，global-thin 默认不生成
-- `bin/koala-codex.js`：legacy Codex wrapper alias for existing repositories
 
 ## Lattice CLI 0.3.5 Migration
 
@@ -51,7 +49,6 @@ Local/global refresh after editing the CLI itself:
 npm --prefix packages/main run build
 npm install -g ./packages/main
 lattice --version
-koala --version
 lattice check
 lattice doctor --format=json
 lattice rollout_check --projects "$(pwd)" --json
@@ -519,7 +516,7 @@ node bin/lattice-codex.js story_create '...'
 node bin/lattice-codex.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 ```
 
-Wrapper 优先级：`bin/lattice-codex.js`（本仓标准）> `bin/koala-codex.js`（legacy 项目等价 fallback）> `bin/lattice.js`（通用 bootstrap，不带 `source=codex` 标记）> `bin/koala.js`（legacy 通用 bootstrap fallback）。legacy 项目或新 worktree 只有 `bin/koala-codex.js` 时，直接替换前缀，语义等价。
+Wrapper 优先级：`bin/lattice-codex.js`（本仓标准）> `bin/lattice.js`（通用 bootstrap，不带 `source=codex` 标记）。
 
 原因：
 
@@ -542,7 +539,7 @@ node packages/main/dist/cli.js doctor --format=json
 Lattice can still be packaged as a single desktop executable with Vercel `pkg`,
 but this is optional packaging, not the Mac App release path. The desktop build
 uses a small pkg-specific entrypoint that loads the same full local bootstrap as
-`bin/lattice.js` / `bin/koala.js`, so packaged binaries include core commands
+`bin/lattice.js`, so packaged binaries include core commands
 and utils commands such as `aux_doc_list`.
 The entrypoint exists because pkg's Node 18 snapshot loader does not reliably
 run this repo's ESM bootstrap directly from the snapshot; it stages the bundled
@@ -554,14 +551,14 @@ npm run package:desktop:host
 npm run test:desktop-package
 ```
 
-The host binary is written to `dist/desktop/koala-<platform>-<arch>`. Release
+The host binary is written to `dist/desktop/lattice-<platform>-<arch>`. Release
 packaging for macOS, Linux, and Windows x64 targets is available with:
 
 ```bash
 npm run package:desktop:release
 ```
 
-Desktop/archive surfaces can copy the matching `dist/desktop/koala-*` binary
+Desktop/archive surfaces can copy the matching `dist/desktop/lattice-*` binary
 into an app bundle and invoke it directly; users do not need a separate Node.js
 install. This is optional dashboard/archive support. Provider/config status now
 belongs to the Lattice CLI commands above.
@@ -571,7 +568,7 @@ its last release. Future release hardening should revisit Node SEA or an
 actively maintained `pkg` fork before adding installer, signing, or auto-update
 workflows.
 
-全局 `koala` 只适合作为 source-tagged heartbeat fallback；它可能滞后于当前 worktree，不应作为当前 story 的 gate/status/next-step 证据。Global `lattice`/`koala` in a story worktree is **heartbeat-only, not current-worktree gate/status evidence**.
+`lattice` 在 story worktree 中仅适合作为 source-tagged heartbeat fallback；它可能滞后于当前 worktree，不应作为当前 story 的 gate/status/next-step 证据。Global `lattice` in a story worktree is **heartbeat-only, not current-worktree gate/status evidence**.
 
 `validate --json` 的 `commands[]` 是验证 receipt：结构化命令默认记录 argv 形式；
 包含 `cd`、`&&`、管道或重定向等 shell 语义的字符串配置会记录 `shell=true`，表示这是有意的 shell receipt。必需命令失败会让 validate fail；`optional:true` 失败只会 warn。`doctor` 的 Validation scan 只做 advisory：它展示 validate 文件、配置命令、fallback 发现和 no-validator warning，帮助你决定是否要补显式 `validate.command(s)`。
@@ -600,7 +597,6 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 
 ```bash
 node bin/lattice-codex.js session_brief     # 本仓标准 wrapper
-# node bin/koala-codex.js session_brief    # legacy 项目 fallback（等价）
 ```
 
 项目里的 [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1) 也要求每个新 session 先跑这条命令。
@@ -617,9 +613,9 @@ node bin/lattice.js tool_status --source=codex --days=1 --limit=10
 npm run test:entrypoints
 ```
 
-这会验证当前 worktree 的 repo-local entrypoints / generated local wrapper，不要求当前环境里的 bare global `koala` 已经更新：
+这会验证当前 worktree 的 repo-local entrypoints / generated local wrapper，不要求当前环境里的 global `lattice` 已经更新：
 
-- 当前仓库的 `bin/lattice.js` / `bin/lattice-codex.js`，以及 legacy `bin/koala.js` / `bin/koala-codex.js`
+- 当前仓库的 `bin/lattice.js` / `bin/lattice-codex.js`
 - repo-local `node packages/main/dist/cli.js init --help` 和 generated local wrapper `node bin/lattice.js init --help` 都把 `--starter` / `--with-template` 标为可选 starter 内容
 - repo-local default init 只生成 Koala management assets，不生成 starter `src/core` / `src/shells` / `tests`
 - repo-local `init --starter` / `init --with-template` 会生成旧版 starter 模板，并使用 `scanRoot: "src"`
@@ -642,7 +638,7 @@ node bin/lattice-codex.js verify_codex
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
-`node bin/lattice-codex.js verify_codex`（legacy 项目也可继续用 `node bin/koala-codex.js verify_codex`；通用本地入口是 `node bin/lattice.js verify_codex`）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
+`node bin/lattice-codex.js verify_codex`（通用本地入口是 `node bin/lattice.js verify_codex`）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
 
 诊断同一组 Codex adapter 检查、health 和 worktree 状态：
 
@@ -658,7 +654,7 @@ npx koala-init --verify-codex
 
 ## 没有本地 wrapper 时
 
-如果某个项目只有全局 CLI，没有 `bin/lattice-codex.js` 也没有 `bin/koala-codex.js`，可以这样跑：
+如果某个项目只有全局 CLI，没有 `bin/lattice-codex.js`，可以这样跑：
 
 ```bash
 KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
@@ -666,7 +662,7 @@ KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPO
 
 这能保证 activity 里仍然按 `source=codex` / `entrypoint=global-fallback` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。**Global CLI is heartbeat-only, not current-worktree gate/status evidence**; do not use its `status` / `validate` output as gate authority for the active story worktree.
 
-注意：在 Lattice/Koala 仓库开发自身时，全局 CLI 可能来自旧安装、主仓或另一个 worktree。不要用旧全局 `koala` alias 的 `status` / `next` / `validate` 输出判断当前 story 是否可推进；先构建本地 wrapper，或使用 `node packages/main/dist/cli.js <command>` 读取当前 worktree 的代码和状态。
+注意：在 Lattice/Koala 仓库开发自身时，全局 CLI 可能来自旧安装、主仓或另一个 worktree。不要用旧 global `lattice` 的 `status` / `next` / `validate` 输出判断当前 story 是否可推进；先构建本地 wrapper，或使用 `node packages/main/dist/cli.js <command>` 读取当前 worktree 的代码和状态。
 
 如果全局 core 入口提示 `未知命令: aux_doc_list`，在 Koala 仓库内使用完整 bootstrap：
 
@@ -688,7 +684,7 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-全局安装的 `lattice`（legacy alias: `koala`，canonical package: `@lattice-agent/core`；legacy package fallback: `@koala-agent/core`）在 `@lattice-agent/lab` 可解析时也会自动启用 `lattice lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `lattice lab ...` 会提示安装/构建 lab。
+全局安装的 `lattice`（canonical package: `@lattice-agent/core`；legacy package fallback: `@koala-agent/core`）在 `@lattice-agent/lab` 可解析时也会自动启用 `lattice lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `lattice lab ...` 会提示安装/构建 lab。
 
 发布 `0.3.5` 前建议跑：
 

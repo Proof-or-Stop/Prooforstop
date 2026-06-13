@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-decb",
+  "mode": "feature",
+  "allowed": [
+    "docs/guide.md",
+    "packages/main/package.json",
+    "README.md",
+    "scripts/package-desktop.mjs"
+  ],
+  "excluded": [
+    ".koala",
+    ".lattice",
+    ".story",
+    "packages/lab",
+    "packages/utils"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "用户要求仅做‘不再作koala兼容’的小改动：统一命令/桌面产物/文档引用为lattice。",
+  "createdAt": "2026-06-13T14:21:30.990Z",
+  "updatedAt": "2026-06-13T14:21:30.990Z",
+  "_hash": "c30d04a8c313a1e4229ec2847d4414e176f665f73b0e25361b087788b3196d0d"
+}
