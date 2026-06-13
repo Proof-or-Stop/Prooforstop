@@ -39,7 +39,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"missing_scope_check|scope-check\\\\.json|scope_check_save\" packages/main/src/handlers/story-review.ts packages/main/src/cli-engine.ts packages/main/src/handlers/scope-check.ts",
+          "result": "pass",
+          "note": "Inspection identifies story-review.ts as the missing_scope_check source and confirms scope_check_save handler/help surfaces exist.",
+          "headHash": "f595214fd5879fdc641080a3efe6f0fa9c0b5847",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:15.257Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
