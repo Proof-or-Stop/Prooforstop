@@ -1,0 +1,56 @@
+{
+  "storyId": "B-56ce",
+  "changes": "Improved Lattice CLI recovery diagnostics in five scoped areas: validation timeout failures now explain the configured timeout and how to tune validate.commands[].timeoutMs; stale verification evidence hints now state that HEAD/material hash binding drift does not necessarily mean test logic failed and use lattice commands; owner lease errors and session_brief now surface same-worktree takeover guidance; delivery-check gate hints document the koala-review-delivery fallback provenance boundary; unsupported lattice codex session_brief/aux_doc_list commands now suggest the ordinary lattice command equivalents.",
+  "usage": "Run normal Lattice commands. Timeout diagnostics appear during lattice validate failures when a command is killed by timeout. Stale evidence recovery is shown in session_brief/story_advance/validate. Same-worktree owner recovery appears in owner lease errors/session_brief. Delivery fallback guidance appears in DONE/TEST hints. Legacy codex namespace mistakes suggest lattice session_brief or lattice aux_doc_list.",
+  "expectedOutcome": "A user blocked during Lattice flow recovery should see direct, executable guidance for timeout tuning, stale evidence refresh, same-worktree owner takeover, delivery-check fallback provenance, and unsupported codex namespace commands without changing gate semantics.",
+  "actualTranscript": "Validated on B-56ce: npm --prefix packages/main run build passed; test:validation-protocol passed; test:verification-freshness-smoke passed; test:story-owner-lease-smoke passed; test:legacy-koala-compatibility-smoke passed; test:flow-stability-smoke passed; node bin/lattice.js validate --story=B-56ce --json passed with allPass true, npm test fallback pass, and verification coverage 15/15 covered.",
+  "outcomeDiff": "No functional acceptance gap observed. The implementation improves recovery messages and command suggestions while preserving existing validation, evidence freshness, owner lease, delivery-check, and unknown-command gates.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No arbitrary timeout default change was made because this checkout did not actually define validate.commands timeoutMs=120000; the fix targets the real correctness issue: timeout failures lacked actionable diagnosis. Historical-duration auto-suggestion remains out of scope for this small UX story.",
+  "pitfalls": "Two workflow issues mattered: validation evidence became stale after review metadata commits and had to be refreshed with verification_evidence_refresh_stale; a same-worktree owner lease handoff occurred during review, confirming the recovery hint needed to be surfaced by the actual owner gate path, not only by session_brief.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 69439
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 35189
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 359610
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 850200
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 612777
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 111574
+    }
+  },
+  "totalDurationMs": 2038790,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T10:40:21.181Z",
+  "updatedAt": "2026-06-13T10:40:21.181Z"
+}
