@@ -4,7 +4,7 @@
   "title": "Enforce decision-doc 3-round 2-host verification as a DONE gate",
   "description": "Turn the core decision-document verification discipline into a mechanical lifecycle gate. Any story that changes docs/requirements/decisions/*.md must be blocked before DONE unless it records three fresh rounds of at least two independent host PASS verdicts over the current decision-doc material. This makes the B-4e06 practice enforceable by Lattice instead of relying on memory or convention.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "decision-doc-gate",
@@ -54,11 +54,20 @@
       "branch": "story/B-2c0c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T22:20:57.467Z",
+      "branch": "story/B-2c0c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-2c0c",
     "branch": "story/B-2c0c",
     "createdAt": "2026-06-13T21:58:06.746Z"
-  }
+  },
+  "currentReviewRound": "2026-06-13T22:20:57.467Z"
 }
