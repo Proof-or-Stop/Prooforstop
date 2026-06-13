@@ -44,7 +44,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Document review is complete with recorded evidence: CLI help checks pass, scans identify only expected residual execution targets, and DONE summary states the remaining non-document cleanup boundary.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validation evidence records the CLI help checks and scan commands used to review the document.",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The delivery summary distinguishes document review completion from later template/README cleanup execution.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story does not claim production, authority, unattended, or full convergence readiness from this document review.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
