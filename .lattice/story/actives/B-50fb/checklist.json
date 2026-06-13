@@ -56,9 +56,9 @@
           "command": "node manifest and lock package identity assertion",
           "result": "pass",
           "note": "Checked 10 manifest and lock files: root package name is lattice, packages/main is @lattice-agent/core, packages/game is @lattice/game, and no manifest or lock contains old @koala-agent package scopes or @koala/game.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "node packages/main/package.json bin alias assertion",
           "result": "pass",
           "note": "Verified bin.lattice remains primary and legacy bin.koala remains mapped to dist/cli.js.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "rg package metadata for @koala-agent scopes and @koala/game",
           "result": "pass",
           "note": "No package manifest or lockfile exposes old @koala-agent package scopes or @koala/game.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         }
       ]
     },
@@ -151,9 +151,9 @@
           "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-entrypoints.mjs",
           "result": "pass",
           "note": "Runtime fact contract and entrypoint verification passed: canonical runtime/package resolution remains @lattice-agent/core and generated wrappers search canonical core before legacy fallback.",
-          "headHash": "054082c3b2de16a795b645b3846f794041c48f17",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:14.302Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -161,9 +161,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "Focused mixed-install smoke passed: canonical @lattice-agent/core directory present while legacy @koala-agent/core symlink pointed at the story worktree; repairGlobalKoalaLinkBeforeWorktreeDelete relinked the legacy symlink to packages/main before deletion.",
-          "headHash": "054082c3b2de16a795b645b3846f794041c48f17",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:14.332Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,9 +171,9 @@
           "command": "rg -n @koala-agent/core|@lattice-agent/core packages/main/src packages/main/templates scripts README.md docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Focused scan shows @lattice-agent/core as canonical in runtime/template/script paths; remaining @koala-agent/core matches are legacy fallback constants, compatibility diagnostics, or negative dependency assertions.",
-          "headHash": "054082c3b2de16a795b645b3846f794041c48f17",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:14.360Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         }
       ]
     },
@@ -239,9 +239,9 @@
           "command": "rg @koala-agent/(core|utils|lab|cli-guess-number) packages/main/src packages/utils/src packages/lab/src packages/main/templates scripts README.md docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Active current package identity comments and import examples in main/utils/lab source use @lattice-agent/core, @lattice-agent/utils, and @lattice-agent/lab.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -249,9 +249,9 @@
           "command": "rg @koala-agent/(utils|lab|cli-guess-number) packages/main/src packages/utils/src packages/lab/src packages/main/templates README.md docs/requirements scripts",
           "result": "pass",
           "note": "No old @koala-agent/utils or @koala-agent/cli-guess-number current references remain; the only @koala-agent/lab hit is a negative dependency assertion in verify-global-lab-entrypoint.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -259,9 +259,9 @@
           "command": "focused remaining @koala-agent/core classification search",
           "result": "pass",
           "note": "Remaining @koala-agent/core matches are README/authority docs that say legacy fallback, runtime fallback constants/diagnostics, generated bootstrap fallback assertions, and the test-auto LEGACY_CORE_PACKAGE_NAME compatibility guard.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         }
       ]
     },
@@ -321,9 +321,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "TypeScript build and focused smokes passed. validation-protocol covers the PLAN→DEV fallback when config loading throws: getGuardFailureReason still returns null, but canSendStoryEvent without snapshot.can returns false and the orchestrator target-state assertion blocks DEV side effects.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -331,9 +331,9 @@
           "command": "npm test && node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-entrypoints.mjs && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Root e2e, runtime fact contract, entrypoints, and process fact contract all passed after the shared guard predicate and mixed-install cleanup repair.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -341,9 +341,9 @@
           "command": "lattice scope_contract_check {storyId:B-50fb}",
           "result": "pass",
           "note": "Scope contract passes after explicit expansion for packages/main/src/core/machine.ts and packages/main/src/tasks/worktree-repair-smoke.ts with 0 unacknowledged violations.",
-          "headHash": "afb030ff3094ab6197ed27855ef1f42459b52edb",
-          "materialHash": "cf741bf6944f59b2ffa04dd14e723c79599496c9476cf3cf0fed58714c002ed2",
-          "timestamp": "2026-06-12T21:52:53.012Z"
+          "headHash": "4e7635805e7ef99a4dad8651224daffca694b9ec",
+          "materialHash": "ec9f1041e3ea0a12dc8874cdbc18487c91106dbfeff9032bb4bf02ed8d27b286",
+          "timestamp": "2026-06-13T01:49:06.747Z"
         }
       ]
     }
