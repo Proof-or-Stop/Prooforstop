@@ -199,7 +199,7 @@
       "desc": "packages/main/src/core/scope-anti-expansion.ts:51 and :432 define the freeze story projection/current repeat-discard terms as title/description plus checklist/boundary text only, while packages/main/src/handlers/worktree.ts:568 records discarded digests from title/description/keywords/checklist only and packages/main/src/handlers/scope-anti-expansion.ts:212 plus packages/main/src/core/machine.ts:168 re-evaluate the same projection. That leaves mandatory background.md outside the repeat-discard gate, so a previously discarded direction expressed only in background can be recreated without overlap, stale-freeze, or mitigation pressure. The current F-007/F-009 fixes correctly stale old freezes when a new digest entry appears and reuse stored mitigation by overlap key, but the repeat-discard boundary is not closed over the story background source of truth.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-13T02:01:45.574Z",
@@ -211,7 +211,9 @@
         "packages/main/src/handlers/worktree.ts",
         "packages/main/src/handlers/scope-anti-expansion.ts",
         "packages/main/src/core/machine.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in d48c744: background.md is now part of ScopeFreezeStoryProjection, bounded text sources, sourceTerms, freshness payload, scope_freeze_check handler projection, INIT_CHECK machine projection, and story_discard digest terms via StoryStore.readStoryBackground/scopeFreezeBackgroundTerms. Smoke now covers a background-only discarded direction blocking replacement without mitigation, passing after mitigation, and stale freeze after background edit. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-13T02:08:19.875Z"
     }
   ]
 }
