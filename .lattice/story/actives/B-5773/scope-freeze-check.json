@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5773",
+  "checkedAt": "2026-06-13T18:57:08.642Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "c15966772561e2db2fc77be6baad778d0cfdee18aeb2361a87a799b6caa8084f",
+  "executionBoundaryHash": "0395709c6559cc03247dcf42361c1c5ac7dcb71c0bff585a3a4d0c21ca7ea715",
+  "freshnessHash": "57326ac7a969aa1b679d0f5fe397fd6ef54dfe32f8eebca4d3d791b0630bcd5d",
+  "effectiveExcludedKeywords": [
+    "Changing the manifest row count or the chineseSource/sourceLine columns",
+    "Modifying packages/main/src/cli-engine.ts or any source code",
+    "Performing the actual cli-engine.ts translation (deferred to a later implementation story)",
+    "Renaming the code identifier realMachineTests (real-machine tests kept as-is)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing the manifest row count or the chineseSource/sourceLine columns",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the manifest row count or the chineseSource/sourceLine columns",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying packages/main/src/cli-engine.ts or any source code",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying packages/main/src/cli-engine.ts or any source code",
+      "excluded": true
+    },
+    {
+      "keyword": "Performing the actual cli-engine.ts translation (deferred to a later implementation story)",
+      "source": "scopeBoundary.excluded",
+      "text": "Performing the actual cli-engine.ts translation (deferred to a later implementation story)",
+      "excluded": true
+    },
+    {
+      "keyword": "Renaming the code identifier realMachineTests (real-machine tests kept as-is)",
+      "source": "scopeBoundary.excluded",
+      "text": "Renaming the code identifier realMachineTests (real-machine tests kept as-is)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "469f1c26e1051cd363fb502a9b0b2c9c21600885898120a25f0c2f08cf4e082a"
+}
