@@ -21,7 +21,14 @@
       "context": "Sweep M001..M762 and the T-table catalog, keeping T/M twins consistent (the F-005 lesson). Unify: drop 'finding item' (#17); source-of-truth (#8); iteration vs round in reflection loop M036-M053 (#16); Emit JSON at M272/M286/M290/M302/M305 (#5); 'Command to run' for the 执行命令 input fields M019/M177/M185 and 'Command result' for 执行结果 (#6); 'Recorded by'/'Actor' for M076/M086/M225/M236/M241 (#7); 'entry point' in prose (#11); 'prevent self-approval/self-waiver' for M586/M588 (#9); Git capitalization in M747/M751 (#14); 'full prompt'/'detailed help' for M007/M670 PROMPT casing (#12); discard-story wording M109 (#18); 'Fail when' for M409 (#19). Preserve identifiers; keep the 762<->762 invariant and zero Chinese in proposedEnglish.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
