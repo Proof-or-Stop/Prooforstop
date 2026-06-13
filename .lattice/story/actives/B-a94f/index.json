@@ -4,11 +4,11 @@
   "title": "Load root authority_trust.env for Authority defaults",
   "description": "Let Lattice CLI use a root authority_trust.env file as a default Authority Server trust profile when Authority commands need configuration, without committing secrets or overriding explicit CLI/env settings.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-13T12:14:15.074Z",
   "startedAt": "2026-06-13T12:14:15.074Z",
-  "endedAt": null,
+  "endedAt": "2026-06-13T13:09:46.763Z",
   "events": [
     {
       "phase": "INIT",
@@ -89,12 +89,15 @@
       "branch": "story/B-a94f",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:09:46.763Z",
+      "branch": "story/B-a94f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-a94f",
-    "branch": "story/B-a94f",
-    "createdAt": "2026-06-13T12:16:16.264Z"
-  },
   "currentReviewRound": "2026-06-13T13:00:23.549Z"
 }
