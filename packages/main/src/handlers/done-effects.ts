@@ -42,7 +42,7 @@
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
 import { maybeTriggerAudit } from '../core/audit-trigger.js';
-import { execFileSync, execSync } from 'child_process';
+import { execFileSync, execSync, spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
@@ -111,6 +111,100 @@ function pruneWorktreeRegistry(repoRoot: string): void {
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+}
+
+export type DoneMainBuildCommandResult = {
+  status: number | null;
+  stdout?: unknown;
+  stderr?: unknown;
+  error?: unknown;
+};
+
+export type DoneMainBuildRunner = (cwd: string) => DoneMainBuildCommandResult;
+
+export const DONE_MAIN_BUILD_COMMAND = 'npm --prefix packages/main run build';
+
+function normalizeGitPath(path: string): string {
+  return path.replace(/\\/g, '/').replace(/^\.?\//, '');
+}
+
+export function isDoneMainRuntimeBuildInput(path: string): boolean {
+  const rel = normalizeGitPath(path);
+  return rel.startsWith('packages/main/src/')
+    || rel === 'packages/main/package.json'
+    || rel === 'packages/main/tsconfig.json'
+    || rel === 'package.json'
+    || rel === 'package-lock.json';
+}
+
+export function shouldBuildDoneMainPackageForChangedPaths(paths: string[]): boolean {
+  return paths.some(isDoneMainRuntimeBuildInput);
+}
+
+function listChangedPathsBetweenMainShas(mainMergeRoot: string, beforeMainSha: string, afterMainSha: string): string[] {
+  if (beforeMainSha === afterMainSha) return [];
+  const raw = execFileSync('git', ['diff', '--name-only', beforeMainSha, afterMainSha, '--'], {
+    cwd: mainMergeRoot,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  return raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+}
+
+function defaultDoneMainBuildRunner(cwd: string): DoneMainBuildCommandResult {
+  const result = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  return {
+    status: result.status,
+    stdout: result.stdout,
+    stderr: result.stderr,
+    error: result.error,
+  };
+}
+
+function stringifyCapturedOutput(value: unknown): string {
+  if (!value) return '';
+  if (Buffer.isBuffer(value)) return value.toString('utf-8');
+  return String(value);
+}
+
+function renderBuildCapturedOutput(result: DoneMainBuildCommandResult): string {
+  return [
+    stringifyCapturedOutput(result.stdout).trim(),
+    stringifyCapturedOutput(result.stderr).trim(),
+    result.error ? stringifyCapturedOutput(result.error).trim() : '',
+  ].filter(Boolean).join('\n');
+}
+
+export function runDoneMainPackageBuildAfterMerge(
+  mainMergeRoot: string,
+  beforeMainSha: string,
+  afterMainSha: string,
+  opts: { changedPaths?: string[]; buildRunner?: DoneMainBuildRunner } = {},
+): string {
+  const changedPaths = opts.changedPaths ?? listChangedPathsBetweenMainShas(mainMergeRoot, beforeMainSha, afterMainSha);
+  if (!shouldBuildDoneMainPackageForChangedPaths(changedPaths)) {
+    return '✓ packages/main build skipped after DONE merge (no watched runtime inputs changed)';
+  }
+
+  const result = (opts.buildRunner ?? defaultDoneMainBuildRunner)(mainMergeRoot);
+  if (!result.error && result.status === 0) {
+    return `✓ packages/main build refreshed after DONE merge: ${DONE_MAIN_BUILD_COMMAND}`;
+  }
+
+  const captured = renderBuildCapturedOutput(result) || '(no captured output)';
+  const exitDetail = result.error
+    ? stringifyCapturedOutput(result.error)
+    : `exit code ${result.status ?? 'unknown'}`;
+  throw new Error(
+    `DONE post-merge packages/main build failed (${exitDetail}); packages/main/dist may be stale.\n` +
+    `Command: ${DONE_MAIN_BUILD_COMMAND}\n` +
+    `Recovery: ${DONE_MAIN_BUILD_COMMAND}\n` +
+    `Captured output:\n${captured}`,
+  );
 }
 
 type DoneWorktreeContext = {
@@ -509,11 +603,14 @@ export async function applyDoneMergeEffects(
       // 让 agent 看到详细的手动 cleanup 步骤——phase 已经是 DONE，不回滚，但
       // 必须让 user 知道还有手动收尾要做。
       const mainBranch = runGitArgs(['rev-parse', '--abbrev-ref', 'HEAD'], mainMergeRoot);
+      const mainShaBeforeDoneMerge = runGitArgs(['rev-parse', 'HEAD'], mainMergeRoot);
+      let mainShaAfterDoneMerge = mainShaBeforeDoneMerge;
       try {
         runGitArgs(
           ['-c', 'commit.gpgsign=false', 'merge', branch, '--no-ff', '-m', `merge: ${storyId} ${story.title}`],
           mainMergeRoot,
         );
+        mainShaAfterDoneMerge = runGitArgs(['rev-parse', 'HEAD'], mainMergeRoot);
         mergeLines.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
       } catch (e: any) {
         throw new Error(
@@ -637,6 +734,12 @@ export async function applyDoneMergeEffects(
         });
         mergeLines.push(`⚠ Auxiliary worktree cleanup skipped: ${e?.message || e}`);
       }
+
+      mergeLines.push(runDoneMainPackageBuildAfterMerge(
+        mainMergeRoot,
+        mainShaBeforeDoneMerge,
+        mainShaAfterDoneMerge,
+      ));
     }
 
     if (mergeLines.length > 0) {

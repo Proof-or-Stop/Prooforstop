@@ -12,6 +12,11 @@ import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, Sto
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { assertCwdInWorktree } from '../handlers/context.js';
+import {
+  isDoneMainRuntimeBuildInput,
+  runDoneMainPackageBuildAfterMerge,
+  shouldBuildDoneMainPackageForChangedPaths,
+} from '../handlers/done-effects.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -808,6 +813,84 @@ function buildDoneReadyStory(
   return { worktreePath, store };
 }
 
+function assertDoneMainPackageBuildTriggerPredicate(): void {
+  const watched = [
+    'packages/main/src/handlers/done-effects.ts',
+    'packages/main/src/index.ts',
+    'packages/main/package.json',
+    'packages/main/tsconfig.json',
+    'package.json',
+    'package-lock.json',
+  ];
+  for (const path of watched) {
+    assert.equal(isDoneMainRuntimeBuildInput(path), true, `${path} must trigger the post-DONE packages/main build`);
+  }
+  assert.equal(
+    shouldBuildDoneMainPackageForChangedPaths(watched),
+    true,
+    'any watched runtime input in the merge diff must trigger the packages/main build',
+  );
+
+  const skipped = [
+    'docs/requirements/decisions/story-lifecycle.md',
+    'README.md',
+    'packages/main/README.md',
+    'packages/main/tests/smoke.ts',
+    'packages/lab/src/index.ts',
+  ];
+  for (const path of skipped) {
+    assert.equal(isDoneMainRuntimeBuildInput(path), false, `${path} must not trigger the post-DONE packages/main build`);
+  }
+  assert.equal(
+    shouldBuildDoneMainPackageForChangedPaths(skipped),
+    false,
+    'docs-only and unrelated package changes must skip the packages/main build',
+  );
+}
+
+function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
+  let buildCalls = 0;
+  const skipLine = runDoneMainPackageBuildAfterMerge('/tmp/koala-unused-main', 'before', 'after', {
+    changedPaths: ['docs/requirements/decisions/story-lifecycle.md'],
+    buildRunner: () => {
+      buildCalls += 1;
+      return { status: 0, stdout: 'should not run' };
+    },
+  });
+  assert.equal(buildCalls, 0, 'skip branch must not invoke the build runner');
+  assert.match(skipLine, /packages\/main build skipped after DONE merge/, 'skip branch must return a visible skip line');
+
+  const successLine = runDoneMainPackageBuildAfterMerge('/tmp/koala-main', 'before', 'after', {
+    changedPaths: ['packages/main/src/handlers/done-effects.ts'],
+    buildRunner: (cwd) => {
+      buildCalls += 1;
+      assert.equal(cwd, '/tmp/koala-main', 'success branch must run from the main merge root');
+      return { status: 0, stdout: 'build ok\n' };
+    },
+  });
+  assert.equal(buildCalls, 1, 'success branch must invoke the build runner exactly once');
+  assert.match(successLine, /packages\/main build refreshed after DONE merge/, 'success branch must return a visible success line');
+  assert.match(successLine, /npm --prefix packages\/main run build/, 'success line must name the package build command');
+
+  try {
+    runDoneMainPackageBuildAfterMerge('/tmp/koala-main', 'before', 'after', {
+      changedPaths: ['package-lock.json'],
+      buildRunner: () => ({
+        status: 2,
+        stdout: 'tsc started\n',
+        stderr: 'dist compile failed\n',
+      }),
+    });
+    assert.fail('failure branch must throw when the post-DONE package build exits non-zero');
+  } catch (e: any) {
+    const message = String(e?.message ?? e);
+    assert.match(message, /packages\/main\/dist may be stale/, 'failure message must say dist may be stale');
+    assert.match(message, /Recovery: npm --prefix packages\/main run build/, 'failure message must include the recovery command');
+    assert.match(message, /tsc started/, 'failure message must include captured stdout');
+    assert.match(message, /dist compile failed/, 'failure message must include captured stderr');
+  }
+}
+
 /**
  * CHK-003 task 2 — success path is byte-identical after extraction.
  * Drives a clean DONE through runDonePreMergeGate → writeStory(phase=DONE) →
@@ -846,6 +929,11 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     assert.match(output, mergeLine, 'DONE success output must include the merge confirmation');
     assert.match(output, cleanupLine, 'DONE success output must include the worktree-cleanup confirmation naming the canonical worktree path');
     assert.match(output, deleteLine, 'DONE success output must include the branch-delete confirmation');
+    assert.match(
+      output,
+      /packages\/main build skipped after DONE merge \(no watched runtime inputs changed\)/,
+      'DONE metadata-only success output must include the post-merge build skip line',
+    );
 
     // Step ordering: metadata commit → merge → worktree remove → branch delete.
     const mergeIdx = output.search(mergeLine);
@@ -1485,6 +1573,8 @@ assertFromDraftRejectsStagedMainBeforeMutation();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
 assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
+assertDoneMainPackageBuildTriggerPredicate();
+assertDoneMainPackageBuildHookReportsSkipSuccessFailure();
 // B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts extraction.
 assertDoneSuccessPathOutputAndOrdering();
 // B-da5b CHK-001 — post-DONE activity heartbeat lands in main, never recreates
