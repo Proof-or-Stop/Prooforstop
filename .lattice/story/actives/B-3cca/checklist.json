@@ -55,7 +55,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "CLI help/diagnostic wording now says Lattice for current product identity; Koala appears only when labelled as a legacy alias/fallback or process lane.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect changed CLI-engine text and confirm user-visible current-product references say Lattice rather than Koala for engine comments, capability/story descriptions, check descriptions, owner/read-only diagnostics, metadata commit prefixes, stale warnings, and hook logs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm legacy aliases and process-lane identifiers remain exact where required, but surrounding visible wording labels them as legacy alias, fallback, or process contract rather than current product naming.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the branding smoke or equivalent allowlist scan to ensure no unclassified Koala/koala/@koala hit remains in src/cli-engine.ts after the cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
