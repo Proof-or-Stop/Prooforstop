@@ -9,7 +9,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Document review shows the execution plan recommends only real Codex adapter diagnostic/verification commands and no broken local wrapper diagnostic command.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI help confirms the local Codex wrapper command documented for adapter diagnostics resolves to codex_doctor.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLI help confirms the documented local Codex wrapper verification command resolves to verify_codex.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan does not recommend the bare local Codex wrapper doctor command that opens general Lattice doctor instead of Codex adapter diagnostics.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
