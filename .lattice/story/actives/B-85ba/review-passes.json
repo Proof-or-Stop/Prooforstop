@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-13T01:51:22.177Z",
       "reviewRunId": "B-85ba:RR-023",
       "_hash": "a60b65db5be7ad35d5971b3eca9dd95f5dfb0eaaa78eed1af908a16c6279799c"
+    },
+    {
+      "id": "B-85ba:RP-013",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review pass: F-007 is covered by packages/main/src/tasks/scope-anti-expansion-smoke.ts using a real temporary git repo, real story_discard digest write, replacement freeze failure without repeatDiscardMitigation, and pass with mitigation. Verified rebuilt dist with npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; node scripts/verify-process-fact-contract.mjs; npm test.",
+      "createdAt": "2026-06-13T01:54:21.024Z",
+      "reviewRound": "2026-06-13T01:51:22.177Z",
+      "reviewRunId": "B-85ba:RR-024",
+      "_hash": "280b4c1c183db5973f541cabe45117296eec1f08adbfc40a8d595f5b729ec1ba"
     }
   ]
 }
