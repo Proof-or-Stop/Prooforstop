@@ -1,0 +1,30 @@
+{
+  "storyId": "B-ffa5",
+  "checkedAt": "2026-06-13T10:39:43.206Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "Checklist context appears stale for the current checkout: packages/main/dist/handlers/story-review.js already contains the improved missing_scope_check guidance, packages/main/dist/cli-engine.js already exposes the improved scope_check_save description, and both node packages/main/dist/cli.js scope_check_save --help and global lattice scope_check_save --help show the new executable guidance. Narrow the follow-up to any remaining proven executable mismatch, or close it if no mismatch remains."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-13T10:38:30.316Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-13T10:39:43.206Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Checklist context appears stale for the current checkout: packages/main/dist/handlers/story-review.js already contains the improved missing_scope_check guidance, packages/main/dist/cli-engine.js already exposes the improved scope_check_save description, and both node packages/main/dist/cli.js scope_check_save --help and global lattice scope_check_save --help show the new executable guidance. Narrow the follow-up to any remaining proven executable mismatch, or close it if no mismatch remains."
+        }
+      ]
+    }
+  ],
+  "_hash": "689c5115f8441073c9059473891021b791a2f88d0755c138202495c7f884206f"
+}

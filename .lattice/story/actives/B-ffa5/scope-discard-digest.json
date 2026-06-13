@@ -1,0 +1,23 @@
+{
+  "storyId": "B-ffa5",
+  "updatedAt": "2026-06-13T10:40:35.765Z",
+  "entries": [
+    {
+      "digest": "4d4ddb78343522b45d5d45ffa2e8c522323c0a0fe9e99c34924d9d93a9af6e83",
+      "terms": [
+        "## Conversational Texture The user asked for Authority-forced execution and audit discipline; this follow-up preserves that discipline by fixing the exact consistency gap discovered by audit.",
+        "## Key Insights This is not an arbitrary optimization. Lattice users consume the compiled CLI entrypoint, so stale dist artifacts make the completed story observably incomplete even when src is correct.",
+        "## Solution Tradeoffs Keep the follow-up narrow: rebuild or sync only the executable artifacts required for the already-approved source change, then prove the CLI output matches. Do not change scope gates or Authority semantics.",
+        "## Trigger Event On 2026-06-13, post-DONE audit of B-12f3 found that merged source guidance did not match executable dist output. Ref: B-12f3.",
+        "## Trigger Event On 2026-06-13, post-DONE audit of B-12f3 found that merged source guidance did not match executable dist output. Ref: B-12f3. ## Key Insights This is not an arbitrary optimization. Lattice users consume the compiled CLI entrypoint, so stale dist artifacts make the completed story observably incomplete even when src is correct. ## Solution Tradeoffs Keep the follow-up narrow: rebuild or sync only the executable artifacts required for the already-approved source change, then prove the CLI output matches. Do not change scope gates or Authority semantics. ## Conversational Texture The user asked for Authority-forced execution and audit discipline; this follow-up preserves that discipline by fixing the exact consistency gap discovered by audit.",
+        "After B-12f3 DONE, src guidance changed but built dist CLI output still shows stale missing_scope_check/scope_check_save help text. This follow-up only fixes executable artifact consistency so the tested CLI surface matches the source change.",
+        "Real correctness issue found after DONE: packages/main/src contains the new guidance, but packages/main/dist/cli-engine.js and packages/main/dist/handlers/story-review.js still contain old text, so node packages/main/dist/cli.js and global lattice can show stale output.",
+        "Regenerate and verify executable CLI guidance artifacts for missing_scope_check",
+        "Sync executable missing_scope_check guidance output"
+      ],
+      "reason": "Post-init audit found no remaining executable CLI guidance mismatch: source, local dist, node packages/main/dist/cli.js, and global lattice now all show the B-12f3 missing_scope_check/scope_check_save guidance. No real correctness issue remains; do not implement arbitrary changes.",
+      "discardedAt": "2026-06-13T10:40:35.765Z",
+      "storyId": "B-ffa5"
+    }
+  ]
+}
