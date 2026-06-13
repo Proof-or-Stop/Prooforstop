@@ -45,30 +45,30 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Fresh TypeScript build passed at current HEAD after DONE guard integration, quorum diagnostic wiring, and reviewer metadata commits.",
-          "headHash": "4e70c7ee9e0ecf05bbfa4a97ab168479f0ef1655",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:26:31.869Z"
+          "note": "Fresh TypeScript build passed after merging main; DONE guard integration, quorum diagnostic wiring, and reviewer metadata still compile.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
-          "note": "Smoke covers no docs/requirements/decisions/*.md change against main...HEAD; report applicable=false and ok=true, so DONE is not blocked.",
-          "headHash": "4e70c7ee9e0ecf05bbfa4a97ab168479f0ef1655",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:26:31.900Z"
+          "note": "Fresh smoke after merging main covers the no decision-doc-change not-applicable path; report applicable=false and ok=true so DONE is not blocked.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
-          "note": "Smoke covers duplicate hosts, duplicate run IDs, stale materialDigest, non-pass decisions, and prose-only review_pass events; all are ignored or invalid and cannot satisfy quorum.",
-          "headHash": "4e70c7ee9e0ecf05bbfa4a97ab168479f0ef1655",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:26:31.930Z"
+          "note": "Fresh smoke after merging main covers duplicate hosts, duplicate run IDs, stale materialDigest, non-pass decisions, and prose-only review_pass events as ignored or invalid quorum input.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         }
       ]
     },
@@ -112,30 +112,30 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c",
           "result": "pass",
-          "note": "CLI diagnostic reports Decision-doc quorum: pass with materialDigest 087220014eccdb09f154f1c199329fe53ddb7bb792d10b2eb337a90b9c766be3 and valid rounds decision-doc-round-1/2/3, each with 2 hosts.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "note": "Fresh CLI diagnostic after merging main reports Decision-doc quorum: pass with materialDigest 2cdbd05456e9596f0f7b20fe740fe2e6d945f26ffa944abcffd456817e23b82c and valid rounds decision-doc-fresh-round-1/2/3, each with 2 hosts.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c --json before host_verdict quorum was recorded",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
-          "note": "Earlier CLI diagnostic for the same changed decision docs returned ok=false, validRounds 0/3, missing rounds 3, and listed changed decision docs plus current materialDigest, proving incomplete quorum states are pinpointed without source inspection.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "note": "Fresh smoke after merging main covers incomplete quorum states including insufficient hosts and insufficient rounds, asserting structured diagnostics instead of requiring source inspection.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
-          "note": "Smoke covers prose-only review_pass events, stale materialDigest, duplicate hosts, duplicate run IDs, and non-pass decisions; formatter reports ignored events/materialDigest mismatch instead of accepting them as quorum.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "note": "Fresh smoke after merging main covers prose-only review_pass events, stale materialDigest, duplicate hosts, duplicate run IDs, and non-pass decisions; the diagnostic path refuses them as quorum.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         }
       ]
     },
@@ -177,32 +177,32 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build",
+          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
-          "note": "Fresh TypeScript build passed at current HEAD with decision-doc quorum smoke task, CLI command registration, and process-fact contract updates compiled.",
-          "headHash": "83b3389d891a1c4df6be82b23743bd5418af12e5",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:26:37.334Z"
+          "note": "Fresh focused smoke after merging main passes valid 3-round/2-host/fresh-digest quorum and no decision-doc-change not-applicable path.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
-          "note": "Focused smoke covers insufficient hosts, insufficient rounds via duplicate runId, and stale materialDigest as blocking states with structured diagnostics.",
-          "headHash": "83b3389d891a1c4df6be82b23743bd5418af12e5",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:26:37.366Z"
+          "note": "Fresh focused smoke after merging main covers missing host_verdict, insufficient hosts, insufficient rounds via duplicate runId, and stale materialDigest blocking states.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
-          "note": "Focused smoke would fail if duplicate hosts, duplicate rounds, stale digests, non-pass decisions, or prose-only review_pass evidence were accepted as host_verdict quorum.",
-          "headHash": "83b3389d891a1c4df6be82b23743bd5418af12e5",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:26:37.394Z"
+          "note": "Fresh focused smoke after merging main would fail if duplicate hosts, duplicate rounds, stale digests, non-pass decisions, or prose-only review_pass evidence were accepted as quorum.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         }
       ]
     },
@@ -247,30 +247,30 @@
           "kind": "docs_check",
           "command": "rg -n \"3 distinct review rounds|2 distinct PASSing hosts|fresh material digest|Authority Server receipt completion|decision_doc_quorum_check|autopilot_review_submit|host_verdict\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
           "result": "pass",
-          "note": "Docs state changed decision docs require three distinct rounds, at least two distinct PASSing hosts per round, fresh material digest, and separate local quorum from Authority receipt completion.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "note": "Fresh docs grep after merging main confirms decision docs still state the 3-round, 2-host, fresh-digest quorum and separate it from Authority receipt completion.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process fact verifier asserts decision_doc_quorum_check is read-only L0 and autopilot_review_submit is L4 host-verdict gate evidence consumed by the local decision-doc quorum DONE gate.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "note": "Fresh process fact contract after merging main verifies decision_doc_quorum_check is read-only L0 and autopilot_review_submit is L4 host-verdict gate evidence consumed by the local DONE gate.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "docs_check",
           "command": "rg -n \"autopilot_review_submit|host-verdict|host_verdict|decision-doc quorum.*DONE|DONE.*decision-doc quorum\" packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Registry and verifier reject advisory/prose-only drift by requiring host-verdict, execution-evidence, gate-evidence semantics and a DONE gate consumer while preserving the Authority no-overclaim boundary.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
-          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "note": "Fresh registry grep after merging main confirms host-verdict, execution-evidence, gate-evidence semantics and DONE gate consumer while preserving the no-Authority-overclaim boundary.",
+          "headHash": "d2153687eea134df7df488b3acfe9daef55e6c06",
+          "materialHash": "d5e81f297c47d68043264adf8964ba52ffcadd63c591e6c072f7ab828da48052",
+          "timestamp": "2026-06-13T22:36:50.605Z"
         }
       ]
     }
