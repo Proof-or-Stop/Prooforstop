@@ -62,7 +62,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "story_review sees missing verificationIntent for a lane that already has matching evidence refs -> it still blocks but reports missing_verification_intent_with_evidence details including itemId, lane, evidenceRefs, and a suggested lattice verification_intent_repair command; WHY: gives the reviewer the precise legacy repair path instead of a generic blocker.",
+            "desc": "story_review sees missing verificationIntent for a lane that already has matching evidence refs -> it still blocks with type=missing_verification_intent and evidenceAware=true details including itemId, lane, evidenceRefs, repairHint, and a suggested lattice verification_intent_repair command; WHY: gives the reviewer the precise legacy repair path instead of a generic blocker while preserving existing issue-type compatibility.",
             "type": "cli",
             "priority": "must"
           },
@@ -79,7 +79,7 @@
             "priority": "must"
           },
           {
-            "desc": "Existing callers or smoke tests still expect the legacy issue type -> structured output preserves compatibility by retaining the old type or adding a compatible subfield while exposing the richer evidence-aware fields; WHY: prevents diagnostics improvement from breaking current review tooling.",
+            "desc": "Existing callers or smoke tests still expect the legacy issue type -> structured output preserves compatibility by retaining type=missing_verification_intent and adding evidenceAware, evidenceRefs, repairHint, and suggestedCommand fields for the richer case; WHY: prevents diagnostics improvement from breaking current review tooling.",
             "type": "logic",
             "priority": "must"
           }
