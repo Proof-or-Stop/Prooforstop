@@ -214,6 +214,22 @@
       ],
       "resolvedReason": "Fixed in d48c744: background.md is now part of ScopeFreezeStoryProjection, bounded text sources, sourceTerms, freshness payload, scope_freeze_check handler projection, INIT_CHECK machine projection, and story_discard digest terms via StoryStore.readStoryBackground/scopeFreezeBackgroundTerms. Smoke now covers a background-only discarded direction blocking replacement without mitigation, passing after mitigation, and stale freeze after background edit. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
       "resolvedAt": "2026-06-13T02:08:19.875Z"
+    },
+    {
+      "id": "B-85ba:F-011",
+      "desc": "scope-freeze freshness hash includes discardDigest.updatedAt, so a metadata-only rewrite of the same discarded corpus changes freshnessHash and makes a previously valid scope_freeze_check stale. Evidence: packages/main/src/core/scope-anti-expansion.ts:537 includes updatedAt in discardCorpusIdentity, and packages/main/src/core/scope-anti-expansion.ts:611 folds that into freezeFreshnessPayload. Repro command: node --input-type=module pure evaluateScopeFreeze smoke showed same entries with only updatedAt changed produced different freshness hashes e781590c... vs 57c4755.... This can block INIT_CHECK after non-semantic metadata churn, contradicting the stable freshness hash contract.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T02:11:09.437Z",
+      "reviewRound": "2026-06-13T02:08:13.752Z",
+      "reviewRunId": "B-85ba:RR-031",
+      "_hash": "f7f1c53b40ae5d41f99d447374869ba383a76a95ab47e25c1b24630d3ee49422",
+      "files": [
+        "packages/main/src/core/scope-anti-expansion.ts"
+      ]
     }
   ]
 }
