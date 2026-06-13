@@ -16,6 +16,23 @@
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
         "packages/main/src/cli-engine.ts"
       ]
+    },
+    {
+      "id": "B-8448:F-002",
+      "desc": "Translation review packet is incomplete for approval. The document reports 762 Chinese-bearing cli-engine.ts lines and says implementation must not start until every line maps to an approved catalog row (docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:30, :89-91), but the Translation Review Table is only 173 rows and ends at T173 (same doc :167-169, :345). It omits later public CLI command descriptions/schema descriptions that still expose Chinese text, including draft_check_set/draft_issue_resolve (packages/main/src/cli-engine.ts:383, :392), delivery_waiver_add/scope_question_resolve (packages/main/src/cli-engine.ts:1671, :1710), and dispatch/background_set (packages/main/src/cli-engine.ts:1733, :1742). Since this story is meant to provide Chinese-source-to-English translation material for reviewer approval, later implementation would still need to invent unreviewed translations.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-13T13:26:02.189Z",
+      "reviewRound": "2026-06-13T13:23:10.700Z",
+      "reviewRunId": "B-8448:RR-004",
+      "_hash": "51beea4cc43a4c7ba0c42089f6f5947abd8e45385cf177d24cdbe8bedd05b594",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
