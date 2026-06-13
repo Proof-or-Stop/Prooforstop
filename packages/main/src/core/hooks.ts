@@ -8,8 +8,8 @@
  *   - onError        : 每条 command 抛错时
  *   - onPhaseChange  : story_advance 成功后，按 "FROM->TO" 匹配
  *
- * 用户在项目配置文件（lattice.config.json canonical / koala.config.json
- * legacy fallback）的 hooks 字段配置：
+ * 用户在项目配置文件 lattice.config.json 的 hooks 字段配置；
+ * koala.config.json 仅作为 legacy fallback 继续兼容：
  *   "hooks": {
  *     "preCommand": { "*": ["./scripts/notify"] , "story_advance": ["./scripts/sync"] },
  *     "onPhaseChange": { "*": ["echo $KOALA_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }
@@ -21,7 +21,7 @@
  *   - 30 秒 timeout：每条 hook 命令独立计时，超时 SIGKILL
  *   - stdout 限制：只在 stderr echo 前 200 字符，避免污染主命令的 JSON 输出
  *   - 顺序执行：精确匹配 + "*" 通配，两组都跑（不是 fallback），按数组顺序串行
- *   - env 隔离：基于 process.env 派生，每条 hook 拿到完整 KOALA_* 变量
+ *   - env 隔离：基于 process.env 派生，每条 hook 拿到完整 legacy KOALA_* 变量
  */
 
 import { spawn } from 'child_process';

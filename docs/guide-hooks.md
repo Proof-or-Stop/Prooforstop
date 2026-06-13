@@ -1,6 +1,6 @@
 # Lattice Hooks 指南
 
-Lattice 在每条命令的生命周期中提供 4 个事件点，允许在 `koala.config.json` 配置 shell hook 命令。灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop 机制，目的是把"agent 跑完命令后想做点别的事"从 Lattice 框架核心解耦出去。
+Lattice 在每条命令的生命周期中提供 4 个事件点，允许在 `lattice.config.json` 配置 shell hook 命令；`koala.config.json` 仅作为 legacy fallback 继续兼容。灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop 机制，目的是把"agent 跑完命令后想做点别的事"从 Lattice 框架核心解耦出去。
 
 ## Claude Code Prompt 提醒
 
@@ -24,7 +24,7 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
 }
 ```
 
-这个 hook 只做软提醒：它从 hook JSON 的 `cwd`、`CLAUDE_PROJECT_DIR` 或当前 cwd 定位仓库，读取 `.koala/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl`，寻找最近一次 `session_brief` heartbeat。默认 60 分钟内视为 fresh 并保持静默；超过 60 分钟或没有 fresh 记录时，输出：
+这个 hook 只做软提醒：它从 hook JSON 的 `cwd`、`CLAUDE_PROJECT_DIR` 或当前 cwd 定位仓库，读取 legacy `.koala/activity.jsonl` mirror、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl`，寻找最近一次 `session_brief` heartbeat。默认 60 分钟内视为 fresh 并保持静默；超过 60 分钟或没有 fresh 记录时，输出：
 
 ```text
 建议先运行 lattice session_brief 恢复现场（koala 仍是 legacy alias）
@@ -42,7 +42,7 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
 
 ## Schema
 
-在 `koala.config.json` 加 `hooks` 字段：
+在 `lattice.config.json` 加 `hooks` 字段；旧项目里的 `koala.config.json` 仍按 legacy fallback 读取：
 
 ```json
 {
@@ -83,25 +83,25 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
 
 ## 环境变量
 
-每条 hook 命令通过 `child_process.spawn` 拿到完整的 `process.env` + 注入下表 KOALA_* 变量：
+每条 hook 命令通过 `child_process.spawn` 拿到完整的 `process.env` + 注入下表 legacy `KOALA_*` 环境变量名：
 
 | 变量 | 出现在哪些 stage | 含义 |
 |---|---|---|
-| `KOALA_STAGE` | all | 当前 stage 名（`preCommand`/`postCommand`/`onError`/`onPhaseChange`） |
-| `KOALA_COMMAND` | all | koala 命令名（如 `story_advance`） |
-| `KOALA_CWD` | all | hook 触发时的进程 cwd |
-| `KOALA_ROOT` | all | koala 项目根目录（`--root` 解析后） |
-| `KOALA_ARGS_JSON` | preCommand / postCommand / onError | 传给 handler 的参数 JSON（已 truncate 到 8KB） |
-| `KOALA_RESULT_JSON` | postCommand | handler 返回值 JSON（已 truncate 到 8KB） |
-| `KOALA_ERROR` | onError | error.message 字符串 |
-| `KOALA_STORY_ID` | onPhaseChange + 任意 stage 当 active story 存在时 | `B-xxxx` |
-| `KOALA_PHASE` | 任意 stage 当 active story 存在时 | 当前 phase（hook 跑时的） |
-| `KOALA_OLD_PHASE` | onPhaseChange | 转换前 phase |
-| `KOALA_NEW_PHASE` | onPhaseChange | 转换后 phase |
+| `KOALA_STAGE` | all | legacy env var；当前 Lattice stage 名（`preCommand`/`postCommand`/`onError`/`onPhaseChange`） |
+| `KOALA_COMMAND` | all | legacy env var；当前 Lattice 命令名（如 `story_advance`） |
+| `KOALA_CWD` | all | legacy env var；hook 触发时的进程 cwd |
+| `KOALA_ROOT` | all | legacy env var；当前 Lattice 项目根目录（`--root` 解析后） |
+| `KOALA_ARGS_JSON` | preCommand / postCommand / onError | legacy env var；传给 handler 的参数 JSON（已 truncate 到 8KB） |
+| `KOALA_RESULT_JSON` | postCommand | legacy env var；handler 返回值 JSON（已 truncate 到 8KB） |
+| `KOALA_ERROR` | onError | legacy env var；error.message 字符串 |
+| `KOALA_STORY_ID` | onPhaseChange + 任意 stage 当 active story 存在时 | legacy env var；当前 Lattice story id（`B-xxxx`） |
+| `KOALA_PHASE` | 任意 stage 当 active story 存在时 | legacy env var；当前 phase（hook 跑时的） |
+| `KOALA_OLD_PHASE` | onPhaseChange | legacy env var；转换前 phase |
+| `KOALA_NEW_PHASE` | onPhaseChange | legacy env var；转换后 phase |
 
 ## 行为契约
 
-1. **非阻塞失败**：hook 退出非零、抛错、找不到命令都不会阻塞主命令。stderr 输出 `[lattice-hook] failed (exit N): <stage> <cmd>` warning，并往 `~/.koala/health.jsonl` append 一条 `category=hook:exec` 的 health issue。
+1. **非阻塞失败**：hook 退出非零、抛错、找不到命令都不会阻塞主命令。stderr 输出 `[lattice-hook] failed (exit N): <stage> <cmd>` warning，并往 legacy runtime health path `~/.koala/health.jsonl` append 一条 `category=hook:exec` 的 health issue。
 2. **30 秒 timeout**：每条 hook 命令独立计时，超过 30 秒收到 `SIGKILL`。stderr 输出 `[lattice-hook] timeout (30s): ...`，health 类别 `hook:timeout`。
 3. **stdout 限制**：hook 的 stdout 只在 stderr echo 前 200 字符，避免污染主命令的 JSON 输出（postCommand 尤其重要：被 pipe 到 jq 的 agent 不希望 hook 注释混进 JSON）。
 4. **顺序执行**：同一个 stage 下的命令按数组顺序串行 await，下一条等上一条完成。preCommand 整体跑完才进 handler，postCommand 整体跑完才 `process.exit(0)`。
@@ -134,7 +134,7 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
   "hooks": {
     "onPhaseChange": {
       "*": [
-        "curl -s -XPOST \"https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage\" -d chat_id=$TG_CHAT_ID -d text=\"koala $KOALA_STORY_ID: $KOALA_OLD_PHASE→$KOALA_NEW_PHASE\""
+        "curl -s -XPOST \"https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage\" -d chat_id=$TG_CHAT_ID -d text=\"lattice $KOALA_STORY_ID: $KOALA_OLD_PHASE→$KOALA_NEW_PHASE\""
       ]
     }
   }
@@ -150,7 +150,7 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
   "hooks": {
     "onPhaseChange": {
       "TEST_CASE_REVIEW->TEST": [
-        "tar czf /tmp/koala-fixtures-$KOALA_STORY_ID.tgz tests/fixtures/"
+        "tar czf /tmp/lattice-fixtures-$KOALA_STORY_ID.tgz tests/fixtures/"
       ]
     }
   }
@@ -178,7 +178,7 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
 ## 调试
 
 - hook 没触发？跑 `lattice doctor` 看 health.jsonl 里有没有 `hook:exec` / `hook:timeout` / `hook:resolve` 条目
-- hook 没拿到环境变量？hook 命令开头加 `env | grep KOALA_ > /tmp/koala-env-debug.txt`
+- hook 没拿到环境变量？hook 命令开头加 `env | grep KOALA_ > /tmp/lattice-env-debug.txt`
 - hook 输出污染主命令？看 stdout 是不是回了非空字符串——postCommand 应该把日志写文件而不是 stdout
 
 ## 不支持的场景
@@ -192,7 +192,7 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
 `lattice doctor` 现在也会汇总 `hook:*` 类的 health issue，配合 `stale-detector` 的 stderr warning，构成 Lattice 的"自我观察"系统：
 
 - stale-detector：每次命令执行前主动 print 软提醒（phase 卡死 / item 卡 in_progress / idle lattice / open bug 超期）
-- hook：在事件点 spawn 用户脚本，留痕到 `~/.koala/health.jsonl`
+- hook：在事件点 spawn 用户脚本，留痕到 legacy runtime health path `~/.koala/health.jsonl`
 - doctor：聚合两者的 health 状态
 
 详见 `core/stale-detector.ts` 和 `core/hooks.ts`。

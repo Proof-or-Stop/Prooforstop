@@ -6,9 +6,10 @@
  * @type feature
  * @priority high
  * @description
- * Scans src and dist cli-engine and hook runner files for unclassified "koala/Koala"
- * occurrences. Classified references (legacy alias, process lanes, env vars, config paths,
- * git commit message tokens) are expected and excluded from the count.
+ * Scans src/dist CLI, hook runner, and related guide docs for unclassified
+ * "koala/Koala" occurrences. Classified references (legacy alias, process lanes,
+ * env vars, config paths, git commit message tokens) are expected and excluded
+ * from the count.
  * Any unclassified occurrence fails the smoke with a non-zero exit.
  */
 
@@ -20,55 +21,61 @@ const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..');
 
 // ─── Classification rules ────────────────────────────────────────────────────
-// A line containing "koala" / "Koala" is classified (and excluded from the
-// unclassified count) when it matches ANY of the following patterns:
-const CLASSIFIED_PATTERNS: RegExp[] = [
-  // Env vars (process tokens — preserved by design)
-  /KOALA_/,
-  // Legacy config file name
-  /koala\.config/i,
-  // Legacy story directory path
-  /\.koala\b/,
-  // koala-codex — process lane (Codex adapter wrapper)
-  /koala-codex/i,
-  // koala-review-* — process-lane reviewer agent names
-  /koala-review/i,
-  // koala-implementer — process-lane implementer agent type
-  /koala-implementer/i,
-  // koala-reviewer — generic reviewer agent lane label
-  /koala-reviewer/i,
-  // koala-eval* — evaluator agent process lane
-  /koala-eval/i,
-  // koala-delivery — delivery reviewer process lane
-  /koala-delivery/i,
-  // koala-init — init reviewer process lane
-  /koala-init/i,
-  // koala-agent — agent runtime process lane
-  /koala-agent/i,
-  // Git commit message process tokens (exact prefix used in git log)
-  /koala: from-draft|koala: INIT_CHECK|koala: record/,
-  // Explicit legacy alias annotations in source (narrow exact patterns only)
-  /alias: koala/i,
-  /Lattice\/Koala/,
-  /legacy alias/i,
-  // LEGACY_KOALA_DIR constant
-  /LEGACY_KOALA/,
-  // Explicit legacy alias invocation contexts ("koala <cmd>", "koala lattice ...")
-  /koala <|koala lattice/i,
-  // "koala" appearing as a string literal CLI alias token
-  /'koala'|"koala"/,
-  // KOALA_MD_TEMPLATE / KOALA.md template reference (asset, not branding)
-  /KOALA_MD_TEMPLATE|KOALA\.md/,
-  // KoalaConfig is a legacy internal type name, not user-visible branding
-  /KoalaConfig/,
-  // koala-story-init / koala-review-story-init (process lane)
-  /koala-story/i,
-  // Legacy dir constant reference in comments
-  /LEGACY_KOALA_DIR|KOALA_DIR/,
+// Classification is token-based, not whole-line based. We strip exact
+// compatibility tokens, then fail if any koala/Koala text remains. This catches
+// lines such as "KOALA_COMMAND ... koala command" instead of hiding them behind
+// the legacy env var name.
+const NEUTRAL_TOKEN_PATTERNS: RegExp[] = [
+  // Legacy env var names (process tokens — preserved by design).
+  /KOALA_\*/g,
+  /KOALA_/g,
+  /\bKOALA_[A-Z0-9_]+\b/g,
+  // koala-codex / koala-review-* / koala-implementer / etc. are process lanes.
+  /\bkoala-(?:codex|review[a-z-]*|implementer|reviewer|eval[a-z-]*|delivery|init|agent|story[a-z-]*)\b/gi,
+  // Git commit message process tokens.
+  /\bkoala: (?:from-draft|INIT_CHECK|record)\b/gi,
+  // Legacy internal constants and type names.
+  /\bLEGACY_KOALA[A-Z0-9_]*\b/g,
+  /\bKoalaConfig\b/g,
+  // Asset/template names.
+  /\bKOALA_MD_TEMPLATE\b|KOALA\.md/g,
+  // String literal CLI alias token.
+  /['"]koala['"]/g,
 ];
 
+function stripContextualLegacyTokens(line: string): string {
+  let stripped = line;
+
+  if (/(legacy|fallback|兜底|兼容|旧项目)/i.test(stripped)) {
+    stripped = stripped.replace(/koala\.config(?:\.json)?/gi, '');
+  }
+
+  if (/(legacy|runtime|health|activity|fallback|mirror|兼容|旧)/i.test(stripped)) {
+    stripped = stripped.replace(/(?:~\/)?\.koala(?:\/[\w.*-]+)*/gi, '');
+  }
+
+  if (/legacy alias|alias: koala|仍是 legacy alias/i.test(stripped)) {
+    stripped = stripped.replace(/\bkoala\b/gi, '');
+  }
+
+  if (/Lattice\/Koala/.test(stripped)) {
+    stripped = stripped.replace(/Lattice\/Koala/g, 'Lattice');
+  }
+
+  if (/koala <|koala lattice/i.test(stripped)) {
+    stripped = stripped.replace(/koala (?=<|lattice)/gi, '');
+  }
+
+  return stripped;
+}
+
 function isClassified(line: string): boolean {
-  return CLASSIFIED_PATTERNS.some(re => re.test(line));
+  let stripped = line;
+  for (const re of NEUTRAL_TOKEN_PATTERNS) {
+    stripped = stripped.replace(re, '');
+  }
+  stripped = stripContextualLegacyTokens(stripped);
+  return !/koala|Koala/i.test(stripped);
 }
 
 // ─── Scanner ─────────────────────────────────────────────────────────────────
