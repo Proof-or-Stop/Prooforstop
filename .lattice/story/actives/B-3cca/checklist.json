@@ -52,27 +52,27 @@
           "command": "grep -n koala packages/main/src/cli-engine.ts",
           "result": "pass",
           "note": "All koala/Koala hits classified: KOALA_* env vars, koala.config.json, .koala path, koala-codex, koala-review-* lanes, koala-hook, koala-implementer, git commit tokens preserved; user-visible Koala changed to Lattice (lines 3117, 3603)",
-          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:23:04.652Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Verified: koala CLI alias (bin/koala→dist/cli.js), koala.config.json legacy fallback comment at line 2646, .koala path via LEGACY_KOALA_DIR, koala-codex at line 2780, koala-review-* lanes at lines 577-592 all preserved unchanged",
-          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:23:04.652Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "branding smoke regex patterns compiled without matching KOALA_* env vars or process lanes; branding smoke test output: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0",
-          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:23:04.652Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         }
       ]
     },
@@ -128,9 +128,9 @@
           "command": "rg -n 'legacy\\.\\*koala|koala\\.\\*legacy|koala 命令|koala 项目|koala Hooks|koala doctor|koala session_brief|koala-hook' docs/guide-hooks.md packages/main/src/tasks/cli-engine-branding-smoke.ts packages/main/src/core/hooks.ts packages/main/src/cli-engine.ts",
           "result": "pass",
           "note": "F-005/F-006 fixed in commit 9d25478e0: hook guide now presents lattice.config.json as current config, describes koala.config.json only as legacy fallback, rewrites KOALA_COMMAND/KOALA_ROOT as legacy env var names for current Lattice command/project root, and uses lattice examples/debug paths.",
-          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:22:23.371Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,9 +139,9 @@
           "command": "code inspection after 9d25478e0",
           "result": "pass",
           "note": "F-006/F-007 false negative fixed: smoke no longer uses whole-line CLASSIFIED_PATTERNS for /KOALA_/, /koala.config/, or /.koala/; it strips exact neutral compatibility tokens and then fails if any koala/Koala text remains.",
-          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:22:23.371Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,9 +150,9 @@
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
           "note": "Branding smoke passed after F-003 fix, still scanning cli-engine src/dist and hooks src/dist with all unclassified counts at 0.",
-          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:23:04.652Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         }
       ]
     },
@@ -208,9 +208,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed after hook guide and strict branding smoke changes.",
-          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:22:23.371Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -218,9 +218,9 @@
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
           "note": "Strict branding smoke passed: cli-engine src=0, cli-engine dist=0, hooks src=0, hooks dist=0, guide-hooks doc=0. The scanner now catches bad lines like KOALA_COMMAND plus current-product koala wording.",
-          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:22:23.371Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -228,9 +228,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
           "result": "pass",
           "note": "Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified after strict smoke changes.",
-          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:22:23.371Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         }
       ]
     },
@@ -281,18 +281,18 @@
           "command": "claude -p --model sonnet --agent koala-implementer ...; git commit --author=koala-implementer <koala-implementer@noreply.local>",
           "result": "pass",
           "note": "Claude CLI koala-implementer session was launched in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca for F-004 and produced staged edits to docs/guide-hooks.md plus cli-engine-branding-smoke.ts; the session became nonresponsive after edits, was interrupted, and the accepted staged changes were committed as ce395d900 with author koala-implementer.",
-          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:23:04.652Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Worktree isolation confirmed: git status shows only story/B-3cca branch files modified; no stash operations performed; no files outside packages/main scope touched",
-          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:23:04.652Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -300,9 +300,9 @@
           "command": "claude -p --model sonnet --agent koala-implementer ... (second attempt); manual integration commit 9d25478e0",
           "result": "pass",
           "note": "Second Claude CLI koala-implementer attempt started with lattice session_brief but became nonresponsive before business edits; Codex interrupted it, applied the narrow F-005/F-006/F-007 integration patch, and committed transparently as 9d25478e0 rather than pretending it was Claude-authored.",
-          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
-          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
-          "timestamp": "2026-06-13T11:22:23.371Z"
+          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
+          "timestamp": "2026-06-13T11:24:44.384Z"
         }
       ]
     }
