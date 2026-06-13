@@ -132,6 +132,7 @@ export function isDoneMainRuntimeBuildInput(path: string): boolean {
   const rel = normalizeGitPath(path);
   return rel.startsWith('packages/main/src/')
     || rel === 'packages/main/package.json'
+    || rel === 'packages/main/package-lock.json'
     || rel === 'packages/main/tsconfig.json'
     || rel === 'package.json'
     || rel === 'package-lock.json';

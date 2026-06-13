@@ -818,6 +818,7 @@ function assertDoneMainPackageBuildTriggerPredicate(): void {
     'packages/main/src/handlers/done-effects.ts',
     'packages/main/src/index.ts',
     'packages/main/package.json',
+    'packages/main/package-lock.json',
     'packages/main/tsconfig.json',
     'package.json',
     'package-lock.json',
