@@ -60,8 +60,16 @@
         "init_scope_anti_expansion_gate",
         "worktree_authority_smoke"
       ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Root npm test is the formal fallback validation path for this story; after adding INIT scope gate, the lifecycle e2e sandbox must create the same scope-boundary/execution-boundary/freeze evidence before INIT_CHECK so validation covers the new gate instead of failing on legacy assumptions.",
+      "timestamp": "2026-06-13T01:42:39.057Z",
+      "paths": [
+        "packages/main/src/tasks/test-flow-e2e.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-12T19:48:39.680Z",
-  "updatedAt": "2026-06-12T21:26:33.239Z"
+  "updatedAt": "2026-06-13T01:42:39.057Z"
 }
