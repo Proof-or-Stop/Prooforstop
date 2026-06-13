@@ -8,9 +8,31 @@
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T01:41:40.317Z",
-      "endTime": null
+      "endTime": "2026-06-13T01:44:56.489Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:real-execution-plan",
+          "kind": "docs_check",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "New decision document was created at docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md and whitespace validation passed before commit.",
+          "headHash": "80dc20b36fb803a7af1cd8ee119f82ee5ddbf6c8",
+          "materialHash": "e563cc22e570e531b26cdb5f6d2ad2f72d78174e54b7c7679daf4fa435d0ee22",
+          "timestamp": "2026-06-13T01:44:56.552Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:two-host-final-audit",
+          "kind": "manual_transcript",
+          "command": "Claude host-perspective final audit + Codex host-perspective final audit",
+          "result": "pass",
+          "note": "Final Claude audit returned PASS; final Codex audit returned PASS with no blocker/high correctness issues after adding authorityDone=false and multiHostVerified=false to the schema and PASS rejection rules.",
+          "headHash": "80dc20b36fb803a7af1cd8ee119f82ee5ddbf6c8",
+          "materialHash": "e563cc22e570e531b26cdb5f6d2ad2f72d78174e54b7c7679daf4fa435d0ee22",
+          "timestamp": "2026-06-13T01:44:56.602Z"
+        }
+      ]
     }
   ]
 }
