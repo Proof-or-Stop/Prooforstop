@@ -1,0 +1,50 @@
+{
+  "storyId": "B-a94f",
+  "checkedAt": "2026-06-13T13:08:09.159Z",
+  "reviewRound": "2026-06-13T13:00:23.549Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "Local CLI/status evidence must not be presented as Authority Server completion; without receipt-backed proof, receiptVerified/productionDone/authorityDone/fullAuthorityDone remain false.",
+      "status": "verified",
+      "verifiedBy": "source review plus non-sensitive authority_status/conduit_status projections",
+      "evidence": "authority_status enforce projection reported authorityTrustEnvLoaded=true and readiness configured while receiptVerified=false, productionDone=false, canClaimProductionDone=false; off-mode injected fileReader probe reported reads=[] for both authority_status and conduit_status. Transcript-diff Authority Boundary states local Non-authority CLI evidence only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "Authority connection/readiness configuration may improve diagnostics, but does not verify a server receipt or create production/full Authority DONE.",
+      "status": "verified",
+      "verifiedBy": "smoke tests and transcript-diff review",
+      "evidence": "npm build and authority-client/status/enforce-policy smokes passed; user-visible transcript shows configured-no-verified-receipt with no receipt or production claim."
+    },
+    {
+      "docPath": "AGENTS.md#Local OMX Ban",
+      "promise": "Do not run omx or read/write/use .omx directories during this delivery review.",
+      "status": "verified",
+      "verifiedBy": "command audit",
+      "evidence": "Review commands used lattice, git, npm, node, and rg only; no omx command and no .omx path access."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: npm --prefix packages/main run build; node packages/main/dist/tasks/authority-client-smoke.js; node packages/main/dist/tasks/authority-enforce-policy-smoke.js; git check-ignore -v authority_trust.env reported .gitignore:64; git status --short --ignored -- authority_trust.env reported !! authority_trust.env; git ls-files authority_trust.env was empty; git diff --check passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS: node packages/main/dist/tasks/authority-status-smoke.js; node packages/main/dist/cli.js authority_status --authorityMode=enforce --json projected authorityTrustEnvLoaded=true, urlSource=authority_trust_env, baseURLConfigured=true, customerApiKeyConfigured=true, serverPublicKeyPinned=true, actorKeyConfigured=false, runnerConfigured=false, receiptVerified=false, productionDone=false, canClaimProductionDone=false, status=configured-no-verified-receipt. Injected off-mode probe for authority_status and conduit_status projected reads=[] and productionDone/receiptVerified=false for both."
+    },
+    {
+      "featureId": "transcript-diff",
+      "transcript": "PASS: transcript-diff expected vs actual reviewed from committed artifact; it records ignored trust file, enforce-mode readiness from authority_trust.env, off-mode zero trust/secret I/O, and states the Authority Boundary as local Non-authority CLI evidence only with no receipt verification or production DONE claim."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery provenance accepted: local tests/projections cover root authority_trust.env defaults, ignored secret file, precedence/readiness, off-mode zero trust and secret I/O for authority_status and conduit_status, and no receipt/production overclaim. Evidence remains local Non-authority CLI evidence only."
+  },
+  "_hash": "aeaa222bf7bc18d7e33d7d812f29ee1f60e585b8dfece2672a82dbe143683e76"
+}
