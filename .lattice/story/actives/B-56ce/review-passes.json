@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T10:32:55.965Z",
       "reviewRunId": "B-56ce:RR-006",
       "_hash": "51c354456aab8c69dc9a0deaa543363af5182ab2b556af6a688001cd51717539"
+    },
+    {
+      "id": "B-56ce:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "F-001 coverage gaps are resolved. Inspected checklist/evidence and the follow-up assertions: validation-protocol-smoke.ts pins non-timeout failures to omit timeout recovery guidance; verification-freshness-smoke.ts pins wording that stale evidence does not necessarily mean verification logic failed; flow-stability-smoke.ts exercises delivery-check hash mismatch and unverified docsPromise branches; legacy-koala-compatibility-smoke.ts verifies lattice codex verify resolves to verify_codex help. Fresh build plus npm --prefix packages/main run test:validation-protocol, test:verification-freshness-smoke, test:flow-stability-smoke, and test:legacy-koala-compatibility-smoke all passed. evidence_inspect still reports stale checklist evidence from metadata hash drift, but no remaining test-coverage blocker for F-001.",
+      "createdAt": "2026-06-13T10:36:47.758Z",
+      "reviewRound": "2026-06-13T10:32:55.965Z",
+      "reviewRunId": "B-56ce:RR-005",
+      "_hash": "f02518efe29b3b7a51fc2e497d2fb92b1efe69570949ace8bd01b9bbf9a60512"
     }
   ]
 }
