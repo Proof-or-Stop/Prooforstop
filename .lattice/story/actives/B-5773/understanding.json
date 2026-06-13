@@ -1,0 +1,24 @@
+{
+  "task": "Standardize the cli-engine English translation plan: add a glossary + CLI style guide, unify terminology across the 762-row manifest and the T-table catalog, shorten over-long command descriptions, isolate behavior-sensitive regex rows, and define a wrapped-source merge rule. Docs-only; cli-engine.ts untouched; 'real-machine tests' kept.",
+  "outcome": "Opening docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md, the user sees two new sections near the top: an 'English Glossary' (blocked vs excluded vs avoid 'forbidden'; 'source of truth' not 'truth source'; 'iteration' not 'round' in review loops; Story vs story; Git vs git; evidence uncountable; 'finding' not 'finding item'; 'real-machine tests' kept) and a 'CLI Style Guide' (command descriptions = imperative + sentence case + no final period; boolean flags = Enable/Disable/Emit/Skip/Fail if; schema fields = noun phrases; preserve identifiers). Every manifest proposedEnglish uses those terms consistently; over-long command descriptions are now short imperative phrases; behavior-sensitive regex rows (e.g. M668/M669) are marked 'behavior-sensitive - requires test update' and listed in a dedicated subsection; wrapped-source pairs like M004/M005 read as one coherent sentence. Running `node bin/koala.js validate --story=B-5773` prints ALL PASS with the 762<->762 manifest invariant and zero Chinese in proposedEnglish still intact.",
+  "facts": [
+    "The plan doc already exists (from B-8448) with a 762-row TSV manifest M001..M762 mapping every Chinese-bearing cli-engine.ts line, plus a 173-row T-table catalog",
+    "realMachineTests is a code identifier with 37 references in packages/main/src; 'real-machine tests' is therefore kept to stay in sync",
+    "M668/M669 (cli-engine.ts:2303/2306) are runtime regexes matching Chinese strings via .test(); retranslating them would change behavior",
+    "117 command-description rows; longest is 218 chars (M655)",
+    "Manifest invariant: 762 source Chinese lines <-> 762 rows, zero Chinese in proposedEnglish; must be preserved"
+  ],
+  "constraints": [
+    "Docs-only: never modify packages/main/src/cli-engine.ts",
+    "Preserve command names, enum values, JSON keys, IDs, filenames, legacy aliases, the chineseSource/sourceLine columns, and the 762-row count",
+    "Keep T-table and M-manifest twins consistent (the F-005 lesson)",
+    "Rows stay review-draft (human approval still pending) except where a behavior-sensitive marker is added"
+  ],
+  "unknowns": [
+    "The exact full set of behavior-sensitive rows beyond M668/M669, to be enumerated by scanning for regex/.test/.match over Chinese tokens"
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+  ],
+  "timestamp": "2026-06-13T18:58:04.071Z"
+}
