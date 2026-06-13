@@ -44,10 +44,12 @@ import {
   DEFAULT_AUTHORITY_URL,
   authorityModeEnabled,
   loadAuthoritySettings,
+  normalizeAuthorityTrustEnv,
   normalizeAuthorityMode,
   normalizeAuthorityTimeout,
   normalizeAuthorityURL,
   parseAuthorityMd,
+  parseAuthorityTrustEnv,
   resolveAuthorityConfig,
 } from '../core/authority-mode.js';
 import {
@@ -864,6 +866,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     LATTICE_AUTHORITY_ACTOR_ROLE: 'main',
     LATTICE_AUTHORITY_ACTOR_KEY: GATE_ACTOR_KEYPAIR.privateKey,
     LATTICE_AUTHORITY_ACTOR_KEY_ENCODING: 'base64',
+    LATTICE_AUTHORITY_TRUST_ENV_FILE: '.missing-authority-trust.env',
     ...extra,
   };
 }
@@ -1812,7 +1815,29 @@ const sampleVerdictEnvelope = {
   assert.deepEqual(parseAuthorityMd(undefined), {});
 }
 
-// --- customer API key resolution: env > path > authority.md -----------------
+// --- parseAuthorityTrustEnv: root env profile parsing + alias normalization -
+{
+  const trust = parseAuthorityTrustEnv([
+    '# comments ignored',
+    'export LATTICE_AUTHORITY_LIVE_URL=\"https://live.example/\"',
+    'LATTICE_AUTHORITY_LIVE_PUBLIC_KEY=pub-live',
+    'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=${HOME}/secrets/customer.key',
+    'LATTICE_AUTHORITY_CUSTOMER_API_KEY_DEFAULT=${MISSING_AUTHORITY_DIR:-$HOME/secrets/default.key}',
+    'LATTICE_AUTHORITY_UNKNOWN_REF=$DOES_NOT_EXIST/key',
+    'not a kv line',
+  ].join('\n'), { HOME: '/home/lattice' });
+  assert.equal(trust.LATTICE_AUTHORITY_LIVE_URL, 'https://live.example/');
+  assert.equal(trust.LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, 'pub-live');
+  assert.equal(trust.LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE, '/home/lattice/secrets/customer.key');
+  assert.equal(trust.LATTICE_AUTHORITY_CUSTOMER_API_KEY_DEFAULT, '/home/lattice/secrets/default.key');
+  assert.equal(trust.LATTICE_AUTHORITY_UNKNOWN_REF, '$DOES_NOT_EXIST/key');
+  const normalized = normalizeAuthorityTrustEnv(trust);
+  assert.equal(normalized.LATTICE_AUTHORITY_URL, 'https://live.example/');
+  assert.equal(normalized.LATTICE_AUTHORITY_SERVER_PUBLIC_KEY, 'pub-live');
+  assert.equal(normalized.LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH, '/home/lattice/secrets/customer.key');
+}
+
+// --- customer API key resolution: env > path > trust env > authority.md -----
 {
   const envInline = resolveAuthorityCustomerApiKey({ LATTICE_AUTHORITY_CUSTOMER_API_KEY: ' env-key ' });
   assert.equal(envInline.value, 'env-key');
@@ -1826,9 +1851,22 @@ const sampleVerdictEnvelope = {
   assert.equal(envPath.source, 'path');
   assert.ok(envPath.path?.endsWith('secrets/customer.key'));
 
+  const trustPath = resolveAuthorityCustomerApiKey(
+    {},
+    {
+      cwd: '/proj',
+      authorityTrustEnv: normalizeAuthorityTrustEnv({
+        LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE: 'secrets/trust.key',
+      }),
+      fileReader: (p) => (p.endsWith('secrets/trust.key') ? ' trust-key\n' : undefined),
+    },
+  );
+  assert.equal(trustPath.value, 'trust-key');
+  assert.equal(trustPath.source, 'authority_trust_env');
+
   const mdInline = resolveAuthorityCustomerApiKey(
     {},
-    { authorityMd: parseAuthorityMd('customerApiKey: md-key') },
+    { authorityTrustEnv: {}, authorityMd: parseAuthorityMd('customerApiKey: md-key') },
   );
   assert.equal(mdInline.value, 'md-key');
   assert.equal(mdInline.source, 'authority_md');
@@ -1837,7 +1875,7 @@ const sampleVerdictEnvelope = {
   assert.equal(auth.customerApiKey, 'client-key');
 }
 
-// --- resolveAuthorityConfig precedence: CLI > env > md > mode default -------
+// --- resolveAuthorityConfig precedence: CLI > env > trust env > md > default
 {
   const md = parseAuthorityMd('serverUrl: https://md.example/\nprojectId: project-md\nrunnerId: runner-md\nsessionId: session-md\ntestKeyProfile: local-test');
   // CLI wins over env + md
@@ -1857,6 +1895,24 @@ const sampleVerdictEnvelope = {
   });
   assert.equal(envWin.baseURL, 'https://env.example/');
   assert.equal(envWin.urlSource, 'env');
+  // trust env wins over md
+  const trustWin = resolveAuthorityConfig({
+    env: { LATTICE_AUTHORITY_MODE: 'enforce' },
+    authorityTrustEnv: normalizeAuthorityTrustEnv({
+      LATTICE_AUTHORITY_LIVE_URL: 'https://trust.example/',
+      LATTICE_AUTHORITY_LIVE_PUBLIC_KEY: 'trust-server-key',
+      LATTICE_AUTHORITY_RUNNER_ID: 'runner-trust',
+    }),
+    authorityTrustEnvLoaded: true,
+    authorityMd: md,
+    authorityMdLoaded: true,
+  });
+  assert.equal(trustWin.baseURL, 'https://trust.example/');
+  assert.equal(trustWin.urlSource, 'authority_trust_env');
+  assert.equal(trustWin.runnerId, 'runner-trust');
+  assert.equal(trustWin.keyMaterial.serverPublicKey, 'trust-server-key');
+  assert.equal(trustWin.keyMaterial.serverKeySource, 'authority_trust_env');
+  assert.equal(trustWin.authorityTrustEnvLoaded, true);
   // md wins over the mode default
   const mdWin = resolveAuthorityConfig({
     env: { LATTICE_AUTHORITY_MODE: 'enforce' },
@@ -1946,7 +2002,9 @@ const sampleVerdictEnvelope = {
       cwd: '/proj',
       fileReader: (p) => {
         readPath = p;
-        return 'serverUrl: https://md.example/\ntestKeyProfile: local-test';
+        return p.endsWith('.lattice/authority.md')
+          ? 'serverUrl: https://md.example/\ntestKeyProfile: local-test'
+          : undefined;
       },
     },
   );
@@ -1955,6 +2013,46 @@ const sampleVerdictEnvelope = {
   assert.equal(cfg.baseURL, 'https://md.example/', 'authority.md serverUrl applied over mode default');
   assert.equal(cfg.urlSource, 'authority_md');
   assert.equal(cfg.productionInert, true);
+}
+
+// --- loadAuthorityConfig: enforce applies root authority_trust.env ----------
+{
+  const reads: string[] = [];
+  const cfg = loadAuthorityConfig(
+    { LATTICE_AUTHORITY_MODE: 'enforce' },
+    {},
+    {
+      cwd: '/proj',
+      fileReader: (p) => {
+        reads.push(p);
+        if (p.endsWith('authority_trust.env')) {
+          return [
+            'LATTICE_AUTHORITY_LIVE_URL=https://trust-file.example/',
+            'LATTICE_AUTHORITY_LIVE_PUBLIC_KEY=trust-file-public-key',
+            'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key',
+          ].join('\n');
+        }
+        if (p.endsWith('.lattice/authority.md')) return 'serverUrl: https://md.example/';
+        if (p.endsWith('secrets/customer.key')) return 'trust-file-customer-key';
+        return undefined;
+      },
+    },
+  );
+  assert.ok(reads.some(p => p.endsWith('authority_trust.env')), 'default root trust env path is read');
+  assert.equal(cfg.baseURL, 'https://trust-file.example/');
+  assert.equal(cfg.urlSource, 'authority_trust_env');
+  assert.equal(cfg.keyMaterial.serverPublicKey, 'trust-file-public-key');
+  assert.equal(cfg.authorityTrustEnvLoaded, true);
+  const key = resolveAuthorityCustomerApiKey(
+    { LATTICE_AUTHORITY_MODE: 'enforce' },
+    {
+      cwd: '/proj',
+      authorityTrustEnv: normalizeAuthorityTrustEnv(parseAuthorityTrustEnv('LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key')),
+      fileReader: p => (p.endsWith('secrets/customer.key') ? 'trust-file-customer-key' : undefined),
+    },
+  );
+  assert.equal(key.source, 'authority_trust_env');
+  assert.equal(key.value, 'trust-file-customer-key');
 }
 
 // --- readAuthorityMdConfig: missing file -> loaded:false -------------------

@@ -134,6 +134,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   LATTICE_AUTHORITY_ACTOR_KEY_PATH: '',
   LATTICE_AUTHORITY_RUNNER_ID: '',
   LATTICE_AUTHORITY_SESSION_ID: '',
+  LATTICE_AUTHORITY_TRUST_ENV_FILE: '.missing-authority-trust.env',
 };
 const NOW = '2026-06-10T00:00:00.000Z';
 
@@ -524,6 +525,44 @@ function refFor(
   assert.equal(result.sessionConfigured, true, 'authority.md sessionId counts as configured');
   assert.deepEqual(result.readinessWarnings, [], 'authority.md-backed enforce config emits no missing-prerequisite warnings');
   assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-authority-md');
+}
+
+// Enforce can resolve URL/customer/server trust from root authority_trust.env.
+{
+  const env: EnvOverride = {
+    ...EMPTY_AUTHORITY_ENV,
+    LATTICE_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_TRUST_ENV_FILE: 'authority_trust.env',
+  };
+  const result = buildAuthorityStatus({}, env as Record<string, string | undefined>, {
+    cwd: '/proj',
+    fileReader: p => {
+      if (p.endsWith('authority_trust.env')) {
+        return [
+          'LATTICE_AUTHORITY_LIVE_URL=https://authority-trust.example',
+          'LATTICE_AUTHORITY_LIVE_PUBLIC_KEY=trust-public-key',
+          'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key',
+        ].join('\n');
+      }
+      if (p.endsWith('secrets/customer.key')) return 'trust-customer-key';
+      return undefined;
+    },
+  });
+  assert.equal(result.authorityTrustEnvLoaded, true, 'root authority_trust.env is loaded in enforce mode');
+  assert.equal(result.urlSource, 'authority_trust_env', 'trust env URL source is reported');
+  assert.equal(result.baseURLConfigured, true, 'trust env server URL counts as configured');
+  assert.equal(result.customerApiKeyConfigured, true, 'trust env customer key path counts as configured');
+  assert.equal(result.customerApiKeySource, 'authority_trust_env', 'trust env customer key source is reported');
+  assert.equal(result.serverPublicKeyPinned, true, 'trust env public key counts as pinned');
+  assert.equal(result.actorKeyConfigured, false, 'trust file without actor key does not imply actor readiness');
+  assert.equal(result.runnerConfigured, false, 'trust file without runner id does not imply runner readiness');
+  assert.equal(result.receiptVerified, false, 'trust env readiness is not receipt verification');
+  assert.equal(result.productionDone, false, 'trust env readiness is not productionDone');
+  assert.equal(result.canClaimProductionDone, false, 'trust env readiness cannot claim productionDone');
+  assert.ok(!result.readinessWarnings.some(line => line.includes('CUSTOMER_API_KEY')), 'customer API key warning is cleared by trust env');
+  assert.ok(result.readinessWarnings.some(line => line.includes('ACTOR_KEY')), 'actor key warning remains');
+  assert.ok(result.readinessWarnings.some(line => line.includes('RUNNER_ID')), 'runner id warning remains');
+  assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-authority-trust-env');
 }
 
 // CLI --root reads authority.md from the selected project root, not the shell cwd.

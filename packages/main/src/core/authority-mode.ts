@@ -35,6 +35,9 @@ export const DEFAULT_AUTHORITY_URL = 'http://localhost:6789/';
 /** Default internal key-management file, relative to the project root. */
 export const DEFAULT_AUTHORITY_KEY_FILE = '.lattice/authority.md';
 
+/** Default Authority trust env file, relative to the project root. */
+export const DEFAULT_AUTHORITY_TRUST_ENV_FILE = 'authority_trust.env';
+
 export interface AuthoritySettings {
   mode: AuthorityMode;
   /** Base URL of the authority server; undefined when not configured. */
@@ -160,12 +163,13 @@ export function loadAuthoritySettings(
 export type AuthorityUrlSource =
   | 'cli'
   | 'env'
+  | 'authority_trust_env'
   | 'authority_md'
   | 'authority_mode_default'
   | 'none';
 
 /** Where a resolved key-material field came from. */
-export type AuthorityKeySource = 'env' | 'authority_md' | 'none';
+export type AuthorityKeySource = 'env' | 'authority_trust_env' | 'authority_md' | 'none';
 
 /**
  * Parsed machine-readable block of `.lattice/authority.md`. All fields optional;
@@ -234,6 +238,8 @@ export interface AuthorityConfig extends AuthoritySettings {
   keyMaterial: AuthorityKeyMaterial;
   /** True when a `.lattice/authority.md` file was found and parsed. */
   authorityMdLoaded: boolean;
+  /** True when a root `authority_trust.env` file was found and parsed. */
+  authorityTrustEnvLoaded: boolean;
 }
 
 /** Strip matching surrounding single/double quotes from a parsed scalar. */
@@ -298,6 +304,90 @@ export function parseAuthorityMd(text: unknown): AuthorityMdConfig {
   return out;
 }
 
+/** Strip matching surrounding single/double quotes from a parsed env scalar. */
+function stripAuthorityEnvQuotes(value: string): string {
+  return stripAuthorityMdQuotes(value);
+}
+
+function expandAuthorityEnvRefs(
+  value: string,
+  vars: Record<string, string | undefined>,
+  depth = 0,
+): string {
+  if (depth > 5) return value;
+  const withDefaults = value.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*):-(.*?)\}/g, (match, key: string, fallback: string) => {
+    const replacement = vars[key];
+    if (typeof replacement === 'string' && replacement.length > 0) return replacement;
+    return expandAuthorityEnvRefs(fallback, vars, depth + 1);
+  });
+  return withDefaults.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, braced: string | undefined, bare: string | undefined) => {
+    const key = braced ?? bare;
+    const replacement = key ? vars[key] : undefined;
+    return typeof replacement === 'string' ? replacement : match;
+  });
+}
+
+/**
+ * Parse a simple shell-style env file without command execution.
+ * Supports `KEY=value`, `export KEY=value`, and text-only `$VAR`, `${VAR}`,
+ * and `${VAR:-fallback}` expansion from earlier parsed keys plus the supplied
+ * expansion env.
+ */
+export function parseAuthorityTrustEnv(
+  text: unknown,
+  expansionEnv: Record<string, string | undefined> = {},
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (typeof text !== 'string') return out;
+  for (const rawLine of text.split(/\r?\n/)) {
+    let line = rawLine.trim();
+    if (line.length === 0 || line.startsWith('#')) continue;
+    if (line.startsWith('export ')) line = line.slice('export '.length).trim();
+    const idx = line.indexOf('=');
+    if (idx <= 0) continue;
+    const key = line.slice(0, idx).trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) continue;
+    const rawValue = line.slice(idx + 1).trim();
+    const singleQuoted = rawValue.startsWith("'") && rawValue.endsWith("'");
+    const stripped = stripAuthorityEnvQuotes(rawValue);
+    const value = singleQuoted ? stripped : expandAuthorityEnvRefs(stripped, { ...expansionEnv, ...out });
+    if (value.length > 0 && out[key] === undefined) out[key] = value;
+  }
+  return out;
+}
+
+function trustEnvValue(env: Record<string, string | undefined>, suffix: string): string | undefined {
+  const canonical = env[`LATTICE_AUTHORITY_${suffix}`];
+  if (typeof canonical === 'string' && canonical.trim().length > 0) return canonical.trim();
+  const legacy = env[`KOALA_AUTHORITY_${suffix}`];
+  return typeof legacy === 'string' && legacy.trim().length > 0 ? legacy.trim() : undefined;
+}
+
+/**
+ * Normalize legacy/live aliases used by Authority trust files to the canonical
+ * LATTICE_AUTHORITY_* keys consumed by the runtime config resolver.
+ */
+export function normalizeAuthorityTrustEnv(
+  env: Record<string, string | undefined> = {},
+): Record<string, string | undefined> {
+  const out: Record<string, string | undefined> = { ...env };
+  const setCanonical = (target: string, ...sources: string[]): void => {
+    const targetKey = `LATTICE_AUTHORITY_${target}`;
+    if (typeof out[targetKey] === 'string' && out[targetKey]!.trim().length > 0) return;
+    for (const source of sources) {
+      const value = trustEnvValue(out, source);
+      if (typeof value === 'string' && value.length > 0) {
+        out[targetKey] = value;
+        return;
+      }
+    }
+  };
+  setCanonical('URL', 'LIVE_URL');
+  setCanonical('SERVER_PUBLIC_KEY', 'LIVE_PUBLIC_KEY');
+  setCanonical('CUSTOMER_API_KEY_PATH', 'CUSTOMER_API_KEY_FILE');
+  return out;
+}
+
 /** Read an arbitrary LATTICE_AUTHORITY_<suffix> env var with KOALA_ legacy fallback. */
 function authorityEnvBySuffix(
   env: Record<string, string | undefined>,
@@ -316,6 +406,10 @@ export interface ResolveAuthorityConfigInput {
   authorityMd?: AuthorityMdConfig;
   /** True when an authority.md file was actually found + parsed. */
   authorityMdLoaded?: boolean;
+  /** Already-parsed authority_trust.env contents; file I/O happens in the caller. */
+  authorityTrustEnv?: Record<string, string | undefined>;
+  /** True when authority_trust.env was actually found + parsed. */
+  authorityTrustEnvLoaded?: boolean;
 }
 
 /**
@@ -328,6 +422,8 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
   const override = input.override ?? {};
   const md = input.authorityMd;
   const authorityMdLoaded = input.authorityMdLoaded === true && md !== undefined;
+  const trustEnv = normalizeAuthorityTrustEnv(input.authorityTrustEnv);
+  const authorityTrustEnvLoaded = input.authorityTrustEnvLoaded === true;
 
   const base = loadAuthoritySettings(env, override);
   const mode = base.mode;
@@ -336,6 +432,7 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
   // URL precedence: CLI > env > authority.md > authority-mode default.
   const cliURL = normalizeAuthorityURL(override.authorityURL);
   const envURL = normalizeAuthorityURL(readAuthorityEnv(env, 'URL'));
+  const trustURL = enabled ? normalizeAuthorityURL(readAuthorityEnv(trustEnv, 'URL')) : undefined;
   const mdURL = enabled ? normalizeAuthorityURL(md?.serverUrl) : undefined;
   let baseURL: string | undefined;
   let urlSource: AuthorityUrlSource = 'none';
@@ -345,6 +442,9 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
   } else if (envURL !== undefined) {
     baseURL = envURL;
     urlSource = 'env';
+  } else if (trustURL !== undefined) {
+    baseURL = trustURL;
+    urlSource = 'authority_trust_env';
   } else if (mdURL !== undefined) {
     baseURL = mdURL;
     urlSource = 'authority_md';
@@ -360,18 +460,27 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
   // Live runner identity precedence: env > authority.md. These fields are part of
   // the same canonical config block as URL/key material, but they never apply in
   // off mode because off mode does not load authority.md.
-  const projectId = authorityEnvBySuffix(env, 'PROJECT_ID') ?? (enabled ? md?.projectId : undefined);
-  const runnerId = authorityEnvBySuffix(env, 'RUNNER_ID') ?? (enabled ? md?.runnerId : undefined);
-  const sessionId = authorityEnvBySuffix(env, 'SESSION_ID') ?? (enabled ? md?.sessionId : undefined);
+  const projectId = authorityEnvBySuffix(env, 'PROJECT_ID') ?? (enabled ? authorityEnvBySuffix(trustEnv, 'PROJECT_ID') ?? md?.projectId : undefined);
+  const runnerId = authorityEnvBySuffix(env, 'RUNNER_ID') ?? (enabled ? authorityEnvBySuffix(trustEnv, 'RUNNER_ID') ?? md?.runnerId : undefined);
+  const sessionId = authorityEnvBySuffix(env, 'SESSION_ID') ?? (enabled ? authorityEnvBySuffix(trustEnv, 'SESSION_ID') ?? md?.sessionId : undefined);
 
   // Server key material precedence: env > authority.md (no CLI arg surface yet).
   const envServerPublicKey = authorityEnvBySuffix(env, 'SERVER_PUBLIC_KEY');
   const envServerKeyId = authorityEnvBySuffix(env, 'SERVER_KEY_ID');
   const envServerEncoding = authorityEnvBySuffix(env, 'SERVER_PUBLIC_KEY_ENCODING');
+  const trustServerPublicKey = enabled ? authorityEnvBySuffix(trustEnv, 'SERVER_PUBLIC_KEY') : undefined;
+  const trustServerKeyId = enabled ? authorityEnvBySuffix(trustEnv, 'SERVER_KEY_ID') : undefined;
+  const trustServerEncoding = enabled ? authorityEnvBySuffix(trustEnv, 'SERVER_PUBLIC_KEY_ENCODING') : undefined;
   let serverPublicKey = envServerPublicKey;
   let serverPublicKeyEncoding = envServerEncoding;
   let serverKeyId = envServerKeyId;
   let serverKeySource: AuthorityKeySource = envServerPublicKey !== undefined ? 'env' : 'none';
+  if (serverPublicKey === undefined && trustServerPublicKey !== undefined) {
+    serverPublicKey = trustServerPublicKey;
+    serverPublicKeyEncoding = serverPublicKeyEncoding ?? trustServerEncoding;
+    serverKeyId = serverKeyId ?? trustServerKeyId;
+    serverKeySource = 'authority_trust_env';
+  }
   if (serverPublicKey === undefined && enabled && md?.serverPublicKey) {
     serverPublicKey = md.serverPublicKey;
     serverPublicKeyEncoding = serverPublicKeyEncoding ?? md.serverPublicKeyEncoding;
@@ -379,7 +488,7 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
     serverKeySource = 'authority_md';
   }
   // serverKeyId may still come from env/md independently of the public key.
-  if (serverKeyId === undefined && enabled) serverKeyId = md?.serverKeyId;
+  if (serverKeyId === undefined && enabled) serverKeyId = trustServerKeyId ?? md?.serverKeyId;
 
   // Actor key material precedence: env > authority.md.
   const envActorId = authorityEnvBySuffix(env, 'ACTOR_ID');
@@ -388,6 +497,12 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
   const envActorKeyPath = authorityEnvBySuffix(env, 'ACTOR_KEY_PATH');
   const envActorKeyEncoding = authorityEnvBySuffix(env, 'ACTOR_KEY_ENCODING');
   const envActorKey = authorityEnvBySuffix(env, 'ACTOR_KEY');
+  const trustActorId = enabled ? authorityEnvBySuffix(trustEnv, 'ACTOR_ID') : undefined;
+  const trustActorRole = enabled ? authorityEnvBySuffix(trustEnv, 'ACTOR_ROLE') : undefined;
+  const trustActorKeyId = enabled ? authorityEnvBySuffix(trustEnv, 'ACTOR_KEY_ID') : undefined;
+  const trustActorKeyPath = enabled ? authorityEnvBySuffix(trustEnv, 'ACTOR_KEY_PATH') : undefined;
+  const trustActorKeyEncoding = enabled ? authorityEnvBySuffix(trustEnv, 'ACTOR_KEY_ENCODING') : undefined;
+  const trustActorKey = enabled ? authorityEnvBySuffix(trustEnv, 'ACTOR_KEY') : undefined;
   let actorId = envActorId;
   let actorRole = envActorRole;
   let actorKeyId = envActorKeyId;
@@ -396,6 +511,17 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
   let actorKeyEncoding = envActorKeyEncoding;
   let actorKeySource: AuthorityKeySource =
     envActorKey !== undefined || envActorKeyPath !== undefined ? 'env' : 'none';
+  if (enabled && (trustActorId || trustActorKeyPath || trustActorKey || trustActorKeyId)) {
+    actorId = actorId ?? trustActorId;
+    actorRole = actorRole ?? trustActorRole;
+    actorKeyId = actorKeyId ?? trustActorKeyId;
+    actorKey = actorKey ?? trustActorKey;
+    actorKeyPath = actorKeyPath ?? trustActorKeyPath;
+    actorKeyEncoding = actorKeyEncoding ?? trustActorKeyEncoding;
+    if (actorKeySource === 'none' && (trustActorKey || trustActorKeyPath)) {
+      actorKeySource = 'authority_trust_env';
+    }
+  }
   if (enabled && md && (md.actorId || md.actorKeyPath || md.actorKey || md.actorKeyId)) {
     actorId = actorId ?? md.actorId;
     actorRole = actorRole ?? md.actorRole;
@@ -431,6 +557,7 @@ export function resolveAuthorityConfig(input: ResolveAuthorityConfigInput = {}):
     productionInert: productionInertReasons.length > 0,
     productionInertReasons,
     authorityMdLoaded,
+    authorityTrustEnvLoaded,
     keyMaterial: {
       serverPublicKey,
       serverPublicKeyEncoding,

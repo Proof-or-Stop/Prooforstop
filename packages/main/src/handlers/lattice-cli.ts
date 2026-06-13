@@ -763,6 +763,7 @@ export function buildAuthorityStatus(
     urlSource: config.urlSource,
     defaultUrlApplied: config.defaultUrlApplied,
     authorityMdLoaded: config.authorityMdLoaded,
+    authorityTrustEnvLoaded: config.authorityTrustEnvLoaded,
     testKeyProfile: config.keyMaterial.testKeyProfile ?? null,
     /** True when default / local-test material makes this config production-inert. */
     productionInert: config.productionInert,
