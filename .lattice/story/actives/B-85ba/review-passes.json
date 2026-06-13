@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-13T01:43:05.842Z",
       "reviewRunId": "B-85ba:RR-020",
       "_hash": "fddfa0da06010c3f841855a9ebf24b32f9fe57dcd646b550e54222db0e3f8a86"
+    },
+    {
+      "id": "B-85ba:RP-010",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: test coverage reviewed for scope anti-expansion and latest INIT_CHECK/worktree regressions. Verified scope smoke covers boundary persistence, malformed inputs, missing scope/execution boundaries, excluded keywords, failed/stale freeze checks, pending/accepted proposals, repeat discarded direction mitigation, direct INIT_CHECK story_create rejection, and INIT reviewer checklist mutation blocking. Verified worktree authority smoke covers fromDraft stopping at INIT, explicit story_advance INIT_CHECK worktree bootstrap, dirty-main preservation, staged-main rejection, and worktree authority behavior. Verified root npm test/cli-e2e seeds scope_boundary_set, execution_boundary_set, scope_freeze_check, and init_check_set before story_advance INIT_CHECK. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; npm test; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T01:45:45.524Z",
+      "reviewRound": "2026-06-13T01:43:05.842Z",
+      "reviewRunId": "B-85ba:RR-021",
+      "_hash": "eea729181a2c2c24c3d619b6bed9175834ad27c344e115e62bf4f7f31e9d08bb"
     }
   ]
 }
