@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency between proof semantics, claim boundaries, and audit finding state."
+  ],
+  "drivers": [
+    "F-009 is a suspected audit finding, so closure must be evidence-backed rather than cosmetic.",
+    "Layer2 Engineering proof must remain distinct from Layer4 Production Safety and Authority/customerKeyRef scope.",
+    "Lattice CLI must be the mutation path for story and finding state."
+  ],
+  "options": [
+    {
+      "name": "A: Resolve F-009 as stale/disproven if current formal proof path already covers the original claim",
+      "pros": [
+        "Keeps work minimal and evidence-based.",
+        "Avoids implementing fake Authority or broad Layer4 behavior.",
+        "Removes a vague high/suspected advisory if it no longer describes current code."
+      ],
+      "cons": [
+        "Requires strong source, doc, and command evidence to avoid false closure."
+      ]
+    },
+    {
+      "name": "B: Narrow F-009 to a precise remaining Layer4 or Authority gap",
+      "pros": [
+        "Preserves audit pressure if a concrete correctness gap remains.",
+        "Avoids closing a finding when only part of it is addressed."
+      ],
+      "cons": [
+        "Could duplicate the already separate customerKeyRef Layer4 future-scope gap if applied too broadly."
+      ]
+    },
+    {
+      "name": "C: Implement new proof/evaluator behavior inside this story",
+      "pros": [
+        "Could address a real missing path if evidence shows the current path is absent or bypassable."
+      ],
+      "cons": [
+        "Out of scope unless the audit proves a real correctness issue; risks arbitrary optimization and Layer4 scope creep."
+      ]
+    }
+  ],
+  "chosen": "A: Resolve F-009 as stale/disproven if current formal proof path already covers the original claim",
+  "rationale": "Current evidence points to the original F-009 claim being outdated by the formal Layer2 proof path; the safest path is to resolve only that finding if verification confirms the proof path and higher-layer locks.",
+  "preMortem": [
+    {
+      "scenario": "F-009 is closed even though the formal path can still be bypassed by local-only artifacts.",
+      "trigger": "We rely on docs wording without checking source fail-closed checks.",
+      "consequence": "Layer2 could be falsely claimed from diagnostic evidence.",
+      "mitigation": "Verify source checks for localOnly=false, capabilityProof=true, formal suite rebuild, and claim boundary locks before resolving."
+    },
+    {
+      "scenario": "The story drifts into implementing Layer4 customerKeyRef or Authority receipts.",
+      "trigger": "Remaining gap_analyze high output is mistaken for the same F-009 issue.",
+      "consequence": "Scope creep consumes tokens and risks fake production authority semantics.",
+      "mitigation": "Treat customerKeyRef as separate Layer4 future/blocked scope unless explicitly implementing Layer4."
+    },
+    {
+      "scenario": "Resolution text overclaims capability unlock.",
+      "trigger": "We conflate formal proof path existence with current production-grade or global claim readiness.",
+      "consequence": "Audit state becomes inconsistent with capability claim boundaries.",
+      "mitigation": "Resolution wording must say only the original F-009 suspected gap is resolved/disproven and that Production/global claims remain locked."
+    }
+  ],
+  "timestamp": "2026-06-12T20:15:39.585Z"
+}

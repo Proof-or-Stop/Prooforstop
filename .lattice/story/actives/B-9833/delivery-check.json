@@ -1,0 +1,54 @@
+{
+  "storyId": "B-9833",
+  "checkedAt": "2026-06-12T20:42:21.528Z",
+  "reviewRound": "2026-06-12T20:27:54.104Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "promise": "F-009 triage must distinguish a real formal Layer2 proof path from local diagnostic artifacts and must not fabricate localOnly=false or capabilityProof=true from L0 diagnostics.",
+      "status": "verified",
+      "verifiedBy": "rg + finding_list + capability_claim_formal_evaluate + smoke test",
+      "evidence": "rg found the F-009 proof-path and anti-overclaim requirements; B-META-framework-audit:F-009 is status=resolved with a scoped resolvedReason; capability_claim_formal_evaluate returns EXPECTED_BLOCK/LOCKED without proof artifacts; test:lattice-baseline-smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "promise": "Layer2 Engineering proof requires formal final reports with localOnly=false and capabilityProof=true, while Loop, Production Safety, and global Capability remain locked unless separately proven.",
+      "status": "verified",
+      "verifiedBy": "rg + source grep + formal evaluator",
+      "evidence": "rg found the Layer2 proof requirements and higher-layer locks; source grep found writeFormalBaselineReport, localOnly diagnostic rejection, formalSuiteRevalidationProblems, and evaluateFormalEngineeringClaim; evaluator output kept Layer2/Loop/Production/global claims LOCKED in the missing-proof case."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "promise": "customerKeyRef is separate future Layer4 evidence scope and does not imply Production Safety, global Capability, productionDone, or fullAuthorityDone completion.",
+      "status": "verified",
+      "verifiedBy": "rg + gap_analyze + summary_get",
+      "evidence": "rg found customerKeyRef future Layer4 scope and higher-layer lock language; gap_analyze still reports exactly one high customerKeyRef gap at line 267; summary_get limitations state Layer4 customerKeyRef and Production/global authority remain locked."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-002",
+      "transcript": "lattice capability_claim_formal_evaluate --target=engineering --format=json returned authorized=false, outcome=EXPECTED_BLOCK, layer2EngineeringClaim=LOCKED, loopEngineeringClaim=LOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED, receiptVerified=false, productionDone=false, fullAuthorityDone=false."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice finding_list {storyId:B-META-framework-audit} shows B-META-framework-audit:F-009 status=resolved with resolvedReason scoped to stale/superseded Layer2 no-formal-path, and attention.suspected is empty."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "lattice gap_analyze reports one high gap only for Layer4 customerKeyRef; lattice convergence_check is not globally converged because of that gap and active stories, while Audit backlog passes. This matches summary_get outcomeDiff and avoids overclaiming full convergence."
+    },
+    {
+      "featureId": "TESTS",
+      "transcript": "npm --prefix packages/main run build passed; npm --prefix packages/main run test:lattice-baseline-smoke passed with the pass line; lattice validate --story=B-9833 --json ran npm test successfully but returned allPass=false because all 12 verification intents are stale after material-hash drift, a separate TEST/DONE freshness issue rather than a delivery overclaim."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery content passes: F-009 is resolved through Lattice finding flow, summary and transcript-diff are accurate, tests/build/smoke ran, and the story does not claim Layer2 unlock, Layer4 completion, Production Safety, global Capability, productionDone, or fullAuthorityDone. Current validate still flags stale verification evidence as a separate freshness gate."
+  },
+  "_hash": "19d1134919cbf16a6387c69fbfe04bab0adff2319de4b11f05f4104ce4c3f82e"
+}

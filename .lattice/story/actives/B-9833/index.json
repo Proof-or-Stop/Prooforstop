@@ -4,7 +4,7 @@
   "title": "Triage F-009 Layer2 proof audit finding",
   "description": "Audit and resolve, narrow, or supersede B-META-framework-audit:F-009. The story only determines whether current Layer2 formal proof paths already refute the suspected high finding, or whether the finding should be narrowed to a remaining Layer4/Authority receipt scope. Explicitly out of scope: implementing customerKeyRef, connecting Authority Server, changing Layer2 proof code, changing baseline evaluator logic, and claiming production authority.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-12T20:09:28.264Z",
   "startedAt": "2026-06-12T20:09:28.264Z",
-  "endedAt": null,
+  "endedAt": "2026-06-12T20:43:24.119Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,54 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:11:56.532Z",
+      "branch": "story/B-9833",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:22:01.653Z",
+      "branch": "story/B-9833",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:27:54.104Z",
+      "branch": "story/B-9833",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:35:16.263Z",
+      "branch": "story/B-9833",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:43:24.119Z",
+      "branch": "story/B-9833",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-9833",
-    "branch": "story/B-9833",
-    "createdAt": "2026-06-12T20:11:42.359Z"
-  }
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: this story mentions production authority only as an excluded scope and does not modify production, Authority, customerKeyRef, or release behavior.",
+      "at": "2026-06-12T20:21:15.990Z"
+    }
+  ],
+  "currentReviewRound": "2026-06-12T20:27:54.104Z"
 }

@@ -1,0 +1,23 @@
+{
+  "storyId": "B-9833",
+  "mode": "enforce",
+  "allowedModify": [
+    "B-META-framework-audit:F-009 via Lattice finding command"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+    "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+    "lattice convergence_check",
+    "lattice finding_list",
+    "lattice gap_analyze"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-12T20:22:11.460Z",
+  "updatedAt": "2026-06-12T20:22:11.460Z"
+}
