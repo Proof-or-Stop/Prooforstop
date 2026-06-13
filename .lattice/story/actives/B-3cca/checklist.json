@@ -227,12 +227,12 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
-          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-entrypoints.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
           "result": "pass",
-          "note": "Process fact contract verified; entrypoints ok 26/26; tsc recursive lint clean (packages/main build exit 0)",
-          "headHash": "74c8ab50b20298a3166b273c8fbbc89173917f23",
-          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
-          "timestamp": "2026-06-13T10:42:16.783Z"
+          "note": "Current HEAD checks passed: Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified.",
+          "headHash": "5a6a6213d232437e890dfd570237a0b068622fbd",
+          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
+          "timestamp": "2026-06-13T10:47:11.177Z"
         }
       ]
     },
