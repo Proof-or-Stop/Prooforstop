@@ -1,0 +1,59 @@
+{
+  "storyId": "B-a94f",
+  "checkedAt": "2026-06-13T12:20:12.750Z",
+  "features": [
+    {
+      "feature": "Root authority_trust.env default loading is confined to Authority config resolution; off/non-authority behavior remains no file/no network/no Authority readiness claim.",
+      "covered_by": "background_get Solution Tradeoffs; plan_get CHK-001 Implementation approach; CHK-001:edge:1; Authority doc lines 559, 589, 771.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "requested scope + Authority live integration doc"
+    },
+    {
+      "feature": "Root authority_trust.env is protected from commit and real trust/secret values are not printed or persisted as evidence.",
+      "covered_by": "plan_get CHK-001 .gitignore step; CHK-001 secret-free synthetic trust-file tests; operator git status check; CHK-001:adversarial:0.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "requested scope + PLAN"
+    },
+    {
+      "feature": "Alias mapping resolves trust-file LIVE_URL/LIVE_PUBLIC_KEY/CUSTOMER_API_KEY_FILE-style values to canonical Authority URL/server public key/customer API key path while preserving explicit CLI/env precedence.",
+      "covered_by": "story_get CHK-001 context; plan_get CHK-001 alias mapping; CHK-001:happy:0; CHK-001:edge:0; background_get Key Insights.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "requested scope + PLAN"
+    },
+    {
+      "feature": "Generic dotenv loading for all CLI commands is not part of this story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "background_get Solution Tradeoffs; plan_get CHK-001 Out of scope; story decision option C rejected.",
+      "source": "requested non-goal"
+    },
+    {
+      "feature": "Remote Authority Server changes, receipt creation, and Authority DONE promotion are not part of this story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan_get CHK-001 Out of scope; Authority doc lines 85, 405, 547.",
+      "source": "requested non-goal + Authority receipt boundary"
+    },
+    {
+      "feature": "authority_status readiness from the trust file must not set receiptVerified, productionDone, fullAuthorityDone, or canClaimProductionDone without verified native receipt evidence.",
+      "covered_by": "CHK-002 context; plan_get CHK-002 Implementation approach; CHK-002:adversarial:0; Authority doc lines 148, 171, 780.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "requested scope + Authority live integration doc"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "14452a4507fcbf4dc8fc486498a0542e590a32e9477f8c4f17a3782fdca6c910",
+  "openQuestions": []
+}
