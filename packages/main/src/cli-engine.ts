@@ -8,15 +8,16 @@
  */
 
 import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, realpathSync } from 'fs';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
-import { isAbsolute, join } from 'path';
+import { isAbsolute, join, relative } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
+import { resolveStorySignedWorkspace } from './core/story-signed-workspace-resolution.js';
 import { formatCommandLifecycleHint, type CommandPolicy } from './core/command-policy.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
@@ -480,6 +481,13 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'verification_evidence_refresh_stale', description: '刷新 stale verificationEvidence 的 HEAD/material hash（需先重跑对应验证命令）', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('只报告将刷新的 stale evidence，不写入'),
+  }},
+  { name: 'verification_intent_repair', description: '受控 legacy 修复：从已有 PASSING verificationEvidence 反推、仅填补缺失的 verificationIntent lane（绝不覆盖已撰写 intent，synthesized intent 为 should 优先级）', schema: {
+    storyId: z.string().describe('Story ID'),
+    mode: z.literal('fromEvidence').describe('当前唯一模式：从 verificationEvidence.intentRef 反推缺失的 intent'),
+    legacyRepair: z.boolean().describe('必须显式传 true：确认这是 legacy 数据补洞，不是正常 PLAN 流程'),
+    reason: z.string().min(30, 'reason 必须 ≥ 30 字符').describe('为什么需要 legacy 修复 + 你核查了什么'),
+    dryRun: z.boolean().optional().describe('只报告将生成的 intent 条目，不写入'),
   }},
   { name: 'verification_context_pack_create', description: '从当前 git diff 机械生成 Verification Context Pack（供 verifier job/Runner 消费）', schema: {
     producerRunId: z.string().min(1).describe('实现者 run id'),
@@ -3287,8 +3295,26 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
  * Idempotent: a retry where the story dir is already committed stages nothing
  * and returns '' (no-op) instead of throwing.
  */
+/**
+ * B-4e06 CHK-003: resolve the git "main checkout" root for INIT_CHECK metadata
+ * reconciliation. With a configured gitRoot (wrapper-root project), the main
+ * checkout IS the resolved git root, not the metadata wrapper. Reuses the shared
+ * signed-workspace resolver — no second resolver. Falls back to the metadata
+ * root for plain repos (byte-for-byte unchanged).
+ */
+function resolveInitCheckGitMainRoot(root: string, store: StoryStore, storyId: string): string {
+  const configuredGitRoot = loadConfig(root).gitRoot?.trim();
+  if (!configuredGitRoot) return root;
+  const resolution = resolveStorySignedWorkspace({ store, storyId, metadataRoot: root });
+  if (resolution.resolved && resolution.repoRoot) return resolution.repoRoot;
+  throw new Error(
+    `INIT_CHECK metadata reconcile: configured gitRoot is unusable (${resolution.unresolvedReason || 'unresolved'}).`,
+  );
+}
+
 function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, storyId: string): string {
-  const currentBranch = gitCli(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  const gitMainRoot = resolveInitCheckGitMainRoot(root, store, storyId);
+  const currentBranch = gitCli(gitMainRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
   if (currentBranch.startsWith('story/')) {
     // INIT_CHECK is the standard worktree-creation entry and must run from the
     // main checkout. If we are already on a story branch, dev_start would not
@@ -3296,9 +3322,23 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
     return '';
   }
 
-  const storyRel = boundedMetadataPath(store.storyDirRel(), storyId, 'active story');
-  stageBoundedMetadataPath(root, storyRel);
-  const staged = gitCli(root, ['diff', '--cached', '--name-only']);
+  // storyRel must be relative to the git main root so `git add` works whether or
+  // not the metadata root is the git root. Canonicalize both sides (realpath) so
+  // a /var → /private/var symlink does not corrupt the relative path. When
+  // gitMainRoot === root this equals the legacy bounded storyDirRel/storyId path.
+  const storyAbs = join(root, store.storyDirRel(), storyId);
+  const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
+  const canonicalGitMainRoot = existsSync(gitMainRoot) ? realpathSync(gitMainRoot) : gitMainRoot;
+  const storyRelRaw = relative(canonicalGitMainRoot, canonicalStoryAbs).replace(/\\/g, '/');
+  if (!storyRelRaw || isAbsolute(storyRelRaw) || storyRelRaw.split('/').includes('..')) {
+    throw new Error(
+      `INIT_CHECK metadata reconcile: story metadata path ${storyAbs} is not inside the git root ${gitMainRoot}; ` +
+      `configure storyDir so story metadata lives inside the gitRoot.`,
+    );
+  }
+  const storyRel = storyRelRaw;
+  stageBoundedMetadataPath(gitMainRoot, storyRel);
+  const staged = gitCli(gitMainRoot, ['diff', '--cached', '--name-only']);
   const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
   if (stagedPaths.length === 0) {
     // Story metadata already committed (retry / already-tracked) — nothing to
@@ -3313,13 +3353,13 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
   }
 
   const commitMessage = `koala: INIT_CHECK metadata ${storyId}`;
-  gitCli(root, [
+  gitCli(gitMainRoot, [
     '-c', 'commit.gpgsign=false',
     'commit',
     '-m', commitMessage,
   ]);
-  const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
-  const boundedStatus = gitCli(root, ['status', '--porcelain', '--', storyRel]);
+  const mainHead = gitCli(gitMainRoot, ['rev-parse', '--short', 'HEAD']);
+  const boundedStatus = gitCli(gitMainRoot, ['status', '--porcelain', '--', storyRel]);
   if (boundedStatus) {
     throw new Error(
       `INIT_CHECK metadata committed, but bounded story path is still dirty (${storyRel}):\n${boundedStatus}`,
@@ -3332,8 +3372,7 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
   if (!worktreePath) {
     throw new Error(`INIT_CHECK story ${storyId} has no recorded worktree path after dev_start`);
   }
-  const repoRoot = gitCli(root, ['rev-parse', '--show-toplevel']);
-  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
+  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(gitMainRoot, worktreePath);
   gitCli(worktreeAbs, [
     '-c', 'commit.gpgsign=false',
     'merge',

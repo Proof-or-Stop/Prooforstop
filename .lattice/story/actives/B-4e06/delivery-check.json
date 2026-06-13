@@ -1,0 +1,73 @@
+{
+  "storyId": "B-4e06",
+  "checkedAt": "2026-06-13T18:50:20.768Z",
+  "reviewRound": "2026-06-13T18:42:09.162Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md#Delivered (B-4e06)",
+      "promise": "verification_intent_repair command (mode=fromEvidence) is registered with ownershipClass=storyScopedMutating, process-fact level L2, allowed phases PLAN/DEV/REVIEW/TEST, refused in INIT/INIT_CHECK and terminal/META phases",
+      "verifiedBy": "diff/grep",
+      "evidence": "command-policy.ts line 151: status=maintenance,ownershipClass=storyScopedMutating,allowedPhases=[PLAN,DEV,REVIEW,TEST],destructiveRisk=metadata-write; INTENT_REPAIR_REFUSED_PHASES in checklist.ts covers INIT,INIT_CHECK,DONE,DISCARDED,META; cli-engine.ts registers schema with z.literal(fromEvidence), legacyRepair boolean, reason min(30); process-fact-levels.ts entry at L2/verification-evidence"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md#Delivered (B-4e06)",
+      "promise": "Synthesized intents are priority=should, never must; never overwrites authored intent; fail-closed on malformed item-scoped refs",
+      "verifiedBy": "diff/grep + smoke run",
+      "evidence": "checklist.ts reconstructMissingIntentsFromEvidence: vi[lane][index] assigned with priority:should (line 216); authored intent check (if vi[lane][index]) continue; STRUCTURED_INTENT_REF regex throws on malformed refs. Smoke test passes: reconstruct:NEVER-overwrites-authored-intent, reconstruct:malformed-item-scoped-ref-fails-closed, reconstruct:failing/waiver-evidence-NEVER-used all green"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md#Delivered (B-4e06)",
+      "promise": "detectLegacyEvidenceWithoutIntent shared helper used by both story_review and validate diagnostics, naming verification_intent_repair; missing-intent stays a hard blocker; hint is additive only, never alters coverage math or allPass",
+      "verifiedBy": "diff/grep + integration test run",
+      "evidence": "verification.ts exports detectLegacyEvidenceWithoutIntent and VERIFICATION_INTENT_REPAIR_COMMAND; story-review.ts imports and calls detectLegacyEvidenceWithoutIntent for each item, adds legacyEvidenceWithoutIntent:true and repairCommand fields while keeping severity=blocker; verifier.ts decorateStoryVerification adds legacyHints to details array and legacyEvidenceWithoutIntent to output WITHOUT touching allPass or missingRequired. verify-story-review-structured-output.mjs legacy-evidence-no-intent scenario passes: asserts severity=blocker and validate.legacyEvidenceWithoutIntent is additive"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md#Delivered (B-4e06)",
+      "promise": "gitRoot bootstrap reuses resolveStorySignedWorkspace (same resolver as session_brief); configured but unresolvable gitRoot fails closed echoing signed-workspace reason; no-gitRoot path is byte-for-byte unchanged getRepoRoot() fallback",
+      "verifiedBy": "diff/grep + integration test run",
+      "evidence": "worktree.ts resolveBootstrapGitRoot: imports resolveStorySignedWorkspace, checks configuredGitRoot via loadConfig, returns getRepoRoot() when absent; when present calls resolveStorySignedWorkspace and throws if not resolved. cli-engine.ts resolveInitCheckGitMainRoot: same pattern for INIT_CHECK metadata reconcile. verify-init-check-bootstrap.mjs nested-gitroot and invalid-gitroot modes pass: branch created inside gitRoot, wrapper root stays non-git, invalid gitRoot emits actionable error and creates no worktree"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md#Delivered (B-4e06)",
+      "promise": "storyRel is computed relative to resolved git root with realpath canonicalization; metadata outside gitRoot fails closed; storyDir must be inside the configured gitRoot",
+      "verifiedBy": "diff/grep",
+      "evidence": "worktree.ts: canonicalStoryAbs and canonicalRepoRoot use realpathSync; storyRel computed via relative(); guard checks for absolute/.. path components; same pattern in cli-engine.ts commitInitCheckMetadataAndMergeMain. Delivered section documents: Metadata outside the gitRoot fails closed"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md#Delivered (B-4e06) + Verification Plan",
+      "promise": "After build, dist CLI exposes verification_intent_repair; checklist_update --help exits zero (P3 regression sanity)",
+      "verifiedBy": "live run",
+      "evidence": "npm --prefix packages/main run build passes; node packages/main/dist/cli.js verification_intent_repair --help emits full usage; node packages/main/dist/cli.js checklist_update --help exits zero and shows usage. verify-init-check-bootstrap.mjs help-health mode confirmed green"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:verification-intent-repair-smoke: 11/11 cases pass including reconstruct-missing-intent-filled, kind-type-mapping, NEVER-overwrites-authored-intent, failing/waiver-NEVER-used, malformed-ref-fails-closed, custom/foreign-ref-skipped, sparse-index-pads-non-required-placeholders"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:verification-intent-repair-smoke: detect:evidence-without-intent-hit, detect:authored-intent-no-hit, detect:no-evidence-no-hit, command-name-constant-stable — all pass. node scripts/verify-story-review-structured-output.mjs: all 4 modes (missing-intent, advisory-only, high-risk, legacy-evidence-no-intent) pass; legacy-evidence-no-intent asserts severity=blocker preserved and legacyEvidenceWithoutIntent named, and validate surfaces hint without altering allPass"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node scripts/verify-init-check-bootstrap.mjs all: nested-gitroot (wrapper-root success), invalid-gitroot (fails closed with signed-workspace error vocabulary, no worktree created), branch-isolation, scoped-stage, dry-run, bad-branch, concurrent — all pass. Wrapper root does not become a git repo; story branch exists in configured gitRoot; worktree under gitRoot/.worktrees"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "verification-intent-repair-smoke PASS (11/11); verify-init-check-bootstrap.mjs all modes pass including nested-gitroot, invalid-gitroot, help-health; verify-story-review-structured-output.mjs all 4 modes pass"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm --prefix packages/main run build exits zero; dist CLI exposes verification_intent_repair with correct schema; checklist_update --help exits zero; node scripts/verify-process-fact-contract.mjs passes; only implementation-relevant files changed (packages/main/src, scripts, docs/requirements — no unrelated docs or fixture edits)"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises are verified from diff and live test runs. 5 CHK items have real machine tests with concrete assertion transcripts. Edge cases covered: fail-closed on malformed refs, no-overwrite of authored intent, priority=should enforcement, invalid gitRoot fails closed, wrapper root does not become git repo, plain repos are byte-for-byte unchanged. One field naming deviation from the plan spec (legacyEvidenceWithoutIntent/repairCommand vs plan spec evidenceAware/suggestedCommand) is resolved by the Delivered section and confirmed by passing integration tests; the behavioral contract (gate not weakened, repair path named) is fully met."
+  },
+  "_hash": "22bdeb2b1a96132811e930529dc7d32e92ed6629703b3fcc9b8dbc3c37ad9084"
+}

@@ -12,9 +12,83 @@
         "Do not make evidence alone pass normal review gates.",
         "Do not rewrite existing authored intent by default."
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T18:27:19.468Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A PLAN-phase story has passing verificationEvidence refs such as CHK-001:happy:0 but no stored verificationIntent -> lattice verification_intent_repair with mode=fromEvidence dryRun prints reconstructed intent, and the non-dry run writes only the missing lane/index entries plus an audit event; WHY: proves the mid-flight legacy repair path exists without hand-editing story metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A checklist item already has authored verificationIntent on one lane while other evidenced lanes are missing -> repair preserves the authored text and fills only missing entries unless replaceExisting is explicitly requested with a strong reason; WHY: protects the acceptance contract from accidental overwrite.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A DEV/REVIEW/TEST story needs legacy repair -> command rejects missing legacyRepair or a short/empty reason, then succeeds with legacyRepair=true and a substantial reason while recording phase/reason/head/material audit data; WHY: verifies protected-phase mutation stays explicit and auditable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Evidence refs are malformed, point at unknown checklist items or lanes, or represent failing evidence -> repair reports the problematic refs, does not guess generated intent, and leaves checklist intent unchanged; WHY: prevents evidence from becoming a silent or lossy substitute for authored intent.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "reconstruct: missing intent filled from passing evidence (priority=should, kind→type mapped)",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "reconstruct: NEVER overwrites authored intent on a lane that already has one",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "CLI flag-form run proves DEV repair works; preflight rejects missing legacyRepair / short reason; INIT/INIT_CHECK/terminal refused",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "reconstruct: malformed item-scoped ref fails closed (throws); failing/waiver evidence never used; foreign ref skipped",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -28,9 +102,99 @@
       "excludes": [
         "Do not downgrade blocker severity for normal stories."
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T18:27:19.899Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_review sees missing verificationIntent for a lane that already has matching evidence refs -> it still blocks with type=missing_verification_intent and evidenceAware=true details including itemId, lane, evidenceRefs, repairHint, and a suggested lattice verification_intent_repair command; WHY: gives the reviewer the precise legacy repair path instead of a generic blocker while preserving existing issue-type compatibility.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "lattice validate runs on a story with evidence refs but no stored intent -> validation remains failing/missing coverage but prints the same repair hint instead of implying evidence can pass by itself; WHY: keeps validation aligned with review while preserving intent as the gate contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story lacks verificationIntent and has no matching evidence refs -> diagnostics keep the normal missing_verification_intent behavior without a legacy repair-specific claim; WHY: avoids misleading operators when there is no deterministic reconstruction source.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Existing callers or smoke tests still expect the legacy issue type -> structured output preserves compatibility by retaining type=missing_verification_intent and adding evidenceAware, evidenceRefs, repairHint, and suggestedCommand fields for the richer case; WHY: prevents diagnostics improvement from breaking current review tooling.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Evidence-aware diagnostics are emitted during review or validation -> blocker severity is not downgraded and story_review/validate cannot pass until verificationIntent is actually repaired or authored; WHY: prevents the hint from weakening lifecycle gates for normal stories.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
+          "result": "pass",
+          "note": "Integration: legacy-evidence-no-intent asserts story_review emits a missing_verification_intent blocker with legacyEvidenceWithoutIntent=true and repairCommand=verification_intent_repair",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
+          "result": "pass",
+          "note": "Integration: legacy-evidence-no-intent calls validate --json and asserts response.legacyEvidenceWithoutIntent names CHK-001 happy (the decorateStoryVerification hint path)",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "result": "pass",
+          "note": "verify-story-review-structured-output ok missing-intent: no-evidence missing intent keeps the generic blocker behavior",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "result": "pass",
+          "note": "existing missing_verification_intent type/blockerCount contract preserved (verify-story-review-structured-output passes)",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
+          "result": "pass",
+          "note": "Integration: legacy-evidence-no-intent asserts the legacy issue stays severity=blocker and a no-evidence lane keeps the generic blocker (gate not weakened)",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -45,9 +209,83 @@
       "excludes": [
         "Do not move metadata storage into the nested git repository."
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T18:27:20.508Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A wrapper metadata root is not a git repository but lattice.config.json has a valid nested gitRoot -> session_brief resolves the signed workspace and story_advance INIT_CHECK creates the story branch and worktree by running git operations from the material git root; WHY: proves valid wrapper-root projects can bootstrap without manual worktree creation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktreeDir is configured under the wrapper metadata root while git operations run from the nested material repo -> bootstrap preserves story metadata in the configured store and records story.worktree.path in the existing downstream-compatible format; WHY: verifies metadata root and git material root stay separate without breaking later commands.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Existing non-wrapper projects use the repository root as both metadata and material root -> INIT_CHECK behavior and worktree paths remain compatible with the current single-root flow; WHY: guards against regressions in the common layout while adding gitRoot support.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "gitRoot is missing, non-git, or disallowed by signed workspace policy -> INIT_CHECK fails with the same signed-workspace reason vocabulary as session_brief and does not leave a partial branch/worktree mutation; WHY: keeps bootstrap failures actionable and avoids split-brain workspace state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "nested-gitroot: wrapper metadata root is not git, configured gitRoot subdir hosts worktree+branch; INIT_CHECK succeeds",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "nested-gitroot asserts worktree under <gitRoot>/.worktrees and metadata under configured storyDir inside gitRoot",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "plain-repo scenarios (branch-isolation/scoped-stage/dry-run/bad-branch) stay green: getRepoRoot fallback byte-for-byte unchanged",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "invalid-gitroot: configured gitRoot that is not a git repo fails closed with signed-workspace reason, no worktree created",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -61,9 +299,115 @@
       "excludes": [
         "Do not add broad fixture rewrites or unrelated validation framework changes."
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T18:27:20.904Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke suite creates a legacy story with passing evidence refs and no intent -> it proves story_review blocks with a repair hint, verification_intent_repair dryRun shows generated intent, repair writes missing intent, and story_review no longer reports missing intent for repaired lanes; WHY: covers the core incident path end to end.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The bootstrap smoke creates a temporary wrapper-root project with nested valid gitRoot -> it proves session_brief resolves the signed workspace and INIT_CHECK creates the branch/worktree from the material repo; WHY: covers the gitRoot bootstrap regression in an isolated project.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke data includes existing authored intent plus missing evidenced lanes -> assertions prove repair fills only missing entries and preserves authored text exactly; WHY: locks non-overwrite behavior into regression coverage.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke data exercises DEV/REVIEW/TEST repair attempts without legacyRepair or with too-short reasons, then with a valid reason -> assertions prove protected phase policy and audit fields are enforced; WHY: ensures late repair is deliberate rather than a generic checklist bypass.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A read-only smoke runs lattice checklist_update --help -> it exits zero while no sourceManifestDigest implementation change is required unless the failure reproduces separately; WHY: keeps the excluded P3 regression visible without expanding this story scope.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke data includes malformed evidence refs and invalid gitRoot setups -> assertions prove repair and INIT_CHECK fail closed with actionable diagnostics and no partial story/worktree mutation; WHY: exercises failure paths that could otherwise corrupt metadata or git state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "smoke creates legacy items with passing evidence refs and asserts reconstruction",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "bootstrap smoke nested-gitroot mode creates a wrapper-root project with a nested gitRoot",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "smoke covers authored-intent-present (no overwrite) + missing-evidenced-lane + sparse padding",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "CLI integration covers DEV repair without legacyRepair (rejected) and short reason (rejected)",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "help-health mode: lattice checklist_update --help exits zero (P3 regression guard)",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "smoke malformed refs throw; invalid-gitroot mode fails closed",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -77,9 +421,95 @@
       "excludes": [
         "Do not expand into unrelated docs navigation cleanup."
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-13T13:55:30.649Z",
+      "endTime": "2026-06-13T18:27:21.260Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Implementation changes add or update the documented repair command, diagnostics, and gitRoot bootstrap behavior in the relevant requirements/story lifecycle docs, then npm --prefix packages/main run build exposes the new command through tracked dist/global-runtime path; WHY: ensures users get the behavior described by the truth source after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Only implementation-relevant docs and generated build outputs change -> review confirms no unrelated docs navigation cleanup, broad prose churn, or fixture/story JSON edits were introduced; WHY: keeps this repair story narrow and auditable.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The global or built CLI path is checked after build with the new command help plus lattice checklist_update --help -> both exit zero; WHY: proves the shipped runtime, not only TypeScript sources, exposes the repair path and preserves the excluded P3 health check.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "sourceManifestDigest help failure is not reproduced during verification -> implementation does not change sourceManifestDigest exports/imports under this story and any reproduced failure is recorded as a separate defect instead of silently expanding scope; WHY: enforces the documented exclusion and prevents scope creep.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Delivered section documents the repair command, diagnostics, gitRoot routing, and the metadata-inside-gitRoot decision; process-fact contract passes",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "only implementation-relevant docs + dist build outputs changed; build succeeds",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "after build, the dist CLI exposes verification_intent_repair (command-ownership + lifecycle-registry contracts pass; CLI flag-form run succeeded)",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node packages/main/dist/cli.js checklist_update --help",
+          "result": "pass",
+          "note": "sourceManifestDigest help failure not reproduced: checklist_update --help exits zero",
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-13T13:55:30.649Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "User clarified that all core Lattice decision documents must require 3-round two-host verification before implementation/DONE.",
+      "agent": "main-agent"
     }
   ]
 }

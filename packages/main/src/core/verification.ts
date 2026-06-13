@@ -45,6 +45,40 @@ export function evidenceMatches(evidence: VerificationEvidence, ref: string): bo
   return evidence.intentRef === ref;
 }
 
+/**
+ * B-4e06 CHK-002: the canonical command name that repairs the legacy
+ * "evidence exists but verificationIntent missing" state. Referenced by both
+ * story_review and validate diagnostics so they cannot drift on the next step.
+ */
+export const VERIFICATION_INTENT_REPAIR_COMMAND = 'verification_intent_repair';
+
+/**
+ * B-4e06 CHK-002: detect the legacy "evidence-without-intent" state. For each
+ * lane whose verificationIntent is empty, report any verificationEvidence whose
+ * intentRef is positionally scoped to that lane (`${item.id}:${lane}:<n>`). This
+ * is the ONLY signal that a missing-intent blocker is repairable via
+ * verification_intent_repair rather than authored fresh. A missing-intent lane
+ * produces no coverage entry, so callers MUST scan items directly (not coverage).
+ */
+export function detectLegacyEvidenceWithoutIntent(
+  item: ChecklistItem,
+): Array<{ itemId: string; lane: VerificationLane; intentRef: string }> {
+  const hits: Array<{ itemId: string; lane: VerificationLane; intentRef: string }> = [];
+  const evidence = item.verificationEvidence || [];
+  if (evidence.length === 0) return hits;
+  for (const lane of VERIFICATION_LANES) {
+    const laneIntents = item.verificationIntent?.[lane] || [];
+    if (laneIntents.length > 0) continue; // intent authored → not the legacy case
+    const prefix = `${item.id}:${lane}:`;
+    for (const ev of evidence) {
+      if (ev.intentRef.startsWith(prefix)) {
+        hits.push({ itemId: item.id, lane, intentRef: ev.intentRef });
+      }
+    }
+  }
+  return hits;
+}
+
 function pickEvidence(item: ChecklistItem, ref: string): VerificationEvidence | undefined {
   return (item.verificationEvidence || []).find(e => evidenceMatches(e, ref));
 }

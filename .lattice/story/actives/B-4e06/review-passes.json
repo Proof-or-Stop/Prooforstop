@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-4e06:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 0 exported symbols changed in the doc-only diff. Step 2: reviewed the Delivered (B-4e06) section appended to lattice-midflight-story-repair-and-gitroot-worktree-plan.md — 18 doc claims cross-checked against checklist.ts, cli-engine.ts, core/verification.ts, core/config.ts, core/command-policy.ts, core/process-fact-levels.ts, and handlers/worktree.ts. All claims verified accurate: ownershipClass=storyScopedMutating, process-fact L2, allowed phases PLAN/DEV/REVIEW/TEST, preflight checks, priority=should synthesized intents, evidence-to-type mapping, fail-closed on malformed refs, authored-intent protection, nice-priority sparse padding, shared detectLegacyEvidenceWithoutIntent helper used by both story_review and validate, additive-only validate hint, resolveStorySignedWorkspace reuse in both dev_start and INIT_CHECK reconcile, fail-closed on unresolvable gitRoot, byte-for-byte unchanged plain-repo path, realpath canonicalization on both sides, and metadata-outside-gitRoot fail-closed check. No blockers.",
+      "createdAt": "2026-06-13T18:30:46.733Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-002",
+      "_hash": "57fb9a596457f11cd40179d6e4cc974242a55d19ea446a54e35332b41ef80f65"
+    },
+    {
+      "id": "B-4e06:RP-002",
+      "agent": "koala-review-concept",
+      "note": "All four CHK-001/002/003 concept invariants verified against the diff and live code. (a) Synthesized intents are priority=should, never must — confirmed in reconstructMissingIntentsFromEvidence line 215, and sparse-gap placeholders use priority=nice (explicit, never defaulting to must). The collectVerificationIntents default-to-must at verification.ts:112 cannot trigger on synthesized intents because they always carry explicit priority fields. (b) The missing-intent gate is NOT weakened — severity remains blocker in both story_review and verifier; legacyHints are additive details-only, allPass/missingRequired are computed before the hints are appended (verifier.ts:370 allPass line is after the hint loop but before the return, and does not reference legacyHints). (c) gitRoot resolution reuses exactly resolveStorySignedWorkspace — both resolveBootstrapGitRoot (worktree.ts) and resolveInitCheckGitMainRoot (cli-engine.ts) delegate to the same shared resolver with no second resolver introduced. (d) Plain-repo bootstrap is unchanged — both functions short-circuit to getRepoRoot() when no gitRoot is configured. No concept deletion or replacement found in this diff. No dead code. No naming drift. The storyRel path in worktree.ts lacks the explicit dot-dot check present in cli-engine.ts, but this is an advisory asymmetry only: git add itself would reject an out-of-repo path and the error surfaces through the existing catch. VERIFICATION_INTENT_REPAIR_COMMAND constant is used as the single source of truth in all three places that reference the repair command name (verification.ts, story-review.ts, verifier.ts). Smoke test covers all stated invariants including fail-closed, no-overwrite, priority=should, sparse-gap, waiver/fail exclusion, and detector positive/negative cases.",
+      "createdAt": "2026-06-13T18:32:06.643Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-004",
+      "_hash": "80fe5e4f2715cd8fd6b6ea8c1b50c41e2d92dc7bc976f8bdaa08a3c2cebcf302"
+    },
+    {
+      "id": "B-4e06:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 23 must-intents across CHK-001 through CHK-005. CHK-002 gap (F-001/F-002/F-003) is genuinely closed: the legacy-evidence-no-intent check in scripts/verify-story-review-structured-output.mjs seeds passing evidence for CHK-001:happy:0 with no verificationIntent, asserts story_review emits legacyEvidenceWithoutIntent=true + repairCommand=verification_intent_repair at severity=blocker, asserts the no-evidence lane keeps the generic blocker unchanged, and asserts validate --json surfaces legacyEvidenceWithoutIntent naming CHK-001 happy. All four script checks (missing-intent, advisory-only, high-risk, legacy-evidence-no-intent) pass. No new gaps found.",
+      "createdAt": "2026-06-13T18:43:41.413Z",
+      "reviewRound": "2026-06-13T18:42:09.162Z",
+      "reviewRunId": "B-4e06:RR-007",
+      "_hash": "8d3cd1b26c580d00d15e301d7e43f39db3eb901503952cce68d4e2603f13df88"
+    },
+    {
+      "id": "B-4e06:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality check. All four Round-1 findings confirmed fixed: F-004 dead guard removed from reconstructMissingIntentsFromEvidence (checklist.ts:206, `m[1] !== item.id` line gone, replaced by explanatory comment); F-005 `actor` param removed from both the Zod schema in cli-engine.ts and the handler signature in checklist.ts; F-006 storyRel path-escape guard added in worktree.ts dev_start (isAbsolute + `..` split check, matching the cli-engine reconcile guard); F-007 VerificationIntentItem no longer imported in checklist.ts. Build clean (tsc zero errors). All four test scripts pass: test:verification-intent-repair-smoke (11 cases), verify-init-check-bootstrap.mjs all, verify-story-review-structured-output.mjs (4 scenarios including new legacy-evidence-no-intent). No new dead code, unused imports, empty catch blocks, or shell/fn isolation violations found in the diff.",
+      "createdAt": "2026-06-13T18:44:01.714Z",
+      "reviewRound": "2026-06-13T18:42:09.162Z",
+      "reviewRunId": "B-4e06:RR-006",
+      "_hash": "8ece11f621427c12ba3d19ab8ade2644b9ea5a4ac5354bcffe6805d1ae2e7307"
+    },
+    {
+      "id": "B-4e06:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept re-check: all 7 fixes verified clean. (1) VerificationIntentItem import gone from checklist.ts — type still legitimately lives in types.ts + verification.ts, no orphan. (2) actor param removed from both cli-engine schema and handler type signature; no residual reference in the repair function body. (3) Unreachable m[1]!==item.id guard absent from codebase. (4) storyRel containment guard added in worktree.ts dev_start: correct !storyRel||isAbsolute||split.includes(..) triple. (5) resolveBootstrapGitRoot reuses resolveStorySignedWorkspace exclusively — no second resolver; plain-repo falls through to getRepoRoot unchanged. (6) Synthesized intents priority=should confirmed at line 216; no priority=must path. (7) Missing-intent gate stays HARD (severity=blocker, never downgraded) with legacyEvidenceWithoutIntent flag + repairCommand additive. (8) Integration check legacy-evidence-no-intent in verify-story-review-structured-output.mjs asserts: legacyIssue present, severity===blocker, repairCommand===verification_intent_repair, message references repair command, plain-intent lane keeps generic blocker (no legacy flag), validate JSON surfaces legacyEvidenceWithoutIntent array. All field names match handler output. No concept deletion/replacement detected; no residual references.",
+      "createdAt": "2026-06-13T18:44:06.520Z",
+      "reviewRound": "2026-06-13T18:42:09.162Z",
+      "reviewRunId": "B-4e06:RR-005",
+      "_hash": "f65fc7dcfa513164eb3b6f6598da1769d644edf34c29522dc3c861816a4a4db1"
+    },
+    {
+      "id": "B-4e06:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Step 1 extracted symbols: verification_intent_repair, resolveStorySignedWorkspace, detectLegacyEvidenceWithoutIntent, getRepoRoot. Step 2 found 1 doc paragraph: Delivered (B-4e06) section (lines 582-628). Step 3: all 9 specific claims verified against worktree.ts and cli-engine.ts. No actor param in the Delivered section or in code schema/handler. gitRoot containment fail-closed guard confirmed in both worktree.ts (storyRel relative path + canonicalRepoRoot check) and cli-engine.ts (storyRelRaw..include check + configure storyDir error). realpath canonicalization confirmed on both sides in both files. No blockers found.",
+      "createdAt": "2026-06-13T18:45:15.496Z",
+      "reviewRound": "2026-06-13T18:42:09.162Z",
+      "reviewRunId": "B-4e06:RR-008",
+      "_hash": "8089f79b32e9347c138b6d19887a341cd37a84b2429c89a0309da8f0b2e50651"
+    }
+  ]
+}

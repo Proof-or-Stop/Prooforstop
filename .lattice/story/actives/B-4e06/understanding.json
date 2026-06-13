@@ -1,0 +1,39 @@
+{
+  "task": "Fix Lattice CLI dead-ends for mid-flight stories missing verificationIntent and wrapper-root projects using configured gitRoot worktree bootstrap.",
+  "outcome": "A user can run lattice verification_intent_repair on a legacy story and see a terminal summary like Repaired 21 missing verificationIntent entries from existing passing evidence; story_review no longer reports missing verification_intent for those lanes. In a wrapper-root project with gitRoot configured, story_advance to INIT_CHECK creates the story worktree and prints the worktree path instead of forcing manual worktree creation.",
+  "facts": [
+    "ClawCreek B-5a12 had completed verificationEvidence but checklist items lacked verificationIntent.",
+    "story_review currently blocks missing verificationIntent even when evidence refs exist.",
+    "checklist_update --help was re-tested in the current global CLI and now succeeds, so sourceManifestDigest implementation changes are excluded.",
+    "session_brief can resolve configured gitRoot signed workspace roots.",
+    "INIT_CHECK bootstrap should run git operations from the material git root, not blindly from metadata root.",
+    "The execution plan is docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md."
+  ],
+  "constraints": [
+    "Preserve verificationIntent as the acceptance contract.",
+    "Do not let verificationEvidence silently replace intent for normal stories.",
+    "Repair must be explicit, audited, phase-aware, and non-overwriting by default.",
+    "Do not mutate DONE or DISCARDED stories automatically.",
+    "Do not touch sourceManifestDigest unless the help-command failure reproduces as a separate defect.",
+    "Do not read or write .omx and do not directly edit story JSON or fixture JSON."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-story-review-structured-output.mjs",
+    "scripts/verify-init-check-bootstrap.mjs",
+    "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-06-13T13:46:16.445Z"
+}

@@ -25,7 +25,7 @@ import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
-import { VERIFICATION_LANES, collectVerificationIntents } from '../core/verification.js';
+import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -63,7 +63,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         scanDir(reqDir);
       }
 
-      const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string }> = [];
+      const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
 
       // 0. checklist split quality static check
@@ -234,15 +234,32 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       if (requireFullVerificationIntent) {
         for (const item of cl.items) {
           const intents = item.verificationIntent;
+          const legacyHits = detectLegacyEvidenceWithoutIntent(item);
           for (const lane of VERIFICATION_LANES) {
             const entries = intents?.[lane] || [];
             if (entries.length === 0) {
-              issues.push({
-                type: 'missing_verification_intent',
-                severity: 'blocker',
-                itemId: item.id,
-                message: `${item.id} missing verificationIntent.${lane}. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST.`,
-              });
+              // The gate stays HARD: a missing-intent lane is always a blocker. When
+              // passing-style evidence already exists for this lane, name the audited
+              // repair path instead of forcing a hand-edit — but never downgrade severity.
+              const laneHit = legacyHits.find(h => h.lane === lane);
+              const baseMessage = `${item.id} missing verificationIntent.${lane}. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST.`;
+              if (laneHit) {
+                issues.push({
+                  type: 'missing_verification_intent',
+                  severity: 'blocker',
+                  itemId: item.id,
+                  message: `${baseMessage} Legacy state: verificationEvidence (${laneHit.intentRef}) exists but the intent was never authored — run \`lattice ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent from that evidence (this is a schema repair, not a gate pass).`,
+                  legacyEvidenceWithoutIntent: true,
+                  repairCommand: VERIFICATION_INTENT_REPAIR_COMMAND,
+                });
+              } else {
+                issues.push({
+                  type: 'missing_verification_intent',
+                  severity: 'blocker',
+                  itemId: item.id,
+                  message: baseMessage,
+                });
+              }
             }
           }
         }

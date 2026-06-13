@@ -176,19 +176,53 @@ Phase policy:
 | DEV / REVIEW / TEST | Allow only with `legacyRepair:true` and a substantial `reason`. |
 | DONE / DISCARDED | Refuse by default. |
 
+Command policy registration must be explicit. `verification_intent_repair` is
+not a read-only diagnostic; it mutates checklist metadata that is consumed by
+review and validation gates. Register it with these fields:
+
+| Policy field | Required value |
+| --- | --- |
+| `status` | `gateEvidence` |
+| `gateEvidence` | `true` |
+| `ownershipClass` | `storyScopedMutating` |
+| `allowedPhases` | `['PLAN', 'DEV', 'REVIEW', 'TEST']` |
+| `destructiveRisk` | `metadata-write` |
+| `reason` | States that the command performs explicit, audited legacy repair of missing `verificationIntent` from existing passing evidence. |
+
+`DISCARDED` is not part of the current `CommandPhase` enum, so the handler must
+also perform a runtime terminal-story check and refuse DISCARDED stories before
+any write. Do not rely on `allowedPhases` alone for that terminal case.
+
 Repair semantics:
 
 1. Read checklist through the normal store and command handler.
 2. For each selected item, inspect existing `verificationEvidence`.
-3. Parse evidence `intentRef` values in the form `CHK-001:happy:0`.
+3. Parse evidence `intentRef` values with a strict parser for
+   `^CHK-\d+:(happy|edge|adversarial):\d+$`.
 4. For every lane/index with evidence but no intent, synthesize an intent entry.
 5. Do not overwrite existing intent unless `replaceExisting:true`.
-6. Ignore or report malformed `intentRef` values; do not guess.
+6. Report malformed `intentRef` values and fail closed without writing any
+   reconstructed intent for that repair run; do not ignore, partially repair, or
+   guess malformed refs.
 7. Refuse to synthesize intent from failing evidence unless an explicit future
    option is designed.
 8. Write an audit event that records story id, item ids, lanes, count,
    source evidence refs, phase, operator reason, and current HEAD/material hash
    when available.
+
+For repair, a malformed `intentRef` includes any ref that is not a string,
+does not match the regex above, points to a checklist item that does not exist,
+or uses an index that cannot be associated with a generated intent entry for the
+selected item and lane. A ref with an explicit failing result is not malformed,
+but it is ineligible evidence. Only passing evidence may be used; use the
+project's current evidence result schema (`result: "pass"` or equivalent
+existing pass marker) and treat missing, failed, or ambiguous result state as
+ineligible.
+
+Do not reuse silent fixture-scanning behavior for this repair path. Existing
+coverage helpers may ignore malformed fixture files while collecting coverage,
+but `verification_intent_repair` must surface malformed evidence refs in its
+own output and leave the story unchanged for that run.
 
 Generated intent text should be honest and visibly reconstructed:
 
@@ -232,16 +266,19 @@ Structured issue fields should include:
 
 | Field | Example |
 | --- | --- |
-| `type` | `missing_verification_intent_with_evidence` |
+| `type` | `missing_verification_intent` |
 | `severity` | `blocker` |
 | `itemId` | `CHK-001` |
 | `lane` | `happy` |
+| `evidenceAware` | `true` |
 | `evidenceRefs` | `["CHK-001:happy:0"]` |
+| `repairHint` | `legacy_evidence_present` |
 | `suggestedCommand` | `lattice verification_intent_repair ...` |
 
-The old `missing_verification_intent` type may remain for the no-evidence case.
-If external tests depend on the old type, preserve it and add a subfield instead
-of renaming the issue.
+Preserve `type: "missing_verification_intent"` for compatibility. The
+evidence-aware case is distinguished by `evidenceAware: true`,
+`evidenceRefs`, `repairHint`, and `suggestedCommand`; no smoke should require
+callers to handle a second blocker type for the same missing-intent condition.
 
 ### validate Diagnostic Upgrade
 
@@ -294,9 +331,14 @@ Likely files:
 | `packages/main/src/core/process-fact-registry.ts` | Keep command facts and gate-consumed facts consistent. |
 | `scripts/verify-process-fact-contract.mjs` | Update if new process facts are registered. |
 
-If the repair command only writes checklist metadata and audit events that are
-not gate-consumed, process fact registration can be minimal. If review or
-validate gates consume a new repair artifact, it must be registered.
+Because the command writes gate-relevant checklist intent, it must appear in
+`COMMAND_POLICIES` and the command fact projection produced by
+`process-fact-registry.ts`. If implementation adds a separate repair audit
+artifact that any gate consumes directly, register that artifact in
+`process-fact-levels.ts` and update `scripts/verify-process-fact-contract.mjs`.
+If the audit event is recorded only for traceability and gates consume the
+resulting checklist `verificationIntent`, do not overstate it as an independent
+gate-consumed artifact.
 
 ### Worktree Bootstrap
 
@@ -309,7 +351,25 @@ Likely files:
 | `packages/main/src/handlers/context.ts` | Reuse existing unresolved workspace formatting if bootstrap fails. |
 | `packages/main/src/handlers/session.ts` | Only update if hints need to mention the repaired bootstrap path. |
 | `packages/main/src/tasks/worktree-authority-smoke.ts` | Add nested `gitRoot` bootstrap coverage. |
-| `scripts/verify-init-check-bootstrap.mjs` | Extend bootstrap regression coverage if this script owns INIT_CHECK checks. |
+| `scripts/verify-init-check-bootstrap.mjs` | Extend the existing bootstrap regression script with nested `gitRoot` coverage. |
+
+The nested `gitRoot` smoke fixture must exercise the wrapper-root shape, not a
+plain repository root. Use a temporary layout equivalent to:
+
+```text
+tmp-root/
+  lattice.config.json        # metadata root, not a git repository
+  .lattice/story/actives/... # story metadata under wrapper root
+  clawcreek/                 # configured gitRoot and actual git repository
+    .git/
+    package.json or minimal tracked file
+```
+
+The fixture `lattice.config.json` must set `gitRoot: "clawcreek"` and a story
+store path under the wrapper root. The smoke passes only if
+`session_brief` resolves the material repo and `story_advance INIT_CHECK`
+creates the story branch/worktree by running git operations from
+`tmp-root/clawcreek`, while preserving metadata under `tmp-root`.
 
 ## Execution Boundary
 
@@ -406,6 +466,41 @@ Add or extend smoke coverage for these scenarios:
    - `lattice checklist_update --help` exits zero.
    - No implementation change to `sourceManifestDigest` is part of the story.
 
+### Decision Document 3-Round / 2-Host Verification
+
+Because this story changes Lattice core workflow behavior, the decision document
+itself must pass a bounded multi-host verification before the implementation can
+be considered ready for DONE.
+
+This applies to this document and to any other decision document materially
+created or changed by this story. It is not satisfied by the main agent reading
+its own prose, by one local reviewer, or by smoke tests alone.
+
+Required audit shape:
+
+| Requirement | Rule |
+| --- | --- |
+| Rounds | Exactly three bounded audit rounds before DONE. |
+| Hosts per round | At least two independent host perspectives per round. Prefer Codex CLI + Claude CLI when both are available. |
+| Anchors | Each host in a round reviews the same anchors: changed decision docs, story id, checklist, verificationIntent, plan, relevant commits, material hash, and command/test evidence available for that round. |
+| Prompt principles | Every host prompt includes: `don't optimize for the sake of optimization`, `don't optimize arbitrarily`, `only fix real correctness issues`, and `preserve consistency of logic`. |
+| Verdict shape | Each host returns PASS or BLOCK with concrete source refs and command/evidence refs. Advisory-only notes do not block unless they identify a real correctness issue. |
+| Freshness | Any material repair after a round makes later claims from that round stale; repaired anchors require a fresh round. |
+| Completion | The decision-doc gate passes only when all three rounds have two independent PASS verdicts over fresh anchors, or all real BLOCK findings have been repaired and re-verified in fresh rounds. |
+
+The three rounds should be used for different pressure:
+
+1. Round 1 checks scope and product correctness: whether the document solves the
+   real ClawCreek failure without expanding into P3 or future capability claims.
+2. Round 2 checks implementation alignment: whether code, command policy,
+   process facts, tests, and docs match the decision document.
+3. Round 3 checks final closure: whether validation evidence, review findings,
+   build output, and rollout notes still match the final material state.
+
+This audit is a requirement for Lattice core decision documents. It does not by
+itself create `fullAuthorityDone`, does not convert host verdicts into Authority
+receipts, and does not relax any lifecycle gate.
+
 ### Manual Replay
 
 Use a copied fixture or temporary project shaped like ClawCreek. Do not mutate
@@ -441,6 +536,9 @@ lattice checklist_update --help
 ```
 
 Also run the new or extended smoke tasks added by the implementation story.
+Before DONE, record or reference the three rounds of two-host decision-document
+verification described above. If a repair changes material anchors after any
+round, rerun the affected verification round over fresh anchors.
 
 If tracked `dist` is part of the global CLI install path, confirm the built
 runtime contains the new command before testing globally.
@@ -462,6 +560,8 @@ The fix is complete when:
 7. The current `checklist_update --help` behavior remains healthy.
 8. No changes are made to `sourceManifestDigest` unless the issue is reproduced
    as a separate story.
+9. Every decision document materially created or changed by this story has fresh
+   three-round, two-host verification evidence before DONE.
 
 ## Rollout Notes
 
@@ -478,3 +578,51 @@ For affected projects, the recommended operator sequence is:
 
 This keeps the repair narrow: it fixes historical schema adoption without
 relaxing future story discipline.
+
+## Delivered (B-4e06)
+
+Implementation notes where delivery resolved an open question or added a detail
+beyond the plan above:
+
+- **`verification_intent_repair` (mode `fromEvidence`)** — registered command
+  (`handlers/checklist.ts`, schema in `cli-engine.ts`, `ownershipClass:
+  storyScopedMutating`, process-fact level `L2`, allowed phases PLAN/DEV/REVIEW/
+  TEST). Preflight is fail-closed and runs before any read/write: `mode` must be
+  `fromEvidence`, `legacyRepair` must be strictly `true`, and `reason` must be
+  ≥ 30 chars. It refuses INIT/INIT_CHECK and terminal/META phases.
+- **Synthesized intents are `priority: should`, never `must`** — backfilling a
+  `must` intent would retroactively add a hard coverage-gate requirement and
+  could fail a previously-passing story, weaponizing a repair tool into a gate.
+  `should` keeps the backfill informational. Type is mapped from the evidence
+  kind (logic_test→logic, integration_test→cli, browser_test→browser,
+  manual_transcript→manual, docs_check→docs); the description is reconstructed
+  from the evidence note/command/file.
+- **Fail-closed on malformed refs**: an item-scoped ref (`${item.id}:…`) that is
+  not the canonical `CHK-N:(happy|edge|adversarial):N` shape throws; custom or
+  foreign refs are skipped. Failing/waiver evidence never seeds an intent.
+  Authored intent is never overwritten. Sparse lower indices are padded with
+  non-required (`nice`) placeholders so a JSON round-trip has no null holes.
+- **Diagnostics name the repair path without weakening the gate** — a shared
+  `detectLegacyEvidenceWithoutIntent` helper (`core/verification.ts`) is used by
+  both `story_review` and `validate` so they cannot drift. Missing
+  `verificationIntent` stays a hard blocker; when matching evidence refs exist
+  the diagnostic adds a legacy hint pointing at `verification_intent_repair`.
+  The validate hint is additive output only and never alters coverage math or
+  `allPass`.
+- **gitRoot bootstrap reuses the signed-workspace resolver** — `dev_start`
+  (`handlers/worktree.ts`) and the INIT_CHECK metadata reconcile
+  (`cli-engine.ts`) resolve the git root via `resolveStorySignedWorkspace` (the
+  same resolver `session_brief` uses), never a second resolver. A configured but
+  unresolvable `gitRoot` fails closed echoing the signed-workspace reason; with
+  no `gitRoot` configured the legacy `getRepoRoot()` path is byte-for-byte
+  unchanged.
+- **Resolved layout question**: story metadata MUST live inside the configured
+  `gitRoot` (e.g. `storyDir: "<gitRoot>/docs/story/actives"`). The scoped
+  bootstrap commit re-anchors `storyRel` to the resolved git root; both sides are
+  canonicalized with `realpath` so a `/var` → `/private/var` symlink between the
+  metadata root and the git toplevel cannot corrupt the relative path. Metadata
+  outside the gitRoot fails closed.
+- **Coverage**: `tasks/verification-intent-repair-smoke.ts` (repair + detector
+  unit cases), `scripts/verify-init-check-bootstrap.mjs` (new `nested-gitroot`
+  and `invalid-gitroot` modes plus a `help-health` guard for `checklist_update
+  --help`).
