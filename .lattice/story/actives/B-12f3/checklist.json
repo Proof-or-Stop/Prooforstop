@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inspect existing missing_scope_check and scope_check_save guidance surfaces",
+      "context": "Identify the narrow canonical touchpoints for story_review blocker text, session guidance, and command help without changing gate semantics. Also record Authority readiness status and fail-closed behavior when Authority is not configured.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement narrow missing_scope_check guidance improvements",
+      "context": "Update only the surfaces needed to explain scope-check.json, scope_check_save, reviewer-written evidence, and Non-authority boundaries. Do not add auto-generation, self-signing, or Authority overclaim behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add targeted tests or smokes for the improved guidance",
+      "context": "Cover the actionable message and negative cases for self-signing, gate weakening, and Authority overclaim. Prefer targeted message-path tests over broad lifecycle rewrites.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Run Authority-enforced review, validation, delivery, summary, and DONE closure",
+      "context": "Complete local Lattice lifecycle only as Non-authority evidence unless a verified Authority gate_decision receipt is available. In Authority mode, DONE must fail closed without receipt-backed Authority proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
