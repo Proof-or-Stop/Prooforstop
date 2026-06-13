@@ -17,6 +17,24 @@
       ],
       "resolvedReason": "Root cause: the prior checklist evidence proved allowed Codex adapter help and repository scan coverage, but did not execute forbidden Codex-prefixed workflow commands and record their fail-closed behavior. Evidence added: CHK-002 has manual transcripts for node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help; both actual commands exited with code 1, rejected the unsupported lattice codex workflow command, limited the Codex namespace to verify/doctor, and printed ordinary replacements lattice session_brief and lattice aux_doc_list. CHK-004 also records the combined delivery evidence for those two rejection checks.",
       "resolvedAt": "2026-06-13T13:43:16.430Z"
+    },
+    {
+      "id": "B-e84c:F-002",
+      "desc": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:100-115 names only residual local wrapper diagnostic guidance (`node bin/lattice-codex.js doctor`) as the known non-document cleanup boundary, but README.md:516-518 and README.md:602 still recommend `node bin/lattice-codex.js session_brief`, `aux_doc_list`, and `story_create` for ordinary workflow commands. Repro command used: rg -n --hidden lattice-codex\\.js\\s+(session_brief|aux_doc_list|story_) README.md docs packages/main/src packages/main/dist .Codex .codex. That command returns the README guidance hits plus Codex adapter-check display-command hits. Because this story reviews host-neutral command guidance and residual future-work boundaries, the decision doc or evidence is misleading unless it either names these workflow-wrapper residuals as future work or narrows the evidence claim.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-13T13:47:31.383Z",
+      "reviewRound": "2026-06-13T13:43:10.955Z",
+      "reviewRunId": "B-e84c:RR-009",
+      "_hash": "8f74df0f1867f384fe3a80da46a6e63601a64d0be2113405a2c115d1dd3a0e30",
+      "files": [
+        "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+        "README.md",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ]
     }
   ]
 }
