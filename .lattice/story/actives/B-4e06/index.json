@@ -4,7 +4,7 @@
   "title": "Repair mid-flight verification intent gaps and gitRoot worktree bootstrap",
   "description": "Implement the Lattice CLI fixes described in docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md. The ClawCreek B-5a12 case showed that a story adopted mid-flight can contain complete verification evidence while still lacking checklist verificationIntent, leaving story_review unable to close the workflow. The same incident showed that INIT_CHECK worktree bootstrap must use configured gitRoot and signed workspace resolution when metadata lives in a non-git wrapper root. The previously reported sourceManifestDigest checklist_update --help issue was re-tested and is excluded unless it reproduces again.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "source": "user:2026-06-13 ClawCreek B-5a12 incident",
   "keywords": [
@@ -92,6 +92,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-13T18:42:09.162Z",
+      "branch": "story/B-4e06",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T18:45:57.725Z",
       "branch": "story/B-4e06",
       "user": "Harmonygo",
       "agent": "main"
