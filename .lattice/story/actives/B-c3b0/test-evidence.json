@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-c3b0 --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 7 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-UcUoAB; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-BzqISI; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/9 covered (7 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via manual_transcript — A DONE merge diff containing packages/main/src/handlers/done-effects.ts triggers exactly one packages/main build after the merge and before final DONE success output; successful run reports that packages/main build was refreshed.\",\"  ✗ CHK-001:edge:0 [edge/must/logic] stale via logic_test — A DONE merge diff containing only docs/requirements/decisions/story-lifecycle.md or other non-runtime docs skips the packages/main build and still completes DONE without stale-dist warnings.\",\"  ✗ CHK-001:adversarial:0 [adversarial/should/logic] stale via logic_test — A mixed DONE merge diff with packages/main/package.json, packages/main/tsconfig.json, root package.json, or package-lock.json is treated as runtime-affecting and triggers the build even when no packages/main/src file changed.\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via logic_test — When the post-DONE packages/main build command exits successfully, DONE output includes a clear success line and does not print recovery guidance.\",\"  ✗ CHK-002:edge:0 [edge/should/cli] stale via logic_test — When the build is skipped because no watched runtime input changed, the DONE path does not report a build failure or stale dist guidance.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via logic_test — When the post-merge build command exits non-zero after main has already been merged, the command fails visibly with the failed build command, captured output or error text, states that dist may be stale, and gives the recovery command npm --prefix packages/main run build.\",\"  ✗ CHK-003:happy:0 [happy/must/logic] stale via logic_test — Smoke coverage exercises the changed-path predicate for representative watched inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json.\",\"  ✗ CHK-003:edge:0 [edge/must/logic] stale via logic_test — Smoke coverage exercises skip cases for docs-only and unrelated package paths without invoking a real npm install or a real package build.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] stale via logic_test — Smoke coverage stubs the post-DONE build hook to prove both success and non-zero build failure branches are observable, including recovery messaging, without performing remote operations or depending on global npm state.\"],\"warnings\":[],\"timestamp\":\"2026-06-13T12:59:40.630Z\",\"headSha\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-UcUoAB; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-BzqISI; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1225}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":7,\"covered\":0,\"missingRequired\":7,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A DONE merge diff containing packages/main/src/handlers/done-effects.ts triggers exactly one packages/main build after the merge and before final DONE success output; successful run reports that packages/main build was refreshed.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"TypeScript build passed after adding post-DONE build hook.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.489Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A DONE merge diff containing only docs/requirements/decisions/story-lifecycle.md or other non-runtime docs skips the packages/main build and still completes DONE without stale-dist warnings.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts docs-only changes skip packages/main build and DONE output includes a visible skip line.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A mixed DONE merge diff with packages/main/package.json, packages/main/tsconfig.json, root package.json, or package-lock.json is treated as runtime-affecting and triggers the build even when no packages/main/src file changed.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts packages/main/package.json, packages/main/tsconfig.json, root package.json, package-lock.json, and packages/main/src/** trigger the build predicate.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"When the post-DONE packages/main build command exits successfully, DONE output includes a clear success line and does not print recovery guidance.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Stubbed success branch returns visible refreshed line naming npm --prefix packages/main run build.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"When the build is skipped because no watched runtime input changed, the DONE path does not report a build failure or stale dist guidance.\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Stubbed skip branch does not invoke the build runner and reports no stale-dist guidance.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"When the post-merge build command exits non-zero after main has already been merged, the command fails visibly with the failed build command, captured output or error text, states that dist may be stale, and gives the recovery command npm --prefix packages/main run build.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Stubbed non-zero build branch throws with dist may be stale, recovery command, stdout, and stderr.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke coverage exercises the changed-path predicate for representative watched inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke exercises the changed-path predicate for every watched runtime input.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Smoke coverage exercises skip cases for docs-only and unrelated package paths without invoking a real npm install or a real package build.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke exercises docs-only and unrelated package skip cases without invoking real npm.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Smoke coverage stubs the post-DONE build hook to prove both success and non-zero build failure branches are observable, including recovery messaging, without performing remote operations or depending on global npm state.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke stubs success and failure build runners, including recovery messaging, without remote or global install operations.\",\"headHash\":\"4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1\",\"materialHash\":\"a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44\",\"timestamp\":\"2026-06-13T12:44:35.490Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-13T12:59:40.968Z",
-  "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-P4tRiH; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0Cpk2r; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — A DONE merge diff containing packages/main/src/handlers/done-effects.ts triggers exactly one packages/main build after the merge and before final DONE success output; successful run reports that packages/main build was refreshed.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — A DONE merge diff containing only docs/requirements/decisions/story-lifecycle.md or other non-runtime docs skips the packages/main build and still completes DONE without stale-dist warnings.\",\"  ✓ CHK-001:adversarial:0 [adversarial/should/logic] covered via logic_test — A mixed DONE merge diff with packages/main/package.json, packages/main/tsconfig.json, root package.json, or package-lock.json is treated as runtime-affecting and triggers the build even when no packages/main/src file changed.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test — When the post-DONE packages/main build command exits successfully, DONE output includes a clear success line and does not print recovery guidance.\",\"  ✓ CHK-002:edge:0 [edge/should/cli] covered via logic_test — When the build is skipped because no watched runtime input changed, the DONE path does not report a build failure or stale dist guidance.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test — When the post-merge build command exits non-zero after main has already been merged, the command fails visibly with the failed build command, captured output or error text, states that dist may be stale, and gives the recovery command npm --prefix packages/main run build.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test — Smoke coverage exercises the changed-path predicate for representative watched inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — Smoke coverage exercises skip cases for docs-only and unrelated package paths without invoking a real npm install or a real package build.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — Smoke coverage stubs the post-DONE build hook to prove both success and non-zero build failure branches are observable, including recovery messaging, without performing remote operations or depending on global npm state.\"],\"warnings\":[],\"timestamp\":\"2026-06-13T13:00:32.056Z\",\"headSha\":\"aec727b36ae8b1f574a1c2980b9c51c309f8ee3c\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-P4tRiH; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0Cpk2r; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1107}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":7,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A DONE merge diff containing packages/main/src/handlers/done-effects.ts triggers exactly one packages/main build after the merge and before final DONE success output; successful run reports that packages/main build was refreshed.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"TypeScript build passed after adding post-DONE build hook.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A DONE merge diff containing only docs/requirements/decisions/story-lifecycle.md or other non-runtime docs skips the packages/main build and still completes DONE without stale-dist warnings.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts docs-only changes skip packages/main build and DONE output includes a visible skip line.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A mixed DONE merge diff with packages/main/package.json, packages/main/tsconfig.json, root package.json, or package-lock.json is treated as runtime-affecting and triggers the build even when no packages/main/src file changed.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts packages/main/package.json, packages/main/tsconfig.json, root package.json, package-lock.json, and packages/main/src/** trigger the build predicate.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"When the post-DONE packages/main build command exits successfully, DONE output includes a clear success line and does not print recovery guidance.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Stubbed success branch returns visible refreshed line naming npm --prefix packages/main run build.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"When the build is skipped because no watched runtime input changed, the DONE path does not report a build failure or stale dist guidance.\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Stubbed skip branch does not invoke the build runner and reports no stale-dist guidance.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"When the post-merge build command exits non-zero after main has already been merged, the command fails visibly with the failed build command, captured output or error text, states that dist may be stale, and gives the recovery command npm --prefix packages/main run build.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Stubbed non-zero build branch throws with dist may be stale, recovery command, stdout, and stderr.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Smoke coverage exercises the changed-path predicate for representative watched inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke exercises the changed-path predicate for every watched runtime input.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Smoke coverage exercises skip cases for docs-only and unrelated package paths without invoking a real npm install or a real package build.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke exercises docs-only and unrelated package skip cases without invoking real npm.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Smoke coverage stubs the post-DONE build hook to prove both success and non-zero build failure branches are observable, including recovery messaging, without performing remote operations or depending on global npm state.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke stubs success and failure build runners, including recovery messaging, without remote or global install operations.\",\"headHash\":\"c598cc81e89c3fc339869859d1e07435df27ca25\",\"materialHash\":\"6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103\",\"timestamp\":\"2026-06-13T13:00:24.528Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-13T13:00:32.424Z",
+  "headHash": "aec727b36ae8b1f574a1c2980b9c51c309f8ee3c",
   "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
   "verificationCoverage": {
     "total": 9,
     "required": 7,
-    "covered": 0,
-    "missingRequired": 7,
+    "covered": 9,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,16 +18,16 @@
         "desc": "A DONE merge diff containing packages/main/src/handlers/done-effects.ts triggers exactly one packages/main build after the merge and before final DONE success output; successful run reports that packages/main build was refreshed.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after adding post-DONE build hook.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.489Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -37,16 +37,16 @@
         "desc": "A DONE merge diff containing only docs/requirements/decisions/story-lifecycle.md or other non-runtime docs skips the packages/main build and still completes DONE without stale-dist warnings.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke asserts docs-only changes skip packages/main build and DONE output includes a visible skip line.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -56,16 +56,16 @@
         "desc": "A mixed DONE merge diff with packages/main/package.json, packages/main/tsconfig.json, root package.json, or package-lock.json is treated as runtime-affecting and triggers the build even when no packages/main/src file changed.",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke asserts packages/main/package.json, packages/main/tsconfig.json, root package.json, package-lock.json, and packages/main/src/** trigger the build predicate.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -75,16 +75,16 @@
         "desc": "When the post-DONE packages/main build command exits successfully, DONE output includes a clear success line and does not print recovery guidance.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Stubbed success branch returns visible refreshed line naming npm --prefix packages/main run build.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -94,16 +94,16 @@
         "desc": "When the build is skipped because no watched runtime input changed, the DONE path does not report a build failure or stale dist guidance.",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Stubbed skip branch does not invoke the build runner and reports no stale-dist guidance.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -113,16 +113,16 @@
         "desc": "When the post-merge build command exits non-zero after main has already been merged, the command fails visibly with the failed build command, captured output or error text, states that dist may be stale, and gives the recovery command npm --prefix packages/main run build.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Stubbed non-zero build branch throws with dist may be stale, recovery command, stdout, and stderr.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -132,16 +132,16 @@
         "desc": "Smoke coverage exercises the changed-path predicate for representative watched inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke exercises the changed-path predicate for every watched runtime input.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -151,16 +151,16 @@
         "desc": "Smoke coverage exercises skip cases for docs-only and unrelated package paths without invoking a real npm install or a real package build.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke exercises docs-only and unrelated package skip cases without invoking real npm.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       },
       {
@@ -170,16 +170,16 @@
         "desc": "Smoke coverage stubs the post-DONE build hook to prove both success and non-zero build failure branches are observable, including recovery messaging, without performing remote operations or depending on global npm state.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke stubs success and failure build runners, including recovery messaging, without remote or global install operations.",
-          "headHash": "4e5da3ec4e77a292bd6beb38bc74905ccdc9e7d1",
-          "materialHash": "a88b928ed497c28d0a7e3c67ddb76a7e2bf6b7abeae62ec99c71696fa3db3e44",
-          "timestamp": "2026-06-13T12:44:35.490Z"
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
         }
       }
     ]
