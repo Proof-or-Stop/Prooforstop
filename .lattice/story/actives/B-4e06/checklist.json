@@ -51,9 +51,9 @@
           "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
           "result": "pass",
           "note": "reconstruct: missing intent filled from passing evidence (priority=should, kind→type mapped)",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
           "result": "pass",
           "note": "reconstruct: NEVER overwrites authored intent on a lane that already has one",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -73,9 +73,9 @@
           "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
           "result": "pass",
           "note": "CLI flag-form run proves DEV repair works; preflight rejects missing legacyRepair / short reason; INIT/INIT_CHECK/terminal refused",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -84,9 +84,9 @@
           "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
           "result": "pass",
           "note": "reconstruct: malformed item-scoped ref fails closed (throws); failing/waiver evidence never used; foreign ref skipped",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         }
       ]
     },
@@ -146,9 +146,9 @@
           "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
           "result": "pass",
           "note": "Integration: legacy-evidence-no-intent asserts story_review emits a missing_verification_intent blocker with legacyEvidenceWithoutIntent=true and repairCommand=verification_intent_repair",
-          "headHash": "7d8e09b47fdf6d305c2ddc2e3eaf6f20799364c8",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:11.987Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -157,9 +157,9 @@
           "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
           "result": "pass",
           "note": "Integration: legacy-evidence-no-intent calls validate --json and asserts response.legacyEvidenceWithoutIntent names CHK-001 happy (the decorateStoryVerification hint path)",
-          "headHash": "7d8e09b47fdf6d305c2ddc2e3eaf6f20799364c8",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:11.987Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -168,9 +168,9 @@
           "command": "node scripts/verify-story-review-structured-output.mjs",
           "result": "pass",
           "note": "verify-story-review-structured-output ok missing-intent: no-evidence missing intent keeps the generic blocker behavior",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -179,9 +179,9 @@
           "command": "node scripts/verify-story-review-structured-output.mjs",
           "result": "pass",
           "note": "existing missing_verification_intent type/blockerCount contract preserved (verify-story-review-structured-output passes)",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -190,9 +190,9 @@
           "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
           "result": "pass",
           "note": "Integration: legacy-evidence-no-intent asserts the legacy issue stays severity=blocker and a no-evidence lane keeps the generic blocker (gate not weakened)",
-          "headHash": "7d8e09b47fdf6d305c2ddc2e3eaf6f20799364c8",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:11.987Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         }
       ]
     },
@@ -248,9 +248,9 @@
           "command": "node scripts/verify-init-check-bootstrap.mjs all",
           "result": "pass",
           "note": "nested-gitroot: wrapper metadata root is not git, configured gitRoot subdir hosts worktree+branch; INIT_CHECK succeeds",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -259,9 +259,9 @@
           "command": "node scripts/verify-init-check-bootstrap.mjs all",
           "result": "pass",
           "note": "nested-gitroot asserts worktree under <gitRoot>/.worktrees and metadata under configured storyDir inside gitRoot",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -270,9 +270,9 @@
           "command": "node scripts/verify-init-check-bootstrap.mjs all",
           "result": "pass",
           "note": "plain-repo scenarios (branch-isolation/scoped-stage/dry-run/bad-branch) stay green: getRepoRoot fallback byte-for-byte unchanged",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -281,9 +281,9 @@
           "command": "node scripts/verify-init-check-bootstrap.mjs all",
           "result": "pass",
           "note": "invalid-gitroot: configured gitRoot that is not a git repo fails closed with signed-workspace reason, no worktree created",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         }
       ]
     },
@@ -348,9 +348,9 @@
           "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
           "result": "pass",
           "note": "smoke creates legacy items with passing evidence refs and asserts reconstruction",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -359,9 +359,9 @@
           "command": "node scripts/verify-init-check-bootstrap.mjs all",
           "result": "pass",
           "note": "bootstrap smoke nested-gitroot mode creates a wrapper-root project with a nested gitRoot",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -370,9 +370,9 @@
           "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
           "result": "pass",
           "note": "smoke covers authored-intent-present (no overwrite) + missing-evidenced-lane + sparse padding",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -381,9 +381,9 @@
           "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
           "result": "pass",
           "note": "CLI integration covers DEV repair without legacyRepair (rejected) and short reason (rejected)",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-004:edge:2",
@@ -392,9 +392,9 @@
           "command": "node scripts/verify-init-check-bootstrap.mjs all",
           "result": "pass",
           "note": "help-health mode: lattice checklist_update --help exits zero (P3 regression guard)",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -403,9 +403,9 @@
           "command": "node scripts/verify-init-check-bootstrap.mjs all",
           "result": "pass",
           "note": "smoke malformed refs throw; invalid-gitroot mode fails closed",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         }
       ]
     },
@@ -460,9 +460,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Delivered section documents the repair command, diagnostics, gitRoot routing, and the metadata-inside-gitRoot decision; process-fact contract passes",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -471,9 +471,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "only implementation-relevant docs + dist build outputs changed; build succeeds",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -482,9 +482,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "after build, the dist CLI exposes verification_intent_repair (command-ownership + lifecycle-registry contracts pass; CLI flag-form run succeeded)",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -493,9 +493,9 @@
           "command": "node packages/main/dist/cli.js checklist_update --help",
           "result": "pass",
           "note": "sourceManifestDigest help failure not reproduced: checklist_update --help exits zero",
-          "headHash": "97034a49aeeb51fb188e4cefa92351eaebbeb869",
-          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
-          "timestamp": "2026-06-13T18:41:48.899Z"
+          "headHash": "2182812b610d5b0f0ef06320de64c5ebffb6f90e",
+          "materialHash": "25f0b58d64f68a294c43dd5e451b2c4362808e9adf26bfb4b8b924931af0de93",
+          "timestamp": "2026-06-13T18:53:08.402Z"
         }
       ]
     }
