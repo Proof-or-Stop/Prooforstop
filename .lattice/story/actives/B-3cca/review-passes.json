@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-13T11:24:39.834Z",
       "reviewRunId": "B-3cca:RR-018",
       "_hash": "4a536851454ca1726e804a23d69ea43f37b115ccbc3223b43e0d38951b64b405"
+    },
+    {
+      "id": "B-3cca:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: F-005/F-006/F-007 are resolved and covered. Verified latest HEAD with npm --prefix packages/main run build, npm --prefix packages/main run test:cli-engine-branding-smoke (including guide-hooks doc unclassified=0), node scripts/verify-process-fact-contract.mjs, and node scripts/verify-entrypoints.mjs. Branding smoke uses token-based stripping instead of broad whole-line KOALA/koala.config/.koala allowlists.",
+      "createdAt": "2026-06-13T11:26:07.644Z",
+      "reviewRound": "2026-06-13T11:24:39.834Z",
+      "reviewRunId": "B-3cca:RR-017",
+      "_hash": "5cedeea43d4ab5bc211fc62bf34cb9d1be4e03dba787465fb5ef528c10aff038"
     }
   ]
 }
