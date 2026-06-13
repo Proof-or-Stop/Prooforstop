@@ -5,7 +5,7 @@
       "desc": "Blocked Authority evidence is classified with verdict=blocked_classified but still recorded with result=pass across CHK-002 and CHK-003, even where the notes say the underlying Authority commands returned status=fail and no receipt was verified. In this codebase verdict is semantic only (packages/main/src/cli-engine.ts:135) and coverage treats only evidence.result === \"fail\" as failed (packages/main/src/core/verification.ts:84); outcome-semantics smoke documents blocked_classified failures with result=fail and missingRequired=1 (packages/main/src/tasks/outcome-semantics-smoke.ts:205-228). As written, the story can satisfy must-intent coverage with a blocked Authority path, which is the fake-success pattern this audit is meant to avoid. There is also a transcript consistency issue: the recorded CHK-002 runner command omits LATTICE_AUTHORITY_TRUST_ENV_FILE, so reproducing it literally reports the customer API key missing too; with the trust env it matches the final blocker of missing actor key and runner id.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-13T13:39:10.119Z",
@@ -16,7 +16,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/verification.ts",
         "packages/main/src/tasks/outcome-semantics-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed by recording CHK-002/CHK-003 Authority blocker evidence as verdict=blocked_classified with result=fail, preserving failed proof semantics; added explicit permanent waivers only for lifecycle coverage so B-22b0 can close as blocked audit without claiming receiptVerified/authorityDone/fullAuthorityDone; reproduced command strings now include LATTICE_AUTHORITY_TRUST_ENV_FILE where the trust profile is required.",
+      "resolvedAt": "2026-06-13T13:45:29.210Z"
     }
   ]
 }
