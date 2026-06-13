@@ -178,12 +178,12 @@ this table is the authoritative review packet for every Chinese-bearing
 | T002 | comment | 把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。 | Wrap shared dispatch, parse, log, and phase-gate logic in the callable `runCli` function. | Preserve `runCli`. |
 | T003 | comment | main 自己的 cli.ts 是 bin 入口，直接调 runCli()； | The main package `cli.ts` is the binary entrypoint and calls `runCli()` directly. | Header comment. |
 | T004 | comment | 第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils 的工具和 handler 一起合进来。 | Third-party bootstrap scripts can pass `extraTools` and `extraRegister` to `runCli(...)` to merge utility tools and handlers. | Join wrapped source lines. |
-| T005 | schema | 一行描述（出现在 lattice help 列表里） | One-line description shown in the `lattice help` command list. | ToolDef field comment. |
+| T005 | schema | 一行描述（出现在 lattice help 列表里） | Short description shown in the `lattice help` command list. | ToolDef field comment. |
 | T006 | schema | 完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description | Full prompt shown in `lattice <cmd> --help`. Optional; when omitted, only `description` is shown. | ToolDef field comment. |
 | T007 | schema | 可选稳定 id；缺省时自动按 CHK-001:happy:0 推导 | Optional stable ID. Defaults to an inferred ID such as `CHK-001:happy:0`. | Verification intent field. |
 | T008 | schema | 验证意图描述 | Verification intent description | Short schema text. |
 | T009 | schema | 验证类型 | Verification type | Short schema text. |
-| T010 | schema | 从哪个 workflow profile 起要求 | Minimum workflow profile where this becomes required | Keep workflow profile wording. |
+| T010 | schema | 从哪个 workflow profile 起要求 | Minimum workflow profile that requires this | Keep workflow profile wording. |
 | T011 | schema | must 会进入 evidence gate | `must` entries are enforced by the evidence gate | Preserve `must`. |
 | T012 | comment | 更准确的说法是代码应该是被一个自动化的接口所管理的，人和ai都是通过这个接口来操作代码。 | More precisely, code should be managed through an automated interface, and both humans and AI should operate through that interface. | Internal design comment. |
 | T013 | schema | 证据类型；aliases: cli→manual_transcript, logic→logic_test | Evidence kind; aliases: `cli` to `manual_transcript`, `logic` to `logic_test` | Keep enum names literal. |
@@ -191,9 +191,9 @@ this table is the authoritative review packet for every Chinese-bearing
 | T015 | schema | 证据结论语义；不覆盖 result pass/fail gate | Evidence verdict semantics; does not override the `result` pass/fail gate | Reused in evidence schemas. |
 | T016 | schema | kind=waiver 时可标记为临时 gate 自测 evidence；后续 validate 会要求替换真实证据 | For `kind=waiver`, marks temporary self-test gate evidence. A later `validate` run will require real replacement evidence. | Keep `kind=waiver`. |
 | T017 | schema | 测试/文档文件路径 | Test or documentation file path | Reused. |
-| T018 | schema | 执行命令 | Command that was run | Reused. |
+| T018 | schema | 执行命令 | Executed command | Reused. |
 | T019 | schema | 执行结果 | Command result | Reused. |
-| T020 | schema | 为什么此证据覆盖该 intent | Why this evidence covers the intent | Reused. |
+| T020 | schema | 为什么此证据覆盖该 intent | Why this evidence satisfies the intent | Reused. |
 | T021 | schema | 记录证据时的 git HEAD | Git HEAD when the evidence was recorded | Evidence freshness. |
 | T022 | schema | 记录证据时的非 story-metadata 实体文件哈希 | Non-story-metadata material hash when the evidence was recorded | Evidence freshness. |
 | T023 | schema | 记录时间 | Recording timestamp | Evidence field. |
@@ -216,7 +216,7 @@ this table is the authoritative review packet for every Chinese-bearing
 | T040 | schema | 下一轮 prompt patch 建议；只记录，不执行 | Suggested prompt patch for the next iteration; recorded only, not executed | Review loop. |
 | T041 | schema | reflection 建议决策 | Reflection recommended decision | Review loop. |
 | T042 | schema | 建议理由 | Recommendation rationale | Review loop. |
-| T043 | schema | 可复用经验；上下文记录，不是 gate evidence | Reusable learning; contextual record, not gate evidence | Review loop. |
+| T043 | schema | 可复用经验；上下文记录，不是 gate evidence | Reusable lesson; contextual record, not gate evidence | Review loop. |
 | T044 | schema | 进展评分 | Progress score | Review loop. |
 | T045 | schema | 风险评分 | Risk score | Review loop. |
 | T046 | schema | 回归评分 | Regression score | Review loop. |
@@ -241,9 +241,9 @@ this table is the authoritative review packet for every Chinese-bearing
 | T065 | schema | 依赖 Story ID | Dependent Story IDs | Field description. |
 | T066 | schema | 关键词（领域/模块/概念，用于查重） | Keywords for domains, modules, or concepts; used for deduplication | Field description. |
 | T067 | schema | 关联文档路径（用于三次提醒） | Related documentation paths, used for the three reminder points | Checklist schema. |
-| T068 | schema | 用户可见输出 | User-visible output | Checklist schema. |
+| T068 | schema | 用户可见输出 | Expected user-visible output | Checklist schema. |
 | T069 | schema | 显式声明不做的功能点 | Explicitly excluded feature points | Checklist schema. |
-| T070 | schema | happy/edge/adversarial 验证意图 | Happy, edge, and adversarial verification intent | Checklist schema. |
+| T070 | schema | happy/edge/adversarial 验证意图 | Happy-path, edge-case, and adversarial verification intent | Checklist schema. |
 | T071 | schema | 开发清单 | Development checklist | Checklist schema. |
 | T072 | schema | 用户确认允许做的 scope 条目 | User-confirmed allowed scope items | Scope boundary. |
 | T073 | schema | allowed 的兼容别名 | Compatibility alias for `allowed` | Scope boundary. |
@@ -293,7 +293,7 @@ this table is the authoritative review packet for every Chinese-bearing
 | T117 | command-description | 对抗审查 checklist 完整性 | Adversarially review checklist completeness | Command description. |
 | T118 | command-description | 读取 checklist | Read the checklist | Command description. |
 | T119 | command-description | 更新 checklist 项 | Update a checklist item | Command description. |
-| T120 | command-description | 为 checklist item 追加/更新 verificationIntent 覆盖证据 | Add or update verification evidence covering a checklist item's verificationIntent | Command description. |
+| T120 | command-description | 为 checklist item 追加/更新 verificationIntent 覆盖证据 | Add or update evidence satisfying a checklist item's verificationIntent | Command description. |
 | T121 | command-description | 批量追加/更新 verificationIntent 覆盖证据（避免并发写 checklist 丢 evidence） | Batch add or update verification evidence covering verificationIntent entries, avoiding lost checklist evidence during concurrent writes | Command description. |
 | T122 | help | 无参数 | No arguments | `--help` output. |
 | T123 | help | 用法 | Usage | `--help` output. |
@@ -311,7 +311,7 @@ this table is the authoritative review packet for every Chinese-bearing
 | T135 | help | 当前 Story | Current Story | Main help. |
 | T136 | help | 阶段 | Phase | Main help. |
 | T137 | help | 开发流程 | Development workflow | Main help section. |
-| T138 | help | 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选） | Write code and verification, using fixtures, project-native tests, or optional `validate.ts` | Main help workflow. |
+| T138 | help | 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选） | Implement the code and its verification (fixtures, project-native tests, or optional `validate.ts`) | Main help workflow. |
 | T139 | help | 验证（按项目语言自动发现或读取配置） | Validate, using language-aware auto-discovery or project configuration | Main help workflow. |
 | T140 | help | 进入代码审查 | Enter code review | Main help workflow. |
 | T141 | help | Lattice reviewer 审查代码，提 finding | Lattice reviewers inspect the code and record findings | Main help workflow. |
@@ -321,25 +321,25 @@ this table is the authoritative review packet for every Chinese-bearing
 | T145 | help | 提示 | Tip | Main help section. |
 | T146 | help | 出错? 用 lattice <command> --help 查看完整参数说明 | Error? Run `lattice <command> --help` to see the full argument reference. | Main help. |
 | T147 | error | 未知命令 | Unknown command | Error output. |
-| T148 | error | 你是不是要找 | Did you mean | Error output. |
+| T148 | error | 你是不是要找 | Did you mean: | Error output. |
 | T149 | error | 错误 | Error | Error output. |
 | T150 | error | JSON 解析失败 | JSON parse failed | Error output. |
-| T151 | hint | 验证全绿 | Validation is green | Existing tests may assert this string. |
+| T151 | hint | 验证全绿 | Validation passed | Existing tests may assert this string. |
 | T152 | hint | 验证未通过 | Validation failed | Existing tests may assert this string. |
-| T153 | hint | 标记为 in_progress。写代码，完成后 git commit + lattice checklist_update --status=done | Marked in progress. Write the code, then commit and run `lattice checklist_update --status=done`. | Next-step hint. |
-| T154 | hint | 所有 item 已 done。下一步：git commit，然后 lattice story_advance --phase=REVIEW 进入代码审查 | All items are done. Next: commit, then run `lattice story_advance --phase=REVIEW` to enter code review. | Parameterize item count. |
-| T155 | hint | 还有 ... 个 in_progress item | There are still ... in-progress items | Parameterized hint. |
+| T153 | hint | 标记为 in_progress。写代码，完成后 git commit + lattice checklist_update --status=done | Marked as in progress. Write the code, then commit and run `lattice checklist_update --status=done`. | Next-step hint. |
+| T154 | hint | 所有 item 已 done。下一步：git commit，然后 lattice story_advance --phase=REVIEW 进入代码审查 | All checklist items are complete. Next: commit, then run `lattice story_advance --phase=REVIEW` to enter code review. | Parameterize item count. |
+| T155 | hint | 还有 ... 个 in_progress item | ... checklist items are still in progress | Parameterized hint. |
 | T156 | hint | 完成 ... 下一项 | Completed ... Next item | Parameterized hint. |
-| T157 | hint | Story 停在 INIT 阶段。下一步 | Story is in INIT. Next steps | Story creation hint. |
+| T157 | hint | Story 停在 INIT 阶段。下一步 | Story is currently in INIT. Next steps: | Story creation hint. |
 | T158 | hint | 创建 worktree | Create the worktree | Story creation hint. |
 | T159 | hint | 进入 PLAN（cwd 必须是 worktree） | Enter PLAN; `cwd` must be the worktree | Story creation hint. |
 | T160 | hint | 当前目录不是 git 仓库 | Current directory is not a Git repository | Story/worktree hint. |
-| T161 | hint | story 已记录 | The Story has been recorded | Story/worktree hint. |
+| T161 | hint | story 已记录 | Story recorded | Story/worktree hint. |
 | T162 | hint | 先 git init + 首次 commit 后重试 | Run `git init` and the first commit, then retry | Story/worktree hint. |
-| T163 | hint | 现在请 cd 到上述 worktree 路径 | Now `cd` to the worktree path above | Story/worktree hint. |
+| T163 | hint | 现在请 cd 到上述 worktree 路径 | Change to the worktree directory above | Story/worktree hint. |
 | T164 | hint | 排查后再次执行 | After troubleshooting, run again | Story/worktree hint. |
 | T165 | hint | 自动重试 | Retry automatically | Story/worktree hint. |
-| T166 | hint | worktree 创建失败 | Worktree creation failed | Story/worktree hint. |
+| T166 | hint | worktree 创建失败 | Failed to create worktree | Story/worktree hint. |
 | T167 | hint | 已在 INIT_CHECK 阶段，重试 worktree 创建 | Already in INIT_CHECK; retrying worktree creation | Story/worktree hint. |
 | T168 | comment | 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回） | Inject the next-step hint. Only commands registered in `hints.ts` are decorated; other commands are returned unchanged. | Comment. |
 | T169 | comment | story_create: 停在 INIT 时追加下一步提示 | `story_create`: append next-step guidance when the Story stops at INIT. | Comment. |
@@ -362,12 +362,12 @@ M002	4	comment	把 dispatch / parse / log / phase gate 这些通用逻辑包成�
 M003	5	comment	main 自己的 cli.ts 是 bin 入口，直接调 runCli()；	The main package cli.ts is the binary entrypoint and calls runCli() directly.	review-draft
 M004	6	comment	第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils	Third-party bootstrap scripts can pass extraTools and extraRegister to runCli to merge utility tools	review-draft
 M005	7	comment	的工具和 handler 一起合进来。	Merge those tools and handlers together.	review-draft
-M006	63	comment	一行描述（出现在 lattice help 列表里） */	One-line description shown in the lattice help list.	review-draft
+M006	63	comment	一行描述（出现在 lattice help 列表里） */	Short description shown in the lattice help command list.	review-draft
 M007	65	comment	完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description */	Full PROMPT shown in lattice <cmd> --help. Optional; defaults to showing description only.	review-draft
 M008	91	schema	可选稳定 id；缺省时自动按 CHK-001:happy:0 推导	Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.	review-draft
 M009	92	schema	验证意图描述	Verification intent description.	review-draft
 M010	93	schema	验证类型	Verification type.	review-draft
-M011	94	schema	从哪个 workflow profile 起要求	Workflow profile from which this is required.	review-draft
+M011	94	schema	从哪个 workflow profile 起要求	Minimum workflow profile that requires this.	review-draft
 M012	95	schema	must 会进入 evidence gate	must enters the evidence gate.	review-draft
 M013	109	comment	更准确的说法是代码应该是被一个自动化的接口所管理的，人和ai都是通过这个接口来操作代码。	More precisely, code should be managed through an automated interface; both humans and AI operate on code through that interface.	review-draft
 M014	130	schema	证据类型；aliases: cli→manual_transcript, logic→logic_test	Evidence type; aliases: cli to manual_transcript, logic to logic_test.	review-draft
@@ -377,7 +377,7 @@ M017	136	schema	kind=waiver 时可标记为临时 gate 自测 evidence；后续 
 M018	137	schema	测试/文档文件路径	Test or documentation file path.	review-draft
 M019	138	schema	执行命令	Run command.	review-draft
 M020	139	schema	执行结果	Execution result.	review-draft
-M021	140	schema	为什么此证据覆盖该 intent	Why this evidence covers the intent.	review-draft
+M021	140	schema	为什么此证据覆盖该 intent	Why this evidence satisfies the intent.	review-draft
 M022	141	schema	记录证据时的 git HEAD	git HEAD when evidence was recorded.	review-draft
 M023	142	schema	记录证据时的非 story-metadata 实体文件哈希	Non-story-metadata material file hash when evidence was recorded.	review-draft
 M024	143	schema	记录时间	Recorded time.	review-draft
@@ -400,7 +400,7 @@ M040	201	schema	当前根因假设	Current root-cause hypothesis.	review-draft
 M041	202	schema	下一轮 prompt patch 建议；只记录，不执行	Suggested prompt patch for the next round; recorded only, not executed.	review-draft
 M042	203	schema	reflection 建议决策	Reflection recommended decision.	review-draft
 M043	204	schema	建议理由	Recommendation reason.	review-draft
-M044	205	schema	可复用经验；上下文记录，不是 gate evidence	Reusable learning; context record, not gate evidence.	review-draft
+M044	205	schema	可复用经验；上下文记录，不是 gate evidence	Reusable lesson; contextual record, not gate evidence.	review-draft
 M045	209	schema	进展评分	Progress score.	review-draft
 M046	210	schema	风险评分	Risk score.	review-draft
 M047	211	schema	回归评分	Regression score.	review-draft
@@ -424,7 +424,7 @@ M064	298	schema	优先级	Priority.	review-draft
 M065	299	schema	来源	Source.	review-draft
 M066	300	schema	依赖 Story ID	Dependent Story ID.	review-draft
 M067	301	schema	关键词（领域/模块/概念，用于查重）	Keywords (domain/module/concept, used for duplicate detection).	review-draft
-M068	302	schema	关联文档路径（用于三次提醒） / 用户可见输出 / 显式声明不做的功能点 / happy/edge/adversarial 验证意图 / 开发清单	Related documentation paths used for the three reminders. / User-visible output. / Explicitly declared out-of-scope functionality. / happy/edge/adversarial verification intent. / Development checklist.	review-draft
+M068	302	schema	关联文档路径（用于三次提醒） / 用户可见输出 / 显式声明不做的功能点 / happy/edge/adversarial 验证意图 / 开发清单	Related documentation paths used for the three reminders. / Expected user-visible output. / Explicitly declared out-of-scope functionality. / Happy-path, edge-case, and adversarial verification intent. / Development checklist.	review-draft
 M069	304	schema	Scope boundary mode；correctness_fix 会启用默认 future denylist	Scope boundary mode; correctness_fix enables the default future denylist.	review-draft
 M070	305	schema	用户确认允许做的 scope 条目	Scope entries the user confirmed as allowed.	review-draft
 M071	306	schema	allowed 的兼容别名	Compatibility alias for allowed.	review-draft
@@ -506,7 +506,7 @@ M146	417	schema	关联文档路径（用于三次提醒）	Related documentation
 M147	418	schema	用户完成此 item 后在终端/UI 看到的具体文本	Specific terminal/UI text the user sees after completing this item.	review-draft
 M148	419	schema	显式声明不做的功能点	Explicitly declared out-of-scope functionality.	review-draft
 M149	424	schema	B-45ed: 受影响的文件集合（PLAN 阶段声明，story_review 做 touchpoints→files 覆盖校验）	B-45ed: affected file set declared in PLAN; story_review checks touchpoints-to-files coverage.	review-draft
-M150	425	schema	happy/edge/adversarial 验证意图（PLAN 阶段）	happy/edge/adversarial verification intent (PLAN phase).	review-draft
+M150	425	schema	happy/edge/adversarial 验证意图（PLAN 阶段）	Happy-path, edge-case, and adversarial verification intent (PLAN phase).	review-draft
 M151	426	schema	PLAN 阶段追加 item 时必须提供的 replan/scope audit 理由（≥10 字符）	Required replan/scope audit reason when adding an item during PLAN (at least 10 characters).	review-draft
 M152	427	schema	操作者/agent lane；INIT reviewer lane 不可直接改需求定义	Actor or agent lane; INIT reviewer lanes may not directly change requirement definitions.	review-draft
 M153	428	schema	操作者别名；INIT reviewer lane 不可直接改需求定义	Actor alias; INIT reviewer lanes may not directly change requirement definitions.	review-draft
@@ -523,19 +523,19 @@ M163	440	schema	关联文档路径（用于三次提醒）	Related documentation
 M164	441	schema	用户完成此 item 后在终端/UI 看到的具体文本（PLAN 之前可写，DEV 起冻结）	Specific terminal/UI text the user sees after completing this item; writable before PLAN and frozen from DEV.	review-draft
 M165	442	schema	显式声明不做的功能点；INIT reviewer lane 不可直接修改	Explicitly declared out-of-scope functionality; INIT reviewer lanes may not modify directly.	review-draft
 M166	447	schema	B-45ed: 受影响的文件集合（PLAN 阶段声明）	B-45ed: affected file set declared in PLAN.	review-draft
-M167	448	schema	happy/edge/adversarial 验证意图（DEV 起冻结）	happy/edge/adversarial verification intent; frozen from DEV.	review-draft
+M167	448	schema	happy/edge/adversarial 验证意图（DEV 起冻结）	Happy-path, edge-case, and adversarial verification intent; frozen from DEV.	review-draft
 M168	449	schema	覆盖 verificationIntent 的证据列表	Evidence list covering verificationIntent.	review-draft
 M169	450	schema	变更原因 / 操作者	Change reason. / Actor.	review-draft
 M170	451	schema	操作者别名；INIT reviewer lane 不可直接改需求定义	Actor alias; INIT reviewer lanes may not directly change requirement definitions.	review-draft
 M171	452	schema	subagent 结果是否成功（仅 status=done 时有效，默认 true）	Whether the subagent result succeeded; only valid when status=done, default true.	review-draft
-M172	454	command-description	为 checklist item 追加/更新 verificationIntent 覆盖证据	Add or update verification evidence covering a checklist item's verificationIntent.	review-draft
+M172	454	command-description	为 checklist item 追加/更新 verificationIntent 覆盖证据	Add or update evidence satisfying a checklist item's verificationIntent.	review-draft
 M173	457	schema	如 CHK-001:happy:0 或自定义 intent id	For example CHK-001:happy:0 or a custom intent ID.	review-draft
 M174	459	schema	证据结论语义；不覆盖 result pass/fail gate	Evidence verdict semantics; does not override the result pass/fail gate.	review-draft
 M175	460	schema	kind=waiver 时可标记为临时 gate 自测 evidence	When kind=waiver, this can mark temporary gate self-test evidence.	review-draft
 M176	461	schema	测试/文档文件路径	Test or documentation file path.	review-draft
 M177	462	schema	执行命令	Run command.	review-draft
 M178	463	schema	执行结果	Execution result.	review-draft
-M179	464	schema	为什么此证据覆盖该 intent	Why this evidence covers the intent.	review-draft
+M179	464	schema	为什么此证据覆盖该 intent	Why this evidence satisfies the intent.	review-draft
 M180	466	command-description	批量追加/更新 verificationIntent 覆盖证据（避免并发写 checklist 丢 evidence）	Batch add/update verificationIntent coverage evidence (avoid losing evidence during concurrent checklist writes).	review-draft
 M181	470	schema	如 CHK-001:happy:0 或自定义 intent id	For example CHK-001:happy:0 or a custom intent ID.	review-draft
 M182	472	schema	证据结论语义；不覆盖 result pass/fail gate	Evidence verdict semantics; does not override the result pass/fail gate.	review-draft
@@ -543,7 +543,7 @@ M183	473	schema	kind=waiver 时可标记为临时 gate 自测 evidence	When kind
 M184	474	schema	测试/文档文件路径	Test or documentation file path.	review-draft
 M185	475	schema	执行命令	Run command.	review-draft
 M186	476	schema	执行结果	Execution result.	review-draft
-M187	477	schema	为什么此证据覆盖该 intent	Why this evidence covers the intent.	review-draft
+M187	477	schema	为什么此证据覆盖该 intent	Why this evidence satisfies the intent.	review-draft
 M188	478	schema	证据数组；同一次调用内读写 checklist 一次	Evidence array; reads and writes the checklist once in the same call.	review-draft
 M189	480	command-description	刷新 stale verificationEvidence 的 HEAD/material hash（需先重跑对应验证命令）	Refresh HEAD/material hashes for stale verificationEvidence; rerun the matching verification command first.	review-draft
 M190	482	schema	只报告将刷新的 stale evidence，不写入	Report stale evidence that would be refreshed, without writing.	review-draft
@@ -1051,7 +1051,7 @@ M691	2491	other	开发流程:	Development flow:	review-draft
 M692	2493	other	{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}	{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}	review-draft
 M693	2494	other	2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建本地 worktree/local branch	2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # Create local worktree/local branch	review-draft
 M694	2496	other	4. lattice story_review --storyId=B-xxx # 审查通过后进 DEV	4. lattice story_review --storyId=B-xxx                     # Review passes, then enter DEV	review-draft
-M695	2500	other	6. 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选）	6. Write code + write verification (fixture / project-native tests / validate.ts optional)	review-draft
+M695	2500	other	6. 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选）	6. Implement the code and its verification (fixtures, project-native tests, or optional validate.ts)	review-draft
 M696	2501	other	7. lattice validate # 验证（按项目语言自动发现或读取配置）	7. lattice validate                                         # Verification (auto-detect by project language or read config)	review-draft
 M697	2505	other	9. lattice story_advance --storyId=B-xxx --phase=REVIEW # 进入代码审查	9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review	review-draft
 M698	2506	other	10. Lattice reviewer 审查代码，提 finding # critical/high 必须 resolve	10. Lattice reviewer reviews code and raises findings       # critical/high must resolve	review-draft
@@ -1100,15 +1100,15 @@ M740	3641	comment	写入失败属于 PERSIST 类（audit 不完整 → 事后无
 M741	3642	comment	staleWarnings 也一并落盘，便于事后做趋势分析（agent 多久会忘记 advance 一次）	staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).	review-draft
 M742	3774	cli-output	错误: ${e.message}\n	Error: ${e.message}\n	review-draft
 M743	3805	comment	注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）	Inject next-step hint (only effective for commands registered in hints.ts; other commands return unchanged).	review-draft
-M744	3810	comment	next-step hint (e.g. "→ 验证全绿").	next-step hint (e.g. "-> verification all green").	review-draft
+M744	3810	comment	next-step hint (e.g. "→ 验证全绿").	next-step hint (e.g. "-> Validation passed").	review-draft
 M745	3853	cli-output	错误: ${e.message}\n	Error: ${e.message}\n	review-draft
 M746	3859	comment	story_create: 停在 INIT 时追加下一步提示	story_create: append next-step hint when stopping in INIT.	review-draft
 M747	3871	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	${result}\n⚠ Current directory is not a git repository: story was recorded, but the from-draft worktree cannot be created automatically.\n-> Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
-M748	3876	cli-output	${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${result}\n\n${wtResult}\n\n${syncResult}\n\n-> Now cd to the worktree path above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
+M748	3876	cli-output	${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${result}\n\n${wtResult}\n\n${syncResult}\n\n-> Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
 M749	3880	other	→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
 M750	3887	other	当前目录不是 git 仓库	Current directory is not a git repository.	review-draft
 M751	3893	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'	${result}\n⚠ Current directory is not a git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\n-> First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
-M752	3896	cli-output	${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n 1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n 2. cd 到提示的 worktree 路径\n 3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）	${result}${metadataLine}\n-> Story stopped in INIT. Next steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)	review-draft
+M752	3896	cli-output	${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n 1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n 2. cd 到提示的 worktree 路径\n 3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）	${result}${metadataLine}\n-> Story is currently in INIT. Next steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)	review-draft
 M753	3901	comment	story_advance phase=INIT_CHECK：成功后自动调 dev_start 创建 worktree	story_advance phase=INIT_CHECK: after success, automatically call dev_start to create the worktree.	review-draft
 M754	3902	comment	B-5246: phase 已经在 INIT_CHECK 时（重试场景）允许 dev_start 重跑而不抛	B-5246: when phase is already INIT_CHECK (retry scenario), allow dev_start to rerun without throwing	review-draft
 M755	3903	comment	"Cannot transition INIT_CHECK→INIT_CHECK"。这样 worktree 第一次创建失败时 agent	"Cannot transition INIT_CHECK->INIT_CHECK". This lets an agent retry after the first worktree creation failure.	review-draft
@@ -1117,8 +1117,8 @@ M757	3920	comment	探测当前 phase；若已在 INIT_CHECK 就跳过 advance �
 M758	3921	comment	story_get 默认返回 {checklist, review}；phase 需要 detail:true 才在 result.index.phase	story_get returns {checklist, review} by default; phase requires detail:true to appear at result.index.phase.	review-draft
 M759	3927	other	Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建	Story ${storyId} is already in INIT_CHECK; retrying worktree creation	review-draft
 M760	3932	comment	story_get 失败时退回原行为	Fall back to original behavior when story_get fails.	review-draft
-M761	3947	cli-output	${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${advanceResult}\n\n${wtResult}${syncSegment}\n\n-> Now cd to the worktree path above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
-M762	3949	cli-output	${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	${advanceResult}\n⚠ worktree creation failed: ${e.message}\n-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
+M761	3947	cli-output	${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${advanceResult}\n\n${wtResult}${syncSegment}\n\n-> Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
+M762	3949	cli-output	${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	${advanceResult}\n⚠ Failed to create worktree: ${e.message}\n-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
 ```
 ## Review Rules For New Rows
 
