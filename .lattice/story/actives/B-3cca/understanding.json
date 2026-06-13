@@ -1,0 +1,30 @@
+{
+  "task": "Audit and clean Koala branding remnants in CLI engine using a Claude CLI implementation pass inside Lattice flow.",
+  "outcome": "Terminal checks show packages/main/src/cli-engine.ts and packages/main/dist/cli-engine.js have no unclassified Koala branding; remaining koala strings are printed or documented as legacy aliases/fallbacks only, and the Claude CLI implementation evidence names the B-3cca worktree command/session.",
+  "facts": [
+    "packages/main/src/cli-engine.ts currently has 52 Koala/koala hits and packages/main/dist/cli-engine.js mirrors them after build.",
+    "dist/cli-engine.js is generated output; src/cli-engine.ts is the source edit target.",
+    "User explicitly requested Claude CLI agent participation inside Lattice flow.",
+    "Compatibility identifiers such as koala command alias, koala.config.json fallback, .koala story path, koala-codex detection, and koala-review-* lane IDs may remain if explicitly legacy-labelled.",
+    "koala-review-* is a hard process contract consumed by reviewer gates, process fact registry, review-run validation, and prompt templates, so this story must not rename that prefix.",
+    "[koala-hook] in cli-engine.ts is a user-visible hook log prefix with no discovered registry/test consumer outside the CLI engine, so it can be migrated to [lattice-hook]."
+  ],
+  "constraints": [
+    "Do not run omx or use .omx.",
+    "Do not directly edit docs/story or tests/fixtures JSON.",
+    "Use Lattice story lifecycle and record verificationEvidence.",
+    "Do not blindly replace compatibility identifiers that are part of CLI/runtime contracts.",
+    "Regenerate dist through build instead of manually editing generated JavaScript."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/dist/cli-engine.js",
+    "packages/main/package.json",
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "README.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-06-13T10:25:33.936Z"
+}

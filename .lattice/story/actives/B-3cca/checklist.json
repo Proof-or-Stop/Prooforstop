@@ -10,7 +10,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Audit output classifies remaining Koala hits as legacy compatibility or process contract, with no unclassified current-product branding.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run a focused scan that lists every Koala/koala/@koala hit in packages/main/src/cli-engine.ts and generated packages/main/dist/cli-engine.js, then classify each remaining hit as current-product wording or legacy compatibility.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm hard compatibility tokens such as koala command alias, koala.config.json fallback, .koala legacy story path, koala-codex detection, and koala-review-* reviewer lanes are preserved as process or compatibility contracts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the audit if any non-allowlisted Koala wording still presents Koala as the current product identity in CLI help, descriptions, comments, diagnostics, or hook logs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
