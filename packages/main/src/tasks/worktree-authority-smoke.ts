@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,7 @@ import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, Sto
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { assertCwdInWorktree } from '../handlers/context.js';
+import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
 import {
   isDoneMainRuntimeBuildInput,
   runDoneMainPackageBuildAfterMerge,
@@ -892,6 +893,95 @@ function assertDoneMainPackageBuildHookReportsSkipSuccessFailure(): void {
   }
 }
 
+function markStoryBranchPartialDone(worktreePath: string, storyId: string): void {
+  const worktreeStore = new StoryStore(worktreePath);
+  const story = worktreeStore.readStory(storyId);
+  story.phase = 'DONE';
+  story.worktree = undefined;
+  story.endedAt = story.endedAt || '2026-05-08T10:30:00.000Z';
+  worktreeStore.writeStory(storyId, story);
+  git(worktreePath, ['add', worktreeStore.storyDirRel()]);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'partial done state']);
+}
+
+function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-recover-build-'));
+  try {
+    const storyId = 'B-recover-build';
+    const { worktreePath } = buildDoneReadyStory(root, storyId, {
+      beforeEvidence: (wt) => {
+        write(wt, 'packages/main/src/recovered-runtime.ts', 'export const recoveredRuntime = true;\n');
+        git(wt, ['add', 'packages/main/src/recovered-runtime.ts']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'runtime input change']);
+      },
+    });
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    write(root, '.gitignore', '.worktrees/\n');
+    git(root, ['add', '.gitignore']);
+    git(root, ['commit', '-m', 'ignore recovery worktrees']);
+    markStoryBranchPartialDone(worktreePath, storyId);
+
+    let buildCalls = 0;
+    const output = createDoneRecoverHandlers({
+      root,
+      store: new StoryStore(root),
+      scanRoot: join(root, 'packages/main'),
+      doneMainBuildRunner: (cwd) => {
+        buildCalls += 1;
+        assert.equal(realpathSync(cwd), realpathSync(root), 'done_recover build runner must execute from the main merge root');
+        return { status: 0, stdout: 'stubbed recover build ok\n' };
+      },
+    }).done_recover({ storyId });
+
+    assert.equal(buildCalls, 1, 'done_recover must run the post-merge build when watched runtime inputs changed');
+    assert.match(output, /packages\/main build refreshed after DONE merge/, 'done_recover output must include the shared build success line');
+    assert.match(output, new RegExp(`partial-DONE recovered: ${storyId}`), 'done_recover must still report recovery success');
+    assert.match(output, new RegExp(`story/${storyId} merged into main`), 'done_recover must merge the story branch');
+    assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '', 'done_recover must still delete the recovered story branch');
+    assert.equal(existsSync(worktreePath), false, 'done_recover must still remove the recovered worktree');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-recover-build-skip-'));
+  try {
+    const storyId = 'B-recover-build-skip';
+    const { worktreePath } = buildDoneReadyStory(root, storyId, {
+      beforeEvidence: (wt) => {
+        write(wt, 'docs/requirements/decisions/recover-skip.md', '# Recover skip smoke\n');
+        git(wt, ['add', 'docs/requirements/decisions/recover-skip.md']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'docs only change']);
+      },
+    });
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    write(root, '.gitignore', '.worktrees/\n');
+    git(root, ['add', '.gitignore']);
+    git(root, ['commit', '-m', 'ignore recovery worktrees']);
+    markStoryBranchPartialDone(worktreePath, storyId);
+
+    let buildCalls = 0;
+    const output = createDoneRecoverHandlers({
+      root,
+      store: new StoryStore(root),
+      scanRoot: join(root, 'packages/main'),
+      doneMainBuildRunner: () => {
+        buildCalls += 1;
+        return { status: 0, stdout: 'should not run\n' };
+      },
+    }).done_recover({ storyId });
+
+    assert.equal(buildCalls, 0, 'done_recover must skip the build when only unwatched paths changed');
+    assert.match(output, /packages\/main build skipped after DONE merge/, 'done_recover output must include the shared build skip line');
+    assert.match(output, new RegExp(`partial-DONE recovered: ${storyId}`), 'done_recover must still report recovery success');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 /**
  * CHK-003 task 2 — success path is byte-identical after extraction.
  * Drives a clean DONE through runDonePreMergeGate → writeStory(phase=DONE) →
@@ -1576,6 +1666,8 @@ assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
 assertDoneMainPackageBuildTriggerPredicate();
 assertDoneMainPackageBuildHookReportsSkipSuccessFailure();
+assertDoneRecoverRunsPostMergeBuildForRuntimeChanges();
+assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges();
 // B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts extraction.
 assertDoneSuccessPathOutputAndOrdering();
 // B-da5b CHK-001 — post-DONE activity heartbeat lands in main, never recreates
