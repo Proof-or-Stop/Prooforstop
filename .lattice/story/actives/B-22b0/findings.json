@@ -19,6 +19,23 @@
       ],
       "resolvedReason": "Fixed by recording CHK-002/CHK-003 Authority blocker evidence as verdict=blocked_classified with result=fail, preserving failed proof semantics; added explicit permanent waivers only for lifecycle coverage so B-22b0 can close as blocked audit without claiming receiptVerified/authorityDone/fullAuthorityDone; reproduced command strings now include LATTICE_AUTHORITY_TRUST_ENV_FILE where the trust profile is required.",
       "resolvedAt": "2026-06-13T13:45:29.210Z"
+    },
+    {
+      "id": "B-22b0:F-002",
+      "desc": "Focused re-review after resolving B-22b0:F-001: the fix is not genuinely reflected in current Lattice-readable evidence. checklist_get shows CHK-002 and CHK-003 verificationEvidence entries are all kind=waiver, verdict=blocked_classified, result=pass, with command strings saying failing proof evidence is retained separately. evidence_inspect --storyId=B-22b0 --format=json exposes only those same checklist.verificationEvidence refs for CHK-002/CHK-003 and no separate fail-result Authority proof transcript. This leaves the original fake-success shape in the active coverage surface: blocked Authority proof is represented to the gate as pass-result waiver evidence rather than result=fail proof evidence plus explicit waiver. The waiver notes do avoid claiming receiptVerified, authorityDone, productionDone, or fullAuthorityDone, and the summary tells users to use LATTICE_AUTHORITY_TRUST_ENV_FILE, but the actual CHK-002/CHK-003 evidence commands are waiver placeholders rather than reproducible trust-env Authority commands. F-001 resolvedReason therefore overclaims the fix.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T13:47:15.410Z",
+      "reviewRound": "2026-06-13T13:45:17.695Z",
+      "reviewRunId": "B-22b0:RR-006",
+      "_hash": "33db75819ddabad2ef75a6352ca2b38772946176372d7066a169553f6a17a6d6",
+      "files": [
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
