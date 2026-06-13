@@ -757,6 +757,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
       const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
       const storyRel = relative(canonicalRepoRoot, canonicalStoryAbs).replace(/\\/g, '/');
+      // Fail closed with a clear message when story metadata is not inside the
+      // resolved git root (mirrors the cli-engine reconcile guard); otherwise the
+      // scoped `git add` would fail with an opaque "outside repository" error.
+      if (!storyRel || isAbsolute(storyRel) || storyRel.split('/').includes('..')) {
+        throw new Error(
+          `Cannot bootstrap INIT_CHECK worktree: story metadata ${storyAbs} is not inside the resolved git root ${canonicalRepoRoot}; ` +
+          `configure storyDir so story metadata lives inside the gitRoot.`,
+        );
+      }
 
       // B-7eed: Write the story.worktree field into story index.json first, then git add/commit,
       // to avoid writeStory leaving the main repo working tree dirty after commit (which would cause subsequent DONE

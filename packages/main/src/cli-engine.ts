@@ -488,7 +488,6 @@ export const MAIN_TOOLS: ToolDef[] = [
     legacyRepair: z.boolean().describe('必须显式传 true：确认这是 legacy 数据补洞，不是正常 PLAN 流程'),
     reason: z.string().min(30, 'reason 必须 ≥ 30 字符').describe('为什么需要 legacy 修复 + 你核查了什么'),
     dryRun: z.boolean().optional().describe('只报告将生成的 intent 条目，不写入'),
-    actor: z.string().optional().describe('操作者标识，审计追溯'),
   }},
   { name: 'verification_context_pack_create', description: '从当前 git diff 机械生成 Verification Context Pack（供 verifier job/Runner 消费）', schema: {
     producerRunId: z.string().min(1).describe('实现者 run id'),

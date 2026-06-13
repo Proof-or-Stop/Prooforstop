@@ -5,7 +5,7 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
-import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentItem, VerificationIntentType, VerificationLane } from '../core/types.js';
+import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentType, VerificationLane } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
@@ -194,12 +194,13 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
   const filled: string[] = [];
   for (const item of cl.items) {
     for (const ev of item.verificationEvidence || []) {
+      // Only refs scoped to THIS item; the `${item.id}:` prefix (with the colon)
+      // guarantees the regex capture group m[1] === item.id, so no separate check.
       if (!ev.intentRef.startsWith(`${item.id}:`)) continue; // custom/foreign refs ignored
       const m = STRUCTURED_INTENT_REF.exec(ev.intentRef);
       if (!m) {
         throw new Error(`verification_intent_repair: malformed intentRef '${ev.intentRef}' on ${item.id} — expected CHK-N:(happy|edge|adversarial):N. Fix the evidence ref before repair.`);
       }
-      if (m[1] !== item.id) continue;       // structured ref scoped to another item
       if (!isPassingEvidence(ev)) continue; // never synthesize from failing/waiver evidence
       const lane = m[2] as VerificationLane;
       const index = Number(m[3]);
@@ -963,7 +964,6 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       legacyRepair: boolean;
       reason: string;
       dryRun?: boolean;
-      actor?: string;
     }): string {
       // --- LOCAL PREFLIGHT (fail-closed, BEFORE any read/write) ----------------
       if (args.mode !== 'fromEvidence') {
