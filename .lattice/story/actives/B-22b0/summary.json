@@ -1,0 +1,48 @@
+{
+  "storyId": "B-22b0",
+  "changes": "Audited B-12f3 Authority posture through Lattice commands, attempted the configured Authority Server path, and recorded a fail-closed blocker instead of claiming receipt-backed completion.",
+  "usage": "Use LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env with lattice authority_status, authority_enforce_policy, autopilot_execute, and authority_enforce_runner for redacted Authority checks.",
+  "expectedOutcome": "User sees either \"B-12f3 Authority receipt verified: receiptVerified=true, authorityDone=true\" with receipt id and verified server proof, or \"B-12f3 Authority proof blocked: missing actor key/runner id/gate_decision receipt; authorityDone=false, fullAuthorityDone=false\".",
+  "actualTranscript": "B-12f3 Authority audit result: BLOCKED missing actor key, runner id, and native gate_decision receipt; local DONE remains Non-authority. authority_status kept receiptVerified=false, productionDone=false, canClaimProductionDone=false; autopilot_execute kept authorityDone=false and fullAuthorityDone=false.",
+  "outcomeDiff": "Actual outcome is the blocked branch, not verified proof. This matches fail-closed Authority semantics but does not satisfy true receipt-backed Authority completion.",
+  "acceptanceVerdict": "partial",
+  "outcomeKind": "blocked",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No true Authority Server receipt-backed proof can be produced in this environment until an actor private key, runner id/session, and native gate_decision receipt/proof are available.",
+  "pitfalls": "The root authority_trust.env is gitignored and not automatically present in story worktrees; use LATTICE_AUTHORITY_TRUST_ENV_FILE to point at it without copying or printing secrets. authority_enforce_policy also required an explicit authorityURL parameter in this run.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 414076
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19331
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 339183
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 277819
+    }
+  },
+  "totalDurationMs": 1050409,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T13:35:24.093Z",
+  "updatedAt": "2026-06-13T13:35:24.093Z"
+}
