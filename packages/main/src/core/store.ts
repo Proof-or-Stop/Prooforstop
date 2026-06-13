@@ -60,6 +60,14 @@ export class StoryStore {
     return join(this.storyDir(storyId), file);
   }
 
+  readStoryBackground(storyId: string): string | null {
+    for (const dir of this.candidateStoryDirs(storyId)) {
+      const filePath = join(dir, 'background.md');
+      if (existsSync(filePath)) return readFileSync(filePath, 'utf-8');
+    }
+    return null;
+  }
+
   private storyDir(storyId: string): string {
     return join(this.baseDir, storyId);
   }

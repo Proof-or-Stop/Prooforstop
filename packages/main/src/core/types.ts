@@ -1115,7 +1115,7 @@ export interface ExecutionBoundaryData {
 }
 
 export interface ScopeFreezeTextSource {
-  source: 'story.title' | 'story.description' | 'checklist.title' | 'checklist.context' | 'checklist.excludes' | 'scopeBoundary.allowed' | 'scopeBoundary.excluded';
+  source: 'story.title' | 'story.description' | 'story.background' | 'checklist.title' | 'checklist.context' | 'checklist.excludes' | 'scopeBoundary.allowed' | 'scopeBoundary.excluded';
   text: string;
   itemId?: string;
   /** True when the source is an explicit exclusion channel rather than an in-scope promise. */

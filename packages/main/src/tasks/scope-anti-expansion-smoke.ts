@@ -125,6 +125,19 @@ function validBackground(): string {
   ].join('\n\n') + '\n';
 }
 
+function backgroundDirectionOnly(direction: string): string {
+  return [
+    '## Trigger Event',
+    `B-85ba background direction smoke captures the selected direction only in background.md: ${direction}. This sentence stays long enough for the background validator while avoiding title reuse.`,
+    '## Key Insights',
+    `The old story carries no matching title, description, or checklist terms; the reusable direction is documented here instead: ${direction}.`,
+    '## Solution Tradeoffs',
+    `The replacement should still be blocked because the discarded scope digest includes background.md terms for this direction: ${direction}.`,
+    '## Conversational Texture',
+    `The user-visible promise is that discarded background context is not invisible to repeat-discard detection: ${direction}.`,
+  ].join('\n\n') + '\n';
+}
+
 function seedStory(store: StoryStore, opts: {
   title?: string;
   description?: string;
@@ -184,7 +197,11 @@ function writeGoodBoundaries(store: StoryStore): void {
 
 function projectStory(store: StoryStore) {
   const story = store.readStory(STORY_ID);
-  return { title: story.title, description: story.description };
+  return {
+    title: story.title,
+    description: story.description,
+    background: store.readStoryBackground(STORY_ID) ?? undefined,
+  };
 }
 
 function projectChecklist(store: StoryStore) {
@@ -580,6 +597,100 @@ withTempGitContext('real discarded story digest blocks replacement without mitig
   });
   assert.match(remitigatedOutput, /PASS/);
   assert.equal(getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root), null);
+});
+
+withTempGitContext('background-only discarded direction blocks replacement and background edits stale freeze', (root, store) => {
+  const storyHandlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  const scopeHandlers = createScopeAntiExpansionHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  const worktreeHandlers = createWorktreeHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  const oldDirection = 'background-only projection must guard repeat discarded INIT freeze scope';
+  const updatedDirection = 'background-only projection now documents a narrowed replacement scope';
+
+  const createStory = (input: {
+    name: string;
+    title: string;
+    description: string;
+    checklistTitle: string;
+    checklistContext: string;
+    background: string;
+  }): string => {
+    const output = storyHandlers.story_create({
+      name: input.name,
+      title: input.title,
+      description: input.description,
+      type: 'bug',
+      priority: 'high',
+      background: input.background,
+      checklist: [{ title: input.checklistTitle, context: input.checklistContext }],
+      forceNew: true,
+    });
+    const storyId = /Story (B-[a-z0-9]+)/.exec(output)?.[1];
+    assert.ok(storyId, `story_create output should include story id: ${output}`);
+    return storyId;
+  };
+
+  const discardedStoryId = createStory({
+    name: 'discarded-background-only-direction-smoke',
+    title: 'Archive isolated setup attempt',
+    description: 'This discarded story has a deliberately unrelated summary.',
+    checklistTitle: 'Record isolated setup notes',
+    checklistContext: 'Avoid reusable overlap outside background text.',
+    background: backgroundDirectionOnly(oldDirection),
+  });
+  const discardOutput = worktreeHandlers.story_discard({
+    storyId: discardedStoryId,
+    reason: 'Previous attempt selected this background-only direction and was discarded.',
+  });
+  assert.match(discardOutput, /discard digest recorded/);
+  const discardedDigest = store.readScopeDiscardDigest(discardedStoryId);
+  assert.ok(
+    discardedDigest.entries[0]?.terms.some(term => term.includes(oldDirection)),
+    'story_discard must record background.md terms in scope-discard-digest',
+  );
+
+  const replacementStoryId = createStory({
+    name: 'replacement-background-only-direction-smoke',
+    title: 'Repair separate INIT handoff',
+    description: 'This replacement summary intentionally differs from the discarded story.',
+    checklistTitle: 'Wire separate handoff validation',
+    checklistContext: 'The overlap should come from background text only.',
+    background: backgroundDirectionOnly(oldDirection),
+  });
+  scopeHandlers.scope_boundary_set({
+    storyId: replacementStoryId,
+    mode: 'correctness_fix',
+    allowedScope: ['INIT anti-expansion gate correctness'],
+    excludedScope: ['accepted reviewer expansion without decision'],
+    userConfirmed: true,
+    actor: 'scope-anti-expansion-smoke',
+  });
+  scopeHandlers.execution_boundary_set({
+    storyId: replacementStoryId,
+    allowedCommands: ['npm --prefix packages/main run build'],
+    allowedTools: ['shell'],
+    excludedCommands: ['omx'],
+    actor: 'scope-anti-expansion-smoke',
+  });
+
+  const failedFreezeOutput = scopeHandlers.scope_freeze_check({ storyId: replacementStoryId });
+  assert.match(failedFreezeOutput, /FAIL/);
+  const failedCheck = store.readScopeFreezeCheck(replacementStoryId);
+  assert.equal(failedCheck?.repeatDiscardOverlaps[0]?.previousStoryId, discardedStoryId);
+  assert.match(getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root) ?? '', /\[repeat_discarded_direction\]/);
+
+  const mitigatedOutput = scopeHandlers.scope_freeze_check({
+    storyId: replacementStoryId,
+    repeatDiscardMitigation: 'This retry narrows the background-only discarded direction to one INIT freeze regression.',
+  });
+  assert.match(mitigatedOutput, /PASS/);
+  assert.equal(getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root), null);
+
+  writeFileSync(store.storyFilePath(replacementStoryId, 'background.md'), backgroundDirectionOnly(updatedDirection), 'utf-8');
+  assert.match(
+    getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root) ?? '',
+    /\[scope_freeze_check_stale\]/,
+    'old passing freeze must go stale when background.md changes',
+  );
 });
 
 withTempStore('happy path passes with current boundary, freeze, and no pending proposals', (store) => {

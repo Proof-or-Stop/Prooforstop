@@ -51,6 +51,7 @@ export interface ScopeFreezeChecklistProjection {
 export interface ScopeFreezeStoryProjection {
   title?: string;
   description?: string;
+  background?: string;
 }
 
 export interface ScopeFreezeEvaluationInput {
@@ -188,6 +189,16 @@ function matchKey(value: string): string {
 
 function nonEmpty(value: string | undefined): value is string {
   return typeof value === 'string' && normalizeTerm(value).length > 0;
+}
+
+export function scopeFreezeBackgroundTerms(value: string | null | undefined): string[] {
+  const text = typeof value === 'string' ? value : undefined;
+  if (!nonEmpty(text)) return [];
+  const chunks = text
+    .split(/\n\s*\n/g)
+    .map(chunk => normalizeTerm(chunk))
+    .filter(chunk => chunk.length > 0);
+  return normalizeBoundaryArray([text, ...chunks]);
 }
 
 function digest(value: unknown): string {
@@ -380,8 +391,10 @@ function boundedTextSources(
   const sources: ScopeFreezeTextSource[] = [];
   const storyTitle = textSource('story.title', input.story?.title);
   const storyDescription = textSource('story.description', input.story?.description);
+  const storyBackground = textSource('story.background', input.story?.background);
   if (storyTitle) sources.push(storyTitle);
   if (storyDescription) sources.push(storyDescription);
+  if (storyBackground) sources.push(storyBackground);
   for (const item of input.checklist ?? []) {
     const title = textSource('checklist.title', item.title, { itemId: item.id });
     const context = textSource('checklist.context', item.context, { itemId: item.id });
@@ -433,6 +446,7 @@ function sourceTerms(input: ScopeFreezeEvaluationInput, boundary: ScopeBoundaryD
   const terms: string[] = [
     input.story?.title ?? '',
     input.story?.description ?? '',
+    ...scopeFreezeBackgroundTerms(input.story?.background),
     ...(boundary?.allowed ?? []),
   ];
   for (const item of input.checklist ?? []) {
@@ -584,6 +598,7 @@ function freezeFreshnessPayload(args: {
     story: {
       title: nonEmpty(args.story?.title) ? normalizeTerm(args.story.title) : undefined,
       description: nonEmpty(args.story?.description) ? normalizeTerm(args.story.description) : undefined,
+      background: nonEmpty(args.story?.background) ? normalizeTerm(args.story.background) : undefined,
     },
     checklist: (args.checklist ?? []).map(item => ({
       id: item.id,

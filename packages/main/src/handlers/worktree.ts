@@ -11,7 +11,7 @@ import {
   getScopeAntiExpansionGuardFailureReason,
   getStateName,
 } from '../core/machine.js';
-import { buildScopeDiscardDigestEntry, normalizeBoundaryArray } from '../core/scope-anti-expansion.js';
+import { buildScopeDiscardDigestEntry, normalizeBoundaryArray, scopeFreezeBackgroundTerms } from '../core/scope-anti-expansion.js';
 import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
@@ -570,6 +570,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     const terms: string[] = [
       story.title,
       story.description,
+      ...scopeFreezeBackgroundTerms(store.readStoryBackground(storyId)),
       ...(story.keywords ?? []),
     ];
     try {

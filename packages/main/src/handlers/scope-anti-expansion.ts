@@ -100,6 +100,7 @@ function projectStory(ctx: HandlerContext, storyId: string) {
   return {
     title: story.title,
     description: story.description,
+    background: ctx.store.readStoryBackground(storyId) ?? undefined,
   };
 }
 

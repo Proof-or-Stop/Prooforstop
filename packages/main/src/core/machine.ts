@@ -84,6 +84,7 @@ function projectScopeFreezeStory(store: StoryStore, storyId: string) {
   return {
     title: story.title,
     description: story.description,
+    background: store.readStoryBackground(storyId) ?? undefined,
   };
 }
 
