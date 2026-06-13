@@ -63,6 +63,22 @@
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ]
+    },
+    {
+      "id": "B-5773:F-005",
+      "desc": "CHK-005:edge:2 verificationEvidence is hollow: ok() is called with literal `true` (line 104 of verify-b5773.mjs). Intent requires that if no additional fragmented pairs beyond M004/M005 exist, the document explicitly states M004/M005 is the only identified case (absence documented, not silent). The verifier makes no assertion whatsoever about this documentation requirement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:41.690Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "0b7781b67cfa187ca2daa80f127db7e7c438dfc427d34aee3ab967d7ad2adf0f",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ]
     }
   ]
 }
