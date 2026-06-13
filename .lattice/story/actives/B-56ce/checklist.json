@@ -49,9 +49,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "validation-protocol smoke asserts timed-out validation remains status=fail and details include configured timeoutMs plus lattice.config.json validate.commands[].timeoutMs recovery guidance.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "validation-protocol smoke exercises non-timeout validation paths in the same executor without matching timeout-only diagnostics.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "validation-protocol smoke keeps timedOut true and status fail, proving the diagnostic text does not change pass/fail gate semantics.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         }
       ]
     },
@@ -126,9 +126,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "verification-freshness smoke asserts the shared EVIDENCE STALE block explains HEAD/material hash binding drift and prints lattice recovery commands.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,9 +137,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "verification-freshness smoke keeps renderEvidenceStaleHint empty when no stale evidence entries are present through existing no-stale coverage.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,9 +148,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "verification-freshness smoke asserts wording says hash binding changed and does not treat stale evidence as proof that verification logic failed.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         }
       ]
     },
@@ -203,9 +203,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "story-owner-lease smoke asserts session_brief/renderOwnershipBlock show same-worktree context-switch guidance when owner cwd equals current cwd but session id differs.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -214,9 +214,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "story-owner-lease smoke asserts different-cwd active foreign leases retain the existing read-only/wait/forceTakeover guidance without same-worktree text.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -225,9 +225,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "story-owner-lease smoke asserts same-worktree gate rejection includes recovery text but does not transfer or refresh the lease without explicit takeover.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         }
       ]
     },
@@ -280,9 +280,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "flow-stability smoke asserts the DONE oracle missing delivery-check hint names delivery_check_set and requires agentId=koala-review-delivery provenance.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -291,9 +291,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "flow-stability smoke preserves existing DONE oracle rows for delivery-check hash/source behavior while only strengthening missing-delivery guidance.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -302,9 +302,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "flow-stability smoke asserts fallback wording says the main agent must not self-sign and missing delivery-check remains a blocking DONE row.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         }
       ]
     },
@@ -357,9 +357,9 @@
           "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
           "result": "pass",
           "note": "legacy compatibility smoke asserts unsupported codex session_brief and aux_doc_list show the ordinary lattice command suggestion.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -368,9 +368,9 @@
           "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
           "result": "pass",
           "note": "legacy compatibility smoke preserves supported codex doctor adapter alias coverage while unsupported core commands stay rejected.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -379,9 +379,9 @@
           "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
           "result": "pass",
           "note": "legacy compatibility smoke proves the fix is a narrow diagnostic for known unsupported codex-prefixed core commands, not a broad second namespace.",
-          "headHash": "3c666115db437d2c061523d2b01cd2b0087fb9e3",
-          "materialHash": "617f3f6e6b99c79fff2a60e119e5cbedd8aaa7283c11305a4a8459a500ebf5e0",
-          "timestamp": "2026-06-13T10:37:43.253Z"
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
         }
       ]
     }
