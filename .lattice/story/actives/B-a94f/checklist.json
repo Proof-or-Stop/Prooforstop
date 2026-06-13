@@ -63,7 +63,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "运行 lattice authority_status --authorityMode=enforce --json 可以显示 Authority 连接配置已从默认 trust file 补齐；但 receiptVerified、productionDone、canClaimProductionDone 仍是 false，直到有真实 Authority receipt。",
+      "userSees": "用户运行 `lattice authority_status --authorityMode=enforce --json` 后能看到 readiness 字段补齐，同时仍看到：`\"receiptVerified\": false`、`\"productionDone\": false`、`\"canClaimProductionDone\": false`。",
       "files": {
         "modify": [
           "packages/main/src/core/authority-client.ts",
