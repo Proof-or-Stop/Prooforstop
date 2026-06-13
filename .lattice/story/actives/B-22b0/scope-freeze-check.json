@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-22b0",
+  "checkedAt": "2026-06-13T13:24:31.789Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "6b5540314ba086509a60e46aee3670cac60b9d91192b34d9305853c16e71da85",
+  "executionBoundaryHash": "3fd2d3a6b6070ec98c168c3fe3fb0ffd557c57baeb1fa87e415a68fd7147e9ab",
+  "freshnessHash": "5a1c7e2ca438497f7ad725f5afdd9763dabe92cfdc3cbe7376a9e6198505a836",
+  "effectiveExcludedKeywords": [
+    "Do not change product code unless a real correctness blocker in the Authority audit path requires it",
+    "Do not claim authorityDone/fullAuthorityDone/productionDone without verified receipt-backed proof",
+    "Do not modify unrelated B-8448 story or unrelated command-boundary document",
+    "Do not rewrite or mutate B-12f3 historical lifecycle evidence",
+    "Do not weaken local lifecycle gates or Authority gates"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change product code unless a real correctness blocker in the Authority audit path requires it",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change product code unless a real correctness blocker in the Authority audit path requires it",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not claim authorityDone/fullAuthorityDone/productionDone without verified receipt-backed proof",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim authorityDone/fullAuthorityDone/productionDone without verified receipt-backed proof",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify unrelated B-8448 story or unrelated command-boundary document",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify unrelated B-8448 story or unrelated command-boundary document",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rewrite or mutate B-12f3 historical lifecycle evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rewrite or mutate B-12f3 historical lifecycle evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not weaken local lifecycle gates or Authority gates",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not weaken local lifecycle gates or Authority gates",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f0c832bea81feb904ca3683aeb4673a37fa8d6a77e5d50e27d2a5ad40434cb84"
+}
