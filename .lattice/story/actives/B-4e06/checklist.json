@@ -204,8 +204,8 @@
       "excludes": [
         "Do not expand into unrelated docs navigation cleanup."
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-13T13:55:30.649Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -235,6 +235,18 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-13T13:55:30.649Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "User clarified that all core Lattice decision documents must require 3-round two-host verification before implementation/DONE.",
+      "agent": "main-agent"
     }
   ]
 }
