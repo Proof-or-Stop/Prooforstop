@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-13T10:57:27.947Z",
       "reviewRunId": "B-3cca:RR-006",
       "_hash": "ae497b944efb3092f6df953647ecbbdb6e8782f10669cfea758695f4893b3445"
+    },
+    {
+      "id": "B-3cca:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept pass after F-001/F-002 resolution: current-product CLI and hook diagnostics use Lattice/[lattice-hook] in source and dist; remaining koala tokens are compatibility/process contracts (KOALA_* env, koala.config legacy fallback, .koala legacy path, koala alias/reviewer lanes) covered by the focused branding smoke; docs/guide-hooks.md documents the new [lattice-hook] failure/timeout wording. npm --prefix packages/main run test:cli-engine-branding-smoke passed with all unclassified counts at 0.",
+      "createdAt": "2026-06-13T10:59:34.204Z",
+      "reviewRound": "2026-06-13T10:57:27.947Z",
+      "reviewRunId": "B-3cca:RR-004",
+      "_hash": "fc1927b24d55e348ecc564ed6ddae53590871ff6e0c99d3a3fbad6d91e246c86"
     }
   ]
 }
