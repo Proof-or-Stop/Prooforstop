@@ -157,6 +157,28 @@
           "headHash": "ba52b752ea3bbfead320d3baea95bd0a530d452f",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
           "timestamp": "2026-06-13T13:45:10.216Z"
+        },
+        {
+          "intentRef": "CHK-002:authority-proof-fail:status-policy",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3; lattice authority_enforce_policy --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
+          "result": "fail",
+          "note": "Independent failed proof transcript retained outside required intent refs: status/policy were attempted, policy discovery succeeded as discovery only, but authority_status still reports receiptVerified=false, productionDone=false, canClaimProductionDone=false, actorKeyConfigured=false, runnerConfigured=false, and authority_receipt_missing.",
+          "headHash": "5da6a74b35f4b35be19efdcaa9fc382670335a8e",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:48:05.209Z"
+        },
+        {
+          "intentRef": "CHK-002:authority-proof-fail:runner-done",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_enforce_runner --once --dryRun --json --authorityMode=enforce --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
+          "result": "fail",
+          "note": "Independent failed proof transcript retained outside required intent refs: autopilot authority DONE dry-run returns status=fail with receipt.provided=false, receipt.verified=false, authorityDone=false, fullAuthorityDone=false; runner dry-run fails because actor key and runner id are missing.",
+          "headHash": "5da6a74b35f4b35be19efdcaa9fc382670335a8e",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:48:05.209Z"
         }
       ]
     },
@@ -241,6 +263,17 @@
           "headHash": "ba52b752ea3bbfead320d3baea95bd0a530d452f",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
           "timestamp": "2026-06-13T13:45:10.216Z"
+        },
+        {
+          "intentRef": "CHK-003:authority-proof-fail:final-audit",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "lattice summary_get --storyId=B-22b0; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json",
+          "result": "fail",
+          "note": "Independent failed final proof transcript retained outside required intent refs: summary says B-12f3 Authority audit result is BLOCKED, not VERIFIED; no receipt id exists and authorityDone/fullAuthorityDone remain false.",
+          "headHash": "5da6a74b35f4b35be19efdcaa9fc382670335a8e",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:48:05.209Z"
         }
       ]
     }
