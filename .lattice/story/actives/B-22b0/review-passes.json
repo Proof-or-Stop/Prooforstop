@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T13:58:12.241Z",
       "reviewRunId": "B-22b0:RR-010",
       "_hash": "9f18ea9e2c3233558fd9217ba883734781fcfb9dcc9bd0cd014c6238e46354e8"
+    },
+    {
+      "id": "B-22b0:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept PASS after F-001/F-002/F-003 fixes: B-12f3 remains clearly classified as local Non-authority DONE while Authority receipt proof remains blocked (receiptVerified=false, productionDone=false, authorityDone/fullAuthorityDone not claimed). The final B-22b0 summary and evidence keep the blocked branch explicit and do not promote waivers or dry-run failures into Authority completion. The F-003 code change is narrowly scoped to read-only evidence_inspect JSON projection of result/verdict/note/waiverType, with smoke coverage preserving failed proof refs as result=fail and waivers as pass/permanent; no arbitrary Authority behavior or optimization was introduced.",
+      "createdAt": "2026-06-13T14:03:08.011Z",
+      "reviewRound": "2026-06-13T13:58:12.241Z",
+      "reviewRunId": "B-22b0:RR-009",
+      "_hash": "91863f13bcc76fe55f1bf148b1241d63c2d70d7713e2484845736faf14d8f230"
     }
   ]
 }
