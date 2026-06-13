@@ -206,7 +206,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Implementation changes add or update the documented repair command, diagnostics, and gitRoot bootstrap behavior in the relevant requirements/story lifecycle docs, then npm --prefix packages/main run build exposes the new command through tracked dist/global-runtime path; WHY: ensures users get the behavior described by the truth source after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Only implementation-relevant docs and generated build outputs change -> review confirms no unrelated docs navigation cleanup, broad prose churn, or fixture/story JSON edits were introduced; WHY: keeps this repair story narrow and auditable.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The global or built CLI path is checked after build with the new command help plus lattice checklist_update --help -> both exit zero; WHY: proves the shipped runtime, not only TypeScript sources, exposes the repair path and preserves the excluded P3 health check.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "sourceManifestDigest help failure is not reproduced during verification -> implementation does not change sourceManifestDigest exports/imports under this story and any reproduced failure is recorded as a separate defect instead of silently expanding scope; WHY: enforces the documented exclusion and prevents scope creep.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
