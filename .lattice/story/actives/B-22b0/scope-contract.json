@@ -1,0 +1,29 @@
+{
+  "storyId": "B-22b0",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/story/actives/B-22b0/checklist.json",
+    ".lattice/story/actives/B-22b0/process-events.jsonl"
+  ],
+  "allowedCreate": [
+    ".lattice/story/actives/B-22b0/summary.json",
+    ".lattice/story/actives/B-22b0/delivery-check.json"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "authority_trust.env",
+    ".lattice/story/actives/B-12f3/**",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "authority_trust.env",
+    ".lattice/story/actives/B-12f3/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "scopeChangeReason": "B-22b0 is an Authority audit only: allow B-22b0 metadata/summary/delivery evidence, protect B-12f3 history and Authority secrets.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T13:35:59.545Z",
+  "updatedAt": "2026-06-13T13:35:59.545Z"
+}
