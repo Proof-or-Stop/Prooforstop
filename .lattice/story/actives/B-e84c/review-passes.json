@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T13:43:10.955Z",
       "reviewRunId": "B-e84c:RR-007",
       "_hash": "5eb1beaa83ce8725ae3441dde7875e0354cde6d7794686ba378593b2af730f2e"
+    },
+    {
+      "id": "B-e84c:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: document scope is limited to the command-boundary execution plan and NAV update; prose consistently separates host-neutral workflow commands from Codex adapter diagnostics, preserves fail-closed behavior, names residual non-document cleanup without claiming it is done, and includes a no-overclaim boundary. Fresh reviewer checks confirmed forbidden node bin/lattice.js codex session_brief --help and aux_doc_list --help fail closed with ordinary replacements, allowed node bin/lattice-codex.js codex_doctor/verify_codex help resolves, NAV count is 49 with the new decision entry, and forbidden-guidance hits are limited to smoke-test assertions.",
+      "createdAt": "2026-06-13T13:46:15.252Z",
+      "reviewRound": "2026-06-13T13:43:10.955Z",
+      "reviewRunId": "B-e84c:RR-006",
+      "_hash": "b2351d04a7d1e24dad4e1138e32e5d0ae4266ea80f1a807fa42cfd435c8963ab"
     }
   ]
 }
