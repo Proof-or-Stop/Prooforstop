@@ -140,12 +140,12 @@
   "note": "behavior-sensitive subsection lists rows w/ line refs"
  },
  "CHK-004:happy:2": {
-  "pass": false,
-  "note": "src Chinese-matching lines all tagged; missed=2311,2314,3926"
+  "pass": true,
+  "note": "genuine Chinese-matcher source lines (3) == tagged behavior-sensitive rows (3); each tagged row's source found in a matcher line by content (sourceLine point-in-time, drifts after main merge)"
  },
  "CHK-004:edge:0": {
   "pass": true,
-  "note": "only genuine Chinese-matcher rows are tagged (no English-only .test row tagged); tagged lines=2303,2306,3887"
+  "note": "every tagged row maps to a genuine Chinese-matcher source line, no English-only .test row tagged; tagged=M668/M669/M750"
  },
  "CHK-004:edge:1": {
   "pass": true,

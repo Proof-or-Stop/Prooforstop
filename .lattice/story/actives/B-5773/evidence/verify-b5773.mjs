@@ -96,11 +96,16 @@ ok('CHK-004:happy:0', ['M668','M669'].every(id=>mById[id]&&mById[id].status==='b
 ok('CHK-004:happy:1', behav.length>0 && /cli-engine\.ts/.test(behav) && bsRows.every(r=>behav.includes(r.id)), 'behavior-sensitive subsection lists rows w/ line refs');
 // scan src for regex/.test/.match over Chinese
 const src=fs.readFileSync(SRC,'utf8').split('\n');
-const srcBs=src.map((l,i)=>({n:i+1,l})).filter(o=>/\.(test|match|includes|startsWith|indexOf)\([^)]*[㐀-鿿]|\/[^\/\n]*[㐀-鿿][^\/\n]*\/[a-z]*\.test/.test(o.l));
-const taggedLines=bsRows.map(r=>r.line);
-const missed=srcBs.filter(o=>!taggedLines.includes(o.n));
-ok('CHK-004:happy:2', missed.length===0, `src Chinese-matching lines all tagged; missed=${missed.map(o=>o.n).join(',')||'none'}`);
-ok('CHK-004:edge:0', bsRows.length>0 && bsRows.every(r=>chineseMatcherLines.includes(r.line)), `only genuine Chinese-matcher rows are tagged (no English-only .test row tagged); tagged lines=${bsRows.map(r=>r.line).join(',')}`);
+const MATCHER=/\.(test|match|includes|startsWith|indexOf)\([^)]*[㐀-鿿]|\/[^\/\n]*[㐀-鿿][^\/\n]*\/[a-z]*\.test/;
+const ROWMATCHER=/\.(test|match|includes|startsWith|indexOf)\(|\/[^\/\n]*[㐀-鿿][^\/\n]*\//;
+const srcMatchers=src.filter(l=>MATCHER.test(l));
+const norm2=s=>(s||'').replace(/\s+/g,'');
+// content-based: every tagged row's chineseSource appears inside a genuine Chinese-matcher source line
+// (a row's cn may be the full matcher expression, e.g. M668/M669, or just the Chinese string used in a matcher, e.g. M750 .includes('...')).
+const bsCovered=bsRows.length>0 && bsRows.every(r=>srcMatchers.some(line=>line.includes(r.cn)||norm2(line).includes(norm2(r.cn))));
+// sourceLine is point-in-time (doc: regenerate before implementing) and drifts after a main merge, so we do NOT compare live line numbers.
+ok('CHK-004:happy:2', srcMatchers.length===bsRows.length && bsCovered, `genuine Chinese-matcher source lines (${srcMatchers.length}) == tagged behavior-sensitive rows (${bsRows.length}); each tagged row's source found in a matcher line by content (sourceLine point-in-time, drifts after main merge)`);
+ok('CHK-004:edge:0', bsCovered, `every tagged row maps to a genuine Chinese-matcher source line, no English-only .test row tagged; tagged=${bsRows.map(r=>r.id).join('/')}`);
 ok('CHK-004:edge:1', bsRows.length>=2, `all ${bsRows.length} bs rows listed`);
 ok('CHK-004:edge:2', bsRows.every(r=>/test|match|includes|\/.*\//.test(r.en)||CJK.test(r.cn)), 'bs rows retain code form (not prose-swept)');
 ok('CHK-004:adversarial:0', bsRows.every(r=>r.status==='behavior-sensitive'), 'tag present guards rows');
