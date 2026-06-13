@@ -24,7 +24,7 @@
       "desc": "CHK-002:happy:1 — validate-side legacy hint path (decorateStoryVerification in verifier.ts) is not integration-tested. The evidence ref points at verification-intent-repair-smoke.ts, which only calls detectLegacyEvidenceWithoutIntent as a pure function. No test constructs a story with verificationEvidence refs but no verificationIntent, runs lattice validate against it, and asserts (a) the result is still failing and (b) the legacyEvidenceWithoutIntent hint with the repair command appears in details/legacyEvidenceWithoutIntent response fields. The validate-side wiring added in verifier.ts lines 338-383 has no end-to-end smoke coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T18:32:45.852Z",
@@ -34,7 +34,9 @@
       "files": [
         "packages/main/src/handlers/verifier.ts",
         "packages/main/src/tasks/verification-intent-repair-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Same integration check calls validate --json and asserts response.legacyEvidenceWithoutIntent names CHK-001 happy (decorateStoryVerification path); commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:32.906Z"
     },
     {
       "id": "B-4e06:F-003",
