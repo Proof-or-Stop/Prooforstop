@@ -208,6 +208,17 @@
           "headHash": "968036b990600b6ad8dedd06a8f5e463df544015",
           "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
           "timestamp": "2026-06-13T10:42:09.494Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
+          "result": "pass",
+          "note": "dist/cli-engine.js scanned: unclassified=0; dist file exists and was built from src changes in this session (commit 259976fb2)",
+          "headHash": "9ebd93b3e30c56b738a103d6c521c8f0a03b39ae",
+          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
+          "timestamp": "2026-06-13T10:42:16.449Z"
         }
       ]
     },
