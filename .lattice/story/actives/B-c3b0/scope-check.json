@@ -1,0 +1,80 @@
+{
+  "storyId": "B-c3b0",
+  "checkedAt": "2026-06-13T12:01:53.662Z",
+  "features": [
+    {
+      "feature": "DONE merge rebuild hook triggers packages/main build only after a successful post-DONE merge when CLI runtime inputs changed",
+      "covered_by": "CHK-001 title/context; understanding task/outcome; decision chosen option B; plan Execution Boundary Do",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, understanding_get, decision_get, plan_get"
+    },
+    {
+      "feature": "Changed-path predicate covers watched runtime inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json",
+      "covered_by": "CHK-001 happy/adversarial intents; CHK-003 happy intent; plan CHK-001 implementation approach; decision preMortem missed runtime input mitigation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, decision_get, plan_get"
+    },
+    {
+      "feature": "Docs-only and unrelated-path DONE merges skip the packages/main rebuild and avoid stale-dist warnings",
+      "covered_by": "CHK-001 edge intent; CHK-002 edge intent; CHK-003 edge intent; plan Do not make docs-only stories run package builds",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, plan_get"
+    },
+    {
+      "feature": "Successful post-merge build reports that packages/main build/dist was refreshed before DONE completes",
+      "covered_by": "CHK-001 happy intent; CHK-002 happy intent; understanding outcome; plan CHK-001 verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, understanding_get, plan_get"
+    },
+    {
+      "feature": "Failed post-merge build fails visibly with failed command/output, stale-dist warning, and recovery command npm --prefix packages/main run build",
+      "covered_by": "CHK-002 adversarial intent; understanding constraints failure guidance; decision preMortem post-merge build failure mitigation; plan CHK-002 implementation/verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, understanding_get, decision_get, plan_get"
+    },
+    {
+      "feature": "Smoke coverage exercises trigger, skip, success, and non-zero failure branches using stubs instead of real npm install/build, remote operations, or global npm state",
+      "covered_by": "CHK-003 happy/edge/adversarial intents; plan CHK-003 implementation/verification; decision preMortem smoke brittleness mitigation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, decision_get, plan_get"
+    },
+    {
+      "feature": "Remote push, release approval, npm publish, and global package installation policy changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Requested scope is post-DONE merge packages/main rebuild trigger/failure reporting/smoke coverage only; plan Execution Boundary Do not; understanding constraints",
+      "source": "understanding_get, plan_get"
+    },
+    {
+      "feature": "Unrelated DONE gates, Authority gates, worktree cleanup, story lifecycle phases, or broad lifecycle refactors",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Requested scope is narrow; plan Execution Boundary Do not; plan STOP condition for broad lifecycle refactor",
+      "source": "plan_get"
+    },
+    {
+      "feature": "Unconditional package builds for docs-only stories",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 edge intent requires skip; plan Execution Boundary Do not; decision rejects unconditional rebuild option A",
+      "source": "checklist_get, decision_get, plan_get"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 6,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2dbb3752bcfad8fe3190ba6cecac88d195a256a7815e2629205239d8319ed548",
+  "openQuestions": []
+}
