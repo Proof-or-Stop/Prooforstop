@@ -1,0 +1,54 @@
+{
+  "storyId": "B-2c0c",
+  "checkedAt": "2026-06-13T22:35:31.119Z",
+  "reviewRound": "2026-06-13T22:27:08.733Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "promise": "Changed decision docs require a local DONE quorum: 3 distinct review rounds, at least 2 distinct PASSing hosts per round, current material digest, and duplicate-host, stale-digest, non-pass, prose-only, or unrelated verdict events do not count.",
+      "status": "verified",
+      "verifiedBy": "source diff + node packages/main/dist/cli.js decision_doc_quorum_check + npm --prefix packages/main run test:decision-doc-quorum-smoke",
+      "evidence": "core/machine.ts calls evaluateDecisionDocQuorum before DONE; decision_doc_quorum_check for B-2c0c reports materialDigest 2cdbd054... with decision-doc-fresh-round-1/2/3 each at 2 hosts; smoke passed 6 checks covering no-change, valid quorum, duplicate host, duplicate run, stale/prose-only, and non-pass decisions."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "promise": "autopilot_review_submit records local host_verdict workflow evidence consumed by the local quorum gate, while decision_doc_quorum_check remains read-only; neither command may imply Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone.",
+      "status": "verified",
+      "verifiedBy": "source diff + process fact contract + evidence_inspect",
+      "evidence": "command-policy marks autopilot_review_submit as L4 gateEvidence reviewerWrite for local decision-doc quorum and decision_doc_quorum_check as readOnly L0; node scripts/verify-process-fact-contract.mjs passed; evidence_inspect reports authorityChanged=false and productionDone=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Lifecycle docs expose decision-doc quorum as a DONE rule and list decision_doc_quorum_check as a read-only diagnostic, not Authority receipt completion.",
+      "status": "verified",
+      "verifiedBy": "docs diff + CLI transcript + process fact contract",
+      "evidence": "story-lifecycle diff adds the DONE evidence rule and command table row; node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c prints Decision-doc quorum: pass; process fact contract verifies read-only command and L4 host-verdict gate semantics."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:decision-doc-quorum-smoke passed 6 checks: no decision-doc changes not applicable, valid 3-round/2-host fresh-digest quorum passes, duplicate hosts fail a round, duplicate run ids count as one round, stale digest/prose-only events are ignored, and non-pass decisions do not count. machine.ts consumes evaluateDecisionDocQuorum in canFinishGuard and DONE failure reason."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c reports Decision-doc quorum: pass, materialDigest 2cdbd05456e9596f0f7b20fe740fe2e6d945f26ffa944abcffd456817e23b82c, and valid rounds decision-doc-fresh-round-1/2/3 with 2 hosts each. JSON output also lists stale old-digest host_verdict events and prose review_pass events as ignored, not counted."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Focused smoke test and node scripts/verify-process-fact-contract.mjs both passed. The smoke suite covers pass, not-applicable, insufficient/duplicate host, insufficient/duplicate round, stale digest, prose-only, and non-pass paths; the contract check reports autopilot_review_submit as L4 host-verdict gate evidence and decision_doc_quorum_check as L0 read-only."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Docs diff, command policy, process fact levels, process fact registry, and verify-process-fact-contract were reverse-scanned. The verifier passed and registry output includes autopilot_review_submit [L4/host-verdict] gate=story_advance DONE local decision-doc quorum gate, with decision_doc_quorum_check [L0/command]. evidence_inspect is fresh with staleRefs=0, receiptRefs=0 unverified, authorityChanged=false, productionDone=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scanned main...HEAD excluding prohibited story/fixture dirs. Docs promises are delivered by source-level DONE guard consumption, read-only CLI diagnostics, L4 host_verdict process fact registration, focused smoke coverage, and fresh validation/evidence. Local decision-doc quorum is treated only as local DONE gate evidence; it is not Authority receipt completion and does not imply authorityDone, fullAuthorityDone, or productionDone. The only remaining DONE pre-check item outside delivery is branch sync with main, which session_brief says story_advance DONE will handle/require separately."
+  },
+  "_hash": "80ea79c4ad28c9be8af3021d3819ae708ce445068bb902f54a19f51f46280639"
+}
