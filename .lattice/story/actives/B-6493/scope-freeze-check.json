@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6493",
+  "checkedAt": "2026-06-13T15:37:18.871Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "1cb81f9773228113a8fc4fdce55a067ee957304065686f978c01d2c79008a79a",
+  "executionBoundaryHash": "26a27a2804782ee787f56ace6127c263275485f655b14ed4ddc75d590a666a98",
+  "freshnessHash": "f6f1c36e48228bddf091e2950a3d591005324452a8802203e545a7d1fd2516ba",
+  "effectiveExcludedKeywords": [
+    "Adding the field to HandoffPackHashInput or computeHandoffPackHash (packHash must stay stable)",
+    "Any authority mutation / productionDone / receipt behavior",
+    "Changing recoveryPoint.phase semantics",
+    "Changing resolveStoryAuthority itself",
+    "handoff_accept / handoff_resume projection semantics"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding the field to HandoffPackHashInput or computeHandoffPackHash (packHash must stay stable)",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding the field to HandoffPackHashInput or computeHandoffPackHash (packHash must stay stable)",
+      "excluded": true
+    },
+    {
+      "keyword": "Any authority mutation / productionDone / receipt behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Any authority mutation / productionDone / receipt behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing recoveryPoint.phase semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing recoveryPoint.phase semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing resolveStoryAuthority itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing resolveStoryAuthority itself",
+      "excluded": true
+    },
+    {
+      "keyword": "handoff_accept / handoff_resume projection semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "handoff_accept / handoff_resume projection semantics",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "d2646b9fd6406b66693e2e8c0973a707bd83f32469e6b2ca3865355775ffbbe0"
+}
