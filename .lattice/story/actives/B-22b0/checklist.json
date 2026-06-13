@@ -319,7 +319,42 @@
       },
       "status": "in_progress",
       "startTime": "2026-06-13T13:52:25.496Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/lattice-evidence-smoke.js; node --input-type=module -e <B-22b0 evidence_inspect JSON semantic assertion>",
+          "result": "pass",
+          "note": "Build passed and lattice-evidence-smoke now asserts evidence_inspect JSON carries verificationEvidence result, verdict, note, and waiverType. The B-22b0 story projection check also found CHK-002:authority-proof-fail:status-policy with result=fail, verdict=blocked_classified, and a note.",
+          "headHash": "7158a1ca64bfb3c349a6b22ac2d90774a9975f14",
+          "materialHash": "e8aed5f73841a0098382ff1c9f0ddf30370b8b657166d6de46b85c99ac7ab1b5",
+          "timestamp": "2026-06-13T13:55:11.842Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/lattice-evidence-smoke.js; node --input-type=module -e <B-22b0 evidence_inspect JSON semantic assertion>",
+          "result": "pass",
+          "note": "Targeted smoke seeds a custom failed proof ref with result=fail/verdict=blocked_classified/note and a waiver ref with kind=waiver/result=pass/waiverType=permanent; the real B-22b0 JSON projection preserves the same distinction for failed Authority proof and waiver refs.",
+          "headHash": "7158a1ca64bfb3c349a6b22ac2d90774a9975f14",
+          "materialHash": "e8aed5f73841a0098382ff1c9f0ddf30370b8b657166d6de46b85c99ac7ab1b5",
+          "timestamp": "2026-06-13T13:55:11.842Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "audit_only",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/lattice-evidence-smoke.js; node --input-type=module -e <B-22b0 evidence_inspect JSON semantic assertion>",
+          "result": "pass",
+          "note": "The fix only extends the read-only evidence projection. Smoke assertions continue to require authorityChanged=false, productionDone=false, receiptRefsVerified=false, and guidance-only refresh behavior; no receipts are minted and blocked proof is not converted into passing Authority proof.",
+          "headHash": "7158a1ca64bfb3c349a6b22ac2d90774a9975f14",
+          "materialHash": "e8aed5f73841a0098382ff1c9f0ddf30370b8b657166d6de46b85c99ac7ab1b5",
+          "timestamp": "2026-06-13T13:55:11.842Z"
+        }
+      ]
     }
   ]
 }
