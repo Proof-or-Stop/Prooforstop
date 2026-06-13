@@ -125,6 +125,16 @@
           "headHash": "3e42f7810aa29d57ab21704982cdd780c74e9349",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:22:39.219Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js scope_check_save --help | rg -n \"reviewer-written PLAN scope evidence|scope-check\\\\.json|story_review|koala-review-scope-plan|scope-plan reviewers\"",
+          "result": "pass",
+          "note": "scope_check_save help clarifies reviewer-written PLAN scope evidence consumed by story_review without changing schema.",
+          "headHash": "419144dbce725516aadbe6692dbf40c807c04178",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:43.889Z"
         }
       ]
     },
