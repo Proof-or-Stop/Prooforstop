@@ -10,7 +10,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "When a validate command times out, terminal output includes a line like `✗ timeout: node -e ... (timed out after 100ms)` plus `Timeout diagnostic: command was killed by the configured timeout; increase lattice.config.json validate.commands[].timeoutMs if the command is legitimately long-running`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A timed-out validation command remains a failed validation and prints the timeout duration plus timeoutMs recovery guidance.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A non-timeout failing validation command does not print timeout-specific recovery guidance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Timeout diagnostic text does not change allPass/status or mark required timeout failures as optional warnings.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

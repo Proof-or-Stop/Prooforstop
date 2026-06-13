@@ -1,0 +1,33 @@
+{
+  "task": "Improve operator recovery diagnostics for verified Lattice CLI flow failures without weakening lifecycle gates.",
+  "outcome": "A user who hits these failures sees concrete terminal guidance: validate timeout output names the killed timeout and timeoutMs knob; stale evidence says hash binding changed and prints lattice recovery commands; same-worktree owner lease blocks explain the safer takeover path; missing delivery-check explains the compliant reviewer-provenance fallback; lattice codex session_brief points to lattice session_brief instead of unrelated Codex adapter commands.",
+  "facts": [
+    "executeValidationPlan currently marks timedOut but renders only a short timed out suffix.",
+    "renderEvidenceStaleHint is shared by session_brief/story_advance/validate hints but still prints koala commands and omits the hash-binding explanation.",
+    "Owner lease blocks are enforced centrally; active foreign leases currently point only to read-only/wait/forceTakeover without same-worktree context guidance.",
+    "DONE oracle correctly requires delivery-check.json and currently says to run koala-review-delivery plus delivery_check_set.",
+    "CLI alias map supports lattice codex verify/doctor; lattice codex session_brief currently fails as unknown command codex and suggests verify_codex/codex_doctor only."
+  ],
+  "constraints": [
+    "Do not weaken validation, owner lease, stale evidence, or DONE delivery-check gates.",
+    "Do not let the main agent forge koala-review-delivery authority.",
+    "Keep behavior host-neutral across Codex, Claude, and local shell invocation.",
+    "Only fix real recovery correctness issues; avoid broad command namespace redesign or arbitrary optimization.",
+    "Use existing Lattice command and smoke-test patterns."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/evidence-stale-hint.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts"
+  ],
+  "timestamp": "2026-06-13T10:08:24.991Z"
+}
