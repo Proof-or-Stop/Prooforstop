@@ -11,6 +11,13 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { authorityModeEnabled } from '../core/authority-mode.js';
 import { createAuthoritySubmitter, resolveAuthoritySettings } from '../core/authority-submit.js';
+import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
+import type { ScopeFreezeTextSource } from '../core/types.js';
+
+const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
+  'koala-review-story-init',
+  'product-reviewer',
+]);
 
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
@@ -37,6 +44,72 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
   const story = store.readStory(storyId);
   assertCwdInWorktree(store, storyId);
   return story;
+}
+
+function checklistActorFrom(args: { agent?: string; actor?: string }): string {
+  const explicit = args.agent?.trim() || args.actor?.trim();
+  if (explicit) return explicit;
+  return process.env.KOALA_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+}
+
+function isInitReviewerChecklistActor(actor: string): boolean {
+  return INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS.has(actor.trim());
+}
+
+function assertInitReviewerChecklistMutationAllowed(args: {
+  story: StoryInfo;
+  command: 'checklist_add' | 'checklist_update';
+  actor: string;
+  mutatesDefinition: boolean;
+}): void {
+  if (args.story.phase !== 'INIT') return;
+  if (!args.mutatesDefinition) return;
+  if (!isInitReviewerChecklistActor(args.actor)) return;
+  throw new Error(
+    `${args.command} refused: INIT reviewer lane "${args.actor}" cannot directly modify checklist title/context/excludes in INIT. [init_reviewer_checklist_mutation_blocked]\n` +
+    `→ Record requested expansion with scope_extension_proposal; the main agent may then accept/reject via scope_extension_decide and rerun scope_freeze_check.`,
+  );
+}
+
+function assertChecklistScopeChangeAllowed(
+  store: HandlerContext['store'],
+  storyId: string,
+  change: { itemId?: string; title?: string; context?: string; excludes?: string[] },
+): void {
+  const explicitExcludes = normalizeBoundaryArray(change.excludes);
+  let scopeBoundary;
+  try {
+    scopeBoundary = store.readScopeBoundary(storyId);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Cannot update checklist: scope-boundary.json could not be read. [scope_boundary_unreadable]\n  - ${msg}`);
+  }
+
+  const keywords = normalizeBoundaryArray([
+    ...effectiveExcludedKeywords(scopeBoundary, scopeBoundary?.mode ?? 'custom'),
+    ...explicitExcludes,
+  ]);
+  if (keywords.length === 0) return;
+
+  const sources: ScopeFreezeTextSource[] = [];
+  if (change.title !== undefined) {
+    sources.push({ source: 'checklist.title', text: change.title, ...(change.itemId ? { itemId: change.itemId } : {}) });
+  }
+  if (change.context !== undefined) {
+    sources.push({ source: 'checklist.context', text: change.context, ...(change.itemId ? { itemId: change.itemId } : {}) });
+  }
+  for (const excluded of explicitExcludes) {
+    sources.push({ source: 'checklist.excludes', text: excluded, ...(change.itemId ? { itemId: change.itemId } : {}), excluded: true });
+  }
+  if (sources.length === 0) return;
+
+  const hit = scanExcludedKeywordHits(sources, keywords).find(item => !item.excluded);
+  if (!hit) return;
+  const itemRef = hit.itemId ? ` (${hit.itemId})` : '';
+  throw new Error(
+    `checklist change includes excluded scope keyword "${hit.keyword}" in ${hit.source}${itemRef}. [excluded_keyword_in_checklist]\n` +
+    `→ Keep excluded directions in excludes, or route expansion through scope_extension_proposal and explicit scope_extension_decide.`,
+  );
 }
 
 function evidenceHashes(root: string): { headHash?: string; materialHash?: string } {
@@ -92,6 +165,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       files?: { modify: string[]; create: string[]; test: string[] };
       verificationIntent?: VerificationIntent;
       reason?: string;
+      agent?: string;
+      actor?: string;
     }): string {
       if (!args.title) throw new Error('title is required');
 
@@ -100,6 +175,17 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (story.phase === 'PLAN' && (!args.reason || args.reason.trim().length < 10)) {
         throw new Error('checklist_add in PLAN phase must provide reason ≥ 10 characters as a replan/scope audit signal, to prevent bypassing title/context freeze');
       }
+      assertInitReviewerChecklistMutationAllowed({
+        story,
+        command: 'checklist_add',
+        actor: checklistActorFrom(args),
+        mutatesDefinition: true,
+      });
+      assertChecklistScopeChangeAllowed(store, args.storyId, {
+        title: args.title,
+        context: args.context,
+        excludes: args.excludes,
+      });
 
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
@@ -258,15 +344,17 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       context?: string;
       relatedDocs?: string[];
       userSees?: string;
+      excludes?: string[];
       files?: { modify: string[]; create: string[]; test: string[] };
       verificationIntent?: VerificationIntent;
       verificationEvidence?: VerificationEvidenceInput[];
       reason?: string;
       agent?: string;
+      actor?: string;
       success?: boolean;
     }): string {
-      if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
-        throw new Error('At least one of status/title/context/relatedDocs/userSees/files/verificationIntent/verificationEvidence must be provided');
+      if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
+        throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
       }
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -284,6 +372,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const verificationIntentProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
 
       const attemptedTitleContext = titleContextFields.filter(f => args[f] !== undefined);
+      assertInitReviewerChecklistMutationAllowed({
+        story,
+        command: 'checklist_update',
+        actor: checklistActorFrom(args),
+        mutatesDefinition: attemptedTitleContext.length > 0 || args.excludes !== undefined,
+      });
       if (attemptedTitleContext.length > 0 && titleContextProtectedPhases.includes(story.phase)) {
         throw new Error(
           `${attemptedTitleContext.join('/')} of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +
@@ -309,6 +403,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      assertChecklistScopeChangeAllowed(store, args.storyId, {
+        title: args.title ?? (args.excludes !== undefined ? item.title : undefined),
+        context: args.context ?? (args.excludes !== undefined ? item.context : undefined),
+        excludes: args.excludes ?? item.excludes,
+        itemId: args.itemId,
+      });
 
       const results: string[] = [];
       const now = new Date().toISOString();
@@ -329,6 +429,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (args.userSees !== undefined) {
         item.userSees = args.userSees;
         results.push(`userSees updated`);
+      }
+      if (args.excludes !== undefined) {
+        item.excludes = args.excludes;
+        results.push(`excludes updated (${args.excludes.length})`);
       }
       if (args.files !== undefined) {
         item.files = {

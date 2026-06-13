@@ -277,6 +277,16 @@ const storyTypeSchema = z.preprocess((value) => {
   return value;
 }, z.enum(['feature','bug','refactor','chore']));
 
+function hasNonEmptyStringArray(value: unknown): boolean {
+  return Array.isArray(value) && value.some(item => typeof item === 'string' && item.trim().length > 0);
+}
+
+function hasAnyNonEmptyStringArray(value: unknown, fields: string[]): boolean {
+  if (value === null || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  return fields.some(field => hasNonEmptyStringArray(record[field]));
+}
+
 /** main 自带的 CLI 工具定义 */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -290,11 +300,38 @@ export const MAIN_TOOLS: ToolDef[] = [
     depends: z.array(z.string()).optional().describe('依赖 Story ID'),
     keywords: z.array(z.string()).optional().describe('关键词（领域/模块/概念，用于查重）'),
     checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), userSees: z.string().optional().describe('用户可见输出'), excludes: z.array(z.string()).optional().describe('显式声明不做的功能点'), verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图') })).optional().describe('开发清单'),
+    scopeBoundary: z.object({
+      mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode；correctness_fix 会启用默认 future denylist'),
+      allowed: z.array(z.string().min(1)).optional().describe('用户确认允许做的 scope 条目'),
+      allowedScope: z.array(z.string().min(1)).optional().describe('allowed 的兼容别名'),
+      excluded: z.array(z.string().min(1)).optional().describe('用户确认排除/不做的 scope 条目'),
+      excludedScope: z.array(z.string().min(1)).optional().describe('excluded 的兼容别名'),
+      userConfirmed: z.boolean().describe('必须为 true：确认这是用户确认过的 INIT scope 边界'),
+      confirmation: z.string().optional().describe('确认说明或来源摘录'),
+      actor: z.string().optional().describe('记录者；默认 story_create'),
+    }).refine(
+      value => hasAnyNonEmptyStringArray(value, ['allowed', 'allowedScope']),
+      { message: 'scopeBoundary requires at least one allowed/allowedScope entry' },
+    ).optional().describe('可选：story_create 同步写入 scope-boundary.json；缺省时需 INIT 阶段运行 scope_boundary_set'),
+    executionBoundary: z.object({
+      allowedCommands: z.array(z.string().min(1)).optional().describe('允许执行或验证的命令模式'),
+      allowedTools: z.array(z.string().min(1)).optional().describe('允许使用的工具/adapter 名称'),
+      allowedPaths: z.array(z.string().min(1)).optional().describe('允许访问的相对路径；拒绝 absolute / .. traversal'),
+      excludedCommands: z.array(z.string().min(1)).optional().describe('明确禁止的命令模式'),
+      excludedTools: z.array(z.string().min(1)).optional().describe('明确禁止使用的工具/adapter 名称'),
+      excludedPaths: z.array(z.string().min(1)).optional().describe('明确禁止访问的相对路径；拒绝 absolute / .. traversal'),
+      blockedPaths: z.array(z.string().min(1)).optional().describe('excludedPaths 的兼容别名'),
+      confirmation: z.string().optional().describe('执行边界确认说明'),
+      actor: z.string().optional().describe('记录者；默认 story_create'),
+    }).refine(
+      value => hasAnyNonEmptyStringArray(value, ['allowedCommands', 'allowedTools', 'allowedPaths', 'excludedCommands', 'excludedTools', 'excludedPaths', 'blockedPaths']),
+      { message: 'executionBoundary requires at least one allowed/excluded command, tool, or path entry' },
+    ).optional().describe('可选：story_create 同步写入 execution-boundary.json；缺省时需 INIT 阶段运行 execution_boundary_set'),
     prefix: z.string().optional().describe('ID 前缀(默认 B)'),
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
     forceNew: z.boolean().optional().describe('B-0af4: 绕过同名 story idempotency 强制新建（同名未完成 story 默认会被复用）'),
     background: z.string().optional().describe('B-45ed CHK-006: 四段式 background.md 内容。需含 "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理" 4 段，每段 ≥ 50 字符，总长 ≥ 300，触发事件段须含具体编号（B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD）。fromDraft 模式下不需要'),
-    fromDraft: z.string().optional().describe('B-9975: 从已审查的 draft 创建 story（传 draft name）。三层 gate 校验后直接进 INIT_CHECK'),
+    fromDraft: z.string().optional().describe('B-9975: 从已审查的 draft 创建 story（传 draft name）。保守停在 INIT，再走正常 INIT_CHECK gates'),
   }},
   { name: 'story_advance', description: '推进 Story 到下一阶段', longHelp: STORY_ADVANCE_LONG, schema: {
     storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('目标阶段'),
@@ -305,6 +342,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_update', description: '编辑 Story 信息', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
     description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
+    agent: z.string().optional().describe('操作者；INIT reviewer lane 不可直接改 story-level scope 字段'),
+    actor: z.string().optional().describe('操作者别名；INIT reviewer lane 不可直接改 story-level scope 字段'),
   }},
   { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index') }},
   { name: 'story_list', description: '列出全部 Story', schema: {
@@ -385,6 +424,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明，story_review 做 touchpoints→files 覆盖校验）'),
     verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（PLAN 阶段）'),
     reason: z.string().optional().describe('PLAN 阶段追加 item 时必须提供的 replan/scope audit 理由（≥10 字符）'),
+    agent: z.string().optional().describe('操作者/agent lane；INIT reviewer lane 不可直接改需求定义'),
+    actor: z.string().optional().describe('操作者别名；INIT reviewer lane 不可直接改需求定义'),
   }},
   { name: 'checklist_remove', description: '从 story 中移除一个 checklist item（必须给出裁决 + 理由）', schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('要移除的项 ID'),
@@ -398,6 +439,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     context: z.string().optional().describe('新 context（PLAN 起冻结）'),
     relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
     userSees: z.string().optional().describe('用户完成此 item 后在终端/UI 看到的具体文本（PLAN 之前可写，DEV 起冻结）'),
+    excludes: z.array(z.string()).optional().describe('显式声明不做的功能点；INIT reviewer lane 不可直接修改'),
     files: z.object({
       modify: z.array(z.string()),
       create: z.array(z.string()),
@@ -406,6 +448,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（DEV 起冻结）'),
     verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('覆盖 verificationIntent 的证据列表'),
     reason: z.string().optional().describe('变更原因'), agent: z.string().optional().describe('操作者'),
+    actor: z.string().optional().describe('操作者别名；INIT reviewer lane 不可直接改需求定义'),
     success: z.boolean().optional().describe('subagent 结果是否成功（仅 status=done 时有效，默认 true）'),
   }},
   { name: 'verification_evidence_add', description: '为 checklist item 追加/更新 verificationIntent 覆盖证据', schema: {
@@ -479,6 +522,50 @@ export const MAIN_TOOLS: ToolDef[] = [
     path: z.string().min(1).describe('相对仓库根的精确路径（无 glob/通配符；无 leading slash；无 .. 段）'),
     reason: z.string().min(10, 'reason ≥ 10 characters').describe('为什么把此文件声明为本 story 的预期产出'),
     relatedIntent: z.string().min(1).describe('关联引用：CHK-NNN:(happy|edge|adversarial):IDX 或 promise:<docPath>'),
+  }},
+  { name: 'scope_boundary_set', description: 'INIT 阶段保存用户确认的 allowed/excluded scope 边界，供 INIT_CHECK anti-expansion gate 消费', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode；correctness_fix 会启用 future-capability keyword 默认排除'),
+    allowedScope: z.array(z.string().min(1)).min(1).describe('用户确认允许做的范围条目'),
+    excludedScope: z.array(z.string().min(1)).optional().describe('用户确认排除/不做的范围条目'),
+    userConfirmed: z.boolean().describe('必须为 true：确认这是用户确认过的 INIT scope 边界'),
+    confirmation: z.string().optional().describe('确认说明或来源摘录'),
+    actor: z.string().optional().describe('记录者；默认 KOALA_AGENT/USER/main-agent'),
+  }},
+  { name: 'execution_boundary_set', description: 'INIT 阶段保存执行边界（命令/tool/path allow/block），供 INIT_CHECK anti-expansion gate 消费', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    allowedCommands: z.array(z.string().min(1)).optional().describe('允许执行或验证的命令模式'),
+    blockedCommands: z.array(z.string().min(1)).optional().describe('明确禁止的命令模式（alias: excludedCommands）'),
+    excludedCommands: z.array(z.string().min(1)).optional().describe('明确禁止的命令模式'),
+    allowedTools: z.array(z.string().min(1)).optional().describe('允许使用的工具/adapter 名称'),
+    excludedTools: z.array(z.string().min(1)).optional().describe('明确禁止使用的工具/adapter 名称'),
+    allowedPaths: z.array(z.string().min(1)).optional().describe('允许访问的相对路径；拒绝 absolute / .. traversal'),
+    blockedPaths: z.array(z.string().min(1)).optional().describe('明确禁止访问的相对路径；拒绝 absolute / .. traversal'),
+    excludedPaths: z.array(z.string().min(1)).optional().describe('明确禁止访问的相对路径'),
+    notes: z.string().optional().describe('执行边界补充说明'),
+    actor: z.string().optional().describe('记录者；默认 KOALA_AGENT/USER/main-agent'),
+  }},
+  { name: 'scope_freeze_check', description: 'INIT 阶段写入 scope freeze check 结果；accepted extension decision 会让旧 freeze evidence stale', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    status: z.enum(['PASS', 'FAIL', 'pass', 'fail']).optional().describe('可选断言；不能覆盖 core evaluateScopeFreeze 的结果'),
+    note: z.string().optional().describe('冻结检查说明；也可作为 repeated-discard mitigation 文本'),
+    repeatDiscardMitigation: z.string().optional().describe('重复 discarded direction 的缓解说明'),
+    actor: z.string().optional().describe('记录者；默认 KOALA_AGENT/USER/main-agent'),
+  }},
+  { name: 'scope_extension_proposal', description: 'INIT reviewer 提出 scope extension proposal（只记录 proposal，不接受 scope，不改 checklist）', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    proposal: z.string().min(10).describe('扩展提案叙述；不能作为 accepted scope 生效'),
+    reason: z.string().optional().describe('为什么 reviewer 认为需要扩展'),
+    reviewer: z.string().optional().describe('提出者；默认 KOALA_AGENT/USER/main-agent'),
+    findingId: z.string().optional().describe('可选关联 finding / issue id'),
+    evidenceRefs: z.array(z.string().min(1)).optional().describe('可选证据引用'),
+  }},
+  { name: 'scope_extension_decide', description: 'INIT 阶段显式接受/拒绝 scope extension proposal；accepted 会让旧 freeze evidence stale', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    proposalId: z.string().min(1).describe('scope_extension_proposal 返回的 proposal id'),
+    decision: z.enum(['accepted', 'rejected']).describe('显式裁决'),
+    reason: z.string().min(10, 'reason ≥ 10 characters').describe('裁决理由'),
+    decider: z.string().optional().describe('裁决者；默认 KOALA_AGENT/USER/main-agent'),
   }},
   { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
     storyId: z.string().describe('Story ID'),
@@ -3105,7 +3192,7 @@ function preflightFromDraftMetadataBootstrap(root: string): void {
   }
 }
 
-function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
+function commitFromDraftMetadataOnMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
   preflightFromDraftMetadataBootstrap(root);
 
   const storyRel = boundedMetadataPath(store.storyDirRel(), storyId, 'active story');
@@ -3118,7 +3205,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   const staged = gitCli(root, ['diff', '--cached', '--name-only']);
   const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
   if (stagedPaths.length === 0) {
-    throw new Error(`from-draft metadata commit found no changes under ${boundedPaths.join(', ')}`);
+    return '';
   }
   const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, boundedPaths));
   if (outOfBounds.length > 0) {
@@ -3142,6 +3229,11 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
     );
   }
 
+  return `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`;
+}
+
+function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
+  const metadataResult = commitFromDraftMetadataOnMain(root, store, storyId, draftName);
   const story = store.readStory(storyId);
   const worktreePath = story.worktree?.path;
   const storyBranch = story.worktree?.branch || `story/${storyId}`;
@@ -3159,9 +3251,9 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   gitCli(worktreeAbs, ['merge-base', '--is-ancestor', 'main', storyBranch]);
 
   return [
-    `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`,
+    metadataResult,
     `✓ main merged into ${storyBranch}`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 /**
@@ -3784,10 +3876,15 @@ export async function runCli(opts?: {
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;
       if (result.includes('当前目录不是 git 仓库')) return result;
+      let fromDraftMetadataSegment = '';
+      if (fromDraftName && result.includes('created from draft') && gitReady) {
+        fromDraftMetadataSegment = commitFromDraftMetadataOnMain(root, store, storyId, fromDraftName);
+      }
       if (!gitReady) {
         return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'`;
       }
-      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
+      const metadataLine = fromDraftMetadataSegment ? `\n${fromDraftMetadataSegment}` : '';
+      return `${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
     });
     return;
   }
@@ -3831,7 +3928,8 @@ export async function runCli(opts?: {
         // B-f60c CHK-002: close F-008. dev_start leaves an uncommitted
         // story-metadata mirror in the main checkout that blocks the DONE
         // `git merge story/<id>`. Commit it on the base branch (mirroring the
-        // from-draft path) so DONE has nothing uncommitted to collide with.
+        // metadata-commit part of the from-draft path) so DONE has nothing
+        // uncommitted to collide with.
         let syncResult = '';
         if (gitReady) {
           syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);

@@ -1,0 +1,65 @@
+{
+  "storyId": "B-85ba",
+  "checkedAt": "2026-06-13T02:58:09.957Z",
+  "reviewRound": "2026-06-13T02:47:44.743Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "Lifecycle artifact scope recognizes only .lattice/story/actives, docs/story/actives, or custom storyDir story metadata prefixes, and explicitly does not recognize .koala/story/actives as a story-dir prefix.",
+      "status": "verified",
+      "verifiedBy": "manual doc read plus node scripts/verify-process-fact-contract.mjs",
+      "evidence": "Doc lines 9-12 and 27-31 state the allowed prefixes and .koala/story rejection; lifecycle-registry default prefixes are .lattice/story/actives and docs/story/actives with optional custom storyDir; process fact contract passed and adversarially rejects .koala/story/actives/B-scope/evidence/transcript-diff.md and .koala/story/actives/B-scope/delivery-check.json."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "TEST user-value transcript evidence may be written only at evidence/transcript-diff.md under a recognized story directory; nearby arbitrary evidence files remain subject to normal scope enforcement.",
+      "status": "verified",
+      "verifiedBy": "manual artifact read plus process fact contract",
+      "evidence": "Doc lines 91-95 and 108-115 match lifecycle-registry relative path evidence/transcript-diff.md and process fact contract checks accepting the transcript path while rejecting evidence/notes.md, nested summary/test-evidence paths, and non-md transcript variants under .koala/story."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "INIT to INIT_CHECK now consumes scope-boundary, execution-boundary, scope-freeze, scope-extension proposal, and discard digest evidence before worktree creation or phase mutation; INIT reviewers must propose scope expansion rather than directly mutate checklist, scope boundary, execution boundary, or story-level scope.",
+      "status": "verified",
+      "verifiedBy": "scope anti-expansion smoke, worktree authority smoke, process fact contract, lattice validate",
+      "evidence": "Story-lifecycle B-85ba section states the gate and reviewer discipline. test:scope-anti-expansion-smoke passed reviewer checklist/story mutation blocks, missing boundary/freeze/proposal blockers, excluded keyword protection, and repeat-discard mitigation. test:worktree-authority-smoke passed fromDraft/INIT_CHECK worktree ordering. validate reports 15/15 verification intents covered."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-85ba/evidence/transcript-diff.md",
+      "promise": "The DONE transcript artifact exists and records expected behavior, actual observed behavior, diff notes, and product/process acceptance.",
+      "status": "verified",
+      "verifiedBy": "manual artifact read",
+      "evidence": "transcript-diff.md has sections Expected, Actual, Diff Notes, and Acceptance. Actual records lattice validate passing on 2026-06-13 plus focused build/smoke/contract commands; Acceptance accepts the INIT expansion route closure from a product/process perspective."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-004",
+      "transcript": "npm --prefix packages/main run test:scope-anti-expansion-smoke exited 0. It passed persistence of initial boundaries, rejects malformed/blank/unsafe boundary input, blocks direct INIT_CHECK creation, blocks INIT reviewer checklist/story-level scope mutations, blocks missing scope/execution boundaries, blocks correctness-fix excluded keywords, blocks pending proposals, stales accepted proposal/freeze changes, covers real discarded story digest mitigation, covers background-only discarded directions, and reports scope anti-expansion smoke passed."
+    },
+    {
+      "featureId": "CHK-003/CHK-005",
+      "transcript": "npm --prefix packages/main run test:worktree-authority-smoke exited 0. It passed fromDraft stopping at INIT, explicit story_advance INIT_CHECK performing worktree bootstrap, DONE cleanup/branch checks, and worktree authority behavior."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node scripts/verify-process-fact-contract.mjs exited 0. It verified process fact registry entries, reviewer lane koala-review-delivery, signed artifacts, scope anti-expansion facts, lifecycle artifact classifier, narrow transcript artifact acceptance, and .koala/story adversarial rejection."
+    },
+    {
+      "featureId": "flow-safety",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke exited 0. It passed lifecycle/gate stability coverage including custom storyDir dirty classifier and runtime/declared artifact separation."
+    },
+    {
+      "featureId": "build/runtime/validate",
+      "transcript": "npm --prefix packages/main run build exited 0; npm run test:runtime-fact-contract exited 0; lattice validate --story=B-85ba exited 0. validate used fallback npm test, ran story-lifecycle and gap-convergence with ALL PASS, and reported verification intent coverage 15/15 covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passed for B-85ba. Current changed docs promises match implementation and mechanical contracts for scope anti-expansion, lifecycle artifact classification, .koala/story rejection, custom storyDir support, and narrow transcript evidence. transcript-diff.md exists with Expected, Actual, Diff Notes, and Acceptance. I observed older .koala/story references in unrelated legacy/current docs during scan, but did not treat them as accepted classifier promises for this B-85ba delivery check; the changed lifecycle-artifact-scope promise is now explicit that .koala/story is not recognized."
+  },
+  "_hash": "75afe0550ec1ace08ef3e455190f824de66470e58ac4ec2358eb5d67afb95601"
+}

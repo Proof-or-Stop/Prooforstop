@@ -1,0 +1,265 @@
+{
+  "passes": [
+    {
+      "id": "B-85ba:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: verificationIntent/evidence coverage is sufficient for B-85ba. Confirmed scope-anti-expansion smoke covers story_create initial boundary persistence, missing scope/execution boundary, malformed/blank/unsafe path rejection, correctness_fix default denylist, feature-mode no default denylist, pending proposal, accepted decision stale evidence, stale checklist mutation, repeat discard mitigation, and happy path. Re-ran npm --prefix packages/main run test:scope-anti-expansion-smoke and node scripts/verify-process-fact-contract.mjs; both passed. Process fact contract covers the new scope boundary/execution boundary/freeze check/proposal/decision commands and INIT_CHECK gate artifacts.",
+      "createdAt": "2026-06-12T20:41:58.109Z",
+      "reviewRound": "2026-06-12T20:36:30.829Z",
+      "reviewRunId": "B-85ba:RR-002",
+      "_hash": "e34f1e74ee31db88adf78fed0642ff6cc6c48c2b43f27e45d31374143cb06457"
+    },
+    {
+      "id": "B-85ba:RP-002",
+      "agent": "koala-review-concept",
+      "note": "PASS: rerun reviewed current HEAD 22ac980 after 07ceb003 fixes. scope_extension_proposal now persists proposal separately from reason with proposalTextHash; INIT reviewer lanes are mechanically blocked from checklist title/context/excludes mutation and directed to scope_extension_proposal; correctness_fix default denylist remains scoped to repair UX/Authority/Layer4/customerKeyRef and is not applied to feature mode; scope anti-expansion commands/artifacts are L4 gate-consumed facts in process/lifecycle registries. Verified with node scripts/verify-process-fact-contract.mjs and npm --prefix packages/main run test:scope-anti-expansion-smoke.",
+      "createdAt": "2026-06-12T21:03:23.832Z",
+      "reviewRound": "2026-06-12T20:59:32.965Z",
+      "reviewRunId": "B-85ba:RR-007",
+      "_hash": "af4028802baa23e5b1c1763ee26a7e72a937e306707d36e9f1fb3e6c27b5caf5"
+    },
+    {
+      "id": "B-85ba:RP-003",
+      "agent": "koala-review-quality",
+      "note": "koala-review-quality rerun reviewed commit 07ceb003 fixes and current HEAD scope anti-expansion code: empty boundary validation, direct/fromDraft INIT_CHECK behavior, path field consistency, freeze hash freshness, and CLI/handler/core/schema registration all have no blocking quality findings.",
+      "createdAt": "2026-06-12T21:04:25.812Z",
+      "reviewRound": "2026-06-12T20:59:32.965Z",
+      "reviewRunId": "B-85ba:RR-010",
+      "_hash": "cba423ca6892d6eabcec17d0078c0055d61c885012a2508623727d079e798191"
+    },
+    {
+      "id": "B-85ba:RP-004",
+      "agent": "koala-review-docs",
+      "note": "PASS docs rerun: verified INIT reviewer expansion path is proposal-only in prompt plus handler/policy/verifier; artifact filenames align on scope-boundary.json, execution-boundary.json, scope-freeze-check.json, scope-extension-proposals.json, scope-discard-digest.json; local dist CLI help and source keep fromDraft in INIT and direct INIT_CHECK creation forbidden. Ran npm run test:process-fact-contract and npm run test:scope-anti-expansion-smoke.",
+      "createdAt": "2026-06-12T21:04:49.351Z",
+      "reviewRound": "2026-06-12T20:59:32.965Z",
+      "reviewRunId": "B-85ba:RR-008",
+      "_hash": "80e9aecdfa3b2903b369f419964164ce023795c769e26be62dcbde6a3bf0219e"
+    },
+    {
+      "id": "B-85ba:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept REVIEW PASS: verified INIT reviewer expansion is proposal-only, fromDraft stops at INIT without worktree bootstrap, story_create direct INIT_CHECK is refused before writes, scope_extension_proposal persists proposal body separately from reason, and accepted proposals stale prior freeze evidence so future-scope expansion still requires an explicit decision plus fresh scope_freeze_check. Targeted smokes passed: node packages/main/dist/tasks/scope-anti-expansion-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js.",
+      "createdAt": "2026-06-12T21:41:18.431Z",
+      "reviewRound": "2026-06-12T21:35:24.407Z",
+      "reviewRunId": "B-85ba:RR-017",
+      "_hash": "759e06c7b5b9a804390666d8c5e53986ef93cda1cc3d6bb501413ca7322b2363"
+    },
+    {
+      "id": "B-85ba:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Docs/prompt/process-fact contract/repo-local CLI help are aligned for B-85ba: INIT reviewers are proposal-only via scope_extension_proposal, fromDraft stops at INIT, explicit story_advance INIT_CHECK creates the worktree, and scope anti-expansion artifact names are consistent across docs, prompt, registry, and contract. Verified with node packages/main/dist/cli.js help, node scripts/verify-process-fact-contract.mjs, and npm --prefix packages/main run test:scope-anti-expansion-smoke.",
+      "createdAt": "2026-06-12T21:41:27.321Z",
+      "reviewRound": "2026-06-12T21:35:24.407Z",
+      "reviewRunId": "B-85ba:RR-016",
+      "_hash": "d3ceb1d9ca6029e005953a159c3064994437d5bb14c2f5dc176ba47237800a03"
+    },
+    {
+      "id": "B-85ba:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test-coverage review passed: reran npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:scope-anti-expansion-smoke, and node scripts/verify-process-fact-contract.mjs successfully. Inspected fromDraft INIT expectation, explicit INIT_CHECK worktree bootstrap, scope anti-expansion guard coverage, command-policy/process-fact registration, and smoke assertions; no blocker found.",
+      "createdAt": "2026-06-12T21:42:12.699Z",
+      "reviewRound": "2026-06-12T21:35:24.407Z",
+      "reviewRunId": "B-85ba:RR-014",
+      "_hash": "babe07af5ed5884efdfac6a0982317df6f7b3a99e14acc82236c5f7d5779cb80"
+    },
+    {
+      "id": "B-85ba:RP-008",
+      "agent": "koala-review-quality",
+      "note": "PASS: reviewed latest HEAD 2291676 for empty boundary blocking, safe path-field acceptance, fromDraft/direct INIT_CHECK non-deadlock behavior, and F-006 worktree-authority-smoke update. Verified with npx tsc -p packages/main/tsconfig.json --noEmit; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; node scripts/verify-process-fact-contract.mjs. No quality blockers found.",
+      "createdAt": "2026-06-12T21:43:13.401Z",
+      "reviewRound": "2026-06-12T21:35:24.407Z",
+      "reviewRunId": "B-85ba:RR-013",
+      "_hash": "eda81c5a3fec67d52a749aaf57fe8cb06bb44ab0c1a3b53afbdc88b5869cd565"
+    },
+    {
+      "id": "B-85ba:RP-009",
+      "agent": "koala-review-docs",
+      "note": "Docs lane reviewed requirements and reviewer prompt against the mechanical contract and implementation for INIT scope anti-expansion. Confirmed story-lifecycle and lifecycle-artifact-scope describe scope-boundary, execution-boundary, scope-freeze-check, scope-extension-proposals, and scope-discard-digest as gate facts; reviewer prompt routes expansion through scope_extension_proposal only; command policy/CLI schema/process fact registry/lifecycle registry register the same commands/artifacts; machine/worktree gates block INIT_CHECK before worktree creation; story_create --fromDraft remains INIT; root e2e/worktree smoke paths include anti-expansion gates. Verified with node scripts/verify-process-fact-contract.mjs, npm --prefix packages/main run test:scope-anti-expansion-smoke, and npm --prefix packages/main run test:worktree-authority-smoke.",
+      "createdAt": "2026-06-13T01:45:27.599Z",
+      "reviewRound": "2026-06-13T01:43:05.842Z",
+      "reviewRunId": "B-85ba:RR-020",
+      "_hash": "fddfa0da06010c3f841855a9ebf24b32f9fe57dcd646b550e54222db0e3f8a86"
+    },
+    {
+      "id": "B-85ba:RP-010",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: test coverage reviewed for scope anti-expansion and latest INIT_CHECK/worktree regressions. Verified scope smoke covers boundary persistence, malformed inputs, missing scope/execution boundaries, excluded keywords, failed/stale freeze checks, pending/accepted proposals, repeat discarded direction mitigation, direct INIT_CHECK story_create rejection, and INIT reviewer checklist mutation blocking. Verified worktree authority smoke covers fromDraft stopping at INIT, explicit story_advance INIT_CHECK worktree bootstrap, dirty-main preservation, staged-main rejection, and worktree authority behavior. Verified root npm test/cli-e2e seeds scope_boundary_set, execution_boundary_set, scope_freeze_check, and init_check_set before story_advance INIT_CHECK. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; npm test; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T01:45:45.524Z",
+      "reviewRound": "2026-06-13T01:43:05.842Z",
+      "reviewRunId": "B-85ba:RR-021",
+      "_hash": "eea729181a2c2c24c3d619b6bed9175834ad27c344e115e62bf4f7f31e9d08bb"
+    },
+    {
+      "id": "B-85ba:RP-011",
+      "agent": "koala-review-quality",
+      "note": "Quality review checked schema/handler/gate consistency, scope artifact hash and staleness predicates, INIT-only command constraints, and the test-flow-e2e boundary patch. Build, process contract, scope anti-expansion smoke, worktree authority smoke, and direct test-flow-e2e task all passed; no blocking quality issue found.",
+      "createdAt": "2026-06-13T01:45:46.577Z",
+      "reviewRound": "2026-06-13T01:43:05.842Z",
+      "reviewRunId": "B-85ba:RR-019",
+      "_hash": "331c5a9740519163268895ec1922af7d11816406117467a4f695b09a33e2c281"
+    },
+    {
+      "id": "B-85ba:RP-012",
+      "agent": "koala-review-concept",
+      "note": "F-007复审通过：readScopeDiscardDigestForFreeze merges current story digest with DISCARDED story scope-discard-digest entries for freeze/gate evaluation; story_create still rejects direct INIT_CHECK and dev_start cannot bypass INIT_CHECK scope anti-expansion gate. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:scope-anti-expansion-smoke, including real discard-to-replacement coverage.",
+      "createdAt": "2026-06-13T01:53:30.432Z",
+      "reviewRound": "2026-06-13T01:51:22.177Z",
+      "reviewRunId": "B-85ba:RR-023",
+      "_hash": "a60b65db5be7ad35d5971b3eca9dd95f5dfb0eaaa78eed1af908a16c6279799c"
+    },
+    {
+      "id": "B-85ba:RP-013",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review pass: F-007 is covered by packages/main/src/tasks/scope-anti-expansion-smoke.ts using a real temporary git repo, real story_discard digest write, replacement freeze failure without repeatDiscardMitigation, and pass with mitigation. Verified rebuilt dist with npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; node scripts/verify-process-fact-contract.mjs; npm test.",
+      "createdAt": "2026-06-13T01:54:21.024Z",
+      "reviewRound": "2026-06-13T01:51:22.177Z",
+      "reviewRunId": "B-85ba:RR-024",
+      "_hash": "280b4c1c183db5973f541cabe45117296eec1f08adbfc40a8d595f5b729ec1ba"
+    },
+    {
+      "id": "B-85ba:RP-014",
+      "agent": "koala-review-docs",
+      "note": "F-008 docs review pass: docs/requirements/decisions/lifecycle-artifact-scope.md now states story_discard produces scope-discard-digest.json for the discarded story, while INIT_CHECK/scope freeze consumes the current story digest plus digest entries from every DISCARDED story. Verified against process-fact registry, lifecycle registry, store/machine guard path, and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T02:01:11.555Z",
+      "reviewRound": "2026-06-13T01:59:14.956Z",
+      "reviewRunId": "B-85ba:RR-029",
+      "_hash": "55e9b98d2363bafdb00ff85e6cf8bb756df6c9bffd839073bc0361753634445f"
+    },
+    {
+      "id": "B-85ba:RP-015",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: F-007/F-009 coverage verified. packages/main/src/tasks/scope-anti-expansion-smoke.ts:496 exercises real story_discard -> replacement, unmitigated replacement fail, mitigated pass, second discarded corpus staling old mitigated freeze, rerun without mitigation fail, and remitigated pass. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm run test:process-fact-contract.",
+      "createdAt": "2026-06-13T02:01:16.556Z",
+      "reviewRound": "2026-06-13T01:59:14.956Z",
+      "reviewRunId": "B-85ba:RR-027",
+      "_hash": "ea426ffc5c2bfe9129ceb587fb94ac36f2e41ee90d4f92e79a3366740b8c00bb"
+    },
+    {
+      "id": "B-85ba:RP-016",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass for F-009. Verified freshness hash includes discard corpus and repeat overlap identity in packages/main/src/core/scope-anti-expansion.ts:565; stored mitigation is keyed by scopeFreezeDiscardOverlapKey and does not cover future new overlaps at packages/main/src/core/scope-anti-expansion.ts:467; machine stale/fail order intentionally returns stale for old pass after corpus/checklist changes and fail after rerun without mitigation in packages/main/src/core/machine.ts:198. Verification: npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T02:01:47.263Z",
+      "reviewRound": "2026-06-13T01:59:14.956Z",
+      "reviewRunId": "B-85ba:RR-028",
+      "_hash": "a257ae6af61177b1ede110f60e273aa95570a5b3b21dd238d07a3558f0d0cd63"
+    },
+    {
+      "id": "B-85ba:RP-017",
+      "agent": "koala-review-concept",
+      "note": "PASS: F-010 resolved. Reviewed background.md projection through scope_freeze_check and INIT_CHECK gate recomputation, discard digest recording/merge, future keyword scan/freshness hashing, and background-only discarded-direction mitigation coverage. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; npm test; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T02:10:28.467Z",
+      "reviewRound": "2026-06-13T02:08:13.752Z",
+      "reviewRunId": "B-85ba:RR-030",
+      "_hash": "36a985973c42e4b783bb53f745359a40e4449e20a25a0d7e00bffe30fd116d83"
+    },
+    {
+      "id": "B-85ba:RP-018",
+      "agent": "koala-review-docs",
+      "note": "Docs/registry contract matches implementation for scope-discard-digest producer/consumer, background source-of-truth inclusion, and INIT scope anti-expansion gate ordering. Verified with npm run test:process-fact-contract and npm run test:scope-anti-expansion-smoke.",
+      "createdAt": "2026-06-13T02:10:44.935Z",
+      "reviewRound": "2026-06-13T02:08:13.752Z",
+      "reviewRunId": "B-85ba:RR-033",
+      "_hash": "76e0656f4001c933ce66cd6862b51022f5aab0431eeeeaaa4e69bb9330b4d475"
+    },
+    {
+      "id": "B-85ba:RP-019",
+      "agent": "koala-review-docs",
+      "note": "Docs/process fact review passed: story-lifecycle.md and lifecycle-artifact-scope.md match INIT scope anti-expansion behavior; INIT reviewer prompt routes expansion through scope_extension_proposal; process/runtime fact registries and contract checks are consistent.",
+      "createdAt": "2026-06-13T02:26:18.157Z",
+      "reviewRound": "2026-06-13T02:23:44.219Z",
+      "reviewRunId": "B-85ba:RR-036",
+      "_hash": "026997d7897da9391d3864c7496d12cfd04c915d4ee96328f97a5cc2035aad7e"
+    },
+    {
+      "id": "B-85ba:RP-020",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review pass: CHK-001~CHK-005 verificationIntent entries all have evidence, and targeted reruns passed: build, scope-anti-expansion smoke, worktree-authority smoke, flow-stability smoke, process fact contract, runtime fact contract. Confirmed F-012 .lattice-serve.json runtime artifact separation, fromDraft INIT behavior, real discard digest flow, background-only discard direction, and metadata-only updatedAt freshness behavior.",
+      "createdAt": "2026-06-13T02:27:13.086Z",
+      "reviewRound": "2026-06-13T02:23:44.219Z",
+      "reviewRunId": "B-85ba:RR-038",
+      "_hash": "68c8a04f9488de771b94e5a3f3e10ab6ff626dc2d32f58da1e7ffc7977023025"
+    },
+    {
+      "id": "B-85ba:RP-021",
+      "agent": "koala-review-quality",
+      "note": "Quality rereview passed. Checked F-011 discardDigest.updatedAt freshness behavior, freeze hash/staleness comparisons, exact-key discard overlap mitigation reuse, INIT reviewer checklist title/context/excludes mutation block, and scope/execution boundary validation. No verified high/critical boundary issue found. Verified with build, scope anti-expansion smoke, worktree authority smoke, flow stability smoke, runtime/process fact contracts, npm test, and focused freshness probe.",
+      "createdAt": "2026-06-13T02:27:35.560Z",
+      "reviewRound": "2026-06-13T02:23:44.219Z",
+      "reviewRunId": "B-85ba:RR-035",
+      "_hash": "833a7dd57a4a64e63a19b5519ec380653db162d7c403d8a174fa95fbffe3b35e"
+    },
+    {
+      "id": "B-85ba:RP-022",
+      "agent": "koala-review-test-coverage",
+      "note": "Final test coverage review passed. F-013 is covered by scope-anti-expansion smoke: reviewer story_update blocks title/description/source scope mutations, priority remains allowed, main INIT title/description update remains allowed, frozen reviewer bypass is blocked without staling evidence, and owner update after freeze makes freeze stale. Verified commands passed: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:scope-anti-expansion-smoke; lattice validate --story=B-85ba.",
+      "createdAt": "2026-06-13T02:37:52.690Z",
+      "reviewRound": "2026-06-13T02:35:50.708Z",
+      "reviewRunId": "B-85ba:RR-043",
+      "_hash": "a5b4690cfaffd5ce1d2b68ff637f1e04da5e96461f2639ecea9de56a20ddeadb"
+    },
+    {
+      "id": "B-85ba:RP-023",
+      "agent": "koala-review-docs",
+      "note": "Final docs/process-fact review passed: F-013 story_update reviewer proposal-only invariant is enforced in handler, CLI schema, command-policy, process-fact registry/contract, and smoke coverage. Verified with build, scope anti-expansion smoke, and process fact contract verifier.",
+      "createdAt": "2026-06-13T02:38:12.835Z",
+      "reviewRound": "2026-06-13T02:35:50.708Z",
+      "reviewRunId": "B-85ba:RR-040",
+      "_hash": "b32ecb1286d313f696975fd5674947cb0e23a89290a3aad9377e517b3b9d73fd"
+    },
+    {
+      "id": "B-85ba:RP-024",
+      "agent": "koala-review-concept",
+      "note": "Concept final review verified F-013: INIT reviewer/product-reviewer story_update cannot mutate story-level scope fields and must use scope_extension_proposal; F-007 through F-012 behavior was checked against code, docs, smoke tests, and process/runtime contracts with no regression found.",
+      "createdAt": "2026-06-13T02:38:57.595Z",
+      "reviewRound": "2026-06-13T02:35:50.708Z",
+      "reviewRunId": "B-85ba:RR-041",
+      "_hash": "5e1c50cd288896a5f26700f8f711c4aa6dab9d40de3fa2e990450eef3dd088c8"
+    },
+    {
+      "id": "B-85ba:RP-025",
+      "agent": "koala-review-quality",
+      "note": "Final quality review found no blocking issue. Verified story_update actor resolution blocks INIT reviewer/product-reviewer edits to story-level scope fields while main/owner edits stale freeze evidence; INIT reviewer checklist mutations still route to scope_extension_proposal; scope/execution boundary path fields and blockedPath aliases normalize consistently; INIT_CHECK gate rejects missing, failed, pending, stale, excluded-keyword, and repeated-discard cases; F-011 discardDigest.updatedAt metadata churn and F-012 .lattice-serve runtime artifact regressions are covered by passing smoke/contract commands.",
+      "createdAt": "2026-06-13T02:39:01.525Z",
+      "reviewRound": "2026-06-13T02:35:50.708Z",
+      "reviewRunId": "B-85ba:RR-039",
+      "_hash": "cd5211e68510aa56140037fddbaabf31e021604fc0a99d011e7fab9921068696"
+    },
+    {
+      "id": "B-85ba:RP-026",
+      "agent": "koala-review-docs",
+      "note": "Docs scope policy matches lifecycle registry and process fact contract: recognized lifecycle story artifact prefixes are .lattice/story/actives, docs/story/actives, or custom storyDir; .koala/story samples are rejected by verifier. node scripts/verify-process-fact-contract.mjs passed.",
+      "createdAt": "2026-06-13T02:48:56.224Z",
+      "reviewRound": "2026-06-13T02:47:44.743Z",
+      "reviewRunId": "B-85ba:RR-044",
+      "_hash": "f37260a30398d16d3bad0e8b838568f11906e30e7b587c0b73bd207a67d9ab2d"
+    },
+    {
+      "id": "B-85ba:RP-027",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review pass: after delivery blocker doc repair, npm run test:process-fact-contract passed, npm run build passed, npm run test:scope-anti-expansion-smoke passed, and lattice validate --story=B-85ba --json returned allPass=true with warnings=[] and verification intent coverage 15/15 covered (0 required missing). No verified high/critical coverage blocker found.",
+      "createdAt": "2026-06-13T02:51:32.129Z",
+      "reviewRound": "2026-06-13T02:47:44.743Z",
+      "reviewRunId": "B-85ba:RR-048",
+      "_hash": "e34e1b7371a92edd133442d0f7f53acdd6be140ab73bcb485a7bb2e270561787"
+    },
+    {
+      "id": "B-85ba:RP-028",
+      "agent": "koala-review-concept",
+      "note": "Concept pass after delivery-blocker doc fix. lifecycle-artifact-scope now correctly states .koala/story/... is not a recognized lifecycle artifact prefix; lifecycle-registry and process-fact contract accept .lattice story artifacts and reject .koala/story/... so scope anti-expansion semantics are unchanged. F-013 story_update reviewer bypass remains closed by handler guard and smoke coverage. Rechecked F-007-F-012 regression surface with scope-anti-expansion, worktree-authority, flow-stability, process-fact, and runtime-fact contract commands.",
+      "createdAt": "2026-06-13T02:51:58.133Z",
+      "reviewRound": "2026-06-13T02:47:44.743Z",
+      "reviewRunId": "B-85ba:RR-045",
+      "_hash": "20079a68185281a096b88b1b239055e2a3c87f7b8265d311e79e5038bd0af4ff"
+    },
+    {
+      "id": "B-85ba:RP-029",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: confirmed the latest lifecycle-artifact-scope docs correction is docs alignment only; rechecked INIT reviewer story_update blocking, scope freeze freshness, discard digest supersession, and runtime artifact classification. Verified with scope anti-expansion smoke, process fact contract, flow stability smoke, and worktree authority smoke.",
+      "createdAt": "2026-06-13T02:53:44.254Z",
+      "reviewRound": "2026-06-13T02:47:44.743Z",
+      "reviewRunId": "B-85ba:RR-046",
+      "_hash": "acf4232c909f8a44a1176e33640beaa23f2b86d3d82ba0d81c4dec734ac33559"
+    }
+  ]
+}

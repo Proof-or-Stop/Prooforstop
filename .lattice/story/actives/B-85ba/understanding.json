@@ -1,0 +1,38 @@
+{
+  "task": "Implement an INIT-to-INIT_CHECK scope anti-expansion gate for Lattice stories.",
+  "outcome": "After creating a correctness-fix story with excluded future keywords, the user sees `Cannot enter INIT_CHECK: scope freeze failed [excluded_keyword_in_checklist]` before any worktree is created; after providing an explicit boundary and clean checklist, `lattice story_advance --phase=INIT_CHECK` succeeds and reports the worktree path.",
+  "facts": [
+    "Current init-check signing covers background/title/description/checklist after init_check_set, but does not preserve the original user boundary before reviewer influence.",
+    "Current scope-contract/prewrite guard protects changed files later in PLAN/DEV/REVIEW, not semantic scope expansion before worktree creation.",
+    "INIT reviewers are reviewerWrite lanes and must not mutate checklist/scope directly.",
+    "Gate-consumed process facts must be registered in process-fact-levels and process-fact-registry, with contract verification updated.",
+    "The local OMX ban remains active; no .omx path may be used for runtime artifacts, baselines, logs, or evidence."
+  ],
+  "constraints": [
+    "All story and checklist metadata changes must go through Lattice CLI, not direct story-file edits.",
+    "Failures must happen before worktree creation when blocking INIT_CHECK.",
+    "Missing scope boundary must fail closed; absence cannot mean whole-project scope.",
+    "Default future denylist applies only to correctness_fix mode; other modes rely on user-confirmed excluded scope/keywords.",
+    "Scope extension must be proposal plus explicit decision, not reviewer checklist mutation."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/scope-anti-expansion-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md"
+  ],
+  "timestamp": "2026-06-12T19:38:56.741Z"
+}

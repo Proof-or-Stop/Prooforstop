@@ -5,7 +5,13 @@ import { tmpdir } from 'os';
 import { basename, dirname, join, relative, isAbsolute, resolve, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
-import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
+import {
+  createStoryActor,
+  getGuardFailureReason,
+  getScopeAntiExpansionGuardFailureReason,
+  getStateName,
+} from '../core/machine.js';
+import { buildScopeDiscardDigestEntry, normalizeBoundaryArray, scopeFreezeBackgroundTerms } from '../core/scope-anti-expansion.js';
 import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
@@ -624,6 +630,42 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return lines.join('\n');
   }
 
+  function recordScopeDiscardDigest(storyId: string, reason?: string): string | null {
+    const story = store.readStory(storyId);
+    const terms: string[] = [
+      story.title,
+      story.description,
+      ...scopeFreezeBackgroundTerms(store.readStoryBackground(storyId)),
+      ...(story.keywords ?? []),
+    ];
+    try {
+      for (const item of store.readChecklist(storyId).items) {
+        terms.push(item.title);
+        if (item.context) terms.push(item.context);
+      }
+    } catch {
+      /* checklist is optional for discarded IDEA stories */
+    }
+
+    const normalizedTerms = normalizeBoundaryArray(terms);
+    if (normalizedTerms.length === 0) return null;
+    const entry = buildScopeDiscardDigestEntry({
+      terms: normalizedTerms,
+      reason: reason?.trim() || 'story discarded',
+      storyId,
+    });
+    const existing = store.readScopeDiscardDigest(storyId);
+    const entries = existing.entries.some(item => item.digest === entry.digest)
+      ? existing.entries
+      : [...existing.entries, entry];
+    store.writeScopeDiscardDigest(storyId, {
+      storyId,
+      updatedAt: entry.discardedAt,
+      entries,
+    });
+    return entry.digest;
+  }
+
   return {
     dev_start(args: { storyId: string }): string {
       const story = store.readStory(args.storyId);
@@ -652,6 +694,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const allowedPhases: StoryPhase[] = ['INIT_CHECK', 'PLAN', 'DEV'];
       if (!allowedPhases.includes(story.phase)) {
         throw new Error(`Story ${args.storyId} is currently in phase ${story.phase}, requires INIT_CHECK / PLAN / DEV to create worktree`);
+      }
+      if (story.phase === 'INIT_CHECK' && !story.worktree) {
+        const scopeFreezeFailure = getScopeAntiExpansionGuardFailureReason(args.storyId, store, root);
+        if (scopeFreezeFailure) {
+          throw new Error(
+            `${scopeFreezeFailure}\n` +
+            'Direct dev_start cannot bypass the INIT scope anti-expansion gate.',
+          );
+        }
       }
 
       const branch = `story/${args.storyId}`;
@@ -1107,6 +1158,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         if (args.reason) event.reason = args.reason;
         story.events.push(event);
       }
+      const digest = recordScopeDiscardDigest(args.storyId, args.reason);
+      if (digest) results.push(`✓ discard digest recorded: ${digest.slice(0, 12)}`);
       store.writeStory(args.storyId, story);
       const metadataCommit = commitDiscardMetadata(args.storyId, storyRel);
       if (metadataCommit) results.push(metadataCommit);

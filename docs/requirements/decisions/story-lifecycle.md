@@ -55,7 +55,7 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 | Phase | 含义 | 进入门禁 | 产物 |
 |---|---|---|---|
 | INIT | story 已创建 | `story_create` 成功 | story metadata、background |
-| INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过（或受控 `init_check_repair` fallback），git 可用 | `.worktrees/B-xxx`、`story/B-xxx` |
+| INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过（或受控 `init_check_repair` fallback），scope anti-expansion freeze 通过，git 可用 | `.worktrees/B-xxx`、`story/B-xxx` |
 | PLAN | 拆解和验收意图 | cwd 在 worktree；高风险 story 要 understanding + decision/preMortem | understanding、checklist、verificationIntent、decision |
 | DEV | 实现和记录证据 | PLAN/review gate 允许 | 代码、checklist status、verificationEvidence |
 | REVIEW | 独立审查 | DEV checklist 已完成、改动已提交 | reviewer findings、coverage reviewer result / review pass |
@@ -76,6 +76,14 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 - 不引入 agentId 机械校验（EXP-001 已证伪调用方机械可区分性）。
 
 canonical 命令模板与设计约束详见 CLAUDE.md「INIT→INIT_CHECK 硬门槛」段。
+
+### INIT scope anti-expansion gate（B-85ba）
+
+`INIT -> INIT_CHECK` 在 worktree 创建和 phase mutation 前消费结构化流程事实：`scope-boundary.json`、`execution-boundary.json`、`scope-freeze-check.json`、`scope-extension-proposals.json`、`scope-discard-digest.json`。这些 artifact 分别冻结用户确认的 allowed/excluded scope、执行边界、当前 story/checklist freshness、reviewer expansion proposal 状态和 discarded direction digest。`scope-boundary.json` / `execution-boundary.json` 可由 `story_create` 的可选 boundary 输入同步写入；未在创建时提供时，必须在 INIT 阶段用 `scope_boundary_set` / `execution_boundary_set` 显式补齐。
+
+典型 hard reason：`[missing_scope_boundary]`、`[missing_execution_boundary]`、`[missing_scope_freeze_check]`、`[scope_freeze_check_stale]`、`[scope_freeze_check_failed]`、`[scope_extension_proposal_pending]`、`[excluded_keyword]`、`[repeat_discarded_direction]`。
+
+`correctness_fix` 默认 future denylist 只包含 `repair UX`、`Authority`、`Layer4`、`customerKeyRef`。其它排除项必须来自用户确认的 scope boundary 或 checklist `excludes`。INIT reviewer 发现需要扩展时只能写 `scope_extension_proposal`，不能直接改 checklist / scope boundary / execution boundary；接受或拒绝必须走 `scope_extension_decide`，accepted 后必须重新运行 `scope_freeze_check`。
 
 ## 自动回退
 

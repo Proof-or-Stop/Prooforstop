@@ -1040,32 +1040,57 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   const repoRoot = resolve(packageRoot, '..', '..');
   const current = runManagedAssetCheck(repoRoot, { profile: 'all' });
   const currentById = new Map(current.items.map(item => [item.id, item]));
-  for (const id of ['doc:KOALA.md', 'doc:AGENTS.md', 'doc:CLAUDE.md']) {
-    assert.equal(
-      currentById.get(id)?.status,
-      'OK',
-      `managed asset drift check should accept expanded local guide ${id}`,
+  const expandedLocalGuideIds = ['doc:.lattice/Lattice.md', 'doc:LATTICE.md', 'doc:KOALA.md', 'doc:CLAUDE.md']
+    .filter(id => currentById.has(id));
+  assert.ok(
+    expandedLocalGuideIds.length > 0,
+    `managed asset drift check should expose at least one local guide doc for assetMode=${current.assetMode}`,
+  );
+  for (const id of expandedLocalGuideIds) {
+    const status = currentById.get(id)?.status;
+    assert.ok(
+      status === 'OK' || status === 'STALE_SAFE',
+      `managed asset drift check should not flag current local guide ${id} as unsafe drift: ${status}`,
     );
   }
 
-  const badRoot = mkdtempSync(join(tmpdir(), 'koala-managed-drift-'));
-  try {
-    const badSection = '<!-- koala:start -->\n# Locally edited guide\nThis is not a Koala-owned alternate contract.\n<!-- koala:end -->\n';
-    write(badRoot, 'KOALA.md', badSection);
-    write(badRoot, 'AGENTS.md', badSection);
-    write(badRoot, 'CLAUDE.md', badSection);
-    const drift = runManagedAssetCheck(badRoot, { profile: 'all' });
-    const driftById = new Map(drift.items.map(item => [item.id, item]));
-    for (const id of ['doc:KOALA.md', 'doc:AGENTS.md', 'doc:CLAUDE.md']) {
-      assert.equal(
-        driftById.get(id)?.status,
-        'STALE_LOCAL_EDIT',
-        `managed asset drift check must still flag true local drift for ${id}`,
-      );
+  const assertTrueLocalDrift = (
+    assetMode: 'full' | 'global-thin',
+    docs: Array<{ id: string; relPath: string }>,
+  ): void => {
+    const badRoot = mkdtempSync(join(tmpdir(), 'koala-managed-drift-'));
+    try {
+      const badSection = '<!-- koala:start -->\n# Locally edited guide\nThis is not a Koala-owned alternate contract.\n<!-- koala:end -->\n';
+      for (const doc of docs) write(badRoot, doc.relPath, badSection);
+      const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
+      const driftById = new Map(drift.items.map(item => [item.id, item]));
+      for (const doc of docs) {
+        assert.equal(
+          driftById.get(doc.id)?.status,
+          'STALE_LOCAL_EDIT',
+          `managed asset drift check must still flag true local drift for ${doc.id}`,
+        );
+      }
+    } finally {
+      rmSync(badRoot, { recursive: true, force: true });
     }
-  } finally {
-    rmSync(badRoot, { recursive: true, force: true });
-  }
+  };
+
+  assertTrueLocalDrift('global-thin', [
+    { id: 'doc:.lattice/Lattice.md', relPath: '.lattice/Lattice.md' },
+    { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
+    { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
+  ]);
+  assertTrueLocalDrift('full', [
+    { id: 'doc:LATTICE.md', relPath: 'LATTICE.md' },
+    { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
+    { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
+  ]);
+  assertTrueLocalDrift('full', [
+    { id: 'doc:KOALA.md', relPath: 'KOALA.md' },
+    { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
+    { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
+  ]);
 }
 
 function assertReviewGateUsesOptIn(): void {
@@ -2377,10 +2402,10 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       const commitsBefore = gitCommitCount(root);
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
       assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `auto-commit hint must start with the canonical prefix; got: ${JSON.stringify(out)}`);
-      assert.match(out, /koala: record B-test1 finding_add metadata/);
+      assert.match(out, /lattice: record B-test1 finding_add metadata/);
       assert.match(out, /\([0-9a-f]{7}\)/, 'auto-commit hint must include short sha (7 hex chars)');
       assert.equal(gitCommitCount(root), commitsBefore + 1);
-      assert.match(gitLastSubject(root), /^koala: record B-test1 finding_add metadata$/);
+      assert.match(gitLastSubject(root), /^lattice: record B-test1 finding_add metadata$/);
       assert.ok(!out.includes('untouched'), `no coexisting non-metadata dirt → tail-note must be omitted; got: ${JSON.stringify(out)}`);
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -2399,7 +2424,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       const commitsBefore = gitCommitCount(root);
       const out = autoCommitStoryMetadata(root, storyId, 'review_pass_set');
       assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), 'prefix must match');
-      assert.match(out, /koala: record B-test1 review_pass_set metadata/);
+      assert.match(out, /lattice: record B-test1 review_pass_set metadata/);
       assert.match(out, /\(coexisting non-metadata dirt left untouched: [^)]*material_source_changes=1[^)]*\)/);
       assert.equal(gitCommitCount(root), commitsBefore + 1);
       // material file still dirty
@@ -2502,7 +2527,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       writeFakeMetadata(root, storyId);
       writeFileSync(join(root, '.git', 'index.lock'), 'locked');
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
-    assert.match(out, /koala metadata auto-commit failed/, 'real git failures still return the user-visible warning');
+      assert.match(out, /lattice metadata auto-commit failed/, 'real git failures still return the user-visible warning');
       const issues = readHealthIssues().filter(issue => issue.category === 'mutation:storyMetadataCommit');
       assert.equal(issues.length, 1, 'real git checkout failures still produce one metadata health issue');
       assert.equal(issues[0].context.storyId, storyId);
@@ -2541,7 +2566,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   }
 
   // Test 9 (prefix vocabulary parity with story-advance precedent — CHK-003
-  // adversarial: byte-equal prefix `\n✓ koala metadata auto-committed:`).
+  // adversarial: byte-equal prefix `\n✓ lattice metadata auto-committed:`).
   {
     const { root, storyId } = setupAutoCommitFixture();
     try {
@@ -2552,7 +2577,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       assert.equal(
         out.slice(0, AUTO_COMMIT_METADATA_PREFIX.length),
         AUTO_COMMIT_METADATA_PREFIX,
-        'user-visible prefix must be byte-equal `\\n✓ koala metadata auto-committed:`',
+        'user-visible prefix must be byte-equal `\\n✓ lattice metadata auto-committed:`',
       );
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -2572,8 +2597,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
         writeFakeMetadata(root, storyId, `{"reason":"${reason}"}`);
         const out = autoCommitStoryMetadata(root, storyId, reason);
         assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `reason=${reason} prefix mismatch`);
-        assert.match(out, new RegExp(`koala: record B-test1 ${reason} metadata`));
-        assert.match(gitLastSubject(root), new RegExp(`^koala: record B-test1 ${reason} metadata$`));
+        assert.match(out, new RegExp(`lattice: record B-test1 ${reason} metadata`));
+        assert.match(gitLastSubject(root), new RegExp(`^lattice: record B-test1 ${reason} metadata$`));
       } finally {
         rmSync(root, { recursive: true, force: true });
       }

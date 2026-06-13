@@ -7,6 +7,8 @@ import type {
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
+  ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData,
+  ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -56,6 +58,14 @@ export class StoryStore {
 
   storyFilePath(storyId: string, file: string): string {
     return join(this.storyDir(storyId), file);
+  }
+
+  readStoryBackground(storyId: string): string | null {
+    for (const dir of this.candidateStoryDirs(storyId)) {
+      const filePath = join(dir, 'background.md');
+      if (existsSync(filePath)) return readFileSync(filePath, 'utf-8');
+    }
+    return null;
   }
 
   private storyDir(storyId: string): string {
@@ -446,6 +456,125 @@ export class StoryStore {
 
   writeInitCheck(storyId: string, data: InitCheckData): void {
     this.writeJson(storyId, 'init-check.json', data);
+  }
+
+  // ── Scope Anti-Expansion (B-85ba: INIT→INIT_CHECK boundary freeze gate) ──
+
+  readScopeBoundary(storyId: string): ScopeBoundaryData | null {
+    try {
+      return this.readJson<ScopeBoundaryData>(storyId, 'scope-boundary.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeScopeBoundary(storyId: string, data: ScopeBoundaryData): void {
+    this.writeJson(storyId, 'scope-boundary.json', data);
+  }
+
+  readExecutionBoundary(storyId: string): ExecutionBoundaryData | null {
+    try {
+      return this.readJson<ExecutionBoundaryData>(storyId, 'execution-boundary.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeExecutionBoundary(storyId: string, data: ExecutionBoundaryData): void {
+    this.writeJson(storyId, 'execution-boundary.json', data);
+  }
+
+  readScopeFreezeCheck(storyId: string): ScopeFreezeCheckData | null {
+    try {
+      return this.readJson<ScopeFreezeCheckData>(storyId, 'scope-freeze-check.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeScopeFreezeCheck(storyId: string, data: ScopeFreezeCheckData): void {
+    this.writeJson(storyId, 'scope-freeze-check.json', data);
+  }
+
+  readScopeExtensionProposals(storyId: string): ScopeExtensionProposalData {
+    try {
+      return this.readJson<ScopeExtensionProposalData>(storyId, 'scope-extension-proposals.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return { storyId, updatedAt: '', proposals: [] };
+      throw e;
+    }
+  }
+
+  writeScopeExtensionProposals(storyId: string, data: ScopeExtensionProposalData): void {
+    this.writeJson(storyId, 'scope-extension-proposals.json', data);
+  }
+
+  readScopeExtensionDecisions(storyId: string): ScopeExtensionDecisionData {
+    try {
+      return this.readJson<ScopeExtensionDecisionData>(storyId, 'scope-extension-decisions.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return { storyId, updatedAt: '', decisions: [] };
+      throw e;
+    }
+  }
+
+  writeScopeExtensionDecisions(storyId: string, data: ScopeExtensionDecisionData): void {
+    this.writeJson(storyId, 'scope-extension-decisions.json', data);
+  }
+
+  readScopeDiscardDigest(storyId: string): ScopeDiscardDigestData {
+    try {
+      return this.readJson<ScopeDiscardDigestData>(storyId, 'scope-discard-digest.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return { storyId, updatedAt: '', entries: [] };
+      throw e;
+    }
+  }
+
+  readScopeDiscardDigestForFreeze(storyId: string): ScopeDiscardDigestData {
+    const merged: ScopeDiscardDigestData = {
+      storyId,
+      updatedAt: '',
+      entries: [],
+    };
+    const seen = new Set<string>();
+    const addEntries = (sourceStoryId: string, data: ScopeDiscardDigestData): void => {
+      if (data.updatedAt && (!merged.updatedAt || this.timestampOf(data.updatedAt) > this.timestampOf(merged.updatedAt))) {
+        merged.updatedAt = data.updatedAt;
+      }
+      for (const entry of data.entries ?? []) {
+        const key = `${entry.storyId ?? sourceStoryId}::${entry.digest}::${(entry.terms ?? []).join('|')}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        merged.entries.push(entry);
+      }
+    };
+
+    addEntries(storyId, this.readScopeDiscardDigest(storyId));
+    for (const otherStoryId of this.listStoryIds()) {
+      if (otherStoryId === storyId) continue;
+      let story: StoryInfo;
+      try {
+        story = this.readStory(otherStoryId);
+      } catch {
+        continue;
+      }
+      if (story.phase !== 'DISCARDED') continue;
+      try {
+        addEntries(otherStoryId, this.readScopeDiscardDigest(otherStoryId));
+      } catch (e) {
+        const reason = e instanceof Error ? e.message : String(e);
+        throw new Error(`Scope discard digest for discarded story ${otherStoryId} could not be read: ${reason}`);
+      }
+    }
+    return merged;
+  }
+
+  writeScopeDiscardDigest(storyId: string, data: ScopeDiscardDigestData): void {
+    this.writeJson(storyId, 'scope-discard-digest.json', data);
   }
 
   // ── Delivery Check (B-35ed: TEST→DONE hard gate artifact delivery-check.json) ──

@@ -110,16 +110,16 @@ function spawnStoryAdvance(cwd: string, args: Record<string, unknown>): Promise<
 function validBackground(): string {
   return [
     '## Trigger Event',
-    '2026-05-08 B-from-draft smoke reproduces the field report where story_create fromDraft reached INIT_CHECK but did not create a worktree, leaving the next command unable to proceed without manual git worktree add.',
+    '2026-06-12 B-85ba F-006 smoke pins the new fromDraft lifecycle after the old direct INIT_CHECK bootstrap expectation was retired.',
     '',
     '## Key Insights',
-    'The draft path already has reviewed story material, so the missing behavior is not planning validation. The CLI must run the same worktree bootstrap that story_advance INIT_CHECK uses after materializing the story.',
+    'The draft path only materializes reviewed story material into INIT. The normal INIT reviewers and scope anti-expansion artifacts must pass before story_advance INIT_CHECK creates a worktree.',
     '',
     '## Solution Tradeoffs',
-    'The smoke keeps the story tiny and validates the user visible path. It prefers exercising the public CLI over importing private helper internals because the bug lived in CLI orchestration.',
+    'The smoke keeps the story tiny and validates the user visible path. It exercises public CLI commands for both fromDraft creation and the later INIT_CHECK bootstrap instead of importing private helper internals.',
     '',
     '## Conversation Texture',
-    'A user expects a completed from-draft command to print the worktree path and a direct cd instruction. Seeing phase INIT_CHECK without a directory is confusing and blocks the workflow.',
+    'A user expects fromDraft to stop conservatively in INIT and point at the gated next step. The worktree path should appear only after the explicit INIT_CHECK advance succeeds.',
     '',
   ].join('\n');
 }
@@ -262,8 +262,46 @@ function assertTerminalStoriesDoNotRedirect(): void {
   }
 }
 
-function assertFromDraftCreatesWorktreeThroughCli(): void {
+function recordPassingInitAndScopeGates(root: string, storyId: string): void {
+  runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
+  runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
+  runKoala(root, 'scope_boundary_set', {
+    storyId,
+    mode: 'custom',
+    allowedScope: ['Materialize reviewed draft metadata and bootstrap the story worktree only through INIT_CHECK.'],
+    excludedScope: ['Do not create a story worktree during story_create --fromDraft.'],
+    userConfirmed: true,
+    actor: 'worktree-authority-smoke',
+    confirmation: 'B-85ba F-006 fromDraft smoke expects conservative INIT creation followed by explicit INIT_CHECK bootstrap.',
+  });
+  runKoala(root, 'execution_boundary_set', {
+    storyId,
+    allowedCommands: [
+      'story_create --fromDraft',
+      'init_check_set',
+      'scope_boundary_set',
+      'execution_boundary_set',
+      'scope_freeze_check',
+      'story_advance INIT_CHECK',
+      'git status',
+      'git worktree list',
+      'git merge-base',
+    ],
+    allowedPaths: ['.lattice/story/actives', 'docs/story/drafts', '.worktrees'],
+    actor: 'worktree-authority-smoke',
+    notes: 'FromDraft smoke may inspect bounded lifecycle metadata and the eventual worktree bootstrap.',
+  });
+  runKoala(root, 'scope_freeze_check', {
+    storyId,
+    status: 'PASS',
+    actor: 'worktree-authority-smoke',
+    note: 'FromDraft smoke scope is frozen before INIT_CHECK worktree bootstrap.',
+  });
+}
+
+function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-worktree-'));
+  const draftName = 'from-draft-smoke';
   try {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
@@ -281,42 +319,58 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
     resetConfigCache();
 
     runKoala(root, 'story_draft', {
-      name: 'from-draft-smoke',
+      name: draftName,
       title: 'From draft smoke story',
       description: 'Synthetic from-draft story for worktree bootstrap.',
       type: 'chore',
       priority: 'medium',
       background: validBackground(),
       checklist: [{
-        title: 'Create worktree from draft',
-        context: 'The fromDraft CLI path must bootstrap the worktree automatically.',
+        title: 'Create INIT story from draft',
+        context: 'The fromDraft CLI path must stop at INIT; worktree bootstrap happens later through gated INIT_CHECK.',
       }],
     });
     runKoala(root, 'draft_check_set', {
-      draftName: 'from-draft-smoke',
+      draftName,
       issues: [],
       agentId: 'koala-review-story-init',
     });
-    const output = runKoala(root, 'story_create', { fromDraft: 'from-draft-smoke' });
+    const output = runKoala(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
-    assert.equal(story.phase, 'INIT_CHECK');
-    assert.ok(story.worktree?.path, 'fromDraft story should record worktree metadata');
-    assert.match(output, /worktree/i, 'fromDraft output should include worktree bootstrap result');
+    assert.equal(story.phase, 'INIT');
+    assert.equal(story.worktree, undefined, 'fromDraft story must not record worktree metadata at creation');
+    assert.match(output, /created from draft .* \(INIT\)/, 'fromDraft output should report conservative INIT creation');
+    assert.match(output, /normal INIT reviewer and scope anti-expansion gates/, 'fromDraft output should point at normal INIT gates');
+    assert.doesNotMatch(output, /main merged into story\//, 'story_create --fromDraft must not run worktree bootstrap sync');
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'fromDraft creation must not register a story worktree');
+
+    recordPassingInitAndScopeGates(root, storyId);
+    const advanced = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    assert.match(advanced, /advanced to INIT_CHECK/, 'explicit INIT_CHECK advance should succeed');
+    assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report main metadata commit');
+
+    const advancedStory = new StoryStore(root).readStory(storyId);
+    assert.equal(advancedStory.phase, 'INIT_CHECK');
+    assert.ok(advancedStory.worktree?.path, 'explicit INIT_CHECK should record worktree metadata');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
-    assert.equal(git(root, ['status', '--porcelain']), '', 'fromDraft should leave main clean after bootstrap');
+    assert.equal(
+      git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
+      '',
+      'fromDraft + INIT_CHECK should leave bounded story/draft metadata clean',
+    );
     assert.equal(
       gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
       true,
-      'fromDraft story branch should contain current main after bootstrap',
+      'fromDraft story branch should contain current main after explicit INIT_CHECK bootstrap',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
+function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-dirty-main-'));
   const draftName = 'from-draft-dirty-main-smoke';
   try {
@@ -344,8 +398,8 @@ function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
       priority: 'medium',
       background: validBackground(),
       checklist: [{
-        title: 'Create worktree from draft while main has unrelated edits',
-        context: 'The fromDraft CLI path must commit bounded metadata without consuming user changes.',
+        title: 'Create INIT story from draft while main has unrelated edits',
+        context: 'The fromDraft CLI path must commit bounded metadata without consuming user changes or creating a worktree.',
       }],
     });
     runKoala(root, 'draft_check_set', {
@@ -366,9 +420,10 @@ function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
-    assert.equal(story.phase, 'INIT_CHECK');
-    assert.ok(story.worktree?.path, 'fromDraft story should record worktree metadata');
-    assert.match(output, /main merged into story\//, 'fromDraft output should confirm main was merged into the story branch');
+    assert.equal(story.phase, 'INIT');
+    assert.equal(story.worktree, undefined, 'fromDraft should not record worktree metadata while stopping at INIT');
+    assert.match(output, /created from draft .* \(INIT\)/, 'fromDraft output should report conservative INIT creation');
+    assert.doesNotMatch(output, /main merged into story\//, 'fromDraft creation should not merge main into a story branch');
     assert.equal(
       git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
       '',
@@ -382,10 +437,11 @@ function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
     );
     assert.match(dirtyAfter, /\?\? unrelated-untracked\.txt/, 'untracked user edits should remain dirty');
     assert.equal(
-      gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
-      true,
-      'fromDraft story branch should contain current main after dirty-main bootstrap',
+      gitSucceeds(root, ['show-ref', '--verify', `refs/heads/story/${storyId}`]),
+      false,
+      'fromDraft creation must not create a story branch while stopping at INIT',
     );
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'fromDraft creation must not register a story worktree');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -781,17 +837,20 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // advance line + merge-report lines, byte-identical. The worktree-cleanup
     // line embeds the canonical (symlink-resolved) absolute worktree path, so
-    // it is matched structurally — the line is `✓ Worktree <abs>/<storyId> cleaned up`.
-    const cleanupLine = new RegExp(`✓ Worktree [^\\n]*${storyId} cleaned up`);
+    // it is matched structurally — current output is localized, but older
+    // transcripts used English, so keep the smoke tolerant of either wording.
+    const mergeLine = new RegExp(`✓ (?:Branch|分支) story/${storyId} (?:merged into|已合并到) main`);
+    const cleanupLine = new RegExp(`✓ Worktree [^\\n]*${storyId} (?:cleaned up|已(?:强制)?清理)`);
+    const deleteLine = new RegExp(`✓ (?:Branch|分支) story/${storyId} (?:deleted|已删除)`);
     assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE success output must include the advance line');
-    assert.ok(output.includes(`✓ Branch story/${storyId} merged into main`), 'DONE success output must include the merge confirmation');
+    assert.match(output, mergeLine, 'DONE success output must include the merge confirmation');
     assert.match(output, cleanupLine, 'DONE success output must include the worktree-cleanup confirmation naming the canonical worktree path');
-    assert.ok(output.includes(`✓ Branch story/${storyId} deleted`), 'DONE success output must include the branch-delete confirmation');
+    assert.match(output, deleteLine, 'DONE success output must include the branch-delete confirmation');
 
     // Step ordering: metadata commit → merge → worktree remove → branch delete.
-    const mergeIdx = output.indexOf(`✓ Branch story/${storyId} merged into main`);
+    const mergeIdx = output.search(mergeLine);
     const cleanIdx = output.search(cleanupLine);
-    const deleteIdx = output.indexOf(`✓ Branch story/${storyId} deleted`);
+    const deleteIdx = output.search(deleteLine);
     assert.ok(mergeIdx >= 0 && cleanIdx > mergeIdx && deleteIdx > cleanIdx, 'merge → worktree remove → branch delete must appear in that order');
 
     // Step1 (metadata commit) — the DONE commit landed on the merged branch.
@@ -1076,7 +1135,11 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
     writeFileSync(join(root, 'shared.txt'), 'untracked main file that blocks merge\n');
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
-    assert.match(output, new RegExp(`Story ${storyId} has been marked DONE but auto-merge failed`), 'real merge failure must announce the story is already DONE');
+    assert.match(
+      output,
+      new RegExp(`Story ${storyId} (?:has been marked DONE but auto-merge failed|已标记为 DONE 但自动合并失败)`),
+      'real merge failure must announce the story is already DONE',
+    );
     // Manual-recovery guidance — must not swallow the failure.
     assert.match(output, /cd "/, 'merge failure guidance must include a cd step');
     assert.match(output, /git merge story\//, 'merge failure guidance must include git merge');
@@ -1121,7 +1184,11 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
     chmodSync(worktreesDir, 0o500);
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
-    assert.match(output, new RegExp(`Story ${storyId} merged, but worktree cleanup did not complete`), 'cleanup failure must announce the story merged but cleanup is incomplete');
+    assert.match(
+      output,
+      new RegExp(`Story ${storyId} (?:merged, but worktree cleanup did not complete|已合并，但 worktree 清理未完成)`),
+      'cleanup failure must announce the story merged but cleanup is incomplete',
+    );
     assert.match(output, /koala doctor/, 'cleanup failure must point at koala doctor for recovery');
 
     // phase=DONE persisted and the merge DID land on main (cleanup failed AFTER merge).
@@ -1274,8 +1341,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
     const storyId = created.match(/B-[a-f0-9]+/)?.[0];
     assert.ok(storyId, `story_create should return story id, got: ${created}`);
 
-    runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
-    runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
+    recordPassingInitAndScopeGates(root, storyId);
 
     const advanced = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.match(advanced, /advanced to INIT_CHECK/, 'INIT_CHECK advance should succeed');
@@ -1413,8 +1479,8 @@ async function assertConcurrentDoneSerializesWithoutPartialDone(): Promise<void>
 assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
-assertFromDraftCreatesWorktreeThroughCli();
-assertFromDraftCreatesWorktreeWithDirtyMainPreserved();
+assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck();
+assertFromDraftStopsAtInitWithDirtyMainPreserved();
 assertFromDraftRejectsStagedMainBeforeMutation();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
 assertDoneRejectsMismatchedStoryBranchBeforeMutation();

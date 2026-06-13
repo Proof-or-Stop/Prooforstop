@@ -120,8 +120,11 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'serve-metadata',
     description: 'Transient dev-server handshake file.',
-    matchers: [{ kind: 'exact', value: '.koala-serve.json' }],
-    ignorePatterns: ['.koala-serve.json'],
+    matchers: [
+      { kind: 'exact', value: '.koala-serve.json' },
+      { kind: 'exact', value: '.lattice-serve.json' },
+    ],
+    ignorePatterns: ['.koala-serve.json', '.lattice-serve.json'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,

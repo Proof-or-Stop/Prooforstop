@@ -1,7 +1,7 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
-import type { StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
+import type { ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
 import { validateBackground } from '../core/background-validator.js';
 import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync } from 'fs';
 import { join } from 'path';
@@ -12,6 +12,31 @@ import { isGitRepository } from '../core/git-probe.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import { normalizeName, keywordOverlap } from '../core/story-dedup.js';
+import { buildExecutionBoundary, buildScopeBoundary, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
+import type { ScopeFreezeTextSource } from '../core/types.js';
+
+type StoryCreateScopeBoundaryInput = {
+  mode?: ScopeBoundaryMode;
+  allowed?: string[];
+  allowedScope?: string[];
+  excluded?: string[];
+  excludedScope?: string[];
+  userConfirmed?: boolean;
+  confirmation?: string;
+  actor?: string;
+};
+
+type StoryCreateExecutionBoundaryInput = {
+  allowedCommands?: string[];
+  allowedTools?: string[];
+  allowedPaths?: string[];
+  excludedCommands?: string[];
+  excludedTools?: string[];
+  excludedPaths?: string[];
+  blockedPaths?: string[];
+  confirmation?: string;
+  actor?: string;
+};
 
 /**
  * B-6812 F-003: typed error raised when a keyword-full-overlap duplicate of an
@@ -58,6 +83,41 @@ function detectRiskSignals(text: string): Array<{ category: string; matched: str
     }
   }
   return hits;
+}
+
+function assertStoryCreateExplicitExcludes(args: {
+  title: string;
+  description: string;
+  checklist?: Array<{ title: string; context?: string; excludes?: string[] }>;
+  scopeBoundary?: StoryCreateScopeBoundaryInput;
+}): void {
+  const explicitExcludedTerms = normalizeBoundaryArray([
+    ...(args.checklist?.flatMap(item => item.excludes ?? []) ?? []),
+    ...(args.scopeBoundary?.excluded ?? []),
+    ...(args.scopeBoundary?.excludedScope ?? []),
+  ]);
+  if (explicitExcludedTerms.length === 0) return;
+
+  const sources: ScopeFreezeTextSource[] = [
+    { source: 'story.title', text: args.title },
+    { source: 'story.description', text: args.description },
+  ];
+  for (const [index, item] of (args.checklist ?? []).entries()) {
+    const itemId = `CHK-${String(index + 1).padStart(3, '0')}`;
+    sources.push({ source: 'checklist.title', text: item.title, itemId });
+    if (item.context) sources.push({ source: 'checklist.context', text: item.context, itemId });
+    for (const excluded of item.excludes ?? []) {
+      sources.push({ source: 'checklist.excludes', text: excluded, itemId, excluded: true });
+    }
+  }
+
+  const hit = scanExcludedKeywordHits(sources, explicitExcludedTerms).find(item => !item.excluded);
+  if (!hit) return;
+  const itemRef = hit.itemId ? ` (${hit.itemId})` : '';
+  throw new Error(
+    `story_create text includes explicitly excluded scope keyword "${hit.keyword}" in ${hit.source}${itemRef}. [excluded_keyword_in_story_create]\n` +
+    `→ Move excluded directions into checklist.excludes only, or create a scope_extension_proposal after INIT review.`,
+  );
 }
 
 /**
@@ -162,6 +222,8 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       depends?: string[];
       keywords?: string[];
       checklist?: Array<{ title: string; context?: string; relatedDocs?: string[]; userSees?: string; excludes?: string[]; verificationIntent?: VerificationIntent }>;
+      scopeBoundary?: StoryCreateScopeBoundaryInput;
+      executionBoundary?: StoryCreateExecutionBoundaryInput;
       prefix?: string;
       phase?: StoryPhase;
       forceNew?: boolean; // B-0af4 CHK-001: bypass idempotency and force new creation
@@ -265,7 +327,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           title: draftIndex.title,
           description: draftIndex.description,
           type: draftIndex.type || 'feature',
-          phase: 'INIT_CHECK' as StoryPhase,
+          phase: 'INIT' as StoryPhase,
           priority,
           ...(draftIndex.keywords?.length > 0 ? { keywords: draftIndex.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
@@ -273,7 +335,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           createdAt: now,
           startedAt: now,
           endedAt: null,
-          events: [collectContext('INIT_CHECK', 'create')],
+          events: [collectContext('INIT', 'create')],
         };
         store.writeStory(storyId, story);
 
@@ -289,7 +351,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // Delete draft directory
         rmSync(draftsDir, { recursive: true, force: true });
 
-        return `Story ${storyId} created from draft '${draftName}' (phase=INIT_CHECK)\n→ draft '${draftName}' deleted\n→ story_advance '{"storyId":"${storyId}","phase":"PLAN"}' to enter PLAN`;
+        return `Story ${storyId} created from draft '${draftName}' (INIT)\n→ draft '${draftName}' deleted\n→ run the normal INIT reviewer and scope anti-expansion gates, then story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
       }
 
       // B-45ed CHK-006: background is required + four-section validation.
@@ -383,6 +445,13 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         );
       }
 
+      assertStoryCreateExplicitExcludes({
+        title: args.title,
+        description: args.description,
+        checklist: args.checklist,
+        scopeBoundary: args.scopeBoundary,
+      });
+
       const storyId = nextStoryId(store, args.prefix);
       const now = new Date().toISOString();
       const hasChecklist = args.checklist && args.checklist.length > 0;
@@ -395,6 +464,40 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // ensure trailing newline, consistent with JSON artifact convention
         const content = args.background!.endsWith('\n') ? args.background! : args.background! + '\n';
         writeFileSync(bgPath, content, 'utf-8');
+      };
+      const writeInitialScopeArtifacts = () => {
+        if (args.scopeBoundary) {
+          if (args.scopeBoundary.userConfirmed !== true) {
+            throw new Error('story_create scopeBoundary requires userConfirmed:true');
+          }
+          const allowed = normalizeBoundaryArray(args.scopeBoundary.allowed ?? args.scopeBoundary.allowedScope, 'scopeBoundary.allowed');
+          if (allowed.length === 0) {
+            throw new Error('story_create scopeBoundary requires at least one allowed scope entry');
+          }
+          store.writeScopeBoundary(storyId, buildScopeBoundary({
+            storyId,
+            mode: args.scopeBoundary.mode ?? 'custom',
+            allowed,
+            excluded: args.scopeBoundary.excluded ?? args.scopeBoundary.excludedScope,
+            confirmedBy: args.scopeBoundary.actor ?? 'story_create',
+            confirmationNote: args.scopeBoundary.confirmation,
+            now,
+          }));
+        }
+        if (args.executionBoundary) {
+          store.writeExecutionBoundary(storyId, buildExecutionBoundary({
+            storyId,
+            allowedCommands: args.executionBoundary.allowedCommands,
+            allowedTools: args.executionBoundary.allowedTools,
+            allowedPaths: args.executionBoundary.allowedPaths,
+            excludedCommands: args.executionBoundary.excludedCommands,
+            excludedTools: args.executionBoundary.excludedTools,
+            excludedPaths: args.executionBoundary.excludedPaths ?? args.executionBoundary.blockedPaths,
+            confirmedBy: args.executionBoundary.actor ?? 'story_create',
+            confirmationNote: args.executionBoundary.confirmation,
+            now,
+          }));
+        }
       };
 
       // B-6812 CHK-003 (G3): advisory text — riskHint, keyword-overlap
@@ -519,6 +622,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
       // Directly specify phase (for onboard use: completed modules marked directly as DONE)
       if (args.phase) {
+        if (args.phase === 'INIT_CHECK') {
+          throw new Error(
+            'story_create cannot directly create INIT_CHECK stories. ' +
+            'Create the story in INIT, persist init-check/scope-boundary/execution-boundary/scope-freeze artifacts, then use story_advance phase=INIT_CHECK. [story_create_direct_init_check_forbidden]',
+          );
+        }
         const story: StoryInfo = {
           storyId,
           name: args.name,
@@ -540,6 +649,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         };
         store.writeStory(storyId, story);
         writeBackground();
+        writeInitialScopeArtifacts();
         // Note: direct phase specification path is for onboard etc. scenarios; normally riskHint is unnecessary, but kept consistent
         if (hasChecklist) {
           const isDone = args.phase === 'DONE';
@@ -591,6 +701,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       };
       store.writeStory(storyId, story);
       writeBackground();
+      writeInitialScopeArtifacts();
 
       if (hasChecklist) {
         const checklist = {

@@ -60,6 +60,7 @@ import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { createDoneClosureHandlers } from './handlers/done-closure.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
+import { createScopeAntiExpansionHandlers } from './handlers/scope-anti-expansion.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
@@ -211,6 +212,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createDoneClosureHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));
+
+  // B-85ba CHK-002: INIT scope anti-expansion CLI surface.
+  registry.registerBatch(createScopeAntiExpansionHandlers(ctx));
 
   // B-be27: scope contract — scope_contract_set/show/check/acknowledge
   registry.registerBatch(createScopeContractHandlers(ctx));

@@ -1,0 +1,92 @@
+{
+  "storyId": "B-85ba",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/templates/agents/koala-review-story-init.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/package.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/scope-anti-expansion.ts",
+    "packages/main/src/handlers/scope-anti-expansion.ts",
+    "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Required integration for the new INIT-only scope anti-expansion commands: command-policy marks them allowed in INIT, and DEFAULT_PHASE_TOOLS must expose the same commands so the phase gate and process-fact contract do not drift.",
+      "timestamp": "2026-06-12T20:20:15.845Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "anchors": [
+        "DEFAULT_PHASE_TOOLS.INIT",
+        "scope_anti_expansion_INIT_command_allowlist"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve verified REVIEW finding B-85ba F-006: the existing worktree authority smoke still asserted legacy fromDraft INIT_CHECK auto-worktree behavior, conflicting with the new INIT scope anti-expansion gate that intentionally keeps fromDraft stories in INIT until explicit INIT_CHECK advancement.",
+      "timestamp": "2026-06-12T21:26:33.239Z",
+      "paths": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ],
+      "anchors": [
+        "B_85ba_F_006",
+        "fromDraft_INIT_stop",
+        "init_scope_anti_expansion_gate",
+        "worktree_authority_smoke"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Root npm test is the formal fallback validation path for this story; after adding INIT scope gate, the lifecycle e2e sandbox must create the same scope-boundary/execution-boundary/freeze evidence before INIT_CHECK so validation covers the new gate instead of failing on legacy assumptions.",
+      "timestamp": "2026-06-13T01:42:39.057Z",
+      "paths": [
+        "packages/main/src/tasks/test-flow-e2e.ts"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Reviewer F-012 required covering lattice serve metadata as runtime artifact and adding flow-stability smoke coverage for the same regression plus current Lattice managed asset contract drift.",
+      "timestamp": "2026-06-13T02:22:44.136Z",
+      "paths": [
+        "packages/main/src/core/runtime-artifact-registry.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Reviewer F-013 proved story_update was a story-level scope expansion bypass in INIT; fixing it requires guarding story-query story_update alongside checklist mutation guards.",
+      "timestamp": "2026-06-13T02:34:51.635Z",
+      "paths": [
+        "packages/main/src/handlers/story-query.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-12T19:48:39.680Z",
+  "updatedAt": "2026-06-13T02:34:51.635Z"
+}

@@ -1,0 +1,301 @@
+{
+  "command": "koala validate --story=B-85ba --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-KvdLJa; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-swnUbk; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — scope-boundary and execution-boundary artifacts persist with canonical user-confirmed allowed/excluded scope and can be read back by store helpers\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — missing scope boundary or execution boundary is represented as a hard missing-artifact condition, not as allow-all scope\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — malformed boundary arrays, unsafe paths, or blank boundary terms are rejected before gate evidence can be written\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — scope_boundary_set, execution_boundary_set, scope_freeze_check, scope_extension_proposal, and scope_extension_decide are registered and enforce INIT-only command semantics\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — accepted scope extension invalidates stale freeze-check evidence and requires a rerun before INIT_CHECK\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — reviewer proposal command cannot directly accept expansion or mutate checklist scope\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — INIT_CHECK succeeds only after fresh scope-freeze evidence passes, existing init-check reviewers pass, and no extension proposal is pending\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — missing scope boundary, missing execution boundary, stale freeze check, and pending proposal each produce a distinct guard failure reason\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — blocking failures happen before worktree creation or phase mutation, leaving the story in INIT\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — correctness_fix stories block default future denylist keywords in story/checklist text before INIT_CHECK\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — feature/refactor stories do not use correctness-fix default denylist unless excluded keywords are explicitly user-confirmed\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — discarded-story digest overlap blocks repeat creation unless repeatMitigation is recorded\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript — process-fact registry lists every new gate-consumed anti-expansion artifact/command and contract verifier passes\",\"  ✓ CHK-005:edge:0 [edge/must/docs] covered via docs_check — docs and reviewer prompt state that INIT reviewers propose expansion and cannot mutate scope directly\",\"  ✓ CHK-005:adversarial:0 [adversarial/should/cli] covered via manual_transcript — removing a required artifact fact or lifecycle artifact filename causes the smoke/contract checks to fail\"],\"warnings\":[],\"timestamp\":\"2026-06-13T03:01:42.198Z\",\"headSha\":\"860699c719bd42e51e2f05b42ae8672aa1b14931\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-KvdLJa; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-swnUbk; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":938}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":14,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"scope-boundary and execution-boundary artifacts persist with canonical user-confirmed allowed/excluded scope and can be read back by store helpers\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke case story_create persists initial scope and execution boundaries verifies scope-boundary.json and execution-boundary.json are saved and readable.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"missing scope boundary or execution boundary is represented as a hard missing-artifact condition, not as allow-all scope\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke cases missing scope boundary and missing execution boundary produce hard missing-artifact guard reasons instead of allow-all scope.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"malformed boundary arrays, unsafe paths, or blank boundary terms are rejected before gate evidence can be written\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke cases reject malformed scope arrays, blank scope terms, malformed execution arrays, and unsafe traversal paths before gate evidence can be saved.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"scope_boundary_set, execution_boundary_set, scope_freeze_check, scope_extension_proposal, and scope_extension_decide are registered and enforce INIT-only command semantics\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Process fact contract lists scope boundary, execution boundary, freeze check, extension proposal, and extension decision commands; smoke exercises proposal and decision behavior.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"accepted scope extension invalidates stale freeze-check evidence and requires a rerun before INIT_CHECK\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke case accepted proposal invalidates previous freeze evidence and requires rerunning freeze before the INIT_CHECK guard passes.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"reviewer proposal command cannot directly accept expansion or mutate checklist scope\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke case pending proposal blocks INIT_CHECK until separate explicit decision, proving proposal recording alone cannot mutate checklist scope or accept expansion.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"INIT_CHECK succeeds only after fresh scope-freeze evidence passes, existing init-check reviewers pass, and no extension proposal is pending\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke happy path passes only with current boundary, execution boundary, fresh freeze check, and no pending proposals.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"missing scope boundary, missing execution boundary, stale freeze check, and pending proposal each produce a distinct guard failure reason\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers distinct missing_scope_boundary, missing_execution_boundary, scope_extension_proposal_pending, scope_freeze_check_failed, and scope_freeze_check_stale reasons.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"blocking failures happen before worktree creation or phase mutation, leaving the story in INIT\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"F-006 follow-up: worktree authority smoke now verifies fromDraft stops at INIT and only explicit story_advance INIT_CHECK performs worktree bootstrap, so anti-expansion failures still happen before worktree creation.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"correctness_fix stories block default future denylist keywords in story/checklist text before INIT_CHECK\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke correctness_fix case blocks default future denylist keyword Authority in checklist text before INIT_CHECK.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"feature/refactor stories do not use correctness-fix default denylist unless excluded keywords are explicitly user-confirmed\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke feature-mode case proves correctness_fix default denylist is not applied to feature scope unless excluded keywords are user-confirmed.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"discarded-story digest overlap blocks repeat creation unless repeatMitigation is recorded\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:scope-anti-expansion-smoke\",\"result\":\"pass\",\"note\":\"Smoke repeat-discard case blocks repeated discarded direction without mitigation and passes only after repeat mitigation is recorded.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"process-fact registry lists every new gate-consumed anti-expansion artifact/command and contract verifier passes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process fact contract verified new anti-expansion artifacts and commands are registered as gate-consumed facts.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"docs and reviewer prompt state that INIT reviewers propose expansion and cannot mutate scope directly\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"docs_check\",\"command\":\"npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Build and contract checks include updated reviewer prompt/docs surfaces for INIT reviewers to propose expansion instead of mutating scope directly.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"removing a required artifact fact or lifecycle artifact filename causes the smoke/contract checks to fail\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"F-006 follow-up: repository-level worktree authority smoke was updated and passed, preventing stale legacy fromDraft INIT_CHECK auto-worktree expectations from hiding regressions.\",\"headHash\":\"c33b39bff9b66c31b6066ecc4dd4762460edaa8c\",\"materialHash\":\"c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462\",\"timestamp\":\"2026-06-13T03:01:38.217Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-13T03:01:42.618Z",
+  "headHash": "860699c719bd42e51e2f05b42ae8672aa1b14931",
+  "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 14,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "scope-boundary and execution-boundary artifacts persist with canonical user-confirmed allowed/excluded scope and can be read back by store helpers",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke case story_create persists initial scope and execution boundaries verifies scope-boundary.json and execution-boundary.json are saved and readable.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "missing scope boundary or execution boundary is represented as a hard missing-artifact condition, not as allow-all scope",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke cases missing scope boundary and missing execution boundary produce hard missing-artifact guard reasons instead of allow-all scope.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "malformed boundary arrays, unsafe paths, or blank boundary terms are rejected before gate evidence can be written",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke cases reject malformed scope arrays, blank scope terms, malformed execution arrays, and unsafe traversal paths before gate evidence can be saved.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "scope_boundary_set, execution_boundary_set, scope_freeze_check, scope_extension_proposal, and scope_extension_decide are registered and enforce INIT-only command semantics",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Process fact contract lists scope boundary, execution boundary, freeze check, extension proposal, and extension decision commands; smoke exercises proposal and decision behavior.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "accepted scope extension invalidates stale freeze-check evidence and requires a rerun before INIT_CHECK",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke case accepted proposal invalidates previous freeze evidence and requires rerunning freeze before the INIT_CHECK guard passes.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "reviewer proposal command cannot directly accept expansion or mutate checklist scope",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke case pending proposal blocks INIT_CHECK until separate explicit decision, proving proposal recording alone cannot mutate checklist scope or accept expansion.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "INIT_CHECK succeeds only after fresh scope-freeze evidence passes, existing init-check reviewers pass, and no extension proposal is pending",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke happy path passes only with current boundary, execution boundary, fresh freeze check, and no pending proposals.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "missing scope boundary, missing execution boundary, stale freeze check, and pending proposal each produce a distinct guard failure reason",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke covers distinct missing_scope_boundary, missing_execution_boundary, scope_extension_proposal_pending, scope_freeze_check_failed, and scope_freeze_check_stale reasons.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "blocking failures happen before worktree creation or phase mutation, leaving the story in INIT",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "F-006 follow-up: worktree authority smoke now verifies fromDraft stops at INIT and only explicit story_advance INIT_CHECK performs worktree bootstrap, so anti-expansion failures still happen before worktree creation.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "correctness_fix stories block default future denylist keywords in story/checklist text before INIT_CHECK",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke correctness_fix case blocks default future denylist keyword Authority in checklist text before INIT_CHECK.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "feature/refactor stories do not use correctness-fix default denylist unless excluded keywords are explicitly user-confirmed",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke feature-mode case proves correctness_fix default denylist is not applied to feature scope unless excluded keywords are user-confirmed.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "discarded-story digest overlap blocks repeat creation unless repeatMitigation is recorded",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
+          "result": "pass",
+          "note": "Smoke repeat-discard case blocks repeated discarded direction without mitigation and passes only after repeat mitigation is recorded.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "process-fact registry lists every new gate-consumed anti-expansion artifact/command and contract verifier passes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified new anti-expansion artifacts and commands are registered as gate-consumed facts.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "docs and reviewer prompt state that INIT reviewers propose expansion and cannot mutate scope directly",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Build and contract checks include updated reviewer prompt/docs surfaces for INIT reviewers to propose expansion instead of mutating scope directly.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "removing a required artifact fact or lifecycle artifact filename causes the smoke/contract checks to fail",
+        "type": "cli",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "F-006 follow-up: repository-level worktree authority smoke was updated and passed, preventing stale legacy fromDraft INIT_CHECK auto-worktree expectations from hiding regressions.",
+          "headHash": "c33b39bff9b66c31b6066ecc4dd4762460edaa8c",
+          "materialHash": "c1249dd4cbd1b4170ea247c5a41df26dfed3a00f7e0a92b21e52eb95adb90462",
+          "timestamp": "2026-06-13T03:01:38.217Z"
+        }
+      }
+    ]
+  }
+}
