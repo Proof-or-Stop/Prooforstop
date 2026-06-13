@@ -37,8 +37,6 @@ const CLASSIFIED_PATTERNS: RegExp[] = [
   /koala-implementer/i,
   // koala-reviewer — generic reviewer agent lane label
   /koala-reviewer/i,
-  // koala-hook — hook system debug prefix (process lane)
-  /koala-hook/i,
   // koala-eval* — evaluator agent process lane
   /koala-eval/i,
   // koala-delivery — delivery reviewer process lane
@@ -61,8 +59,6 @@ const CLASSIFIED_PATTERNS: RegExp[] = [
   /KOALA_MD_TEMPLATE|KOALA\.md/,
   // koala-story-init / koala-review-story-init (process lane)
   /koala-story/i,
-  // Autopilot run tmp dir naming (mkdtemp prefix, internal)
-  /koala-[a-z]+-/ ,
   // Legacy dir constant reference in comments
   /LEGACY_KOALA_DIR|KOALA_DIR/,
 ];

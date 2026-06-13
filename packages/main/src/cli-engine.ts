@@ -3768,7 +3768,7 @@ export async function runCli(opts?: {
     }
     // preCommand hook — non-blocking failure, awaited so it always runs before the handler
     if (config0?.hooks?.preCommand && !READ_ONLY_COMMANDS.has(cmd)) {
-      process.stderr.write(`[koala-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+      process.stderr.write(`[lattice-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
     if (!READ_ONLY_COMMANDS.has(cmd)) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
@@ -3815,7 +3815,7 @@ export async function runCli(opts?: {
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       if (config0?.hooks?.postCommand && !READ_ONLY_COMMANDS.has(cmd)) {
-        process.stderr.write(`[koala-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+        process.stderr.write(`[lattice-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       if (!READ_ONLY_COMMANDS.has(cmd)) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
@@ -3836,7 +3836,7 @@ export async function runCli(opts?: {
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
       if (config0?.hooks?.onError) {
-        process.stderr.write(`[koala-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+        process.stderr.write(`[lattice-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
         KOALA_ERROR: String(e?.message || e),
