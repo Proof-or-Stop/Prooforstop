@@ -37,6 +37,22 @@
       ],
       "resolvedReason": "Resolved by adding the missing later CLI public surfaces to the Complete Line-Level Translation Manifest, including draft_check_set, draft_issue_resolve, delivery_waiver_add, scope_question_resolve, dispatch, background_set, help output, and INIT_CHECK hints. Mechanical validation confirms 762 source lines map to 762 manifest rows.",
       "resolvedAt": "2026-06-13T13:42:48.503Z"
+    },
+    {
+      "id": "B-8448:F-003",
+      "desc": "quality-cleanup: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md line 75-83 specifies column order as line|surface|chineseSource|translationId|proposedEnglish|reviewStatus, but the actual TSV block at line 359 uses translationId|sourceLine|surface|chineseSource|proposedEnglish|reviewStatus — translationId and line swap positions, and the column is renamed from `line` to `sourceLine`. An implementer running the spec-prescribed extract script would need to reconcile which column order is authoritative before writing or validating the manifest.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T16:19:16.540Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-011",
+      "_hash": "abd98262b5b77eceb9853a09826b26fff576c714254e61e42a8175de253b0d32",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ]
     }
   ]
 }
