@@ -7,7 +7,20 @@
       "userSees": "Running handoff_create for a story whose worktree is ahead prints a clear 'worktree phase X is ahead of packed mirror phase Y' warning; running it for an in-sync story prints no warning and produces an identical packHash to before.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:warn-on-divergence:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/handoff-phase-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:handoff-phase-authority-smoke",
+          "result": "pass",
+          "note": "Smoke covers buildPhaseAuthorityWarning (ahead/in-sync/no-worktree/divergent) + packHash byte-stability. Live: handoff_create on real divergent B-4e06 prints '⚠ phaseAuthority (ahead): ...DEV is ahead of...INIT_CHECK'; no-worktree B-decb prints none; recoveryPoint.phase unchanged.",
+          "headHash": "23c3a9f80598cef6b8a056c36dfc7a377c567253",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:49:12.112Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
