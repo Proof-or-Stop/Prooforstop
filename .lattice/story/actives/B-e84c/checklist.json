@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-13T13:36:32.612Z",
       "endTime": null,
       "userSees": "Document review shows the execution plan recommends only real Codex adapter diagnostic/verification commands and no broken local wrapper diagnostic command.",
       "files": {
@@ -158,6 +158,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-13T13:36:32.612Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start command example review evidence recording."
     }
   ]
 }
