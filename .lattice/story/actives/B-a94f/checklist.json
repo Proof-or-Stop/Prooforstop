@@ -54,7 +54,49 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "authority-client smoke covers root authority_trust.env parsing, LIVE_URL/LIVE_PUBLIC_KEY/CUSTOMER_API_KEY_FILE alias normalization, ${VAR:-fallback} expansion, and canonical Authority config resolution.",
+          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
+          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
+          "timestamp": "2026-06-13T12:47:08.422Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js",
+          "result": "pass",
+          "note": "authority-client smoke asserts precedence CLI/env > authority_trust_env > authority.md/default and customer API key env/path still override trust-file values.",
+          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
+          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
+          "timestamp": "2026-06-13T12:47:08.422Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-enforce-policy-smoke.js",
+          "result": "pass",
+          "note": "smokes cover missing trust env as non-fatal and existing authority.md/default behavior, while policy discovery can use trust env URL when present.",
+          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
+          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
+          "timestamp": "2026-06-13T12:47:08.422Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short --ignored -- authority_trust.env && git diff --check",
+          "result": "pass",
+          "note": "authority_trust.env reports as ignored (!!) in the story worktree, git diff --check is clean, and real-file verification only printed non-sensitive booleans/basenames, not secret values.",
+          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
+          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
+          "timestamp": "2026-06-13T12:47:08.422Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -101,7 +143,39 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js; node packages/main/dist/cli.js authority_status --authorityMode=enforce --json | non-sensitive JSON projection",
+          "result": "pass",
+          "note": "authority_status smoke and real-file projection show authorityTrustEnvLoaded=true, urlSource=authority_trust_env, baseURLConfigured=true, customerApiKeyConfigured=true, customerApiKeySource=authority_trust_env, and serverPublicKeyPinned=true.",
+          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
+          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
+          "timestamp": "2026-06-13T12:47:08.422Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js; node packages/main/dist/cli.js authority_status --authorityMode=enforce --json | non-sensitive JSON projection",
+          "result": "pass",
+          "note": "status smoke and real-file projection keep actorKeyConfigured=false and runnerConfigured=false when the trust file does not provide actor/runner fields; readiness warnings remain for those missing inputs.",
+          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
+          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
+          "timestamp": "2026-06-13T12:47:08.422Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js",
+          "result": "pass",
+          "note": "status smoke asserts trust-file readiness never sets receiptVerified, productionDone, or canClaimProductionDone without verified receipt-backed Authority evidence.",
+          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
+          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
+          "timestamp": "2026-06-13T12:47:08.422Z"
+        }
+      ]
     }
   ],
   "auditLog": [
