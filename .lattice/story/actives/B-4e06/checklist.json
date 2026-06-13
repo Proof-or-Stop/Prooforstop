@@ -14,7 +14,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A PLAN-phase story has passing verificationEvidence refs such as CHK-001:happy:0 but no stored verificationIntent -> lattice verification_intent_repair with mode=fromEvidence dryRun prints reconstructed intent, and the non-dry run writes only the missing lane/index entries plus an audit event; WHY: proves the mid-flight legacy repair path exists without hand-editing story metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A checklist item already has authored verificationIntent on one lane while other evidenced lanes are missing -> repair preserves the authored text and fills only missing entries unless replaceExisting is explicitly requested with a strong reason; WHY: protects the acceptance contract from accidental overwrite.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A DEV/REVIEW/TEST story needs legacy repair -> command rejects missing legacyRepair or a short/empty reason, then succeeds with legacyRepair=true and a substantial reason while recording phase/reason/head/material audit data; WHY: verifies protected-phase mutation stays explicit and auditable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Evidence refs are malformed, point at unknown checklist items or lanes, or represent failing evidence -> repair reports the problematic refs, does not guess generated intent, and leaves checklist intent unchanged; WHY: prevents evidence from becoming a silent or lossy substitute for authored intent.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
