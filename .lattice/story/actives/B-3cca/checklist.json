@@ -135,11 +135,13 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "command": "rg -n 'koala-hook|koala-\\[a-z\\]\\+-|/koala-\\[a-z\\]' packages/main/src/cli-engine.ts packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "result": "pass",
-          "note": "Legacy tokens confirmed unchanged by smoke test: 36 koala/Koala occurrences total, 36 classified, 0 unclassified. Specifically: KOALA_REVIEWER_READONLY env var preserved, [koala-hook] process lane preserved, koala: INIT_CHECK and koala: from-draft git commit prefix preserved",
-          "headHash": "86d1680b70a7db92b071fda1e79aeb26b6bf1177",
-          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
-          "timestamp": "2026-06-13T10:41:56.311Z"
+          "note": "Second audit fix tightened the smoke allowlist: removed koala-hook and broad koala-[a-z]+- classification while preserving specific legacy/process rules.",
+          "headHash": "dbf42f97dad7af6f98d067c79a5c9d8cf7a3228e",
+          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
+          "timestamp": "2026-06-13T10:46:41.050Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
