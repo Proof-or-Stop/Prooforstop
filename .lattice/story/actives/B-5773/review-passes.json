@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5773:RP-001",
+      "agent": "koala-review-concept",
+      "note": "B-5773 is docs-only (one .md file changed, zero .ts files). No code symbols deleted. The story standardizes English terminology in the CLI manifest TSV: forbidden->blocked/excluded, truth-source->source of truth, round->iteration in review/reflection loop contexts. All deprecated-term occurrences in the final doc are confined to the glossary definitions themselves (correct usage). Residual uses of truth-source in other repo docs (NAV.md, authority-client-role.md, legacy-omx artifacts) are pre-existing, out-of-scope for this story, and do not constitute orphaned residue from a concept deletion. REVIEW round and reviewRound identifier are explicitly carved out by the glossary and correctly retained in TSV rows. No blocking findings.",
+      "createdAt": "2026-06-13T19:16:08.484Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-001",
+      "_hash": "6838bd73aef61cf5273b536de327a8cbbd5b635d80f5f27e053c2b6e09ea465a"
+    }
+  ]
+}
