@@ -8,9 +8,9 @@
         "docs/requirements/decisions/annotation-system.md"
       ],
       "userSees": "Terminal output includes \"PASSED: All task annotations are valid.\" from node packages/main/dist/tasks/cli-validate.js.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T12:49:13.576Z",
-      "endTime": null,
+      "endTime": "2026-06-13T12:50:19.657Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/cli-engine-branding-smoke.ts",
@@ -41,7 +41,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "Build completed and dist validator printed PASSED: All task annotations are valid, covering the user-facing acceptance transcript.",
+          "headHash": "f4f262755838aae4a48c15f8c87875144f744d0b",
+          "materialHash": "565dec7cf4e57c275fed5a6a3f29243734596ab7043008467a7376bbc8fef16e",
+          "timestamp": "2026-06-13T12:50:19.734Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/validate-tasks.js",
+          "result": "pass",
+          "note": "Source validator scanned 406 files, found 60 tasks, reported 0 errors and printed PASSED: All task annotations are valid, proving the source @changes metadata is valid.",
+          "headHash": "f4f262755838aae4a48c15f8c87875144f744d0b",
+          "materialHash": "565dec7cf4e57c275fed5a6a3f29243734596ab7043008467a7376bbc8fef16e",
+          "timestamp": "2026-06-13T12:50:19.788Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check",
+          "result": "pass",
+          "note": "convergence_check reports Code annotations compliant=true with detail All 60 annotations compliant; remaining converged=false items are unrelated high-priority gap and unfinished stories B-92f6/B-a94f/B-c3b0, not the previous missing @changes annotation error.",
+          "headHash": "f4f262755838aae4a48c15f8c87875144f744d0b",
+          "materialHash": "565dec7cf4e57c275fed5a6a3f29243734596ab7043008467a7376bbc8fef16e",
+          "timestamp": "2026-06-13T12:50:19.871Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -53,6 +85,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin DEV work on the missing @changes annotation metadata."
+    },
+    {
+      "timestamp": "2026-06-13T12:50:19.657Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Annotation metadata fix committed and validators confirm the missing @changes error is gone."
     }
   ]
 }
