@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-13T10:24:56.948Z",
       "reviewRunId": "B-56ce:RR-002",
       "_hash": "07a40ba11d6f33dc2268e887540a1ddaad07eeeaf9c4c8f6ec348bff672aac45"
+    },
+    {
+      "id": "B-56ce:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality review inspected main...HEAD implementation diff and F-001 follow-up tests. No gate semantics weakened: DONE delivery-check remains hash-verified and fails on unverified docsPromises; follow-up pins hash-mismatch/unverified recovery branches, timeout/non-timeout diagnostic boundary, stale evidence wording, and codex verify alias. TypeScript no-emit passed: npx tsc -p packages/main/tsconfig.json --noEmit.",
+      "createdAt": "2026-06-13T10:36:31.142Z",
+      "reviewRound": "2026-06-13T10:32:55.965Z",
+      "reviewRunId": "B-56ce:RR-004",
+      "_hash": "af78f14c95da58510c220da0cee1da262f69cb5552b41a40c57b1aa08b282638"
     }
   ]
 }
