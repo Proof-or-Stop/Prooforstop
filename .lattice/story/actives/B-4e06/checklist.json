@@ -143,23 +143,23 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
           "file": "scripts/verify-story-review-structured-output.mjs",
-          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
           "result": "pass",
-          "note": "story_review missing-intent blocker still fires; smoke proves detector hits the evidence-without-intent lane",
-          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
-          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
-          "timestamp": "2026-06-13T18:27:02.688Z"
+          "note": "Integration: legacy-evidence-no-intent asserts story_review emits a missing_verification_intent blocker with legacyEvidenceWithoutIntent=true and repairCommand=verification_intent_repair",
+          "headHash": "7d8e09b47fdf6d305c2ddc2e3eaf6f20799364c8",
+          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
+          "timestamp": "2026-06-13T18:41:11.987Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
-          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
           "result": "pass",
-          "note": "detectLegacyEvidenceWithoutIntent unit cases prove validate-side hint scans items, not coverage entries",
-          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
-          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
-          "timestamp": "2026-06-13T18:27:02.688Z"
+          "note": "Integration: legacy-evidence-no-intent calls validate --json and asserts response.legacyEvidenceWithoutIntent names CHK-001 happy (the decorateStoryVerification hint path)",
+          "headHash": "7d8e09b47fdf6d305c2ddc2e3eaf6f20799364c8",
+          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
+          "timestamp": "2026-06-13T18:41:11.987Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -186,13 +186,13 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
-          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs legacy-evidence-no-intent",
           "result": "pass",
-          "note": "detector positive/negative/no-evidence cases; shared helper prevents story_review/validate drift",
-          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
-          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
-          "timestamp": "2026-06-13T18:27:02.688Z"
+          "note": "Integration: legacy-evidence-no-intent asserts the legacy issue stays severity=blocker and a no-evidence lane keeps the generic blocker (gate not weakened)",
+          "headHash": "7d8e09b47fdf6d305c2ddc2e3eaf6f20799364c8",
+          "materialHash": "98d1d49529449ddbc63f268bff212773765e24e176b2ec64028c1fff9c320d6e",
+          "timestamp": "2026-06-13T18:41:11.987Z"
         }
       ]
     },
