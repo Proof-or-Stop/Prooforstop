@@ -1,7 +1,7 @@
 {
   "schemaVersion": "lattice.scope_boundary.v1",
   "storyId": "B-22b0",
-  "mode": "correctness_fix",
+  "mode": "custom",
   "allowed": [
     "Attempt or verify receipt-backed Authority Server proof only through existing Lattice Authority commands",
     "Audit B-12f3 local DONE evidence and Authority boundary through Lattice commands",
@@ -17,8 +17,8 @@
     "Do not weaken local lifecycle gates or Authority gates"
   ],
   "confirmedBy": "jek",
-  "confirmationNote": "User explicitly asked to open and execute B-12f3 follow-up so it can become true Authority Server receipt-backed proof; scope is audit/proof/fail-closed classification, not historical rewrite or overclaim.",
-  "createdAt": "2026-06-13T13:23:01.215Z",
-  "updatedAt": "2026-06-13T13:23:01.215Z",
-  "_hash": "e9d0942fb0adbb7b4255e7a7bcc68e65a04463066610afe17af3e7701e88079c"
+  "confirmationNote": "User explicitly asked to execute B-12f3 follow-up as true Authority Server receipt-backed proof. Authority is in-scope for audit/proof/fail-closed classification, while Authority overclaim remains excluded.",
+  "createdAt": "2026-06-13T13:23:39.255Z",
+  "updatedAt": "2026-06-13T13:23:39.255Z",
+  "_hash": "6b5540314ba086509a60e46aee3670cac60b9d91192b34d9305853c16e71da85"
 }
