@@ -1,0 +1,33 @@
+{
+  "storyId": "B-22b0",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/story/actives/B-22b0/checklist.json",
+    ".lattice/story/actives/B-22b0/process-events.jsonl",
+    "packages/main/src/core/lattice-evidence.ts",
+    "packages/main/src/tasks/lattice-evidence-smoke.ts"
+  ],
+  "allowedCreate": [
+    ".lattice/story/actives/B-22b0/summary.json",
+    ".lattice/story/actives/B-22b0/delivery-check.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-evidence-smoke.ts"
+  ],
+  "protectedFiles": [
+    "authority_trust.env",
+    ".lattice/story/actives/B-12f3/**",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "authority_trust.env",
+    ".lattice/story/actives/B-12f3/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "scopeChangeReason": "F-003 exposed a real audit correctness gap in evidence_inspect JSON projection; allow only the narrow core projection and targeted smoke fix.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T13:35:59.545Z",
+  "updatedAt": "2026-06-13T13:50:58.601Z"
+}

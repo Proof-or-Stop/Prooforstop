@@ -1,0 +1,43 @@
+{
+  "storyId": "B-22b0",
+  "checkedAt": "2026-06-13T14:10:37.543Z",
+  "reviewRound": "2026-06-13T13:58:12.241Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "B-22b0 summary",
+      "promise": "Delivery summary must report blocked/partial outcome and keep local DONE separate from Authority Server DONE.",
+      "status": "verified",
+      "verifiedBy": "lattice summary_get --storyId=B-22b0",
+      "evidence": "summary_get returned outcomeKind=blocked, acceptanceVerdict=partial, and limitations explicitly say no Authority Server completion is claimed."
+    },
+    {
+      "docPath": "B-22b0 evidence_inspect JSON",
+      "promise": "evidence_inspect JSON must expose result, verdict, note, and waiverType while preserving failed Authority proof refs separately from waiver refs.",
+      "status": "verified",
+      "verifiedBy": "node bin/lattice.js evidence_inspect --storyId=B-22b0 --format=json",
+      "evidence": "Repository-local CLI output included result/verdict/note on checklist evidence refs; waiver refs include waiverType=permanent; failed Authority proof refs remain result=fail and verdict=blocked_classified."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-22b0:validate",
+      "transcript": "lattice validate --story=B-22b0 --json exited 0 with allPass=true at HEAD 5c6aa890efb2f68e37c42fe186a391a51306200c. Recent git log shows 2a4df2a8b Merge branch main into story/B-22b0 before validation/summary commits."
+    },
+    {
+      "featureId": "CHK-004:evidence-inspect",
+      "transcript": "node bin/lattice.js evidence_inspect --storyId=B-22b0 --format=json exposed result, verdict, and note on normal, failed proof, and integration refs. Waiver refs include waiverType=permanent. Failed proof refs CHK-002:authority-proof-fail:* and CHK-003:authority-proof-fail:* remain result=fail/verdict=blocked_classified, distinct from waiver pass refs."
+    },
+    {
+      "featureId": "B-12f3:authority-status",
+      "transcript": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3 returned receiptVerified=false, productionDone=false, canClaimProductionDone=false, actorKeyConfigured=false, runnerConfigured=false, and receiptStatus.eligibilityReason=authority_receipt_missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted only as a fail-closed audit closure. Current validation passes after the main merge, summary remains blocked/partial, repository-local evidence_inspect exposes the required JSON fields and distinguishes failed proof refs from waiver refs, and Authority status remains receiptVerified=false/productionDone=false/canClaimProductionDone=false with actor and runner prerequisites missing. This delivery check does not claim Authority Server DONE, productionDone, fullAuthorityDone, or receipt-backed proof."
+  },
+  "_hash": "61974e51aec76e927bfb52feedd0f99ed7a8d29b621b432a4ee158dab209f982"
+}

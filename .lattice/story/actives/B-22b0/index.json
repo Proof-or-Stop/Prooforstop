@@ -4,11 +4,11 @@
   "title": "Authority receipt-backed audit for B-12f3",
   "description": "Post-DONE follow-up for B-12f3. Reconcile the completed local Lattice lifecycle with Authority Server semantics: attempt or verify receipt-backed Authority proof when configured, keep local CLI evidence explicitly Non-authority, and fail closed if no verified Authority gate_decision receipt is available. Do not rewrite B-12f3 history or claim authorityDone/fullAuthorityDone without receipt-backed proof.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-13T13:17:53.684Z",
   "startedAt": "2026-06-13T13:17:53.684Z",
-  "endedAt": null,
+  "endedAt": "2026-06-13T15:33:29.891Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,79 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:25:07.091Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:30:46.274Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:36:11.057Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:41:09.571Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:45:17.695Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:50:26.675Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:58:12.241Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T14:05:02.539Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T15:33:29.891Z",
+      "branch": "story/B-22b0",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-22b0",
-    "branch": "story/B-22b0",
-    "createdAt": "2026-06-13T13:24:47.860Z"
-  }
+  "currentReviewRound": "2026-06-13T13:58:12.241Z"
 }
