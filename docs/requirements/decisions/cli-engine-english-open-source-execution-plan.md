@@ -541,7 +541,7 @@ M105	350	schema	按阶段过滤（与 active 互斥）	Filter by phase (mutually
 M106	351	schema	仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增	List only non-terminal stories (exclude DONE/DISCARDED/IDEA). Added by B-89c7 CHK-016.	review-draft
 M107	358	command-description	检测并修复僵尸 story / 终态 worktree residue（默认 dry run）	Detect and repair zombie stories or terminal worktree residue (dry run default)	review-draft
 M108	359	schema	true=只报告；false=执行修复（默认 true）	true=report only; false=perform repair (default true).	review-draft
-M109	361	command-description	废弃 Story：清理 worktree/分支并标记为 DISCARDED	Discard a Story: clean up its worktree and branch, then mark it DISCARDED.	review-draft
+M109	361	command-description	废弃 Story：清理 worktree/分支并标记为 DISCARDED	Discard a Story: clean up its worktree and branch, then mark it DISCARDED	review-draft
 M110	363	schema	废弃原因（写入事件记录）	Discard reason (written to event log).	review-draft
 M111	364	schema	强制丢弃未提交改动	Force-discard uncommitted changes.	review-draft
 M112	365	schema	临时 story 专用：删除 story metadata，并在安全时回退纯 metadata init commit	Temporary-story only: delete story metadata and safely revert metadata-only init commit when safe.	review-draft

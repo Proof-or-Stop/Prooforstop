@@ -81,7 +81,7 @@
  },
  "CHK-002:adversarial:0": {
   "pass": true,
-  "note": "count check non-vacuous (763 would fail)"
+  "note": "row-count predicate PASSES on real doc (762) and FAILS on a tampered 763-row copy (non-vacuous)"
  },
  "CHK-002:adversarial:1": {
   "pass": true,
@@ -113,11 +113,11 @@
  },
  "CHK-003:edge:1": {
   "pass": true,
-  "note": "rules trimmed in plan doc (no code longHelp in scope) — advisory"
+  "note": "style guide documents moving extra detail to schema/longHelp (not deleting it)"
  },
  "CHK-003:edge:2": {
   "pass": true,
-  "note": "short rows untouched (diff-based, trusted)"
+  "note": "CHK-003 did not shorten already-<=80 command-description rows (67 checked vs main; non-glossary reductions: none)"
  },
  "CHK-003:adversarial:0": {
   "pass": true,
@@ -129,7 +129,7 @@
  },
  "CHK-003:adversarial:2": {
   "pass": true,
-  "note": "T/M twins for shortened rows consistent (covered by CHK-002:adversarial:3)"
+  "note": "for each shortened named row, no T-twin exists OR its English agrees (no orphaned T/M after shortening)"
  },
  "CHK-004:happy:0": {
   "pass": true,
@@ -145,7 +145,7 @@
  },
  "CHK-004:edge:0": {
   "pass": true,
-  "note": "English-only .test rows not tagged (no false positives) — bs set limited to Chinese matchers"
+  "note": "only genuine Chinese-matcher rows are tagged (no English-only .test row tagged); tagged lines=2303,2306,3887"
  },
  "CHK-004:edge:1": {
   "pass": true,
@@ -189,7 +189,7 @@
  },
  "CHK-005:edge:2": {
   "pass": true,
-  "note": "M004/M005 + noted triple documented"
+  "note": "wrapped-source section documents M004/M005 and states the identified cases (no silent omission of others)"
  },
  "CHK-005:adversarial:0": {
   "pass": true,
@@ -201,6 +201,6 @@
  },
  "CHK-005:adversarial:2": {
   "pass": true,
-  "note": "merge rule + behavior-sensitive non-conflicting (disjoint rows)"
+  "note": "wrapped-merge rows (M004/M005/M463/M464/M465) and behavior-sensitive rows (M668/M669/M750) are disjoint — annotations do not conflict"
  }
 }

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { execSync } from 'child_process';
 const DOC = 'docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md';
 const SRC = 'packages/main/src/cli-engine.ts';
 const doc = fs.readFileSync(DOC, 'utf8');
@@ -25,6 +26,12 @@ const gloss = section('## English Glossary');
 const style = section('## CLI Style Guide');
 const behav = section('## Behavior-sensitive rows');
 const wrap = doc.includes('Wrapped-source merge rule') ? section('## Behavior-sensitive rows').includes('Wrapped') ? '' : (()=>{const i=doc.indexOf('Wrapped-source merge rule');const a=doc.slice(i);const m=a.search(/\n#{1,3} /);return a.slice(0,m<0?2000:m);})() : '';
+let mainDoc=''; try { mainDoc=execSync('git show main:docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md',{encoding:'utf8',maxBuffer:1e8}); } catch {}
+const mainMrows = mainDoc.split('\n').filter(l=>/^M\d+\t/.test(l)).map(l=>{const c=l.split('\t');return {id:c[0],surface:c[2],en:c[4]||''};});
+const mById_main = Object.fromEntries(mainMrows.map(r=>[r.id,r]));
+const chineseMatcherLines=[2303,2306,3887]; // genuine .test/.match/.includes over Chinese in cli-engine.ts
+const wrapPairRows=['M004','M005','M463','M464','M465'];
+const norm=s=>(s||'').replace(/[`.]/g,'').trim();
 const R = {};
 const ok = (ref, cond, note) => { R[ref] = { pass: !!cond, note }; };
 const cmdDesc = mrows.filter(r => r.surface === 'command-description');
@@ -57,7 +64,8 @@ ok('CHK-002:edge:3', ['M586','M588'].every(id=>mById[id]&&/self-approval|self-wa
 ok('CHK-002:edge:4', ['M747','M751'].every(id=>mById[id]&&/Git repository/.test(mById[id].en)), 'Git capitalized');
 const refloop=mrows.filter(r=>{const n=+r.id.slice(1);return n>=36&&n<=53;});
 ok('CHK-002:edge:5', refloop.filter(r=>/\bround\b/i.test(r.en)).length===0 && mrows.some(r=>/iteration/.test(r.en)), `no 'round' in M036-053 (${refloop.length} rows)`);
-ok('CHK-002:adversarial:0', mrows.length===762 && (mrows.length+1)!==762, 'count check non-vacuous (763 would fail)');
+const countOK = arr => arr.length===762;
+ok('CHK-002:adversarial:0', countOK(mrows) && !countOK([...mrows,{id:'M763',en:'phantom'}]), 'row-count predicate PASSES on real doc (762) and FAILS on a tampered 763-row copy (non-vacuous)');
 ok('CHK-002:adversarial:1', mrows.filter(r=>/truth source|finding item/.test(r.en)||/\bround\b/i.test(r.en)&&(+r.id.slice(1)>=36&&+r.id.slice(1)<=53)).length===0, 'no stale deprecated terms');
 ok('CHK-002:adversarial:2', /realMachineTests/.test(doc) && mrows.filter(r=>/realMachineTests/.test(r.en)).every(r=>!/real-machine-tests/.test(r.en)) && mrows.some(r=>/story_advance|checklist_update|story_create/.test(r.en)), 'identifiers preserved');
 const tOld=['Output JSON','truth source','finding item','self-pardon','Full PROMPT'].filter(term=>trows.some(t=>(t.en||'').includes(term)));
@@ -71,11 +79,16 @@ ok('CHK-003:happy:0', longCmd.length===0 || stated, `${longCmd.length} cmd-desc 
 ok('CHK-003:happy:1', ['M215','M339','M543','M650','M655'].every(id=>mById[id]&&mById[id].en.length<=THRESH&&/^[A-Z][a-z]+/.test(mById[id].en)&&!/\.$/.test(mById[id].en)), 'named rows shortened, imperative, no period');
 ok('CHK-003:happy:2', ['M215','M339','M543','M650','M655'].every(id=>mById[id]&&/^(Declare|Record|Create|Finish|Start|Add|Set|Run|List|Update|Read|Edit|Mark|Show|Save|Remove)/.test(mById[id].en)), 'begins with imperative verb');
 ok('CHK-003:edge:0', cmdDesc.filter(r=>r.en.length>0&&r.en.length<10).length===0, 'no trivial stubs');
-ok('CHK-003:edge:1', true, 'rules trimmed in plan doc (no code longHelp in scope) — advisory');
-ok('CHK-003:edge:2', true, 'short rows untouched (diff-based, trusted)');
+ok('CHK-003:edge:1', /schema|longHelp/i.test(style) && /move|moved|relocat/i.test(style), 'style guide documents moving extra detail to schema/longHelp (not deleting it)');
+const deprecatedTerm=/finding item|truth source|truth-source|Output JSON|self-pardon|Full PROMPT|self-OK/;
+const mainShort = mainMrows.filter(r=>r.surface==='command-description' && r.en.length<=80);
+// over-zealous shortening = an already-<=80 row made SHORTER for non-glossary reasons (a glossary term drop is allowed)
+const overShortened = mainShort.filter(r=>{const c=mById[r.id]; return c && c.en.length < r.en.length && !deprecatedTerm.test(r.en);});
+ok('CHK-003:edge:2', mainShort.length>0 && overShortened.length===0, `CHK-003 did not shorten already-<=80 command-description rows (${mainShort.length} checked vs main; non-glossary reductions: ${overShortened.map(r=>r.id).join(',')||'none'})`);
 ok('CHK-003:adversarial:0', mrows.length===762, 'still 762 rows');
 ok('CHK-003:adversarial:1', cmdDesc.filter(r=>CJK.test(r.en)).length===0, 'no Chinese in cmd-desc');
-ok('CHK-003:adversarial:2', true, 'T/M twins for shortened rows consistent (covered by CHK-002:adversarial:3)');
+const shortIds=['M215','M339','M543','M650','M655'];
+ok('CHK-003:adversarial:2', shortIds.every(id=>{const m=mById[id];if(!m)return false;const t=trows.find(x=>x.cn===m.cn);return !t || norm(t.en)===norm(m.en) || norm(m.en).startsWith(norm(t.en)) || norm(t.en).startsWith(norm(m.en));}), 'for each shortened named row, no T-twin exists OR its English agrees (no orphaned T/M after shortening)');
 
 // ---- CHK-004
 const bsRows=mrows.filter(r=>r.status==='behavior-sensitive');
@@ -87,7 +100,7 @@ const srcBs=src.map((l,i)=>({n:i+1,l})).filter(o=>/\.(test|match|includes|starts
 const taggedLines=bsRows.map(r=>r.line);
 const missed=srcBs.filter(o=>!taggedLines.includes(o.n));
 ok('CHK-004:happy:2', missed.length===0, `src Chinese-matching lines all tagged; missed=${missed.map(o=>o.n).join(',')||'none'}`);
-ok('CHK-004:edge:0', true, 'English-only .test rows not tagged (no false positives) — bs set limited to Chinese matchers');
+ok('CHK-004:edge:0', bsRows.length>0 && bsRows.every(r=>chineseMatcherLines.includes(r.line)), `only genuine Chinese-matcher rows are tagged (no English-only .test row tagged); tagged lines=${bsRows.map(r=>r.line).join(',')}`);
 ok('CHK-004:edge:1', bsRows.length>=2, `all ${bsRows.length} bs rows listed`);
 ok('CHK-004:edge:2', bsRows.every(r=>/test|match|includes|\/.*\//.test(r.en)||CJK.test(r.cn)), 'bs rows retain code form (not prose-swept)');
 ok('CHK-004:adversarial:0', bsRows.every(r=>r.status==='behavior-sensitive'), 'tag present guards rows');
@@ -101,10 +114,12 @@ ok('CHK-005:happy:1', m4&&m5&&/runCli/.test(m4.en)&&/handler/i.test((m4.en+m5.en
 ok('CHK-005:happy:2', /M00?4|M463|M464|similar|other/i.test(doc.slice(doc.indexOf('Wrapped-source merge rule'),doc.indexOf('Wrapped-source merge rule')+1500)), 'similar pairs noted');
 ok('CHK-005:edge:0', m4&&m5&&mrows.length===762, 'M004/M005 remain separate, 762 rows');
 ok('CHK-005:edge:1', /adjacent|split|fragment|one (logical )?sentence|wrapped/i.test(doc.slice(doc.indexOf('Wrapped-source merge rule'),doc.indexOf('Wrapped-source merge rule')+1500)), 'criteria defined');
-ok('CHK-005:edge:2', true, 'M004/M005 + noted triple documented');
+const wsi=doc.indexOf('Wrapped-source merge rule'); const wsec2=wsi>=0?doc.slice(wsi,wsi+1800):'';
+ok('CHK-005:edge:2', /M004/.test(wsec2)&&/M005/.test(wsec2)&&/(M46[345]|only|identified|no other|sole)/i.test(wsec2), 'wrapped-source section documents M004/M005 and states the identified cases (no silent omission of others)');
 ok('CHK-005:adversarial:0', m4&&(/merge|see M005|continues|partial|with M005/i.test(m4.en)||/handler/i.test(m5.en)), 'M004 marked as part of merged pair');
 ok('CHK-005:adversarial:1', mrows.length===762, 'still 762 after CHK-005');
-ok('CHK-005:adversarial:2', true, 'merge rule + behavior-sensitive non-conflicting (disjoint rows)');
+const bsIds=bsRows.map(r=>r.id);
+ok('CHK-005:adversarial:2', wrapPairRows.every(id=>!bsIds.includes(id)), `wrapped-merge rows (${wrapPairRows.join('/')}) and behavior-sensitive rows (${bsIds.join('/')}) are disjoint — annotations do not conflict`);
 
 // ---- report
 const refs=Object.keys(R);
