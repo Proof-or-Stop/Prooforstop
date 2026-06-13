@@ -94,7 +94,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The targeted smoke fails if missing_scope_check guidance omits scope-check.json or scope_check_save, suggests self-signing, or implies Authority completion.",
+      "userSees": "Smoke output includes: \"✓ story review ergonomics smoke passed\" and fails if the missing_scope_check message omits scope-check.json/scope_check_save or contains self-signing or Authority overclaim wording.",
       "files": {
         "modify": [],
         "create": [],
