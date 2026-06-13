@@ -4,7 +4,7 @@
   "title": "Add missing @changes annotation to branding smoke task",
   "description": "convergence_check reports Code annotations compliant=false because the task annotation validator requires @changes on packages/main/src/tasks/cli-engine-branding-smoke.ts. Add the missing field and verify annotation validation passes.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "annotation",
@@ -13,7 +13,7 @@
   ],
   "createdAt": "2026-06-13T12:44:21.389Z",
   "startedAt": "2026-06-13T12:44:21.389Z",
-  "endedAt": null,
+  "endedAt": "2026-06-13T12:56:25.217Z",
   "events": [
     {
       "phase": "INIT",
@@ -30,11 +30,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:46:11.101Z",
+      "branch": "story/B-92f6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:49:09.385Z",
+      "branch": "story/B-92f6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:50:52.412Z",
+      "branch": "story/B-92f6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:53:13.942Z",
+      "branch": "story/B-92f6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:56:25.217Z",
+      "branch": "story/B-92f6",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-92f6",
-    "branch": "story/B-92f6",
-    "createdAt": "2026-06-13T12:45:58.156Z"
-  }
+  "currentReviewRound": "2026-06-13T12:50:52.412Z"
 }
