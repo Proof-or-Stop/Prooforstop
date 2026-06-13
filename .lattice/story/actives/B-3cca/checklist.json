@@ -52,27 +52,27 @@
           "command": "grep -n koala packages/main/src/cli-engine.ts",
           "result": "pass",
           "note": "All koala/Koala hits classified: KOALA_* env vars, koala.config.json, .koala path, koala-codex, koala-review-* lanes, koala-hook, koala-implementer, git commit tokens preserved; user-visible Koala changed to Lattice (lines 3117, 3603)",
-          "headHash": "b1e6245afd378dc99ebfd9a7a7fc01ded8959911",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:31.802Z"
+          "headHash": "f20e2f8ceee9a64e4a580a840f488cf87113f554",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:57:23.801Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Verified: koala CLI alias (bin/koala→dist/cli.js), koala.config.json legacy fallback comment at line 2646, .koala path via LEGACY_KOALA_DIR, koala-codex at line 2780, koala-review-* lanes at lines 577-592 all preserved unchanged",
-          "headHash": "b1e6245afd378dc99ebfd9a7a7fc01ded8959911",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:31.802Z"
+          "headHash": "f20e2f8ceee9a64e4a580a840f488cf87113f554",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:57:23.801Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "branding smoke regex patterns compiled without matching KOALA_* env vars or process lanes; branding smoke test output: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0",
-          "headHash": "b1e6245afd378dc99ebfd9a7a7fc01ded8959911",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:31.802Z"
+          "headHash": "f20e2f8ceee9a64e4a580a840f488cf87113f554",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:57:23.801Z"
         }
       ]
     },
@@ -283,27 +283,27 @@
           "command": "git log story/B-3cca --oneline --author=koala-implementer | head -5",
           "result": "pass",
           "note": "Claude CLI implementation: PASS worktree=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca. Commit 259976fb2 by koala-implementer <koala-implementer@noreply.local>: B-3cca: clean Koala branding from cli-engine + add branding smoke. Session operated entirely within the story worktree, no files outside B-3cca scope modified. All CHK-001..CHK-004 evidence recorded via lattice CLI in this session.",
-          "headHash": "b1e6245afd378dc99ebfd9a7a7fc01ded8959911",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:31.802Z"
+          "headHash": "f20e2f8ceee9a64e4a580a840f488cf87113f554",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:57:23.801Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Worktree isolation confirmed: git status shows only story/B-3cca branch files modified; no stash operations performed; no files outside packages/main scope touched",
-          "headHash": "b1e6245afd378dc99ebfd9a7a7fc01ded8959911",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:31.802Z"
+          "headHash": "f20e2f8ceee9a64e4a580a840f488cf87113f554",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:57:23.801Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Session used forceTakeover to recover stale lease from previous interrupted session (sess-bc4bd082f0301eed). All writes confirmed via lattice CLI audit trail in process-events.jsonl.",
-          "headHash": "b1e6245afd378dc99ebfd9a7a7fc01ded8959911",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:31.802Z"
+          "headHash": "f20e2f8ceee9a64e4a580a840f488cf87113f554",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:57:23.801Z"
         }
       ]
     }
