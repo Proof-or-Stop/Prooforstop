@@ -37,6 +37,22 @@
       ],
       "resolvedReason": "Root cause: the residual future-work paragraph only named the local wrapper diagnostic doctor guidance and omitted workflow-wrapper residuals surfaced by the reviewer scan. Fix: docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md now names README.md session_brief/aux_doc_list/story_create wrapper examples and src/dist codex-adapter-checks session_brief display-command hits as future cleanup targets, while explicitly stating this story only makes the execution plan accurate and does not clean those non-document targets. Evidence: CHK-002 residual_workflow_wrapper_scan_f002 plus exact CHK-002 intent refs record the rg scan excluding docs/story per repo instruction; CHK-004 residual_future_work_boundary_f002 plus exact CHK-004 intent refs record the updated residual-boundary paragraph and no-overclaim boundary.",
       "resolvedAt": "2026-06-13T13:52:05.527Z"
+    },
+    {
+      "id": "B-e84c:F-003",
+      "desc": "F-001 resolution metadata overclaims verification evidence that is no longer present in checklist metadata. node bin/lattice.js finding_list --storyId=B-e84c reports B-e84c:F-001 resolved because CHK-002/CHK-004 gained manual transcripts for node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help, including exit code 1 and ordinary replacements. But node bin/lattice.js checklist_get {\"storyId\":\"B-e84c\"} shows CHK-002 and CHK-004 evidence only for allowed help checks, repository scans, residual-boundary wording, NAV, and no-overclaim checks; a targeted CLI metadata search for codex session_brief, codex aux_doc_list, fail-closed, code 1, unsupported, and ordinary replacements returned no hits. I independently ran both forbidden commands and they do fail closed, so the runtime behavior is not the issue. The blocker is evidence wording/internal consistency: the resolved finding now claims recorded checklist evidence that the current checklist does not expose, making the F-001 resolution and delivery evidence misleading until the fail-closed transcripts are re-added through verification_evidence_add or the resolution claim is corrected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T13:55:01.074Z",
+      "reviewRound": "2026-06-13T13:51:58.992Z",
+      "reviewRunId": "B-e84c:RR-011",
+      "_hash": "17ac8578a7511eb4be581e5a3447ff263d30b8be059afe78c49673f5ffc9e486",
+      "files": [
+        "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+      ]
     }
   ]
 }
