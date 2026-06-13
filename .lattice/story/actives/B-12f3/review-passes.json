@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-12f3:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: missing_scope_check guidance is actionable, preserves reviewer-written PLAN scope_check_save evidence, avoids self-signing/manual metadata edits and scope_contract_check confusion, and keeps local Non-authority evidence distinct from Authority Server receipt completion.",
+      "createdAt": "2026-06-13T10:26:20.235Z",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "reviewRunId": "B-12f3:RR-004",
+      "_hash": "36c860706e8b73b01de58b2003e1bcf9db923df2e406465291306a6019dcda21"
+    },
+    {
+      "id": "B-12f3:RP-002",
+      "agent": "koala-review-quality",
+      "note": "PASS: implementation quality/scope reviewed. Code diff is limited to the three declared source files; scope_check_save schema and story_review gate semantics are unchanged; help text accurately describes reviewer-written PLAN scope evidence; smoke covers missing_scope_check actionability plus negative checks for self-signing, scope_contract_check confusion, and Authority overclaim without introducing brittle unrelated assertions.",
+      "createdAt": "2026-06-13T10:27:00.539Z",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "reviewRunId": "B-12f3:RR-005",
+      "_hash": "6025c4c23908fde5307507ab45d1d5e40789215ceb5c04658fb3180575966a77"
+    },
+    {
+      "id": "B-12f3:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage PASS: targeted smoke covers the missing_scope_check handler path and asserts scope-check.json, scope_check_save, and reviewer ownership; negative assertions protect scope_contract_check remediation confusion, self-sign remediation wording, and Authority overclaim flags. Checklist evidence covers 12/12 intents, and Authority dry-run evidence is blocked_classified/fail-closed rather than success Authority.",
+      "createdAt": "2026-06-13T10:27:09.623Z",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "reviewRunId": "B-12f3:RR-003",
+      "_hash": "3153461285f55aee6d908a47ca444a950299bb9683b6a4d8d37f6c70a4c69f06"
+    }
+  ]
+}

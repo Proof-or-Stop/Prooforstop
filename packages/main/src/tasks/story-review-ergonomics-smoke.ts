@@ -16,7 +16,7 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function initStore(): { root: string; store: StoryStore; storyId: string } {
+function initStore(options: { saveScopeCheck?: boolean } = {}): { root: string; store: StoryStore; storyId: string } {
   const root = mkdtempSync(join(tmpdir(), 'koala-story-review-ergonomics-'));
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -69,19 +69,46 @@ function initStore(): { root: string; store: StoryStore; storyId: string } {
     touchpoints: ['packages/main/src/foo.ts (pass result.summary to report)'],
     timestamp: now,
   });
-  createScopeCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') }).scope_check_save({
-    storyId,
-    features: [{
-      feature: 'Codex adapter verification',
-      covered_by: null,
-      status: 'excluded',
-      excluded_by: 'No adapter files touched',
-      source: 'scope-smoke',
-    }],
-    summary: { total: 1, covered: 0, excluded: 1, gaps: 0 },
-    openQuestions: [],
-  });
+  if (options.saveScopeCheck !== false) {
+    createScopeCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') }).scope_check_save({
+      storyId,
+      features: [{
+        feature: 'Codex adapter verification',
+        covered_by: null,
+        status: 'excluded',
+        excluded_by: 'No adapter files touched',
+        source: 'scope-smoke',
+      }],
+      summary: { total: 1, covered: 0, excluded: 1, gaps: 0 },
+      openQuestions: [],
+    });
+  }
   return { root, store, storyId };
+}
+
+function assertMissingScopeCheckGuidanceIsActionable(): void {
+  const { root, store, storyId } = initStore({ saveScopeCheck: false });
+  try {
+    const result = createStoryReviewHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).story_review({ storyId }) as any;
+    const issue = result.issues.find((entry: any) => entry.type === 'missing_scope_check');
+    assert.ok(issue);
+    assert.equal(issue.severity, 'blocker');
+    assert.match(issue.message, /scope-check\.json is missing PLAN gate evidence/);
+    assert.match(issue.message, /scope_check_save/);
+    assert.match(issue.message, /koala-review-scope-plan \/ scope-plan reviewer/);
+    assert.match(issue.message, /implementation\/main agent must not self-sign/);
+    assert.match(issue.message, /manually edit story metadata/);
+    assert.match(issue.message, /not Authority Server completion/);
+    assert.doesNotMatch(issue.message, /self-sign.*scope_check_save/i);
+    assert.doesNotMatch(issue.message, /scope_contract_check/i);
+    assert.doesNotMatch(issue.message, /receiptVerified|authorityDone|productionDone|fullAuthorityDone/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 function assertTouchpointAndExcludedInfoAreQuiet(): void {
@@ -141,7 +168,7 @@ function assertPlanRemoveCannotBypassFreeze(): void {
         disposition: 'accept',
         justification: 'Attempting to replace the frozen checklist item',
       }),
-      /Deleting checklist items is not allowed.*remove\+add bypass/,
+      /PLAN phase does not allow removing checklist items.*remove\+add bypass/,
     );
     assert.equal(store.readChecklist(storyId).items.some(item => item.id === 'CHK-001'), true);
   } finally {
@@ -150,6 +177,7 @@ function assertPlanRemoveCannotBypassFreeze(): void {
 }
 
 assertTouchpointAndExcludedInfoAreQuiet();
+assertMissingScopeCheckGuidanceIsActionable();
 assertPlanAddNeedsAuditReason();
 assertPlanRemoveCannotBypassFreeze();
 

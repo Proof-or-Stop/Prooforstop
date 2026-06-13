@@ -375,7 +375,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: 'scope check not run. Please start the koala-review-scope-plan agent first; the agent will automatically call scope_check_save to write the result',
+          message: 'missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a koala-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion.',
         });
       } else if (scopeData) {
         // Verify signature using shared signScopeCheck function
