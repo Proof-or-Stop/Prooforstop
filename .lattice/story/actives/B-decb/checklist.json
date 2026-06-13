@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "移除 koala 兼容命名并统一 lattice 发布命名",
+      "context": "将 packages/main 的 bin alias 从 koala 去掉，仅保留 lattice；桌面打包产物改为 lattice-<platform>-<arch>；并将文档示例中的 koala 调用统一为 lattice。",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "packages/main/package.json",
+        "scripts/package-desktop.mjs"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
