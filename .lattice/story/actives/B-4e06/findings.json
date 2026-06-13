@@ -100,6 +100,22 @@
         "packages/main/src/handlers/worktree.ts",
         "packages/main/src/cli-engine.ts"
       ]
+    },
+    {
+      "id": "B-4e06:F-007",
+      "desc": "quality-cleanup: checklist.ts:8 imports `VerificationIntentItem` from types.ts but it is never referenced in the file body; added by this diff (new import line) and left unused — dead import",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T18:34:08.809Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-001",
+      "_hash": "ff490f975de4097bd69fb7871c089d3edcca0974b3fcbe88a401c331fd0e7c7b",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ]
     }
   ]
 }
