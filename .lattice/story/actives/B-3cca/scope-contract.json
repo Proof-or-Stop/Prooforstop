@@ -1,0 +1,23 @@
+{
+  "storyId": "B-3cca",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/dist/cli-engine.js",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-entrypoints.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T10:29:41.070Z",
+  "updatedAt": "2026-06-13T10:29:41.070Z"
+}
