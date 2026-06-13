@@ -111,6 +111,22 @@
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ]
+    },
+    {
+      "id": "B-5773:F-008",
+      "desc": "quality-style-guide: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md line ~472 (M109) — changed command-description row ends with a trailing period (\"Discard a Story: clean up its worktree and branch, then mark it DISCARDED.\") in violation of the new CLI Style Guide rule 1 this diff introduces (\"no final period\"). M109 was explicitly in-scope for CHK-002 (#18) and was reworded, yet the period was preserved. Fix: remove the trailing period.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T19:17:22.739Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-003",
+      "_hash": "3d78a0e710480cdc556e41325f40f48c0920bbd20064becb023b3d497b276274",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ]
     }
   ]
 }
