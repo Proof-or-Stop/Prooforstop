@@ -16,8 +16,12 @@ import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
 
+const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
+const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core';
+
 export interface GlobalKoalaLinkRepairOptions {
   globalPackagePath?: string;
+  globalPackageRoot?: string;
   unlinkImpl?: typeof unlinkSync;
   symlinkImpl?: typeof symlinkSync;
 }
@@ -27,22 +31,64 @@ export interface GlobalKoalaLinkRepairResult {
   message: string;
 }
 
+interface ResolvedGlobalCorePackagePath {
+  path: string;
+  packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof LEGACY_CORE_PACKAGE_NAME;
+  isLegacyFallback: boolean;
+}
+
 function isPathInside(child: string, parent: string): boolean {
   const childResolved = resolve(child);
   const parentResolved = resolve(parent);
   return childResolved === parentResolved || childResolved.startsWith(parentResolved.endsWith(sep) ? parentResolved : `${parentResolved}${sep}`);
 }
 
-function resolveGlobalCorePackagePath(options: GlobalKoalaLinkRepairOptions = {}): string | null {
-  if (options.globalPackagePath) return options.globalPackagePath;
+function packagePathFromName(root: string, packageName: string): string {
+  const [scope, name] = packageName.split('/');
+  if (!scope || !name) throw new Error(`invalid package name: ${packageName}`);
+  return join(root, scope, name);
+}
+
+function describeGlobalCorePackage(resolved: ResolvedGlobalCorePackagePath): string {
+  return resolved.isLegacyFallback
+    ? `${resolved.packageName} (legacy fallback for ${CANONICAL_CORE_PACKAGE_NAME})`
+    : resolved.packageName;
+}
+
+function entryExists(path: string): boolean {
   try {
-    const globalRoot = execFileSync('npm', ['root', '-g'], {
+    lstatSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resolveGlobalCorePackagePaths(options: GlobalKoalaLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
+  if (options.globalPackagePath) {
+    const normalized = options.globalPackagePath.replace(/\\/g, '/');
+    const isLegacyFallback = normalized.includes('/@koala-agent/core');
+    return [{
+      path: options.globalPackagePath,
+      packageName: isLegacyFallback ? LEGACY_CORE_PACKAGE_NAME : CANONICAL_CORE_PACKAGE_NAME,
+      isLegacyFallback,
+    }];
+  }
+  try {
+    const globalRoot = options.globalPackageRoot ?? execFileSync('npm', ['root', '-g'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
-    return join(globalRoot, '@koala-agent', 'core');
+    const canonicalPath = packagePathFromName(globalRoot, CANONICAL_CORE_PACKAGE_NAME);
+    const legacyPath = packagePathFromName(globalRoot, LEGACY_CORE_PACKAGE_NAME);
+    const candidates: ResolvedGlobalCorePackagePath[] = [
+      { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, isLegacyFallback: false },
+      { path: legacyPath, packageName: LEGACY_CORE_PACKAGE_NAME, isLegacyFallback: true },
+    ];
+    const present = candidates.filter(candidate => entryExists(candidate.path));
+    return present.length > 0 ? present : [candidates[0]];
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -51,30 +97,29 @@ function resolveGlobalCorePackagePath(options: GlobalKoalaLinkRepairOptions = {}
  * Only rewrite the global package symlink when it clearly points inside the
  * worktree being deleted; all other installs are left untouched.
  */
-export function repairGlobalKoalaLinkBeforeWorktreeDelete(
+function repairOneGlobalCoreLinkBeforeWorktreeDelete(
   worktreePath: string,
   mainRepoRoot: string,
-  options: GlobalKoalaLinkRepairOptions = {},
+  resolvedGlobalPackage: ResolvedGlobalCorePackagePath,
+  options: GlobalKoalaLinkRepairOptions,
 ): GlobalKoalaLinkRepairResult {
-  const globalPackagePath = resolveGlobalCorePackagePath(options);
-  if (!globalPackagePath) {
-    return { action: 'skipped', message: 'global @koala-agent/core path not found, skipping relink' };
-  }
+  const globalPackagePath = resolvedGlobalPackage.path;
+  const packageDescription = describeGlobalCorePackage(resolvedGlobalPackage);
 
   let stat;
   try {
     stat = lstatSync(globalPackagePath);
   } catch {
-    return { action: 'skipped', message: `global @koala-agent/core does not exist: ${globalPackagePath}` };
+    return { action: 'skipped', message: `global ${packageDescription} does not exist: ${globalPackagePath}` };
   }
   if (!stat.isSymbolicLink()) {
-    return { action: 'skipped', message: `global @koala-agent/core is not a symlink, skipping relink: ${globalPackagePath}` };
+    return { action: 'skipped', message: `global ${packageDescription} is not a symlink, skipping relink: ${globalPackagePath}` };
   }
 
   const rawTarget = readlinkSync(globalPackagePath);
   const target = isAbsolute(rawTarget) ? rawTarget : resolve(dirname(globalPackagePath), rawTarget);
   if (!isPathInside(target, worktreePath)) {
-    return { action: 'skipped', message: `global @koala-agent/core does not point to current worktree, skipping relink: ${target}` };
+    return { action: 'skipped', message: `global ${packageDescription} does not point to current worktree, skipping relink: ${target}` };
   }
 
   const mainPackagePath = join(mainRepoRoot, 'packages', 'main');
@@ -90,11 +135,31 @@ export function repairGlobalKoalaLinkBeforeWorktreeDelete(
   } catch (e) {
     const reason = e instanceof Error ? e.message : String(e);
     throw new Error(
-      `global @koala-agent/core currently points to the worktree pending deletion, relink to main repo failed. Blocked deletion of ${worktreePath}. ` +
+      `global ${packageDescription} currently points to the worktree pending deletion, relink to main repo failed. Blocked deletion of ${worktreePath}. ` +
       `Please fix ${globalPackagePath} -> ${mainPackagePath} first and retry. Reason: ${reason}`,
     );
   }
-  return { action: 'relinked', message: `✓ global @koala-agent/core has been relinked from story worktree to ${mainPackagePath}` };
+  return { action: 'relinked', message: `✓ global ${packageDescription} has been relinked from story worktree to ${mainPackagePath}` };
+}
+
+export function repairGlobalKoalaLinkBeforeWorktreeDelete(
+  worktreePath: string,
+  mainRepoRoot: string,
+  options: GlobalKoalaLinkRepairOptions = {},
+): GlobalKoalaLinkRepairResult {
+  const resolvedGlobalPackages = resolveGlobalCorePackagePaths(options);
+  if (resolvedGlobalPackages.length === 0) {
+    return { action: 'skipped', message: `global ${CANONICAL_CORE_PACKAGE_NAME} path not found, skipping relink` };
+  }
+
+  const results = resolvedGlobalPackages.map(resolved =>
+    repairOneGlobalCoreLinkBeforeWorktreeDelete(worktreePath, mainRepoRoot, resolved, options),
+  );
+  const relinked = results.filter(result => result.action === 'relinked');
+  if (relinked.length > 0) {
+    return { action: 'relinked', message: relinked.map(result => result.message).join('\n') };
+  }
+  return { action: 'skipped', message: results.map(result => result.message).join('\n') };
 }
 
 /**

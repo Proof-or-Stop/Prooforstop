@@ -1,0 +1,54 @@
+{
+  "storyId": "B-526c",
+  "checkedAt": "2026-06-12T20:25:41.755Z",
+  "reviewRound": "2026-06-12T20:13:54.209Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Signed workspace resolution remains explicit and fail-closed, and only resolves through configured gitRoot after explicit repair.",
+      "status": "verified",
+      "verifiedBy": "git diff review plus field-regression smoke",
+      "evidence": "Before repair story_resolve/review_run_start fail closed; after explicit repair they resolve via configured-git-root."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "promise": "Workspace diagnostics expose actionable state without turning diagnostics into automatic resolver behavior.",
+      "status": "verified",
+      "verifiedBy": "git diff review plus field-regression smoke",
+      "evidence": "doctor reports none, single-candidate, and ambiguous states; repair command is a suggestion only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Story lifecycle remains gated by explicit signed workspace resolution and review evidence.",
+      "status": "verified",
+      "verifiedBy": "lattice validate plus delivery review",
+      "evidence": "review_run_start remains fail-closed before repair, creates a signed reviewer run after configured-git-root repair, and TEST validate reports 9/9 verification intents covered."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: node packages/main/dist/tasks/field-regression-cli-smoke.js covered doctor no candidates, single candidate with repairCommand, and ambiguous candidates with no chosen target."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS: node packages/main/dist/tasks/field-regression-cli-smoke.js covered non-mutating repair preview, confirmed gitRoot write, outside-path rejection, missing-target rejection, and nested non-root rejection with config unchanged."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS: node packages/main/dist/tasks/field-regression-cli-smoke.js covered resolver/review_run_start fail-closed before repair, configured-git-root success after repair, and ambiguous layouts remaining fail-closed."
+    },
+    {
+      "featureId": "TEST",
+      "transcript": "PASS: npm --prefix packages/main run build; PASS: node scripts/verify-process-fact-contract.mjs; PASS: node bin/lattice.js validate --story=B-526c with 9/9 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review found the user goal satisfied: diagnostics are host-neutral and explicit, repair is confirmed and manual, and resolver behavior is not silently optimized."
+  },
+  "_hash": "8b9bb05e513c92c9a0cb736c795e350647ac05f64c57d18c84137332f527693d"
+}

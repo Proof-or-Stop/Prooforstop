@@ -1,0 +1,66 @@
+{
+  "storyId": "B-748e",
+  "checkedAt": "2026-06-12T19:36:28.908Z",
+  "features": [
+    {
+      "feature": "GAP-SW-UNRESOLVED-1: bind unresolved signed-workspace reason at review-run-start-signed-workspace-resolution-execution-plan.md:262",
+      "covered_by": "CHK-001 + CHK-003; allowed files packages/main/src/core/story-signed-workspace-resolution.ts and packages/main/src/tasks/field-regression-cli-smoke.ts; resolver has the exact unresolvedReason string and regression scope covers wrapper-root unresolved review_run_start behavior.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md:262"
+    },
+    {
+      "feature": "GAP-SW-NO-BINDING-1: bind REVIEW no-binding fail-closed diagnostic at review-run-start-signed-workspace-resolution-execution-plan.md:311",
+      "covered_by": "CHK-002 + CHK-003; allowed files packages/main/src/handlers/context.ts and packages/main/src/tasks/field-regression-cli-smoke.ts; resolveStoryCommandWorkspace throws before review metadata when signed workspace is unresolved and regression checks no reviewer run is written.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md:311"
+    },
+    {
+      "feature": "Verify the two signed-workspace gaps close while customerKeyRef remains outside B-748e",
+      "covered_by": "CHK-003; allowed test surface requires build/regression plus gap_analyze, exactly one remaining high gap, and that remaining high gap is Layer4 customerKeyRef.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md:25-27"
+    },
+    {
+      "feature": "gitRoot repair UX and config repair commands",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User hard rule; CHK-001 adversarial intent; PLAN decision option C rejects repair UX/config repair for this story.",
+      "source": "user scope instruction"
+    },
+    {
+      "feature": "customerKeyRef implementation, redaction producer/verifier, or Layer4 customer key boundary work",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User hard rule; CHK-003 edge/adversarial intents keep customerKeyRef as the remaining future/blocked Layer4 gap.",
+      "source": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md:284-300"
+    },
+    {
+      "feature": "Authority server, Authority receipts, receiptVerified, productionDone, fullAuthorityDone, or production safety unlock claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User hard rule plus requirement boundary; B-748e is local signed-workspace binding only.",
+      "source": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md:398-405"
+    },
+    {
+      "feature": "Broad gap_analyze analyzer rewrite or global matching relaxation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "User hard rule; PLAN decision option B rejects broad analyzer changes in favor of minimal source/test/coverage binding.",
+      "source": "B-748e decision"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7cbbdae4fdc90423e5854ef2d1e9d5db518fcacde83fb084e80587f18dfe2e8f",
+  "openQuestions": []
+}

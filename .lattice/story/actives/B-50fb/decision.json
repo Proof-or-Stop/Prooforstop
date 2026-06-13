@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Canonical public package names should match the Lattice product identity.",
+    "Legacy compatibility should be explicit, bounded, and testable rather than hidden in stale hard-coded strings.",
+    "Runtime/process facts that gates consume must be updated mechanically with code, docs, and verification scripts together.",
+    "Avoid broad prose churn beyond package identity unless a stale Koala reference would confuse users or diagnostics."
+  ],
+  "drivers": [
+    "The user does not want @koala-agent/* to remain the visible package identity.",
+    "The repo still supports older projects and koala command aliases, so abrupt removal could break existing wrappers.",
+    "Hard-coded package paths affect doctor/runtime checks, worktree cleanup, generated bootstrap, and Codex adapter verification."
+  ],
+  "options": [
+    {
+      "name": "A: Make @lattice-agent/* canonical with @koala-agent/* legacy fallback",
+      "pros": [
+        "Solves the visible package-name problem while keeping existing projects recoverable.",
+        "Keeps the change focused on identity and compatibility surfaces.",
+        "Allows runtime diagnostics to explain canonical versus legacy paths."
+      ],
+      "cons": [
+        "Requires more code changes than editing package.json only.",
+        "Some legacy Koala references intentionally remain and must be clearly labeled."
+      ]
+    },
+    {
+      "name": "B: Hard rename everything and remove all Koala aliases",
+      "pros": [
+        "Cleanest branding surface after the change.",
+        "Reduces long-term compatibility complexity."
+      ],
+      "cons": [
+        "Likely breaks existing local wrappers, docs, hooks, and user muscle memory immediately.",
+        "Too broad for this request because it changes command/runtime compatibility, not just package identity."
+      ]
+    },
+    {
+      "name": "C: Only edit packages/main/package.json name",
+      "pros": [
+        "Fastest and smallest diff.",
+        "The immediate npm metadata display changes."
+      ],
+      "cons": [
+        "Runtime checks and generated wrappers still point to @koala-agent/core.",
+        "Package-lock and dependent package metadata would drift.",
+        "Doctor/verification scripts could fail or report misleading package facts."
+      ]
+    }
+  ],
+  "chosen": "A: Make @lattice-agent/* canonical with @koala-agent/* legacy fallback",
+  "rationale": "Choose the canonical-plus-fallback rename because the user wants Koala removed from public package identity, but the existing system has many package-path consumers where a hard break would create avoidable failures. This keeps Lattice as the visible name while making legacy behavior explicit and verifiable.",
+  "preMortem": [
+    {
+      "scenario": "Package manager metadata becomes internally inconsistent",
+      "trigger": "package.json names change but package-lock or workspace dependency entries still use @koala-agent names",
+      "consequence": "Install, build, or published tarball metadata continues to show Koala or fails dependency resolution",
+      "mitigation": "Update package-lock files and run metadata assertions across all workspace package.json/package-lock files."
+    },
+    {
+      "scenario": "Runtime doctor/relink checks can no longer find the global package",
+      "trigger": "hard-coded path join(..., @koala-agent, core) is replaced incompletely or without fallback",
+      "consequence": "worktree cleanup, doctor, and Codex adapter checks produce false warnings or fail in existing installations",
+      "mitigation": "Introduce canonical constants/helpers for @lattice-agent/core and bounded @koala-agent/core fallback, then update verification scripts."
+    },
+    {
+      "scenario": "Codex/Claude adapter verification becomes stale",
+      "trigger": "agent templates or adapter assets import @koala-agent/core but CHK-004 verification omits verify_codex",
+      "consequence": "adapter gate sees stale package identity or generated prompts still teach old package imports",
+      "mitigation": "Include node bin/lattice.js verify_codex when templates or adapter assets are touched, matching INIT reviewer advisory."
+    },
+    {
+      "scenario": "Branding cleanup expands into unrelated product rename",
+      "trigger": "global search for Koala leads to broad docs and historical compatibility rewrites",
+      "consequence": "Large noisy diff risks breaking legacy command semantics and obscures the actual package-scope fix",
+      "mitigation": "Limit code changes to package identity, canonical runtime references, and docs that present public package names; leave clearly legacy aliases labeled."
+    }
+  ],
+  "timestamp": "2026-06-12T20:37:26.496Z"
+}

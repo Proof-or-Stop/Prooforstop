@@ -188,7 +188,7 @@ The project's debug entry, **3 lines**, framework handles all infrastructure:
 
 ```typescript
 // core/debug.ts
-import { devHost } from '@koala-agent/core/dev-host';
+import { devHost } from '@lattice-agent/core/dev-host';
 import { createApp } from './app.js';
 
 ```typescript

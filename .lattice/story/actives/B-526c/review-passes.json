@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-526c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: wrapper-root gitRoot repair UX is conceptually sound and host-neutral. Verified: (1) doctor diagnostics are strictly read-only, scoped to immediate child dirs, deterministic classification (not-applicable/none/single-candidate/ambiguous); (2) ambiguous layouts fail-closed — no candidate chosen, story_resolve unresolved, review_run_start fails (smoke-tested); (3) single-candidate suggestion is operator-facing only — runtime resolution (story-signed-workspace-resolution.ts) consumes only the explicitly configured config.gitRoot, never doctor candidates; (4) repair requires explicit --set-git-root + --confirm, rejects absolute paths, realpath escape attempts, and non-git-root targets; without --confirm it is a pure preview; (5) write mutates only the gitRoot field, preserves other config fields, post-write verification via resetConfigCache reload; (6) host-neutrality preserved: repair classified mainSharedMutating/metadata-write, never gate evidence or automatic resolver input; doctor stays L0 read-only; CLI_META_SCHEMA merge only surfaces optional takeover flags in non-strict schemas, no regression. Field-regression smoke covers none/ambiguous/single-candidate/preview/traversal-rejection/confirmed-repair/end-to-end resolution.",
+      "createdAt": "2026-06-12T20:00:13.720Z",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "reviewRunId": "B-526c:RR-001",
+      "_hash": "84d6599afff588356f275a516e08f09d296491a0e5825a2afc02857cb1a9054e"
+    },
+    {
+      "id": "B-526c:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: wrapper-root gitRoot doctor diagnostics + config repair verified. Path safety: validateRepairGitRootTarget rejects absolute paths, realpath-canonicalizes metadata root and candidate (symlink-escape safe), rejects rel==\"\"/.. escapes, requires existence and git toplevel==candidate; gitProbe uses constant command with cwd option (no injection). Mutation scope: writes only gitRoot via spread of existing config JSON, rejects invalid/non-object JSON, preview without --confirm is non-mutating, never guesses targets, ambiguous layouts fail closed. Process facts: lattice_config_repair registered L2/lattice-cli-config, command policy mainSharedMutating/metadata-write, phase tools whitelisted; npm run test:process-fact-contract green. CLI_META_SCHEMA widening is a justified fix (lease gate at cli-engine.ts:3695 reads post-validation args, takeover flags were previously stripped for non-autopilot commands). Verified: packages/main build green, test:field-regression-cli-smoke green covering none/ambiguous/single-candidate doctor, preview, unsafe-path and non-root rejections, confirmed repair, post-repair story_resolve and review_run_start.",
+      "createdAt": "2026-06-12T20:01:31.316Z",
+      "reviewRound": "2026-06-12T19:56:56.284Z",
+      "reviewRunId": "B-526c:RR-002",
+      "_hash": "d2be30692a9ebce89f4f68b8c70808baf5b594588f7f72603471eb9ede830efc"
+    },
+    {
+      "id": "B-526c:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept re-review after F-001 fix (d7b106e). The fix is a real correctness fix, not arbitrary optimization: the old flow realpathed only the metadata root (canonicalFsPath skips realpath for missing paths), so a missing-but-contained target under a /var root (realpath /private/var) was misreported as an unsafe-path escape. New ordering — lexical containment (rejects ../ escapes and the root itself) → existence check → canonical realpath containment for existing targets — preserves symlink-escape rejection while restoring the correct target-does-not-exist error; dangling symlinks deterministically report does-not-exist. Repair UX remains explicit and deterministic: --set-git-root required and never guessed, --confirm gates any write, preview prints the exact confirm command and mutates nothing. No auto host repair: doctor is readOnly diagnostics, single-candidate is operator-suggestion-only, ambiguous layouts fail closed with no suggested target or repair command. Command policy marks repair as mainSharedMutating metadata-write and never an automatic resolver input. Smoke test now passes repairable.root uncanonicalized so the /var path is genuinely exercised. No blocking issues.",
+      "createdAt": "2026-06-12T20:15:58.024Z",
+      "reviewRound": "2026-06-12T20:13:54.209Z",
+      "reviewRunId": "B-526c:RR-005",
+      "_hash": "6764c269dd137b5e3cd8f86deba9a910af3746f99fcfa198b4598da4881ed342"
+    },
+    {
+      "id": "B-526c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-review after B-526c:F-001 fix: CHK-002 adversarial coverage now includes missing relative target via repairable.root, unsafe outside path, nested non-root target, non-mutating preview, confirmed repair, and post-repair story_resolve/review_run_start binding. Smoke passed with current materialHash 8886303e46a882e63d35b70eab1b9cc26d7871770dcce576a6aeb99e5711032f; headHash differs only by metadata commits after refresh.",
+      "createdAt": "2026-06-12T20:17:08.569Z",
+      "reviewRound": "2026-06-12T20:13:54.209Z",
+      "reviewRunId": "B-526c:RR-006",
+      "_hash": "fcf8e637d26fb8125be23a8130029d200c374d5a2cadd2adb99eb1eb2f1ee956"
+    },
+    {
+      "id": "B-526c:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality re-review of d7b106e validateRepairGitRootTarget: (1) lexical containment (resolvePath, no realpath) now runs before existence check, rejecting ../escapes and empty rel without false positives under /var->/private/var symlinked metadata roots; (2) missing-but-contained target correctly throws target-does-not-exist with the uncanonicalized lexicalCandidate path; (3) canonical realpath containment retained for existing targets, still guarding symlink escapes; (4) config relativePath derived from canonical rel stays consistent and under the root; (5) smoke test updated to pass repairable.root uncanonicalized, covering the regression. Verified: tsc build green, field-regression-cli-smoke passed. Diff contains no unrelated changes (only lattice-cli.ts validation fn + 1-line smoke change).",
+      "createdAt": "2026-06-12T20:17:10.612Z",
+      "reviewRound": "2026-06-12T20:13:54.209Z",
+      "reviewRunId": "B-526c:RR-004",
+      "_hash": "0954623ffb3e9180ff525e06a5a6fc4f2ac69e11ff0b8f5792b7cb86767d6cb4"
+    }
+  ]
+}

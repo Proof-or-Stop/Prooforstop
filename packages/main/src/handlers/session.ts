@@ -19,8 +19,8 @@
  */
 
 import { execSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync, realpathSync } from 'fs';
+import { isAbsolute, join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { formatStoryOutcomeKind, normalizeStoryOutcomeKind, type StoryInfo, type ChecklistData, type BugData, type StoryOutcomeKind } from '../core/types.js';
 import { detectZombieStories } from './story-query.js';
@@ -29,7 +29,8 @@ import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import { summarizeReviewerStatus, type ReviewerStatusSummary } from '../core/reviewer-status.js';
 import { renderAntiStall, reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
-import { isGitRepository } from '../core/git-probe.js';
+import { gitProbe, isGitRepository } from '../core/git-probe.js';
+import { loadConfig } from '../core/config.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
@@ -124,6 +125,96 @@ function readGitStatus(root: string): { porcelain: string[]; recentLog: string[]
     if (log) recentLog.push(...log.split('\n'));
   } catch { /* no commits */ }
   return { porcelain, recentLog };
+}
+
+interface ConfiguredGitRootSessionStatus {
+  configuredGitRoot: string;
+  signedWorkspaceRoot: string | null;
+  resolutionSource: 'configured-git-root' | 'unresolved';
+  unresolvedReason: string | null;
+}
+
+function readConfiguredGitRootSessionStatus(root: string, metadataRootGitBacked: boolean): ConfiguredGitRootSessionStatus | null {
+  if (metadataRootGitBacked) return null;
+  let configuredGitRoot: string | undefined;
+  try {
+    configuredGitRoot = loadConfig(root).gitRoot;
+  } catch {
+    return null;
+  }
+  const raw = configuredGitRoot?.trim();
+  if (!raw) return null;
+
+  const metadataRoot = canonicalPath(root);
+  const candidate = canonicalPath(isAbsolute(raw) ? raw : join(metadataRoot, raw));
+  if (!isPathInside(metadataRoot, candidate)) {
+    return unresolvedConfiguredGitRoot(raw, 'configured_gitRoot_outside_metadata_root');
+  }
+  if (!existsSync(candidate)) {
+    return unresolvedConfiguredGitRoot(raw, 'configured_gitRoot_missing');
+  }
+  const probe = gitProbe('git rev-parse --show-toplevel', { cwd: candidate });
+  if (!probe.ok) {
+    return unresolvedConfiguredGitRoot(raw, 'configured_gitRoot_is_not_git_repository');
+  }
+  const topLevel = canonicalPath(probe.output);
+  if (topLevel !== candidate) {
+    return unresolvedConfiguredGitRoot(raw, 'configured_gitRoot_is_not_git_root');
+  }
+  return {
+    configuredGitRoot: raw,
+    signedWorkspaceRoot: topLevel,
+    resolutionSource: 'configured-git-root',
+    unresolvedReason: null,
+  };
+}
+
+function unresolvedConfiguredGitRoot(configuredGitRoot: string, unresolvedReason: string): ConfiguredGitRootSessionStatus {
+  return {
+    configuredGitRoot,
+    signedWorkspaceRoot: null,
+    resolutionSource: 'unresolved',
+    unresolvedReason,
+  };
+}
+
+function renderConfiguredGitRootSessionStatus(status: ConfiguredGitRootSessionStatus | null): string[] {
+  if (!status) return [];
+  const lines: string[] = [];
+  lines.push('');
+  lines.push('## Signed workspace');
+  if (status.signedWorkspaceRoot && status.resolutionSource === 'configured-git-root') {
+    lines.push('  Signed workspace: OK');
+    lines.push(`  configured gitRoot: ${status.configuredGitRoot}`);
+    lines.push(`  resolutionSource: ${status.resolutionSource}`);
+    lines.push(`  signedWorkspaceRoot: ${status.signedWorkspaceRoot}`);
+  } else {
+    lines.push('  Signed workspace: unresolved');
+    lines.push(`  configured gitRoot: ${status.configuredGitRoot}`);
+    lines.push('  resolutionSource: unresolved');
+    lines.push(`  Reason: ${status.unresolvedReason || 'configured_gitRoot_unresolved'}`);
+  }
+  return lines;
+}
+
+function renderNonGitProjectNotice(status: ConfiguredGitRootSessionStatus | null, initCheckText: string): string {
+  if (status?.signedWorkspaceRoot && status.resolutionSource === 'configured-git-root') {
+    return 'Note: Metadata root is not a git repo; configured gitRoot supplies the signed workspace for git-backed operations.';
+  }
+  return initCheckText;
+}
+
+function canonicalPath(path: string): string {
+  try {
+    return existsSync(path) ? realpathSync(path) : path;
+  } catch {
+    return path;
+  }
+}
+
+function isPathInside(root: string, candidate: string): boolean {
+  const rel = relative(canonicalPath(root), canonicalPath(candidate));
+  return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
 }
 
 /**
@@ -540,6 +631,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       const concise = args.concise === true;
       const lines: string[] = [];
       const gitReady = isGitRepository(ctx.root);
+      const configuredGitRootStatus = readConfiguredGitRootSessionStatus(ctx.root, gitReady);
       lines.push('# lattice session brief');
       lines.push('');
 
@@ -558,9 +650,13 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('**No active story** — no stories yet.');
           lines.push('');
           lines.push('Start with `lattice story_create` to create your first story.');
+          for (const l of renderConfiguredGitRootSessionStatus(configuredGitRootStatus)) lines.push(l);
           if (!gitReady) {
             lines.push('');
-            lines.push('⚠ Non-git project: Koala can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.');
+            lines.push(renderNonGitProjectNotice(
+              configuredGitRootStatus,
+              '⚠ Non-git project: Koala can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.',
+            ));
           }
           const gitNew = readGitStatus(ctx.root);
           if (gitNew.recentLog.length > 0) {
@@ -748,9 +844,13 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push(`Working tree dirty (${gitMain.porcelain.length} files).`);
         }
+        for (const l of renderConfiguredGitRootSessionStatus(configuredGitRootStatus)) lines.push(l);
         if (!gitReady) {
           lines.push('');
-          lines.push('⚠ Non-git project: story metadata can be recorded here, but branch/worktree phases need `git init` + an initial commit first.');
+          lines.push(renderNonGitProjectNotice(
+            configuredGitRootStatus,
+            '⚠ Non-git project: story metadata can be recorded here, but branch/worktree phases need `git init` + an initial commit first.',
+          ));
         }
 
         if (!concise) {
@@ -774,7 +874,9 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (activeStories.length > 0) {
           const top = activeStories[0];
           const wt = worktrees[top.storyId];
-          if (!gitReady) {
+          if (!gitReady && configuredGitRootStatus?.signedWorkspaceRoot) {
+            lines.push(`  Metadata root is not a git repo, but configured gitRoot resolves the signed workspace: ${configuredGitRootStatus.signedWorkspaceRoot}`);
+          } else if (!gitReady) {
             lines.push(`  Project is not a git repo. You can keep recording story/test metadata, but before INIT_CHECK/worktree flow run: \`git init && git add . && git commit -m "init"\``);
           } else if (wt) {
             const authority = top.mainPhase

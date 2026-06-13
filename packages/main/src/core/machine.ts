@@ -257,6 +257,193 @@ export function renderScopeAntiExpansionSummary(
   ];
 }
 
+export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
+  const cl = context.store.readChecklist(context.storyId);
+  if (!cl.items.every(item => item.status === 'done')) return false;
+  const story = context.store.readStory(context.storyId);
+  const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
+  return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
+}
+
+export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
+  try {
+    const story = context.store.readStory(context.storyId);
+    if (story.phase !== 'INIT') return true; // Other sources such as IDEA→INIT_CHECK are not gated
+    if (getScopeAntiExpansionGuardFailureReason(context.storyId, context.store, context.projectRoot)) return false;
+    const initCheck = context.store.readInitCheck(context.storyId);
+    if (!initCheck) return false;
+    const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot);
+    return initCheck._hash === expected
+      && missingRequiredInitCheckAgents(initCheck).length === 0
+      && blockingInitCheckIssues(initCheck).length === 0;
+  } catch (err) {
+    // B-e71f F-016: xstate guard must not throw (it would push the actor into the error state), but going completely silent
+    // would swallow the underlying store exceptions (fs read failure / json parse failure / recompute path bug)——
+    // the user would only see the gate rejection without any diagnostics. console.warn here does not affect the guard return value.
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[canEnterInitCheck] ${context.storyId}: ${msg}`);
+    return false;
+  }
+}
+
+export function canStartDevGuard(context: StoryMachineContext): boolean {
+  // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
+  try {
+    const config = loadConfig(context.projectRoot);
+    const story = context.store.readStory(context.storyId);
+    const policy = resolveWorkflowPolicy(config, story);
+    if (!policy.plan.requireStoryReview) return true;
+    const review = context.store.readReview(context.storyId);
+    if (!review || !review.reviews || review.reviews.length === 0) return false;
+    const lastRound = review.reviews[review.reviews.length - 1];
+    const REVIEW_SALT = 'koala-review-integrity-v1';
+    const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
+    const expectedHash = createHash('sha256').update(hashInput).digest('hex');
+    if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
+    return (lastRound.blockerCount ?? lastRound.issueCount) === 0;
+  } catch {
+    return false;
+  }
+}
+
+export function canSkipPlanGuard(context: StoryMachineContext): boolean {
+  // Express channel: WorkflowPolicy decides whether skipping PLAN is allowed
+  try {
+    const config = loadConfig(context.projectRoot);
+    const story = context.store.readStory(context.storyId);
+    const policy = resolveWorkflowPolicy(config, story);
+    if (!policy.quickPath.enabled) return false;
+    if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
+    const cl = context.store.readChecklist(context.storyId);
+    return cl.items.length <= policy.quickPath.maxChecklistItems;
+  } catch {
+    return false;
+  }
+}
+
+export function canPassReviewGuard(context: StoryMachineContext): boolean {
+  try {
+    // B-7a34 CHK-003: open review loop blocks REVIEW→TEST (fail-closed).
+    const loopRecords = context.store.readReviewLoopRecords(context.storyId);
+    if (listActiveLoops(loopRecords).length > 0) return false;
+  } catch {
+    return false;
+  }
+  try {
+    const config = loadConfig(context.projectRoot);
+    const story = context.store.readStory(context.storyId);
+    const policy = resolveWorkflowPolicy(config, story);
+
+    // If policy doesn't require reviewer, skip finding checks entirely
+    if (!policy.review.requireReviewer) return true;
+
+    const findings = context.store.readFindings(context.storyId);
+    const reviewPasses = context.store.readReviewPasses(context.storyId);
+    if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) return false;
+    const evidenceState = collectReviewerEvidenceState(context.store, context.storyId, context.projectRoot);
+    if (evidenceState.invalid.length > 0) return false;
+
+    // Check for reviewer-produced finding if policy requires it
+    if (policy.review.requireReviewerFinding) {
+      const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
+
+      const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
+      if (roundCount <= 1) {
+        // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
+        let checklist: { items: unknown[] } = { items: [] };
+        try { checklist = context.store.readChecklist(context.storyId); } catch {}
+        let decision = null;
+        try { decision = context.store.readDecision(context.storyId); } catch {}
+        const understanding = context.store.readUnderstanding(context.storyId);
+        const touchpoints = understanding?.touchpoints
+          ?? detectMdTouchpointsFromGit(context.projectRoot ?? process.cwd());
+        const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+        const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
+          e => findingAgentMatchesReviewer(e.agent, reviewer.name),
+        ));
+        if (missing.length > 0) return false;
+
+        // B-1fca CHK-002: quorum gate for round 1
+        const quorum = evaluateReviewerQuorum({
+          activeReviewers: optIn.map(r => r.name),
+          evidence: buildQuorumEvidence(evidenceState.valid),
+          profile: policy.profile as 'light' | 'balanced' | 'strict',
+        });
+        if (!quorum.ok) return false;
+      } else {
+        // Round 2+: require at least 1 reviewer finding or pass receipt
+        if (currentRoundReviewerEvidence.length === 0) return false;
+      }
+    }
+
+    const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
+
+    // Check blocking severities from policy (with round decay).
+    // B-3fad CHK-001: evidenceState dimension — only verified (or legacy missing-field) open findings block;
+    // suspected / disproven do not block REVIEW→TEST.
+    const blocking = evidenceState.valid
+      .map((e) => e.finding)
+      .filter((finding): finding is Finding => !!finding)
+      .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
+    return blocking.length === 0;
+  } catch {
+    return false;
+  }
+}
+
+export function canFinishGuard(context: StoryMachineContext): boolean {
+  // verifier result (test-evidence.json) must be PASS + all bugs fixed
+  const evidence = context.store.readTestEvidence(context.storyId);
+  const hasEvidence = evidence !== null && evidence.result === 'PASS';
+  const bugs = context.store.readBugs(context.storyId);
+  const bugsOk = bugs.bugs.every(b => b.status === 'fixed');
+  if (!hasEvidence || !bugsOk) return false;
+
+  // delivery-check.json must exist and _hash must match
+  const deliveryCheck = context.store.readDeliveryCheck(context.storyId);
+  if (!deliveryCheck) return false;
+  const expectedHash = recomputeDeliveryCheckHash(context.storyId, context.store);
+  if (expectedHash === null || deliveryCheck._hash !== expectedHash) return false;
+
+  // every docsPromise must be verified or waived
+  const unverified = deliveryCheck.docsPromises.filter(
+    p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
+  );
+  if (unverified.length > 0) {
+    return false;
+  }
+
+  return true;
+}
+
+export function canSendStoryEventWithoutSnapshotCan(
+  storyId: string,
+  store: StoryStore,
+  currentState: string,
+  eventType: string,
+  projectRoot: string,
+): boolean {
+  const context: StoryMachineContext = { storyId, store, projectRoot };
+  switch (currentState) {
+    case 'IDEA':
+      return eventType === 'INIT' || eventType === 'PLAN';
+    case 'INIT':
+      return eventType === 'INIT_CHECK' && canEnterInitCheckGuard(context);
+    case 'INIT_CHECK':
+      return eventType === 'PLAN' || (eventType === 'START' && canSkipPlanGuard(context));
+    case 'PLAN':
+      return eventType === 'START' && canStartDevGuard(context);
+    case 'DEV':
+      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && checklistAllDoneGuard(context));
+    case 'REVIEW':
+      return eventType === 'START' || (eventType === 'REVIEW_PASS' && canPassReviewGuard(context));
+    case 'TEST':
+      return eventType === 'START' || (eventType === 'FINISH' && canFinishGuard(context));
+    default:
+      return false;
+  }
+}
+
 export const storyMachine = setup({
   types: {
     context: {} as StoryMachineContext,
@@ -272,162 +459,17 @@ export const storyMachine = setup({
       | { type: 'FINISH' },
   },
   guards: {
-    checklistAllDone: ({ context }) => {
-      const cl = context.store.readChecklist(context.storyId);
-      if (!cl.items.every(item => item.status === 'done')) return false;
-      const story = context.store.readStory(context.storyId);
-      const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
-      return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
-    },
+    checklistAllDone: ({ context }) => checklistAllDoneGuard(context),
     // B-e71f CHK-006: xstate-side fallback for the INIT→INIT_CHECK hard gate.
     // getGuardFailureReason in phase-gates.ts is only invoked by resolveGuardFailure when actor.can() returns false,
     // so a guard must be attached to the INIT→INIT_CHECK transition here; otherwise can() will always be true and the gate will never fire.
     // The guard and getGuardFailureReason share the same decision logic: missing init-check.json → false;
     // _hash mismatch → false; pass → true. The failure reason is rendered as a human-readable message by getGuardFailureReason.
-    canEnterInitCheck: ({ context }) => {
-      try {
-        const story = context.store.readStory(context.storyId);
-        if (story.phase !== 'INIT') return true; // Other sources such as IDEA→INIT_CHECK are not gated
-        if (getScopeAntiExpansionGuardFailureReason(context.storyId, context.store, context.projectRoot)) return false;
-        const initCheck = context.store.readInitCheck(context.storyId);
-        if (!initCheck) return false;
-        const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot);
-        return initCheck._hash === expected
-          && missingRequiredInitCheckAgents(initCheck).length === 0
-          && blockingInitCheckIssues(initCheck).length === 0;
-      } catch (err) {
-        // B-e71f F-016: xstate guard must not throw (it would push the actor into the error state), but going completely silent
-        // would swallow the underlying store exceptions (fs read failure / json parse failure / recompute path bug)——
-        // the user would only see the gate rejection without any diagnostics. console.warn here does not affect the guard return value.
-        const msg = err instanceof Error ? err.message : String(err);
-        console.warn(`[canEnterInitCheck] ${context.storyId}: ${msg}`);
-        return false;
-      }
-    },
-    canStartDev: ({ context }) => {
-      // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
-      try {
-        const config = loadConfig(context.projectRoot);
-        const story = context.store.readStory(context.storyId);
-        const policy = resolveWorkflowPolicy(config, story);
-        if (!policy.plan.requireStoryReview) return true;
-        const review = context.store.readReview(context.storyId);
-        if (!review || !review.reviews || review.reviews.length === 0) return false;
-        const lastRound = review.reviews[review.reviews.length - 1];
-        const REVIEW_SALT = 'koala-review-integrity-v1';
-        const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
-        const expectedHash = createHash('sha256').update(hashInput).digest('hex');
-        if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
-        return (lastRound.blockerCount ?? lastRound.issueCount) === 0;
-      } catch {
-        return false;
-      }
-    },
-    canSkipPlan: ({ context }) => {
-      // Express channel: WorkflowPolicy decides whether skipping PLAN is allowed
-      try {
-        const config = loadConfig(context.projectRoot);
-        const story = context.store.readStory(context.storyId);
-        const policy = resolveWorkflowPolicy(config, story);
-        if (!policy.quickPath.enabled) return false;
-        if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
-        const cl = context.store.readChecklist(context.storyId);
-        return cl.items.length <= policy.quickPath.maxChecklistItems;
-      } catch {
-        return false;
-      }
-    },
-    canPassReview: ({ context }) => {
-      try {
-        // B-7a34 CHK-003: open review loop blocks REVIEW→TEST (fail-closed).
-        const loopRecords = context.store.readReviewLoopRecords(context.storyId);
-        if (listActiveLoops(loopRecords).length > 0) return false;
-      } catch {
-        return false;
-      }
-      try {
-        const config = loadConfig(context.projectRoot);
-        const story = context.store.readStory(context.storyId);
-        const policy = resolveWorkflowPolicy(config, story);
-
-        // If policy doesn't require reviewer, skip finding checks entirely
-        if (!policy.review.requireReviewer) return true;
-
-        const findings = context.store.readFindings(context.storyId);
-        const reviewPasses = context.store.readReviewPasses(context.storyId);
-        if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) return false;
-        const evidenceState = collectReviewerEvidenceState(context.store, context.storyId, context.projectRoot);
-        if (evidenceState.invalid.length > 0) return false;
-
-        // Check for reviewer-produced finding if policy requires it
-        if (policy.review.requireReviewerFinding) {
-          const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
-
-          const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
-          if (roundCount <= 1) {
-            // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
-            let checklist: { items: unknown[] } = { items: [] };
-            try { checklist = context.store.readChecklist(context.storyId); } catch {}
-            let decision = null;
-            try { decision = context.store.readDecision(context.storyId); } catch {}
-            const understanding = context.store.readUnderstanding(context.storyId);
-            const touchpoints = understanding?.touchpoints
-              ?? detectMdTouchpointsFromGit(context.projectRoot ?? process.cwd());
-            const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
-            const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
-              e => findingAgentMatchesReviewer(e.agent, reviewer.name),
-            ));
-            if (missing.length > 0) return false;
-
-            // B-1fca CHK-002: quorum gate for round 1
-            const quorum = evaluateReviewerQuorum({
-              activeReviewers: optIn.map(r => r.name),
-              evidence: buildQuorumEvidence(evidenceState.valid),
-              profile: policy.profile as 'light' | 'balanced' | 'strict',
-            });
-            if (!quorum.ok) return false;
-          } else {
-            // Round 2+: require at least 1 reviewer finding or pass receipt
-            if (currentRoundReviewerEvidence.length === 0) return false;
-          }
-        }
-
-        const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
-
-        // Check blocking severities from policy (with round decay).
-        // B-3fad CHK-001: evidenceState dimension — only verified (or legacy missing-field) open findings block;
-        // suspected / disproven do not block REVIEW→TEST.
-        const blocking = evidenceState.valid
-          .map((e) => e.finding)
-          .filter((finding): finding is Finding => !!finding)
-          .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
-        return blocking.length === 0;
-      } catch {
-        return false;
-      }
-    },
-    canFinish: ({ context }) => {
-      // verifier result (test-evidence.json) must be PASS + all bugs fixed
-      const evidence = context.store.readTestEvidence(context.storyId);
-      const hasEvidence = evidence !== null && evidence.result === 'PASS';
-      const bugs = context.store.readBugs(context.storyId);
-      const bugsOk = bugs.bugs.every(b => b.status === 'fixed');
-      if (!hasEvidence || !bugsOk) return false;
-
-      // delivery-check.json must exist and _hash must match
-      const deliveryCheck = context.store.readDeliveryCheck(context.storyId);
-      if (!deliveryCheck) return false;
-      const expectedHash = recomputeDeliveryCheckHash(context.storyId, context.store);
-      if (expectedHash === null || deliveryCheck._hash !== expectedHash) return false;
-
-      // every docsPromise must be verified or waived
-      const unverified = deliveryCheck.docsPromises.filter(
-        p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
-      );
-      if (unverified.length > 0) return false;
-
-      return true;
-    },
+    canEnterInitCheck: ({ context }) => canEnterInitCheckGuard(context),
+    canStartDev: ({ context }) => canStartDevGuard(context),
+    canSkipPlan: ({ context }) => canSkipPlanGuard(context),
+    canPassReview: ({ context }) => canPassReviewGuard(context),
+    canFinish: ({ context }) => canFinishGuard(context),
   },
 }).createMachine({
   id: 'story',

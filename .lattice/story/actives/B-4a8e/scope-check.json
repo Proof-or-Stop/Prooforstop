@@ -1,0 +1,45 @@
+{
+  "storyId": "B-4a8e",
+  "checkedAt": "2026-06-12T21:07:25.527Z",
+  "features": [
+    {
+      "feature": "Render configured gitRoot and signed workspace OK state in non-git session_brief",
+      "covered_by": "packages/main/src/handlers/session.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-4a8e plan CHK-001 plus dispatch files"
+    },
+    {
+      "feature": "Keep unresolved wrapper-root session_brief fail-closed without OK claim or repo guessing",
+      "covered_by": "packages/main/src/handlers/session.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-4a8e plan CHK-002 and preMortem"
+    },
+    {
+      "feature": "Add product-visible CLI regression coverage for configured and unresolved wrapper-root session_brief output",
+      "covered_by": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-4a8e plan CHK-003 plus existing wrapper-root smoke helpers"
+    },
+    {
+      "feature": "Resolver policy, config repair, authority gates, and docs changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story constraints and Decision option A: presentation-only fix; do not change story_resolve, review_run_start authority semantics, automatic repair, or docs unless a concrete implementation need appears",
+      "source": "B-4a8e understanding constraints and decision"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6de32238845e0e999a1bb5ed9ff9be1b6bac1bcbf497a56d37b9ac5d7d28e628",
+  "openQuestions": []
+}

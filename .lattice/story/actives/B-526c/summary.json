@@ -1,0 +1,56 @@
+{
+  "storyId": "B-526c",
+  "changes": "Added wrapper-root gitRoot diagnostics to lattice config doctor, added explicit confirmed lattice config repair, registered the command policy/process fact level, and extended field regression smoke coverage for resolver and review_run_start behavior.",
+  "usage": "Run lattice config doctor in a wrapper metadata root to see wrapperGitRoot diagnostics. If it reports a single candidate, run lattice config repair --set-git-root=<child-repo> --confirm, then rerun story_resolve or review_run_start.",
+  "expectedOutcome": "For metadataRoot outside the git repo with exactly one child git repo, users see a suggested gitRoot and explicit repair command. Before repair signed workspace resolution fails closed; after confirmed repair it resolves through configured-git-root.",
+  "actualTranscript": "PASS: node bin/lattice.js validate --story=B-526c reported project validation passed and 9/9 verification intents covered. PASS: npm --prefix packages/main run build. PASS: node packages/main/dist/tasks/field-regression-cli-smoke.js. PASS: node scripts/verify-process-fact-contract.mjs. PASS: independent delivery reviewer found no product correctness blocker.",
+  "outcomeDiff": "No functional diff from expected. The implementation stayed explicit and host-neutral: diagnostics suggest, repair requires --set-git-root and --confirm, and resolver behavior remains fail-closed until config is written.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for the scoped wrapper-root gitRoot repair UX; this does not claim full Lattice convergence or unattended authority readiness.",
+  "pitfalls": "The key pitfall was symlinked macOS temp roots: missing child targets must report target does not exist, so validation now checks lexical containment before existence and canonical containment only after the target exists.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 171586
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 76808
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 389355
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2233652
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 678767
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 366196
+    }
+  },
+  "totalDurationMs": 3916382,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T20:25:54.815Z",
+  "updatedAt": "2026-06-12T20:25:54.815Z"
+}

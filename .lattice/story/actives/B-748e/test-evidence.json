@@ -1,0 +1,209 @@
+{
+  "command": "koala validate --story=B-748e --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-AEAue0; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-REUnrd; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 10/10 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — gap_analyze no longer reports the unresolvedReason requirement at review-run-start-signed-workspace-resolution-execution-plan.md:262.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — resolveStorySignedWorkspace still emits requires_git_signed_workspace_but_metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for a wrapper root with no worktree or gitRoot.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — The fix does not add gitRoot repair UX or loosen gap_analyze globally to hide unrelated requirements.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — gap_analyze no longer reports the no-binding REVIEW diagnostic requirement at review-run-start-signed-workspace-resolution-execution-plan.md:311.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — review_run_start still fails closed for unresolved signed workspace and does not create a reviewer run.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — The diagnostic remains explicit and does not silently sign a non-git metadata root or create REVIEW metadata on failure.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test — Build and targeted regression pass after the source binding change.\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — gap_analyze reports exactly one high gap and zero medium gaps after the signed-workspace bindings are recognized.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — The only remaining high gap is customerKeyRef from Layer4/future scope, not either signed-workspace requirement.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — No source change claims Layer4 Production Safety, Authority receipt verification, productionDone, fullAuthorityDone, or customerKeyRef support.\"],\"warnings\":[],\"timestamp\":\"2026-06-12T19:48:06.919Z\",\"headSha\":\"00fbc2ca3b348ec46bcc94388c5b8b74c10a10c4\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-AEAue0; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-REUnrd; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1357}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":10,\"reason\":\"verificationIntent entries present (10)\"},\"verificationCoverage\":{\"total\":10,\"required\":10,\"covered\":10,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"gap_analyze no longer reports the unresolvedReason requirement at review-run-start-signed-workspace-resolution-execution-plan.md:262.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice gap_analyze\",\"result\":\"pass\",\"note\":\"gap_analyze output is Gaps: 1 high / 0 medium and no longer includes decisions/review-run-start-signed-workspace-resolution-execution-plan.md:262.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"resolveStorySignedWorkspace still emits requires_git_signed_workspace_but_metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for a wrapper root with no worktree or gitRoot.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"field regression smoke passed and covers unresolved wrapper root reason behavior for signed-workspace resolution.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The fix does not add gitRoot repair UX or loosen gap_analyze globally to hide unrelated requirements.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"git show --stat --oneline HEAD && lattice gap_analyze\",\"result\":\"pass\",\"note\":\"HEAD changes only source-level coverage annotations in signed-workspace files; gap_analyze still keeps unrelated customerKeyRef as the only high gap, so no broad analyzer hiding occurred.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"gap_analyze no longer reports the no-binding REVIEW diagnostic requirement at review-run-start-signed-workspace-resolution-execution-plan.md:311.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice gap_analyze\",\"result\":\"pass\",\"note\":\"gap_analyze output no longer includes decisions/review-run-start-signed-workspace-resolution-execution-plan.md:311 or Reason [requires_git_signed_workspace_but_no_binding] as a high gap.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"review_run_start still fails closed for unresolved signed workspace and does not create a reviewer run.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"field regression smoke passed and asserts unresolved review_run_start fails, reports signedWorkspaceRoot unresolved, and creates no reviewer run.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The diagnostic remains explicit and does not silently sign a non-git metadata root or create REVIEW metadata on failure.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"field regression smoke passed and preserves fail-closed behavior instead of silently signing a non-git metadata root or writing REVIEW metadata on failure.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Build and targeted regression pass after the source binding change.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"TypeScript build and targeted field regression smoke both passed after the annotation-only source binding change.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"gap_analyze reports exactly one high gap and zero medium gaps after the signed-workspace bindings are recognized.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"lattice gap_analyze\",\"result\":\"pass\",\"note\":\"gap_analyze reports exactly Gaps: 1 high / 0 medium after the signed-workspace bindings are recognized.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The only remaining high gap is customerKeyRef from Layer4/future scope, not either signed-workspace requirement.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"lattice gap_analyze\",\"result\":\"pass\",\"note\":\"The only remaining high gap source is decisions/unlock-layer4-production-safety-suite.md:267 customerKeyRef, which is Layer4 future scope.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"No source change claims Layer4 Production Safety, Authority receipt verification, productionDone, fullAuthorityDone, or customerKeyRef support.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"git show --stat --oneline HEAD && lattice gap_analyze\",\"result\":\"pass\",\"note\":\"Diff contains no Layer4, Authority, productionDone, fullAuthorityDone, receiptVerified, or customerKeyRef implementation changes; customerKeyRef remains uncovered.\",\"headHash\":\"11b5b21f17d7716cece4c0080a68dd412628f137\",\"materialHash\":\"30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce\",\"timestamp\":\"2026-06-12T19:44:22.353Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-12T19:48:07.480Z",
+  "headHash": "00fbc2ca3b348ec46bcc94388c5b8b74c10a10c4",
+  "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+  "verificationCoverage": {
+    "total": 10,
+    "required": 10,
+    "covered": 10,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "gap_analyze no longer reports the unresolvedReason requirement at review-run-start-signed-workspace-resolution-execution-plan.md:262.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze output is Gaps: 1 high / 0 medium and no longer includes decisions/review-run-start-signed-workspace-resolution-execution-plan.md:262.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "resolveStorySignedWorkspace still emits requires_git_signed_workspace_but_metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured for a wrapper root with no worktree or gitRoot.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression smoke passed and covers unresolved wrapper root reason behavior for signed-workspace resolution.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The fix does not add gitRoot repair UX or loosen gap_analyze globally to hide unrelated requirements.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline HEAD && lattice gap_analyze",
+          "result": "pass",
+          "note": "HEAD changes only source-level coverage annotations in signed-workspace files; gap_analyze still keeps unrelated customerKeyRef as the only high gap, so no broad analyzer hiding occurred.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "gap_analyze no longer reports the no-binding REVIEW diagnostic requirement at review-run-start-signed-workspace-resolution-execution-plan.md:311.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze output no longer includes decisions/review-run-start-signed-workspace-resolution-execution-plan.md:311 or Reason [requires_git_signed_workspace_but_no_binding] as a high gap.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "review_run_start still fails closed for unresolved signed workspace and does not create a reviewer run.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression smoke passed and asserts unresolved review_run_start fails, reports signedWorkspaceRoot unresolved, and creates no reviewer run.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The diagnostic remains explicit and does not silently sign a non-git metadata root or create REVIEW metadata on failure.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "field regression smoke passed and preserves fail-closed behavior instead of silently signing a non-git metadata root or writing REVIEW metadata on failure.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Build and targeted regression pass after the source binding change.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "TypeScript build and targeted field regression smoke both passed after the annotation-only source binding change.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "gap_analyze reports exactly one high gap and zero medium gaps after the signed-workspace bindings are recognized.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze reports exactly Gaps: 1 high / 0 medium after the signed-workspace bindings are recognized.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The only remaining high gap is customerKeyRef from Layer4/future scope, not either signed-workspace requirement.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "The only remaining high gap source is decisions/unlock-layer4-production-safety-suite.md:267 customerKeyRef, which is Layer4 future scope.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "No source change claims Layer4 Production Safety, Authority receipt verification, productionDone, fullAuthorityDone, or customerKeyRef support.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline HEAD && lattice gap_analyze",
+          "result": "pass",
+          "note": "Diff contains no Layer4, Authority, productionDone, fullAuthorityDone, receiptVerified, or customerKeyRef implementation changes; customerKeyRef remains uncovered.",
+          "headHash": "11b5b21f17d7716cece4c0080a68dd412628f137",
+          "materialHash": "30df74251ae22be1f5d68d9d94bb228515c0b87dfc24fb7bb4789fc53bfcd0ce",
+          "timestamp": "2026-06-12T19:44:22.353Z"
+        }
+      }
+    ]
+  }
+}

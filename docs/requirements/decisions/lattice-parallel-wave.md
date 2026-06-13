@@ -24,6 +24,15 @@ gates. Each JSON surface keeps the non-authority boundary explicit with
 - Evidence refs are lineage references only. They are useful for recovery and
   validation planning, but the wave does not refresh evidence, submit evidence,
   verify receipts, or grant authority.
+- Active story worktrees are inspected with read-only git probes to project
+  material changed files. Committed changes against `main`, uncommitted tracked
+  changes, and untracked files are compared across active stories; runtime
+  and story metadata are excluded only through the shared material-exclusion
+  classifiers (`isStoryMetadataPath` plus the runtime artifact registry), not by
+  blanket root or filename filters. A failed changed-file probe anywhere in the
+  active story collection degrades selected stories to local planning-only
+  guidance until every active worktree projection can be collected. Actual
+  material file overlaps are local scheduling degradations only.
 - Merge order is guidance for sequencing integration. It does not replace Koala
   lifecycle gates.
 

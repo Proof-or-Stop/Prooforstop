@@ -27,14 +27,14 @@ preventing false DONE?
 The allowed claim after unlock is:
 
 ```text
-Lattice has validated a correctness-protected Loop Engineering model for the
-tested task classes.
+Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+artifacts in the tested task classes.
 ```
 
 Chinese wording:
 
 ```text
-Lattice 具备 correctness-protected unattended development model，用于已验证的任务类别。
+Lattice 已验证：formal Loop Engineering claim path 可以消费 fresh UDM proof artifacts，并仅解锁对应的 Layer 3 claim。
 ```
 
 The unlock does not allow these claims:
@@ -97,13 +97,14 @@ This is not a failure of Layer 3. It is the correct fail-closed boundary.
 Current implementation boundary:
 
 ```text
-The existing capability_claim_formal_evaluate command is Layer-2-only.
-Layer 3 formal unlock cannot execute until a Layer 3 suite/evaluator path exists,
-and until formal proof validation accepts loop-engineering proof without opening
-Production Safety or global Capability Claim.
+The existing capability_claim_formal_evaluate command supports the
+loop-engineering target. Layer 3 formal unlock may execute only when the
+selected CLI build can authorize loop-engineering proof while keeping Production
+Safety and global Capability Claim locked.
 ```
 
-Until that path exists, Layer 3 execution status must be:
+If a selected build or artifact root cannot provide that path, Layer 3 execution
+status must be:
 
 ```text
 BLOCKED: missing Layer 3 formal evaluator
@@ -124,8 +125,8 @@ safety.
 What can be said after Layer 3 passes:
 
 ```text
-Lattice has validated a correctness-protected Loop Engineering model for the
-tested task classes.
+Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+artifacts in the tested task classes.
 ```
 
 What cannot be said after Layer 3 alone:
@@ -134,6 +135,8 @@ What cannot be said after Layer 3 alone:
 Lattice is production-grade.
 Lattice can run unattended development safely for arbitrary projects.
 Lattice can claim production DONE without Authority receipt verification.
+Lattice has proven real Lattice Story lifecycle execution for the Loop
+Engineering scenarios without the real-execution UDM baseline.
 ```
 
 ## 5. Artifact Root
@@ -548,7 +551,7 @@ The formal execution should use this sequence:
 |---|---|---|
 | 0 | Freeze target state | Main/workspace target and material hash are selected. |
 | 1 | Refresh lower layers | Layer 1 and Layer 2 proof are fresh and unlocked for the target using the selected artifact roots, not an assumed default root. |
-| 2 | Verify Layer 3 formal evaluator path | The evaluator can authorize only `loop-engineering`; otherwise status is `BLOCKED: missing Layer 3 formal evaluator`. |
+| 2 | Verify Layer 3 formal evaluator path | The evaluator can authorize `loop-engineering` while keeping Production Safety and global Capability Claim locked; otherwise status is `BLOCKED: missing Layer 3 formal evaluator`. |
 | 3 | Create Layer 3 suite run id | `suiteRunId` is stable for all UDM baselines. |
 | 4 | Materialize UDM run directories | All artifacts are under `.lattice/artifacts/baseline/layer3-loop-engineering-unlock`. |
 | 5 | Execute 10 UDM baselines | Each baseline has required files and final report. |
@@ -566,7 +569,7 @@ Layer 3 passes only when:
 ```text
 Layer 1 Development Baseline = fresh PASS
 Layer 2 Engineering Baseline = fresh PASS / UNLOCKED for the selected artifact root
-Layer 3 formal evaluator exists and is not Layer-2-only
+Layer 3 formal evaluator supports the `loop-engineering` target
 all required UDM-* baselines match expectedOutcome
 falseDoneCount = 0
 open loops never pass REVIEW->TEST
@@ -600,14 +603,14 @@ The final Layer 3 report must include:
 Allowed wording after passing:
 
 ```text
-Lattice has validated a correctness-protected Loop Engineering model for the
-tested task classes.
+Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+artifacts in the tested task classes.
 ```
 
 Chinese wording:
 
 ```text
-Lattice 具备 correctness-protected unattended development model，用于已验证的任务类别。
+Lattice 已验证：formal Loop Engineering claim path 可以消费 fresh UDM proof artifacts，并仅解锁对应的 Layer 3 claim。
 ```
 
 Forbidden wording:

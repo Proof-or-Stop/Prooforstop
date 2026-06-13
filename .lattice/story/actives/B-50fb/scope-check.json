@@ -1,0 +1,73 @@
+{
+  "storyId": "B-50fb",
+  "checkedAt": "2026-06-12T20:40:37.861Z",
+  "features": [
+    {
+      "feature": "Canonical public package names move from @koala-agent/* to @lattice-agent/* for core, utils, lab, and cli-guess-number package manifests.",
+      "covered_by": "CHK-001; plan.md CHK-001; understanding.touchpoints package manifests",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/package.json:2; packages/utils/package.json:2; packages/lab/package.json:2; packages/cli-guess-number/package.json:2"
+    },
+    {
+      "feature": "Root package identity and lockfile package identity stop exposing Koala as the current package name.",
+      "covered_by": "CHK-001; plan.md CHK-001 expected user-visible result",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "package.json:2; package-lock.json:2; packages/main/package-lock.json:2"
+    },
+    {
+      "feature": "Workspace dependency edges and lockfiles are updated coherently so old @koala-agent dependencies are not left as canonical dependencies.",
+      "covered_by": "CHK-001; CHK-004; decision preMortem package manager metadata consistency",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/package.json:145; packages/utils/package.json:15; packages/lab/package.json:15; plan_get CHK-001 verification focus"
+    },
+    {
+      "feature": "The lattice binary remains primary while koala command/bin aliases are preserved only as legacy compatibility.",
+      "covered_by": "CHK-001; decision option A; project-vision primary entrypoint principle",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/package.json:15-18; README.md:1-6; docs/requirements/decisions/project-vision.md primary entrypoint"
+    },
+    {
+      "feature": "Runtime, bootstrap, worktree relink, prompt registry, rollout, and adapter package resolution use @lattice-agent/core canonically with bounded @koala-agent/core fallback.",
+      "covered_by": "CHK-002; decision option A; understanding.touchpoints runtime files",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "rg @koala-agent in packages/main/src/handlers/worktree.ts, runtime-environment-checks.ts, init-assets.ts, prompt-registry.ts, rollout-check.ts, codex-adapter-checks.ts"
+    },
+    {
+      "feature": "Active user-facing docs and truth-source docs stop presenting @koala-agent/core as the canonical package and retain only clearly labeled legacy/history references.",
+      "covered_by": "CHK-003; relatedDocs README.md and docs/requirements/decisions/project-vision.md; decision principle avoid broad prose churn",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "README.md:581; README.md:691; docs/requirements/decisions/authority-client-role.md:20,252"
+    },
+    {
+      "feature": "Verification covers package metadata assertions, lock/install/build behavior, entrypoint/runtime contract scripts, conditional verify_codex, and lattice validate.",
+      "covered_by": "CHK-004; plan.md CHK-004 verification commands; initCheck advisory incorporated",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan_get CHK-004; story_get initCheck issue re verify_codex"
+    },
+    {
+      "feature": "Historical/non-current Koala references and non-@koala-agent package scopes are not part of this package-scope rename unless they are consumed as current package guidance.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background Conversational Texture; decision preMortem branding cleanup expands into unrelated product rename; plan.md CHK-003 avoid broad historical rewrite",
+      "source": "docs/koala legacy docs listed by aux_doc_list; packages/game/package.json:2 uses @koala/game outside @koala-agent package-scope target"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ddfeaf686e015a841c277926c548f6898f0ff81f38d94ed522dae3d67b9b5a2a",
+  "openQuestions": []
+}

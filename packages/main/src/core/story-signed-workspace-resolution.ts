@@ -1,3 +1,18 @@
+/**
+ * @task B-748e
+ * @checklist CHK-001, CHK-003
+ * @title bind unresolved signed workspace reason coverage
+ * @type chore
+ * @priority high
+ * @description
+ *   Source binding for review-run-start-signed-workspace-resolution-execution-plan.md:262:
+ *   unresolvedReason remains exactly
+ *   requires_git_signed_workspace_but_metadata_root_is_not_git_and_no_worktree_or_gitRoot_is_configured
+ *   when metadataRoot is not git-backed and no story worktree or gitRoot is configured.
+ * @changes
+ *   - [CHK-001] Bind the exact unresolvedReason requirement to the existing signed-workspace resolver behavior.
+ *   - [CHK-003] Keep this as annotation coverage only; do not claim unrelated future-scope support.
+ */
 import { existsSync, realpathSync } from 'fs';
 import { isAbsolute, join, relative } from 'path';
 import { loadConfig, type KoalaConfig } from './config.js';

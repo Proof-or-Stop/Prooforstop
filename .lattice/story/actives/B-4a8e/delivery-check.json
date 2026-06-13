@@ -1,0 +1,68 @@
+{
+  "storyId": "B-4a8e",
+  "checkedAt": "2026-06-12T21:41:55.826Z",
+  "reviewRound": "2026-06-12T21:20:30.839Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "promise": "Wrapper-root projects may use an explicit gitRoot only when it resolves inside metadataRoot and is verified as a git repository root; Lattice must not guess nested repositories.",
+      "status": "verified",
+      "verifiedBy": "source review plus field-regression smoke",
+      "evidence": "packages/main/src/handlers/session.ts:136-168 verifies configured gitRoot inside metadataRoot, existence, git top-level equality, and renders unresolved reasons instead of guessing; packages/main/src/tasks/field-regression-cli-smoke.ts:891-938 covers configured, unconfigured, and missing gitRoot cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "promise": "Signed workspace readiness should be classified clearly and unresolved non-git states should fail closed with actionable diagnostics.",
+      "status": "verified",
+      "verifiedBy": "source review and transcript evidence",
+      "evidence": "packages/main/src/handlers/session.ts:180-203 renders Signed workspace OK only for verified configured-git-root and Signed workspace unresolved with reason otherwise; .lattice/story/actives/B-4a8e/evidence/transcript-diff.md shows configured ClawCreek-like wrapper output."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "session_brief should give operators a clear current state and next action without misrepresenting worktree/git authority.",
+      "status": "verified",
+      "verifiedBy": "source review and CLI smoke",
+      "evidence": "packages/main/src/handlers/session.ts:846-879 adds the signed workspace block and next-step wording only for non-git metadata roots with verified configured gitRoot; normal git-backed projects are asserted not to show the wrapper block."
+    },
+    {
+      "docPath": "docs/requirements/decisions/host-neutral-observability-console.md",
+      "promise": "Host-visible state should come through Lattice CLI surfaces, not direct backing-store parsing or hidden repair behavior.",
+      "status": "verified",
+      "verifiedBy": "scope and source review",
+      "evidence": "The change is confined to session_brief rendering and field smoke coverage; it reads config and git state only, and the smoke asserts session_brief does not mutate koala.config.json for configured, unconfigured, or invalid wrapper roots."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "CLI/session wording regressions should be covered by focused smoke coverage.",
+      "status": "verified",
+      "verifiedBy": "real machine test",
+      "evidence": "node packages/main/dist/tasks/field-regression-cli-smoke.js passed and includes assertSessionBriefConfiguredGitRootWorkspaceStatus for configured OK, unresolved fail-closed, no mutation, and normal git-backed suppression."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Inspected .lattice/story/actives/B-4a8e/evidence/transcript-diff.md: actual ClawCreek-like wrapper-root session_brief excerpt contains Signed workspace: OK, configured gitRoot: clawcreek, resolutionSource: configured-git-root, and signedWorkspaceRoot: /Users/jek/Documents/ClawCreek/clawcreek."
+    },
+    {
+      "featureId": "CHK-001/CHK-002/CHK-003",
+      "transcript": "npm --prefix packages/main run build exited 0 on this machine after compiling TypeScript with tsc."
+    },
+    {
+      "featureId": "CHK-001/CHK-002/CHK-003",
+      "transcript": "node packages/main/dist/tasks/field-regression-cli-smoke.js exited 0 with \"✓ field regression CLI smoke passed\"; coverage includes configured wrapper signed workspace OK, unconfigured wrapper Non-git/no OK, missing configured gitRoot unresolved/no OK, config non-mutation, and normal git-backed no wrapper block."
+    },
+    {
+      "featureId": "CHK-001/CHK-002/CHK-003",
+      "transcript": "node bin/lattice.js validate --story=B-4a8e exited 0; npm test/cli-e2e passed and verification intent coverage reported 9/9 covered, 0 required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: session_brief now exposes verified configured gitRoot signed workspace state for ClawCreek-like wrapper roots, unresolved wrapper roots remain fail-closed, and tests prove there is no config mutation, auto-repair, or nested repo guessing."
+  },
+  "_hash": "d839798e681cef77ad9b9f877348cd26564ee42b4bb94b6ced3559d2cb7d11d5"
+}

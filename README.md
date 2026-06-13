@@ -578,7 +578,7 @@ workflows.
 
 项目配置文件 canonical 为 `lattice.config.json`，legacy `koala.config.json` 仍可读作为兜底；两者并存时 `lattice.config.json` 胜出并打印冲突诊断。`lattice validate` 的自动 fallback 集合只包含 `npm test` / `pytest` / `go test` / `cargo test` / `mvn test` / `gradle test`；Swift / Mac Native App 已退役，**不**在自动 fallback 列表，必须显式配置 `validate.commands` 才会运行 `swift test`。
 
-`doctor` 还会输出 `Runtime scan:`，这不是流程 gate 证据，而是运行环境漂移检查。runtime facts 由 `packages/main/src/core/runtime-fact-registry.ts` 定义并由 `scripts/verify-runtime-fact-contract.mjs` 保护，覆盖 CLI entrypoint、global `@koala-agent/core` realpath、项目本地 `node_modules/.bin/koala`、Node/package version、validate source 和 `external-reference-policy`。外部项目只收到 warn/advisory，不因为 Orchestrate 本仓的 symlink 期望 hard fail。`external-reference-policy` 只扫描 `lattice.config.json`（canonical）/ `koala.config.json`（legacy fallback）、`AGENTS.md`、`CLAUDE.md`、`README.md`、`docs/requirements/**/*.md`，排除 story/fixture/build/source-comment 噪音；它只报告 policy warning，不声明 connectivity pass。
+`doctor` 还会输出 `Runtime scan:`，这不是流程 gate 证据，而是运行环境漂移检查。runtime facts 由 `packages/main/src/core/runtime-fact-registry.ts` 定义并由 `scripts/verify-runtime-fact-contract.mjs` 保护，覆盖 CLI entrypoint、global `@lattice-agent/core` realpath（legacy fallback: `@koala-agent/core`）、项目本地 `node_modules/.bin/lattice` / legacy `node_modules/.bin/koala`、Node/package version、validate source 和 `external-reference-policy`。外部项目只收到 warn/advisory，不因为 Orchestrate 本仓的 symlink 期望 hard fail。`external-reference-policy` 只扫描 `lattice.config.json`（canonical）/ `koala.config.json`（legacy fallback）、`AGENTS.md`、`CLAUDE.md`、`README.md`、`docs/requirements/**/*.md`，排除 story/fixture/build/source-comment 噪音；它只报告 policy warning，不声明 connectivity pass。
 
 Koala runtime artifacts 是另一张表：`packages/main/src/core/runtime-artifact-registry.ts` 定义 `.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等运行时文件的 ignore、materialHash 和 repair 语义。`lattice init` 会把缺失的 runtime ignore 规则合并进已有 `.gitignore`；`lattice doctor` 会报告已被 git 跟踪的 runtime artifacts，并在 `--repair` 时只对 registry 标记为 repairable 的路径执行 `git rm --cached`。这些文件不会让 materialHash-backed verification evidence stale；`.koala/story/` 仍是流程证据，不按 runtime artifact 处理。
 
@@ -688,7 +688,7 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-全局安装的 `lattice`（legacy alias: `koala`，来自 `@koala-agent/core`）在 `@koala-agent/lab` 可解析时也会自动启用 `lattice lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `lattice lab ...` 会提示安装/构建 lab。
+全局安装的 `lattice`（legacy alias: `koala`，canonical package: `@lattice-agent/core`；legacy package fallback: `@koala-agent/core`）在 `@lattice-agent/lab` 可解析时也会自动启用 `lattice lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `lattice lab ...` 会提示安装/构建 lab。
 
 发布 `0.3.5` 前建议跑：
 

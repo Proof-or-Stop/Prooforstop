@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-de86:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "CHK-001 test-coverage PASS for docs-only story. Independent review confirmed git diff --check main...HEAD passes and current git diff --check passes. Checklist evidence includes docs_check for git diff --check and manual_transcript evidence that both Claude and Codex final host audits returned PASS. New decision document covers the required real-execution UDM baseline scope: separates formal artifacts from real lifecycle execution, maps all ten UDM baselines to focused real scenarios, defines per-scenario pass/blocked criteria, requires two distinct host verdicts over the same anchors, and keeps Authority/Production Safety/global claims locked with fail-closed rejection rules.",
+      "createdAt": "2026-06-13T01:47:08.245Z",
+      "reviewRound": "2026-06-13T01:45:08.363Z",
+      "reviewRunId": "B-de86:RR-004",
+      "_hash": "e2564270e2970b28c8aedde7aa8f02283ef73b9542f98969911f52b818c7996f"
+    },
+    {
+      "id": "B-de86:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md for quality and executability against the Layer3 formal plan, two-host/authority boundaries, UDM scenario mapping, report schema, fail-closed rules, and git diff --check. No real correctness blocker found.",
+      "createdAt": "2026-06-13T01:47:37.799Z",
+      "reviewRound": "2026-06-13T01:45:08.363Z",
+      "reviewRunId": "B-de86:RR-001",
+      "_hash": "bf4b5391364bd294298932724221a0eaf01f2f7f6f8af678c15d39c0253d38f5"
+    },
+    {
+      "id": "B-de86:RP-003",
+      "agent": "koala-review-concept",
+      "note": "PASS: Concept review inspected the new real-execution UDM document plus related Layer3 and two-host claim docs. The plan separates formal artifact proof from real lifecycle execution, keeps Authority/Production/global claims locked, requires distinct Claude/Codex verdicts over the same anchors, and rejects stale/provisional/elevated authority flags before final PASS. No high/critical conceptual correctness blocker found.",
+      "createdAt": "2026-06-13T01:53:17.096Z",
+      "reviewRound": "2026-06-13T01:50:47.467Z",
+      "reviewRunId": "B-de86:RR-007",
+      "_hash": "ec7f88644822ec747988f93df8e8428a45f262cdddc7f38dd2c610be59205166"
+    },
+    {
+      "id": "B-de86:RP-004",
+      "agent": "koala-review-quality",
+      "note": "PASS: Reviewed the current document-only fixes for F-003/F-004/F-005. The repair scenario now preserves the real DEV -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE lifecycle, the formal-suite wording is narrowed to formal Loop Engineering claim-path evidence, and the added forbidden wording prevents real-execution overclaim. The diff is minimal and scoped to the documented correctness issues; no unrelated content/style expansion found. git diff --check passed.",
+      "createdAt": "2026-06-13T01:58:18.118Z",
+      "reviewRound": "2026-06-13T01:56:08.628Z",
+      "reviewRunId": "B-de86:RR-012",
+      "_hash": "bd6aa1313c9bf0c62f932f14beb33a403b4dd0c861c2ece17db0735424c0a276"
+    },
+    {
+      "id": "B-de86:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Docs review PASS for docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md and docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md: formal claim wording is narrowed, real-execution claim boundary remains locked to tested scenarios, and UDM-REAL-REPAIR now follows REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE. No high/critical executability or stale-wording blocker found.",
+      "createdAt": "2026-06-13T01:58:22.225Z",
+      "reviewRound": "2026-06-13T01:56:08.628Z",
+      "reviewRunId": "B-de86:RR-010",
+      "_hash": "52c9408a88905f2d800c6a9b36b22fca8017a6725784b707a76eb011e62b59c6"
+    },
+    {
+      "id": "B-de86:RP-006",
+      "agent": "koala-review-concept",
+      "note": "PASS: reviewed current HEAD 4c5131e from the requested Claude CLI host perspective for conceptual correctness and host-neutral logic after F-003/F-004/F-005. The repair loop now follows real Lattice lifecycle order DEV -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE; formal-only wording is narrowed to fresh UDM proof artifacts; real-execution PASS rejects authorityDone=true, multiHostVerified=true, production authority, stale/single-host/mismatched host verdicts, and keeps Production Safety/global claims locked. No verified high/critical correctness issue remains.",
+      "createdAt": "2026-06-13T01:59:06.730Z",
+      "reviewRound": "2026-06-13T01:56:08.628Z",
+      "reviewRunId": "B-de86:RR-011",
+      "_hash": "125d0ad8dce6063e08c216e4a1593b2e2446e510a2af4a75958337c7a39990bb"
+    },
+    {
+      "id": "B-de86:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: Current docs cover the requested verification scope. The real-execution plan maps all ten UDM baselines, specifies the true DEV -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS lifecycle for UDM-REAL-REPAIR, separates formal claim-path proof from real lifecycle execution claims, preserves Production Safety/global Capability Claim/Authority locks, and carries the four review principles without adding arbitrary optimization scope.",
+      "createdAt": "2026-06-13T01:59:12.504Z",
+      "reviewRound": "2026-06-13T01:56:08.628Z",
+      "reviewRunId": "B-de86:RR-014",
+      "_hash": "394c07d00e79a671115c7a996a2d2dd8b9605d1ea709e9dd416cf634037b777e"
+    }
+  ]
+}

@@ -138,7 +138,7 @@
       "desc": "Layer 2 Engineering Baseline suite cannot legitimately reach PASS: baseline_suite_report requires fresh lower-layer Development proof plus ENG final reports with localOnly=false and capabilityProof=true, but current baseline_run/baseline_suite_report/capability_claim_evaluate surfaces are explicitly L0 non-authority local diagnostics and no producer/import path exists for verified non-local capability proof or Authority receipt-backed Engineering final reports.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
       "agent": "koala-gap-log",
@@ -153,7 +153,9 @@
         "packages/main/src/core/command-policy.ts:294",
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md:459",
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md:856"
-      ]
+      ],
+      "resolvedReason": "Resolved as stale/superseded original Layer2 no-formal-path gap, not as a Layer2 capability unlock. Current source now has a formal proof path: packages/main/src/core/lattice-baseline.ts:1577 writeFormalBaselineReport requires claimTarget, suiteRunId, Engineering receiptRefs, capabilityProof=true, localOnly=false, formalProof=true, and rejects missing proof evidence; lines 2233-2264 reject localOnly diagnostic or capabilityProof=false final reports during suite aggregation; lines 2573-2682 rebuild and compare formal suite evidence; lines 2720-2788 allow only layer2EngineeringClaim and keep Loop, Production Safety, global claim, receiptVerified, productionDone, and fullAuthorityDone locked/false. Verification run in B-9833: npm --prefix packages/main run build PASS; npm --prefix packages/main run test:lattice-baseline-smoke PASS; lattice capability_claim_formal_evaluate --target=engineering --format=json returns EXPECTED_BLOCK/LOCKED because baseline-suite-report.json proof artifacts are missing, which is the correct fail-closed behavior and not the original no-producer/importer gap. Remaining customerKeyRef coverage is separate Layer4 future/blocked scope, not F-009.",
+      "resolvedAt": "2026-06-12T20:26:42.876Z"
     }
   ]
 }

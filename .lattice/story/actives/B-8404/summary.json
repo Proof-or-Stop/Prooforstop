@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8404",
+  "changes": "Implemented active worktree changed-file projection in packages/main/src/core/lattice-parallel-wave.ts, added actual material file overlap detection, failed-probe plan_only degradation, shared material-exclusion handling, relative worktree path resolution, and smoke coverage in packages/main/src/tasks/lattice-parallel-wave-smoke.ts. Updated docs/requirements/decisions/lattice-parallel-wave.md to describe the Non-authority boundary and overlap semantics.",
+  "usage": "Run lattice parallel_merge_queue --storyIds=[\"B-xxxx\",\"B-yyyy\"] --format=json, or use parallel_plan / parallel_status, to see changedFiles, actualFileOverlaps, blockers, guidance, and whether each story is parallel_dev, plan_only, or blocked.",
+  "expectedOutcome": "When active stories modify the same material file, Lattice CLI should surface the overlapping file and peer story, demote affected stories to plan_only, keep unrelated stories eligible for parallel_dev, and never claim Authority Server completion from local scheduling evidence.",
+  "actualTranscript": "After syncing main, npm --prefix packages/main run build passed; node packages/main/dist/tasks/lattice-parallel-wave-smoke.js passed; node packages/main/dist/cli.js parallel_merge_queue --storyIds=[\"B-8404\"] --format=json returned productionDone=false, authorityChanged=false, receiptRefs=[]; lattice validate --story=B-8404 --json passed with 12/12 verification intents covered.",
+  "outcomeDiff": "Expected and actual match. The live B-8404 queue has no peer overlap so it remains parallel_dev; deterministic smoke fixtures prove overlapping peers degrade to plan_only and failed probes stay visible.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No Authority Server completion is claimed; this is local Non-authority scheduling guidance only. It detects file-level overlap, not semantic conflicts inside different files.",
+  "pitfalls": "After merging main, all verification evidence became stale; the fix was to rerun build/smoke/validate and use verification_evidence_refresh_stale before final validation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 127496
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17873
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 493524
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2089385
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1181082
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 158437
+    }
+  },
+  "totalDurationMs": 4067800,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-12T20:28:41.643Z",
+  "updatedAt": "2026-06-12T20:28:41.643Z"
+}

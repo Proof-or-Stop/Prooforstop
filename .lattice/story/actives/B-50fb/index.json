@@ -1,0 +1,93 @@
+{
+  "storyId": "B-50fb",
+  "name": "rename-koala-package-scope-to-lattice",
+  "title": "Rename npm package scope away from Koala",
+  "description": "Rename the public npm package identity from @koala-agent/* to @lattice-agent/* so released package names no longer use Koala branding, while preserving existing koala CLI/runtime compatibility where needed as legacy aliases.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-06-12T20:35:00.897Z",
+  "startedAt": "2026-06-12T20:35:00.897Z",
+  "endedAt": "2026-06-13T01:51:28.333Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T20:35:00.898Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:36:50.343Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:36:55.787Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T20:41:27.753Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T21:34:37.455Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T21:42:11.601Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-12T21:52:23.432Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T01:45:39.549Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T01:51:28.333Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-12T21:52:23.432Z"
+}

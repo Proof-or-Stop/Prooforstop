@@ -41,7 +41,7 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
-import { createStoryActor, getStateName } from '../core/machine.js';
+import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
 import type { StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
@@ -132,6 +132,44 @@ export function renderTransitionResult(result: TransitionResult): string {
     `${result.scopeGateReport}${result.guardGateReport}${result.depsWarning}${result.sessionWarning}${result.doneSummarySuffix}` +
     `${result.initCheckAdvisory}${result.baselineRiskWarning}${result.staleEvidenceHint}`
   );
+}
+
+export function canSendStoryEvent(
+  actor: ReturnType<typeof createStoryActor>,
+  eventType: string,
+  storyId: string,
+  store: HandlerContext['store'],
+  root: string,
+): boolean {
+  const event = { type: eventType } as any;
+  const snapshot = actor.getSnapshot();
+  const snapshotCan = (snapshot as typeof snapshot & { can?: (event: unknown) => boolean }).can;
+  if (typeof snapshotCan === 'function') {
+    return snapshotCan.call(snapshot, event);
+  }
+
+  // Compatibility fallback for XState runtimes/restored snapshots that do not
+  // expose actor.getSnapshot().can(...). Keep this table aligned with
+  // core/machine.ts and delegate guarded decisions to the same fail-closed
+  // predicates used by the XState machine. Do not use getGuardFailureReason as
+  // a decision oracle: it renders human hints and can intentionally fall
+  // through to null after config/read failures.
+  const currentState = getStateName(actor);
+  return canSendStoryEventWithoutSnapshotCan(storyId, store, currentState, eventType, root);
+}
+
+export function assertStoryTransitionReachedTarget(
+  storyId: string,
+  eventType: string,
+  targetPhase: StoryPhase,
+  newState: string,
+): void {
+  if (newState !== targetPhase) {
+    throw new Error(
+      `Story ${storyId} transition ${eventType} did not reach requested phase ${targetPhase}; actor stayed in ${newState}. ` +
+      `Phase side effects were not written.`,
+    );
+  }
 }
 
 /**
@@ -260,7 +298,7 @@ export async function runStoryTransition(
     }
     // TEST→DEV rollback: PHASE_TO_EVENT['DEV']='START' matches automatically
 
-    const canSend = actor.getSnapshot().can({ type: eventType } as any);
+    const canSend = canSendStoryEvent(actor, eventType, args.storyId, store, ctx.root);
     if (!canSend) {
       // B-56d3: cwd/guard-failure adapter in phase-gates.ts. B-6974: it no
       // longer stops the actor — the orchestrator's finally owns that.
@@ -313,6 +351,7 @@ export async function runStoryTransition(
     // the inline original — actor.send first, then phase is persisted.
     actor.send({ type: eventType } as any);
     const newState = getStateName(actor);
+    assertStoryTransitionReachedTarget(args.storyId, eventType, args.phase, newState);
 
     // IDEA→PLAN: write checklist
     if (args.phase === 'PLAN' && args.checklist && args.checklist.length > 0) {

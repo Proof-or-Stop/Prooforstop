@@ -1,5 +1,5 @@
 /**
- * @koala-agent/utils 的注册入口。
+ * @lattice-agent/utils 的注册入口。
  * Bootstrap 脚本调用 register(registry, ctx) 把所有辅助 handler 注入 main 的 Registry。
  */
 import type { Registry } from '../../main/dist/registry.js';
