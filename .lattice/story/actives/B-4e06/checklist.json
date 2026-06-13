@@ -42,7 +42,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "reconstruct: missing intent filled from passing evidence (priority=should, kind→type mapped)",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "reconstruct: NEVER overwrites authored intent on a lane that already has one",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "CLI flag-form run proves DEV repair works; preflight rejects missing legacyRepair / short reason; INIT/INIT_CHECK/terminal refused",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "reconstruct: malformed item-scoped ref fails closed (throws); failing/waiver evidence never used; foreign ref skipped",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -91,7 +137,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "result": "pass",
+          "note": "story_review missing-intent blocker still fires; smoke proves detector hits the evidence-without-intent lane",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "detectLegacyEvidenceWithoutIntent unit cases prove validate-side hint scans items, not coverage entries",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "result": "pass",
+          "note": "verify-story-review-structured-output ok missing-intent: no-evidence missing intent keeps the generic blocker behavior",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-story-review-structured-output.mjs",
+          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "result": "pass",
+          "note": "existing missing_verification_intent type/blockerCount contract preserved (verify-story-review-structured-output passes)",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "detector positive/negative/no-evidence cases; shared helper prevents story_review/validate drift",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -136,7 +239,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "nested-gitroot: wrapper metadata root is not git, configured gitRoot subdir hosts worktree+branch; INIT_CHECK succeeds",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "nested-gitroot asserts worktree under <gitRoot>/.worktrees and metadata under configured storyDir inside gitRoot",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "plain-repo scenarios (branch-isolation/scoped-stage/dry-run/bad-branch) stay green: getRepoRoot fallback byte-for-byte unchanged",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "invalid-gitroot: configured gitRoot that is not a git repo fails closed with signed-workspace reason, no worktree created",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -190,7 +339,75 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "smoke creates legacy items with passing evidence refs and asserts reconstruction",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "bootstrap smoke nested-gitroot mode creates a wrapper-root project with a nested gitRoot",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "smoke covers authored-intent-present (no overwrite) + missing-evidenced-lane + sparse padding",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-intent-repair-smoke",
+          "result": "pass",
+          "note": "CLI integration covers DEV repair without legacyRepair (rejected) and short reason (rejected)",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "help-health mode: lattice checklist_update --help exits zero (P3 regression guard)",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node scripts/verify-init-check-bootstrap.mjs all",
+          "result": "pass",
+          "note": "smoke malformed refs throw; invalid-gitroot mode fails closed",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -234,7 +451,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Delivered section documents the repair command, diagnostics, gitRoot routing, and the metadata-inside-gitRoot decision; process-fact contract passes",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "only implementation-relevant docs + dist build outputs changed; build succeeds",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-intent-repair-smoke.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "after build, the dist CLI exposes verification_intent_repair (command-ownership + lifecycle-registry contracts pass; CLI flag-form run succeeded)",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-init-check-bootstrap.mjs",
+          "command": "node packages/main/dist/cli.js checklist_update --help",
+          "result": "pass",
+          "note": "sourceManifestDigest help failure not reproduced: checklist_update --help exits zero",
+          "headHash": "4a1749cdce8e5c131ccccf818a72b7e9c9944d4b",
+          "materialHash": "2f499b10564b84d203975d4d78c53946af9b0251be7aa13adb4766ce0800455a",
+          "timestamp": "2026-06-13T18:27:02.688Z"
+        }
+      ]
     }
   ],
   "auditLog": [
