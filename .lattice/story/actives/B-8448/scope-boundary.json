@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8448",
+  "mode": "maintenance",
+  "allowed": [
+    "Create a new review document under docs/requirements/decisions for the cli-engine.ts English translation plan",
+    "Include Chinese source snippets and proposed English translations in the document",
+    "Read packages/main/src/cli-engine.ts to inventory Chinese-language surfaces"
+  ],
+  "excluded": [
+    "Do not directly edit docs/story or tests/fixtures",
+    "Do not modify packages/main/src/cli-engine.ts in this story",
+    "Do not modify README or existing docs other than the new execution document",
+    "Do not run omx or read/write/use .omx/",
+    "Do not touch docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved writing a detailed execution document for English-only open-source cleanup on 2026-06-13.",
+  "createdAt": "2026-06-13T13:14:21.080Z",
+  "updatedAt": "2026-06-13T13:14:21.080Z",
+  "_hash": "bf940df7882c4a61effb7c4525a048e0d75ab1f9eb7b688baded909548e11dcb"
+}

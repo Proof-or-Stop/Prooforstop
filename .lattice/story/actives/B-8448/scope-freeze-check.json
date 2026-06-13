@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8448",
+  "checkedAt": "2026-06-13T13:15:10.282Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "bf940df7882c4a61effb7c4525a048e0d75ab1f9eb7b688baded909548e11dcb",
+  "executionBoundaryHash": "f3e68634a0ddd3eaab9e9684bf12c8a570902fb3eb71f151924f5f3b55014c40",
+  "freshnessHash": "e0626cdfd15981b6deec2cf71c74f4c74722eacb0e7ef100584dd5efed0fe0db",
+  "effectiveExcludedKeywords": [
+    "Do not directly edit docs/story or tests/fixtures",
+    "Do not modify packages/main/src/cli-engine.ts in this story",
+    "Do not modify README or existing docs other than the new execution document",
+    "Do not run omx or read/write/use .omx/",
+    "Do not touch docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not directly edit docs/story or tests/fixtures",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not directly edit docs/story or tests/fixtures",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify packages/main/src/cli-engine.ts in this story",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify packages/main/src/cli-engine.ts in this story",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify README or existing docs other than the new execution document",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify README or existing docs other than the new execution document",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not run omx or read/write/use .omx/",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not run omx or read/write/use .omx/",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not touch docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not touch docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "1e6a508888c1a064bd71df284d1d802940d3c0c4e042c4f0707e4317c20ed7f6"
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8448",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice scope_freeze_check",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_review",
+    "lattice summary_set",
+    "lattice understanding_set",
+    "lattice validate",
+    "node",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/annotation-system.md",
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/cli-engine.ts",
+    "README.md"
+  ],
+  "excludedCommands": [
+    "koala",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Documentation-only execution boundary for the translation plan.",
+  "createdAt": "2026-06-13T13:14:21.080Z",
+  "updatedAt": "2026-06-13T13:14:21.080Z",
+  "_hash": "f3e68634a0ddd3eaab9e9684bf12c8a570902fb3eb71f151924f5f3b55014c40"
+}
