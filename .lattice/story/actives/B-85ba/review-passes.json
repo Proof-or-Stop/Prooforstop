@@ -134,6 +134,15 @@
       "reviewRound": "2026-06-13T01:59:14.956Z",
       "reviewRunId": "B-85ba:RR-027",
       "_hash": "ea426ffc5c2bfe9129ceb587fb94ac36f2e41ee90d4f92e79a3366740b8c00bb"
+    },
+    {
+      "id": "B-85ba:RP-016",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass for F-009. Verified freshness hash includes discard corpus and repeat overlap identity in packages/main/src/core/scope-anti-expansion.ts:565; stored mitigation is keyed by scopeFreezeDiscardOverlapKey and does not cover future new overlaps at packages/main/src/core/scope-anti-expansion.ts:467; machine stale/fail order intentionally returns stale for old pass after corpus/checklist changes and fail after rerun without mitigation in packages/main/src/core/machine.ts:198. Verification: npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T02:01:47.263Z",
+      "reviewRound": "2026-06-13T01:59:14.956Z",
+      "reviewRunId": "B-85ba:RR-028",
+      "_hash": "a257ae6af61177b1ede110f60e273aa95570a5b3b21dd238d07a3558f0d0cd63"
     }
   ]
 }
