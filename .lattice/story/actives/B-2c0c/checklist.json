@@ -85,7 +85,30 @@
       "userSees": "The regression suite proves decision-doc quorum failures cannot silently pass DONE.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused test command passes for both a valid 3-round/2-host/fresh-digest decision-doc quorum and the no-decision-doc-change not-applicable path, proving expected DONE behavior is covered.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused tests exercise missing host_verdict events, insufficient hosts, insufficient rounds, and stale material digest with deterministic builders, and each case asserts the gate remains blocking with the expected diagnostic reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression test review verifies the suite would fail if the DONE gate accepted duplicate hosts, duplicate rounds, stale digests, or prose-only evidence as structured host_verdict quorum.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
