@@ -57,7 +57,99 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "glossary terms present; rows≈18 [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "style guide rules present [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "glossary before M001 [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "real-machine KEPT documented [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "blocked/excluded/forbidden disambiguated [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "all 5 flag verbs [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no Chinese in glossary [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "deprecated terms only in avoid context [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no contradictory period rule [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -140,7 +232,159 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "rows=762 [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no Chinese in proposedEnglish [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no finding item [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no truth source in EN [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "T/M twin agree 54/115 [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Emit JSON on 5 rows, no Output JSON [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Command to run + Command result [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Recorded by/Actor [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "self-approval [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Git capitalized [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no 'round' in M036-053 (18 rows) [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "count check non-vacuous (763 would fail) [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no stale deprecated terms [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "identifiers preserved [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no orphaned T-rows retaining swept terms (residual: none) [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -199,7 +443,99 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "0 cmd-desc >80 (longest 80); statedThreshold=true [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "named rows shortened, imperative, no period [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "begins with imperative verb [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no trivial stubs [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "rules trimmed in plan doc (no code longHelp in scope) — advisory [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "short rows untouched (diff-based, trusted) [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "still 762 rows [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no Chinese in cmd-desc [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "T/M twins for shortened rows consistent (covered by CHK-002:adversarial:3) [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -258,7 +594,99 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M668/M669 tagged; total bs=3 [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "behavior-sensitive subsection lists rows w/ line refs [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "src Chinese-matching lines all tagged; missed=none [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "English-only .test rows not tagged (no false positives) — bs set limited to Chinese matchers [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "all 3 bs rows listed [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "bs rows retain code form (not prose-swept) [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "tag present guards rows [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "exact marker string present [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "invariants hold after CHK-004 [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -317,7 +745,99 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "wrapped-source rule section exists [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M004/M005 combined reads coherently [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "similar pairs noted [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M004/M005 remain separate, 762 rows [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "criteria defined [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M004/M005 + noted triple documented [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M004 marked as part of merged pair [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "still 762 after CHK-005 [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "merge rule + behavior-sensitive non-conflicting (disjoint rows) [committed verifier 51/51 PASS]",
+          "headHash": "00f0b0f8ed77dbba66632d64ae293784bf94e6fd",
+          "materialHash": "d247d22bcc51e2a40bfbabad691668ee8e9b18e12045643ca540a2aae6d2996c",
+          "timestamp": "2026-06-13T19:13:25.545Z"
+        }
+      ]
     }
   ]
 }
