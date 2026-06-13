@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-a94f:F-001",
+      "desc": "Off-mode authority_status can still read authority_trust.env and the referenced customer-key file via mode-unaware customer API key resolution. This does not overclaim productionDone, but it violates the intended off-mode trust-file/secret I/O boundary.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T12:52:40.735Z",
+      "reviewRound": "2026-06-13T12:47:53.726Z",
+      "reviewRunId": "B-a94f:RR-001",
+      "_hash": "efa16e6b15bdff840c9cb0e398b13dba00a3c6bef97561d2c6777780a20bd470",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
+    }
+  ]
+}
