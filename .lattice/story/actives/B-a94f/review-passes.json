@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-a94f:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage reviewer found no blocking coverage gap. Existing smokes cover trust env parsing, precedence, status no-overclaim, policy discovery GET-only behavior, real-file non-sensitive projection, and validate 7/7 intent coverage.",
+      "createdAt": "2026-06-13T12:52:42.820Z",
+      "reviewRound": "2026-06-13T12:47:53.726Z",
+      "reviewRunId": "B-a94f:RR-003",
+      "_hash": "0b294c1f0b2900e674d1ff83835d5739f322655b165851707f5bcadfc7a882fe"
+    },
+    {
+      "id": "B-a94f:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Third concept review passed: authority_status and conduit_status both keep off-mode zero trust-file/secret-file I/O, trust env loads only for enabled Authority paths, explicit env/CLI precedence remains intact, and no Authority completion is claimed.",
+      "createdAt": "2026-06-13T13:03:47.831Z",
+      "reviewRound": "2026-06-13T13:00:23.549Z",
+      "reviewRunId": "B-a94f:RR-007",
+      "_hash": "4006f0136ee9bc530f58c458aa8e9b2d4d220451c981fab08661fea62039bba1"
+    },
+    {
+      "id": "B-a94f:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Third quality review passed: mode-aware customer-key resolution is consistent across status surfaces, parser/precedence/file I/O boundaries are bounded, and no receipt/production overclaim was found.",
+      "createdAt": "2026-06-13T13:03:48.728Z",
+      "reviewRound": "2026-06-13T13:00:23.549Z",
+      "reviewRunId": "B-a94f:RR-008",
+      "_hash": "5d647518ba4fcd806a8b90a47eed4ad6a7dce131f254be77dbe452beee0076d7"
+    },
+    {
+      "id": "B-a94f:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Third coverage review passed: smokes cover authority_status and conduit_status off-mode zero I/O, enforce trust-file readiness, actor/runner non-implication, no Authority overclaim, client parsing, and policy discovery.",
+      "createdAt": "2026-06-13T13:03:49.440Z",
+      "reviewRound": "2026-06-13T13:00:23.549Z",
+      "reviewRunId": "B-a94f:RR-009",
+      "_hash": "b30cbc2766301c83a35b34ef13d031ded166e373c920ac8a2ea87e9f7a799064"
+    }
+  ]
+}

@@ -75,11 +75,14 @@ import {
 import {
   authorityModeEnabled,
   loadAuthoritySettings,
+  normalizeAuthorityTrustEnv,
   normalizeAuthorityMode,
   parseAuthorityMd,
+  parseAuthorityTrustEnv,
   resolveAuthorityConfig,
   readAuthorityEnv,
   DEFAULT_AUTHORITY_KEY_FILE,
+  DEFAULT_AUTHORITY_TRUST_ENV_FILE,
   type AuthorityConfig,
   type AuthorityMdConfig,
   type AuthorityMode,
@@ -1496,13 +1499,15 @@ function jobPolicyFromPlan(jobPlan: JobPlan, provider: 'codex' | 'claude-code' |
  * caller fails closed (no key = no verifiable receipt = no authority DONE).
  */
 // ─────────────────────────────────────────────────────────────────────────────
-// Authority config I/O shell: read + parse .lattice/authority.md, then resolve
-// the full AuthorityConfig (precedence: CLI > env > authority.md > mode default).
+// Authority config I/O shell: read + parse root authority_trust.env and
+// .lattice/authority.md, then resolve the full AuthorityConfig (precedence:
+// CLI > env > authority_trust.env > authority.md > mode default).
 //
 // `resolveAuthorityConfig` (authority-mode.ts) is pure; this shell is the only
-// place that touches the filesystem. authority.md is read ONLY when authority
-// mode is enabled (shadow/enforce) — `off` mode performs zero file I/O and stays
-// byte-identical to loadAuthoritySettings (preserving "off = zero network").
+// place that touches the filesystem. Authority trust files are read ONLY when
+// authority mode is enabled (shadow/enforce) — `off` mode performs zero file
+// I/O and stays byte-identical to loadAuthoritySettings (preserving
+// "off = zero network").
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Injectable file reader: returns file text, or undefined when absent/unreadable. */
@@ -1523,6 +1528,31 @@ export interface AuthorityConfigLoadOptions {
   fileReader?: AuthorityFileReader;
 }
 
+export interface AuthorityTrustEnvReadResult {
+  env?: Record<string, string | undefined>;
+  loaded: boolean;
+  path: string;
+}
+
+/**
+ * Read + parse the root `authority_trust.env` profile. The path comes from
+ * LATTICE_AUTHORITY_TRUST_ENV_FILE (override) or the default
+ * `authority_trust.env`, resolved against `cwd`. Missing / unreadable file is
+ * non-fatal.
+ */
+export function readAuthorityTrustEnvConfig(
+  env: Record<string, string | undefined>,
+  options: AuthorityConfigLoadOptions = {},
+): AuthorityTrustEnvReadResult {
+  const cwd = options.cwd ?? process.cwd();
+  const rel = authorityEnvValue(env, 'TRUST_ENV_FILE') ?? DEFAULT_AUTHORITY_TRUST_ENV_FILE;
+  const path = resolvePath(cwd, rel);
+  const reader = options.fileReader ?? defaultAuthorityFileReader;
+  const text = reader(path);
+  if (typeof text !== 'string') return { loaded: false, path };
+  return { env: normalizeAuthorityTrustEnv(parseAuthorityTrustEnv(text, env)), loaded: true, path };
+}
+
 /**
  * Read + parse the `.lattice/authority.md` key-management file. The path comes
  * from LATTICE_AUTHORITY_KEY_FILE (override) or the {@link DEFAULT_AUTHORITY_KEY_FILE}
@@ -1541,7 +1571,7 @@ export function readAuthorityMdConfig(
   return { md: parseAuthorityMd(text), loaded: true, path };
 }
 
-export type AuthorityCustomerApiKeySource = 'env' | 'path' | 'authority_md' | 'none';
+export type AuthorityCustomerApiKeySource = 'env' | 'path' | 'authority_trust_env' | 'authority_md' | 'none';
 
 export interface AuthorityCustomerApiKeyResolution {
   value?: string;
@@ -1552,6 +1582,8 @@ export interface AuthorityCustomerApiKeyResolution {
 export interface AuthorityCustomerApiKeyLoadOptions extends AuthorityConfigLoadOptions {
   /** Already-parsed authority.md contents; avoids a second read when callers have it. */
   authorityMd?: AuthorityMdConfig;
+  /** Already-parsed authority_trust.env contents; avoids a second read. */
+  authorityTrustEnv?: Record<string, string | undefined>;
 }
 
 function readTrimmedSecret(path: string, reader: AuthorityFileReader): string | undefined {
@@ -1581,6 +1613,16 @@ export function resolveAuthorityCustomerApiKey(
     const path = resolvePath(cwd, envPath);
     const value = readTrimmedSecret(path, reader);
     return value ? { value, source: 'path', path } : { source: 'none', path };
+  }
+
+  const trustEnv = options.authorityTrustEnv ?? readAuthorityTrustEnvConfig(env, options).env;
+  const trustInline = trustEnv ? authorityEnvValue(trustEnv, 'CUSTOMER_API_KEY') : undefined;
+  if (trustInline) return { value: trustInline, source: 'authority_trust_env' };
+  const trustPath = trustEnv ? authorityEnvValue(trustEnv, 'CUSTOMER_API_KEY_PATH') : undefined;
+  if (trustPath) {
+    const path = resolvePath(cwd, trustPath);
+    const value = readTrimmedSecret(path, reader);
+    return value ? { value, source: 'authority_trust_env', path } : { source: 'none', path };
   }
 
   const md = options.authorityMd ?? readAuthorityMdConfig(env, options).md;
@@ -1621,8 +1663,16 @@ export function loadAuthorityConfig(
     // off: no file I/O, no authority.md, no localhost default.
     return resolveAuthorityConfig({ env, override });
   }
+  const trust = readAuthorityTrustEnvConfig(env, options);
   const { md, loaded } = readAuthorityMdConfig(env, options);
-  return resolveAuthorityConfig({ env, override, authorityMd: md, authorityMdLoaded: loaded });
+  return resolveAuthorityConfig({
+    env,
+    override,
+    authorityTrustEnv: trust.env,
+    authorityTrustEnvLoaded: trust.loaded,
+    authorityMd: md,
+    authorityMdLoaded: loaded,
+  });
 }
 
 export interface AuthorityJobCreateFromPlanOptions extends AuthorityVerdictBackingOptions {

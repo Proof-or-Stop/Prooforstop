@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Only Authority config paths may consume the trust file; ordinary CLI behavior stays unchanged.",
+    "Explicit CLI/env configuration must always win over default local files.",
+    "Secret/trust material is local runtime input, never committed evidence.",
+    "Connection readiness is not Authority completion; receipt-backed proof remains mandatory."
+  ],
+  "drivers": [
+    "User needs a default Authority Server trust profile without re-exporting variables every time.",
+    "The provided file uses LIVE_* alias names that current config code does not fully consume.",
+    "This area is security- and lifecycle-gate-sensitive, so overclaim prevention matters more than convenience."
+  ],
+  "options": [
+    {
+      "name": "A: Authority-scoped root authority_trust.env loader",
+      "pros": [
+        "Solves the user-visible setup problem directly",
+        "Keeps file loading inside existing Authority config I/O shell",
+        "Allows alias mapping while preserving existing precedence and fail-closed semantics"
+      ],
+      "cons": [
+        "Requires targeted tests for precedence and off-mode zero-overclaim behavior"
+      ]
+    },
+    {
+      "name": "B: Ask users to manually export all variables",
+      "pros": [
+        "No code change",
+        "No new file parsing path"
+      ],
+      "cons": [
+        "Does not satisfy the request for default root-file use",
+        "Leaves repeated Authority setup fragile and easy to forget"
+      ]
+    },
+    {
+      "name": "C: Add generic dotenv loading for all CLI commands",
+      "pros": [
+        "Broad convenience for future env files"
+      ],
+      "cons": [
+        "Arbitrary optimization beyond the real issue",
+        "Could leak unrelated env behavior into non-Authority commands",
+        "Harder to preserve host-neutral and fail-closed Authority boundaries"
+      ]
+    }
+  ],
+  "chosen": "A: Authority-scoped root authority_trust.env loader",
+  "rationale": "A fixes the real setup mismatch while keeping the change narrowly bounded to Authority config resolution and maintaining explicit env/CLI precedence.",
+  "preMortem": [
+    {
+      "scenario": "Default trust file overrides an explicitly exported production URL or key path.",
+      "trigger": "Loader merges file values after process.env instead of before.",
+      "consequence": "A caller may unknowingly connect to the wrong Authority profile.",
+      "mitigation": "Merge trust-file values only when canonical/legacy env keys are absent; add precedence smoke assertions."
+    },
+    {
+      "scenario": "Root trust file makes off mode look Authority-ready.",
+      "trigger": "authority_status without authorityMode=enforce loads the trust file and reports configured readiness.",
+      "consequence": "Local workflow could be confused with Authority-backed workflow.",
+      "mitigation": "Keep off mode no-file/no-network semantics in loadAuthorityConfig; test off-mode no file read."
+    },
+    {
+      "scenario": "Config readiness is misreported as production completion.",
+      "trigger": "Status output uses configured URL/key to set receiptVerified or productionDone.",
+      "consequence": "Lattice violates Authority receipt-backed completion semantics.",
+      "mitigation": "Assert receiptVerified/productionDone/canClaimProductionDone remain false without a verified receipt."
+    }
+  ],
+  "timestamp": "2026-06-13T12:17:05.690Z"
+}

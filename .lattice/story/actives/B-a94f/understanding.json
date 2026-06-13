@@ -1,0 +1,25 @@
+{
+  "task": "让 Lattice CLI 在 Authority 相关命令中默认读取根目录 authority_trust.env。",
+  "outcome": "用户把 authority_trust.env 放在仓库根目录后运行 lattice authority_status --authorityMode=enforce --json，会看到 baseURLConfigured/customerApiKeyConfigured/serverPublicKeyPinned 来自默认 trust file；同时 receiptVerified:false、productionDone:false、canClaimProductionDone:false 仍然保持。",
+  "facts": [
+    "附件文件存在于 /Users/jek/Documents/Work/Koala/cord-team/authority_trust.env，包含 LATTICE_AUTHORITY_LIVE_URL、LATTICE_AUTHORITY_LIVE_PUBLIC_KEY、LATTICE_AUTHORITY_TRUSTED_SERVER_PUBLIC_KEY_DIGEST、LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE 这类变量。",
+    "现有 Authority config 入口在 packages/main/src/core/authority-client.ts 的 loadAuthorityConfig/readAuthorityMdConfig/resolveAuthorityCustomerApiKey，以及 packages/main/src/core/authority-mode.ts 的 resolveAuthorityConfig。",
+    "现有设计文档要求生产 Authority DONE 必须依赖 verified native gate_decision receipt，不能由配置文件或本地检查直接声明。",
+    ".lattice/authority.md 已是 gitignored 的内部 key-management 文件；root authority_trust.env 也必须 gitignored。"
+  ],
+  "constraints": [
+    "不能打印或提交 authority_trust.env 的 secret 值。",
+    "off mode 不能因为默认文件而触发 Authority 网络路径或 productionDone 声明。",
+    "显式 CLI 参数和已导出的 LATTICE_AUTHORITY_* 环境变量优先级必须高于 authority_trust.env。",
+    "只修真实连接配置可用性，不做通用 dotenv、远端 Authority Server 修改或 receipt minting。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".gitignore",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts"
+  ],
+  "timestamp": "2026-06-13T12:16:54.122Z"
+}

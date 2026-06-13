@@ -134,6 +134,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   LATTICE_AUTHORITY_ACTOR_KEY_PATH: '',
   LATTICE_AUTHORITY_RUNNER_ID: '',
   LATTICE_AUTHORITY_SESSION_ID: '',
+  LATTICE_AUTHORITY_TRUST_ENV_FILE: '.missing-authority-trust.env',
 };
 const NOW = '2026-06-10T00:00:00.000Z';
 
@@ -259,6 +260,39 @@ function refFor(
   assert.deepEqual(result.nextActions, [], 'off-mode emits no next actions');
   assert.match(result.localWorkflowNote, /readiness warnings, not global blockers/i, 'off-mode includes local-workflow note');
   assertNoProductionOverclaim(result, 'buildAuthorityStatus off-mode');
+}
+
+// Off mode performs zero trust-file / secret-file reads, even if a trust file is configured.
+{
+  const reads: string[] = [];
+  const result = buildAuthorityStatus(
+    {},
+    {
+      ...EMPTY_AUTHORITY_ENV,
+      LATTICE_AUTHORITY_MODE: 'off',
+      LATTICE_AUTHORITY_TRUST_ENV_FILE: 'authority_trust.env',
+    } as Record<string, string | undefined>,
+    {
+      cwd: '/proj',
+      fileReader: p => {
+        reads.push(p);
+        if (p.endsWith('authority_trust.env')) {
+          return [
+            'LATTICE_AUTHORITY_LIVE_URL=https://off-mode-trust.example',
+            'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key',
+          ].join('\n');
+        }
+        if (p.endsWith('secrets/customer.key')) return 'secret-key';
+        return undefined;
+      },
+    },
+  );
+  assert.deepEqual(reads, [], 'off mode does not read authority_trust.env or referenced secret files');
+  assert.equal(result.mode, 'off', 'off-mode remains off');
+  assert.equal(result.authorityTrustEnvLoaded, false, 'off mode does not load root trust env');
+  assert.equal(result.customerApiKeyConfigured, false, 'off mode does not configure customer key from trust env');
+  assert.equal(result.customerApiKeySource, 'missing', 'off-mode customer source remains missing');
+  assertNoProductionOverclaim(result, 'buildAuthorityStatus off-mode-zero-trust-io');
 }
 
 // Shadow + missing URL: warning fired, productionDone still false.
@@ -526,6 +560,44 @@ function refFor(
   assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-authority-md');
 }
 
+// Enforce can resolve URL/customer/server trust from root authority_trust.env.
+{
+  const env: EnvOverride = {
+    ...EMPTY_AUTHORITY_ENV,
+    LATTICE_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_TRUST_ENV_FILE: 'authority_trust.env',
+  };
+  const result = buildAuthorityStatus({}, env as Record<string, string | undefined>, {
+    cwd: '/proj',
+    fileReader: p => {
+      if (p.endsWith('authority_trust.env')) {
+        return [
+          'LATTICE_AUTHORITY_LIVE_URL=https://authority-trust.example',
+          'LATTICE_AUTHORITY_LIVE_PUBLIC_KEY=trust-public-key',
+          'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key',
+        ].join('\n');
+      }
+      if (p.endsWith('secrets/customer.key')) return 'trust-customer-key';
+      return undefined;
+    },
+  });
+  assert.equal(result.authorityTrustEnvLoaded, true, 'root authority_trust.env is loaded in enforce mode');
+  assert.equal(result.urlSource, 'authority_trust_env', 'trust env URL source is reported');
+  assert.equal(result.baseURLConfigured, true, 'trust env server URL counts as configured');
+  assert.equal(result.customerApiKeyConfigured, true, 'trust env customer key path counts as configured');
+  assert.equal(result.customerApiKeySource, 'authority_trust_env', 'trust env customer key source is reported');
+  assert.equal(result.serverPublicKeyPinned, true, 'trust env public key counts as pinned');
+  assert.equal(result.actorKeyConfigured, false, 'trust file without actor key does not imply actor readiness');
+  assert.equal(result.runnerConfigured, false, 'trust file without runner id does not imply runner readiness');
+  assert.equal(result.receiptVerified, false, 'trust env readiness is not receipt verification');
+  assert.equal(result.productionDone, false, 'trust env readiness is not productionDone');
+  assert.equal(result.canClaimProductionDone, false, 'trust env readiness cannot claim productionDone');
+  assert.ok(!result.readinessWarnings.some(line => line.includes('CUSTOMER_API_KEY')), 'customer API key warning is cleared by trust env');
+  assert.ok(result.readinessWarnings.some(line => line.includes('ACTOR_KEY')), 'actor key warning remains');
+  assert.ok(result.readinessWarnings.some(line => line.includes('RUNNER_ID')), 'runner id warning remains');
+  assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-authority-trust-env');
+}
+
 // CLI --root reads authority.md from the selected project root, not the shell cwd.
 {
   const projectRoot = mkdtempSync(join(tmpdir(), 'lattice-authority-status-root-'));
@@ -589,6 +661,34 @@ function refFor(
     'conduit surfaces shadow readiness warnings',
   );
   assertNoProductionOverclaim(result, 'buildConduitStatus shadow');
+}
+
+// conduit_status off mode mirrors the same zero trust-file / secret-file I/O boundary.
+{
+  const reads: string[] = [];
+  const result = buildConduitStatus(
+    {
+      ...EMPTY_AUTHORITY_ENV,
+      LATTICE_AUTHORITY_MODE: 'off',
+      LATTICE_AUTHORITY_TRUST_ENV_FILE: 'authority_trust.env',
+    } as Record<string, string | undefined>,
+    {
+      cwd: '/proj',
+      fileReader: p => {
+        reads.push(p);
+        if (p.endsWith('authority_trust.env')) {
+          return 'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key';
+        }
+        if (p.endsWith('secrets/customer.key')) return 'secret-key';
+        return undefined;
+      },
+    },
+  );
+  assert.deepEqual(reads, [], 'conduit off mode does not read authority_trust.env or referenced secret files');
+  assert.equal(result.mode, 'off', 'conduit off-mode remains off');
+  assert.equal(result.productionDone, false, 'conduit off-mode productionDone false');
+  assert.equal(result.receiptVerified, false, 'conduit off-mode receiptVerified false');
+  assertNoProductionOverclaim(result, 'buildConduitStatus off-mode-zero-trust-io');
 }
 
 // ── CLI integration: text + JSON (--format=json AND --json shortcut) ───────

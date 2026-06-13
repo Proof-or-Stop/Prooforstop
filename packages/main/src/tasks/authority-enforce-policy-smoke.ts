@@ -170,6 +170,25 @@ const BASE_URL = 'https://authority.test';
   assert.equal(result.requiredAuthorityMode, 'shadow', 'requiredAuthorityMode reads top-level field, not supportedAuthorityModes[0]');
 }
 
+// ── 1c. root authority_trust.env can provide policy discovery URL ──────────
+{
+  const { fetch, calls } = fetchStub(200, JSON.stringify(fakePolicy()));
+  const result = await runAuthorityEnforcePolicy(
+    { _fetchImpl: fetch },
+    { LATTICE_AUTHORITY_MODE: 'enforce' },
+    {
+      cwd: '/proj',
+      fileReader: p => (p.endsWith('authority_trust.env')
+        ? 'LATTICE_AUTHORITY_LIVE_URL=https://trust-policy.example/'
+        : undefined),
+    },
+  );
+  assert.equal(result.ok, true, 'trust env URL enables policy discovery');
+  assert.equal(calls.length, 1, 'trust env policy discovery makes one GET');
+  assert.ok(calls[0].url.startsWith('https://trust-policy.example/'), `trust env URL used, got ${calls[0].url}`);
+  assertNoEvidencePost(calls, 'trust-env-policy');
+}
+
 // ── 2. Empty 2xx body → non-success (malformed policy) ─────────────────────
 {
   const { fetch, calls } = fetchStub(200, '');

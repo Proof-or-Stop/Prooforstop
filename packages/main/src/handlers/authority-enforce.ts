@@ -12,7 +12,12 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import type { HandlerContext } from './context.js';
-import { AuthorityClient, type AuthorityFetch } from '../core/authority-client.js';
+import {
+  AuthorityClient,
+  loadAuthorityConfig,
+  type AuthorityConfigLoadOptions,
+  type AuthorityFetch,
+} from '../core/authority-client.js';
 import {
   upsertAuthorityGateReceiptRef,
   type AuthorityGateDecisionReceiptRef,
@@ -91,11 +96,12 @@ export interface AuthorityReceiptVerifyResult {
 export async function runAuthorityEnforcePolicy(
   args: AuthorityEnforcePolicyArgs,
   env: Record<string, string | undefined> = process.env,
+  options: AuthorityConfigLoadOptions = {},
 ): Promise<AuthorityEnforcePolicyResult> {
-  const settings = loadAuthoritySettings(env, {
+  const settings = loadAuthorityConfig(env, {
     authorityURL: args.authorityURL,
     authorityTimeoutMS: args.authorityTimeoutMS,
-  });
+  }, options);
 
   if (!settings.baseURL) {
     return {
@@ -321,7 +327,7 @@ function renderAuthorityReceiptVerifyText(result: AuthorityReceiptVerifyResult):
 export function createAuthorityEnforceHandlers(_ctx: HandlerContext) {
   return {
     authority_enforce_policy: async (args: AuthorityEnforcePolicyArgs) => {
-      const result = await runAuthorityEnforcePolicy(args);
+      const result = await runAuthorityEnforcePolicy(args, process.env, { cwd: _ctx.root });
 
       if (!result.ok) {
         // Throw so runCli exits non-zero; include the disclaimer in the message.

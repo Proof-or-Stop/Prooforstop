@@ -1,0 +1,26 @@
+{
+  "storyId": "B-a94f",
+  "mode": "enforce",
+  "allowedModify": [
+    ".gitignore",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/authority-enforce.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize scope contract from reviewed PLAN before REVIEW.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T12:47:30.047Z",
+  "updatedAt": "2026-06-13T12:47:30.047Z"
+}

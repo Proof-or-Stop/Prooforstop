@@ -1,0 +1,91 @@
+{
+  "findings": [
+    {
+      "id": "B-a94f:F-001",
+      "desc": "Off-mode authority_status can still read authority_trust.env and the referenced customer-key file via mode-unaware customer API key resolution. This does not overclaim productionDone, but it violates the intended off-mode trust-file/secret I/O boundary.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T12:52:40.735Z",
+      "reviewRound": "2026-06-13T12:47:53.726Z",
+      "reviewRunId": "B-a94f:RR-001",
+      "_hash": "efa16e6b15bdff840c9cb0e398b13dba00a3c6bef97561d2c6777780a20bd470",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-a94f:F-002",
+      "desc": "Off-mode status keeps config loading zero-I/O, but then calls resolveAuthorityCustomerApiKey separately; that resolver reads authority_trust.env without checking mode, making mode=off report customerApiKeySource=authority_trust_env.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T12:52:41.870Z",
+      "reviewRound": "2026-06-13T12:47:53.726Z",
+      "reviewRunId": "B-a94f:RR-002",
+      "_hash": "d3f5bc9f85d35020b380ba0e41f8846cc125f6457a3d2bfaa888e1a62e62eb18",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-a94f:F-003",
+      "desc": "conduit_status still reads authority_trust.env and referenced customer-key file in off mode. authority_status off-mode zero-I/O is fixed, but conduit readiness mirror remains inconsistent.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T12:58:36.826Z",
+      "reviewRound": "2026-06-13T12:55:05.110Z",
+      "reviewRunId": "B-a94f:RR-004",
+      "_hash": "0e0f661f889ca2742f157c03d6fe172a910164f3ef16263020bfd47a989903fb",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-a94f:F-004",
+      "desc": "conduit_status violates the off-mode zero-I/O boundary by calling resolveAuthorityCustomerApiKey after loadAuthorityConfig has correctly short-circuited off mode.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T12:58:37.564Z",
+      "reviewRound": "2026-06-13T12:55:05.110Z",
+      "reviewRunId": "B-a94f:RR-005",
+      "_hash": "26a29d12c29de146d4a961fe2cb7cc267d8337d646e6bbe6bea7f9a463a1d69b",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-a94f:F-005",
+      "desc": "Test coverage only covered off-mode zero-I/O for authority_status, not conduit_status, allowing the conduit readiness mirror to keep reading authority_trust.env and secret paths in off mode.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T12:58:38.217Z",
+      "reviewRound": "2026-06-13T12:55:05.110Z",
+      "reviewRunId": "B-a94f:RR-006",
+      "_hash": "b7a6d939242d16bfe487d80bde8b5aaad9c479ac840da948d7df6b122dbee02a",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
+    }
+  ]
+}

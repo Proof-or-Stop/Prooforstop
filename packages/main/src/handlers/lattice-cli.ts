@@ -732,7 +732,9 @@ export function buildAuthorityStatus(
   // Readiness is based on the same resolved config that live authority execution
   // uses, so authority.md/default URL behavior does not drift from runner behavior.
   const config = loadAuthorityConfig(env, args, runtime);
-  const customerKey = resolveAuthorityCustomerApiKey(env, runtime);
+  const customerKey = config.mode === 'off'
+    ? { source: 'none' as const }
+    : resolveAuthorityCustomerApiKey(env, runtime);
   const actorKeyConfigured =
     readEnforceEnv(env).actorKeyConfigured ||
     typeof config.keyMaterial.actorKey === 'string' ||
@@ -763,6 +765,7 @@ export function buildAuthorityStatus(
     urlSource: config.urlSource,
     defaultUrlApplied: config.defaultUrlApplied,
     authorityMdLoaded: config.authorityMdLoaded,
+    authorityTrustEnvLoaded: config.authorityTrustEnvLoaded,
     testKeyProfile: config.keyMaterial.testKeyProfile ?? null,
     /** True when default / local-test material makes this config production-inert. */
     productionInert: config.productionInert,
@@ -1096,7 +1099,9 @@ export function buildConduitStatus(
   options: AuthorityConfigLoadOptions = {},
 ) {
   const settings = loadAuthorityConfig(env, {}, options);
-  const customerKey = resolveAuthorityCustomerApiKey(env, options);
+  const customerKey = settings.mode === 'off'
+    ? { source: 'none' as const }
+    : resolveAuthorityCustomerApiKey(env, options);
   const actorKeyConfigured =
     readEnforceEnv(env).actorKeyConfigured ||
     typeof settings.keyMaterial.actorKey === 'string' ||
