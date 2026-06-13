@@ -262,6 +262,39 @@ function refFor(
   assertNoProductionOverclaim(result, 'buildAuthorityStatus off-mode');
 }
 
+// Off mode performs zero trust-file / secret-file reads, even if a trust file is configured.
+{
+  const reads: string[] = [];
+  const result = buildAuthorityStatus(
+    {},
+    {
+      ...EMPTY_AUTHORITY_ENV,
+      LATTICE_AUTHORITY_MODE: 'off',
+      LATTICE_AUTHORITY_TRUST_ENV_FILE: 'authority_trust.env',
+    } as Record<string, string | undefined>,
+    {
+      cwd: '/proj',
+      fileReader: p => {
+        reads.push(p);
+        if (p.endsWith('authority_trust.env')) {
+          return [
+            'LATTICE_AUTHORITY_LIVE_URL=https://off-mode-trust.example',
+            'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key',
+          ].join('\n');
+        }
+        if (p.endsWith('secrets/customer.key')) return 'secret-key';
+        return undefined;
+      },
+    },
+  );
+  assert.deepEqual(reads, [], 'off mode does not read authority_trust.env or referenced secret files');
+  assert.equal(result.mode, 'off', 'off-mode remains off');
+  assert.equal(result.authorityTrustEnvLoaded, false, 'off mode does not load root trust env');
+  assert.equal(result.customerApiKeyConfigured, false, 'off mode does not configure customer key from trust env');
+  assert.equal(result.customerApiKeySource, 'missing', 'off-mode customer source remains missing');
+  assertNoProductionOverclaim(result, 'buildAuthorityStatus off-mode-zero-trust-io');
+}
+
 // Shadow + missing URL: warning fired, productionDone still false.
 {
   const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, LATTICE_AUTHORITY_MODE: 'shadow' };

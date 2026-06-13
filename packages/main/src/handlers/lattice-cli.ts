@@ -732,7 +732,9 @@ export function buildAuthorityStatus(
   // Readiness is based on the same resolved config that live authority execution
   // uses, so authority.md/default URL behavior does not drift from runner behavior.
   const config = loadAuthorityConfig(env, args, runtime);
-  const customerKey = resolveAuthorityCustomerApiKey(env, runtime);
+  const customerKey = config.mode === 'off'
+    ? { source: 'none' as const }
+    : resolveAuthorityCustomerApiKey(env, runtime);
   const actorKeyConfigured =
     readEnforceEnv(env).actorKeyConfigured ||
     typeof config.keyMaterial.actorKey === 'string' ||
