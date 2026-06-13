@@ -276,6 +276,50 @@
           "timestamp": "2026-06-13T13:48:05.209Z"
         }
       ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Expose evidence result semantics in evidence_inspect JSON",
+      "context": "F-003 found a real audit correctness gap: checklist_get preserves failed Authority proof evidence as result=fail, but evidence_inspect --format=json omits result/verdict/note, so the portable audit surface cannot mechanically see blocked proof semantics. Fix only the evidence_inspect projection and targeted smoke coverage.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "userSees": "User sees evidence_inspect --format=json entries for CHK-002:authority-proof-fail:* with result=\"fail\", verdict=\"blocked_classified\", and explanatory note.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-evidence.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-evidence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evidence_inspect --format=json preserves result, verdict, note, and waiverType from checklist verificationEvidence refs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Custom failed Authority proof refs remain visible with result=fail while lifecycle waiver refs remain distinguishable as waiver/pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The change does not mint receipts, alter authorityDone/fullAuthorityDone, or convert blocked proof into passing Authority proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }

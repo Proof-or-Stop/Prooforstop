@@ -3,13 +3,17 @@
   "mode": "enforce",
   "allowedModify": [
     ".lattice/story/actives/B-22b0/checklist.json",
-    ".lattice/story/actives/B-22b0/process-events.jsonl"
+    ".lattice/story/actives/B-22b0/process-events.jsonl",
+    "packages/main/src/core/lattice-evidence.ts",
+    "packages/main/src/tasks/lattice-evidence-smoke.ts"
   ],
   "allowedCreate": [
     ".lattice/story/actives/B-22b0/summary.json",
     ".lattice/story/actives/B-22b0/delivery-check.json"
   ],
-  "allowedTest": [],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-evidence-smoke.ts"
+  ],
   "protectedFiles": [
     "authority_trust.env",
     ".lattice/story/actives/B-12f3/**",
@@ -22,8 +26,8 @@
     "docs/story/**",
     "tests/fixtures/**"
   ],
-  "scopeChangeReason": "B-22b0 is an Authority audit only: allow B-22b0 metadata/summary/delivery evidence, protect B-12f3 history and Authority secrets.",
+  "scopeChangeReason": "F-003 exposed a real audit correctness gap in evidence_inspect JSON projection; allow only the narrow core projection and targeted smoke fix.",
   "acknowledgements": [],
   "createdAt": "2026-06-13T13:35:59.545Z",
-  "updatedAt": "2026-06-13T13:35:59.545Z"
+  "updatedAt": "2026-06-13T13:50:58.601Z"
 }
