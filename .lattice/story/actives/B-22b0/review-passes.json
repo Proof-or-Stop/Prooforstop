@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-13T13:36:11.057Z",
       "reviewRunId": "B-22b0:RR-005",
       "_hash": "316845324870a3577c20224486eedb0b6872bb5060562a6f5ee7d06a9b097319"
+    },
+    {
+      "id": "B-22b0:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Focused F-003 re-review PASS. Ran local story-built CLI: node packages/main/dist/cli.js evidence_inspect --storyId=B-22b0 --format=json. Confirmed checklist evidence refs expose result/verdict/note; CHK-002:authority-proof-fail:status-policy and CHK-002:authority-proof-fail:runner-done have result=fail, verdict=blocked_classified, and notes; CHK-002 happy/edge/adversarial required waiver refs have kind=waiver, result=pass, waiverType=permanent. Also ran an inline node assertion over the local CLI JSON projection. Global lattice was not used for this semantic judgment.",
+      "createdAt": "2026-06-13T13:59:42.196Z",
+      "reviewRound": "2026-06-13T13:58:12.241Z",
+      "reviewRunId": "B-22b0:RR-008",
+      "_hash": "eb819e304d38c274e2d05a0758a27ee5bfb7e72830bcabe1c011e7c03731d8e4"
     }
   ]
 }
