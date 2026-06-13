@@ -137,7 +137,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Authority-mode dry-run reports receipt/readiness missing and keeps authorityDone=false/fullAuthorityDone=false; local REVIEW/TEST/DONE evidence is reported only as Non-authority unless verified gate_decision receipt proof exists.",
+      "userSees": "Authority dry-run output includes: \"status: fail\"; \"authorityDone: false\"; \"fullAuthorityDone: false\"; \"receipt.provided: false\"; and next actions for customer API key, actor key, runner id, and gate_decision receipt.",
       "files": {
         "modify": [],
         "create": [],
