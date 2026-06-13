@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-13T13:42:07.766Z",
       "reviewRunId": "B-8448:RR-006",
       "_hash": "f49af5fa9f5252125c9b12461b1f195a762d28101e40785ffcb73fa156f20fed"
+    },
+    {
+      "id": "B-8448:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All three must-priority intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0) have manual_transcript evidence with result=pass. Evidence headHashes are stale relative to current HEAD (011428b) due to post-evidence commits, but re-running all three evidence commands against current HEAD confirms they still pass: document exists with all required sections; manifest has 762 rows matching 762 Chinese-bearing source lines, proposedEnglish is free of Chinese characters and placeholders; only .lattice metadata and the doc file changed since evidence was recorded, cli-engine.ts not modified.",
+      "createdAt": "2026-06-13T16:15:30.421Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-010",
+      "_hash": "664487748c55dc362afe5738c263a7e02299d4674bcf4cd49e6e673aa860d7ef"
     }
   ]
 }
