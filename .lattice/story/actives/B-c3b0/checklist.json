@@ -77,7 +77,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke coverage exercises the changed-path predicate for representative watched inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke coverage exercises skip cases for docs-only and unrelated package paths without invoking a real npm install or a real package build.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke coverage stubs the post-DONE build hook to prove both success and non-zero build failure branches are observable, including recovery messaging, without performing remote operations or depending on global npm state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
