@@ -43,7 +43,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "When the post-DONE packages/main build command exits successfully, DONE output includes a clear success line and does not print recovery guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When the build is skipped because no watched runtime input changed, the DONE path does not report a build failure or stale dist guidance.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When the post-merge build command exits non-zero after main has already been merged, the command fails visibly with the failed build command, captured output or error text, states that dist may be stale, and gives the recovery command npm --prefix packages/main run build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
