@@ -68,8 +68,17 @@
       "paths": [
         "packages/main/src/tasks/test-flow-e2e.ts"
       ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Reviewer F-012 required covering lattice serve metadata as runtime artifact and adding flow-stability smoke coverage for the same regression plus current Lattice managed asset contract drift.",
+      "timestamp": "2026-06-13T02:22:44.136Z",
+      "paths": [
+        "packages/main/src/core/runtime-artifact-registry.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-12T19:48:39.680Z",
-  "updatedAt": "2026-06-13T01:42:39.057Z"
+  "updatedAt": "2026-06-13T02:22:44.136Z"
 }
