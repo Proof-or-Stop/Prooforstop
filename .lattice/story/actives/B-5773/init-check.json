@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5773",
+  "checkedAt": "2026-06-13T17:50:05.054Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md uses abbreviation \"T/M\" (\"catch convention drift and T/M divergence\") and checklist CHK-002 context uses \"T/M twins\" and \"keeping T/M twins consistent\" without defining what T and M stand for (T=T-table catalog, M=manifest row). A reader without prior context cannot infer this."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "CHK-002 context references \"the F-005 lesson\" (a prior review finding ID) with no explanation of what the lesson was. A reader cannot know what constraint is being imposed without external context. At minimum a one-sentence explanation should be inlined, e.g. \"F-005: T-table and M-row descriptions drifted out of sync when edited separately\"."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "CHK-001 through CHK-005 contexts reference 20 user suggestion numbers (#1, #2, ..., #20) without listing what each suggestion says. The row IDs (M019, M272, etc.) are sufficient for an implementer to act, but the suggestion map is not independently verifiable from the story files. Advisory only since concrete row references are provided."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-13T17:48:25.676Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-13T17:50:05.054Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md uses abbreviation \"T/M\" (\"catch convention drift and T/M divergence\") and checklist CHK-002 context uses \"T/M twins\" and \"keeping T/M twins consistent\" without defining what T and M stand for (T=T-table catalog, M=manifest row). A reader without prior context cannot infer this."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "CHK-002 context references \"the F-005 lesson\" (a prior review finding ID) with no explanation of what the lesson was. A reader cannot know what constraint is being imposed without external context. At minimum a one-sentence explanation should be inlined, e.g. \"F-005: T-table and M-row descriptions drifted out of sync when edited separately\"."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "CHK-001 through CHK-005 contexts reference 20 user suggestion numbers (#1, #2, ..., #20) without listing what each suggestion says. The row IDs (M019, M272, etc.) are sufficient for an implementer to act, but the suggestion map is not independently verifiable from the story files. Advisory only since concrete row references are provided."
+        }
+      ]
+    }
+  ],
+  "_hash": "31c20b02f8d6b3d8c2dbec69469628a77f2e436cc738feb424cc6b84a858e623"
+}

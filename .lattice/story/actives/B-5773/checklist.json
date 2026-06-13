@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add an English glossary and CLI style guide to the plan document",
+      "context": "Add a glossary + style-guide section near the top of the plan doc. Glossary fixes term choice: blocked (execution deny) vs excluded (scope) vs avoid 'forbidden'; 'source of truth' not 'truth source'; 'iteration' not 'round' in review loops; Story (product object) vs story; evidence as uncountable; Git (product) vs git (command); 'finding' not 'finding item'; 'real-machine tests' KEPT (code term realMachineTests). Style guide: command descriptions = imperative verb + sentence case + no final period; boolean flags = Enable/Disable/Emit/Skip/Fail if; schema fields = noun phrases; preserve command names, enum values, JSON keys, IDs, filenames, legacy aliases. Covers suggestions #1, #15, #20.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Apply the glossary and style across all 762 manifest rows and the T-table",
+      "context": "Sweep M001..M762 and the T-table catalog, keeping T/M twins consistent (the F-005 lesson). Unify: drop 'finding item' (#17); source-of-truth (#8); iteration vs round in reflection loop M036-M053 (#16); Emit JSON at M272/M286/M290/M302/M305 (#5); 'Command to run' for the 执行命令 input fields M019/M177/M185 and 'Command result' for 执行结果 (#6); 'Recorded by'/'Actor' for M076/M086/M225/M236/M241 (#7); 'entry point' in prose (#11); 'prevent self-approval/self-waiver' for M586/M588 (#9); Git capitalization in M747/M751 (#14); 'full prompt'/'detailed help' for M007/M670 PROMPT casing (#12); discard-story wording M109 (#18); 'Fail when' for M409 (#19). Preserve identifiers; keep the 762<->762 invariant and zero Chinese in proposedEnglish.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Shorten over-long command descriptions, moving rules to schema/longHelp",
+      "context": "117 command-description rows; longest 218 chars, median 70. CLI help lists need short imperative summaries; detailed rules belong in longHelp/schema descriptions. Shorten at least M215 (artifact_declare), M339 (DONE summary), M543 (INIT reviewer fallback attestation), M650 (dev-memory finish), M655 (session-start wrapper). Covers suggestion #2.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Isolate behavior-sensitive rows and require test updates",
+      "context": "Some rows are runtime code, not prose: M668/M669 (cli-engine.ts:2303/2306) are regexes matching Chinese strings via .test(combined); translating away the Chinese branches changes runtime matching. Tag such rows 'behavior-sensitive; requires test update', document the risk, and do NOT treat them as ordinary translation. Identify the full set (regex / .test / .match / parsing over Chinese tokens). Covers suggestion #4.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Define and apply a wrapped-source merge rule for multi-line source",
+      "context": "Line-level splitting breaks one logical sentence across rows, producing fragments that read wrong alone (M004/M005 are one Chinese sentence about runCli({extraTools, extraRegister}) merging utils tools and handlers). Add a documented rule that a wrapped multi-line source is reviewed/translated as one unit, and apply it to M004/M005 and similar pairs. Covers suggestion #3.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

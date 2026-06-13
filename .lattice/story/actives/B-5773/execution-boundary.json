@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5773",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "node --input-type=module *",
+    "node -e *",
+    "node bin/koala.js *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-5773",
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+    "packages/main/src"
+  ],
+  "excludedCommands": [
+    "git push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only standardization. cli-engine.ts under packages/main/src is read-only for verification (regex/term checks); it is never modified by this story.",
+  "createdAt": "2026-06-13T18:57:02.942Z",
+  "updatedAt": "2026-06-13T18:57:02.942Z",
+  "_hash": "0395709c6559cc03247dcf42361c1c5ac7dcb71c0bff585a3a4d0c21ca7ea715"
+}
