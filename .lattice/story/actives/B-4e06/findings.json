@@ -5,7 +5,7 @@
       "desc": "CHK-002:happy:0 — evidence mismatch: the missing-intent check in verify-story-review-structured-output.mjs creates a story with no verificationEvidence at all. detectLegacyEvidenceWithoutIntent returns empty, the laneHit branch in story-review.ts (lines 246-254) never fires, and the repairCommand / legacyEvidenceWithoutIntent fields on the issue object are never asserted. The intent claims story_review is tested for evidence-without-intent diagnostics, but the actual test exercises only the plain missing-intent path (no evidence present). The legacy repair-hint wiring through story_review is not integration-tested.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T18:32:39.298Z",
@@ -15,7 +15,9 @@
       "files": [
         "scripts/verify-story-review-structured-output.mjs",
         "packages/main/src/handlers/story-review.ts"
-      ]
+      ],
+      "resolvedReason": "Added legacy-evidence-no-intent integration check (verify-story-review-structured-output.mjs) asserting story_review emits legacyEvidenceWithoutIntent+repairCommand on the evidenced lane; commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:32.563Z"
     },
     {
       "id": "B-4e06:F-002",
