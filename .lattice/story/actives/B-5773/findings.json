@@ -31,6 +31,22 @@
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ]
+    },
+    {
+      "id": "B-5773:F-003",
+      "desc": "CHK-003:adversarial:2 verificationEvidence is hollow: ok() is called with literal `true` (line 78 of verify-b5773.mjs). Intent requires checking that T-table entries for the 5 shortened command-description rows still match their M-row twins after shortening. The verifier delegates entirely to CHK-002:adversarial:3 without performing any targeted T/M cross-check for the CHK-003-specific shortened rows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:32.287Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "14bbb7960a640e70064191439761346da974cadd6d1032f5012f9a8e00f02bb2",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ]
     }
   ]
 }
