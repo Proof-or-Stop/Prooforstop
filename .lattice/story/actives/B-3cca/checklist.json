@@ -136,12 +136,12 @@
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
-          "command": "git show --stat 88f311664",
+          "command": "git show --patch --stat 202077355",
           "result": "pass",
-          "note": "Smoke allowlist no longer permits broad koala CLI or koala-hook branding; exact KoalaConfig legacy internal type is the only new hook-source allowlist.",
-          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
-          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
-          "timestamp": "2026-06-13T10:56:49.542Z"
+          "note": "F-003 fixed by commit 202077355: removed broad legacy.*koala/koala.*legacy line-level allowlist and replaced it with exact patterns only: alias: koala, Lattice/Koala, legacy alias.",
+          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
+          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
+          "timestamp": "2026-06-13T11:02:14.822Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,10 +149,10 @@
           "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
-          "note": "Branding smoke now scans cli-engine src/dist plus hooks src/dist and passed with all four unclassified counts at 0.",
-          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
-          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
-          "timestamp": "2026-06-13T10:56:49.542Z"
+          "note": "Branding smoke passed after F-003 fix, still scanning cli-engine src/dist and hooks src/dist with all unclassified counts at 0.",
+          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
+          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
+          "timestamp": "2026-06-13T11:02:14.822Z"
         }
       ]
     },
@@ -207,21 +207,20 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Build passed after resolving F-001/F-002; tsc exit 0.",
-          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
-          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
-          "timestamp": "2026-06-13T10:56:49.542Z"
+          "note": "Build passed after narrowing legacy allowlist; tsc exit 0.",
+          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
+          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
+          "timestamp": "2026-06-13T11:02:14.822Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
           "note": "Current smoke output: cli-engine branding audit: PASS cli-engine src unclassified=0, cli-engine dist unclassified=0, hooks src unclassified=0, hooks dist unclassified=0; cli-engine branding smoke passed.",
-          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
-          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
-          "timestamp": "2026-06-13T10:56:49.542Z"
+          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
+          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
+          "timestamp": "2026-06-13T11:02:14.822Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -229,9 +228,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
           "result": "pass",
           "note": "Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified.",
-          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
-          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
-          "timestamp": "2026-06-13T10:56:49.542Z"
+          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
+          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
+          "timestamp": "2026-06-13T11:02:14.822Z"
         }
       ]
     },
