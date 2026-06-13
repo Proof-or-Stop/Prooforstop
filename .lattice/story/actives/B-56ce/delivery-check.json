@@ -1,0 +1,84 @@
+{
+  "storyId": "B-56ce",
+  "checkedAt": "2026-06-13T10:43:55.144Z",
+  "reviewRound": "2026-06-13T10:32:55.965Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "README validation and Codex wrapper guidance remains aligned; B-56ce adds runtime diagnostics and unsupported lattice codex namespace suggestions without changing documented wrapper or gate behavior.",
+      "status": "verified",
+      "verifiedBy": "rg plus sed",
+      "evidence": "rg covered validate, timeoutMs, stale, delivery-check, and codex references; sed -n 568,586p README.md confirms validation command receipts and canonical lattice.config.json validate.commands behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "lattice validate remains the project validation gate, configured validate.command(s) remain authoritative, and failures are not relaxed by diagnostics.",
+      "status": "verified",
+      "verifiedBy": "sed plus source diff plus smoke tests",
+      "evidence": "sed -n 36,50p shows validate command precedence and fail-closed REVIEW to TEST behavior; validation-executor diff only appends timedOut details; test:validation-protocol passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "stale verification evidence remains hash-bound and cannot be covered by test pass text; recovery still requires refresh_stale and validate.",
+      "status": "verified",
+      "verifiedBy": "sed plus source diff plus smoke test",
+      "evidence": "sed -n 188,192p states stale evidence makes validate allPass false and points to verification_evidence_refresh_stale; evidence-stale-hint diff changes wording and lattice commands only; test:verification-freshness-smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "promise": "owner lease recovery remains explicit: active foreign leases require read-only, wait, or --forceTakeover and stale leases use --takeover.",
+      "status": "verified",
+      "verifiedBy": "sed plus source diff plus smoke test",
+      "evidence": "sed -n 158,185p documents fail-closed non-owner rejection and explicit takeover flags; story-owner-lease diff adds same-worktree guidance without lease transfer; test:story-owner-lease-smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "promise": "delivery-check must be written by the delivery reviewer through delivery_check_set and the main agent must not forge that reviewer signature.",
+      "status": "verified",
+      "verifiedBy": "sed plus source diff plus smoke test",
+      "evidence": "sed -n 126,140p states the delivery reviewer writes delivery-check.json through delivery_check_set and the main agent must not forge the signature; done-oracle and transition hint diff reinforce that boundary; test:flow-stability-smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "Authority codex.verify step semantics are unchanged; B-56ce only improves local CLI diagnostics for unsupported lattice codex core-command namespace mistakes.",
+      "status": "waived",
+      "verifiedBy": "rg plus sed",
+      "evidence": "rg and sed -n 1018,1030p show existing planned step type codex.verify only; the source diff does not alter Authority job planning or execution semantics.",
+      "waiverReason": "No documentation update is required because this story does not change Authority codex.verify semantics or provider behavior; it only rejects two unsupported local CLI namespace mistakes with clearer suggestions."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:validation-protocol -> PASS, final line: validation protocol smoke passed. This rerun covers timeout failure diagnostics and confirms non-timeout failures do not get timeoutMs recovery text."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:verification-freshness-smoke -> PASS, final line: verification freshness smoke passed. This rerun covers stale evidence hash-binding wording and lattice recovery commands."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:story-owner-lease-smoke -> PASS, final line: story-owner-lease smoke passed. This rerun covers same-worktree owner guidance and no automatic lease transfer."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke -> PASS, final line: flow stability smoke passed. This rerun covers delivery-check missing guidance, hash mismatch, unverified docsPromise recovery, and no self-sign relaxation."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke -> PASS, final line: legacy koala compatibility smoke passed. This rerun covers unsupported lattice codex session_brief and aux_doc_list suggestions and codex verify help resolution."
+    },
+    {
+      "featureId": "validation-state",
+      "transcript": "node bin/lattice.js test_list for B-56ce showed latest validation PASS at 2026-06-13T10:38:39.996Z with allPass true, npm test fallback pass, and verification intent coverage 15/15 covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independent delivery review inspected session_brief, story_get, checklist_get, summary_get, test_list, git diff main...HEAD, source and smoke-test diffs, finding_list, bug_list, scope_contract_check, done_closure, and related docs. The implementation addresses the recovery UX gaps without relaxing gates: timeout remains validation fail, stale evidence remains hash-bound, active owner lease still requires explicit forceTakeover and does not auto-transfer, delivery-check missing/hash/docsPromise rows still fail, and the codex namespace stays narrow. Remaining DONE blocker is branch sync with main by 52 commits, which should be handled by the normal merge gate, not by this delivery signature."
+  },
+  "_hash": "0219e73e280a58a7fe15738a61590b58d7183162f969c45fd13516fd8bc73406"
+}
