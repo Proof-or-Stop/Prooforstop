@@ -79,9 +79,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T13:37:14.042Z",
-      "endTime": null,
+      "endTime": "2026-06-13T13:37:14.664Z",
       "userSees": "Document review shows the forbidden guidance scan covers the full host-neutral workflow command boundary, not only session recovery and document discovery.",
       "files": {
         "modify": [
@@ -109,7 +109,41 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n session_brief docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md && rg -n aux_doc_list docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The forbidden namespace pattern and workflow command table explicitly include session_brief and aux_doc_list.",
+          "headHash": "201667206dfdb8faecf4ea82373289358450604c",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:14.701Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n convergence_check docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The forbidden namespace pattern also includes the broader workflow families: story_, checklist_, validate, review_, finding_, summary_set, delivery_check_set, and convergence_check.",
+          "headHash": "201667206dfdb8faecf4ea82373289358450604c",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:14.737Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n --hidden lattice\\s+codex\\s+session_brief AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .Codex .codex; rg -n --hidden lattice\\s+codex\\s+aux_doc_list AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .Codex .codex",
+          "result": "pass",
+          "note": "Repository scan for the forbidden Codex-prefixed workflow forms reports only legacy-koala-compatibility-smoke negative assertions in src/dist, not business guidance in docs or templates.",
+          "headHash": "201667206dfdb8faecf4ea82373289358450604c",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:14.771Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -220,6 +254,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start forbidden guidance scan coverage evidence recording."
+    },
+    {
+      "timestamp": "2026-06-13T13:37:14.664Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Forbidden guidance scan coverage verified against document text and repository scan output."
     }
   ]
 }
