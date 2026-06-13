@@ -238,9 +238,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T10:24:35.225Z",
       "userSees": "When DONE is blocked by missing delivery-check.json, terminal output says to rerun koala-review-delivery or use `delivery_check_set` only with `agentId=koala-review-delivery` / reviewer provenance; it explicitly states the main agent must not self-sign the delivery check.",
       "files": {
         "modify": [
@@ -271,7 +271,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability smoke asserts the DONE oracle missing delivery-check hint names delivery_check_set and requires agentId=koala-review-delivery provenance.",
+          "headHash": "607737c38edb0c7934b02d68a22c248712ed2ad2",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:35.272Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability smoke preserves existing DONE oracle rows for delivery-check hash/source behavior while only strengthening missing-delivery guidance.",
+          "headHash": "607737c38edb0c7934b02d68a22c248712ed2ad2",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:35.307Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability smoke asserts fallback wording says the main agent must not self-sign and missing delivery-check remains a blocking DONE row.",
+          "headHash": "607737c38edb0c7934b02d68a22c248712ed2ad2",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:35.337Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
