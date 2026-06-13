@@ -103,6 +103,9 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         `productionDone: ${pack.productionDone}`,
         `receiptRefs: ${pack.receiptRefs.length}`,
         `recoveryPoint: ${pack.recoveryPoint.id}`,
+        ...(pack.phaseAuthorityWarning
+          ? [`⚠ phaseAuthority (${pack.phaseAuthorityWarning.relation}): ${pack.phaseAuthorityWarning.message}`]
+          : []),
         outputNote.trimEnd(),
       ].filter(Boolean).join('\n');
     },
