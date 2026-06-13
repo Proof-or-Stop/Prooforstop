@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e84c",
+  "mode": "maintenance",
+  "allowed": [
+    "Review and correct docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    "Run read-only command and grep verification for the document review",
+    "Update docs/requirements/NAV.md only as needed for navigation synchronization"
+  ],
+  "excluded": [
+    "Do not add a broad lattice codex workflow namespace alias",
+    "Do not claim production, authority, unattended, or full convergence readiness",
+    "Do not modify Lattice runtime source, generated adapter assets, README residuals, or unrelated active stories"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly requested full Lattice flow review for the Codex command boundary execution document.",
+  "createdAt": "2026-06-13T13:24:30.537Z",
+  "updatedAt": "2026-06-13T13:24:30.537Z",
+  "_hash": "fd1fdff0cd1679a8a79b4c7b01740dceb9bb8afc99a39102bd0d2059365df10e"
+}
