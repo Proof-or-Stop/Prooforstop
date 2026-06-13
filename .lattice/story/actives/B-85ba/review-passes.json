@@ -242,6 +242,15 @@
       "reviewRound": "2026-06-13T02:47:44.743Z",
       "reviewRunId": "B-85ba:RR-048",
       "_hash": "e34e1b7371a92edd133442d0f7f53acdd6be140ab73bcb485a7bb2e270561787"
+    },
+    {
+      "id": "B-85ba:RP-028",
+      "agent": "koala-review-concept",
+      "note": "Concept pass after delivery-blocker doc fix. lifecycle-artifact-scope now correctly states .koala/story/... is not a recognized lifecycle artifact prefix; lifecycle-registry and process-fact contract accept .lattice story artifacts and reject .koala/story/... so scope anti-expansion semantics are unchanged. F-013 story_update reviewer bypass remains closed by handler guard and smoke coverage. Rechecked F-007-F-012 regression surface with scope-anti-expansion, worktree-authority, flow-stability, process-fact, and runtime-fact contract commands.",
+      "createdAt": "2026-06-13T02:51:58.133Z",
+      "reviewRound": "2026-06-13T02:47:44.743Z",
+      "reviewRunId": "B-85ba:RR-045",
+      "_hash": "20079a68185281a096b88b1b239055e2a3c87f7b8265d311e79e5038bd0af4ff"
     }
   ]
 }
