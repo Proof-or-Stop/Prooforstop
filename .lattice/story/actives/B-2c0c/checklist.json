@@ -115,7 +115,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c",
+          "result": "pass",
+          "note": "CLI diagnostic reports Decision-doc quorum: pass with materialDigest 087220014eccdb09f154f1c199329fe53ddb7bb792d10b2eb337a90b9c766be3 and valid rounds decision-doc-round-1/2/3, each with 2 hosts.",
+          "headHash": "9574d5ac6a0f16f470ce2b15b91e7e497618b81f",
+          "materialHash": "0a78c3eaa727195f65aa7f1a760c526f63ae838aad7134bfc4c014a25890a670",
+          "timestamp": "2026-06-13T22:18:48.001Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c --json before host_verdict quorum was recorded",
+          "result": "pass",
+          "note": "Earlier CLI diagnostic for the same changed decision docs returned ok=false, validRounds 0/3, missing rounds 3, and listed changed decision docs plus current materialDigest, proving incomplete quorum states are pinpointed without source inspection.",
+          "headHash": "9574d5ac6a0f16f470ce2b15b91e7e497618b81f",
+          "materialHash": "0a78c3eaa727195f65aa7f1a760c526f63ae838aad7134bfc4c014a25890a670",
+          "timestamp": "2026-06-13T22:18:48.001Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
+          "result": "pass",
+          "note": "Smoke covers prose-only review_pass events, stale materialDigest, duplicate hosts, duplicate run IDs, and non-pass decisions; formatter reports ignored events/materialDigest mismatch instead of accepting them as quorum.",
+          "headHash": "9574d5ac6a0f16f470ce2b15b91e7e497618b81f",
+          "materialHash": "0a78c3eaa727195f65aa7f1a760c526f63ae838aad7134bfc4c014a25890a670",
+          "timestamp": "2026-06-13T22:18:48.001Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
