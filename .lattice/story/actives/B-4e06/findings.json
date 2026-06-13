@@ -1,0 +1,135 @@
+{
+  "findings": [
+    {
+      "id": "B-4e06:F-001",
+      "desc": "CHK-002:happy:0 — evidence mismatch: the missing-intent check in verify-story-review-structured-output.mjs creates a story with no verificationEvidence at all. detectLegacyEvidenceWithoutIntent returns empty, the laneHit branch in story-review.ts (lines 246-254) never fires, and the repairCommand / legacyEvidenceWithoutIntent fields on the issue object are never asserted. The intent claims story_review is tested for evidence-without-intent diagnostics, but the actual test exercises only the plain missing-intent path (no evidence present). The legacy repair-hint wiring through story_review is not integration-tested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T18:32:39.298Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-003",
+      "_hash": "9e76c0918b20ad4c8c7dd9ea37d102461a79de17b82a8d188d1edee8ae865a4f",
+      "files": [
+        "scripts/verify-story-review-structured-output.mjs",
+        "packages/main/src/handlers/story-review.ts"
+      ],
+      "resolvedReason": "Added legacy-evidence-no-intent integration check (verify-story-review-structured-output.mjs) asserting story_review emits legacyEvidenceWithoutIntent+repairCommand on the evidenced lane; commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:32.563Z"
+    },
+    {
+      "id": "B-4e06:F-002",
+      "desc": "CHK-002:happy:1 — validate-side legacy hint path (decorateStoryVerification in verifier.ts) is not integration-tested. The evidence ref points at verification-intent-repair-smoke.ts, which only calls detectLegacyEvidenceWithoutIntent as a pure function. No test constructs a story with verificationEvidence refs but no verificationIntent, runs lattice validate against it, and asserts (a) the result is still failing and (b) the legacyEvidenceWithoutIntent hint with the repair command appears in details/legacyEvidenceWithoutIntent response fields. The validate-side wiring added in verifier.ts lines 338-383 has no end-to-end smoke coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T18:32:45.852Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-003",
+      "_hash": "4d82cbcbe61729f61a6f6b950fec73c41e7521ab603dacd1dcc289c372738525",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/verification-intent-repair-smoke.ts"
+      ],
+      "resolvedReason": "Same integration check calls validate --json and asserts response.legacyEvidenceWithoutIntent names CHK-001 happy (decorateStoryVerification path); commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:32.906Z"
+    },
+    {
+      "id": "B-4e06:F-003",
+      "desc": "CHK-002:adversarial:0 — no integration test confirms that when story_review or validate processes a story with evidence-without-intent, the issued diagnostic retains severity=blocker and does not downgrade. The evidence ref points at verification-intent-repair-smoke.ts, which only tests the pure detector function. The no-downgrade guarantee is only enforced by reading the source code of story-review.ts (line 248: severity:blocker is hardcoded), not by a live CLI call. This is advisory: the code path is visually correct, but the behavioral contract is not regression-protected by an executable assertion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T18:32:52.692Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-003",
+      "_hash": "942e76bac29945a5db9f39a534ecc5d1baf8f46553fdb2e1f0e5db68b0cc1676",
+      "files": [
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/tasks/verification-intent-repair-smoke.ts"
+      ],
+      "resolvedReason": "Integration check asserts the legacy issue stays severity=blocker and a no-evidence lane keeps the generic blocker; gate not weakened. commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:33.238Z"
+    },
+    {
+      "id": "B-4e06:F-004",
+      "desc": "quality-cleanup: checklist.ts:202 dead-code guard `m[1] !== item.id` in reconstructMissingIntentsFromEvidence — the startsWith(`${item.id}:`) check on line 197 already guarantees m[1]===item.id after the regex matches; the continue on line 202 is unreachable and creates misleading code suggesting a cross-item scenario that cannot occur given the preceding guard",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T18:33:25.293Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-001",
+      "_hash": "361e84b1963d8525764178d789959f11141b9aefb4800d1fe345444d7a3808bf",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "resolvedReason": "Removed the unreachable m[1]!==item.id guard; the ${item.id}: prefix already pins the regex capture group. commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:33.575Z"
+    },
+    {
+      "id": "B-4e06:F-005",
+      "desc": "quality-cleanup: checklist.ts:966 `actor?: string` parameter accepted in verification_intent_repair handler but never accessed (args.actor not read anywhere in the function body). Schema describes it as audit-tracing, but the implementation silently drops it — no logging, no recording in the commit metadata, no inclusion in the output lines. Either record it (e.g. append to commitHint / autoCommitStoryMetadata) or remove from the schema+signature to avoid a doc-promise-undelivered gap",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T18:33:32.294Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-001",
+      "_hash": "b782d310d6838b6a7c5ee25495ec7e4671edc6eab32c0b8321bba9c2b28ed949",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Dropped the unused actor param from verification_intent_repair schema + handler (no audit tracing was delivered). commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:33.916Z"
+    },
+    {
+      "id": "B-4e06:F-006",
+      "desc": "quality-cleanup: worktree.ts:759 storyRel computation lacks the path-escape containment guard that cli-engine.ts:3334 has (`isAbsolute(storyRelRaw) || storyRelRaw.split(/).includes(..)` check). Both use the same realpath-then-relative pattern; cli-engine.ts throws a clear diagnostic if story metadata escapes the git root, but worktree.ts passes the potentially-escaped path to createScopedStoryBootstrapCommit which relies on git to reject it with an opaque error. Low probability (gitRoot validation happens upstream) but asymmetric defensiveness between the two call sites of the same pattern",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T18:33:40.322Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-001",
+      "_hash": "163eae401983c8c934380dc18ab8fb0cb2eced487c5b32dcc3c9cb3e358a3228",
+      "files": [
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Added the storyRel isAbsolute/.. containment guard in worktree.ts dev_start, matching the cli-engine reconcile guard. commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:34.254Z"
+    },
+    {
+      "id": "B-4e06:F-007",
+      "desc": "quality-cleanup: checklist.ts:8 imports `VerificationIntentItem` from types.ts but it is never referenced in the file body; added by this diff (new import line) and left unused — dead import",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T18:34:08.809Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-001",
+      "_hash": "ff490f975de4097bd69fb7871c089d3edcca0974b3fcbe88a401c331fd0e7c7b",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "resolvedReason": "Removed the now-unused VerificationIntentItem import. commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:34.589Z"
+    }
+  ]
+}

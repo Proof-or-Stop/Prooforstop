@@ -65,16 +65,16 @@ function makeStory(projectRoot, suffix, checklist, extra = {}) {
   const created = run(projectRoot, 'story_create', {
     name: `review-output-${suffix}`,
     title: `Review output ${suffix}`,
-    background: `## 触发事件
+    background: `## Trigger Event
 2026-05-12 B-2a4a structured-output smoke creates a temporary story so story_review response fields can be inspected without touching a real project.
 
-## 关键洞察
+## Key Insights
 The smoke is about public CLI output shape, not feature behavior. It must prove the PLAN review count is explicit and does not collide with signed artifact reviewRound semantics.
 
-## 方案取舍
+## Solution Tradeoffs
 Use a synthetic project and the real dist CLI. This keeps the check black-box enough to catch response drift while avoiding direct story JSON edits.
 
-## 对话纹理
+## Conversational Texture
 The user noticed that a numeric story_review field could be mistaken for findings.json reviewRound. The smoke preserves that distinction as a maintainer-facing contract.`,
     description: 'Verify structured story_review output.',
     type: 'feature',
@@ -181,6 +181,43 @@ const checks = {
       assertPlanReviewRoundSchema(review);
       assert(review.issues.some((i) => i.type === 'missing_decision'), 'missing decision blocker should be summarized');
       assert(review._reviewPrompt.includes('Decision'), 'full prompt should include decision section');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  },
+  // B-4e06 CHK-002: story_review AND validate must name verification_intent_repair
+  // when evidence exists without intent, while keeping the gate HARD.
+  'legacy-evidence-no-intent': () => {
+    const dir = createProject();
+    try {
+      const storyId = makeStory(dir, 'legacy', [{ title: 'Implement output', context: 'legacy evidence without intent' }], { understanding: true });
+      // Seed PASSING evidence for the happy lane but leave verificationIntent empty.
+      run(dir, 'verification_evidence_add', {
+        storyId, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0',
+        kind: 'integration_test', result: 'pass',
+        note: 'legacy evidence recorded before intent was authored, drives the repair hint',
+      });
+      // story_review: missing-intent stays a HARD blocker AND names the repair command.
+      const review = parseJson(run(dir, 'story_review', { storyId }));
+      const legacyIssue = review.issues.find(
+        (i) => i.type === 'missing_verification_intent' && i.itemId === 'CHK-001' && i.legacyEvidenceWithoutIntent,
+      );
+      assert(legacyIssue, 'story_review should flag the legacy evidence-without-intent state on CHK-001 happy');
+      assert(legacyIssue.severity === 'blocker', 'legacy hint must NOT weaken the missing-intent blocker');
+      assert(legacyIssue.repairCommand === 'verification_intent_repair', 'issue should name the repair command');
+      assert(/verification_intent_repair/.test(legacyIssue.message), 'message should reference the repair command');
+      // A lane WITHOUT evidence keeps the generic blocker (no legacy hint).
+      const plainIssue = review.issues.find(
+        (i) => i.type === 'missing_verification_intent' && i.itemId === 'CHK-001' && i.message.includes('verificationIntent.edge'),
+      );
+      assert(plainIssue && !plainIssue.legacyEvidenceWithoutIntent, 'a no-evidence lane should keep the generic blocker');
+      // validate: surfaces the same hint additively (never a pass condition).
+      const validation = parseJson(run(dir, 'validate', { story: storyId, json: true }));
+      assert(
+        Array.isArray(validation.legacyEvidenceWithoutIntent) &&
+        validation.legacyEvidenceWithoutIntent.some((h) => h.itemId === 'CHK-001' && h.lane === 'happy'),
+        'validate should surface a legacyEvidenceWithoutIntent hint for CHK-001 happy',
+      );
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

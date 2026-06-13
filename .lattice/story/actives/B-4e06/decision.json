@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Keep verificationIntent as the explicit acceptance contract.",
+    "Make legacy repair auditable instead of implicit.",
+    "Reuse existing signed workspace resolution for gitRoot behavior.",
+    "Prefer narrow CLI defects and focused smokes over broad framework churn."
+  ],
+  "drivers": [
+    "The ClawCreek incident blocks real workflow closure even after evidence exists.",
+    "High-risk lifecycle gates must remain fail-closed for normal future stories.",
+    "Wrapper-root projects with configured gitRoot must be able to use automatic INIT_CHECK bootstrap."
+  ],
+  "options": [
+    {
+      "name": "A: Add explicit repair command plus gitRoot bootstrap root fix",
+      "pros": [
+        "Preserves current review discipline while unblocking historical stories.",
+        "Gives users a repeatable command instead of manual metadata edits.",
+        "Fixes the bootstrap failure at the root-resolution layer already used by session_brief."
+      ],
+      "cons": [
+        "Requires command registration and smoke coverage across lifecycle gates.",
+        "Generated intent text must be carefully worded so it does not pretend to be pre-authored."
+      ]
+    },
+    {
+      "name": "B: Let existing evidence satisfy missing intent automatically",
+      "pros": [
+        "Smallest immediate change for B-5a12-style stories.",
+        "Avoids adding a new operator command."
+      ],
+      "cons": [
+        "Weakens verificationIntent as the acceptance contract.",
+        "Makes future stories easier to pass without PLAN discipline.",
+        "Hides schema migration behind review behavior instead of recording an audit event."
+      ]
+    },
+    {
+      "name": "C: Keep code unchanged and document a manual checklist_update workaround",
+      "pros": [
+        "Lowest implementation cost.",
+        "Avoids touching command registry or bootstrap code."
+      ],
+      "cons": [
+        "Leaves users with a fragile manual recovery path.",
+        "Does not solve automatic worktree bootstrap for configured gitRoot projects.",
+        "Does not give story_review or validate an actionable diagnosis."
+      ]
+    }
+  ],
+  "chosen": "A: Add explicit repair command plus gitRoot bootstrap root fix",
+  "rationale": "Option A is the only choice that fixes both observed Lattice defects while preserving the lifecycle contract. It gives legacy stories a controlled migration path and keeps normal future stories strict.",
+  "preMortem": [
+    {
+      "scenario": "Repair command overwrites authored verification intent.",
+      "trigger": "Implementation treats evidence refs as authoritative for all lanes without checking existing intent.",
+      "consequence": "Reviewer-authored acceptance criteria are lost and future review behavior becomes untrustworthy.",
+      "mitigation": "Default to fill-only behavior, require replaceExisting plus strong reason for replacement, and add non-overwrite smoke coverage."
+    },
+    {
+      "scenario": "story_review stops blocking missing intent when evidence exists.",
+      "trigger": "Diagnostic upgrade is implemented as a pass condition instead of a hint.",
+      "consequence": "Normal stories can skip PLAN intent and still pass review, undoing the second-generation flow discipline.",
+      "mitigation": "Keep blocker severity; only add evidence-aware issue fields and repair command hints."
+    },
+    {
+      "scenario": "gitRoot bootstrap still runs git commands from metadata root.",
+      "trigger": "worktree.ts keeps using getRepoRoot from cwd instead of signed workspace resolution.",
+      "consequence": "Wrapper-root projects continue to need manual worktree creation and INIT_CHECK loses its preflight value.",
+      "mitigation": "Route bootstrap through the signed workspace material root and add nested gitRoot INIT_CHECK smoke coverage."
+    },
+    {
+      "scenario": "The story expands into the already-verified help import issue.",
+      "trigger": "A developer touches sourceManifestDigest without reproducing the failure.",
+      "consequence": "Scope expands into unrelated runtime export churn and makes review harder.",
+      "mitigation": "Keep P3 excluded; only allow a read-only help-command smoke unless the failure reproduces as a separate story."
+    }
+  ],
+  "timestamp": "2026-06-13T13:46:34.899Z"
+}

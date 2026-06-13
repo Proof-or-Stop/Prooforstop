@@ -39,7 +39,7 @@ const __dirname = dirname(__filename);
 import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli } from './validate-lint.js';
-import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
+import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -335,9 +335,11 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   let verificationPolicy;
   let authorityGateConsumption;
   let authorityGateLine = '';
+  let legacyHints: Array<{ itemId: string; lane: string; intentRef: string }> = [];
   try {
     const story = ctx.store.readStory(storyId);
     const cl = ctx.store.readChecklist(storyId);
+    legacyHints = cl.items.flatMap(detectLegacyEvidenceWithoutIntent);
     let decision = null;
     try { decision = ctx.store.readDecision(storyId); } catch { /* no decision for express/fast stories */ }
     verificationPolicy = resolveVerificationIntentPolicy(story, cl, decision);
@@ -358,6 +360,12 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   const details = Array.isArray(result.details) ? [...result.details] : [];
   details.push(...rendered.split('\n'));
   if (authorityGateLine) details.push(authorityGateLine);
+  // B-4e06 CHK-002: surface legacy evidence-without-intent as an informational
+  // hint naming the repair command. Additive only — never alters coverage math
+  // or allPass, so the hint can never become a pass condition.
+  for (const h of legacyHints) {
+    details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`lattice ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
+  }
   const authorityBlocks = authorityGateConsumption?.blocks === true;
   const allPass = Boolean(result.allPass) && coverage.missingRequired === 0 && !authorityBlocks;
   return {
@@ -372,6 +380,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
     details,
     verificationPolicy,
     verificationCoverage: coverage,
+    ...(legacyHints.length > 0 ? { legacyEvidenceWithoutIntent: legacyHints } : {}),
     ...(authorityGateConsumption ? { authorityGateConsumption: authorityGateConsumption.json } : {}),
   };
 }

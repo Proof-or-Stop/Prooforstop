@@ -1,0 +1,87 @@
+{
+  "storyId": "B-4e06",
+  "checkedAt": "2026-06-13T13:49:13.662Z",
+  "features": [
+    {
+      "feature": "CHK-001 audited verification_intent_repair from existing passing evidence",
+      "covered_by": "checklist_get CHK-001 covers repair missing verificationIntent from existing evidence, preserve authored intent, require legacy reason outside PLAN; plan_get CHK-001 defines canonical verification_intent_repair mode=fromEvidence, fill-only, audited, phase-aware; decision_get option A and preMortem cover non-overwrite; decision doc P1/New Repair Command defines repair semantics.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; decision_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "CHK-002 strict story_review and validate diagnostics for evidence-without-intent",
+      "covered_by": "checklist_get CHK-002 covers diagnostics naming repair path while still blocking; plan_get CHK-002 says evidence-aware hint is not a pass condition; decision doc story_review Diagnostic Upgrade and validate Diagnostic Upgrade define the expected behavior.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "CHK-003 configured gitRoot INIT_CHECK worktree bootstrap",
+      "covered_by": "checklist_get CHK-003 covers git operations from signed workspace material root while preserving metadata semantics; plan_get CHK-003 routes bootstrap through signed workspace material root; decision doc gitRoot-Aware Worktree Bootstrap defines root split and bootstrap requirements.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "CHK-004 focused smoke coverage for repair diagnostics bootstrap invalid gitRoot and help health",
+      "covered_by": "checklist_get CHK-004 covers focused smokes only and excludes broad fixture rewrite; plan_get CHK-004 lists repair dry run/non-overwrite/malformed/protected phase, nested gitRoot, and checklist_update help; decision doc Verification Plan covers scenarios 1-7.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "CHK-005 docs and built runtime sync only where implementation requires it",
+      "covered_by": "checklist_get CHK-005 covers docs/build sync and global runtime exposure; plan_get CHK-005 scopes build and verification commands to implemented CLI behavior; decision doc Required Commands and Rollout Notes cover build/runtime expectations.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "P3 sourceManifestDigest implementation changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding_get says do not touch sourceManifestDigest unless the help-command failure reproduces separately; decision_get preMortem keeps this story from expanding into the verified help import issue; plan_get Do not and decision doc P3/Non-Goals exclude implementation changes.",
+      "source": "understanding_get; decision_get; plan_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "ClawCreek application code or direct story JSON edits",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan_get Do not excludes ClawCreek app code and ClawCreek story metadata direct edits; decision doc Non-Goals and Allowed File Classes exclude ClawCreek app/story JSON plus .lattice/story/docs/story direct edits; user instruction forbids direct story JSON edits.",
+      "source": "plan_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md; user request"
+    },
+    {
+      "feature": "evidence-as-intent bypass for normal stories",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "checklist_get CHK-001 excludes evidence alone passing normal review gates; understanding_get preserves verificationIntent and bars verificationEvidence replacing intent; plan_get CHK-002 keeps diagnostic as hint not pass condition; decision_get rejects option B for weakening acceptance contract.",
+      "source": "checklist_get; understanding_get; decision_get; plan_get"
+    },
+    {
+      "feature": "DONE or DISCARDED automatic mutation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding_get says do not mutate DONE or DISCARDED stories automatically; plan_get CHK-001 refuses terminal phases; decision doc Phase policy and Stop Conditions refuse DONE/DISCARDED.",
+      "source": "understanding_get; plan_get; docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "unrelated adapter or production-readiness work",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan_get Execution Boundary excludes unrelated adapter or production readiness work; decision_get principles keep scope to narrow CLI defects and focused smokes; checklist excludes broad fixture rewrites and unrelated docs navigation cleanup.",
+      "source": "plan_get; decision_get; checklist_get"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 5,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b423212481a7472544d3de88e96ed00af1aa68a6a0247fa99898263add230cf9",
+  "openQuestions": []
+}

@@ -196,6 +196,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   PLAN: [
     'story_update', 'story_review', 'story_review_dismiss',
     'checklist_add', 'checklist_update', 'checklist_remove',
+    'verification_intent_repair', // B-4e06: audited legacy intent backfill (refused in INIT/INIT_CHECK/terminal)
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
     'grill_start', 'grill_record', 'grill_close',
@@ -208,6 +209,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   DEV: [
     'checklist_add', 'checklist_update', 'checklist_remove',
+    'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'light_review',
     'finding_add',
     'validate', 'status', 'serve',
@@ -232,11 +234,13 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',
     'story_advance',
     'scope_contract_acknowledge',
+    'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
   ],
   TEST: [
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
     'validate', 'evaluate', 'evaluate_save',
+    'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
     'story_advance',
