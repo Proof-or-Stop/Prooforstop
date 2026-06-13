@@ -69,3 +69,8 @@
 {"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-13T11:02:19.145Z"}
 {"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-13T11:02:19.480Z"}
 {"type":"reviewer_finding","storyId":"B-3cca","command":"finding_add","role":"reviewer","agent":"koala-review-quality","result":"pass","findingId":"B-3cca:F-004","severity":"medium","missingAttribution":false,"timestamp":"2026-06-13T11:05:09.004Z"}
+{"type":"codex_cli","source":"codex","session":"verify-entrypoints-codex_session_id-1781348711376","role":"main","storyId":"B-3cca","phase":"REVIEW","command":"session_brief","entrypoint":"local-wrapper","result":"pass","timestamp":"2026-06-13T11:05:12.609Z"}
+{"type":"codex_cli","source":"codex","session":"verify-entrypoints-openai_session_id-1781348712639","role":"main","storyId":"B-3cca","phase":"REVIEW","command":"session_brief","entrypoint":"local-wrapper","result":"pass","timestamp":"2026-06-13T11:05:13.777Z"}
+{"type":"codex_cli","source":"codex","session":"verify-entrypoints-term_session_id-1781348713785","role":"main","storyId":"B-3cca","phase":"REVIEW","command":"session_brief","entrypoint":"local-wrapper","result":"pass","timestamp":"2026-06-13T11:05:14.944Z"}
+{"type":"codex_cli","source":"codex","session":"verify-entrypoints-global-1781348714951","role":"main","storyId":"B-3cca","phase":"REVIEW","command":"session_brief","entrypoint":"global-fallback","result":"pass","timestamp":"2026-06-13T11:05:16.202Z"}
+{"type":"review_pass","storyId":"B-3cca","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-3cca:RP-004","timestamp":"2026-06-13T11:05:16.208Z"}

@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-13T10:57:27.947Z",
       "reviewRunId": "B-3cca:RR-004",
       "_hash": "fc1927b24d55e348ecc564ed6ddae53590871ff6e0c99d3a3fbad6d91e246c86"
+    },
+    {
+      "id": "B-3cca:RP-004",
+      "agent": "koala-review-concept",
+      "note": "PASS: reviewed packages/main/src/cli-engine.ts:2361,3511,3771,3818,3839 and packages/main/src/core/hooks.ts:212,220,229,231,241,242 plus package metadata at packages/main/package.json:2,16-17. Current user-facing CLI/help/version/unknown-command and hook diagnostics use Lattice as primary branding; remaining koala references are explicit legacy alias/internal compatibility tokens. Branding smoke passed with cli-engine/hooks src/dist unclassified=0.",
+      "createdAt": "2026-06-13T11:05:16.208Z",
+      "reviewRound": "2026-06-13T11:02:30.634Z",
+      "reviewRunId": "B-3cca:RR-008",
+      "_hash": "142ae60b0d7465731bbf0b15ea171b6bcb842c2c678374ce02ff70eeee24e28a"
     }
   ]
 }
