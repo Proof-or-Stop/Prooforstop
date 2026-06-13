@@ -257,7 +257,7 @@
       "desc": "INIT scope anti-expansion still has a story_update bypass for story-level scope expansion. The freeze/gate consumes story.title and story.description (packages/main/src/core/scope-anti-expansion.ts:392-399,597-600; packages/main/src/core/machine.ts:169-176), but story_update directly writes title/description with no phase-local scope check, no reviewer-lane block, and no proposal/decision requirement (packages/main/src/handlers/story-query.ts:332-347). Command policy and phaseTools explicitly allow story_update in INIT (packages/main/src/core/command-policy.ts:130; packages/main/src/core/config.ts:184-190), while F-005 only mechanically blocks INIT reviewer checklist mutations and the contract asserts checklist-only proposal discipline (packages/main/src/handlers/checklist.ts:59-72; scripts/verify-process-fact-contract.mjs:3180-3188). Verified with an isolated temp-root CLI repro using node packages/main/dist/cli.js: create INIT story with allowed scope \"INIT scope gate only\", run scope_freeze_check PASS, run KOALA_AGENT=koala-review-story-init story_update to retitle it \"Fix INIT scope gate and add native mobile app builder\", then rerun scope_freeze_check PASS. That leaves a reviewer/agent able to mix a future capability into current story title/description without any scope_extension_proposal or scope_extension_decide trail, contradicting the anti-expansion gate proposal-only invariant.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-13T02:29:34.832Z",
@@ -271,7 +271,9 @@
         "packages/main/src/core/scope-anti-expansion.ts",
         "packages/main/src/core/machine.ts",
         "scripts/verify-process-fact-contract.mjs"
-      ]
+      ],
+      "resolvedReason": "Fixed in 4cb942535: story_update now resolves agent/actor/KOALA_AGENT and blocks INIT reviewer/product-reviewer direct edits to story-level scope fields title/description/source/depends, requiring scope_extension_proposal instead. Scope smoke covers reviewer title/description/source blocks, allowed priority update, main-agent INIT story metadata update, and frozen-scope bypass prevention. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, node scripts/verify-process-fact-contract.mjs, npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:flow-stability-smoke, npm run test:runtime-fact-contract, npm test, and scope_contract_check warning-only after explicit story-query ack.",
+      "resolvedAt": "2026-06-13T02:35:56.808Z"
     }
   ]
 }
