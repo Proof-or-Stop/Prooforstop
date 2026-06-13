@@ -95,7 +95,7 @@
       "desc": "CHK-005:adversarial:2 verificationEvidence is hollow: ok() is called with literal `true` (line 107 of verify-b5773.mjs). Intent requires verifying that the merge rule and behavior-sensitive tagging coexist without conflict (if a row is in both systems, both annotations are present). The verifier performs no cross-check — unconditionally passes with note \"disjoint rows.\"",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T19:15:46.330Z",
@@ -104,7 +104,9 @@
       "_hash": "1e74371ec68a9b6c7cb7fc34bde8b53a741d7579b7d7f3a99347f0bbeda3b072",
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
-      ]
+      ],
+      "resolvedReason": "CHK-005:adversarial:2 now asserts wrapped-pair rows and behavior-sensitive rows are disjoint (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:26:00.828Z"
     },
     {
       "id": "B-5773:F-007",
