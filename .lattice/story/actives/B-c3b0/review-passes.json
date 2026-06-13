@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c3b0:RP-001",
+      "agent": "koala-review-docs",
+      "note": "PASS docs accuracy: docs/requirements/decisions/story-lifecycle.md:158 describes local post-DONE packages/main build after local main merge, watched runtime inputs, visible skip line, stale-dist recovery command, and captured output. Verified against packages/main/src/handlers/done-effects.ts:125,131,182,193,202 and packages/main/src/tasks/worktree-authority-smoke.ts:816,851; no remote publish/global install/manual git pull hook overclaim found.",
+      "createdAt": "2026-06-13T12:11:16.175Z",
+      "reviewRound": "2026-06-13T12:09:08.341Z",
+      "reviewRunId": "B-c3b0:RR-005",
+      "_hash": "58c363fa69ce936b4144d8f6fe0c6e0493462de5bc79ba4959785926b8e93d17"
+    }
+  ]
+}
