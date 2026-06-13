@@ -75,9 +75,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T12:06:34.249Z",
       "verificationIntent": {
         "happy": [
           {
@@ -100,7 +100,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke exercises the changed-path predicate for every watched runtime input.",
+          "headHash": "baf1842b6556b02f3c6b46ccbf582f3056e3a90d",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T12:06:34.301Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke exercises docs-only and unrelated package skip cases without invoking real npm.",
+          "headHash": "baf1842b6556b02f3c6b46ccbf582f3056e3a90d",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T12:06:34.330Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke stubs success and failure build runners, including recovery messaging, without remote or global install operations.",
+          "headHash": "baf1842b6556b02f3c6b46ccbf582f3056e3a90d",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T12:06:34.359Z"
+        }
+      ]
     }
   ]
 }
