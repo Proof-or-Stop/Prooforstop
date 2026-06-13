@@ -158,22 +158,22 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-status-smoke.js; reviewer off-mode repro projection",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-status-smoke.js && dual authority_status/conduit_status off-mode repro projection",
           "result": "pass",
-          "note": "Regression covers reviewer finding: mode=off performs zero trust-file/secret-file reads, leaves customerApiKeyConfigured=false and customerApiKeySource=missing, while trust file still works in enforce mode.",
-          "headHash": "d8e442ab77d089edcfa8b89020bf1868f2b12632",
-          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
-          "timestamp": "2026-06-13T12:54:30.615Z"
+          "note": "Regression covers second-review finding: both authority_status and conduit_status in mode=off perform zero authority_trust.env/secret-file reads while enforce trust-file readiness remains covered.",
+          "headHash": "0e644e8b7e1f6e47422265217fc3b9cae7ea37bc",
+          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
+          "timestamp": "2026-06-13T13:00:09.825Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/authority-status-smoke.js; reviewer off-mode repro projection",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js && dual authority_status/conduit_status off-mode repro projection",
           "result": "pass",
-          "note": "No-overclaim boundary remains intact after off-mode fix: productionDone=false and canClaimProductionDone=false in the repro and status smoke.",
-          "headHash": "d8e442ab77d089edcfa8b89020bf1868f2b12632",
-          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
-          "timestamp": "2026-06-13T12:54:30.615Z"
+          "note": "No-overclaim boundary remains intact for both status surfaces: productionDone=false and receiptVerified=false/canClaimProductionDone=false where exposed, with no Authority receipt claim from trust-file readiness.",
+          "headHash": "0e644e8b7e1f6e47422265217fc3b9cae7ea37bc",
+          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
+          "timestamp": "2026-06-13T13:00:09.825Z"
         }
       ]
     }
