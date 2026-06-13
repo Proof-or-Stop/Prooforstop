@@ -137,6 +137,16 @@
           "headHash": "ae1c08de4f114873af301b3c428ef9687dd553aa",
           "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
           "timestamp": "2026-06-13T01:45:22.433Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Aquinas + Nietzsche audit reports",
+          "result": "pass",
+          "note": "Both audits explicitly checked reviewer authority, self-signing, gate weakening, scope_contract_check confusion, and Authority overclaim; the only blocker was the invalid scope_check_save example schema, fixed in commit 9fa8ce5.",
+          "headHash": "f9e5e4cac152591e7a5d2694e6c9b2ceeed465e7",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:22.838Z"
         }
       ]
     },
