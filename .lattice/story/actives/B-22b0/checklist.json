@@ -42,7 +42,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "audit_only",
+          "command": "lattice story_get --storyId=B-12f3 --detail; lattice checklist_get --storyId=B-12f3; lattice summary_get --storyId=B-12f3; lattice test_list --storyId=B-12f3; lattice bug_list --storyId=B-12f3; lattice finding_list --storyId=B-12f3",
+          "result": "pass",
+          "note": "B-12f3 was inventoried only through Lattice read-only commands: story_get reports phase DONE, checklist_get shows CHK-001..CHK-004 done with recorded evidence, summary_get has accepted local outcome and explicit Authority limitation, test_list reports validation PASS with 12/12 verificationIntent coverage, and bug_list/finding_list are empty.",
+          "headHash": "26abb489e852b9df9ea7b8315ad3e789b4f14c25",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:32:55.858Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "audit_only",
+          "command": "lattice story_authority_resolve for B-12f3 with activeOnly=false; lattice done_closure --storyId=B-12f3 --json; redacted authority_status for B-12f3 DONE with LATTICE_AUTHORITY_TRUST_ENV_FILE",
+          "result": "pass",
+          "note": "The boundary is explicit: story_authority_resolve reports B-12f3 authoritativePhase=DONE on main while productionDone=false and receiptVerified=false; done_closure says local DONE readiness is not Authority DONE readiness and mayClaimAuthorityDone=false; redacted authority_status reports status=not-configured, receiptVerified=false, productionDone=false, canClaimProductionDone=false, and authority_receipt_missing.",
+          "headHash": "26abb489e852b9df9ea7b8315ad3e789b4f14c25",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:32:55.858Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "audit_only",
+          "command": "lattice story_authority_resolve for B-12f3 with activeOnly=false; redacted authority_status for B-12f3 DONE with LATTICE_AUTHORITY_TRUST_ENV_FILE",
+          "result": "pass",
+          "note": "No B-12f3 history was rewritten and no dry-run fail-closed evidence was promoted to Authority completion: story_authority_resolve is readOnly=true with authorityChanged=false, and authority_status says no new receipt is verified, no evidence is submitted, receiptVerified=false, productionDone=false.",
+          "headHash": "26abb489e852b9df9ea7b8315ad3e789b4f14c25",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:32:55.858Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
