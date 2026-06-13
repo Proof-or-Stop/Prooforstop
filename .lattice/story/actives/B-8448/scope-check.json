@@ -1,38 +1,38 @@
 {
   "storyId": "B-8448",
-  "checkedAt": "2026-06-13T13:17:43.081Z",
+  "checkedAt": "2026-06-13T13:19:05.155Z",
   "features": [
     {
-      "feature": "New execution document covers the requested packages/main/src/cli-engine.ts Chinese-to-English translation review table",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "Declared create path docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md is missing; .lattice/story/actives/B-8448/plan.md is also missing; rg found 762 Chinese-character lines in packages/main/src/cli-engine.ts, so there is no reviewable document coverage to validate."
+      "feature": "planned create path docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md covers reviewable cli-engine.ts English translation execution document",
+      "covered_by": "CHK-001 files.create names docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md; userSees requires the expected H1 and Translation Review Table; verificationIntent happy/edge covers English-only policy, staged migration plan, verification commands, reviewer workflow, and Chinese source to proposed English translation table.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "lattice checklist_get B-8448 CHK-001"
     },
     {
-      "feature": "Scope explicitly excludes modifying packages/main/src/cli-engine.ts source",
-      "covered_by": "CHK-001 context says not to change CLI source; files.modify is empty and files.test includes packages/main/src/cli-engine.ts only as review/verification input; adversarial verificationIntent says this documentation story does not modify packages/main/src/cli-engine.ts.",
+      "feature": "source implementation changes to packages/main/src/cli-engine.ts are excluded in this story",
+      "covered_by": "n/a",
       "status": "excluded",
-      "excluded_by": "lattice checklist_get B-8448 CHK-001 context and verificationIntent.adversarial[0]",
-      "source": "lattice checklist_get {storyId:B-8448}"
+      "excluded_by": "CHK-001 context says not to change CLI source; files.modify is empty; excludes explicitly says not to modify packages/main/src/cli-engine.ts; adversarial verificationIntent checks that the documentation story does not modify cli-engine.ts.",
+      "source": "lattice checklist_get B-8448 CHK-001"
     },
     {
-      "feature": "Scope explicitly excludes untracked docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md and .omx/docs/story/tests/fixtures",
-      "covered_by": "Partial only: CHK-001 adversarial verificationIntent excludes the existing untracked lattice-codex command boundary document.",
-      "status": "gap",
-      "excluded_by": "partial: docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md is excluded by CHK-001 adversarial verificationIntent",
-      "source": "No explicit PLAN scope evidence or execution document exclusion found for .omx/docs/story/tests/fixtures; target execution document is missing."
+      "feature": ".omx, docs/story, packages/main/tests/fixtures, and existing untracked lattice-codex command-boundary doc are excluded",
+      "covered_by": "n/a",
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes explicitly ban running/using .omx, direct docs/story or packages/main/tests/fixtures edits, and modifying docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md.",
+      "source": "lattice checklist_get B-8448 CHK-001"
     }
   ],
   "summary": {
     "total": 3,
-    "covered": 0,
-    "excluded": 1,
-    "gaps": 2,
+    "covered": 1,
+    "excluded": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "43445a9a13a6a60fd6e5951e85d4d85fb586c6425a476d05af02fa20182f5886",
+  "_hash": "16bc68d37c125663a67ab6d1282ebba5f470fc6203771e1a6a61330cb5e3e0b6",
   "openQuestions": []
 }
