@@ -214,6 +214,50 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "M668 and M669 are tagged with behavior-sensitive; requires test update marker in their proposedEnglish or a dedicated annotation column; WHY: these two rows are the known behavior-sensitive cases from context",
+            "type": "cli"
+          },
+          {
+            "desc": "a Behavior-sensitive rows subsection exists in the plan document listing all identified rows with their cli-engine.ts line references and the reason (regex/.test/.match over Chinese); WHY: context requires documenting the risk not just tagging",
+            "type": "cli"
+          },
+          {
+            "desc": "grep cli-engine.ts for all regex/.test/.match patterns that reference Chinese string literals -> every such occurrence has a corresponding M-row tagged behavior-sensitive; WHY: the full set must be identified not just M668/M669",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rows that use .test() or .match() but only on English strings or identifiers (not Chinese) are NOT tagged behavior-sensitive -> false positives excluded; WHY: over-tagging dilutes the signal",
+            "type": "cli"
+          },
+          {
+            "desc": "if additional behavior-sensitive rows beyond M668/M669 are found, they are all listed with line references and rationale; WHY: context says identify the full set, partial enumeration is a defect",
+            "type": "cli"
+          },
+          {
+            "desc": "behavior-sensitive rows are explicitly excluded from the CHK-002 glossary sweep (their proposedEnglish is not treated as ordinary prose translation); WHY: the plan execution order puts CHK-004 before CHK-002 precisely for this reason",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "attempt to apply the glossary sweep to a behavior-sensitive row (e.g. change a Chinese regex pattern in M668 proposedEnglish) -> the tag prevents this and the row retains its original code-aware translation; WHY: adversarial scenario where a bulk find-replace silently corrupts runtime code",
+            "type": "cli"
+          },
+          {
+            "desc": "the behavior-sensitive tag uses the exact string from the context (behavior-sensitive; requires test update) not a paraphrase -> grep-checkable marker; WHY: downstream automation or reviewers may grep for this exact string",
+            "type": "cli"
+          },
+          {
+            "desc": "762-row count and zero-Chinese-in-proposedEnglish invariants still hold after CHK-004 (behavior-sensitive rows are tagged but not deleted or merged); WHY: tagging must not break structural invariants",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
