@@ -18,6 +18,8 @@ import { createDoctorHandlers } from '../handlers/doctor.js';
 import { managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
 import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
+import { getGuardFailureReason } from '../core/machine.js';
+import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderCodexWrapperScript, renderKoalaBootstrapScript } from '../init-assets.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -889,7 +891,7 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(invalidVerificationIntent.status, 0, 'invalid nested verificationIntent enum should fail');
-  assert.match(invalidVerificationIntent.stderr, /parameter validation failed/);
+  assert.match(invalidVerificationIntent.stderr, /parameter validation failed|参数校验失败/);
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
@@ -907,8 +909,8 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(malformedJson.status, 0, 'malformed JSON body should fail');
-  assert.match(malformedJson.stderr, /JSON parse failed|JSON parse|Unexpected end of JSON input/);
-  assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON parse failed|JSON parse/);
+  assert.match(malformedJson.stderr, /JSON parse failed|JSON parse|Unexpected end of JSON input|JSON 解析失败/);
+  assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON parse failed|JSON parse|JSON 解析失败/);
   assert.equal(existsSync(join(malformedJsonCwd, '.lattice')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
@@ -920,7 +922,7 @@ try {
     const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
       commandResolver: () => localBin,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'project-local-package');
@@ -960,7 +962,7 @@ try {
     const report = runRuntimeEnvironmentChecks(latticeConflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
@@ -988,7 +990,7 @@ try {
     const report = runRuntimeEnvironmentChecks(conflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(conflictRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+      corePackageRoot: join(conflictRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
@@ -1268,6 +1270,58 @@ try {
   assert.notEqual(execFileSync('git', ['ls-files', '--', '.lattice/story/actives/B-demo/index.json'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should not untrack story evidence');
   assert.equal(execFileSync('git', ['ls-files', '--', '.lattice/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
   assert.equal(execFileSync('git', ['ls-files', '--', shellMetaArtifactPath], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack metacharacter runtime artifacts');
+
+  // B-50fb F-001: transition fallback must share the machine guard predicate,
+  // not getGuardFailureReason's human-facing renderer. The renderer currently
+  // falls through to null when PLAN→DEV config loading fails after parsing,
+  // while the guard is fail-closed. Runtimes without snapshot.can must
+  // therefore return false.
+  const transitionFallbackRoot = mkdtempSync(join(tmpdir(), 'koala-transition-fallback-'));
+  try {
+    resetConfigCache();
+    const store = new StoryStore(transitionFallbackRoot);
+    const storyId = 'B-transition-fallback';
+    const now = '2026-06-12T22:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'transition-fallback',
+      title: 'Transition fallback',
+      description: 'Synthetic story for PLAN to DEV guard fallback.',
+      type: 'chore',
+      phase: 'PLAN',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
+    });
+    writeFileSync(join(transitionFallbackRoot, 'lattice.config.json'), JSON.stringify({
+      storyDir: '.koala/story/actives',
+    }));
+    resetConfigCache();
+    const actorWithoutSnapshotCan = {
+      getSnapshot: () => ({ value: 'PLAN' }),
+    } as any;
+    assert.equal(
+      getGuardFailureReason(storyId, store, 'DEV', transitionFallbackRoot),
+      null,
+      'legacy guard-failure renderer still falls through on config-load failure',
+    );
+    assert.equal(
+      canSendStoryEvent(actorWithoutSnapshotCan, 'START', storyId, store, transitionFallbackRoot),
+      false,
+      'snapshot.can fallback must fail closed on PLAN→DEV config-load failure',
+    );
+    assert.throws(
+      () => assertStoryTransitionReachedTarget(storyId, 'START', 'DEV', 'PLAN'),
+      /did not reach requested phase DEV/,
+      'orchestrator must verify actor.send reached the requested target before writing DEV effects',
+    );
+    assert.equal(store.readStory(storyId).phase, 'PLAN');
+  } finally {
+    rmSync(transitionFallbackRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
   // The DEV->TEST koala validate gate was extracted into handlers/phase-gates.ts

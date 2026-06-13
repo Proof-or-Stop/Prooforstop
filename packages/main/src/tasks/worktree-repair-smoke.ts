@@ -2,13 +2,14 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readlinkSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo, StoryPhase } from '../core/types.js';
+import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -166,6 +167,35 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
   } finally {
     rmSync(root, { recursive: true, force: true });
     rmSync(outsideUserDir, { recursive: true, force: true });
+  }
+}
+
+function assertMixedCanonicalLegacyGlobalLinksAreRepaired(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-mixed-global-link-'));
+  try {
+    const globalRoot = join(root, 'global-node-modules');
+    const canonicalPath = join(globalRoot, '@lattice-agent', 'core');
+    const legacyPath = join(globalRoot, '@koala-agent', 'core');
+    const worktreePath = join(root, '.worktrees', 'B-mixed');
+    const mainPackagePath = join(root, 'packages', 'main');
+
+    mkdirSync(canonicalPath, { recursive: true });
+    mkdirSync(dirname(legacyPath), { recursive: true });
+    mkdirSync(worktreePath, { recursive: true });
+    mkdirSync(mainPackagePath, { recursive: true });
+    symlinkSync(worktreePath, legacyPath, 'dir');
+
+    const result = repairGlobalKoalaLinkBeforeWorktreeDelete(worktreePath, root, {
+      globalPackageRoot: globalRoot,
+    });
+
+    assert.equal(result.action, 'relinked');
+    assert.match(result.message, /@koala-agent\/core \(legacy fallback/);
+    assert.equal(lstatSync(canonicalPath).isDirectory(), true, 'canonical install should remain untouched when it is not the stale symlink');
+    assert.equal(lstatSync(legacyPath).isSymbolicLink(), true, 'legacy global package should remain a symlink after repair');
+    assert.equal(resolve(dirname(legacyPath), readlinkSync(legacyPath)), mainPackagePath);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 }
 
@@ -369,6 +399,7 @@ async function assertDoneRecoverRequiresBranchDoneState(): Promise<void> {
   }
 }
 
+assertMixedCanonicalLegacyGlobalLinksAreRepaired();
 await assertDoctorRepairCleansAndProtects();
 await assertStoryDiscardRepairsMissingRegistry();
 await assertDoctorDetectsPartialDoneAndRecoverRepairs();
