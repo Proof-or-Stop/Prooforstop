@@ -47,8 +47,10 @@ const CLASSIFIED_PATTERNS: RegExp[] = [
   /koala-agent/i,
   // Git commit message process tokens (exact prefix used in git log)
   /koala: from-draft|koala: INIT_CHECK|koala: record/,
-  // Explicit legacy alias annotations in source
-  /legacy.*koala|koala.*legacy|alias: koala|Lattice\/Koala|legacy alias/i,
+  // Explicit legacy alias annotations in source (narrow exact patterns only)
+  /alias: koala/i,
+  /Lattice\/Koala/,
+  /legacy alias/i,
   // LEGACY_KOALA_DIR constant
   /LEGACY_KOALA/,
   // Explicit legacy alias invocation contexts ("koala <cmd>", "koala lattice ...")
