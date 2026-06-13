@@ -99,8 +99,14 @@
       "endTime": null,
       "userSees": "User sees final audit line: \"B-12f3 Authority audit result: VERIFIED receiptId=<id>\" or \"B-12f3 Authority audit result: BLOCKED missing prerequisites; local DONE remains Non-authority\".",
       "files": {
-        "modify": [],
-        "create": [],
+        "modify": [
+          ".lattice/story/actives/B-22b0/checklist.json",
+          ".lattice/story/actives/B-22b0/process-events.jsonl"
+        ],
+        "create": [
+          ".lattice/story/actives/B-22b0/summary.json",
+          ".lattice/story/actives/B-22b0/delivery-check.json"
+        ],
         "test": []
       },
       "verificationIntent": {
