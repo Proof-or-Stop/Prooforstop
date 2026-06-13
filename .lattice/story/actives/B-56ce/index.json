@@ -4,7 +4,7 @@
   "title": "Improve CLI flow recovery diagnostics for validation, stale evidence, owner lease, delivery check, and Codex aliases",
   "description": "Fix verified CLI/process recovery UX gaps without weakening Lattice gates: timeout failures need explicit timeout/config guidance, stale verification evidence should explain hash binding drift and recovery commands, owner lease same-worktree cases need safer takeover guidance, delivery-check fallback wording must preserve reviewer signature boundaries, and unsupported lattice codex core-command namespace should suggest the ordinary lattice command. The fix must stay host-neutral and only address real correctness/flow recovery issues.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -68,6 +68,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-13T10:32:55.965Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:38:29.607Z",
       "branch": "story/B-56ce",
       "user": "Harmonygo",
       "agent": "main"
