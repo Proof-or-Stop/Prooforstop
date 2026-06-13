@@ -90,6 +90,23 @@
       "files": [
         "docs/guide-hooks.md"
       ]
+    },
+    {
+      "id": "B-3cca:F-006",
+      "desc": "F-004 fix is incomplete: docs/guide-hooks.md still presents Koala as current product wording in hook documentation, and the branding smoke only passes because the docs audit has broad allowlist entries for koala.config and .koala paths. Evidence: docs/guide-hooks.md:3 tells users to configure hooks in koala.config.json, docs/guide-hooks.md:91 and docs/guide-hooks.md:93 describe KOALA_COMMAND/KOALA_ROOT as koala command/project rather than Lattice, docs/guide-hooks.md:104 says health issues are appended to ~/.koala/health.jsonl, while packages/main/src/tasks/cli-engine-branding-smoke.ts:29 allows any koala.config line and packages/main/src/tasks/cli-engine-branding-smoke.ts:31 allows any .koala line. Repro: npm --prefix packages/main run test:cli-engine-branding-smoke passes with guide-hooks doc unclassified=0 despite these user-facing remnants.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T11:14:57.471Z",
+      "reviewRound": "2026-06-13T11:12:44.397Z",
+      "reviewRunId": "B-3cca:RR-011",
+      "_hash": "8adb98e1ce3f5fb6376b510bb56541268ec81200b89ac577b05b3af5f72150ae",
+      "files": [
+        "docs/guide-hooks.md",
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ]
     }
   ]
 }
