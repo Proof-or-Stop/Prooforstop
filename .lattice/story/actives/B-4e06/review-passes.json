@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T18:42:09.162Z",
       "reviewRunId": "B-4e06:RR-006",
       "_hash": "8ece11f621427c12ba3d19ab8ade2644b9ea5a4ac5354bcffe6805d1ae2e7307"
+    },
+    {
+      "id": "B-4e06:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept re-check: all 7 fixes verified clean. (1) VerificationIntentItem import gone from checklist.ts — type still legitimately lives in types.ts + verification.ts, no orphan. (2) actor param removed from both cli-engine schema and handler type signature; no residual reference in the repair function body. (3) Unreachable m[1]!==item.id guard absent from codebase. (4) storyRel containment guard added in worktree.ts dev_start: correct !storyRel||isAbsolute||split.includes(..) triple. (5) resolveBootstrapGitRoot reuses resolveStorySignedWorkspace exclusively — no second resolver; plain-repo falls through to getRepoRoot unchanged. (6) Synthesized intents priority=should confirmed at line 216; no priority=must path. (7) Missing-intent gate stays HARD (severity=blocker, never downgraded) with legacyEvidenceWithoutIntent flag + repairCommand additive. (8) Integration check legacy-evidence-no-intent in verify-story-review-structured-output.mjs asserts: legacyIssue present, severity===blocker, repairCommand===verification_intent_repair, message references repair command, plain-intent lane keeps generic blocker (no legacy flag), validate JSON surfaces legacyEvidenceWithoutIntent array. All field names match handler output. No concept deletion/replacement detected; no residual references.",
+      "createdAt": "2026-06-13T18:44:06.520Z",
+      "reviewRound": "2026-06-13T18:42:09.162Z",
+      "reviewRunId": "B-4e06:RR-005",
+      "_hash": "f65fc7dcfa513164eb3b6f6598da1769d644edf34c29522dc3c861816a4a4db1"
     }
   ]
 }
