@@ -10,7 +10,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Inspection output identifies story-review.ts as the missing_scope_check source, confirms scope_check_save exists, and shows Authority mode is not configured so Authority completion is blocked.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspection identifies the exact existing story_review missing_scope_check message source and existing scope_check_save command/help surfaces.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inspection distinguishes scope_check_save PLAN evidence from later scope_contract_check guards.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inspection records Authority readiness as not configured and does not claim Authority completion from local CLI evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

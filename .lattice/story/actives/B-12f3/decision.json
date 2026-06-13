@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Fix only the real PLAN blocker guidance issue.",
+    "Preserve reviewer-written scope evidence and existing gate semantics.",
+    "Keep local CLI Non-authority evidence separate from Authority Server receipt-backed completion."
+  ],
+  "drivers": [
+    "Operators misread missing_scope_check as a missing command or document-content issue.",
+    "story_review currently has the canonical blocker text and scope_check_save help omits the PLAN evidence relationship.",
+    "Authority mode is not configured locally, so any Authority completion claim must fail closed."
+  ],
+  "options": [
+    {
+      "name": "A: Narrow story_review message plus scope_check_save help and targeted smoke",
+      "pros": [
+        "Updates the exact surfaces where the operator sees the blocker and the command shape.",
+        "Keeps gate semantics unchanged.",
+        "Adds regression coverage for the wording and negative Authority/self-signing constraints."
+      ],
+      "cons": [
+        "Does not create a broad session assistant; only fixes this blocker path."
+      ]
+    },
+    {
+      "name": "B: Add a new recovery assistant command",
+      "pros": [
+        "Could centralize future recovery guidance."
+      ],
+      "cons": [
+        "Broader than the observed correctness issue.",
+        "Risks arbitrary optimization and new command surface without need."
+      ]
+    },
+    {
+      "name": "C: Auto-create scope-check.json when missing",
+      "pros": [
+        "Would make PLAN blocker disappear quickly."
+      ],
+      "cons": [
+        "Violates reviewer-written evidence boundary.",
+        "Weakens PLAN gate and enables self-signing, so it is not acceptable."
+      ]
+    }
+  ],
+  "chosen": "A: Narrow story_review message plus scope_check_save help and targeted smoke",
+  "rationale": "Choose the narrow canonical text/help/test change because it fixes the real actionability failure without weakening PLAN gates or inventing Authority proof.",
+  "preMortem": [
+    {
+      "scenario": "Message implies the main agent may create scope-check.json manually",
+      "trigger": "Wording says create or save scope-check without naming reviewer-written scope-plan evidence",
+      "consequence": "PLAN gate can be socially bypassed even if code does not auto-generate evidence",
+      "mitigation": "Wording must say scope-plan reviewer writes evidence via scope_check_save and tests assert no self-signing language."
+    },
+    {
+      "scenario": "Local CLI guidance is mistaken for Authority completion",
+      "trigger": "Text mentions Authority without receipt requirements",
+      "consequence": "User may believe local review pass equals production or Authority DONE",
+      "mitigation": "Wording and tests must keep receiptVerified/authorityDone/productionDone/fullAuthorityDone out of local guidance except as non-claims."
+    },
+    {
+      "scenario": "scope_contract_check is suggested as the fix",
+      "trigger": "Implementation reuses later-phase scope contract language for PLAN blocker",
+      "consequence": "Operator runs wrong command and still lacks scope-check.json",
+      "mitigation": "Message must identify scope-check.json and scope_check_save, and avoid scope_contract_check as missing_scope_check remediation."
+    }
+  ],
+  "timestamp": "2026-06-13T10:13:55.107Z"
+}
