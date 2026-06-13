@@ -4,11 +4,11 @@
   "title": "Plan missing_scope_check reviewer guidance ergonomics",
   "description": "Write and audit an execution plan for improving Lattice story_review missing_scope_check ergonomics so users are explicitly guided to run koala-review-scope-plan/scope_check_save when PLAN scope evidence is missing. Scope is documentation and implementation handoff only unless later executed by Lattice; do not change scope gate semantics, reviewer authority, or Authority Server claims.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-12T21:42:23.240Z",
   "startedAt": "2026-06-12T21:42:23.240Z",
-  "endedAt": null,
+  "endedAt": "2026-06-13T01:56:56.658Z",
   "events": [
     {
       "phase": "INIT",
@@ -60,12 +60,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-c384675aed2fe8c3",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T01:56:56.658Z",
+      "branch": "story/B-c251",
+      "user": "Harmonygo",
+      "sessionId": "sess-c384675aed2fe8c3",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c251",
-    "branch": "story/B-c251",
-    "createdAt": "2026-06-12T21:43:59.658Z"
-  },
   "currentReviewRound": "2026-06-13T01:46:56.490Z"
 }
