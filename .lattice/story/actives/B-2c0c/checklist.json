@@ -121,7 +121,30 @@
       "userSees": "Maintainers see host_verdict quorum described as a hard lifecycle gate, not advisory memory.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs check verifies story-lifecycle and lifecycle-gate receipt documentation state that changed decision docs require host_verdict quorum before DONE: three distinct rounds, at least two distinct passing hosts, and fresh material digest.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Logic or docs check verifies the process fact registry and verify-process-fact-contract script register the host_verdict quorum as a gate-consumed L4 workflow fact with the DONE gate consumer, while leaving runtime-only facts out of the process registry.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs/registry review rejects any implementation where host_verdict quorum is described only as advisory memory, prose evidence, or optional review guidance, or where the registry omits the signed/gate-consumed artifact semantics.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
