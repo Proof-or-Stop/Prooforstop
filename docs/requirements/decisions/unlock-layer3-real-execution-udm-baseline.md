@@ -567,6 +567,10 @@ Required fields:
     "canClaimProductionDone": false,
     "receiptRefs": []
   },
+  "higherLayerClaims": {
+    "productionSafetyClaim": "LOCKED",
+    "globalCapabilityClaim": "LOCKED"
+  },
   "childStories": [
     {
       "storyId": "<story-id>",
@@ -635,6 +639,8 @@ authority.multiHostVerified=false
 authority.productionDone=false
 authority.fullAuthorityDone=false
 authority.canClaimProductionDone=false
+higherLayerClaims.productionSafetyClaim=LOCKED
+higherLayerClaims.globalCapabilityClaim=LOCKED
 mappedBaselineIds contains all ten required UDM-* ids
 childStories covers every focused UDM-REAL-* scenario
 each child story has non-empty phase/review/verification/block refs as required by its scenario
@@ -675,6 +681,7 @@ fullAuthorityDone=true
 | Stale host verdict reused after repair | `BLOCKED` |
 | Any local artifact claims `authorityDone=true` or `multiHostVerified=true` | `FAIL` |
 | Any local artifact claims production authority | `FAIL` |
+| `productionSafetyClaim` or `globalCapabilityClaim` is missing or not `LOCKED` | `FAIL` |
 | Final wording claims production-grade | `FAIL` |
 
 ## 12. DONE Criteria
