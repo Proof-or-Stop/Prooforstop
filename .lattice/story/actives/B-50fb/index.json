@@ -4,7 +4,7 @@
   "title": "Rename npm package scope away from Koala",
   "description": "Rename the public npm package identity from @koala-agent/* to @lattice-agent/* so released package names no longer use Koala branding, while preserving existing koala CLI/runtime compatibility where needed as legacy aliases.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-12T20:35:00.897Z",
   "startedAt": "2026-06-12T20:35:00.897Z",
-  "endedAt": null,
+  "endedAt": "2026-06-13T01:51:28.333Z",
   "events": [
     {
       "phase": "INIT",
@@ -79,12 +79,15 @@
       "branch": "story/B-50fb",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T01:51:28.333Z",
+      "branch": "story/B-50fb",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-50fb",
-    "branch": "story/B-50fb",
-    "createdAt": "2026-06-12T20:36:50.443Z"
-  },
   "currentReviewRound": "2026-06-12T21:52:23.432Z"
 }
