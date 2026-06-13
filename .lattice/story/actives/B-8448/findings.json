@@ -53,6 +53,22 @@
       "files": [
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-8448:F-004",
+      "desc": "quality-cleanup: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md line 79 defines valid `surface` enum values as schema|command-description|help|error|hint|comment|other, but the TSV manifest (starting at line 359) uses `cli-output` as a surface value (28 rows: M671-M762 area) which is not in the defined enum. The values `error` and `hint` appear only in the T-table (not in the TSV). An implementer writing the extract script or validating manifest rows would encounter surface values not matching the documented enum.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T16:19:23.912Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-011",
+      "_hash": "9e73171d9eeeb2d699c6adadf2470f912d16dc1481684552e105eff79f168b41",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ]
     }
   ]
 }
