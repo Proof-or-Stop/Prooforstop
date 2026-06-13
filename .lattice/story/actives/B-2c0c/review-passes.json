@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-13T22:20:57.467Z",
       "reviewRunId": "B-2c0c:RR-002",
       "_hash": "fd962964fda58ca7c7b179077fc45e656dba7ae3aacf380bbb50820f3f6be259"
+    },
+    {
+      "id": "B-2c0c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: focused smoke covers no decision-doc changes, valid 3-round/2-host fresh-digest quorum, duplicate hosts, duplicate runIds, stale digest/prose-only ignored events, and non-pass decisions; live decision_doc_quorum_check reports pass for current changed decision docs with three fresh two-host rounds; process fact verifier pins decision_doc_quorum_check as read-only and autopilot_review_submit as L4 host-verdict gate evidence; command ownership contract passes for reviewerWrite/owner-lease boundaries. evidence_inspect still reports two older build evidence refs stale, but quorum/process-fact coverage refs and test-evidence material hashes are fresh.",
+      "createdAt": "2026-06-13T22:23:57.849Z",
+      "reviewRound": "2026-06-13T22:20:57.467Z",
+      "reviewRunId": "B-2c0c:RR-006",
+      "_hash": "d5197f53bfb2b2a3062a0194a1c6f566d7725dd32a0901ace9a365621fe0b0ac"
     }
   ]
 }
