@@ -45,9 +45,9 @@
           "command": "node bin/lattice-codex.js codex_doctor --help",
           "result": "pass",
           "note": "Help output resolves to lattice codex_doctor and states Alias: lattice codex doctor, confirming the documented local wrapper diagnostic uses the Codex adapter command.",
-          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:53.939Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -55,9 +55,9 @@
           "command": "node bin/lattice-codex.js verify_codex --help",
           "result": "pass",
           "note": "Help output resolves to lattice verify_codex and documents the optional storyId evidence argument, confirming the documented verification wrapper is valid.",
-          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:53.939Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,9 +66,9 @@
           "command": "rg -n lattice-codex docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
           "result": "pass",
           "note": "The bare doctor form is described only as known residual guidance to replace; accepted guidance and verification commands use node bin/lattice-codex.js codex_doctor / verify_codex.",
-          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:53.939Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         }
       ]
     },
@@ -128,9 +128,9 @@
           "command": "rg -n \"session_brief|aux_doc_list\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
           "result": "pass",
           "note": "The document includes session_brief and aux_doc_list in the workflow boundary table and forbidden Codex-prefixed namespace pattern, while the residual future-work paragraph now separately names README workflow-wrapper guidance for both commands.",
-          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:42.963Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,9 +139,9 @@
           "command": "rg -n \"story_|checklist_|validate|review_|finding_|summary_set|delivery_check_set|convergence_check\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
           "result": "pass",
           "note": "The document includes the broader host-neutral workflow families in the command-boundary table and forbidden Codex-prefixed namespace pattern, including story, checklist, validate, review, finding, summary, delivery, and convergence commands.",
-          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:42.963Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,9 +149,9 @@
           "command": "rg -n --hidden --glob \"!docs/story/**\" \"lattice-codex\\.js\\s+(session_brief|aux_doc_list|story_)\" README.md docs packages/main/src packages/main/dist .Codex .codex",
           "result": "pass",
           "note": "The refreshed scan, excluding docs/story per repository instruction, reports README workflow-wrapper guidance and src/dist adapter-check display-command hits. The decision doc now explicitly narrows this evidence by naming those residuals as future cleanup targets instead of claiming non-document targets are clean.",
-          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:42.963Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-002:fail_closed:codex_session_brief_transcript",
@@ -222,9 +222,9 @@
           "command": "rg -n lattice-codex-command-boundary docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV includes Lattice Codex Command Boundary Execution Plan with the correct decision document link.",
-          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:53.939Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -232,9 +232,9 @@
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l; rg -n ^\\>\\ 49\\ 个文件 docs/requirements/NAV.md",
           "result": "pass",
           "note": "The decisions markdown inventory is 49 files and NAV declares 49 files.",
-          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:53.939Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -243,9 +243,9 @@
           "command": "git show --format= --unified=3 e3d8360d3 -- docs/requirements/NAV.md",
           "result": "pass",
           "note": "The NAV material diff updates the count and adds missing decision entries; no existing decision entry is removed.",
-          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:53.939Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         }
       ]
     },
@@ -307,9 +307,9 @@
           "command": "node bin/lattice-codex.js codex_doctor --help; node bin/lattice-codex.js verify_codex --help; rg -n --hidden --glob \"!docs/story/**\" \"lattice-codex\\.js\\s+(session_brief|aux_doc_list|story_)\" README.md docs packages/main/src packages/main/dist .Codex .codex",
           "result": "pass",
           "note": "Fresh evidence records the allowed Codex adapter help checks and the residual workflow-wrapper scan used to review the document. codex_doctor and verify_codex help resolve to the supported adapter commands; the scan output is captured as residual future work rather than completed cleanup.",
-          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:42.963Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -318,9 +318,9 @@
           "command": "rg -n \"Workflow-wrapper guidance|Adapter-check display-command|future cleanup|node bin/lattice-codex\\.js (doctor|session_brief|aux_doc_list|story_create)\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
           "result": "pass",
           "note": "The delivery boundary now distinguishes document review completion from later README, init-asset, source, and dist cleanup by listing diagnostic, workflow-wrapper, and adapter-check display-command residuals as future cleanup targets.",
-          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:42.963Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -329,9 +329,9 @@
           "command": "rg -n \"full project convergence|production readiness|Authority readiness|unattended readiness\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
           "result": "pass",
           "note": "The no-overclaim boundary still says this document plan does not claim full project convergence, production readiness, Authority readiness, or unattended readiness.",
-          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
-          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
-          "timestamp": "2026-06-13T13:51:42.963Z"
+          "headHash": "a4cba24ebb2ebf00cb7d6edaeaa32988d965f80e",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:04:38.794Z"
         },
         {
           "intentRef": "CHK-004:fail_closed:codex_session_brief_transcript",
