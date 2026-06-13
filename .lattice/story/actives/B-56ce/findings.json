@@ -5,7 +5,7 @@
       "desc": "Coverage gap: several verificationIntent slots are recorded as covered, but the cited smoke tests do not assert the exact boundaries. CHK-001 edge: validation-protocol-smoke.ts:67-74 checks non-timeout failure status/code and lines 101-110 check the positive timeout diagnostic, but there is no assertion that non-timeout failures omit timeoutMs recovery guidance. CHK-002 adversarial: verification-freshness-smoke.ts:488-495 asserts the marker, hash-binding phrase, and recovery commands, but no test pins the required wording that stale evidence does not necessarily mean verification logic failed. CHK-004 edge: flow-stability-smoke.ts:2177-2205 covers the missing delivery-check fallback hint, but no smoke path exercises the existing delivery-check hash-mismatch or unverified docsPromise recovery branches in done-oracle.ts:467-487. CHK-005 edge: legacy-koala-compatibility-smoke.ts:170-204 covers codex doctor CLI and lines 215-222 cover unsupported session_brief/aux_doc_list suggestions, but there is no CLI assertion that lattice codex verify still resolves to verify_codex. Add focused assertions for these intent refs before the test-coverage lane passes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T10:28:52.671Z",
@@ -18,7 +18,9 @@
         "packages/main/src/tasks/flow-stability-smoke.ts",
         "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
         "packages/main/src/core/done-oracle.ts"
-      ]
+      ],
+      "resolvedReason": "Added focused smoke assertions for non-timeout validation failures, stale-evidence wording, delivery-check hash mismatch and unverified docsPromise hints, and codex verify alias help. Verified with npm --prefix packages/main run build, test:validation-protocol, test:verification-freshness-smoke, test:flow-stability-smoke, and test:legacy-koala-compatibility-smoke.",
+      "resolvedAt": "2026-06-13T10:33:02.637Z"
     }
   ]
 }
