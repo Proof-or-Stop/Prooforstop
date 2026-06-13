@@ -5,9 +5,9 @@
       "title": "Detect worktree-vs-mirror phase divergence in createHandoffPack and surface in handoff_create output",
       "context": "In createHandoffPack (core/lattice-handoff.ts) call resolveStoryAuthority(store, root, {storyIds:[storyId], activeOnly:false}); when a linked worktree exists and authoritativePhase !== mirrorPhase, attach an optional phaseAuthorityWarning {mirrorPhase, authoritativePhase, worktreePath, message} to the pack. Field MUST NOT be part of HandoffPackHashInput/computeHandoffPackHash so existing packHash values are unchanged; normalizeHandoffPack must preserve it. Resolver errors must be caught and treated as no-warning. Render a warning line in handoff_create text output and include the field in JSON output.",
       "userSees": "Running handoff_create for a story whose worktree is ahead prints a clear 'worktree phase X is ahead of packed mirror phase Y' warning; running it for an in-sync story prints no warning and produces an identical packHash to before.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T15:49:22.138Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:warn-on-divergence:0",
