@@ -200,6 +200,17 @@
           "headHash": "5f40bd57c8d9b5bfbd2310d5fbed044469f1a79b",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:23:03.394Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "command": "rg -n \"scope_contract_check\" packages/main/src/tasks/story-review-ergonomics-smoke.ts && node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes a negative assertion that missing_scope_check guidance does not point to scope_contract_check as remediation, and the smoke passes.",
+          "headHash": "f6fafaac7e2b898267999cbc1f487072af9502c8",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:10.291Z"
         }
       ]
     },
