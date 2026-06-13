@@ -156,7 +156,7 @@
       "desc": "docs/requirements/decisions/lifecycle-artifact-scope.md:80 says INIT scope anti-expansion commands may write scope-discard-digest.json, but the implemented/registered contract makes story_discard the producer and INIT_CHECK the consumer. Evidence: packages/main/src/core/process-fact-registry.ts:122-127 maps story_discard -> scope-discard-digest.json with consumerGate storyMachine.canEnterInitCheck; packages/main/src/core/lifecycle-registry.ts:398-400 says DISCARDED produces scope-discard-digest.json while INIT_CHECK consumes it at :374-377; packages/main/src/handlers/worktree.ts:568-600 records the digest during story_discard; packages/main/src/core/store.ts:529-565 merges digest entries from other DISCARDED stories for freeze evaluation. Update the docs to state story_discard produces the digest and INIT_CHECK consumes cross-DISCARDED story digests, rather than implying INIT scope commands write it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-13T01:53:55.505Z",
@@ -169,7 +169,9 @@
         "packages/main/src/core/lifecycle-registry.ts",
         "packages/main/src/core/store.ts",
         "packages/main/src/handlers/worktree.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in f889953: lifecycle-artifact-scope.md now states INIT scope commands write scope-boundary/execution-boundary/scope-freeze/scope-extension artifacts, while story_discard produces scope-discard-digest.json for the discarded story and INIT_CHECK/scope freeze consumes the current story digest plus entries from every DISCARDED story. Verified by node scripts/verify-process-fact-contract.mjs and docs review context.",
+      "resolvedAt": "2026-06-13T01:59:23.062Z"
     },
     {
       "id": "B-85ba:F-009",
