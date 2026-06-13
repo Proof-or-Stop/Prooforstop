@@ -51,9 +51,9 @@
           "command": "lattice story_get --storyId=B-12f3 --detail; lattice checklist_get --storyId=B-12f3; lattice summary_get --storyId=B-12f3; lattice test_list --storyId=B-12f3; lattice bug_list --storyId=B-12f3; lattice finding_list --storyId=B-12f3",
           "result": "pass",
           "note": "B-12f3 was re-inventoried through Lattice read-only commands after the evidence_inspect code change. It remains local lifecycle DONE; summary/test evidence exist; bug_list and finding_list are empty for B-12f3.",
-          "headHash": "2a4df2a8b379c49231abac34eb3143d65bde20b8",
-          "materialHash": "8d4eb9fe56c5e9cd2592008dc93e6a88f07ee51c3ce3f6aa3d199dfc3c55f485",
-          "timestamp": "2026-06-13T14:06:07.116Z"
+          "headHash": "c5692d75d7c640c7a335503e101371243425012d",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:33:14.679Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "command": "lattice story_authority_resolve --storyId=B-12f3 --activeOnly=false --json; lattice done_closure --storyId=B-12f3 --json; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3",
           "result": "pass",
           "note": "The refreshed boundary remains explicit: B-12f3 is local DONE, but Authority status still reports receiptVerified=false, productionDone=false, canClaimProductionDone=false, and authority_receipt_missing; local DONE is not Authority DONE.",
-          "headHash": "2a4df2a8b379c49231abac34eb3143d65bde20b8",
-          "materialHash": "8d4eb9fe56c5e9cd2592008dc93e6a88f07ee51c3ce3f6aa3d199dfc3c55f485",
-          "timestamp": "2026-06-13T14:06:07.116Z"
+          "headHash": "c5692d75d7c640c7a335503e101371243425012d",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:33:14.679Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "lattice story_authority_resolve --storyId=B-12f3 --activeOnly=false --json; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3",
           "result": "pass",
           "note": "No B-12f3 history was rewritten and no dry-run fail-closed evidence was promoted to Authority completion. Authority status still says no new receipt is verified, no evidence is submitted, receiptVerified=false, productionDone=false.",
-          "headHash": "2a4df2a8b379c49231abac34eb3143d65bde20b8",
-          "materialHash": "8d4eb9fe56c5e9cd2592008dc93e6a88f07ee51c3ce3f6aa3d199dfc3c55f485",
-          "timestamp": "2026-06-13T14:06:07.116Z"
+          "headHash": "c5692d75d7c640c7a335503e101371243425012d",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:33:14.679Z"
         }
       ]
     },
@@ -328,9 +328,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/lattice-evidence-smoke.js; node --input-type=module -e <B-22b0 evidence_inspect JSON semantic assertion>",
           "result": "pass",
           "note": "Build passed and lattice-evidence-smoke now asserts evidence_inspect JSON carries verificationEvidence result, verdict, note, and waiverType. The B-22b0 story projection check also found CHK-002:authority-proof-fail:status-policy with result=fail, verdict=blocked_classified, and a note.",
-          "headHash": "2a4df2a8b379c49231abac34eb3143d65bde20b8",
-          "materialHash": "8d4eb9fe56c5e9cd2592008dc93e6a88f07ee51c3ce3f6aa3d199dfc3c55f485",
-          "timestamp": "2026-06-13T14:06:07.116Z"
+          "headHash": "c5692d75d7c640c7a335503e101371243425012d",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:33:14.679Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -339,9 +339,9 @@
           "command": "node packages/main/dist/tasks/lattice-evidence-smoke.js; node --input-type=module -e <B-22b0 evidence_inspect JSON semantic assertion>",
           "result": "pass",
           "note": "Targeted smoke seeds a custom failed proof ref with result=fail/verdict=blocked_classified/note and a waiver ref with kind=waiver/result=pass/waiverType=permanent; the real B-22b0 JSON projection preserves the same distinction for failed Authority proof and waiver refs.",
-          "headHash": "2a4df2a8b379c49231abac34eb3143d65bde20b8",
-          "materialHash": "8d4eb9fe56c5e9cd2592008dc93e6a88f07ee51c3ce3f6aa3d199dfc3c55f485",
-          "timestamp": "2026-06-13T14:06:07.116Z"
+          "headHash": "c5692d75d7c640c7a335503e101371243425012d",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:33:14.679Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -350,9 +350,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/lattice-evidence-smoke.js; node --input-type=module -e <B-22b0 evidence_inspect JSON semantic assertion>",
           "result": "pass",
           "note": "The fix only extends the read-only evidence projection. Smoke assertions continue to require authorityChanged=false, productionDone=false, receiptRefsVerified=false, and guidance-only refresh behavior; no receipts are minted and blocked proof is not converted into passing Authority proof.",
-          "headHash": "2a4df2a8b379c49231abac34eb3143d65bde20b8",
-          "materialHash": "8d4eb9fe56c5e9cd2592008dc93e6a88f07ee51c3ce3f6aa3d199dfc3c55f485",
-          "timestamp": "2026-06-13T14:06:07.116Z"
+          "headHash": "c5692d75d7c640c7a335503e101371243425012d",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:33:14.679Z"
         }
       ]
     }
