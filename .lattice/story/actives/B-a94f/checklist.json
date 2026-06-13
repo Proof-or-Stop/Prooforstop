@@ -8,9 +8,9 @@
         "docs/requirements/decisions/lattice-authority-live-integration.md",
         "AGENTS.md#流程事实双层契约"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T12:46:43.574Z",
-      "endTime": null,
+      "endTime": "2026-06-13T12:47:12.666Z",
       "userSees": "用户运行 `lattice authority_status --authorityMode=enforce --json` 后能看到：`\"baseURLConfigured\": true`、`\"customerApiKeyConfigured\": true`、`\"urlSource\": \"authority_trust_env\"`；如果显式导出 URL/key，则输出仍使用显式配置。",
       "files": {
         "modify": [
@@ -196,6 +196,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation committed; recording lifecycle state before evidence closure."
+    },
+    {
+      "timestamp": "2026-06-13T12:47:12.666Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation, commit, and verification evidence completed."
     }
   ]
 }
