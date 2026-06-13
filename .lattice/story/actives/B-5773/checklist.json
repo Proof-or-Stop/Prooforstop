@@ -72,6 +72,74 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "count TSV manifest rows M001..M762 -> exactly 762 data rows present (762<->762 invariant preserved); WHY: the cardinal invariant that no rows were added or dropped during the sweep",
+            "type": "cli"
+          },
+          {
+            "desc": "grep all proposedEnglish fields for Chinese characters (CJK Unicode range) -> zero matches; WHY: zero-Chinese-in-proposedEnglish is a hard constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for deprecated term finding item in proposedEnglish columns -> zero occurrences replaced by finding; WHY: suggestion #17 requires dropping finding item",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for source of truth (hyphenated or spaced) in proposedEnglish -> all occurrences use source of truth not truth source; WHY: suggestion #8 unification",
+            "type": "cli"
+          },
+          {
+            "desc": "T-table entries for terms modified in the manifest agree with their M-row twins (spot-check at least 5 T/M pairs); WHY: T/M twin consistency is the F-005 lesson explicitly called out in context",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M272/M286/M290/M302/M305 all use Emit JSON (not Output JSON or Print JSON) -> exact verb unification per suggestion #5; WHY: partial unification (4 of 5 rows changed) would be a defect",
+            "type": "cli"
+          },
+          {
+            "desc": "M019/M177/M185 use Command to run and their paired result fields use Command result -> input/output field naming per suggestion #6; WHY: these are paired concepts that must use paired terms",
+            "type": "cli"
+          },
+          {
+            "desc": "M076/M086/M225/M236/M241 use Recorded by or Actor consistently -> suggestion #7 unification; WHY: mixed usage across these 5 rows would be inconsistent",
+            "type": "cli"
+          },
+          {
+            "desc": "M586/M588 use prevent self-approval/self-waiver -> suggestion #9 specific wording; WHY: security-critical wording must be exact",
+            "type": "cli"
+          },
+          {
+            "desc": "M747/M751 capitalize Git (product name) not git (command) in prose context -> suggestion #14; WHY: Git vs git distinction is in the glossary",
+            "type": "cli"
+          },
+          {
+            "desc": "M036-M053 (reflection loop) use iteration not round -> suggestion #16 unification across an 18-row range; WHY: range sweep must not miss interior rows",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "introduce a phantom 763rd row by appending a line after M762 and verify the 762-count check catches it -> confirms the invariant check is real not vacuous; WHY: adversarial test that the verification itself works",
+            "type": "cli"
+          },
+          {
+            "desc": "search for any proposedEnglish cell that still contains truth source or round (in iteration context) or finding item -> stale deprecated terms surviving the sweep; WHY: adversarial sweep for missed replacements",
+            "type": "cli"
+          },
+          {
+            "desc": "verify no M-row proposedEnglish contains a code identifier that was accidentally translated (e.g. realMachineTests must not become real-machine-tests in a code-reference context, command names like story_start must not be translated); WHY: the preserve-identifiers rule must survive a bulk sweep",
+            "type": "cli"
+          },
+          {
+            "desc": "for every T-table entry modified by CHK-002, confirm the corresponding M-row(s) also reflect the change and vice versa -> no orphaned T-table or M-row edits; WHY: adversarial check for one-sided edits that break T/M twin consistency",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
