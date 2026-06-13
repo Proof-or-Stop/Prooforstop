@@ -48,7 +48,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Document review shows the forbidden guidance scan covers the full host-neutral workflow command boundary, not only session recovery and document discovery.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The forbidden guidance scan includes session_brief and aux_doc_list.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The forbidden guidance scan also includes story, checklist, validate, review, finding, summary, delivery, and convergence workflow families.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Repository scan only reports negative smoke-test assertions for forbidden Codex-prefixed workflow commands, not business guidance in docs or templates.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
