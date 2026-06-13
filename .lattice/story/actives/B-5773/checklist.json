@@ -155,6 +155,50 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "measure character length of proposedEnglish for every command-description row -> none exceeds 80 characters (or a stated threshold); the previously-longest row (218 chars) is now under the limit; WHY: the core deliverable is shortening over-long descriptions",
+            "type": "cli"
+          },
+          {
+            "desc": "specifically check M215/M339/M543/M650/M655 proposedEnglish are shortened to imperative verb + sentence case + no final period format; WHY: these 5 rows are explicitly named in context as must-shorten",
+            "type": "cli"
+          },
+          {
+            "desc": "the shortened rows still convey the original command purpose (not just truncated mid-sentence); each begins with an imperative verb; WHY: shortening must not destroy meaning",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rows at exactly the length threshold (e.g. 79 or 80 chars) are left alone and not over-shortened to trivial stubs; WHY: boundary condition -- only over-long rows should be shortened",
+            "type": "cli"
+          },
+          {
+            "desc": "the detailed rules removed from command descriptions appear in a schema/longHelp note or annotation (not simply deleted); WHY: context says rules move to schema/longHelp, not disappear",
+            "type": "cli"
+          },
+          {
+            "desc": "command-description rows that were already short (median 70 chars) are unchanged by CHK-003; diff shows no edits to rows under threshold; WHY: over-zealous shortening of already-good rows is scope creep",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "762-row count is still exactly 762 after CHK-003 edits -> shortening did not accidentally delete or merge rows; WHY: row-count invariant must survive every checklist item",
+            "type": "cli"
+          },
+          {
+            "desc": "no proposedEnglish in shortened rows contains Chinese characters -> zero-Chinese invariant after edits; WHY: shortening might introduce Chinese if copy-pasting from source column",
+            "type": "cli"
+          },
+          {
+            "desc": "T-table entries corresponding to the 5 shortened command-description rows (if any) still match their M-row twins after shortening; WHY: adversarial check that CHK-003 edits did not break T/M consistency established by CHK-002",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
