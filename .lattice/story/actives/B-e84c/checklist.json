@@ -88,7 +88,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Document review shows the new decision document is listed in requirements navigation and the NAV count matches the decision file inventory.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/NAV.md includes the Lattice Codex Command Boundary Execution Plan entry.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV file count equals the number of markdown files in docs/requirements/decisions.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The NAV update does not delete existing decision entries while adding the missing document entry.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
