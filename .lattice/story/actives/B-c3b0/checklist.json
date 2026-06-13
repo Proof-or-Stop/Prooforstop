@@ -40,9 +40,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after adding post-DONE build hook.",
-          "headHash": "6bfd33a5b8b8709bb5d84e3b4bffee9126e2a190",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:43.400Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke asserts docs-only changes skip packages/main build and DONE output includes a visible skip line.",
-          "headHash": "6bfd33a5b8b8709bb5d84e3b4bffee9126e2a190",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:43.443Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -60,9 +60,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke asserts packages/main/package.json, packages/main/tsconfig.json, root package.json, package-lock.json, and packages/main/src/** trigger the build predicate.",
-          "headHash": "6bfd33a5b8b8709bb5d84e3b4bffee9126e2a190",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:43.488Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Stubbed success branch returns visible refreshed line naming npm --prefix packages/main run build.",
-          "headHash": "45796a50806ecb4953218a4306dd6e5ac5402bde",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:34.636Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -116,9 +116,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Stubbed skip branch does not invoke the build runner and reports no stale-dist guidance.",
-          "headHash": "45796a50806ecb4953218a4306dd6e5ac5402bde",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:34.669Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -126,9 +126,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Stubbed non-zero build branch throws with dist may be stale, recovery command, stdout, and stderr.",
-          "headHash": "45796a50806ecb4953218a4306dd6e5ac5402bde",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:34.698Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         }
       ]
     },
@@ -172,9 +172,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke exercises the changed-path predicate for every watched runtime input.",
-          "headHash": "baf1842b6556b02f3c6b46ccbf582f3056e3a90d",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:34.301Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -182,9 +182,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke exercises docs-only and unrelated package skip cases without invoking real npm.",
-          "headHash": "baf1842b6556b02f3c6b46ccbf582f3056e3a90d",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:34.330Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -192,9 +192,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke stubs success and failure build runners, including recovery messaging, without remote or global install operations.",
-          "headHash": "baf1842b6556b02f3c6b46ccbf582f3056e3a90d",
-          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
-          "timestamp": "2026-06-13T12:06:34.359Z"
+          "headHash": "7156851382d0f001d41c0aa78d77ef1c20e41990",
+          "materialHash": "01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c",
+          "timestamp": "2026-06-13T12:08:31.267Z"
         }
       ]
     }
