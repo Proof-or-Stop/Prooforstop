@@ -1,0 +1,35 @@
+{
+  "storyId": "B-6493",
+  "name": "handoff-phase-authority-warning",
+  "title": "handoff_create warns when worktree phase is ahead of packed mirror phase",
+  "description": "Add a non-fatal, non-hashed phaseAuthorityWarning to handoff packs (computed via resolveStoryAuthority) and surface it in handoff_create and handoff_inspect output when a linked worktree's authoritative phase is ahead of the packed main-mirror phase. Do NOT change recoveryPoint semantics or packHash.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-06-13T15:34:17.591Z",
+  "startedAt": "2026-06-13T15:34:17.591Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-13T15:34:17.591Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-13T15:37:27.379Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6493",
+    "branch": "story/B-6493",
+    "createdAt": "2026-06-13T15:37:28.134Z"
+  }
+}
