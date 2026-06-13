@@ -4,7 +4,7 @@
   "title": "handoff_create warns when worktree phase is ahead of packed mirror phase",
   "description": "Add a non-fatal, non-hashed phaseAuthorityWarning to handoff packs (computed via resolveStoryAuthority) and surface it in handoff_create and handoff_inspect output when a linked worktree's authoritative phase is ahead of the packed main-mirror phase. Do NOT change recoveryPoint semantics or packHash.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "createdAt": "2026-06-13T15:34:17.591Z",
   "startedAt": "2026-06-13T15:34:17.591Z",
@@ -38,6 +38,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-13T15:49:57.792Z",
+      "branch": "story/B-6493",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T15:55:44.383Z",
       "branch": "story/B-6493",
       "user": "Harmonygo",
       "agent": "main"
