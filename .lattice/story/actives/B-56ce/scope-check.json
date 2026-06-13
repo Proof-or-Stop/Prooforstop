@@ -1,0 +1,59 @@
+{
+  "storyId": "B-56ce",
+  "checkedAt": "2026-06-13T10:11:09.745Z",
+  "features": [
+    {
+      "feature": "validation timeout recovery diagnostics",
+      "covered_by": "CHK-001; packages/main/src/core/validation-executor.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get#CHK-001 and dispatch CHK-001"
+    },
+    {
+      "feature": "stale verification evidence hash-binding recovery",
+      "covered_by": "CHK-002; packages/main/src/core/evidence-stale-hint.ts",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "dispatch CHK-002 expects packages/main/src/tasks/verification-freshness-smoke.ts, but plan Validation Checklist omits that targeted smoke"
+    },
+    {
+      "feature": "same-worktree owner lease recovery guidance",
+      "covered_by": "CHK-003; packages/main/src/core/story-owner-lease.ts; packages/main/src/handlers/session.ts; packages/main/src/tasks/story-owner-lease-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get#CHK-003 and dispatch CHK-003"
+    },
+    {
+      "feature": "delivery-check fallback provenance boundary",
+      "covered_by": "CHK-004; packages/main/src/core/done-oracle.ts; packages/main/src/handlers/transition-effects.ts; packages/main/src/tasks/flow-stability-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get#CHK-004 and dispatch CHK-004"
+    },
+    {
+      "feature": "unsupported codex core-command namespace suggestions",
+      "covered_by": "CHK-005; packages/main/src/cli-engine.ts; packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get#CHK-005 and dispatch CHK-005"
+    },
+    {
+      "feature": "mechanical scope contract allowed/protected/excluded files",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "scope_contract_show: Scope contract not configured"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "1127fae8920cdd02c2abc1958a5d8c878a9b95ea14d2f910c1f75679153a7072",
+  "openQuestions": []
+}
