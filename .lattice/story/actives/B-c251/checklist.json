@@ -116,7 +116,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "multi_agent_v1 audits: Aquinas + Nietzsche over docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Two independent host-style audit reports reviewed the same draft artifact. Both returned BLOCKED on the same real schema issue in the scope_check_save example, with no other blockers.",
+          "headHash": "9fa8ce5812f50ae4507e794eff88c3707f09342f",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:21.905Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
