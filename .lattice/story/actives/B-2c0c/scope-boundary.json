@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2c0c",
+  "mode": "custom",
+  "allowed": [
+    "Add a hard DONE preflight gate when current story diff changes docs/requirements/decisions/*.md",
+    "Add focused tests and process fact registration for the gate",
+    "Expose clear CLI diagnostics for missing/stale/insufficient quorum",
+    "Require host verdict material digest freshness against current changed decision-doc material",
+    "Require three rounds with at least two independent PASS host_verdict events per round",
+    "Update directly relevant lifecycle/decision docs"
+  ],
+  "excluded": [
+    "Do not auto-spawn external hosts",
+    "Do not broaden into unrelated docs navigation cleanup",
+    "Do not change unrelated review-pass lanes",
+    "Do not require Authority server receipts for this local gate",
+    "Do not rewrite historical B-4e06 metadata",
+    "Do not touch OMX or .omx"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User approved converting the 3-round 2-host decision-doc verification discipline into a hard gate after B-4e06.",
+  "createdAt": "2026-06-13T21:56:57.170Z",
+  "updatedAt": "2026-06-13T21:56:57.170Z",
+  "_hash": "c3fe5f4af12323529784dbfb8bfc835d5d422359bbd3f9da23340d4d4e5d6ffd"
+}

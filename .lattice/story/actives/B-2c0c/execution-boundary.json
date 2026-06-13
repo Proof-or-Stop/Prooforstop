@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2c0c",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "jq *",
+    "lattice *",
+    "node packages/main/dist/*.js *",
+    "node scripts/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test*",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "functions.apply_patch",
+    "functions.exec_command",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Limit implementation to Lattice CLI source, tests/scripts, process contracts, and relevant decision docs.",
+  "createdAt": "2026-06-13T21:56:57.170Z",
+  "updatedAt": "2026-06-13T21:56:57.170Z",
+  "_hash": "5be7a79aab22b4e8bc6e690c86ef2abbbf13d16b6b4c511318a288fbd793ffc9"
+}
