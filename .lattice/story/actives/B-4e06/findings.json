@@ -99,7 +99,7 @@
       "desc": "quality-cleanup: worktree.ts:759 storyRel computation lacks the path-escape containment guard that cli-engine.ts:3334 has (`isAbsolute(storyRelRaw) || storyRelRaw.split(/).includes(..)` check). Both use the same realpath-then-relative pattern; cli-engine.ts throws a clear diagnostic if story metadata escapes the git root, but worktree.ts passes the potentially-escaped path to createScopedStoryBootstrapCommit which relies on git to reject it with an opaque error. Low probability (gitRoot validation happens upstream) but asymmetric defensiveness between the two call sites of the same pattern",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-13T18:33:40.322Z",
@@ -109,7 +109,9 @@
       "files": [
         "packages/main/src/handlers/worktree.ts",
         "packages/main/src/cli-engine.ts"
-      ]
+      ],
+      "resolvedReason": "Added the storyRel isAbsolute/.. containment guard in worktree.ts dev_start, matching the cli-engine reconcile guard. commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:34.254Z"
     },
     {
       "id": "B-4e06:F-007",
