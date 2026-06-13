@@ -125,23 +125,23 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "docs/guide-hooks.md",
-          "command": "rg -n \"Koala|koala|@koala\" docs/guide-hooks.md packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "command": "rg -n 'legacy\\.\\*koala|koala\\.\\*legacy|koala 命令|koala 项目|koala Hooks|koala doctor|koala session_brief|koala-hook' docs/guide-hooks.md packages/main/src/tasks/cli-engine-branding-smoke.ts packages/main/src/core/hooks.ts packages/main/src/cli-engine.ts",
           "result": "pass",
-          "note": "F-004 fixed by commit ce395d900: user-facing hook guide title, intro, init text, session_brief/doctor commands, state wording, and self-observation prose now use Lattice/lattice; remaining koala hits are explicit compatibility/config/env/path/example tokens such as koala.config.json, KOALA_ variables, .koala health/activity paths, and a legacy alias note.",
-          "headHash": "2cbcbd4405ce86ffc51c783176b09fcd4053aee9",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:12:21.564Z"
+          "note": "F-005/F-006 fixed in commit 9d25478e0: hook guide now presents lattice.config.json as current config, describes koala.config.json only as legacy fallback, rewrites KOALA_COMMAND/KOALA_ROOT as legacy env var names for current Lattice command/project root, and uses lattice examples/debug paths.",
+          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:22:23.371Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
-          "command": "git show --patch --stat 202077355",
+          "command": "code inspection after 9d25478e0",
           "result": "pass",
-          "note": "F-003 fixed by commit 202077355: removed broad legacy.*koala/koala.*legacy line-level allowlist and replaced it with exact patterns only: alias: koala, Lattice/Koala, legacy alias.",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "note": "F-006/F-007 false negative fixed: smoke no longer uses whole-line CLASSIFIED_PATTERNS for /KOALA_/, /koala.config/, or /.koala/; it strips exact neutral compatibility tokens and then fails if any koala/Koala text remains.",
+          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:22:23.371Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -207,31 +207,30 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Build passed after narrowing legacy allowlist; tsc exit 0.",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "note": "Build passed after hook guide and strict branding smoke changes.",
+          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:22:23.371Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
-          "note": "Branding smoke now audits guide-hooks doc in addition to cli-engine src/dist and hooks src/dist; output reports guide-hooks doc unclassified=0.",
-          "headHash": "2cbcbd4405ce86ffc51c783176b09fcd4053aee9",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:12:21.564Z"
+          "note": "Strict branding smoke passed: cli-engine src=0, cli-engine dist=0, hooks src=0, hooks dist=0, guide-hooks doc=0. The scanner now catches bad lines like KOALA_COMMAND plus current-product koala wording.",
+          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:22:23.371Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
           "command": "node scripts/verify-process-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
           "result": "pass",
-          "note": "Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified.",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "note": "Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified after strict smoke changes.",
+          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:22:23.371Z"
         }
       ]
     },
@@ -298,11 +297,12 @@
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
+          "command": "claude -p --model sonnet --agent koala-implementer ... (second attempt); manual integration commit 9d25478e0",
           "result": "pass",
-          "note": "Session used forceTakeover to recover stale lease from previous interrupted session (sess-bc4bd082f0301eed). All writes confirmed via lattice CLI audit trail in process-events.jsonl.",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "note": "Second Claude CLI koala-implementer attempt started with lattice session_brief but became nonresponsive before business edits; Codex interrupted it, applied the narrow F-005/F-006/F-007 integration patch, and committed transparently as 9d25478e0 rather than pretending it was Claude-authored.",
+          "headHash": "9b02fdbec8687ed87d2abcd5794241b600c87067",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:22:23.371Z"
         }
       ]
     }
