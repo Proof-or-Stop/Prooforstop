@@ -46,9 +46,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Smoke covers changed decision docs with three distinct runId rounds, two distinct PASS hostId values per round, and current decision-doc materialDigest; detector ok=true and DONE guard consumes it.",
-          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:06.577Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -56,9 +56,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Smoke covers no docs/requirements/decisions/*.md change against main...HEAD; report applicable=false and ok=true, so DONE is not blocked.",
-          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:06.619Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Smoke covers duplicate hosts, duplicate run IDs, stale materialDigest, non-pass decisions, and prose-only review_pass events; all are ignored or invalid and cannot satisfy quorum.",
-          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:06.656Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-001:happy:0",
@@ -123,9 +123,9 @@
           "command": "node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c",
           "result": "pass",
           "note": "CLI diagnostic reports Decision-doc quorum: pass with materialDigest 087220014eccdb09f154f1c199329fe53ddb7bb792d10b2eb337a90b9c766be3 and valid rounds decision-doc-round-1/2/3, each with 2 hosts.",
-          "headHash": "9574d5ac6a0f16f470ce2b15b91e7e497618b81f",
-          "materialHash": "0a78c3eaa727195f65aa7f1a760c526f63ae838aad7134bfc4c014a25890a670",
-          "timestamp": "2026-06-13T22:18:48.001Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -133,9 +133,9 @@
           "command": "node packages/main/dist/cli.js decision_doc_quorum_check --storyId=B-2c0c --json before host_verdict quorum was recorded",
           "result": "pass",
           "note": "Earlier CLI diagnostic for the same changed decision docs returned ok=false, validRounds 0/3, missing rounds 3, and listed changed decision docs plus current materialDigest, proving incomplete quorum states are pinpointed without source inspection.",
-          "headHash": "9574d5ac6a0f16f470ce2b15b91e7e497618b81f",
-          "materialHash": "0a78c3eaa727195f65aa7f1a760c526f63ae838aad7134bfc4c014a25890a670",
-          "timestamp": "2026-06-13T22:18:48.001Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -143,9 +143,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Smoke covers prose-only review_pass events, stale materialDigest, duplicate hosts, duplicate run IDs, and non-pass decisions; formatter reports ignored events/materialDigest mismatch instead of accepting them as quorum.",
-          "headHash": "9574d5ac6a0f16f470ce2b15b91e7e497618b81f",
-          "materialHash": "0a78c3eaa727195f65aa7f1a760c526f63ae838aad7134bfc4c014a25890a670",
-          "timestamp": "2026-06-13T22:18:48.001Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         }
       ]
     },
@@ -190,9 +190,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Focused smoke passes valid 3-round/2-host/fresh-digest quorum and no decision-doc-change not-applicable path.",
-          "headHash": "6be2bdebd89cef0a0a11cb7817d27e92831c2e17",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:14.702Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -200,9 +200,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Focused smoke covers insufficient hosts, insufficient rounds via duplicate runId, and stale materialDigest as blocking states with structured diagnostics.",
-          "headHash": "6be2bdebd89cef0a0a11cb7817d27e92831c2e17",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:14.740Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -210,9 +210,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Focused smoke would fail if duplicate hosts, duplicate rounds, stale digests, non-pass decisions, or prose-only review_pass evidence were accepted as host_verdict quorum.",
-          "headHash": "6be2bdebd89cef0a0a11cb7817d27e92831c2e17",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:14.778Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
@@ -268,9 +268,9 @@
           "command": "rg -n \"3 distinct review rounds|2 distinct PASSing hosts|fresh material digest|Authority Server receipt completion|decision_doc_quorum_check|autopilot_review_submit|host_verdict\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
           "result": "pass",
           "note": "Docs state changed decision docs require three distinct rounds, at least two distinct PASSing hosts per round, fresh material digest, and separate local quorum from Authority receipt completion.",
-          "headHash": "d6b835d186e9e648a6c1d7636bba4819b7636cde",
-          "materialHash": "54d66b48f2c9e9f3f302e9a086cf0e55001755ea6b51ed45468e9a5f1f2022eb",
-          "timestamp": "2026-06-13T22:12:30.771Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -278,9 +278,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact verifier asserts decision_doc_quorum_check is read-only L0 and autopilot_review_submit is L4 host-verdict gate evidence consumed by the local decision-doc quorum DONE gate.",
-          "headHash": "d6b835d186e9e648a6c1d7636bba4819b7636cde",
-          "materialHash": "54d66b48f2c9e9f3f302e9a086cf0e55001755ea6b51ed45468e9a5f1f2022eb",
-          "timestamp": "2026-06-13T22:12:30.800Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -288,9 +288,9 @@
           "command": "rg -n \"autopilot_review_submit|host-verdict|host_verdict|decision-doc quorum.*DONE|DONE.*decision-doc quorum\" packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Registry and verifier reject advisory/prose-only drift by requiring host-verdict, execution-evidence, gate-evidence semantics and a DONE gate consumer while preserving the Authority no-overclaim boundary.",
-          "headHash": "d6b835d186e9e648a6c1d7636bba4819b7636cde",
-          "materialHash": "54d66b48f2c9e9f3f302e9a086cf0e55001755ea6b51ed45468e9a5f1f2022eb",
-          "timestamp": "2026-06-13T22:12:30.828Z"
+          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
+          "timestamp": "2026-06-13T22:19:55.404Z"
         }
       ]
     }
