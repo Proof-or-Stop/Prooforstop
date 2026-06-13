@@ -6,7 +6,8 @@
     "Existing autopilot_review_submit writes type=host_verdict events into process-events.jsonl with runId, hostId, provider, decision, and materialDigest.",
     "DONE transition is guarded by canFinishGuard/getGuardFailureReason in packages/main/src/core/machine.ts.",
     "Core decision docs live under docs/requirements/decisions/*.md.",
-    "No existing helper computes a digest over only changed decision docs, so this story will add a small dedicated digest helper rather than reuse full-tree currentMaterialHash."
+    "No existing helper computes a digest over only changed decision docs, so this story will add a small dedicated digest helper rather than reuse full-tree currentMaterialHash.",
+    "AGENTS.md requires new or modified gate-consumed workflow facts to update both packages/main/src/core/process-fact-registry.ts and scripts/verify-process-fact-contract.mjs."
   ],
   "constraints": [
     "Do not auto-spawn hosts; the gate only consumes already-recorded host_verdict facts.",
@@ -24,10 +25,11 @@
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
     "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
     "packages/main/package.json",
     "docs/requirements/decisions/story-lifecycle.md",
     "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
   ],
-  "timestamp": "2026-06-13T21:59:48.109Z"
+  "timestamp": "2026-06-13T22:05:14.355Z"
 }
