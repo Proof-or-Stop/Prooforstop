@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-13T10:24:56.948Z",
       "reviewRunId": "B-56ce:RR-001",
       "_hash": "86cf3e2fea87d18fff4f0b783a8c5fb261363eedb06aa06780508935bd68c7a1"
+    },
+    {
+      "id": "B-56ce:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: inspected source diffs for validation timeout diagnostics, stale-evidence hint wording, owner-lease same-worktree guidance, delivery-check guidance, and codex namespace diagnostics. Gate predicates remain intact: timeout still fails required validation, stale evidence remains stale until refreshed, owner lease still requires explicit takeover, delivery_check_set owner-lease exemption remains limited to agentId=koala-review-delivery, and unsupported codex core commands stay rejected. Verified with npx tsc --noEmit plus focused smokes: validation-protocol, verification-freshness-smoke, story-owner-lease-smoke, legacy-koala-compatibility-smoke, flow-stability-smoke, and command-ownership-contract.",
+      "createdAt": "2026-06-13T10:28:05.451Z",
+      "reviewRound": "2026-06-13T10:24:56.948Z",
+      "reviewRunId": "B-56ce:RR-002",
+      "_hash": "07a40ba11d6f33dc2268e887540a1ddaad07eeeaf9c4c8f6ec348bff672aac45"
     }
   ]
 }
