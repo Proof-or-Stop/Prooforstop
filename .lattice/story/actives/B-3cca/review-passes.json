@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T11:02:30.634Z",
       "reviewRunId": "B-3cca:RR-008",
       "_hash": "142ae60b0d7465731bbf0b15ea171b6bcb842c2c678374ce02ff70eeee24e28a"
+    },
+    {
+      "id": "B-3cca:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage PASS for scoped CLI-engine/hook branding verification. Reviewed checklist evidence and reran: npm --prefix packages/main run build (pass, tsc exit 0); npm --prefix packages/main run test:cli-engine-branding-smoke (pass, cli-engine src/dist and hooks src/dist unclassified=0); node scripts/verify-process-fact-contract.mjs (pass, Process fact contract verified); node scripts/verify-entrypoints.mjs (pass, ok 1/26..26/26 entrypoints verified). F-003 is resolved: smoke allowlist now uses exact legacy alias patterns instead of legacy.*koala/koala.*legacy. Existing F-004 is already recorded by quality lane and not duplicated here.",
+      "createdAt": "2026-06-13T11:06:04.428Z",
+      "reviewRound": "2026-06-13T11:02:30.634Z",
+      "reviewRunId": "B-3cca:RR-009",
+      "_hash": "7ccf6dcf9bbe8560b4980658a64b98aed18a8642888c4a0aa4a53973ecdc3146"
     }
   ]
 }
