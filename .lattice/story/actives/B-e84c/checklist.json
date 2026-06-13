@@ -45,9 +45,9 @@
           "command": "node bin/lattice-codex.js codex_doctor --help",
           "result": "pass",
           "note": "Help output resolves to lattice codex_doctor and states Alias: lattice codex doctor, confirming the documented local wrapper diagnostic uses the Codex adapter command.",
-          "headHash": "bdf79612f125551df56c4726bc1891a948b62132",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:36:51.951Z"
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -55,9 +55,9 @@
           "command": "node bin/lattice-codex.js verify_codex --help",
           "result": "pass",
           "note": "Help output resolves to lattice verify_codex and documents the optional storyId evidence argument, confirming the documented verification wrapper is valid.",
-          "headHash": "bdf79612f125551df56c4726bc1891a948b62132",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:36:51.993Z"
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,9 +66,9 @@
           "command": "rg -n lattice-codex docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
           "result": "pass",
           "note": "The bare doctor form is described only as known residual guidance to replace; accepted guidance and verification commands use node bin/lattice-codex.js codex_doctor / verify_codex.",
-          "headHash": "bdf79612f125551df56c4726bc1891a948b62132",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:36:52.029Z"
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
         }
       ]
     },
@@ -202,9 +202,9 @@
           "command": "rg -n lattice-codex-command-boundary docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV includes Lattice Codex Command Boundary Execution Plan with the correct decision document link.",
-          "headHash": "b66138eed81040271b83e6d631667cb7c827e90e",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:27.144Z"
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -212,9 +212,9 @@
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l; rg -n ^\\>\\ 49\\ 个文件 docs/requirements/NAV.md",
           "result": "pass",
           "note": "The decisions markdown inventory is 49 files and NAV declares 49 files.",
-          "headHash": "b66138eed81040271b83e6d631667cb7c827e90e",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:27.185Z"
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -223,9 +223,9 @@
           "command": "git show --format= --unified=3 e3d8360d3 -- docs/requirements/NAV.md",
           "result": "pass",
           "note": "The NAV material diff updates the count and adds missing decision entries; no existing decision entry is removed.",
-          "headHash": "b66138eed81040271b83e6d631667cb7c827e90e",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:27.222Z"
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
         }
       ]
     },
