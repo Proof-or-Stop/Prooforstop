@@ -112,56 +112,14 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-002:happy:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-          "command": "rg -n session_brief docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md && rg -n aux_doc_list docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-          "result": "pass",
-          "note": "The forbidden namespace pattern and workflow command table explicitly include session_brief and aux_doc_list.",
-          "headHash": "201667206dfdb8faecf4ea82373289358450604c",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:14.701Z"
-        },
-        {
-          "intentRef": "CHK-002:edge:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-          "command": "rg -n convergence_check docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-          "result": "pass",
-          "note": "The forbidden namespace pattern also includes the broader workflow families: story_, checklist_, validate, review_, finding_, summary_set, delivery_check_set, and convergence_check.",
-          "headHash": "201667206dfdb8faecf4ea82373289358450604c",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:14.737Z"
-        },
-        {
-          "intentRef": "CHK-002:adversarial:0",
+          "intentRef": "CHK-002:adversarial:residual_workflow_wrapper_scan_f002",
           "kind": "manual_transcript",
-          "command": "rg -n --hidden lattice\\s+codex\\s+session_brief AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .Codex .codex; rg -n --hidden lattice\\s+codex\\s+aux_doc_list AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .Codex .codex",
+          "command": "rg -n --hidden --glob '!docs/story/**' 'lattice-codex\\.js\\s+(session_brief|aux_doc_list|story_)' README.md docs packages/main/src packages/main/dist .Codex .codex",
           "result": "pass",
-          "note": "Repository scan for the forbidden Codex-prefixed workflow forms reports only legacy-koala-compatibility-smoke negative assertions in src/dist, not business guidance in docs or templates.",
-          "headHash": "201667206dfdb8faecf4ea82373289358450604c",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:14.771Z"
-        },
-        {
-          "intentRef": "CHK-002:adversarial:fail_closed_session_brief",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice.js codex session_brief --help",
-          "result": "pass",
-          "note": "Actual fail-closed rejection check exited non-zero (exit code 1). Output rejected Unsupported command: lattice codex session_brief, limited the Codex namespace to lattice codex verify/doctor, and printed the ordinary replacement: Use the ordinary command instead: lattice session_brief.",
-          "headHash": "0d9324379a2ee64def376da2ac135fdf62e8088e",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:43:00.899Z"
-        },
-        {
-          "intentRef": "CHK-002:adversarial:fail_closed_aux_doc_list",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice.js codex aux_doc_list --help",
-          "result": "pass",
-          "note": "Actual fail-closed rejection check exited non-zero (exit code 1). Output rejected Unsupported command: lattice codex aux_doc_list, limited the Codex namespace to lattice codex verify/doctor, and printed the ordinary replacement: Use the ordinary command instead: lattice aux_doc_list.",
-          "headHash": "0d9324379a2ee64def376da2ac135fdf62e8088e",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:43:00.899Z"
+          "note": "Scan, excluding docs/story per repository instruction, reports README.md workflow-wrapper guidance for session_brief, aux_doc_list, and story_create plus src/dist adapter-check display-command hits for session_brief; the execution plan now treats those residuals as future cleanup targets rather than claiming the non-document targets are cleaned.",
+          "headHash": "18a8342a9b88d12fc602dbff08656acb66d10cf3",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:50:12.179Z"
         }
       ]
     },
