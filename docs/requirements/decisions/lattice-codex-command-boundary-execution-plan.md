@@ -107,12 +107,26 @@ done:
 3. Existing tracked entrypoint docs must not carry residual guidance that makes
    session recovery or document discovery look Codex-specific.
 
-As of this plan, the known residual local wrapper diagnostic guidance is
-`node bin/lattice-codex.js doctor` in `README.md`, `packages/main/src/init-assets.ts`,
-and generated `packages/main/dist/init-assets*`. The execution story must replace
-that adapter diagnostic guidance with `node bin/lattice-codex.js codex_doctor`
-and then rebuild dist. This document review does not claim those non-document
-targets are already cleaned.
+As of this plan, residual local wrapper guidance remains outside this document
+and must be treated as future cleanup, not completed work:
+
+- Diagnostic guidance still names `node bin/lattice-codex.js doctor` in
+  `README.md`, `packages/main/src/init-assets.ts`, and generated
+  `packages/main/dist/init-assets*`; the execution story must replace that
+  adapter diagnostic guidance with `node bin/lattice-codex.js codex_doctor` and
+  then rebuild dist.
+- Workflow-wrapper guidance still names `node bin/lattice-codex.js session_brief`,
+  `node bin/lattice-codex.js aux_doc_list`, and
+  `node bin/lattice-codex.js story_create` in `README.md`; future cleanup must
+  replace those examples with the ordinary host-neutral `node bin/lattice.js ...`
+  workflow commands.
+- Adapter-check display-command text still names `node bin/lattice-codex.js session_brief`
+  in `packages/main/src/core/codex-adapter-checks.ts` and generated
+  `packages/main/dist/core/codex-adapter-checks.js`; future cleanup must either
+  narrow that display evidence or update source and regenerated dist together.
+
+This document review only makes the execution plan accurate about those
+non-document targets; it does not claim they are already cleaned.
 
 ## Non-Goals
 
