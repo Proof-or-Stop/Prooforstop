@@ -8,7 +8,8 @@ metadata artifact during DEV / REVIEW / TEST / DONE.
 
 Koala lifecycle CLI commands (`delivery_check_set`, `summary_set`,
 `scope_contract_set`, `finding_add`, `init_check_set`, …) write metadata files
-under `.koala/story/actives/<storyId>/` or `docs/story/.../<storyId>/`. These
+under `.lattice/story/actives/<storyId>/` or `docs/story/.../<storyId>/`.
+`.koala/story/...` is no longer a recognized story-dir prefix. These
 writes are not implementation work — they are command-generated provenance.
 Before B-b9d0 the scope gate either failed-closed against them (blocking DONE)
 or fell back to a blanket `.koala/` exemption that let arbitrary, unrelated
@@ -26,7 +27,8 @@ order:
 1. **`classifyLifecycleArtifact(file, { storyId })`**
    – returns a hit only when the path matches:
    – a recognized story-dir prefix (`docs/story/actives/`,
-     `.koala/story/actives/`, or a custom `storyDir`),
+     `.lattice/story/actives/`, or a custom `storyDir`;
+     `.koala/story/actives/` is not recognized),
    – followed by a valid storyId segment,
    – followed by either a top-level terminal filename in
      `KOALA_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
@@ -75,7 +77,7 @@ Both reviewers and tests must continue to assert:
 ## Operational implications
 
 - `delivery_check_set` and `summary_set` may freely write
-  `.koala/story/actives/<id>/delivery-check.json` and `summary.json` during
+  `.lattice/story/actives/<id>/delivery-check.json` and `summary.json` during
   TEST without expanding scope or triggering an `OUT_OF_SCOPE` violation.
 - INIT scope anti-expansion commands may write `scope-boundary.json`,
   `execution-boundary.json`, `scope-freeze-check.json`,
@@ -87,7 +89,7 @@ Both reviewers and tests must continue to assert:
   requires the machine guard to verify hashes, freshness, pending proposal
   state, excluded keyword hits, and repeat-discard mitigation.
 - A user-value acceptance transcript may write
-  `.koala/story/actives/<id>/evidence/transcript-diff.md` during TEST as a
+  `.lattice/story/actives/<id>/evidence/transcript-diff.md` during TEST as a
   lifecycle transcript artifact. This exemption is path-specific; sibling files
   such as `evidence/notes.md` and arbitrary nested evidence still fall through
   to normal scope enforcement.
@@ -107,9 +109,10 @@ Mechanical evidence lives in:
 
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
   known lifecycle filenames plus `evidence/transcript-diff.md` under a story
-  id, rejects arbitrary `.koala/foo.json` and nearby non-transcript evidence
-  files, includes the INIT scope anti-expansion artifact filenames, and rejects
-  ordinary product source files when scope is unacknowledged.
+  id, rejects arbitrary `.koala/foo.json`, `.koala/story/...`, and nearby
+  non-transcript evidence files, includes the INIT scope anti-expansion artifact
+  filenames, and rejects ordinary product source files when scope is
+  unacknowledged.
 - `scripts/verify-gap-convergence.mjs` — asserts derived `.build` symlink
   loops do not crash `convergence_check` and do not hide real `docs/story` /
   truth-source content.
