@@ -145,12 +145,14 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
-          "note": "Verified grep -n Koala cli-engine.ts returns zero user-visible unclassified product branding; branding smoke test classification regex coverage reviewed, no false negatives",
-          "headHash": "e61891dd0c9d90ab0fbe1ff2f57b535017ee2cec",
-          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
-          "timestamp": "2026-06-13T10:41:56.722Z"
+          "note": "Branding smoke passed after allowlist tightening: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0; cli-engine branding smoke passed.",
+          "headHash": "e2b0572742a23617734ea1b2169fa8edd1438fe0",
+          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
+          "timestamp": "2026-06-13T10:46:46.440Z"
         }
       ]
     },
