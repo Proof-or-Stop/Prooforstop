@@ -150,10 +150,12 @@ completion. When a story changes decision docs, local DONE requires:
 - ignored, duplicate-host, FAIL, BLOCKED, or stale-digest verdicts do not count.
 
 `autopilot_review_submit` records local `host_verdict` workflow evidence consumed
-by this local quorum gate. `decision_doc_quorum_check` reports the same quorum
-state read-only. Neither command verifies a server `gate_decision` receipt, nor
-may either command derive Authority receipt completion, `authorityDone`,
-`fullAuthorityDone`, or `productionDone`.
+by this local quorum gate. The write is a host/reviewer evidence write, not a
+story owner self-certification path, so it is exempt from story owner lease while
+remaining local and non-authority. `decision_doc_quorum_check` reports the same
+quorum state read-only. Neither command verifies a server `gate_decision`
+receipt, nor may either command derive Authority receipt completion,
+`authorityDone`, `fullAuthorityDone`, or `productionDone`.
 
 ## Process Fact Registry Updates
 

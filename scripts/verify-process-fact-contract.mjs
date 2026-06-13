@@ -1972,7 +1972,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local decision-doc quorum`);
     assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
     assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
-    assert(policyBlockHasOwnershipClass(policy, 'storyScopedMutating'), `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`);
+    assert(policyBlockHasOwnershipClass(policy, 'reviewerWrite'), `${commandPolicyPath}: ${commandName} must stay reviewerWrite so independent hosts can submit verdicts without story owner lease`);
     assert(/decision-doc quorum DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local decision-doc quorum DONE gate`);
     assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must preserve the Authority no-overclaim boundary`);
   }
