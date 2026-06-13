@@ -8,8 +8,8 @@
         "docs/requirements/decisions/annotation-system.md"
       ],
       "userSees": "Terminal output includes \"PASSED: All task annotations are valid.\" from node packages/main/dist/tasks/cli-validate.js.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-13T12:49:13.576Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -42,6 +42,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-13T12:49:13.576Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin DEV work on the missing @changes annotation metadata."
     }
   ]
 }
