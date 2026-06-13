@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-13T18:27:47.080Z",
       "reviewRunId": "B-4e06:RR-002",
       "_hash": "57fb9a596457f11cd40179d6e4cc974242a55d19ea446a54e35332b41ef80f65"
+    },
+    {
+      "id": "B-4e06:RP-002",
+      "agent": "koala-review-concept",
+      "note": "All four CHK-001/002/003 concept invariants verified against the diff and live code. (a) Synthesized intents are priority=should, never must — confirmed in reconstructMissingIntentsFromEvidence line 215, and sparse-gap placeholders use priority=nice (explicit, never defaulting to must). The collectVerificationIntents default-to-must at verification.ts:112 cannot trigger on synthesized intents because they always carry explicit priority fields. (b) The missing-intent gate is NOT weakened — severity remains blocker in both story_review and verifier; legacyHints are additive details-only, allPass/missingRequired are computed before the hints are appended (verifier.ts:370 allPass line is after the hint loop but before the return, and does not reference legacyHints). (c) gitRoot resolution reuses exactly resolveStorySignedWorkspace — both resolveBootstrapGitRoot (worktree.ts) and resolveInitCheckGitMainRoot (cli-engine.ts) delegate to the same shared resolver with no second resolver introduced. (d) Plain-repo bootstrap is unchanged — both functions short-circuit to getRepoRoot() when no gitRoot is configured. No concept deletion or replacement found in this diff. No dead code. No naming drift. The storyRel path in worktree.ts lacks the explicit dot-dot check present in cli-engine.ts, but this is an advisory asymmetry only: git add itself would reject an out-of-repo path and the error surfaces through the existing catch. VERIFICATION_INTENT_REPAIR_COMMAND constant is used as the single source of truth in all three places that reference the repair command name (verification.ts, story-review.ts, verifier.ts). Smoke test covers all stated invariants including fail-closed, no-overwrite, priority=should, sparse-gap, waiver/fail exclusion, and detector positive/negative cases.",
+      "createdAt": "2026-06-13T18:32:06.643Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-004",
+      "_hash": "80fe5e4f2715cd8fd6b6ea8c1b50c41e2d92dc7bc976f8bdaa08a3c2cebcf302"
     }
   ]
 }
