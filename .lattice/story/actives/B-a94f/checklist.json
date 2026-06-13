@@ -11,7 +11,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "运行 lattice authority_status --authorityMode=enforce --json 时，根目录 authority_trust.env 中的 URL/key path/public key 会被当作默认 Authority 配置读取；显式 env/CLI 覆盖仍然优先。",
+      "userSees": "用户运行 `lattice authority_status --authorityMode=enforce --json` 后能看到：`\"baseURLConfigured\": true`、`\"customerApiKeyConfigured\": true`、`\"urlSource\": \"authority_trust_env\"`；如果显式导出 URL/key，则输出仍使用显式配置。",
       "files": {
         "modify": [
           ".gitignore",
