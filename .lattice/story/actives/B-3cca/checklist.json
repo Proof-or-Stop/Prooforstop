@@ -97,7 +97,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Build and focused smoke output pass for both source and dist, proving generated CLI output no longer contains unclassified Koala branding.",
+      "userSees": "Terminal prints \"cli-engine branding smoke passed\" and TypeScript build exits 0, proving dist/cli-engine.js matches the cleaned source.",
       "files": {
         "modify": [
           "packages/main/dist/cli-engine.js",
