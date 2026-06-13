@@ -66,6 +66,23 @@
       "files": [
         "packages/main/src/handlers/checklist.ts"
       ]
+    },
+    {
+      "id": "B-4e06:F-005",
+      "desc": "quality-cleanup: checklist.ts:966 `actor?: string` parameter accepted in verification_intent_repair handler but never accessed (args.actor not read anywhere in the function body). Schema describes it as audit-tracing, but the implementation silently drops it — no logging, no recording in the commit metadata, no inclusion in the output lines. Either record it (e.g. append to commitHint / autoCommitStoryMetadata) or remove from the schema+signature to avoid a doc-promise-undelivered gap",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T18:33:32.294Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-001",
+      "_hash": "b782d310d6838b6a7c5ee25495ec7e4671edc6eab32c0b8321bba9c2b28ed949",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
