@@ -279,6 +279,17 @@
           "headHash": "802a48ad95dea427006fefec93dc1874b5c02c26",
           "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
           "timestamp": "2026-06-13T01:45:49.153Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"This document does not implement|Implementation is not complete until the follow-up story reaches DONE|normal lifecycle\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Execution handoff clearly distinguishes this document from future implementation completion and requires normal Lattice lifecycle gates.",
+          "headHash": "a1e840b1aa3301e814bd3b17ad1e4ffe5eca41a3",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:49.498Z"
         }
       ]
     }
