@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-12T21:52:23.432Z",
       "reviewRunId": "B-50fb:RR-012",
       "_hash": "42549b8826fd90c721c5e40e6b7ad92581f97486aa9fe4dce424f1a195ca9244"
+    },
+    {
+      "id": "B-50fb:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review pass. checklist_get shows CHK-001..CHK-004 all done with happy/edge/adversarial verificationIntent and evidence; lattice validate --story=B-50fb passed and reported Verification intent coverage 12/12 covered, 0 required missing, so validate is usable as TEST gate evidence. F-001 targeted repro is covered by npm --prefix packages/main run test:validation-protocol: validation-protocol-smoke asserts getGuardFailureReason still falls through to null, canSendStoryEvent fallback returns false, and assertStoryTransitionReachedTarget blocks DEV side effects. F-002 targeted repro is covered by npm --prefix packages/main run test:worktree-repair-smoke: worktree-repair-smoke constructs canonical @lattice-agent/core plus legacy @koala-agent/core symlink into the story worktree and verifies the legacy link is relinked while canonical install remains untouched. No blocker found.",
+      "createdAt": "2026-06-13T01:44:15.268Z",
+      "reviewRound": "2026-06-12T21:52:23.432Z",
+      "reviewRunId": "B-50fb:RR-009",
+      "_hash": "acce6e387b581ecf5caf03787bc5439587e69b94df2d76c1990c321e110e01d4"
     }
   ]
 }
