@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T13:36:32.612Z",
-      "endTime": null,
+      "endTime": "2026-06-13T13:36:51.891Z",
       "userSees": "Document review shows the execution plan recommends only real Codex adapter diagnostic/verification commands and no broken local wrapper diagnostic command.",
       "files": {
         "modify": [
@@ -37,7 +37,40 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js codex_doctor --help",
+          "result": "pass",
+          "note": "Help output resolves to lattice codex_doctor and states Alias: lattice codex doctor, confirming the documented local wrapper diagnostic uses the Codex adapter command.",
+          "headHash": "bdf79612f125551df56c4726bc1891a948b62132",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:36:51.951Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js verify_codex --help",
+          "result": "pass",
+          "note": "Help output resolves to lattice verify_codex and documents the optional storyId evidence argument, confirming the documented verification wrapper is valid.",
+          "headHash": "bdf79612f125551df56c4726bc1891a948b62132",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:36:51.993Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n lattice-codex docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The bare doctor form is described only as known residual guidance to replace; accepted guidance and verification commands use node bin/lattice-codex.js codex_doctor / verify_codex.",
+          "headHash": "bdf79612f125551df56c4726bc1891a948b62132",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:36:52.029Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -169,6 +202,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start command example review evidence recording."
+    },
+    {
+      "timestamp": "2026-06-13T13:36:51.891Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Command examples verified against actual CLI help and document wording."
     }
   ]
 }
