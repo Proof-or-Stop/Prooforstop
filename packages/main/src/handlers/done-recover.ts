@@ -84,13 +84,6 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       );
       mainShaAfterRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
       lines.push(`✓ ${partial.branch} merged into main`);
-      lines.push(runDoneMainPackageBuildAfterMerge(
-        mainMergeRoot,
-        mainShaBeforeRecoveryMerge,
-        mainShaAfterRecoveryMerge,
-        { buildRunner: ctx.doneMainBuildRunner },
-      ));
-
       for (const line of removeStoryWorktree(mainRepoRoot, storyId, partial.worktreePath)) {
         lines.push(line);
       }
@@ -99,6 +92,13 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
         git(mainMergeRoot, ['branch', '-d', partial.branch]);
         lines.push(`✓ ${partial.branch} deleted`);
       }
+
+      lines.push(runDoneMainPackageBuildAfterMerge(
+        mainMergeRoot,
+        mainShaBeforeRecoveryMerge,
+        mainShaAfterRecoveryMerge,
+        { buildRunner: ctx.doneMainBuildRunner },
+      ));
 
       const remaining = detectPartialDoneStories(mainMergeRoot, store).find(entry => entry.storyId === storyId);
       if (remaining) {

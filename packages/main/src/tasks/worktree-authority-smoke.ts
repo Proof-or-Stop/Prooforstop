@@ -945,6 +945,63 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
   }
 }
 
+function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-recover-build-fail-'));
+  try {
+    const storyId = 'B-recover-build-fail';
+    const { worktreePath } = buildDoneReadyStory(root, storyId, {
+      beforeEvidence: (wt) => {
+        write(wt, 'packages/main/src/recovered-runtime-fail.ts', 'export const recoveredRuntimeFail = true;\n');
+        git(wt, ['add', 'packages/main/src/recovered-runtime-fail.ts']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'runtime input change']);
+      },
+    });
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    write(root, '.gitignore', '.worktrees/\n');
+    git(root, ['add', '.gitignore']);
+    git(root, ['commit', '-m', 'ignore recovery worktrees']);
+    markStoryBranchPartialDone(worktreePath, storyId);
+
+    let buildCalls = 0;
+    let message = '';
+    try {
+      createDoneRecoverHandlers({
+        root,
+        store: new StoryStore(root),
+        scanRoot: join(root, 'packages/main'),
+        doneMainBuildRunner: (cwd) => {
+          buildCalls += 1;
+          assert.equal(realpathSync(cwd), realpathSync(root), 'done_recover build runner must execute from the main merge root');
+          assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '', 'done_recover must delete the story branch before running the recovery build');
+          assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'done_recover must deregister the story worktree before running the recovery build');
+          assert.equal(existsSync(worktreePath), false, 'done_recover must remove the story worktree before running the recovery build');
+          return {
+            status: 2,
+            stdout: 'stubbed recover build started\n',
+            stderr: 'stubbed recover build failed\n',
+          };
+        },
+      }).done_recover({ storyId });
+      assert.fail('done_recover must throw stale-dist guidance when the recovery post-merge build fails');
+    } catch (e: any) {
+      message = String(e?.message ?? e);
+    }
+
+    assert.equal(buildCalls, 1, 'done_recover must run the failing post-merge build exactly once');
+    assert.match(message, /packages\/main\/dist may be stale/, 'failure message must say dist may be stale');
+    assert.match(message, /Recovery: npm --prefix packages\/main run build/, 'failure message must include stale-dist recovery guidance');
+    assert.match(message, /stubbed recover build started/, 'failure message must include captured stdout');
+    assert.match(message, /stubbed recover build failed/, 'failure message must include captured stderr');
+    assert.match(git(root, ['log', '--oneline', 'main']), new RegExp(`merge: ${storyId}`), 'recovery merge must have landed before the failing build');
+    assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '', 'failing recovery build must leave the story branch deleted');
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'failing recovery build must leave the story worktree deregistered');
+    assert.equal(existsSync(worktreePath), false, 'failing recovery build must leave the story worktree removed');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-done-recover-build-skip-'));
   try {
@@ -1667,6 +1724,7 @@ assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
 assertDoneMainPackageBuildTriggerPredicate();
 assertDoneMainPackageBuildHookReportsSkipSuccessFailure();
 assertDoneRecoverRunsPostMergeBuildForRuntimeChanges();
+assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup();
 assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges();
 // B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts extraction.
 assertDoneSuccessPathOutputAndOrdering();
