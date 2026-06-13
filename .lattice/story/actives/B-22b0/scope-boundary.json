@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-22b0",
+  "mode": "custom",
+  "allowed": [
+    "Attempt or verify receipt-backed Authority Server proof only through existing Lattice Authority commands",
+    "Audit B-12f3 local DONE evidence and Authority boundary through Lattice commands",
+    "Create B-22b0 story evidence, delivery, summary, and audit result artifacts",
+    "Record fail-closed evidence if Authority receipt prerequisites are missing",
+    "Use configured root authority_trust.env defaults for Authority readiness/status/policy/receipt path checks"
+  ],
+  "excluded": [
+    "Do not change product code unless a real correctness blocker in the Authority audit path requires it",
+    "Do not claim authorityDone/fullAuthorityDone/productionDone without verified receipt-backed proof",
+    "Do not modify unrelated B-8448 story or unrelated command-boundary document",
+    "Do not rewrite or mutate B-12f3 historical lifecycle evidence",
+    "Do not weaken local lifecycle gates or Authority gates"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User explicitly asked to execute B-12f3 follow-up as true Authority Server receipt-backed proof. Authority is in-scope for audit/proof/fail-closed classification, while Authority overclaim remains excluded.",
+  "createdAt": "2026-06-13T13:23:39.255Z",
+  "updatedAt": "2026-06-13T13:23:39.255Z",
+  "_hash": "6b5540314ba086509a60e46aee3670cac60b9d91192b34d9305853c16e71da85"
+}

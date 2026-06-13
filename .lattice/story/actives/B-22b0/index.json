@@ -1,0 +1,35 @@
+{
+  "storyId": "B-22b0",
+  "name": "b12f3-authority-receipt-audit",
+  "title": "Authority receipt-backed audit for B-12f3",
+  "description": "Post-DONE follow-up for B-12f3. Reconcile the completed local Lattice lifecycle with Authority Server semantics: attempt or verify receipt-backed Authority proof when configured, keep local CLI evidence explicitly Non-authority, and fail closed if no verified Authority gate_decision receipt is available. Do not rewrite B-12f3 history or claim authorityDone/fullAuthorityDone without receipt-backed proof.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-06-13T13:17:53.684Z",
+  "startedAt": "2026-06-13T13:17:53.684Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-13T13:17:53.684Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:24:47.760Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-22b0",
+    "branch": "story/B-22b0",
+    "createdAt": "2026-06-13T13:24:47.860Z"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "storyId": "B-4e06",
+  "name": "midflight-verification-intent-repair-gitroot-bootstrap",
+  "title": "Repair mid-flight verification intent gaps and gitRoot worktree bootstrap",
+  "description": "Implement the Lattice CLI fixes described in docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md. The ClawCreek B-5a12 case showed that a story adopted mid-flight can contain complete verification evidence while still lacking checklist verificationIntent, leaving story_review unable to close the workflow. The same incident showed that INIT_CHECK worktree bootstrap must use configured gitRoot and signed workspace resolution when metadata lives in a non-git wrapper root. The previously reported sourceManifestDigest checklist_update --help issue was re-tested and is excluded unless it reproduces again.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user:2026-06-13 ClawCreek B-5a12 incident",
+  "keywords": [
+    "midflight-verification-intent",
+    "legacy-evidence-repair",
+    "configured-gitroot-bootstrap",
+    "story-review-diagnostics",
+    "init-check-worktree"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "incident"
+    }
+  ],
+  "createdAt": "2026-06-13T13:42:18.937Z",
+  "startedAt": "2026-06-13T13:42:18.937Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-13T13:42:18.948Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:45:33.308Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4e06",
+    "branch": "story/B-4e06",
+    "createdAt": "2026-06-13T13:45:33.615Z"
+  }
+}

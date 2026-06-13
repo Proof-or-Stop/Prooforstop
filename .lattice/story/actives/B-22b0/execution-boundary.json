@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-22b0",
+  "allowedCommands": [
+    "git status/log/diff/show/rev-parse/merge",
+    "lattice session_brief/story_get/checklist_get/authority_status/authority_enforce_policy/authority_receipt_fetch/authority_receipt_verify/authority_job_status/autopilot_execute/validate/story_advance/checklist_update/verification_evidence_batch_add/summary_set/delivery_check_set",
+    "node packages/main/dist/**",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch for B-22b0 evidence docs only if CLI requires transcript artifact",
+    "functions.exec_command",
+    "multi_agent_v1 reviewer agents"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-22b0",
+    "authority_trust.env",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+    "packages/main/dist",
+    "packages/main/src"
+  ],
+  "excludedCommands": [
+    "fabricated authority receipt creation",
+    "git checkout --",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "lattice release_approve_push",
+    "manual edit of B-12f3 story files",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".lattice/story/actives/B-12f3",
+    ".omx"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Use Lattice commands to inspect B-12f3; do not directly mutate B-12f3 artifacts. Authority proof may only be claimed from verified receipt-backed Authority Server evidence; otherwise record fail-closed blocker.",
+  "createdAt": "2026-06-13T13:23:25.065Z",
+  "updatedAt": "2026-06-13T13:23:25.065Z",
+  "_hash": "3fd2d3a6b6070ec98c168c3fe3fb0ffd557c57baeb1fa87e415a68fd7147e9ab"
+}
