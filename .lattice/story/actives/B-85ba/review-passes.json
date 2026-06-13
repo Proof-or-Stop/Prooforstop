@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-12T21:35:24.407Z",
       "reviewRunId": "B-85ba:RR-013",
       "_hash": "eda81c5a3fec67d52a749aaf57fe8cb06bb44ab0c1a3b53afbdc88b5869cd565"
+    },
+    {
+      "id": "B-85ba:RP-009",
+      "agent": "koala-review-docs",
+      "note": "Docs lane reviewed requirements and reviewer prompt against the mechanical contract and implementation for INIT scope anti-expansion. Confirmed story-lifecycle and lifecycle-artifact-scope describe scope-boundary, execution-boundary, scope-freeze-check, scope-extension-proposals, and scope-discard-digest as gate facts; reviewer prompt routes expansion through scope_extension_proposal only; command policy/CLI schema/process fact registry/lifecycle registry register the same commands/artifacts; machine/worktree gates block INIT_CHECK before worktree creation; story_create --fromDraft remains INIT; root e2e/worktree smoke paths include anti-expansion gates. Verified with node scripts/verify-process-fact-contract.mjs, npm --prefix packages/main run test:scope-anti-expansion-smoke, and npm --prefix packages/main run test:worktree-authority-smoke.",
+      "createdAt": "2026-06-13T01:45:27.599Z",
+      "reviewRound": "2026-06-13T01:43:05.842Z",
+      "reviewRunId": "B-85ba:RR-020",
+      "_hash": "fddfa0da06010c3f841855a9ebf24b32f9fe57dcd646b550e54222db0e3f8a86"
     }
   ]
 }
