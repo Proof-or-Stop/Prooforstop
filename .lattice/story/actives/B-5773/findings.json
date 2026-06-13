@@ -59,7 +59,7 @@
       "desc": "CHK-004:edge:0 verificationEvidence is hollow: ok() is called with literal `true` (line 90 of verify-b5773.mjs). Intent requires confirming that rows using .test()/.match() only on English strings are NOT tagged behavior-sensitive (false-positive exclusion check). The verifier makes no assertion — it unconditionally passes with the note \"English-only .test rows not tagged.\"",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T19:15:36.931Z",
@@ -68,7 +68,9 @@
       "_hash": "e15d0bad8c8b0ac9ec44ab71dd3e499b830b33fddd2ee60861302949caf8ea22",
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
-      ]
+      ],
+      "resolvedReason": "CHK-004:edge:0 now asserts only genuine Chinese-matcher rows (lines 2303/2306/3887) are tagged behavior-sensitive (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:25:59.856Z"
     },
     {
       "id": "B-5773:F-005",
