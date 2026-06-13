@@ -81,6 +81,14 @@ function execCliFailure(args: string[], cwd = packageRoot): string {
   assert.fail(`expected CLI failure for args: ${args.join(' ')}`);
 }
 
+function execCliSuccess(args: string[], cwd = packageRoot): string {
+  return execFileSync(process.execPath, [cliPath, ...args], {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
 const legacyRoot = makeRoot('legacy-koala-compat');
 try {
   seedLegacyKoalaCodex(legacyRoot, 'registry');
@@ -212,6 +220,11 @@ try {
 // `codex` namespace; they should point operators back to the ordinary command.
 const unsupportedCodexRoot = makeRoot('unsupported-codex-namespace');
 try {
+  const codexVerifyHelp = execCliSuccess(['--root', unsupportedCodexRoot, 'codex', 'verify', '--help']);
+  assert.match(codexVerifyHelp, /\bverify_codex\b/, '`lattice codex verify --help` must resolve to canonical verify_codex help');
+  assert.match(codexVerifyHelp, /Codex adapter/i);
+  assert.match(codexVerifyHelp, /--storyId/);
+
   const sessionBriefOutput = execCliFailure(['--root', unsupportedCodexRoot, 'codex', 'session_brief']);
   assert.match(sessionBriefOutput, /Unsupported command: lattice codex session_brief/);
   assert.match(sessionBriefOutput, /only supports: lattice codex verify, lattice codex doctor/);

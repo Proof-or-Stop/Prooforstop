@@ -489,6 +489,8 @@ function assertStaleEvidenceHintCrossSurface(): void {
     assert.ok(renderedBlock.includes(EVIDENCE_STALE_MARKER), 'rendered block must include marker constant');
     assert.ok(renderedBlock.includes('HEAD/material hash binding changed'),
       'rendered block must explain stale means evidence binding drift, not necessarily verification logic failure');
+    assert.ok(renderedBlock.includes('does not necessarily mean the verification logic failed'),
+      'rendered block must explicitly clarify stale evidence does not necessarily mean verification logic failed');
     assert.ok(renderedBlock.includes(`lattice verification_evidence_refresh_stale --storyId=${storyId}`),
       'rendered block must include refresh_stale command with literal storyId');
     assert.ok(renderedBlock.includes(`lattice validate --story=${storyId} --json`),

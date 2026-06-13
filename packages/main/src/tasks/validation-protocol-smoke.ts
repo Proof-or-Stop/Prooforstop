@@ -72,6 +72,9 @@ try {
   assert.equal(requiredFailure.status, 'fail');
   assert.equal(requiredFailure.allPass, false);
   assert.equal(requiredFailure.commands[0].code, 7);
+  const requiredFailureDetails = requiredFailure.details.join('\n');
+  assert.doesNotMatch(requiredFailureDetails, /timeout diagnostic/i);
+  assert.doesNotMatch(requiredFailureDetails, /timeoutMs|raise lattice\.config\.json validate\.commands\[\]\.timeoutMs/i);
 
   const optionalFailure = await executeValidationPlan({
     provider: 'smoke-optional-fail',
