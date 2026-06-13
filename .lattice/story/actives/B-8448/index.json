@@ -4,7 +4,7 @@
   "title": "Document CLI engine English surface translation plan",
   "description": "Create a reviewable execution document for translating every Chinese-language surface in packages/main/src/cli-engine.ts into English before open-source publication. The document must include an inventory, execution sequence, verification strategy, and a Chinese-to-English translation table for reviewer approval.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "keywords": [
     "english",
@@ -30,6 +30,14 @@
       "action": "advance",
       "timestamp": "2026-06-13T13:15:13.504Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:15:24.329Z",
+      "branch": "story/B-8448",
       "user": "Harmonygo",
       "agent": "main"
     }

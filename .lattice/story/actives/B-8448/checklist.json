@@ -12,7 +12,36 @@
       "userSees": "A new docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md file contains the execution plan and translation table.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "test": [
+          "packages/main/src/cli-engine.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new execution document exists and states the English-only open-source policy, staged migration plan, verification commands, and reviewer workflow.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document includes a Chinese source to proposed English translation table for cli-engine.ts review, including representative public CLI help/schema/error/hint surfaces.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "This documentation story does not modify packages/main/src/cli-engine.ts or the existing untracked lattice-codex command boundary document.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
