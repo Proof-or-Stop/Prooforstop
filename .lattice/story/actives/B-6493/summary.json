@@ -1,0 +1,51 @@
+{
+  "storyId": "B-6493",
+  "changes": "Added an optional advisory PhaseAuthorityWarning to handoff packs. createHandoffPack now resolves story authority (resolveStoryAuthority) and, when a linked worktree's authoritative phase differs from the packed main-mirror phase, attaches a warning rendered by handoff_create and handoff_inspect (text + json). The field lives outside HandoffPackHashInput so packHash is byte-stable; recoveryPoint.phase semantics are unchanged; resolver failure is caught and yields no warning.",
+  "usage": "Run `lattice handoff_create --storyId=<id> --fromHost=<a> --toHost=<b>`; if the story is under active worktree development at a phase ahead of the main mirror, output shows `⚠ phaseAuthority (ahead): ...`. `lattice handoff_inspect --file=<pack>` shows the same line. No warning for in-sync or no-worktree stories.",
+  "expectedOutcome": "handoff_create/inspect emit a clear phase-authority warning when the worktree is ahead of the packed mirror phase, and stay silent otherwise; packHash and recoveryPoint.phase unchanged.",
+  "actualTranscript": "Live on B-4e06 (worktree DEV vs mirror INIT_CHECK): handoff_create printed '⚠ phaseAuthority (ahead): Authoritative worktree phase DEV is ahead of the packed mirror phase INIT_CHECK...'; JSON carried the structured phaseAuthorityWarning; recoveryPoint.phase stayed INIT_CHECK. B-decb (no worktree): 0 warning lines. Smoke 6/6 PASS; tsc clean; lattice validate allPass.",
+  "outcomeDiff": "No diff — every scenario matched the PLAN expectation (see evidence/transcript-diff.md).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The live worktree-ahead path through createHandoffPack is covered by manual evidence on B-4e06 rather than the hermetic smoke (which uses a no-worktree temp repo for the no-warning case); the warning logic itself is fully unit-covered (ahead/in-sync/no-worktree/divergent + render + hash stability).",
+  "pitfalls": "The warning is advisory only: it does NOT change recoveryPoint.phase or baseSha (still main HEAD), so the resuming host must read the live worktree to continue from the true phase. Do not add phaseAuthorityWarning to HandoffPackHashInput — that would break packHash stability and existing handoff fixtures.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 189788
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 40740
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 709673
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 346591
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 255689
+    }
+  },
+  "totalDurationMs": 1542481,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T16:00:00.072Z",
+  "updatedAt": "2026-06-13T16:00:00.072Z"
+}

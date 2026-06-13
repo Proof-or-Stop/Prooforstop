@@ -5,7 +5,30 @@ import { buildCapabilityProbe, type CapabilityCategory, type CapabilityStatus } 
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
 import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
 import { buildLatticeHostStatus, type LatticeHostStatus } from './lattice-hosts.js';
+import { phaseRank } from './phase-flow.js';
+import { resolveStoryAuthority, type StoryAuthorityRow } from './story-authority-resolver.js';
 import type { StoryStore } from './store.js';
+
+/**
+ * Diagnostic warning attached to a handoff pack when the story's authoritative
+ * (linked-worktree) phase differs from the main-branch metadata mirror phase
+ * that the pack actually captures. The pack stays self-consistent with
+ * baseSha=main HEAD; this warning restores the signal — otherwise lost — that
+ * the live worktree has moved on, so the resuming host is not silently pointed
+ * at a stale phase. Advisory only: never an authority field, never hashed.
+ */
+export interface PhaseAuthorityWarning {
+  kind: 'phase-authority';
+  /** Phase recorded in the main repo (what the pack's recoveryPoint reflects). */
+  mirrorPhase: string;
+  /** Phase resolved from the linked worktree StoryStore (the live authority). */
+  authoritativePhase: string;
+  /** Linked worktree path the authoritative phase was read from. */
+  worktreePath: string;
+  /** Whether the worktree is strictly ahead of the mirror or merely divergent. */
+  relation: 'ahead' | 'divergent';
+  message: string;
+}
 
 export interface HandoffCapabilityDelta {
   capability: CapabilityCategory;
@@ -67,6 +90,12 @@ export interface HandoffPack extends HandoffPackHashInput {
     evidenceRefs: string[];
     guidance: string;
   };
+  /**
+   * Optional advisory: present only when the story's linked-worktree phase
+   * diverged from the packed main-mirror phase at create time. NOT part of
+   * HandoffPackHashInput, so its presence never perturbs packHash.
+   */
+  phaseAuthorityWarning?: PhaseAuthorityWarning;
   packHash: string;
   productionDone: false;
   receiptRefs: [];
@@ -101,6 +130,7 @@ export interface HandoffInspection {
   authorityBoundary: HandoffAuthorityBoundary;
   executionInstructions: string[];
   recoveryPoint: HandoffPack['recoveryPoint'];
+  phaseAuthorityWarning?: PhaseAuthorityWarning;
 }
 
 export interface HandoffAcceptProjection {
@@ -452,6 +482,55 @@ function normalizeHandoffPack(value: HandoffPack): HandoffPack {
   };
 }
 
+/**
+ * Pure projection: given a resolved story-authority row, return a
+ * PhaseAuthorityWarning when a linked worktree holds a phase that differs from
+ * the main-mirror phase, otherwise undefined. No I/O, no git, fully testable.
+ */
+export function buildPhaseAuthorityWarning(row: {
+  mirrorPhase: string;
+  authoritativePhase: string;
+  worktreePath: string | null;
+}): PhaseAuthorityWarning | undefined {
+  if (!row.worktreePath) return undefined;
+  if (row.authoritativePhase === row.mirrorPhase) return undefined;
+  const authoritativeRank = phaseRank(row.authoritativePhase);
+  const mirrorRank = phaseRank(row.mirrorPhase);
+  const ahead = authoritativeRank >= 0 && mirrorRank >= 0 && authoritativeRank > mirrorRank;
+  const relation: PhaseAuthorityWarning['relation'] = ahead ? 'ahead' : 'divergent';
+  const message = ahead
+    ? `Authoritative worktree phase ${row.authoritativePhase} is ahead of the packed mirror phase ${row.mirrorPhase}. This pack reflects the lagging main-branch mirror (baseSha is main HEAD), so the resuming host is pointed at the stale phase. Review the live worktree before resuming.`
+    : `Authoritative worktree phase ${row.authoritativePhase} diverges from the packed mirror phase ${row.mirrorPhase}. This pack reflects the main-branch mirror; review the live worktree before resuming.`;
+  return {
+    kind: 'phase-authority',
+    mirrorPhase: row.mirrorPhase,
+    authoritativePhase: row.authoritativePhase,
+    worktreePath: row.worktreePath,
+    relation,
+    message,
+  };
+}
+
+/**
+ * Resolve the phase-authority warning for a story without ever failing pack
+ * creation: any resolver error (no git, detached store, etc.) yields no
+ * warning rather than an exception.
+ */
+function resolvePhaseAuthorityWarning(
+  store: StoryStore,
+  root: string,
+  storyId: string,
+): PhaseAuthorityWarning | undefined {
+  try {
+    const resolved = resolveStoryAuthority(store, root, { storyIds: [storyId], activeOnly: false });
+    const row: StoryAuthorityRow | undefined = resolved.stories.find(r => r.storyId === storyId);
+    if (!row) return undefined;
+    return buildPhaseAuthorityWarning(row);
+  } catch {
+    return undefined;
+  }
+}
+
 export function createHandoffPack(
   store: StoryStore,
   root: string,
@@ -484,6 +563,7 @@ export function createHandoffPack(
   const role = normalizeOptionalString(args.role);
   const objective = normalizeOptionalString(args.objective);
   const authorityBoundary = buildAuthorityBoundary(args.authorityBoundary);
+  const phaseAuthorityWarning = resolvePhaseAuthorityWarning(store, root, args.storyId);
   const partial: HandoffPack = {
     schemaVersion: 'handoff-pack-v0',
     storyId: args.storyId,
@@ -521,6 +601,7 @@ export function createHandoffPack(
       evidenceRefs: refs,
       guidance: 'Manual-first overflow only. Review the bounded pack, create an isolated worktree, collect a local diagnostic receipt, and merge only after main-agent review.',
     },
+    ...(phaseAuthorityWarning ? { phaseAuthorityWarning } : {}),
     productionDone: false,
     receiptRefs: [],
   };
@@ -596,6 +677,7 @@ export function inspectHandoffPack(pack: HandoffPack): HandoffInspection {
     authorityBoundary: pack.authorityBoundary,
     executionInstructions: pack.executionInstructions,
     recoveryPoint: pack.recoveryPoint,
+    ...(pack.phaseAuthorityWarning ? { phaseAuthorityWarning: pack.phaseAuthorityWarning } : {}),
   };
 }
 
@@ -1029,6 +1111,9 @@ export function renderHandoffInspectionText(inspection: HandoffInspection): stri
     `receiptRefs: ${inspection.receiptRefs.length}`,
     `handoffCanManufactureProductionDone: ${inspection.authority.handoffCanManufactureProductionDone}`,
     `recoveryPoint: ${inspection.recoveryPoint.id}`,
+    ...(inspection.phaseAuthorityWarning
+      ? [`⚠ phaseAuthority (${inspection.phaseAuthorityWarning.relation}): ${inspection.phaseAuthorityWarning.message}`]
+      : []),
   ].join('\n');
 }
 

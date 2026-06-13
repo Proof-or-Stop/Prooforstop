@@ -5,18 +5,44 @@
       "title": "Detect worktree-vs-mirror phase divergence in createHandoffPack and surface in handoff_create output",
       "context": "In createHandoffPack (core/lattice-handoff.ts) call resolveStoryAuthority(store, root, {storyIds:[storyId], activeOnly:false}); when a linked worktree exists and authoritativePhase !== mirrorPhase, attach an optional phaseAuthorityWarning {mirrorPhase, authoritativePhase, worktreePath, message} to the pack. Field MUST NOT be part of HandoffPackHashInput/computeHandoffPackHash so existing packHash values are unchanged; normalizeHandoffPack must preserve it. Resolver errors must be caught and treated as no-warning. Render a warning line in handoff_create text output and include the field in JSON output.",
       "userSees": "Running handoff_create for a story whose worktree is ahead prints a clear 'worktree phase X is ahead of packed mirror phase Y' warning; running it for an in-sync story prints no warning and produces an identical packHash to before.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T15:49:22.138Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:warn-on-divergence:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/handoff-phase-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:handoff-phase-authority-smoke",
+          "result": "pass",
+          "note": "Smoke covers buildPhaseAuthorityWarning (ahead/in-sync/no-worktree/divergent) + packHash byte-stability. Live: handoff_create on real divergent B-4e06 prints '⚠ phaseAuthority (ahead): ...DEV is ahead of...INIT_CHECK'; no-worktree B-decb prints none; recoveryPoint.phase unchanged.",
+          "headHash": "23c3a9f80598cef6b8a056c36dfc7a377c567253",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:49:12.112Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Surface the same warning in handoff_inspect and cover with a focused smoke test",
       "context": "inspectHandoffPack must carry phaseAuthorityWarning into HandoffInspection and renderHandoffInspectionText must render it. Add a focused smoke (tasks/) that builds a pack with a worktree ahead of mirror and asserts the warning appears in create+inspect output, asserts absence when in sync, and asserts packHash is byte-identical for the in-sync case.",
       "userSees": "lattice handoff_inspect on a stale-phase pack shows the phase-authority warning; the regression suite proves the warning fires only on divergence and never perturbs packHash.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T15:49:23.287Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:inspect-render:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/handoff-phase-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:handoff-phase-authority-smoke",
+          "result": "pass",
+          "note": "Smoke asserts inspectHandoffPack carries the warning and renderHandoffInspectionText renders 'phaseAuthority (ahead)', silent when absent, packHash unchanged. Live: handoff_inspect on the B-4e06 pack shows the warning line.",
+          "headHash": "dcf893a68ef315652d3519190ae4b22ec5fcd0e5",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:49:13.059Z"
+        }
+      ]
     }
   ]
 }
