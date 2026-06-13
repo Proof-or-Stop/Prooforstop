@@ -15,6 +15,22 @@
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
       ]
+    },
+    {
+      "id": "B-5773:F-002",
+      "desc": "CHK-003:edge:2 verificationEvidence is hollow: ok() is called with literal `true` (line 75 of verify-b5773.mjs). Intent requires confirming via diff that command-description rows already under threshold were not touched by CHK-003 edits. The verifier unconditionally passes this check with the note \"diff-based, trusted\" — no diff or row-content assertion is performed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:24.055Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "523506925275b8943f01a73456977da4a526845953284d686cad0c34d0a7d463",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ]
     }
   ]
 }
