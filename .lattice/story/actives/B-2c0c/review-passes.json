@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-13T22:27:08.733Z",
       "reviewRunId": "B-2c0c:RR-008",
       "_hash": "87a6d9bdc3785024711d7d8364a55442b4f659af0baea3a7f6be265029619a8c"
+    },
+    {
+      "id": "B-2c0c:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: inspected decision-doc quorum core evaluator, DONE guard integration, CLI handler/registration, command policy/process fact registry/contract verifier, docs contract, and metadata freshness cleanup. Verified npm --prefix packages/main run build, npm --prefix packages/main run test:decision-doc-quorum-smoke, node scripts/verify-process-fact-contract.mjs, lattice evidence_inspect fresh staleRefs=0, and local CLI decision_doc_quorum_check JSON pass. No blocker found. Caveat: global lattice binary in this shell does not expose the newly added command yet; project-local dist CLI does.",
+      "createdAt": "2026-06-13T22:30:07.199Z",
+      "reviewRound": "2026-06-13T22:27:08.733Z",
+      "reviewRunId": "B-2c0c:RR-012",
+      "_hash": "b8886b2386583ff7fcd54e5e85d454e2d562d01e4009ce0a21723ff56676b73d"
     }
   ]
 }
