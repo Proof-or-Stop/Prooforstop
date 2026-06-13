@@ -51,7 +51,14 @@
       "context": "Some rows are runtime code, not prose: M668/M669 (cli-engine.ts:2303/2306) are regexes matching Chinese strings via .test(combined); translating away the Chinese branches changes runtime matching. Tag such rows 'behavior-sensitive; requires test update', document the risk, and do NOT treat them as ordinary translation. Identify the full set (regex / .test / .match / parsing over Chinese tokens). Covers suggestion #4.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-005",
