@@ -15,6 +15,25 @@
       "files": [
         "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
       ]
+    },
+    {
+      "id": "B-de86:F-002",
+      "desc": "doc-code-drift: docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md still says capability_claim_formal_evaluate is Layer-2-only and Layer 3 execution is BLOCKED until a Layer 3 evaluator exists (lines 100-109), but the current CLI exposes capability_claim_formal_evaluate as Engineering or Loop Engineering and accepts target=loop-engineering (packages/main/src/cli-engine.ts:788-790), and the evaluator returns loopEngineeringClaim from loop-engineering proof state (packages/main/src/core/lattice-baseline.ts:2798-2863). The new real-execution plan depends on running the Layer 3 formal evaluator and rejects PASS unless formalLayer3Claim=UNLOCKED, so the related formal-suite doc now gives operators a stale blocked status for a prerequisite path that exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-13T01:48:12.281Z",
+      "reviewRound": "2026-06-13T01:45:08.363Z",
+      "reviewRunId": "B-de86:RR-003",
+      "_hash": "5369c656e202ab91b1940b8fbcc32e20774f34d2eab5f521d73bb7ecf5faf82a",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/lattice-baseline.ts"
+      ]
     }
   ]
 }
