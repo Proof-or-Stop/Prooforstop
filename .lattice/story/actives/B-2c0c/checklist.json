@@ -50,7 +50,30 @@
       "userSees": "A user can run a Lattice command and see whether the 3x2 decision-doc quorum is satisfied.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI check runs the exposed decision-doc quorum diagnostic, or captures story_advance failure details, for a story whose changed decision docs have three passing rounds, two distinct hosts, and a fresh digest; output clearly reports quorum satisfied.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLI check runs the diagnostic for incomplete quorum states and verifies the output pinpoints the exact missing round count, host diversity, or digest freshness requirement without requiring source inspection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CLI check feeds unsigned, prose-only, wrong-story, wrong-HEAD, or stale host_verdict events into the diagnostic path; output refuses a pass result and explains which events were ignored or invalid.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
