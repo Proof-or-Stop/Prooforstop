@@ -239,46 +239,15 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-004:happy:0",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice-codex.js codex_doctor --help; node bin/lattice-codex.js verify_codex --help; rg -n --hidden lattice\\s+codex\\s+session_brief AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .Codex .codex; find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l",
-          "result": "pass",
-          "note": "Checklist evidence records the CLI help checks, forbidden-guidance scans, and NAV inventory checks used to review this document.",
-          "headHash": "8103c15735a69050eb8e15b04fbe8db2f307807d",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:43.345Z"
-        },
-        {
-          "intentRef": "CHK-004:edge:0",
+          "intentRef": "CHK-004:edge:residual_future_work_boundary_f002",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-          "command": "rg -n known\\ residual docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n No-Overclaim docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n 'Workflow-wrapper guidance|Adapter-check display-command|future cleanup|node bin/lattice-codex\\.js (doctor|session_brief|aux_doc_list|story_create)' docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
           "result": "pass",
-          "note": "The document distinguishes this review from later README/template cleanup by naming known residual non-document targets and stating a no-overclaim boundary.",
-          "headHash": "8103c15735a69050eb8e15b04fbe8db2f307807d",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:43.379Z"
-        },
-        {
-          "intentRef": "CHK-004:adversarial:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-          "command": "rg -n full\\ project\\ convergence docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n production\\ readiness docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n Authority\\ readiness docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n unattended\\ readiness docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-          "result": "pass",
-          "note": "No-Overclaim Boundary explicitly says the plan does not claim full project convergence, production readiness, Authority readiness, or unattended readiness.",
-          "headHash": "8103c15735a69050eb8e15b04fbe8db2f307807d",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:37:43.413Z"
-        },
-        {
-          "intentRef": "CHK-004:happy:fail_closed_forbidden_codex_workflow_commands",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice.js codex session_brief --help; node bin/lattice.js codex aux_doc_list --help",
-          "result": "pass",
-          "note": "Delivery evidence now includes the two actual forbidden Codex-prefixed workflow command checks: both help invocations exited with code 1, rejected the unsupported lattice codex workflow command, and printed the ordinary replacements lattice session_brief and lattice aux_doc_list.",
-          "headHash": "0d9324379a2ee64def376da2ac135fdf62e8088e",
-          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
-          "timestamp": "2026-06-13T13:43:00.899Z"
+          "note": "The residual-boundary paragraph now names the diagnostic doctor guidance, README workflow-wrapper guidance for session_brief/aux_doc_list/story_create, and src/dist adapter-check display-command guidance for session_brief as future cleanup targets. It also states this document review only makes the execution plan accurate and does not clean those non-document targets.",
+          "headHash": "2c89d45d9c0629071698780cd0cadf403de296c7",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:50:18.192Z"
         }
       ]
     }
