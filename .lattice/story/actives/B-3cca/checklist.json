@@ -96,7 +96,45 @@
       "context": "Run the package build so dist/cli-engine.js matches src/cli-engine.ts. Verify remaining Koala hits are only allowlisted legacy compatibility tokens and that standard build/runtime checks pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Build and focused smoke output pass for both source and dist, proving generated CLI output no longer contains unclassified Koala branding.",
+      "files": {
+        "modify": [
+          "packages/main/dist/cli-engine.js",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run build and confirm packages/main/dist/cli-engine.js is regenerated from the cleaned TypeScript source.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the focused branding smoke against both src and dist so generated output preserves the same allowlisted legacy classification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run process/entrypoint verification to prove preserved koala-review-* and legacy alias handling still satisfy process contracts after the wording cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
