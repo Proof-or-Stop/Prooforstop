@@ -578,3 +578,51 @@ For affected projects, the recommended operator sequence is:
 
 This keeps the repair narrow: it fixes historical schema adoption without
 relaxing future story discipline.
+
+## Delivered (B-4e06)
+
+Implementation notes where delivery resolved an open question or added a detail
+beyond the plan above:
+
+- **`verification_intent_repair` (mode `fromEvidence`)** — registered command
+  (`handlers/checklist.ts`, schema in `cli-engine.ts`, `ownershipClass:
+  storyScopedMutating`, process-fact level `L2`, allowed phases PLAN/DEV/REVIEW/
+  TEST). Preflight is fail-closed and runs before any read/write: `mode` must be
+  `fromEvidence`, `legacyRepair` must be strictly `true`, and `reason` must be
+  ≥ 30 chars. It refuses INIT/INIT_CHECK and terminal/META phases.
+- **Synthesized intents are `priority: should`, never `must`** — backfilling a
+  `must` intent would retroactively add a hard coverage-gate requirement and
+  could fail a previously-passing story, weaponizing a repair tool into a gate.
+  `should` keeps the backfill informational. Type is mapped from the evidence
+  kind (logic_test→logic, integration_test→cli, browser_test→browser,
+  manual_transcript→manual, docs_check→docs); the description is reconstructed
+  from the evidence note/command/file.
+- **Fail-closed on malformed refs**: an item-scoped ref (`${item.id}:…`) that is
+  not the canonical `CHK-N:(happy|edge|adversarial):N` shape throws; custom or
+  foreign refs are skipped. Failing/waiver evidence never seeds an intent.
+  Authored intent is never overwritten. Sparse lower indices are padded with
+  non-required (`nice`) placeholders so a JSON round-trip has no null holes.
+- **Diagnostics name the repair path without weakening the gate** — a shared
+  `detectLegacyEvidenceWithoutIntent` helper (`core/verification.ts`) is used by
+  both `story_review` and `validate` so they cannot drift. Missing
+  `verificationIntent` stays a hard blocker; when matching evidence refs exist
+  the diagnostic adds a legacy hint pointing at `verification_intent_repair`.
+  The validate hint is additive output only and never alters coverage math or
+  `allPass`.
+- **gitRoot bootstrap reuses the signed-workspace resolver** — `dev_start`
+  (`handlers/worktree.ts`) and the INIT_CHECK metadata reconcile
+  (`cli-engine.ts`) resolve the git root via `resolveStorySignedWorkspace` (the
+  same resolver `session_brief` uses), never a second resolver. A configured but
+  unresolvable `gitRoot` fails closed echoing the signed-workspace reason; with
+  no `gitRoot` configured the legacy `getRepoRoot()` path is byte-for-byte
+  unchanged.
+- **Resolved layout question**: story metadata MUST live inside the configured
+  `gitRoot` (e.g. `storyDir: "<gitRoot>/docs/story/actives"`). The scoped
+  bootstrap commit re-anchors `storyRel` to the resolved git root; both sides are
+  canonicalized with `realpath` so a `/var` → `/private/var` symlink between the
+  metadata root and the git toplevel cannot corrupt the relative path. Metadata
+  outside the gitRoot fails closed.
+- **Coverage**: `tasks/verification-intent-repair-smoke.ts` (repair + detector
+  unit cases), `scripts/verify-init-check-bootstrap.mjs` (new `nested-gitroot`
+  and `invalid-gitroot` modes plus a `help-health` guard for `checklist_update
+  --help`).

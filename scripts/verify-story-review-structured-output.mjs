@@ -65,16 +65,16 @@ function makeStory(projectRoot, suffix, checklist, extra = {}) {
   const created = run(projectRoot, 'story_create', {
     name: `review-output-${suffix}`,
     title: `Review output ${suffix}`,
-    background: `## 触发事件
+    background: `## Trigger Event
 2026-05-12 B-2a4a structured-output smoke creates a temporary story so story_review response fields can be inspected without touching a real project.
 
-## 关键洞察
+## Key Insights
 The smoke is about public CLI output shape, not feature behavior. It must prove the PLAN review count is explicit and does not collide with signed artifact reviewRound semantics.
 
-## 方案取舍
+## Solution Tradeoffs
 Use a synthetic project and the real dist CLI. This keeps the check black-box enough to catch response drift while avoiding direct story JSON edits.
 
-## 对话纹理
+## Conversational Texture
 The user noticed that a numeric story_review field could be mistaken for findings.json reviewRound. The smoke preserves that distinction as a maintainer-facing contract.`,
     description: 'Verify structured story_review output.',
     type: 'feature',

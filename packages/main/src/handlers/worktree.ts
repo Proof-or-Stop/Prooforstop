@@ -1,6 +1,6 @@
 
 import { execFileSync, execSync } from 'child_process';
-import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, readlinkSync, rmSync, symlinkSync, unlinkSync } from 'fs';
+import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, readlinkSync, realpathSync, rmSync, symlinkSync, unlinkSync } from 'fs';
 import { tmpdir } from 'os';
 import { basename, dirname, join, relative, isAbsolute, resolve, sep } from 'path';
 import type { HandlerContext } from './context.js';
@@ -14,6 +14,7 @@ import {
 import { buildScopeDiscardDigestEntry, normalizeBoundaryArray, scopeFreezeBackgroundTerms } from '../core/scope-anti-expansion.js';
 import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
+import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-resolution.js';
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
@@ -336,6 +337,40 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     } catch {
       return root;
     }
+  }
+
+  /**
+   * B-4e06 CHK-003: resolve the git repository root that INIT_CHECK bootstrap git
+   * ops (branch creation, scoped commit, worktree add) must run from. When a
+   * gitRoot is configured (wrapper-root project whose metadata root is not the
+   * git root), reuse the SAME signed-workspace resolver session_brief uses —
+   * never a second resolver — so the bootstrap and observability agree on the
+   * repo root. Fails closed (echoing the signed-workspace reason) when gitRoot
+   * is configured but unresolved, so an invalid gitRoot never silently
+   * bootstraps in the wrong place. With no gitRoot configured, behavior is
+   * byte-for-byte the existing getRepoRoot() fallback.
+   *
+   * Must be called BEFORE story.worktree is written: the resolver treats a
+   * present worktree binding as a request to resolve an existing worktree, which
+   * does not yet exist during bootstrap.
+   */
+  function resolveBootstrapGitRoot(storyId: string): string {
+    const configuredGitRoot = loadConfig(root).gitRoot?.trim();
+    if (!configuredGitRoot) return getRepoRoot();
+    const resolution = resolveStorySignedWorkspace({ store, storyId, metadataRoot: root });
+    if (
+      resolution.resolved &&
+      resolution.repoRoot &&
+      (resolution.resolutionSource === 'configured-git-root' ||
+        resolution.resolutionSource === 'metadata-git-root' ||
+        resolution.resolutionSource === 'linked-story-branch-worktree')
+    ) {
+      return resolution.repoRoot;
+    }
+    throw new Error(
+      `Cannot bootstrap INIT_CHECK worktree: configured gitRoot is unusable (${resolution.unresolvedReason || 'unresolved'}). ` +
+      `Fix lattice.config.json gitRoot so it points at a valid git repository root that contains the story metadata, then retry.`,
+    );
   }
 
   /** Resolve the worktree.path stored in story (may be relative or absolute) to an absolute path */
@@ -706,12 +741,22 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       const branch = `story/${args.storyId}`;
-      // Create worktree with git repo root (not project root, to avoid nesting under subprojects)
-      const repoRoot = getRepoRoot();
+      // Create worktree with the resolved git repo root (B-4e06 CHK-003: honor a
+      // configured gitRoot for wrapper-root projects; plain repos are unchanged).
+      // Must resolve BEFORE story.worktree is written below.
+      const repoRoot = resolveBootstrapGitRoot(args.storyId);
       const worktreeDir = loadConfig(root).worktreeDir || '.worktrees';
       const worktreePath = join(repoRoot, worktreeDir, args.storyId);
       const relWorktreePath = relative(repoRoot, worktreePath).replace(/\\/g, '/');
-      const storyRel = `${store.storyDirRel().replace(/\/$/, '')}/${args.storyId}`;
+      // storyRel must be relative to the RESOLVED repo root so the scoped
+      // bootstrap `git add` works whether or not the metadata root is the git
+      // root. Canonicalize both sides (realpath) so a /var → /private/var symlink
+      // between the metadata root and the git toplevel does not corrupt the
+      // relative path. When repoRoot === root this equals the legacy storyDir/id.
+      const storyAbs = join(root, store.storyDirRel().replace(/\/$/, ''), args.storyId);
+      const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
+      const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
+      const storyRel = relative(canonicalRepoRoot, canonicalStoryAbs).replace(/\\/g, '/');
 
       // B-7eed: Write the story.worktree field into story index.json first, then git add/commit,
       // to avoid writeStory leaving the main repo working tree dirty after commit (which would cause subsequent DONE
@@ -748,7 +793,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       // Create worktree
-      git(`worktree add "${worktreePath}" ${branch}`);
+      git(`worktree add "${worktreePath}" ${branch}`, repoRoot);
 
       // B-5fa4 CHK-003: parallelSafety check at worktree creation
       const parallelWarning = checkParallelSafety(args.storyId);

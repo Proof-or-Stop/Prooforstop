@@ -76,13 +76,13 @@ function createTempProject() {
 
 function makeBackground(label) {
   return [
-    '## 触发事件',
+    '## Trigger Event',
     `2026-05-01 B-0000 ${label} verifier needs a realistic story_create input before it can exercise INIT_CHECK bootstrap behavior.`,
-    '## 关键洞察',
+    '## Key Insights',
     'The bootstrap smoke owns worktree creation behavior, so its synthetic stories must satisfy the current background truth-source contract first.',
-    '## 方案取舍',
+    '## Solution Tradeoffs',
     'Use one reusable four-section background helper instead of weakening story_create or duplicating long literals in every regression case.',
-    '## 对话纹理',
+    '## Conversational Texture',
     'The visible outcome remains the same for a maintainer: the verifier should fail only when INIT_CHECK bootstrap behavior regresses.',
   ].join('\n\n');
 }
@@ -91,6 +91,26 @@ function extractStoryId(text) {
   const storyId = text.match(/B-[a-f0-9]+/)?.[0];
   if (!storyId) throw new Error(`failed to parse story id from: ${text}`);
   return storyId;
+}
+
+// INIT_CHECK now requires confirmed scope/execution boundaries + a scope-freeze
+// check before the worktree is created. Fold the current prerequisites into the
+// test bootstrap so scenarios exercise real INIT_CHECK behavior.
+function setupInitCheckGates(projectRoot, storyId) {
+  run(projectRoot, 'scope_boundary_set', {
+    storyId,
+    mode: 'feature',
+    allowedScope: ['Create the story worktree for bootstrap regression coverage'],
+    excludedScope: ['Unrelated source changes'],
+    userConfirmed: true,
+    confirmation: 'init-check bootstrap smoke fixture',
+  });
+  run(projectRoot, 'execution_boundary_set', {
+    storyId,
+    allowedPaths: ['docs/story'],
+    notes: 'init-check bootstrap smoke fixture',
+  });
+  run(projectRoot, 'scope_freeze_check', { storyId });
 }
 
 function recordInitCheck(projectRoot, storyId) {
@@ -104,10 +124,11 @@ function recordInitCheck(projectRoot, storyId) {
     issues: [],
     agentId: 'product-reviewer',
   });
+  setupInitCheckGates(projectRoot, storyId);
 }
 
 function extractWorktreePath(text) {
-  const path = text.match(/路径:\s*(.+)/)?.[1]?.trim();
+  const path = text.match(/(?:路径|Path):\s*(.+)/)?.[1]?.trim();
   if (!path) throw new Error(`failed to parse worktree path from: ${text}`);
   return path;
 }
@@ -138,12 +159,14 @@ async function verifyConcurrentInitCheck() {
     })));
     for (const storyId of storyIds) recordInitCheck(temp, storyId);
 
-    const outputs = await Promise.all(storyIds.map(storyId => runConcurrentInitCheck(temp, storyId)));
-    const worktreePaths = outputs.map(extractWorktreePath);
+    await Promise.all(storyIds.map(storyId => runConcurrentInitCheck(temp, storyId)));
 
     for (let i = 0; i < storyIds.length; i++) {
       const storyId = storyIds[i];
-      const worktreePath = worktreePaths[i];
+      // Construct the expected worktree path deterministically instead of parsing
+      // concurrent output (whose ordering/format is not guaranteed under races).
+      const worktreePath = join(temp, '.worktrees', storyId);
+      assert(existsSync(worktreePath), `${storyId} worktree was not created under ${worktreePath} after concurrent INIT_CHECK`);
       const storyIndex = join(worktreePath, 'docs', 'story', 'actives', storyId, 'index.json');
       assert(existsSync(storyIndex), `${storyId} missing story file inside ${worktreePath}`);
       const advanced = run(temp, 'story_advance', { storyId, phase: 'PLAN' }, worktreePath);
@@ -206,7 +229,7 @@ function verifyBadBranchFailsFast() {
     execFileSync('git', ['branch', `story/${storyId}`], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] });
     const output = runAllowWarning(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
     assert(output.includes('⚠ worktree 创建失败'), 'expected INIT_CHECK warning when stale branch is reused');
-    assert(output.includes('不包含 docs/story/actives'), 'expected clear fail-fast message for stale branch commit');
+    assert(output.includes('does not contain docs/story/actives'), 'expected clear fail-fast message for stale branch commit');
 
     const storyIndex = readStoryIndex(temp, storyId);
     assert(!storyIndex.worktree, 'failed bootstrap should clear stale worktree metadata');
@@ -235,9 +258,16 @@ function verifyMainBranchNotPolluted() {
     const mainHeadAfter = git(temp, ['rev-parse', 'HEAD']);
     const storyBranchHead = git(temp, ['rev-parse', `story/${storyId}`]);
     const mainLog = git(temp, ['log', '--oneline', '-n', '1']);
-    const branchLog = git(temp, ['log', '--oneline', '-n', '1', `story/${storyId}`]);
+    // The story branch HEAD may be the main-merge commit after reconciliation;
+    // the scoped bootstrap commit lives in its history, not necessarily at HEAD.
+    const branchLog = git(temp, ['log', '--oneline', '-n', '10', `story/${storyId}`]);
 
-    assert(mainHeadAfter === mainHeadBefore, 'INIT_CHECK should not advance the current main HEAD');
+    // INIT_CHECK reconciles the story metadata onto main as a single mirror
+    // commit; it must never put the scoped bootstrap commit on main.
+    assert(
+      mainHeadAfter === mainHeadBefore || mainLog.includes(`INIT_CHECK metadata ${storyId}`),
+      'main may only advance by the INIT_CHECK metadata mirror commit, never the bootstrap',
+    );
     assert(storyBranchHead !== mainHeadBefore, 'story branch should receive a dedicated bootstrap commit');
     assert(!mainLog.includes(`koala: story ${storyId} init`), 'main should not receive bootstrap init commit');
     assert(branchLog.includes(`koala: story ${storyId} init`), 'story branch should keep the bootstrap init commit');
@@ -280,9 +310,120 @@ function verifyDryRunDoesNotMutate() {
   }
 }
 
+// B-4e06 CHK-003: wrapper-root project — metadata root is NOT a git repo; the
+// real repo is a configured gitRoot subdir, and story metadata lives inside it.
+function createWrapperRootProject({ gitRootName = 'repo', initGit = true } = {}) {
+  const wrapper = mkdtempSync(join(tmpdir(), 'koala-wrapper-'));
+  const repo = join(wrapper, gitRootName);
+  const storyDirRel = `${gitRootName}/docs/story/actives`;
+  mkdirSync(join(wrapper, storyDirRel), { recursive: true });
+  mkdirSync(join(wrapper, gitRootName, 'docs', 'requirements'), { recursive: true });
+  writeFileSync(join(wrapper, 'koala.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: storyDirRel,
+    requirementsDir: `${gitRootName}/docs/requirements`,
+    storyPrefix: 'B',
+    gitRoot: gitRootName,
+  }, null, 2));
+  if (initGit) {
+    writeFileSync(join(repo, '.gitignore'), '.worktrees/\n');
+    writeFileSync(join(repo, 'README.md'), '# wrapper repo\n');
+    execFileSync('git', ['init', '-b', 'main'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Test'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['config', 'user.email', 'koala@example.com'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['add', '.'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['commit', '-m', 'init'], { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
+  }
+  return { wrapper, repo };
+}
+
+function verifyNestedGitRootSuccess() {
+  const { wrapper, repo } = createWrapperRootProject();
+  try {
+    const storyId = extractStoryId(run(wrapper, 'story_create', {
+      name: 'nested-gitroot',
+      title: 'Nested gitRoot story',
+      description: 'Verify INIT_CHECK bootstrap honors a configured gitRoot subdir.',
+      background: makeBackground('nested-gitroot'),
+      type: 'feature',
+      priority: 'high',
+      checklist: [{ title: 'bootstrap worktree', context: 'nested gitRoot regression case' }],
+    }));
+    recordInitCheck(wrapper, storyId);
+
+    const output = run(wrapper, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
+    const worktreePath = extractWorktreePath(output);
+
+    // Worktree + branch must be created inside the configured gitRoot, not the wrapper.
+    assert(worktreePath.includes(join(gitBasename(repo), '.worktrees', storyId)) || worktreePath.includes(join('.worktrees', storyId)),
+      `worktree should live under the gitRoot .worktrees: ${worktreePath}`);
+    assert(!existsSync(join(wrapper, '.git')), 'wrapper root must NOT become a git repo');
+    const branchHead = git(repo, ['rev-parse', `story/${storyId}`]);
+    assert(branchHead && branchHead.length >= 7, 'story branch must exist in the configured gitRoot');
+    assert(existsSync(join(worktreePath, 'docs', 'story', 'actives', storyId, 'index.json')),
+      'story metadata must be checked out inside the worktree');
+    // Story metadata index must still resolve under the configured story root.
+    assert(existsSync(join(wrapper, 'repo', 'docs', 'story', 'actives', storyId, 'index.json')),
+      'story metadata must remain under the configured storyDir inside the gitRoot');
+  } finally {
+    rmSync(wrapper, { recursive: true, force: true });
+  }
+}
+
+function gitBasename(p) {
+  return p.split('/').filter(Boolean).pop();
+}
+
+function verifyInvalidGitRootFailsClosed() {
+  // gitRoot points at an existing directory that is NOT a git repository.
+  const { wrapper } = createWrapperRootProject({ initGit: false });
+  try {
+    const storyId = extractStoryId(run(wrapper, 'story_create', {
+      name: 'invalid-gitroot',
+      title: 'Invalid gitRoot story',
+      description: 'Verify INIT_CHECK fails closed when the configured gitRoot is not a git repo.',
+      background: makeBackground('invalid-gitroot'),
+      type: 'feature',
+      priority: 'high',
+      checklist: [{ title: 'bootstrap worktree', context: 'invalid gitRoot regression case' }],
+    }));
+    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
+    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
+    setupInitCheckGates(wrapper, storyId);
+
+    const output = runAllowWarning(wrapper, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
+    assert(/configured_gitRoot_is_not_git_repository|gitRoot is unusable|not a git/i.test(output),
+      `expected a clear signed-workspace reason for the invalid gitRoot, got: ${output}`);
+    assert(!existsSync(join(wrapper, 'repo', '.worktrees', storyId)), 'no worktree should be created for an invalid gitRoot');
+  } finally {
+    rmSync(wrapper, { recursive: true, force: true });
+  }
+}
+
+// B-4e06 CHK-004: regression guard for the verified P3 state — `checklist_update
+// --help` must exit zero without triggering sourceManifestDigest/help-import work.
+function verifyChecklistUpdateHelpHealth() {
+  execFileSync('node', [cli, 'checklist_update', '--help'], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  console.log('checklist_update --help exits zero (help-health)');
+}
+
 async function main() {
+  if (mode === 'help-health' || mode === 'all') {
+    verifyChecklistUpdateHelpHealth();
+  }
   if (mode === 'concurrent' || mode === 'all') {
     await verifyConcurrentInitCheck();
+  }
+  if (mode === 'nested-gitroot' || mode === 'all') {
+    verifyNestedGitRootSuccess();
+  }
+  if (mode === 'invalid-gitroot' || mode === 'all') {
+    verifyInvalidGitRootFailsClosed();
   }
   if (mode === 'branch-isolation' || mode === 'all') {
     verifyMainBranchNotPolluted();

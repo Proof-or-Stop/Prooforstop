@@ -5,8 +5,8 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
-import type { ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
-import { buildVerificationCoverage, makeEvidence } from '../core/verification.js';
+import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentItem, VerificationIntentType, VerificationLane } from '../core/types.js';
+import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { authorityModeEnabled } from '../core/authority-mode.js';
@@ -146,6 +146,79 @@ function normalizeEvidence(root: string, input: VerificationEvidenceInput): Veri
     materialHash: input.materialHash || hashes.materialHash,
     ...(input.attestation ? { attestation: input.attestation } : {}),
   });
+}
+
+/**
+ * B-4e06 CHK-001: canonical structured intent ref — `CHK-001:happy:0`. Mirrors
+ * intent-coverage.ts:39 and verification.ts intentRef(). A ref scoped to an item
+ * (`${item.id}:`) that does NOT match this is malformed → fail-closed.
+ */
+const STRUCTURED_INTENT_REF = /^(CHK-\d+):(happy|edge|adversarial):(\d+)$/;
+
+/** Phases where verification_intent_repair is refused: pre-DEV scaffold + terminal/immutable. */
+const INTENT_REPAIR_REFUSED_PHASES = new Set(['INIT', 'INIT_CHECK', 'DONE', 'DISCARDED', 'META']);
+
+/** Map a recorded evidence kind to the closest verificationIntent type (lossy but stable). */
+function mapEvidenceKindToIntentType(kind: VerificationEvidence['kind']): VerificationIntentType {
+  switch (kind) {
+    case 'logic_test': return 'logic';
+    case 'integration_test': return 'cli';
+    case 'browser_test': return 'browser';
+    case 'manual_transcript': return 'manual';
+    case 'docs_check': return 'docs';
+    default: return 'cli';
+  }
+}
+
+/** Reconstruct a human intent description from the evidence that proves it. */
+function deriveIntentDesc(ev: VerificationEvidence): string {
+  const source = (ev.note && ev.note.trim()) || ev.command || ev.file || ev.kind;
+  const base = source.length > 140 ? `${source.slice(0, 137)}...` : source;
+  return `Reconstructed from ${ev.kind} evidence: ${base}`;
+}
+
+/** PASSING evidence only seeds intent: never a waiver, never an explicit fail. */
+function isPassingEvidence(ev: VerificationEvidence): boolean {
+  return ev.kind !== 'waiver' && ev.result !== 'fail';
+}
+
+/**
+ * B-4e06 CHK-001: pure reconstruction. For every checklist item, fill the
+ * MISSING verificationIntent lane slot that a passing, item-scoped, structured
+ * evidence ref points at — never overwriting an authored intent, synthesizing
+ * priority='should'. Mutates `cl` in place and returns the list of filled
+ * `itemId:lane:index (type)` refs. Throws on a malformed item-scoped ref
+ * (fail-closed). No I/O, so it is unit-testable without a git worktree.
+ */
+export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string[] {
+  const filled: string[] = [];
+  for (const item of cl.items) {
+    for (const ev of item.verificationEvidence || []) {
+      if (!ev.intentRef.startsWith(`${item.id}:`)) continue; // custom/foreign refs ignored
+      const m = STRUCTURED_INTENT_REF.exec(ev.intentRef);
+      if (!m) {
+        throw new Error(`verification_intent_repair: malformed intentRef '${ev.intentRef}' on ${item.id} — expected CHK-N:(happy|edge|adversarial):N. Fix the evidence ref before repair.`);
+      }
+      if (m[1] !== item.id) continue;       // structured ref scoped to another item
+      if (!isPassingEvidence(ev)) continue; // never synthesize from failing/waiver evidence
+      const lane = m[2] as VerificationLane;
+      const index = Number(m[3]);
+      const vi: VerificationIntent = item.verificationIntent || { happy: [], edge: [], adversarial: [] };
+      for (const l of VERIFICATION_LANES) if (!vi[l]) vi[l] = [];
+      if (vi[lane][index]) continue;        // never overwrite authored intent
+      while (vi[lane].length < index) {
+        vi[lane].push({ desc: 'Reconstructed placeholder (no evidence at this index)', type: 'logic', priority: 'nice' });
+      }
+      vi[lane][index] = {
+        desc: deriveIntentDesc(ev),
+        type: mapEvidenceKindToIntentType(ev.kind),
+        priority: 'should',
+      };
+      item.verificationIntent = vi;
+      filled.push(`${item.id}:${lane}:${index} (${vi[lane][index].type})`);
+    }
+  }
+  return filled;
 }
 
 export function createChecklistHandlers(ctx: HandlerContext) {
@@ -873,6 +946,56 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
       }
       return lines.join('\n');
+      });
+    },
+
+    /**
+     * B-4e06 CHK-001: audited legacy repair. Reconstructs ONLY missing
+     * verificationIntent lanes from existing PASSING verificationEvidence, for
+     * mid-flight stories adopted after evidence was already recorded. Never
+     * overwrites authored intent; fail-closed on malformed refs; synthesized
+     * intents are priority='should' so the backfill can never retroactively
+     * weaponize the hard coverage gate. Refused in INIT/INIT_CHECK/terminal.
+     */
+    verification_intent_repair(args: {
+      storyId: string;
+      mode: 'fromEvidence';
+      legacyRepair: boolean;
+      reason: string;
+      dryRun?: boolean;
+      actor?: string;
+    }): string {
+      // --- LOCAL PREFLIGHT (fail-closed, BEFORE any read/write) ----------------
+      if (args.mode !== 'fromEvidence') {
+        throw new Error("verification_intent_repair: mode must be 'fromEvidence' (the only supported mode)");
+      }
+      if (args.legacyRepair !== true) {
+        throw new Error('verification_intent_repair: legacyRepair must be explicitly true — confirm this is a legacy evidence-without-intent backfill, not normal PLAN work');
+      }
+      if (!args.reason || args.reason.trim().length < 30) {
+        throw new Error('verification_intent_repair: reason must be ≥ 30 characters (substantial justification of what you verified)');
+      }
+      const story = assertChecklistMutationCwd(store, args.storyId);
+      if (INTENT_REPAIR_REFUSED_PHASES.has(story.phase)) {
+        throw new Error(`verification_intent_repair refused in ${story.phase} phase: only PLAN/DEV/REVIEW/TEST stories with mid-flight evidence can be repaired`);
+      }
+      return withChecklistLock(ctx, args.storyId, () => {
+        const cl = store.readChecklist(args.storyId);
+        const filled = reconstructMissingIntentsFromEvidence(cl);
+        const header = `${args.dryRun ? '[DRY-RUN] ' : ''}verification_intent_repair (fromEvidence) for ${args.storyId}`;
+        if (filled.length === 0) {
+          return `${header}\nNo missing verificationIntent lanes with passing evidence — nothing to repair.`;
+        }
+        const lines = [header, `Reconstructed ${filled.length} intent lane(s) from passing evidence:`, ...filled.map(f => `  + ${f}`)];
+        if (args.dryRun) {
+          lines.push('→ Rerun without dryRun to write these reconstructed intents (priority=should).');
+          return lines.join('\n');
+        }
+        store.writeChecklist(args.storyId, cl);
+        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_intent_repair');
+        lines.push(`Wrote ${filled.length} reconstructed intent(s). Re-run lattice validate --story=${args.storyId} --json`);
+        if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
+        return lines.join('\n');
       });
     },
 

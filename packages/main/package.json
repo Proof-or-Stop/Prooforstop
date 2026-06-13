@@ -39,6 +39,7 @@
     "test:auxiliary-worktree-cleanup-smoke": "node dist/tasks/auxiliary-worktree-cleanup-smoke.js",
     "test:worktree-node-modules-smoke": "node dist/tasks/worktree-node-modules-smoke.js",
     "test:worktree-authority-smoke": "node dist/tasks/worktree-authority-smoke.js",
+    "test:verification-intent-repair-smoke": "node dist/tasks/verification-intent-repair-smoke.js",
     "test:validation-protocol": "node dist/tasks/validation-protocol-smoke.js",
     "test:runtime-fact-contract": "node ../../scripts/verify-runtime-fact-contract.mjs",
     "test:anti-stall": "cd ../.. && node scripts/verify-anti-stall-guardrails.mjs",
