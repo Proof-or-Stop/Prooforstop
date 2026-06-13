@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-13T01:51:22.177Z",
       "reviewRunId": "B-85ba:RR-024",
       "_hash": "280b4c1c183db5973f541cabe45117296eec1f08adbfc40a8d595f5b729ec1ba"
+    },
+    {
+      "id": "B-85ba:RP-014",
+      "agent": "koala-review-docs",
+      "note": "F-008 docs review pass: docs/requirements/decisions/lifecycle-artifact-scope.md now states story_discard produces scope-discard-digest.json for the discarded story, while INIT_CHECK/scope freeze consumes the current story digest plus digest entries from every DISCARDED story. Verified against process-fact registry, lifecycle registry, store/machine guard path, and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T02:01:11.555Z",
+      "reviewRound": "2026-06-13T01:59:14.956Z",
+      "reviewRunId": "B-85ba:RR-029",
+      "_hash": "55e9b98d2363bafdb00ff85e6cf8bb756df6c9bffd839073bc0361753634445f"
     }
   ]
 }
