@@ -105,9 +105,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-authority-live-integration.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T12:46:52.350Z",
-      "endTime": null,
+      "endTime": "2026-06-13T12:47:13.197Z",
       "userSees": "用户运行 `lattice authority_status --authorityMode=enforce --json` 后能看到 readiness 字段补齐，同时仍看到：`\"receiptVerified\": false`、`\"productionDone\": false`、`\"canClaimProductionDone\": false`。",
       "files": {
         "modify": [
@@ -205,6 +205,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation, commit, and verification evidence completed."
+    },
+    {
+      "timestamp": "2026-06-13T12:47:13.197Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Authority status readiness and no-overclaim verification completed."
     }
   ]
 }
