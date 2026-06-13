@@ -1,5 +1,5 @@
 /**
- * @koala-agent/utils 提供的辅助工具 CLI 注册表。
+ * @lattice-agent/utils 提供的辅助工具 CLI 注册表。
  * 通过 bootstrap 脚本传给 main 的 runCli，与 main 自身的 mainToolDefs 合并。
  */
 import { z } from 'zod';

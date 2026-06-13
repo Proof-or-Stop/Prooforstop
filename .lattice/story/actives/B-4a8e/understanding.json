@@ -1,0 +1,22 @@
+{
+  "task": "Fix session_brief host status rendering for configured gitRoot wrapper-root projects.",
+  "outcome": "When running lattice session_brief in a metadata root that is not git but has gitRoot=clawcreek configured, the terminal shows Metadata root: non-git, configured gitRoot: clawcreek, signed workspace: OK, resolutionSource: configured-git-root instead of only warning Non-git project.",
+  "facts": [
+    "B-3938 in /Users/jek/Documents/ClawCreek resolved after gitRoot=clawcreek and review_run_start created RR-001.",
+    "session_brief currently checks isGitRepository(ctx.root) and prints Non-git project without checking configured gitRoot resolution.",
+    "story_resolve already has the authoritative configured-git-root resolver semantics; this story should not duplicate or weaken resolver behavior.",
+    "field-regression-cli-smoke already has wrapper-root fixtures for unbound and configured gitRoot projects."
+  ],
+  "constraints": [
+    "Do not auto-repair or guess child repositories.",
+    "Do not change story_resolve or review_run_start authority semantics unless required by the display fix.",
+    "Keep unresolved wrapper-root projects fail-closed and visibly unresolved.",
+    "User-visible output must distinguish metadata root non-git from signed workspace configured OK."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "timestamp": "2026-06-12T21:03:25.798Z"
+}

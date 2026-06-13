@@ -1,0 +1,75 @@
+{
+  "storyId": "B-c251",
+  "name": "missing-scope-check-guidance-plan",
+  "title": "Plan missing_scope_check reviewer guidance ergonomics",
+  "description": "Write and audit an execution plan for improving Lattice story_review missing_scope_check ergonomics so users are explicitly guided to run koala-review-scope-plan/scope_check_save when PLAN scope evidence is missing. Scope is documentation and implementation handoff only unless later executed by Lattice; do not change scope gate semantics, reviewer authority, or Authority Server claims.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-06-12T21:42:23.240Z",
+  "startedAt": "2026-06-12T21:42:23.240Z",
+  "endedAt": "2026-06-13T01:56:56.658Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-12T21:42:23.241Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-12T21:43:59.546Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-12T21:44:10.001Z",
+      "branch": "story/B-c251",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-12T21:48:02.700Z",
+      "branch": "story/B-c251",
+      "user": "Harmonygo",
+      "sessionId": "sess-c384675aed2fe8c3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T01:46:56.490Z",
+      "branch": "story/B-c251",
+      "user": "Harmonygo",
+      "sessionId": "sess-c384675aed2fe8c3",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T01:52:54.281Z",
+      "branch": "story/B-c251",
+      "user": "Harmonygo",
+      "sessionId": "sess-c384675aed2fe8c3",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T01:56:56.658Z",
+      "branch": "story/B-c251",
+      "user": "Harmonygo",
+      "sessionId": "sess-c384675aed2fe8c3",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-13T01:46:56.490Z"
+}

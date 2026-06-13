@@ -2,3 +2,18 @@
 {"type":"dispatch","storyId":"B-4a8e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-12T20:59:53.296Z"}
 {"type":"dispatch","storyId":"B-4a8e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-06-12T21:01:24.315Z"}
 {"type":"dispatch","storyId":"B-4a8e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-12T21:01:25.274Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":2,"issueCount":6,"timestamp":"2026-06-12T21:04:39.798Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":1,"issueCount":2,"timestamp":"2026-06-12T21:05:57.558Z"}
+{"type":"dispatch","storyId":"B-4a8e","phase":"PLAN","source":"lattice dispatch","targetKind":"checklist","agentType":"koala-review-scope-plan","itemId":"CHK-001","checklistId":"CHK-001","timestamp":"2026-06-12T21:06:14.910Z"}
+{"type":"plan_reviewed","round":3,"blockerCount":0,"issueCount":1,"timestamp":"2026-06-12T21:07:36.262Z"}
+{"type":"plan_reviewed","round":4,"blockerCount":0,"issueCount":1,"timestamp":"2026-06-12T21:08:16.317Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-12T21:09:36.537Z"}
+{"type":"dispatch","checklistId":"CHK-002","timestamp":"2026-06-12T21:09:36.984Z"}
+{"type":"dispatch","checklistId":"CHK-003","timestamp":"2026-06-12T21:09:37.336Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-12T21:17:47.130Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-12T21:17:55.242Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-12T21:18:02.054Z"}
+{"type":"review_pass","storyId":"B-4a8e","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-4a8e:RP-001","timestamp":"2026-06-12T21:32:10.581Z"}
+{"type":"review_pass","storyId":"B-4a8e","command":"review_pass_set","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","reviewPassId":"B-4a8e:RP-002","timestamp":"2026-06-12T21:32:23.972Z"}
+{"type":"review_pass","storyId":"B-4a8e","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-4a8e:RP-003","timestamp":"2026-06-12T21:33:09.831Z"}
+{"type":"dirty_gate_audit","storyId":"B-4a8e","gate":"done-gate","category":"koala_metadata_changes","pathCount":4,"paths":[".lattice/story/actives/B-4a8e/index.json",".lattice/story/actives/B-4a8e/process-metrics.json",".lattice/story/actives/B-4a8e/test-evidence.json",".lattice/story/actives/B-4a8e/evidence/transcript-diff.md"],"reason":"koala-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-12T21:34:50.748Z"}

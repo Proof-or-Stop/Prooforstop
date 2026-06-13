@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-50fb:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Docs review PASS. Reviewed README.md and docs/requirements/decisions/authority-client-role.md against B-50fb scope: @lattice-agent/core is described as canonical/global core, @koala-agent/core is bounded to legacy fallback wording, local lattice/bin guidance is reflected, and the authority-client requirement keeps Koala/Lattice wording scoped to CLI package/legacy alias rather than overclaiming a broad product rename.",
+      "createdAt": "2026-06-12T21:36:42.555Z",
+      "reviewRound": "2026-06-12T21:34:37.455Z",
+      "reviewRunId": "B-50fb:RR-005",
+      "_hash": "ed656b159d268f498657660f71088fcb27779b10486055b75490e1a3e81cf923"
+    },
+    {
+      "id": "B-50fb:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage pass: package metadata scope/bin assertion passed at current HEAD; npm --prefix packages/main run build passed; verify-entrypoints, verify-global-lab-entrypoint, verify-runtime-fact-contract, and verify-process-fact-contract passed; node bin/lattice.js verify_codex {storyId:B-50fb} passed with only expected legacy global fallback heartbeat warning; npm test passed; scope_contract_check passed with 0 unacknowledged violations; lattice validate --story=B-50fb passed with 12/12 verification intents covered. transition-orchestrator fallback coverage is acceptable via story-lifecycle E2E plus source alignment with machine transition table.",
+      "createdAt": "2026-06-12T21:41:09.313Z",
+      "reviewRound": "2026-06-12T21:34:37.455Z",
+      "reviewRunId": "B-50fb:RR-006",
+      "_hash": "53f22275eedf3dc4f188f8db17d17c25342b8b5582d4be99af4fc9156f774f15"
+    },
+    {
+      "id": "B-50fb:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept pass. Checked package metadata via node -e over package.json, packages/main/package.json, packages/utils/package.json, packages/lab/package.json, packages/cli-guess-number/package.json, package-lock.json, packages/main/package-lock.json: canonical package names are lattice and @lattice-agent/core/utils/lab/cli-guess-number, with packages/main bin.lattice primary and bin.koala retained only as legacy alias. Checked focused rg over manifests, packages/main/src, packages/main/templates, scripts, README.md, and active requirements docs: remaining @koala-agent/core hits are explicitly legacy fallback/compatibility diagnostics, generated bootstrap fallback, or negative dependency assertions, not canonical package identity. Reviewed packages/main/src/handlers/worktree.ts and packages/main/src/tasks/worktree-repair-smoke.ts: F-002 mixed canonical+legacy global install is fixed because repairGlobalKoalaLinkBeforeWorktreeDelete now enumerates present @lattice-agent/core and @koala-agent/core entries and relinks every symlink pointing into the deleted worktree, while smoke assertMixedCanonicalLegacyGlobalLinksAreRepaired covers canonical dir plus stale legacy symlink. Verification rerun passed: npm --prefix packages/main run test:worktree-repair-smoke, node scripts/verify-runtime-fact-contract.mjs, node scripts/verify-entrypoints.mjs. WHY: product/concept contract is now canonical Lattice package identity with Koala only as bounded legacy compatibility, and the prior mixed-install blocker is mechanically covered.",
+      "createdAt": "2026-06-13T01:43:51.621Z",
+      "reviewRound": "2026-06-12T21:52:23.432Z",
+      "reviewRunId": "B-50fb:RR-007",
+      "_hash": "542fae306d9eeb7cb57fe658bfb96b6ad20f4ee0fe83ff397623be6ed46a2279"
+    },
+    {
+      "id": "B-50fb:RP-004",
+      "agent": "koala-review-docs",
+      "note": "PASS docs scope rename review. Evidence: README.md:581 documents global @lattice-agent/core realpath and marks @koala-agent/core only as legacy fallback; README.md:691 says canonical package is @lattice-agent/core and legacy package fallback is @koala-agent/core; docs/requirements/decisions/authority-client-role.md:20 and :252 use @lattice-agent/core as workflow client package with @koala-agent/core only as legacy package fallback. Negative search rg -n @koala-agent/core README.md docs plus markdown scoped fallback search returned only fallback-context hits outside legacy exclusions, so active README/truth-source docs do not keep the old Koala npm scope as current usage.",
+      "createdAt": "2026-06-13T01:44:14.895Z",
+      "reviewRound": "2026-06-12T21:52:23.432Z",
+      "reviewRunId": "B-50fb:RR-012",
+      "_hash": "42549b8826fd90c721c5e40e6b7ad92581f97486aa9fe4dce424f1a195ca9244"
+    },
+    {
+      "id": "B-50fb:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review pass. checklist_get shows CHK-001..CHK-004 all done with happy/edge/adversarial verificationIntent and evidence; lattice validate --story=B-50fb passed and reported Verification intent coverage 12/12 covered, 0 required missing, so validate is usable as TEST gate evidence. F-001 targeted repro is covered by npm --prefix packages/main run test:validation-protocol: validation-protocol-smoke asserts getGuardFailureReason still falls through to null, canSendStoryEvent fallback returns false, and assertStoryTransitionReachedTarget blocks DEV side effects. F-002 targeted repro is covered by npm --prefix packages/main run test:worktree-repair-smoke: worktree-repair-smoke constructs canonical @lattice-agent/core plus legacy @koala-agent/core symlink into the story worktree and verifies the legacy link is relinked while canonical install remains untouched. No blocker found.",
+      "createdAt": "2026-06-13T01:44:15.268Z",
+      "reviewRound": "2026-06-12T21:52:23.432Z",
+      "reviewRunId": "B-50fb:RR-009",
+      "_hash": "acce6e387b581ecf5caf03787bc5439587e69b94df2d76c1990c321e110e01d4"
+    },
+    {
+      "id": "B-50fb:RP-006",
+      "agent": "koala-review-quality",
+      "note": "复审通过：F-001 修复在 packages/main/src/core/machine.ts:99-117 抽出 canStartDevGuard 并在 packages/main/src/core/machine.ts:229-255 的 snapshot.can fallback 中复用真实 fail-closed guard predicate；packages/main/src/handlers/transition-orchestrator.ts:137-159 不再用 getGuardFailureReason 作为 canSend oracle，packages/main/src/handlers/transition-orchestrator.ts:350-385 在 actor.send 后立即 assertStoryTransitionReachedTarget，再写 story 与后续 DEV/phase side effects。rename/runtime 侧，packages/main/src/handlers/worktree.ts:61-87/139-157 枚举 @lattice-agent/core 与 legacy @koala-agent/core 并修复所有 stale symlink，packages/main/src/tasks/worktree-repair-smoke.ts:173-199 覆盖 mixed canonical+legacy 场景；packages/main/src/core/runtime-environment-checks.ts:83-88/227-252/757-767 canonical-first legacy-fallback 逻辑清晰，未发现脆弱分支。验证命令通过：npm --prefix packages/main run test:validation-protocol；npm --prefix packages/main run test:worktree-repair-smoke；node scripts/verify-runtime-fact-contract.mjs；npm --prefix packages/main run build；node scripts/verify-entrypoints.mjs。",
+      "createdAt": "2026-06-13T01:44:55.860Z",
+      "reviewRound": "2026-06-12T21:52:23.432Z",
+      "reviewRunId": "B-50fb:RR-008",
+      "_hash": "986d0e46f9300fb8bd43b26c47719409dede6615cb49fa7bf2644527dbfd183e"
+    }
+  ]
+}
