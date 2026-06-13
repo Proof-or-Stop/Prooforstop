@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-13T01:43:05.842Z",
       "reviewRunId": "B-85ba:RR-019",
       "_hash": "331c5a9740519163268895ec1922af7d11816406117467a4f695b09a33e2c281"
+    },
+    {
+      "id": "B-85ba:RP-012",
+      "agent": "koala-review-concept",
+      "note": "F-007复审通过：readScopeDiscardDigestForFreeze merges current story digest with DISCARDED story scope-discard-digest entries for freeze/gate evaluation; story_create still rejects direct INIT_CHECK and dev_start cannot bypass INIT_CHECK scope anti-expansion gate. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:scope-anti-expansion-smoke, including real discard-to-replacement coverage.",
+      "createdAt": "2026-06-13T01:53:30.432Z",
+      "reviewRound": "2026-06-13T01:51:22.177Z",
+      "reviewRunId": "B-85ba:RR-023",
+      "_hash": "a60b65db5be7ad35d5971b3eca9dd95f5dfb0eaaa78eed1af908a16c6279799c"
     }
   ]
 }
