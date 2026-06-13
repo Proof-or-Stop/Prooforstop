@@ -215,6 +215,15 @@
       "reviewRound": "2026-06-13T02:35:50.708Z",
       "reviewRunId": "B-85ba:RR-041",
       "_hash": "5e1c50cd288896a5f26700f8f711c4aa6dab9d40de3fa2e990450eef3dd088c8"
+    },
+    {
+      "id": "B-85ba:RP-025",
+      "agent": "koala-review-quality",
+      "note": "Final quality review found no blocking issue. Verified story_update actor resolution blocks INIT reviewer/product-reviewer edits to story-level scope fields while main/owner edits stale freeze evidence; INIT reviewer checklist mutations still route to scope_extension_proposal; scope/execution boundary path fields and blockedPath aliases normalize consistently; INIT_CHECK gate rejects missing, failed, pending, stale, excluded-keyword, and repeated-discard cases; F-011 discardDigest.updatedAt metadata churn and F-012 .lattice-serve runtime artifact regressions are covered by passing smoke/contract commands.",
+      "createdAt": "2026-06-13T02:39:01.525Z",
+      "reviewRound": "2026-06-13T02:35:50.708Z",
+      "reviewRunId": "B-85ba:RR-039",
+      "_hash": "cd5211e68510aa56140037fddbaabf31e021604fc0a99d011e7fab9921068696"
     }
   ]
 }
