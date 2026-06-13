@@ -52,27 +52,27 @@
           "command": "grep -n koala packages/main/src/cli-engine.ts",
           "result": "pass",
           "note": "All koala/Koala hits classified: KOALA_* env vars, koala.config.json, .koala path, koala-codex, koala-review-* lanes, koala-hook, koala-implementer, git commit tokens preserved; user-visible Koala changed to Lattice (lines 3117, 3603)",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:23:04.652Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Verified: koala CLI alias (bin/koala→dist/cli.js), koala.config.json legacy fallback comment at line 2646, .koala path via LEGACY_KOALA_DIR, koala-codex at line 2780, koala-review-* lanes at lines 577-592 all preserved unchanged",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:23:04.652Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "branding smoke regex patterns compiled without matching KOALA_* env vars or process lanes; branding smoke test output: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:23:04.652Z"
         }
       ]
     },
@@ -150,9 +150,9 @@
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
           "note": "Branding smoke passed after F-003 fix, still scanning cli-engine src/dist and hooks src/dist with all unclassified counts at 0.",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:23:04.652Z"
         }
       ]
     },
@@ -281,18 +281,18 @@
           "command": "claude -p --model sonnet --agent koala-implementer ...; git commit --author=koala-implementer <koala-implementer@noreply.local>",
           "result": "pass",
           "note": "Claude CLI koala-implementer session was launched in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca for F-004 and produced staged edits to docs/guide-hooks.md plus cli-engine-branding-smoke.ts; the session became nonresponsive after edits, was interrupted, and the accepted staged changes were committed as ce395d900 with author koala-implementer.",
-          "headHash": "2cbcbd4405ce86ffc51c783176b09fcd4053aee9",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:12:21.564Z"
+          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:23:04.652Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Worktree isolation confirmed: git status shows only story/B-3cca branch files modified; no stash operations performed; no files outside packages/main scope touched",
-          "headHash": "78fb14dc100e81b65c7ece8dfff8f4f12d6e3ac7",
-          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
-          "timestamp": "2026-06-13T11:13:04.186Z"
+          "headHash": "6c8625e4d3d32d77196be59202141e07d6d00e6f",
+          "materialHash": "4ff48f50699ee90b3d7cef74549bdb5bcad33b7e3fe325fd2968340bb01eab23",
+          "timestamp": "2026-06-13T11:23:04.652Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
