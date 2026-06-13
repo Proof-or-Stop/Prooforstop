@@ -219,10 +219,10 @@
           "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
-          "note": "dist/cli-engine.js scanned: unclassified=0; dist file exists and was built from src changes in this session (commit 259976fb2)",
-          "headHash": "9ebd93b3e30c56b738a103d6c521c8f0a03b39ae",
-          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
-          "timestamp": "2026-06-13T10:42:16.449Z"
+          "note": "Current HEAD smoke passed against src and generated dist: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0; cli-engine branding smoke passed.",
+          "headHash": "0472de84c2249ebc8465158d6e1ee81726b03e6d",
+          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
+          "timestamp": "2026-06-13T10:47:01.404Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
