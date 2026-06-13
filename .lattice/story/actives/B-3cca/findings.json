@@ -24,7 +24,7 @@
       "desc": "Second hook branding fix is partial: cli-engine now announces [lattice-hook] at packages/main/src/cli-engine.ts:3771,3818,3839, but the shared hook runner it immediately calls still emits [koala-hook] diagnostics at packages/main/src/core/hooks.ts:212,220,229,231,241,242 for internal error, timeout, failure, stderr, and success-with-stdout. Those are current CLI stderr lines a user can see, not legacy aliases or reviewer/process tokens, so hook output can still present Koala as the product identity. Migrate those hook-runner labels to Lattice or explicitly justify them as preserved legacy compatibility with evidence.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-13T10:50:06.271Z",
@@ -34,7 +34,9 @@
       "files": [
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/hooks.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit 88f311664: shared hook runner diagnostics in packages/main/src/core/hooks.ts now emit [lattice-hook]; docs/guide-hooks.md was synced; branding smoke now includes hooks src/dist so this cannot regress silently.",
+      "resolvedAt": "2026-06-13T10:57:45.921Z"
     }
   ]
 }
