@@ -1,0 +1,38 @@
+{
+  "storyId": "B-8448",
+  "checkedAt": "2026-06-13T13:17:43.081Z",
+  "features": [
+    {
+      "feature": "New execution document covers the requested packages/main/src/cli-engine.ts Chinese-to-English translation review table",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "Declared create path docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md is missing; .lattice/story/actives/B-8448/plan.md is also missing; rg found 762 Chinese-character lines in packages/main/src/cli-engine.ts, so there is no reviewable document coverage to validate."
+    },
+    {
+      "feature": "Scope explicitly excludes modifying packages/main/src/cli-engine.ts source",
+      "covered_by": "CHK-001 context says not to change CLI source; files.modify is empty and files.test includes packages/main/src/cli-engine.ts only as review/verification input; adversarial verificationIntent says this documentation story does not modify packages/main/src/cli-engine.ts.",
+      "status": "excluded",
+      "excluded_by": "lattice checklist_get B-8448 CHK-001 context and verificationIntent.adversarial[0]",
+      "source": "lattice checklist_get {storyId:B-8448}"
+    },
+    {
+      "feature": "Scope explicitly excludes untracked docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md and .omx/docs/story/tests/fixtures",
+      "covered_by": "Partial only: CHK-001 adversarial verificationIntent excludes the existing untracked lattice-codex command boundary document.",
+      "status": "gap",
+      "excluded_by": "partial: docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md is excluded by CHK-001 adversarial verificationIntent",
+      "source": "No explicit PLAN scope evidence or execution document exclusion found for .omx/docs/story/tests/fixtures; target execution document is missing."
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 0,
+    "excluded": 1,
+    "gaps": 2,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "43445a9a13a6a60fd6e5951e85d4d85fb586c6425a476d05af02fa20182f5886",
+  "openQuestions": []
+}
