@@ -113,7 +113,7 @@
       "desc": "CHK-002:adversarial:0 verificationEvidence is hollow: the second conjunct of the ok() check on line 60 is `(mrows.length+1)!==762`, which expands to `763!==762` — a mathematical tautology that is always true regardless of document content. The intent requires simulating a phantom 763rd row to prove the count check is non-vacuous, but the verifier never mutates or re-reads the document; it cannot detect whether a tampered file would actually fail.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T19:15:55.192Z",
@@ -122,7 +122,9 @@
       "_hash": "9c65bd0e1e3abfb060f36028f5e271694176300f7443f450f208c297f10d4a03",
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
-      ]
+      ],
+      "resolvedReason": "CHK-002:adversarial:0 now runs the row-count predicate on a tampered 763-row copy and asserts it fails (non-vacuous) (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:26:01.290Z"
     },
     {
       "id": "B-5773:F-008",
