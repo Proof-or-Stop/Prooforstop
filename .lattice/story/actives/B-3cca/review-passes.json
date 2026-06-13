@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-13T10:47:51.054Z",
       "reviewRunId": "B-3cca:RR-003",
       "_hash": "5f774de43b690f92a71ea5ee4d8a4adf7dcfd4ec049421431abc964f7598b1d4"
+    },
+    {
+      "id": "B-3cca:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: Coverage after F-001/F-002 fixes is sufficient. Checklist evidence covers npm --prefix packages/main run build, npm --prefix packages/main run test:cli-engine-branding-smoke scanning cli-engine src/dist and hooks src/dist, node scripts/verify-process-fact-contract.mjs, node scripts/verify-entrypoints.mjs, and finding resolution for B-3cca:F-001 and B-3cca:F-002. Reviewer spot-check reran smoke, process fact contract, and entrypoint verification successfully.",
+      "createdAt": "2026-06-13T10:59:24.922Z",
+      "reviewRound": "2026-06-13T10:57:27.947Z",
+      "reviewRunId": "B-3cca:RR-006",
+      "_hash": "ae497b944efb3092f6df953647ecbbdb6e8782f10669cfea758695f4893b3445"
     }
   ]
 }
