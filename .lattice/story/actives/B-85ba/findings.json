@@ -130,6 +130,24 @@
       ],
       "resolvedReason": "Fixed in 2a355f947: worktree-authority-smoke now expects fromDraft stories to stop at INIT, commits bounded from-draft metadata on main, and verifies explicit story_advance INIT_CHECK performs the worktree bootstrap. Verified by npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run build, and node scripts/verify-process-fact-contract.mjs.",
       "resolvedAt": "2026-06-12T21:35:32.487Z"
+    },
+    {
+      "id": "B-85ba:F-007",
+      "desc": "Scope discard digest protection is only exercised when a prior digest is preloaded into the same current story, but the real discard path writes scope-discard-digest.json back to the story being discarded and the INIT_CHECK gate reads only store.readScopeDiscardDigest(currentStoryId). A newly created replacement story therefore starts with an empty digest and can repeat a discarded direction without mitigation, contrary to CHK-004/user-visible repeat-discard protection. Source: packages/main/src/handlers/worktree.ts:568-599 writes the digest under the discarded storyId; packages/main/src/core/machine.ts:163-173 consumes only the current storyId digest; packages/main/src/tasks/scope-anti-expansion-smoke.ts:469-478 seeds the previous digest into the same story instead of driving the real discard→new-story flow.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T01:45:15.254Z",
+      "reviewRound": "2026-06-13T01:43:05.842Z",
+      "reviewRunId": "B-85ba:RR-018",
+      "_hash": "a250ca3d3ddccb024ab04bd26eb37324c3156877c8ed17aeddcda64ee7db8ee8",
+      "files": [
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
+      ]
     }
   ]
 }
