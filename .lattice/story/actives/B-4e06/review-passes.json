@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-13T18:27:47.080Z",
       "reviewRunId": "B-4e06:RR-004",
       "_hash": "80fe5e4f2715cd8fd6b6ea8c1b50c41e2d92dc7bc976f8bdaa08a3c2cebcf302"
+    },
+    {
+      "id": "B-4e06:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 23 must-intents across CHK-001 through CHK-005. CHK-002 gap (F-001/F-002/F-003) is genuinely closed: the legacy-evidence-no-intent check in scripts/verify-story-review-structured-output.mjs seeds passing evidence for CHK-001:happy:0 with no verificationIntent, asserts story_review emits legacyEvidenceWithoutIntent=true + repairCommand=verification_intent_repair at severity=blocker, asserts the no-evidence lane keeps the generic blocker unchanged, and asserts validate --json surfaces legacyEvidenceWithoutIntent naming CHK-001 happy. All four script checks (missing-intent, advisory-only, high-risk, legacy-evidence-no-intent) pass. No new gaps found.",
+      "createdAt": "2026-06-13T18:43:41.413Z",
+      "reviewRound": "2026-06-13T18:42:09.162Z",
+      "reviewRunId": "B-4e06:RR-007",
+      "_hash": "8d3cd1b26c580d00d15e301d7e43f39db3eb901503952cce68d4e2603f13df88"
     }
   ]
 }
