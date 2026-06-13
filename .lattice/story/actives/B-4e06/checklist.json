@@ -108,7 +108,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A wrapper metadata root is not a git repository but lattice.config.json has a valid nested gitRoot -> session_brief resolves the signed workspace and story_advance INIT_CHECK creates the story branch and worktree by running git operations from the material git root; WHY: proves valid wrapper-root projects can bootstrap without manual worktree creation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktreeDir is configured under the wrapper metadata root while git operations run from the nested material repo -> bootstrap preserves story metadata in the configured store and records story.worktree.path in the existing downstream-compatible format; WHY: verifies metadata root and git material root stay separate without breaking later commands.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Existing non-wrapper projects use the repository root as both metadata and material root -> INIT_CHECK behavior and worktree paths remain compatible with the current single-root flow; WHY: guards against regressions in the common layout while adding gitRoot support.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "gitRoot is missing, non-git, or disallowed by signed workspace policy -> INIT_CHECK fails with the same signed-workspace reason vocabulary as session_brief and does not leave a partial branch/worktree mutation; WHY: keeps bootstrap failures actionable and avoids split-brain workspace state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
