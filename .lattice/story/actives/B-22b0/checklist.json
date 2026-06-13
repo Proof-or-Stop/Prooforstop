@@ -50,7 +50,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees either \"Authority Server path verified: receiptVerified=true receiptId=<id>\" or \"Authority proof blocked: missing actor key/runner id/gate_decision receipt; authorityDone=false; fullAuthorityDone=false\".",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Authority status/policy/receipt path is attempted with configured trust env through redacted CLI commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If actor key, runner id, session, job, or receipt prerequisites are missing, the result is recorded as blocked_classified rather than pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command output or evidence prints secrets or claims receiptVerified/authorityDone/fullAuthorityDone without verified gate_decision receipt proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
