@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-13T22:27:08.733Z",
       "reviewRunId": "B-2c0c:RR-007",
       "_hash": "833a1e8af89c9cdcb9b6c1b54cd266b1ee72d8e106d71836aba05db191a2c6af"
+    },
+    {
+      "id": "B-2c0c:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Docs reviewed at HEAD e69e51e: lifecycle-gate-receipt-consumption.md and story-lifecycle.md accurately describe local decision-doc quorum as a local DONE gate: 3 distinct runId rounds, 2 distinct PASS hosts per round, fresh decision-doc materialDigest, read-only decision_doc_quorum_check diagnostic, autopilot_review_submit as reviewerWrite/owner-lease-exempt local host_verdict evidence, and no equivalence to Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone. Verified against core decision-doc quorum evaluator, verdict handler, command policy/process-fact registry, and branch-local core CLI diagnostic output.",
+      "createdAt": "2026-06-13T22:30:52.336Z",
+      "reviewRound": "2026-06-13T22:27:08.733Z",
+      "reviewRunId": "B-2c0c:RR-013",
+      "_hash": "195f583d20cb2c417dea5b302c5d70cc97548769ef4060c82caff0c90493ca32"
     }
   ]
 }
