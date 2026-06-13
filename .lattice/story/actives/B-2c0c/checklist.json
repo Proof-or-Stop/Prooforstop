@@ -46,9 +46,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Fresh TypeScript build passed at current HEAD after DONE guard integration, quorum diagnostic wiring, and reviewer metadata commits.",
-          "headHash": "60550ede97b4c14b3496fafc3ac7276036940906",
+          "headHash": "4e70c7ee9e0ecf05bbfa4a97ab168479f0ef1655",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:25:24.378Z"
+          "timestamp": "2026-06-13T22:26:31.869Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -56,9 +56,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Smoke covers no docs/requirements/decisions/*.md change against main...HEAD; report applicable=false and ok=true, so DONE is not blocked.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "headHash": "4e70c7ee9e0ecf05bbfa4a97ab168479f0ef1655",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "timestamp": "2026-06-13T22:26:31.900Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,19 +66,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Smoke covers duplicate hosts, duplicate run IDs, stale materialDigest, non-pass decisions, and prose-only review_pass events; all are ignored or invalid and cannot satisfy quorum.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "headHash": "4e70c7ee9e0ecf05bbfa4a97ab168479f0ef1655",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
-        },
-        {
-          "intentRef": "CHK-001:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build",
-          "result": "pass",
-          "note": "TypeScript build passed after wiring evaluateDecisionDocQuorum into canFinishGuard and DONE failure formatting.",
-          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:06.713Z"
+          "timestamp": "2026-06-13T22:26:31.930Z"
         }
       ]
     },
