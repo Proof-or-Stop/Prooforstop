@@ -1,59 +1,59 @@
 {
   "storyId": "B-56ce",
-  "checkedAt": "2026-06-13T10:11:09.745Z",
+  "checkedAt": "2026-06-13T10:13:12.765Z",
   "features": [
     {
-      "feature": "validation timeout recovery diagnostics",
-      "covered_by": "CHK-001; packages/main/src/core/validation-executor.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
+      "feature": "Validation timeout failures diagnose timeout configuration clearly",
+      "covered_by": "CHK-001; plan.md#CHK-001; allowed modify packages/main/src/core/validation-executor.ts; test packages/main/src/tasks/validation-protocol-smoke.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "plan_get#CHK-001 and dispatch CHK-001"
+      "source": "checklist/plan/scope_contract"
     },
     {
-      "feature": "stale verification evidence hash-binding recovery",
-      "covered_by": "CHK-002; packages/main/src/core/evidence-stale-hint.ts",
-      "status": "drift",
-      "excluded_by": "",
-      "source": "dispatch CHK-002 expects packages/main/src/tasks/verification-freshness-smoke.ts, but plan Validation Checklist omits that targeted smoke"
-    },
-    {
-      "feature": "same-worktree owner lease recovery guidance",
-      "covered_by": "CHK-003; packages/main/src/core/story-owner-lease.ts; packages/main/src/handlers/session.ts; packages/main/src/tasks/story-owner-lease-smoke.ts",
+      "feature": "Stale verification evidence explains HEAD/material hash-binding drift and recovery commands",
+      "covered_by": "CHK-002; plan.md#CHK-002; allowed modify packages/main/src/core/evidence-stale-hint.ts; test packages/main/src/tasks/verification-freshness-smoke.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "plan_get#CHK-003 and dispatch CHK-003"
+      "source": "checklist/plan/scope_contract"
     },
     {
-      "feature": "delivery-check fallback provenance boundary",
-      "covered_by": "CHK-004; packages/main/src/core/done-oracle.ts; packages/main/src/handlers/transition-effects.ts; packages/main/src/tasks/flow-stability-smoke.ts",
+      "feature": "Owner lease same-worktree context switch recovery guidance",
+      "covered_by": "CHK-003; plan.md#CHK-003; allowed modify packages/main/src/core/story-owner-lease.ts and packages/main/src/handlers/session.ts; test packages/main/src/tasks/story-owner-lease-smoke.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "plan_get#CHK-004 and dispatch CHK-004"
+      "source": "checklist/plan/scope_contract"
     },
     {
-      "feature": "unsupported codex core-command namespace suggestions",
-      "covered_by": "CHK-005; packages/main/src/cli-engine.ts; packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+      "feature": "Delivery-check fallback preserves reviewer provenance boundary",
+      "covered_by": "CHK-004; plan.md#CHK-004; allowed modify packages/main/src/core/done-oracle.ts and packages/main/src/handlers/transition-effects.ts; test packages/main/src/tasks/flow-stability-smoke.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "plan_get#CHK-005 and dispatch CHK-005"
+      "source": "checklist/plan/scope_contract"
     },
     {
-      "feature": "mechanical scope contract allowed/protected/excluded files",
-      "covered_by": "",
-      "status": "gap",
+      "feature": "Unsupported codex core-command namespace suggests ordinary lattice commands without broad aliasing",
+      "covered_by": "CHK-005; plan.md#CHK-005; allowed modify packages/main/src/cli-engine.ts; test packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+      "status": "covered",
       "excluded_by": "",
-      "source": "scope_contract_show: Scope contract not configured"
+      "source": "checklist/plan/scope_contract"
+    },
+    {
+      "feature": "Mechanical scope contract defines allowed/protected/excluded files for this PLAN",
+      "covered_by": "plan.md#Scope Contract; scope_contract_show mode=enforce; allowedModify 7 files; allowedTest 5 files; protectedFiles 4 docs; explicitExcludes docs/story/** tests/fixtures/** .omx/**; scope_contract_check pass with 0 violations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/scope_contract"
     }
   ],
   "summary": {
     "total": 6,
-    "covered": 4,
+    "covered": 6,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "1127fae8920cdd02c2abc1958a5d8c878a9b95ea14d2f910c1f75679153a7072",
+  "_hash": "84d130f18057319568ee93aeff0d28971552ffe575119d1daa62cb990e5af878",
   "openQuestions": []
 }
