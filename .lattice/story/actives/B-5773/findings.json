@@ -5,7 +5,7 @@
       "desc": "CHK-003:edge:1 verificationEvidence is hollow: ok() is called with literal `true` (line 74 of verify-b5773.mjs). Intent requires confirming that detailed rules removed from command descriptions appear in schema/longHelp annotation, not simply deleted. The verifier unconditionally passes this check with the note \"advisory\" — no document assertion is made.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T19:15:19.639Z",
@@ -14,7 +14,9 @@
       "_hash": "3d46c675cdde187b88f602ea203a71bb51184e742682ccab8190eb397901be8b",
       "files": [
         ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
-      ]
+      ],
+      "resolvedReason": "CHK-003:edge:1 now asserts the style guide documents moving detail to schema/longHelp (commit d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:25:58.469Z"
     },
     {
       "id": "B-5773:F-002",
