@@ -158,22 +158,22 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/authority-status-smoke.js; node packages/main/dist/cli.js authority_status --authorityMode=enforce --json | non-sensitive JSON projection",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-status-smoke.js; reviewer off-mode repro projection",
           "result": "pass",
-          "note": "status smoke and real-file projection keep actorKeyConfigured=false and runnerConfigured=false when the trust file does not provide actor/runner fields; readiness warnings remain for those missing inputs.",
-          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
-          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
-          "timestamp": "2026-06-13T12:47:08.422Z"
+          "note": "Regression covers reviewer finding: mode=off performs zero trust-file/secret-file reads, leaves customerApiKeyConfigured=false and customerApiKeySource=missing, while trust file still works in enforce mode.",
+          "headHash": "d8e442ab77d089edcfa8b89020bf1868f2b12632",
+          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+          "timestamp": "2026-06-13T12:54:30.615Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/authority-status-smoke.js",
+          "command": "node packages/main/dist/tasks/authority-status-smoke.js; reviewer off-mode repro projection",
           "result": "pass",
-          "note": "status smoke asserts trust-file readiness never sets receiptVerified, productionDone, or canClaimProductionDone without verified receipt-backed Authority evidence.",
-          "headHash": "8aafb7972b7af82afb39929007791f3ea50cfb74",
-          "materialHash": "9fe22f6a5f5d692008bb783d6d7b9478f4b6e30f8b9ff2543e12b6fbf2c5c197",
-          "timestamp": "2026-06-13T12:47:08.422Z"
+          "note": "No-overclaim boundary remains intact after off-mode fix: productionDone=false and canClaimProductionDone=false in the repro and status smoke.",
+          "headHash": "d8e442ab77d089edcfa8b89020bf1868f2b12632",
+          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+          "timestamp": "2026-06-13T12:54:30.615Z"
         }
       ]
     }
