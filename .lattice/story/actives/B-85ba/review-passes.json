@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-13T01:59:14.956Z",
       "reviewRunId": "B-85ba:RR-028",
       "_hash": "a257ae6af61177b1ede110f60e273aa95570a5b3b21dd238d07a3558f0d0cd63"
+    },
+    {
+      "id": "B-85ba:RP-017",
+      "agent": "koala-review-concept",
+      "note": "PASS: F-010 resolved. Reviewed background.md projection through scope_freeze_check and INIT_CHECK gate recomputation, discard digest recording/merge, future keyword scan/freshness hashing, and background-only discarded-direction mitigation coverage. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm --prefix packages/main run test:worktree-authority-smoke; npm test; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T02:10:28.467Z",
+      "reviewRound": "2026-06-13T02:08:13.752Z",
+      "reviewRunId": "B-85ba:RR-030",
+      "_hash": "36a985973c42e4b783bb53f745359a40e4449e20a25a0d7e00bffe30fd116d83"
     }
   ]
 }
