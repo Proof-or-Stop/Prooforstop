@@ -58,9 +58,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke case story_create persists initial scope and execution boundaries verifies scope-boundary.json and execution-boundary.json are saved and readable.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,9 +68,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke cases missing scope boundary and missing execution boundary produce hard missing-artifact guard reasons instead of allow-all scope.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke cases reject malformed scope arrays, blank scope terms, malformed execution arrays, and unsafe traversal paths before gate evidence can be saved.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         }
       ]
     },
@@ -143,9 +143,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Process fact contract lists scope boundary, execution boundary, freeze check, extension proposal, and extension decision commands; smoke exercises proposal and decision behavior.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -153,9 +153,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke case accepted proposal invalidates previous freeze evidence and requires rerunning freeze before the INIT_CHECK guard passes.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,9 +163,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke case pending proposal blocks INIT_CHECK until separate explicit decision, proving proposal recording alone cannot mutate checklist scope or accept expansion.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         }
       ]
     },
@@ -225,9 +225,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke happy path passes only with current boundary, execution boundary, fresh freeze check, and no pending proposals.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -235,9 +235,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke covers distinct missing_scope_boundary, missing_execution_boundary, scope_extension_proposal_pending, scope_freeze_check_failed, and scope_freeze_check_stale reasons.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -245,9 +245,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "F-006 follow-up: worktree authority smoke now verifies fromDraft stops at INIT and only explicit story_advance INIT_CHECK performs worktree bootstrap, so anti-expansion failures still happen before worktree creation.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         }
       ]
     },
@@ -307,9 +307,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke correctness_fix case blocks default future denylist keyword Authority in checklist text before INIT_CHECK.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -317,9 +317,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke feature-mode case proves correctness_fix default denylist is not applied to feature scope unless excluded keywords are user-confirmed.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -327,9 +327,9 @@
           "command": "npm --prefix packages/main run test:scope-anti-expansion-smoke",
           "result": "pass",
           "note": "Smoke repeat-discard case blocks repeated discarded direction without mitigation and passes only after repeat mitigation is recorded.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         }
       ]
     },
@@ -398,9 +398,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verified new anti-expansion artifacts and commands are registered as gate-consumed facts.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -408,9 +408,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Build and contract checks include updated reviewer prompt/docs surfaces for INIT reviewers to propose expansion instead of mutating scope directly.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -418,9 +418,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "F-006 follow-up: repository-level worktree authority smoke was updated and passed, preventing stale legacy fromDraft INIT_CHECK auto-worktree expectations from hiding regressions.",
-          "headHash": "f889953f83fae6522a36ff49b166fe0cfc2a149a",
-          "materialHash": "9e39175e5656b48d9bdc12e65fa209fa5204f8e44909fdc7888291d668520bba",
-          "timestamp": "2026-06-13T01:59:02.718Z"
+          "headHash": "d48c744d9cb9efeecd241f3111333d90f02e9616",
+          "materialHash": "3ca1602d2d0833c280ce5320b14ecde099eb8ec46fb3613db1fe1ef905e057e7",
+          "timestamp": "2026-06-13T02:08:03.797Z"
         }
       ]
     }
