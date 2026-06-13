@@ -150,6 +150,26 @@
       ],
       "resolvedReason": "Fixed in ee07fc0: scope_freeze_check and INIT_CHECK gate now consume readScopeDiscardDigestForFreeze, which merges the current story digest with scope-discard-digest entries from all DISCARDED stories. The smoke now drives a real discarded story followed by a replacement story: freeze fails without repeatDiscardMitigation and passes with mitigation. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
       "resolvedAt": "2026-06-13T01:51:27.959Z"
+    },
+    {
+      "id": "B-85ba:F-008",
+      "desc": "docs/requirements/decisions/lifecycle-artifact-scope.md:80 says INIT scope anti-expansion commands may write scope-discard-digest.json, but the implemented/registered contract makes story_discard the producer and INIT_CHECK the consumer. Evidence: packages/main/src/core/process-fact-registry.ts:122-127 maps story_discard -> scope-discard-digest.json with consumerGate storyMachine.canEnterInitCheck; packages/main/src/core/lifecycle-registry.ts:398-400 says DISCARDED produces scope-discard-digest.json while INIT_CHECK consumes it at :374-377; packages/main/src/handlers/worktree.ts:568-600 records the digest during story_discard; packages/main/src/core/store.ts:529-565 merges digest entries from other DISCARDED stories for freeze evaluation. Update the docs to state story_discard produces the digest and INIT_CHECK consumes cross-DISCARDED story digests, rather than implying INIT scope commands write it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-13T01:53:55.505Z",
+      "reviewRound": "2026-06-13T01:51:22.177Z",
+      "reviewRunId": "B-85ba:RR-025",
+      "_hash": "bb84dd1160eea220557b47c72884c301b2a68e02e24dd2ab49befba05a6d3994",
+      "files": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/worktree.ts"
+      ]
     }
   ]
 }
