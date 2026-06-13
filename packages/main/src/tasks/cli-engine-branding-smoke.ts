@@ -6,9 +6,9 @@
  * @type feature
  * @priority high
  * @description
- * Scans src and dist cli-engine files for unclassified "koala/Koala" occurrences.
- * Classified references (legacy alias, process lanes, env vars, config paths, git commit
- * message tokens, hook system labels) are expected and excluded from the count.
+ * Scans src and dist cli-engine and hook runner files for unclassified "koala/Koala"
+ * occurrences. Classified references (legacy alias, process lanes, env vars, config paths,
+ * git commit message tokens) are expected and excluded from the count.
  * Any unclassified occurrence fails the smoke with a non-zero exit.
  */
 
@@ -51,12 +51,14 @@ const CLASSIFIED_PATTERNS: RegExp[] = [
   /legacy.*koala|koala.*legacy|alias: koala|Lattice\/Koala|legacy alias/i,
   // LEGACY_KOALA_DIR constant
   /LEGACY_KOALA/,
-  // Inline source comment references to legacy CLI ("koala CLI", "koala <cmd>")
-  /koala CLI|koala <|koala session|koala lattice/i,
+  // Explicit legacy alias invocation contexts ("koala <cmd>", "koala lattice ...")
+  /koala <|koala lattice/i,
   // "koala" appearing as a string literal CLI alias token
   /'koala'|"koala"/,
   // KOALA_MD_TEMPLATE / KOALA.md template reference (asset, not branding)
   /KOALA_MD_TEMPLATE|KOALA\.md/,
+  // KoalaConfig is a legacy internal type name, not user-visible branding
+  /KoalaConfig/,
   // koala-story-init / koala-review-story-init (process lane)
   /koala-story/i,
   // Legacy dir constant reference in comments
@@ -92,14 +94,19 @@ function scanFile(filePath: string): ScanResult {
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
-const srcFile = join(pkgRoot, 'src', 'cli-engine.ts');
-const distFile = join(pkgRoot, 'dist', 'cli-engine.js');
+const FILES_TO_AUDIT: Array<{ label: string; filePath: string; required: boolean }> = [
+  { label: 'cli-engine src', filePath: join(pkgRoot, 'src', 'cli-engine.ts'), required: true },
+  { label: 'cli-engine dist', filePath: join(pkgRoot, 'dist', 'cli-engine.js'), required: false },
+  { label: 'hooks src', filePath: join(pkgRoot, 'src', 'core', 'hooks.ts'), required: true },
+  { label: 'hooks dist', filePath: join(pkgRoot, 'dist', 'core', 'hooks.js'), required: false },
+];
 
 let exitCode = 0;
+const counts: Record<string, number> = {};
 
-function auditFile(label: 'src' | 'dist', filePath: string): number {
+function auditFile(label: string, filePath: string, required: boolean): number {
   if (!existsSync(filePath)) {
-    if (label === 'dist') {
+    if (!required) {
       // dist may not exist in CI before build; treat as zero unclassified
       process.stdout.write(`cli-engine branding audit: ${label} file not found (skip)\n`);
       return 0;
@@ -121,13 +128,15 @@ function auditFile(label: 'src' | 'dist', filePath: string): number {
   return result.unclassified.length;
 }
 
-const srcCount = auditFile('src', srcFile);
-const distCount = auditFile('dist', distFile);
+for (const { label, filePath, required } of FILES_TO_AUDIT) {
+  counts[label] = auditFile(label, filePath, required);
+}
 
 if (exitCode === 0) {
-  process.stdout.write(
-    `cli-engine branding audit: PASS src unclassified=${srcCount} dist unclassified=${distCount}\n`,
-  );
+  const summary = Object.entries(counts)
+    .map(([label, n]) => `${label} unclassified=${n}`)
+    .join(', ');
+  process.stdout.write(`cli-engine branding audit: PASS ${summary}\n`);
   process.stdout.write('cli-engine branding smoke passed\n');
 } else {
   process.exit(exitCode);

@@ -101,8 +101,8 @@ Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserProm
 
 ## 行为契约
 
-1. **非阻塞失败**：hook 退出非零、抛错、找不到命令都不会阻塞主命令。stderr 输出 `[koala-hook] failed (exit N): <stage> <cmd>` warning，并往 `~/.koala/health.jsonl` append 一条 `category=hook:exec` 的 health issue。
-2. **30 秒 timeout**：每条 hook 命令独立计时，超过 30 秒收到 `SIGKILL`。stderr 输出 `[koala-hook] timeout (30s): ...`，health 类别 `hook:timeout`。
+1. **非阻塞失败**：hook 退出非零、抛错、找不到命令都不会阻塞主命令。stderr 输出 `[lattice-hook] failed (exit N): <stage> <cmd>` warning，并往 `~/.koala/health.jsonl` append 一条 `category=hook:exec` 的 health issue。
+2. **30 秒 timeout**：每条 hook 命令独立计时，超过 30 秒收到 `SIGKILL`。stderr 输出 `[lattice-hook] timeout (30s): ...`，health 类别 `hook:timeout`。
 3. **stdout 限制**：hook 的 stdout 只在 stderr echo 前 200 字符，避免污染主命令的 JSON 输出（postCommand 尤其重要：被 pipe 到 jq 的 agent 不希望 hook 注释混进 JSON）。
 4. **顺序执行**：同一个 stage 下的命令按数组顺序串行 await，下一条等上一条完成。preCommand 整体跑完才进 handler，postCommand 整体跑完才 `process.exit(0)`。
 5. **并发性**：精确匹配 + 通配的命令也是按顺序——精确匹配先全部跑完，再跑通配。

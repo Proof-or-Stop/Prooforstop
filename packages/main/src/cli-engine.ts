@@ -3350,7 +3350,7 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
 // ── Main ──
 
 /**
- * runCli — koala CLI 运行时入口
+ * runCli — Lattice CLI 运行时入口
  *
  * @param opts.extraTools     第三方包的 ToolDef 列表，会合进 help 和 dispatch
  * @param opts.extraRegister  第三方包的 register 函数，在 createMainRegistry 之后调用

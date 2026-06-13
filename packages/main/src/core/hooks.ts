@@ -1,9 +1,9 @@
 /**
- * Hook dispatcher — spawn shell commands at koala lifecycle events.
+ * Hook dispatcher — spawn shell commands at Lattice lifecycle events.
  *
  * 灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop hooks。
- * koala 的事件点：
- *   - preCommand     : 在每条 koala command handler 执行前
+ * Lattice 的事件点：
+ *   - preCommand     : 在每条 Lattice command handler 执行前
  *   - postCommand    : 每条 command 成功后
  *   - onError        : 每条 command 抛错时
  *   - onPhaseChange  : story_advance 成功后，按 "FROM->TO" 匹配
@@ -209,7 +209,7 @@ export async function runHooks(
     } catch (e: any) {
       // safety net — spawnHook itself never rejects, but defensive
       reportHealthIssue('hook:exec', e, { stage, key, cmd, source });
-      try { process.stderr.write(`[koala-hook] internal error (${stage} ${cmd}): ${e?.message || e}\n`); } catch { /* debug */ }
+      try { process.stderr.write(`[lattice-hook] internal error (${stage} ${cmd}): ${e?.message || e}\n`); } catch { /* debug */ }
       continue;
     }
 
@@ -217,7 +217,7 @@ export async function runHooks(
       reportHealthIssue('hook:timeout', new Error(`hook timed out after ${HOOK_TIMEOUT_MS}ms`), {
         stage, key, cmd, source,
       });
-      try { process.stderr.write(`[koala-hook] timeout (${HOOK_TIMEOUT_MS / 1000}s): ${stage} ${cmd}\n`); } catch { /* debug */ }
+      try { process.stderr.write(`[lattice-hook] timeout (${HOOK_TIMEOUT_MS / 1000}s): ${stage} ${cmd}\n`); } catch { /* debug */ }
       continue;
     }
 
@@ -226,9 +226,9 @@ export async function runHooks(
         stage, key, cmd, source, exitCode: result.exitCode,
       });
       try {
-        process.stderr.write(`[koala-hook] failed (exit ${result.exitCode}): ${stage} ${cmd}\n`);
+        process.stderr.write(`[lattice-hook] failed (exit ${result.exitCode}): ${stage} ${cmd}\n`);
         if (result.stderr) {
-          process.stderr.write(`[koala-hook]   stderr: ${result.stderr.slice(0, STDOUT_ECHO_LIMIT)}\n`);
+          process.stderr.write(`[lattice-hook]   stderr: ${result.stderr.slice(0, STDOUT_ECHO_LIMIT)}\n`);
         }
       } catch { /* debug */ }
       continue;
@@ -238,8 +238,8 @@ export async function runHooks(
     if (result.stdout && result.stdout.trim().length > 0) {
       try {
         const head = result.stdout.slice(0, STDOUT_ECHO_LIMIT);
-        process.stderr.write(`[koala-hook] ok: ${stage} ${cmd}\n`);
-        process.stderr.write(`[koala-hook]   stdout: ${head}${result.stdout.length > STDOUT_ECHO_LIMIT ? '...' : ''}\n`);
+        process.stderr.write(`[lattice-hook] ok: ${stage} ${cmd}\n`);
+        process.stderr.write(`[lattice-hook]   stdout: ${head}${result.stdout.length > STDOUT_ECHO_LIMIT ? '...' : ''}\n`);
       } catch { /* debug */ }
     }
   }
