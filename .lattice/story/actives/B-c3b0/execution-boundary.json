@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c3b0",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "nl *",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/story-lifecycle.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "git reset --hard *",
+    "npm publish *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Limit changes to local DONE merge rebuild behavior, smoke coverage, and directly related docs.",
+  "createdAt": "2026-06-13T11:55:00.637Z",
+  "updatedAt": "2026-06-13T11:55:00.637Z",
+  "_hash": "c3b81ae244802707fe42ce58838a51c086c249139c533d7f3dba93b0ccb32354"
+}
