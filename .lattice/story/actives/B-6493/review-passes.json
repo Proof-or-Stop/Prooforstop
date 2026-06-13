@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6493:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Smoke (6/6 green) concretely exercises: (a) ahead warning via buildPhaseAuthorityWarning with DEV>INIT_CHECK; (b) in-sync → undefined; (c) no-worktree → undefined; (d) divergent/behind via INIT_CHECK<DEV; (e) packHash byte-stability via computeHandoffPackHash with and without PhaseAuthorityWarning; (f) inspect carries the warning and renderHandoffInspectionText renders phaseAuthority(ahead), silent when absent; createHandoffPack no-worktree factory path also verified. Live worktree-ahead path through createHandoffPack is covered by manual evidence (B-4e06), which is acceptable scope for this feature: the smoke uses a temp repo specifically to isolate the pure helper and rendering behaviour from live-git state, and the manual evidence provides concrete end-to-end confirmation of the factory path. No gap rises to a blocker.",
+      "createdAt": "2026-06-13T15:51:30.060Z",
+      "reviewRound": "2026-06-13T15:49:57.792Z",
+      "reviewRunId": "B-6493:RR-002",
+      "_hash": "a14e935575942f0f0a19d5fa3a30add7ebb6a2b63c712711c245dc9e85481a2d"
+    }
+  ]
+}
