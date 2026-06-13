@@ -93,7 +93,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The targeted smoke fails if missing_scope_check guidance omits scope-check.json or scope_check_save, suggests self-signing, or implies Authority completion.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A targeted story-review ergonomics smoke covers the missing_scope_check message path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke protects the distinction between scope_check_save and scope_contract_check remediation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke contains negative assertions against self-signing language and Authority overclaim terms in the local guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
