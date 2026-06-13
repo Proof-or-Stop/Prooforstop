@@ -24,7 +24,7 @@
       "desc": "Concept blocker: the normal story_advance DONE path refreshes packages/main/dist after a runtime-input merge via runDoneMainPackageBuildAfterMerge (packages/main/src/handlers/done-effects.ts:739), but done_recover has an independent recovery merge path that merges a partial-DONE story branch into main (packages/main/src/handlers/done-recover.ts:75-80) and then cleans the worktree/branch without invoking the build hook or documenting an equivalent guarantee. Because done_recover is the documented command for completing partial-DONE merges (docs/requirements/decisions/story-lifecycle.md:160), a recovered story that changes packages/main/src can leave main merged while global lattice still sees stale packages/main/dist. This weakens the hard product rule that runtime-affecting packages/main changes merged by DONE are immediately visible to the global CLI.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-13T12:22:01.041Z",
@@ -35,7 +35,9 @@
         "packages/main/src/handlers/done-recover.ts",
         "packages/main/src/handlers/done-effects.ts",
         "docs/requirements/decisions/story-lifecycle.md"
-      ]
+      ],
+      "resolvedReason": "done_recover now invokes the shared post-merge packages/main build hook after recovery merges, with smoke coverage and lifecycle docs updated.",
+      "resolvedAt": "2026-06-13T12:27:58.166Z"
     }
   ]
 }
