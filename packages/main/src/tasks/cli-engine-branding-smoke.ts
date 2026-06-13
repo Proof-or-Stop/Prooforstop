@@ -96,11 +96,14 @@ function scanFile(filePath: string): ScanResult {
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
+const repoRoot = join(pkgRoot, '..', '..');
+
 const FILES_TO_AUDIT: Array<{ label: string; filePath: string; required: boolean }> = [
   { label: 'cli-engine src', filePath: join(pkgRoot, 'src', 'cli-engine.ts'), required: true },
   { label: 'cli-engine dist', filePath: join(pkgRoot, 'dist', 'cli-engine.js'), required: false },
   { label: 'hooks src', filePath: join(pkgRoot, 'src', 'core', 'hooks.ts'), required: true },
   { label: 'hooks dist', filePath: join(pkgRoot, 'dist', 'core', 'hooks.js'), required: false },
+  { label: 'guide-hooks doc', filePath: join(repoRoot, 'docs', 'guide-hooks.md'), required: true },
 ];
 
 let exitCode = 0;

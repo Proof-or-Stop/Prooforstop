@@ -1,10 +1,10 @@
-# koala Hooks 指南
+# Lattice Hooks 指南
 
-koala 在每条命令的生命周期中提供 4 个事件点，允许在 `koala.config.json` 配置 shell hook 命令。灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop 机制，目的是把"agent 跑完命令后想做点别的事"从 koala 框架核心解耦出去。
+Lattice 在每条命令的生命周期中提供 4 个事件点，允许在 `koala.config.json` 配置 shell hook 命令。灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop 机制，目的是把"agent 跑完命令后想做点别的事"从 Lattice 框架核心解耦出去。
 
 ## Claude Code Prompt 提醒
 
-Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPromptSubmit` hook：
+Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPromptSubmit` hook：
 
 ```json
 {
@@ -27,16 +27,16 @@ Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserProm
 这个 hook 只做软提醒：它从 hook JSON 的 `cwd`、`CLAUDE_PROJECT_DIR` 或当前 cwd 定位仓库，读取 `.koala/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl`，寻找最近一次 `session_brief` heartbeat。默认 60 分钟内视为 fresh 并保持静默；超过 60 分钟或没有 fresh 记录时，输出：
 
 ```text
-建议先运行 koala session_brief 恢复现场
+建议先运行 lattice session_brief 恢复现场（koala 仍是 legacy alias）
 ```
 
-阈值可通过 `KOALA_SESSION_BRIEF_FRESH_MINUTES` 调整。malformed stdin、缺 activity 文件、单行解析失败等情况都零退出，不能阻塞用户 prompt。Claude Code hooks/settings 只属于 `.claude/`；Koala init 不会创建 `.Codex/hooks` 或 `.Codex/settings.json`。
+阈值可通过 `KOALA_SESSION_BRIEF_FRESH_MINUTES` 调整。malformed stdin、缺 activity 文件、单行解析失败等情况都零退出，不能阻塞用户 prompt。Claude Code hooks/settings 只属于 `.claude/`；Lattice init 不会创建 `.Codex/hooks` 或 `.Codex/settings.json`。
 
 ## 适用场景
 
 - agent 跑完 `story_advance phase=DEV` 后自动 `git fetch origin main && git merge`
 - 命令出错时把错误日志推到 Slack / 企业微信 / Telegram
-- observer 类工具想在 koala state 变化时实时收到通知（比 polling activity.jsonl 更优雅）
+- observer 类工具想在 lattice state 变化时实时收到通知（比 polling activity.jsonl 更优雅）
 - 进入 TEST 阶段前自动备份 fixture 目录
 - 离开 PLAN 阶段时把 understanding/decision JSON 拷贝到外部归档
 
@@ -125,7 +125,7 @@ Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserProm
 }
 ```
 
-把这个挂在 preCommand 而不是 postCommand，是因为 advance 之后再 merge 可能产生冲突，agent 看不到。preCommand 跑失败也不阻塞，但至少把冲突暴露在 koala 命令的 stderr 里。
+把这个挂在 preCommand 而不是 postCommand，是因为 advance 之后再 merge 可能产生冲突，agent 看不到。preCommand 跑失败也不阻塞，但至少把冲突暴露在 lattice 命令的 stderr 里。
 
 ### 示例 2：onPhaseChange 触发 Telegram 通知
 
@@ -177,7 +177,7 @@ Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserProm
 
 ## 调试
 
-- hook 没触发？跑 `koala doctor` 看 health.jsonl 里有没有 `hook:exec` / `hook:timeout` / `hook:resolve` 条目
+- hook 没触发？跑 `lattice doctor` 看 health.jsonl 里有没有 `hook:exec` / `hook:timeout` / `hook:resolve` 条目
 - hook 没拿到环境变量？hook 命令开头加 `env | grep KOALA_ > /tmp/koala-env-debug.txt`
 - hook 输出污染主命令？看 stdout 是不是回了非空字符串——postCommand 应该把日志写文件而不是 stdout
 
@@ -189,9 +189,9 @@ Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserProm
 
 ## 与 Stale-detector 的协作
 
-`koala doctor` 现在也会汇总 `hook:*` 类的 health issue，配合 `stale-detector` 的 stderr warning，构成 koala 的"自我观察"系统：
+`lattice doctor` 现在也会汇总 `hook:*` 类的 health issue，配合 `stale-detector` 的 stderr warning，构成 Lattice 的"自我观察"系统：
 
-- stale-detector：每次命令执行前主动 print 软提醒（phase 卡死 / item 卡 in_progress / idle koala / open bug 超期）
+- stale-detector：每次命令执行前主动 print 软提醒（phase 卡死 / item 卡 in_progress / idle lattice / open bug 超期）
 - hook：在事件点 spawn 用户脚本，留痕到 `~/.koala/health.jsonl`
 - doctor：聚合两者的 health 状态
 
