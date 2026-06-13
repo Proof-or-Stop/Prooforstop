@@ -61,6 +61,24 @@
         }
       ],
       "_hash": "c73b78d86f30375a026e890a3ad9f392ef231e1af9468cb062b5f91802fd77fa"
+    },
+    {
+      "timestamp": "2026-06-13T10:27:40.417Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Audit CLI-engine Koala references + Replace current-product Koala wording in CLI engine are performed simultaneously?)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "scope check not run. Please start the koala-review-scope-plan agent first; the agent will automatically call scope_check_save to write the result"
+        }
+      ],
+      "_hash": "25c8816b05d216ccdb9b4c7f7c87d693b0b1e2719f4a0fbd894ca6f2e3c8d7a7"
     }
   ]
 }
