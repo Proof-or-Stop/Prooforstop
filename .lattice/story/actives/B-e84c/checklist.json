@@ -227,9 +227,9 @@
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T13:37:42.586Z",
-      "endTime": null,
+      "endTime": "2026-06-13T13:37:43.307Z",
       "userSees": "Document review is complete with recorded evidence: CLI help checks pass, scans identify only expected residual execution targets, and DONE summary states the remaining non-document cleanup boundary.",
       "files": {
         "modify": [
@@ -258,7 +258,41 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js codex_doctor --help; node bin/lattice-codex.js verify_codex --help; rg -n --hidden lattice\\s+codex\\s+session_brief AGENTS.md CLAUDE.md README.md docs packages/main/src packages/main/dist .Codex .codex; find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l",
+          "result": "pass",
+          "note": "Checklist evidence records the CLI help checks, forbidden-guidance scans, and NAV inventory checks used to review this document.",
+          "headHash": "8103c15735a69050eb8e15b04fbe8db2f307807d",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:43.345Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n known\\ residual docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n No-Overclaim docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The document distinguishes this review from later README/template cleanup by naming known residual non-document targets and stating a no-overclaim boundary.",
+          "headHash": "8103c15735a69050eb8e15b04fbe8db2f307807d",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:43.379Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n full\\ project\\ convergence docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n production\\ readiness docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n Authority\\ readiness docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md; rg -n unattended\\ readiness docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "No-Overclaim Boundary explicitly says the plan does not claim full project convergence, production readiness, Authority readiness, or unattended readiness.",
+          "headHash": "8103c15735a69050eb8e15b04fbe8db2f307807d",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:43.413Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -324,6 +358,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start delivery-boundary evidence recording."
+    },
+    {
+      "timestamp": "2026-06-13T13:37:43.307Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Review evidence and delivery boundaries recorded before REVIEW."
     }
   ]
 }
