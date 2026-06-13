@@ -692,9 +692,9 @@
       "id": "CHK-005",
       "title": "Define and apply a wrapped-source merge rule for multi-line source",
       "context": "Line-level splitting breaks one logical sentence across rows, producing fragments that read wrong alone (M004/M005 are one Chinese sentence about runCli({extraTools, extraRegister}) merging utils tools and handlers). Add a documented rule that a wrapped multi-line source is reviewed/translated as one unit, and apply it to M004/M005 and similar pairs. Covers suggestion #3.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T19:13:31.747Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
