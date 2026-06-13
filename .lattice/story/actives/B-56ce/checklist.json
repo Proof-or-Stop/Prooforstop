@@ -1,0 +1,62 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make validation timeout failures diagnose timeout configuration clearly",
+      "context": "runValidationCommand currently marks timedOut and executeValidationPlan renders only \"(timed out)\". Add explicit guidance that the command was killed by timeout and that validate.commands[].timeoutMs may need adjustment; do not hide real test failures.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make stale verification evidence recovery explain hash-binding drift",
+      "context": "renderEvidenceStaleHint already appears in session_brief/story_advance/validate hints, but it uses legacy koala command wording and does not state that stale means HEAD/material hash binding changed rather than proof that test logic failed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Improve owner lease recovery guidance for same-worktree context switches",
+      "context": "Owner lease gate and session_brief already enforce active/stale ownership. Add same-worktree detection/guidance so context compaction in the same story worktree gets safer instructions before using forceTakeover; preserve fail-closed behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Clarify delivery-check fallback without forging reviewer authority",
+      "context": "DONE gate correctly requires signed delivery-check.json. When delivery reviewer tooling is unavailable, hints should state the compliant fallback boundary: delivery_check_set must still be executed as the delivery reviewer actor/provenance, not by the main agent pretending to review itself.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add unsupported codex core-command namespace suggestions",
+      "context": "The CLI supports lattice codex verify/doctor but lattice codex session_brief and lattice codex aux_doc_list fail with unhelpful suggestions. Add unknown-command guidance or aliases to route core commands to ordinary lattice equivalents without changing gate semantics.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
