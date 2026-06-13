@@ -211,6 +211,17 @@
           "headHash": "f6fafaac7e2b898267999cbc1f487072af9502c8",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:23:10.291Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "command": "rg -n \"receiptVerified|authorityDone|productionDone|fullAuthorityDone|self-sign\" packages/main/src/tasks/story-review-ergonomics-smoke.ts && node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes negative assertions against self-signing language and exact Authority overclaim flags, and the smoke passes.",
+          "headHash": "3aaea2334367899a2a349850e47c069f264822dd",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:15.546Z"
         }
       ]
     },
