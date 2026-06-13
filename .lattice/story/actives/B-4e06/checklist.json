@@ -1,0 +1,85 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add audited verification intent repair from existing evidence",
+      "context": "Create a narrow repair command for mid-flight stories whose checklist items lack verificationIntent while passing verificationEvidence already exists. Preserve authored intent and require explicit legacy reason outside PLAN.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+      ],
+      "userSees": "A user can run one Lattice command to repair a legacy story instead of hand-editing story metadata.",
+      "excludes": [
+        "Do not make evidence alone pass normal review gates.",
+        "Do not rewrite existing authored intent by default."
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make review and validation diagnostics name the repair path",
+      "context": "When missing verificationIntent has matching evidence refs, story_review and validate should still block but explain that this is a legacy schema repair case and show the repair command.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A blocked reviewer sees a precise next command instead of a generic missing-intent error.",
+      "excludes": [
+        "Do not downgrade blocker severity for normal stories."
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Use configured gitRoot for INIT_CHECK worktree bootstrap",
+      "context": "Worktree creation must run git operations from the signed workspace material root when metadata root is only a wrapper directory, while preserving existing story metadata semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A valid wrapper-root project with gitRoot can enter INIT_CHECK without manual worktree creation.",
+      "excludes": [
+        "Do not move metadata storage into the nested git repository."
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Cover repair and bootstrap behavior with focused smokes",
+      "context": "Add smoke coverage for evidence-to-intent repair, non-overwrite behavior, malformed refs, protected phase reasons, nested gitRoot bootstrap, invalid gitRoot diagnostics, and the current help-command health check.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "The regression suite proves the incident path will not silently return.",
+      "excludes": [
+        "Do not add broad fixture rewrites or unrelated validation framework changes."
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Sync documented behavior with implementation and built runtime",
+      "context": "Update requirements docs and package build outputs only where the implemented CLI behavior requires it, then verify the global-runtime path can expose the new command after build.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "After main is updated and built, global Lattice users can apply the documented repair path consistently.",
+      "excludes": [
+        "Do not expand into unrelated docs navigation cleanup."
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e84c",
+  "allowedCommands": [
+    "find *",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice-codex.js codex_doctor --help",
+    "node bin/lattice-codex.js verify_codex --help",
+    "node bin/lattice.js aux_doc_list",
+    "node bin/lattice.js checklist_*",
+    "node bin/lattice.js delivery_check_set",
+    "node bin/lattice.js done_closure",
+    "node bin/lattice.js review_*",
+    "node bin/lattice.js session_brief",
+    "node bin/lattice.js story_*",
+    "node bin/lattice.js story_review",
+    "node bin/lattice.js summary_set",
+    "node bin/lattice.js validate",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/dist/**",
+    "packages/main/src/**",
+    "README.md",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Document review story only; command checks may read broader paths but edits are limited to the execution plan and NAV.",
+  "createdAt": "2026-06-13T13:24:30.537Z",
+  "updatedAt": "2026-06-13T13:24:30.537Z",
+  "_hash": "d80b49623d7e24a9fa443e92864191157f3c137a314ac5bc790c6edb977db03d"
+}
