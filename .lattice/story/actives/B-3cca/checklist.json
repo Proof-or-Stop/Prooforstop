@@ -271,7 +271,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "git log story/B-3cca --oneline --author=koala-implementer | head -5",
+          "result": "pass",
+          "note": "Claude CLI implementation: PASS worktree=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca. Commit 259976fb2 by koala-implementer <koala-implementer@noreply.local>: B-3cca: clean Koala branding from cli-engine + add branding smoke. Session operated entirely within the story worktree, no files outside B-3cca scope modified. All CHK-001..CHK-004 evidence recorded via lattice CLI in this session.",
+          "headHash": "e2ecc3b38623fd8fe21a89e79bbc9b4adddf6065",
+          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
+          "timestamp": "2026-06-13T10:42:34.258Z"
+        }
+      ]
     }
   ]
 }
