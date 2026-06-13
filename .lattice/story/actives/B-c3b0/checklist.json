@@ -9,7 +9,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A DONE merge diff containing packages/main/src/handlers/done-effects.ts triggers exactly one packages/main build after the merge and before final DONE success output; successful run reports that packages/main build was refreshed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A DONE merge diff containing only docs/requirements/decisions/story-lifecycle.md or other non-runtime docs skips the packages/main build and still completes DONE without stale-dist warnings.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A mixed DONE merge diff with packages/main/package.json, packages/main/tsconfig.json, root package.json, or package-lock.json is treated as runtime-affecting and triggers the build even when no packages/main/src file changed.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
