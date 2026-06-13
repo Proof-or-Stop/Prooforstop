@@ -1,0 +1,45 @@
+{
+  "storyId": "B-e84c",
+  "checkedAt": "2026-06-13T13:30:06.252Z",
+  "features": [
+    {
+      "feature": "Command examples match actual CLI behavior",
+      "covered_by": "CHK-001; CLI help confirms codex doctor -> codex_doctor, codex verify -> verify_codex, local lattice-codex codex_doctor -> codex_doctor, and bare local lattice-codex doctor -> general Lattice doctor.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:71"
+    },
+    {
+      "feature": "Forbidden guidance scans cover the host-neutral workflow command boundary",
+      "covered_by": "CHK-002; document pattern covers session_brief, aux_doc_list, story_, checklist_, validate, review_, finding_, summary_set, delivery_check_set, convergence_check; scan surfaces include AGENTS.md, CLAUDE.md, README.md, .Codex, .codex, docs, packages/main/src, packages/main/dist.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:50"
+    },
+    {
+      "feature": "Requirements NAV is synchronized for the new decision doc",
+      "covered_by": "CHK-003; NAV includes Lattice Codex Command Boundary Execution Plan; rg --files docs/requirements/decisions -g *.md | wc -l returned 49, matching NAV count.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/NAV.md:3"
+    },
+    {
+      "feature": "Evidence and delivery boundary distinguish document review from later template cleanup",
+      "covered_by": "CHK-004; understanding constrains DEV to the decision doc and NAV only; checklist files.modify excludes runtime source, README, generated assets, templates, docs/story, tests/fixtures, and .omx; Non-Goals and No-Overclaim Boundary exclude broad aliases, unrelated Koala cleanup, Authority, production, unattended, and convergence readiness claims.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:110"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "36d6e39bb5aa83dd1acfdd6bbc38a4e5d2084f95d3d85bcf532e48febba8d401",
+  "openQuestions": []
+}
