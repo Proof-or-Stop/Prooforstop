@@ -106,6 +106,8 @@ try {
   }, tmp);
   assert.equal(timeout.status, 'fail');
   assert.equal(timeout.commands[0].timedOut, true);
+  assert.match(timeout.details.join('\n'), /configured timeoutMs=100ms/);
+  assert.match(timeout.details.join('\n'), /lattice\.config\.json validate\.commands\[\]\.timeoutMs/);
 
   writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
     validate: {

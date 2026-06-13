@@ -68,6 +68,19 @@ function checkById(result: ReturnType<typeof runCodexAdapterChecks>, id: string)
   return check;
 }
 
+function execCliFailure(args: string[], cwd = packageRoot): string {
+  try {
+    execFileSync(process.execPath, [cliPath, ...args], {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (e: any) {
+    return `${e.stdout ?? ''}${e.stderr ?? ''}`;
+  }
+  assert.fail(`expected CLI failure for args: ${args.join(' ')}`);
+}
+
 const legacyRoot = makeRoot('legacy-koala-compat');
 try {
   seedLegacyKoalaCodex(legacyRoot, 'registry');
@@ -192,6 +205,23 @@ try {
   );
 } finally {
   rmSync(codexDoctorRoot, { recursive: true, force: true });
+}
+
+// `lattice codex verify` / `lattice codex doctor` are the only Codex adapter
+// aliases. Ordinary commands must not be silently accepted under a broad
+// `codex` namespace; they should point operators back to the ordinary command.
+const unsupportedCodexRoot = makeRoot('unsupported-codex-namespace');
+try {
+  const sessionBriefOutput = execCliFailure(['--root', unsupportedCodexRoot, 'codex', 'session_brief']);
+  assert.match(sessionBriefOutput, /Unsupported command: lattice codex session_brief/);
+  assert.match(sessionBriefOutput, /only supports: lattice codex verify, lattice codex doctor/);
+  assert.match(sessionBriefOutput, /Use the ordinary command instead: lattice session_brief/);
+
+  const auxDocListOutput = execCliFailure(['--root', unsupportedCodexRoot, 'codex', 'aux_doc_list']);
+  assert.match(auxDocListOutput, /Unsupported command: lattice codex aux_doc_list/);
+  assert.match(auxDocListOutput, /Use the ordinary command instead: lattice aux_doc_list/);
+} finally {
+  rmSync(unsupportedCodexRoot, { recursive: true, force: true });
 }
 
 console.log('✓ legacy koala compatibility smoke passed');

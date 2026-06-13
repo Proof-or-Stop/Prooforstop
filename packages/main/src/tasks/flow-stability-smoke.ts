@@ -1731,6 +1731,8 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /koala_metadata_changes/);
     assert.match(testBrief, /Working tree dirty/);
     assert.match(testBrief, /delivery_check_set/);
+    assert.match(testBrief, /agentId=koala-review-delivery/);
+    assert.match(testBrief, /main agent must not self-sign/);
     assert.match(testBrief, /summary_set/);
     // B-4b22: koala_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
@@ -2199,6 +2201,8 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|KOALA_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
+    assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=koala-review-delivery/);
+    assert.match(byId.get('delivery-check')?.hint ?? '', /main agent must not self-sign/);
     assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
     assert.equal(byId.get('story-summary')?.status, 'fail');
     assert.equal(byId.get('story-summary')?.source, 'summary.json');
