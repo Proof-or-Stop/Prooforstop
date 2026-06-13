@@ -3071,6 +3071,7 @@ export function enforceStoryOwnerLeaseGate(
       command: cmd,
       ownershipClass: cls,
       currentSessionId: getSessionId(),
+      currentCwd: process.cwd(),
     }),
   );
 }

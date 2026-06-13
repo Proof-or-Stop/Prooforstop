@@ -935,8 +935,11 @@ try {
       (err: Error) =>
         err.message.includes(storyId) &&
         err.message.includes('sess-A') &&
-        err.message.includes('owner-gated'),
-      'session B on the same story is fail-closed rejected with owner guidance naming session A',
+        err.message.includes('owner-gated') &&
+        err.message.includes('same-worktree context switch') &&
+        err.message.includes('lattice session_brief') &&
+        err.message.includes('not transferred unless'),
+      'session B on the same story is fail-closed rejected with owner guidance naming session A and same-worktree recovery text',
     );
     // The rejection performed NO lease write (no silent steal by B).
     assert.equal(
