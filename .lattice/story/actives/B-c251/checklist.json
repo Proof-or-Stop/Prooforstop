@@ -213,6 +213,17 @@
           "headHash": "84d36c664e0c9296ba40a44423a82ce26b8ed07e",
           "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
           "timestamp": "2026-06-13T01:45:34.139Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"auto-generate|self-sign|Authority Server completion|receiptVerified|productionDone|authorityDone|fullAuthorityDone\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Final plan preserves scope_check_save as reviewer-written PLAN evidence and explicitly excludes auto-signing and Authority overclaim.",
+          "headHash": "4bfccd13a3dacc32e80349f67c9528763637ad39",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:34.639Z"
         }
       ]
     },
