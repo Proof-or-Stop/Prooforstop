@@ -1018,7 +1018,7 @@ M582	1699	comment	不校验业务完整性；主 agent 之后用 scope_question_
 M583	1705	schema	Open Questions：reviewer 在 decisions/ 扫到"看见但不归类"的矛盾/疑问，主 agent 必须用 scope_question_resolve 消解	Open Questions: contradictions/questions reviewers notice in decisions/ but do not classify; main agent must resolve them with scope_question_resolve.	review-draft
 M584	1708	comment	B-ed3e CHK-003: scope_question_resolve — 主 agent 对 reviewer 抛出的 OQ 写入书面 resolution	B-ed3e CHK-003: scope_question_resolve - main agent writes resolution for an OQ raised by reviewer.	review-draft
 M585	1709	comment	设计原则：resolution 不入签名 _hash（resolution 是 main agent 动作，不污染 reviewer 判定签名域）	Design principle: resolution is not included in signed _hash because resolution is a main-agent action and must not pollute the reviewer judgment signature domain.	review-draft
-M586	1710	command-description	主 agent 对 scope reviewer 抛出的 Open Question 写入书面 resolution（防自我赦免）	Main agent writes a resolution for a scope reviewer Open Question (no self-OK)	review-draft
+M586	1710	command-description	主 agent 对 scope reviewer 抛出的 Open Question 写入书面 resolution（防自我赦免）	Resolve a scope reviewer Open Question in writing (prevents self-approval)	review-draft
 M587	1712	schema	Open Question ID（如 OQ-1）	Open Question ID, for example OQ-1.	review-draft
 M588	1713	schema	resolution 必填且 ≥ 20 字符（书面消解，防自我赦免） / 主 agent 的书面消解结论（≥ 20 字符，应引 decisions/ 原文）	resolution is required and must be at least 20 characters (written resolution, prevents self-approval). / Main agent written resolution conclusion (at least 20 characters; should cite original decisions/ text).	review-draft
 M589	1714	schema	resolution 的证据指针（decisions/ 路径或 checklist item id），默认 []	Evidence pointers for resolution (decisions/ path or checklist item ID), default [].	review-draft

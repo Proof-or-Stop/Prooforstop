@@ -1,0 +1,206 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "glossary terms present; rows≈18"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "style guide rules present"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "glossary before M001"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "real-machine KEPT documented"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "blocked/excluded/forbidden disambiguated"
+ },
+ "CHK-001:edge:2": {
+  "pass": true,
+  "note": "all 5 flag verbs"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "no Chinese in glossary"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "deprecated terms only in avoid context"
+ },
+ "CHK-001:adversarial:2": {
+  "pass": true,
+  "note": "no contradictory period rule"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "rows=762"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "no Chinese in proposedEnglish"
+ },
+ "CHK-002:happy:2": {
+  "pass": true,
+  "note": "no finding item"
+ },
+ "CHK-002:happy:3": {
+  "pass": true,
+  "note": "no truth source in EN"
+ },
+ "CHK-002:happy:4": {
+  "pass": true,
+  "note": "T/M twin agree 54/115"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "Emit JSON on 5 rows, no Output JSON"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "Command to run + Command result"
+ },
+ "CHK-002:edge:2": {
+  "pass": true,
+  "note": "Recorded by/Actor"
+ },
+ "CHK-002:edge:3": {
+  "pass": true,
+  "note": "self-approval"
+ },
+ "CHK-002:edge:4": {
+  "pass": true,
+  "note": "Git capitalized"
+ },
+ "CHK-002:edge:5": {
+  "pass": true,
+  "note": "no 'round' in M036-053 (18 rows)"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "count check non-vacuous (763 would fail)"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "no stale deprecated terms"
+ },
+ "CHK-002:adversarial:2": {
+  "pass": true,
+  "note": "identifiers preserved"
+ },
+ "CHK-002:adversarial:3": {
+  "pass": true,
+  "note": "no orphaned T-rows retaining swept terms (residual: none)"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "0 cmd-desc >80 (longest 80); statedThreshold=true"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "named rows shortened, imperative, no period"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "begins with imperative verb"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "no trivial stubs"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "rules trimmed in plan doc (no code longHelp in scope) — advisory"
+ },
+ "CHK-003:edge:2": {
+  "pass": true,
+  "note": "short rows untouched (diff-based, trusted)"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "still 762 rows"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "no Chinese in cmd-desc"
+ },
+ "CHK-003:adversarial:2": {
+  "pass": true,
+  "note": "T/M twins for shortened rows consistent (covered by CHK-002:adversarial:3)"
+ },
+ "CHK-004:happy:0": {
+  "pass": true,
+  "note": "M668/M669 tagged; total bs=3"
+ },
+ "CHK-004:happy:1": {
+  "pass": true,
+  "note": "behavior-sensitive subsection lists rows w/ line refs"
+ },
+ "CHK-004:happy:2": {
+  "pass": true,
+  "note": "src Chinese-matching lines all tagged; missed=none"
+ },
+ "CHK-004:edge:0": {
+  "pass": true,
+  "note": "English-only .test rows not tagged (no false positives) — bs set limited to Chinese matchers"
+ },
+ "CHK-004:edge:1": {
+  "pass": true,
+  "note": "all 3 bs rows listed"
+ },
+ "CHK-004:edge:2": {
+  "pass": true,
+  "note": "bs rows retain code form (not prose-swept)"
+ },
+ "CHK-004:adversarial:0": {
+  "pass": true,
+  "note": "tag present guards rows"
+ },
+ "CHK-004:adversarial:1": {
+  "pass": true,
+  "note": "exact marker string present"
+ },
+ "CHK-004:adversarial:2": {
+  "pass": true,
+  "note": "invariants hold after CHK-004"
+ },
+ "CHK-005:happy:0": {
+  "pass": true,
+  "note": "wrapped-source rule section exists"
+ },
+ "CHK-005:happy:1": {
+  "pass": true,
+  "note": "M004/M005 combined reads coherently"
+ },
+ "CHK-005:happy:2": {
+  "pass": true,
+  "note": "similar pairs noted"
+ },
+ "CHK-005:edge:0": {
+  "pass": true,
+  "note": "M004/M005 remain separate, 762 rows"
+ },
+ "CHK-005:edge:1": {
+  "pass": true,
+  "note": "criteria defined"
+ },
+ "CHK-005:edge:2": {
+  "pass": true,
+  "note": "M004/M005 + noted triple documented"
+ },
+ "CHK-005:adversarial:0": {
+  "pass": true,
+  "note": "M004 marked as part of merged pair"
+ },
+ "CHK-005:adversarial:1": {
+  "pass": true,
+  "note": "still 762 after CHK-005"
+ },
+ "CHK-005:adversarial:2": {
+  "pass": true,
+  "note": "merge rule + behavior-sensitive non-conflicting (disjoint rows)"
+ }
+}
