@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-13T18:42:09.162Z",
       "reviewRunId": "B-4e06:RR-005",
       "_hash": "f65fc7dcfa513164eb3b6f6598da1769d644edf34c29522dc3c861816a4a4db1"
+    },
+    {
+      "id": "B-4e06:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Step 1 extracted symbols: verification_intent_repair, resolveStorySignedWorkspace, detectLegacyEvidenceWithoutIntent, getRepoRoot. Step 2 found 1 doc paragraph: Delivered (B-4e06) section (lines 582-628). Step 3: all 9 specific claims verified against worktree.ts and cli-engine.ts. No actor param in the Delivered section or in code schema/handler. gitRoot containment fail-closed guard confirmed in both worktree.ts (storyRel relative path + canonicalRepoRoot check) and cli-engine.ts (storyRelRaw..include check + configure storyDir error). realpath canonicalization confirmed on both sides in both files. No blockers found.",
+      "createdAt": "2026-06-13T18:45:15.496Z",
+      "reviewRound": "2026-06-13T18:42:09.162Z",
+      "reviewRunId": "B-4e06:RR-008",
+      "_hash": "8089f79b32e9347c138b6d19887a341cd37a84b2429c89a0309da8f0b2e50651"
     }
   ]
 }
