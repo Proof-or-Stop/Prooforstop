@@ -273,6 +273,50 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "a documented Wrapped-source merge rule section exists in the plan document explaining that multi-line source fragments forming one logical sentence are reviewed and translated as one unit; WHY: the rule must be documented not just applied",
+            "type": "cli"
+          },
+          {
+            "desc": "M004 and M005 are annotated as a merged pair (e.g. via a merge-group marker or cross-reference) and their combined proposedEnglish reads as one coherent sentence about runCli extraTools/extraRegister; WHY: M004/M005 are the canonical example from context",
+            "type": "cli"
+          },
+          {
+            "desc": "any other fragmented pairs similar to M004/M005 are also identified and annotated with the merge rule; WHY: context says apply to M004/M005 and similar pairs",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M004 and M005 remain as two separate rows (not collapsed into one) preserving the 762-row invariant -> the merge rule is a translation/review annotation not a row deletion; WHY: merging rows would break the 762<->762 invariant",
+            "type": "cli"
+          },
+          {
+            "desc": "the merge rule clearly defines criteria for identifying wrapped-source pairs (e.g. a sentence split across adjacent rows where neither fragment is grammatically complete alone) -> the rule is reproducible not ad-hoc; WHY: vague rules cannot be applied consistently",
+            "type": "cli"
+          },
+          {
+            "desc": "if no additional fragmented pairs beyond M004/M005 exist, the document explicitly states M004/M005 is the only identified case -> absence of others is documented not silent; WHY: a reviewer cannot distinguish found-none from did-not-look",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify M004 proposedEnglish alone is marked as incomplete/partial (not a standalone translation) -> if someone reads M004 without M005 they see the merge annotation; WHY: adversarial scenario where a row-by-row implementer processes M004 in isolation",
+            "type": "cli"
+          },
+          {
+            "desc": "762-row count still exactly 762 after CHK-005 -> merge annotations did not accidentally add or remove rows; WHY: structural invariant must survive all checklist items",
+            "type": "cli"
+          },
+          {
+            "desc": "the merge rule does not conflict with the behavior-sensitive tagging from CHK-004 (if a behavior-sensitive row is also part of a wrapped pair, both annotations coexist); WHY: adversarial cross-item interaction -- two annotation systems must not clobber each other",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
