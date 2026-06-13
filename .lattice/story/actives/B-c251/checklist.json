@@ -51,9 +51,9 @@
           "command": "DOC=\"docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\"; test -f \"$DOC\" && rg -q '`scope_check_save` already exists' \"$DOC\" && rg -q 'The missing artifact is `scope-check\\.json`, the PLAN gate evidence' \"$DOC\"",
           "result": "pass",
           "note": "Probative content check proves the plan document exists and explicitly states both required CHK-001 happy claims: scope_check_save already exists, and scope-check.json is the missing PLAN evidence artifact.",
-          "headHash": "5231c8feb1afbcc8dd0ba748b9230c696bb95724",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:49:45.609Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "command": "rg -n \"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Plan explicitly covers scope_check_save, missing scope-check.json, no self-signing/auto-generation, Authority boundary, and follow-up execution handoff.",
-          "headHash": "2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:46:08.907Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "command": "rg -n \"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Document does not claim implementation or Authority completion; it names future follow-up lifecycle work.",
-          "headHash": "2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:46:08.907Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         }
       ]
     },
@@ -125,9 +125,9 @@
           "command": "multi_agent_v1 audits: Aquinas + Nietzsche over docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Two independent host-style audit reports reviewed the same draft artifact. Both returned BLOCKED on the same real schema issue in the scope_check_save example, with no other blockers.",
-          "headHash": "9fa8ce5812f50ae4507e794eff88c3707f09342f",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:21.905Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -135,9 +135,9 @@
           "command": "Audit prompts for Aquinas and Nietzsche",
           "result": "pass",
           "note": "Both audit prompts explicitly required no arbitrary optimization, only real correctness issues, and consistency of logic.",
-          "headHash": "ae1c08de4f114873af301b3c428ef9687dd553aa",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:22.433Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -145,9 +145,9 @@
           "command": "Aquinas + Nietzsche audit reports",
           "result": "pass",
           "note": "Both audits explicitly checked reviewer authority, self-signing, gate weakening, scope_contract_check confusion, and Authority overclaim; the only blocker was the invalid scope_check_save example schema, fixed in commit 9fa8ce5.",
-          "headHash": "f9e5e4cac152591e7a5d2694e6c9b2ceeed465e7",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:22.838Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         }
       ]
     },
@@ -200,9 +200,9 @@
           "command": "rg -n \"Audit Incorporation|unsupported `agent` / `status` / `items`|features|summary|openQuestions\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Final plan records the accepted two-host audit finding and updates the scope_check_save example to current features/summary/openQuestions schema.",
-          "headHash": "b3fd6793b11dab49fe6b4f44a780428870f30085",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:33.722Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -211,9 +211,9 @@
           "command": "rg -n \"Future Implementation Plan|Verification Plan|Rollback Plan|Avoid new command surfaces|broad lifecycle assistant\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Final plan includes targeted execution, verification, and rollback steps for missing_scope_check guidance without broad lifecycle assistant scope.",
-          "headHash": "84d36c664e0c9296ba40a44423a82ce26b8ed07e",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:34.139Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -222,9 +222,9 @@
           "command": "rg -n \"auto-generate|self-sign|Authority Server completion|receiptVerified|productionDone|authorityDone|fullAuthorityDone\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Final plan preserves scope_check_save as reviewer-written PLAN evidence and explicitly excludes auto-signing and Authority overclaim.",
-          "headHash": "4bfccd13a3dacc32e80349f67c9528763637ad39",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:34.639Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         }
       ]
     },
@@ -277,9 +277,9 @@
           "command": "rg -n \"Proposed follow-up story intent|Example creation command|lattice story_create|Improve missing_scope_check guidance ergonomics\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Final plan names the follow-up implementation story scope and includes a concrete lattice story_create command for Lattice execution.",
-          "headHash": "802a48ad95dea427006fefec93dc1874b5c02c26",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:49.153Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -288,9 +288,9 @@
           "command": "rg -n \"This document does not implement|Implementation is not complete until the follow-up story reaches DONE|normal lifecycle\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Execution handoff clearly distinguishes this document from future implementation completion and requires normal Lattice lifecycle gates.",
-          "headHash": "a1e840b1aa3301e814bd3b17ad1e4ffe5eca41a3",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:49.498Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -299,9 +299,9 @@
           "command": "rg -n \"does not implement|not complete|Do not weaken PLAN gates|auto-generate evidence|claim Authority Server completion\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
           "result": "pass",
           "note": "Execution handoff does not claim Lattice has already changed behavior and preserves no Authority Server completion claim.",
-          "headHash": "d3b78dc2c30b6119cc06760555f1a97e7e509b0e",
-          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
-          "timestamp": "2026-06-13T01:45:49.877Z"
+          "headHash": "6fe0e0d5a54f4808825d6013bee3bc751e7f86e0",
+          "materialHash": "9fe2eabd47fa22dda4b095738aa37d57a39841323fc58baf4130d4b25d9484cc",
+          "timestamp": "2026-06-13T01:53:51.310Z"
         }
       ]
     }
