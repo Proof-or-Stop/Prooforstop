@@ -526,6 +526,45 @@ export class StoryStore {
     }
   }
 
+  readScopeDiscardDigestForFreeze(storyId: string): ScopeDiscardDigestData {
+    const merged: ScopeDiscardDigestData = {
+      storyId,
+      updatedAt: '',
+      entries: [],
+    };
+    const seen = new Set<string>();
+    const addEntries = (sourceStoryId: string, data: ScopeDiscardDigestData): void => {
+      if (data.updatedAt && (!merged.updatedAt || this.timestampOf(data.updatedAt) > this.timestampOf(merged.updatedAt))) {
+        merged.updatedAt = data.updatedAt;
+      }
+      for (const entry of data.entries ?? []) {
+        const key = `${entry.storyId ?? sourceStoryId}::${entry.digest}::${(entry.terms ?? []).join('|')}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        merged.entries.push(entry);
+      }
+    };
+
+    addEntries(storyId, this.readScopeDiscardDigest(storyId));
+    for (const otherStoryId of this.listStoryIds()) {
+      if (otherStoryId === storyId) continue;
+      let story: StoryInfo;
+      try {
+        story = this.readStory(otherStoryId);
+      } catch {
+        continue;
+      }
+      if (story.phase !== 'DISCARDED') continue;
+      try {
+        addEntries(otherStoryId, this.readScopeDiscardDigest(otherStoryId));
+      } catch (e) {
+        const reason = e instanceof Error ? e.message : String(e);
+        throw new Error(`Scope discard digest for discarded story ${otherStoryId} could not be read: ${reason}`);
+      }
+    }
+    return merged;
+  }
+
   writeScopeDiscardDigest(storyId: string, data: ScopeDiscardDigestData): void {
     this.writeJson(storyId, 'scope-discard-digest.json', data);
   }

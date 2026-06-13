@@ -160,7 +160,7 @@ export function evaluateScopeAntiExpansionGate(
     };
   }
 
-  const discardDigest = readScopeGateFailure('scope-discard-digest.json', () => store.readScopeDiscardDigest(storyId));
+  const discardDigest = readScopeGateFailure('scope-discard-digest.json', () => store.readScopeDiscardDigestForFreeze(storyId));
   if (discardDigest.reason) return { ok: false, reason: discardDigest.reason };
 
   const current = evaluateScopeFreeze({

@@ -9,6 +9,7 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -19,15 +20,14 @@ import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import {
   buildExecutionBoundary,
   buildScopeBoundary,
-  buildScopeDiscardDigestEntry,
   buildScopeExtensionProposal,
   digestScopeFreezeCheck,
   evaluateScopeFreeze,
-  normalizeBoundaryArray,
 } from '../core/scope-anti-expansion.js';
 import type { ChecklistData, ScopeFreezeCheckData, StoryInfo } from '../core/types.js';
 import { createScopeAntiExpansionHandlers } from '../handlers/scope-anti-expansion.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
+import { createWorktreeHandlers } from '../handlers/worktree.js';
 
 const NOW = '2026-06-12T12:00:00.000Z';
 const STORY_ID = 'B-scope-anti-expansion-smoke';
@@ -51,6 +51,34 @@ function createTempStore(): { root: string; store: StoryStore } {
   return { root, store: new StoryStore(root) };
 }
 
+function git(root: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function createTempGitStore(): { root: string; store: StoryStore } {
+  const context = createTempStore();
+  git(context.root, ['init']);
+  git(context.root, ['config', 'user.email', 'scope-smoke@example.test']);
+  git(context.root, ['config', 'user.name', 'Scope Smoke']);
+  write(context.root, '.gitignore', [
+    '.worktrees/',
+    '**/activity.jsonl',
+    '.lattice/*',
+    '!.lattice/story/',
+    '!.lattice/story/**',
+    '',
+  ].join('\n'));
+  write(context.root, 'README.md', 'scope anti-expansion smoke\n');
+  git(context.root, ['add', '.']);
+  git(context.root, ['commit', '-m', 'init']);
+  resetConfigCache();
+  return context;
+}
+
 function withTempStore(label: string, fn: (store: StoryStore) => void): void {
   const { root, store } = createTempStore();
   try {
@@ -64,6 +92,17 @@ function withTempStore(label: string, fn: (store: StoryStore) => void): void {
 
 function withTempContext(label: string, fn: (root: string, store: StoryStore) => void): void {
   const { root, store } = createTempStore();
+  try {
+    fn(root, store);
+    console.log(`  ✓ ${label}`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+function withTempGitContext(label: string, fn: (root: string, store: StoryStore) => void): void {
+  const { root, store } = createTempGitStore();
   try {
     fn(root, store);
     console.log(`  ✓ ${label}`);
@@ -454,33 +493,67 @@ withTempStore('stale freeze check blocks after checklist mutation', (store) => {
   expectReason(store, /\[scope_freeze_check_stale\]/);
 });
 
-withTempStore('repeat discarded direction blocks without mitigation and passes with mitigation', (store) => {
-  seedStory(store);
-  writeGoodBoundaries(store);
-  const story = projectStory(store);
-  const checklist = projectChecklist(store);
-  const boundary = store.readScopeBoundary(STORY_ID);
-  const terms = normalizeBoundaryArray([
-    story.title ?? '',
-    story.description ?? '',
-    ...(boundary?.allowed ?? []),
-    ...checklist.flatMap(item => [item.title, item.context ?? '']),
-  ]);
-  const entry = buildScopeDiscardDigestEntry({
-    terms,
-    reason: 'Previous story was discarded after selecting this direction.',
-    storyId: 'B-previous-discarded',
-    discardedAt: NOW,
-  });
-  store.writeScopeDiscardDigest(STORY_ID, {
-    storyId: STORY_ID,
-    updatedAt: NOW,
-    entries: [entry],
-  });
-  expectReason(store, /\[repeat_discarded_direction\]/);
+withTempGitContext('real discarded story digest blocks replacement without mitigation and passes with mitigation', (root, store) => {
+  const storyHandlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  const scopeHandlers = createScopeAntiExpansionHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  const worktreeHandlers = createWorktreeHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  const replacementTitle = 'Retry the discarded INIT freeze direction';
+  const replacementDescription = 'Keep the retry scoped to the same discarded INIT freeze behavior.';
+  const checklist = [{ title: 'Wire the discarded direction check', context: 'Reject the replacement unless mitigation is explicit.' }];
+  const createStory = (name: string): string => {
+    const output = storyHandlers.story_create({
+      name,
+      title: replacementTitle,
+      description: replacementDescription,
+      type: 'bug',
+      priority: 'high',
+      background: validBackground(),
+      checklist,
+      forceNew: true,
+    });
+    const storyId = /Story (B-[a-z0-9]+)/.exec(output)?.[1];
+    assert.ok(storyId, `story_create output should include story id: ${output}`);
+    return storyId;
+  };
 
-  freeze(store, 'Mitigation: this retry narrows to the machine guard only and does not repeat the discarded work.');
-  assert.equal(getScopeAntiExpansionGuardFailureReason(STORY_ID, store, process.cwd()), null);
+  const discardedStoryId = createStory('discarded-scope-freeze-direction-smoke');
+  const discardOutput = worktreeHandlers.story_discard({
+    storyId: discardedStoryId,
+    reason: 'Previous attempt selected this direction and was discarded.',
+  });
+  assert.match(discardOutput, /discard digest recorded/);
+  assert.equal(store.readStory(discardedStoryId).phase, 'DISCARDED');
+
+  const replacementStoryId = createStory('replacement-scope-freeze-direction-smoke');
+  scopeHandlers.scope_boundary_set({
+    storyId: replacementStoryId,
+    mode: 'correctness_fix',
+    allowedScope: ['INIT anti-expansion gate correctness'],
+    excludedScope: ['accepted reviewer expansion without decision'],
+    userConfirmed: true,
+    actor: 'scope-anti-expansion-smoke',
+  });
+  scopeHandlers.execution_boundary_set({
+    storyId: replacementStoryId,
+    allowedCommands: ['npm --prefix packages/main run build'],
+    allowedTools: ['shell'],
+    excludedCommands: ['omx'],
+    actor: 'scope-anti-expansion-smoke',
+  });
+
+  const failedFreezeOutput = scopeHandlers.scope_freeze_check({ storyId: replacementStoryId });
+  assert.match(failedFreezeOutput, /FAIL/);
+  const failedCheck = store.readScopeFreezeCheck(replacementStoryId);
+  assert.equal(failedCheck?.repeatDiscardOverlaps[0]?.previousStoryId, discardedStoryId);
+  const blockedReason = getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root);
+  assert.match(blockedReason ?? '', /\[repeat_discarded_direction\]/);
+
+  const mitigatedOutput = scopeHandlers.scope_freeze_check({
+    storyId: replacementStoryId,
+    repeatDiscardMitigation: 'This retry narrows the old discarded direction to the INIT_CHECK gate regression only.',
+  });
+  assert.match(mitigatedOutput, /PASS/);
+  assert.equal(getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root), null);
 });
 
 withTempStore('happy path passes with current boundary, freeze, and no pending proposals', (store) => {

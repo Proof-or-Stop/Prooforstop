@@ -215,7 +215,7 @@ export function createScopeAntiExpansionHandlers(ctx: HandlerContext): Record<st
         executionBoundary: ctx.store.readExecutionBoundary(args.storyId),
         story: projectStory(ctx, args.storyId),
         checklist: projectChecklist(ctx, args.storyId),
-        discardDigest: ctx.store.readScopeDiscardDigest(args.storyId),
+        discardDigest: ctx.store.readScopeDiscardDigestForFreeze(args.storyId),
         repeatDiscardMitigation: args.repeatDiscardMitigation ?? args.note,
       });
 
