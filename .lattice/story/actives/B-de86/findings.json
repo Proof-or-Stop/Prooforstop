@@ -38,6 +38,23 @@
       ],
       "resolvedReason": "Resolved by updating unlock-layer3-loop-engineering-suite.md to state that capability_claim_formal_evaluate supports the loop-engineering target, and that Layer 3 execution must verify this path while keeping Production Safety and global capability claim locked.",
       "resolvedAt": "2026-06-13T01:51:25.300Z"
+    },
+    {
+      "id": "B-de86:F-003",
+      "desc": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:259-263 defines UDM-REAL-REPAIR as DEV implementation -> validation FAIL -> repair attempt -> validation PASS -> REVIEW -> TEST -> DONE. In this project validation is the TEST-stage lattice validate step: AGENTS.md:72 defines the lifecycle as INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE, AGENTS.md:87 assigns lattice validate to TEST, AGENTS.md:110 says story_advance --phase=TEST then run lattice validate, and AGENTS.md:133-139 says validation FAIL writes evidence and hints back to DEV. The new real-execution plan is supposed to prove actual Lattice lifecycle behavior, but this sequence places validation before REVIEW and before TEST, so it documents an impossible or misleading repair loop. A future UDM-REAL-REPAIR run could follow this plan and either skip the required REVIEW-before-TEST path or record non-gate validation as if it were lattice validate. The repair scenario should spell the real loop as DEV -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE, or explicitly distinguish a DEV-local verification command from TEST-stage lattice validate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T01:53:46.436Z",
+      "reviewRound": "2026-06-13T01:50:47.467Z",
+      "reviewRunId": "B-de86:RR-006",
+      "_hash": "1ce0b5e2ef8e585f048fc6385ac6ce5824ceb7428a16fb6e5bd93a780f1c5161",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+        "AGENTS.md"
+      ]
     }
   ]
 }
