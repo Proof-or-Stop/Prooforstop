@@ -663,6 +663,34 @@ function refFor(
   assertNoProductionOverclaim(result, 'buildConduitStatus shadow');
 }
 
+// conduit_status off mode mirrors the same zero trust-file / secret-file I/O boundary.
+{
+  const reads: string[] = [];
+  const result = buildConduitStatus(
+    {
+      ...EMPTY_AUTHORITY_ENV,
+      LATTICE_AUTHORITY_MODE: 'off',
+      LATTICE_AUTHORITY_TRUST_ENV_FILE: 'authority_trust.env',
+    } as Record<string, string | undefined>,
+    {
+      cwd: '/proj',
+      fileReader: p => {
+        reads.push(p);
+        if (p.endsWith('authority_trust.env')) {
+          return 'LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE=secrets/customer.key';
+        }
+        if (p.endsWith('secrets/customer.key')) return 'secret-key';
+        return undefined;
+      },
+    },
+  );
+  assert.deepEqual(reads, [], 'conduit off mode does not read authority_trust.env or referenced secret files');
+  assert.equal(result.mode, 'off', 'conduit off-mode remains off');
+  assert.equal(result.productionDone, false, 'conduit off-mode productionDone false');
+  assert.equal(result.receiptVerified, false, 'conduit off-mode receiptVerified false');
+  assertNoProductionOverclaim(result, 'buildConduitStatus off-mode-zero-trust-io');
+}
+
 // ── CLI integration: text + JSON (--format=json AND --json shortcut) ───────
 
 // off mode through CLI (text output)

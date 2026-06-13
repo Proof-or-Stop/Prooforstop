@@ -1099,7 +1099,9 @@ export function buildConduitStatus(
   options: AuthorityConfigLoadOptions = {},
 ) {
   const settings = loadAuthorityConfig(env, {}, options);
-  const customerKey = resolveAuthorityCustomerApiKey(env, options);
+  const customerKey = settings.mode === 'off'
+    ? { source: 'none' as const }
+    : resolveAuthorityCustomerApiKey(env, options);
   const actorKeyConfigured =
     readEnforceEnv(env).actorKeyConfigured ||
     typeof settings.keyMaterial.actorKey === 'string' ||
