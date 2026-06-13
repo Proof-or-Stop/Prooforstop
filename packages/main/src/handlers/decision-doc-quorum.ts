@@ -7,7 +7,7 @@ type DecisionDocQuorumCheckArgs = {
 } & FormatArgs;
 
 type DecisionDocQuorumCore = {
-  evaluateDecisionDocQuorum(args: { root: string; storyId: string }): unknown | Promise<unknown>;
+  evaluateDecisionDocQuorum(args: { projectRoot: string; storyId: string; store: HandlerContext['store'] }): unknown | Promise<unknown>;
   formatDecisionDocQuorumFailure?: (report: unknown) => string;
   formatDecisionDocQuorumReport?: (report: unknown) => string;
 };
@@ -50,8 +50,9 @@ export function createDecisionDocQuorumHandlers(ctx: HandlerContext) {
     async decision_doc_quorum_check(args: DecisionDocQuorumCheckArgs) {
       const core = await loadDecisionDocQuorumCore();
       const report = await core.evaluateDecisionDocQuorum({
-        root: ctx.root,
+        projectRoot: ctx.root,
         storyId: args.storyId,
+        store: ctx.store,
       });
 
       if (wantsJson(args)) return report;
