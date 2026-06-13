@@ -4,7 +4,7 @@
   "title": "Auto-build main CLI dist after DONE merges touch runtime sources",
   "description": "After a story merges back to local main, the global lattice executable can point at packages/main/dist/cli.js while packages/main/src has changed. This leaves main updated but the usable CLI stale. Make DONE merge rebuild the package when CLI runtime inputs changed, and make failure explicit.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "done-merge",
@@ -48,11 +48,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-350de45eaf0f0f51",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:09:08.341Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-c3b0",
     "branch": "story/B-c3b0",
     "createdAt": "2026-06-13T11:56:17.048Z"
-  }
+  },
+  "currentReviewRound": "2026-06-13T12:09:08.341Z"
 }
