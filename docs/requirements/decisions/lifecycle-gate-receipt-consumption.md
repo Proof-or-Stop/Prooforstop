@@ -139,6 +139,22 @@ When Authority-backed DONE is required:
 - gate consumption must be recorded before local `productionDone=true` can be
   derived.
 
+## Local Decision-Doc Quorum Gate
+
+Decision-doc quorum is a local DONE gate, not Authority Server receipt
+completion. When a story changes decision docs, local DONE requires:
+
+- 3 distinct review rounds over the current material digest;
+- at least 2 distinct PASSing hosts in each round;
+- a fresh material digest match at DONE time;
+- ignored, duplicate-host, FAIL, BLOCKED, or stale-digest verdicts do not count.
+
+`autopilot_review_submit` records local `host_verdict` workflow evidence consumed
+by this local quorum gate. `decision_doc_quorum_check` reports the same quorum
+state read-only. Neither command verifies a server `gate_decision` receipt, nor
+may either command derive Authority receipt completion, `authorityDone`,
+`fullAuthorityDone`, or `productionDone`.
+
 ## Process Fact Registry Updates
 
 Any gate-consumed receipt fact must be represented in process fact registry

@@ -96,6 +96,7 @@ const processFactRegistryKinds = new Set([
   'review-pass',
   'finding',
   'flow-policy',
+  'host-verdict',
   'reviewer-lane',
   'signed-artifact',
   'artifact',
@@ -120,6 +121,7 @@ const requiredProcessFactSemantics = {
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
+  autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
   authority_receipt_verify: ['gate-evidence'],
 };
 const requiredReviewerLanes = [
@@ -168,6 +170,9 @@ const requiredReviewLoopReadOnlyCommands = [
 ];
 const requiredDoneClosureReadOnlyCommands = [
   'done_closure',
+];
+const requiredDecisionDocQuorumReadOnlyCommands = [
+  'decision_doc_quorum_check',
 ];
 const legacyCommandPolicyGuidance = {
   test_auto: {
@@ -1924,6 +1929,77 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
   }
 }
 
+function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  for (const commandName of requiredDecisionDocQuorumReadOnlyCommands) {
+    assert(cliToolNameSet.has(commandName), `CLI schema: required decision-doc quorum read command missing from MAIN_TOOLS: ${commandName}`);
+    const policy = policyByName.get(commandName);
+    assert(policy, `${commandPolicyPath}: required decision-doc quorum command missing lifecycle policy: ${commandName}`);
+    if (policy) {
+      assert(!policy.gateEvidence, `${commandPolicyPath}: ${commandName} must not be gateEvidence`);
+      assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
+      assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
+      assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} must stay readOnly`);
+      assert(/without mutating|read-only/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the read-only boundary`);
+      assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the Authority/no-overclaim boundary`);
+    }
+
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: required decision-doc quorum command missing level entry: ${commandName}`);
+    if (levelEntry) {
+      assert(levelEntry.level === 'L0', `${processFactLevelRegistryPath}: ${commandName} must stay L0`);
+      assert(levelEntry.category === 'decision-doc-quorum-read', `${processFactLevelRegistryPath}: ${commandName} category must stay decision-doc-quorum-read`);
+      assert(levelEntry.owner === 'handlers/decision-doc-quorum', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+      assert(!levelEntry.gateConsumer, `${processFactLevelRegistryPath}: ${commandName} must not declare a gateConsumer`);
+    }
+
+    const registryEntry = registry.get(commandName);
+    assert(registryEntry, `${processFactRegistryPath}: required decision-doc quorum command missing registry entry: ${commandName}`);
+    if (registryEntry) {
+      assert(registryEntry.level === 'L0', `${processFactRegistryPath}: ${commandName} registry level must stay L0`);
+      assert(registryEntry.kind === 'command', `${processFactRegistryPath}: ${commandName} registry kind must stay command`);
+      assert(registryEntry.gateEvidence === false, `${processFactRegistryPath}: ${commandName} registry gateEvidence must stay false`);
+      assert(!registryEntry.artifact, `${processFactRegistryPath}: ${commandName} must not produce a process artifact`);
+      assert(!registryEntry.consumerGate, `${processFactRegistryPath}: ${commandName} must not be consumed by a lifecycle gate`);
+      assert(registryEntry.semantics.includes('command'), `${processFactRegistryPath}: ${commandName} must remain a command projection semantic`);
+      assert(!registryEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${commandName} must not gain gate-evidence semantic`);
+    }
+  }
+
+  const commandName = 'autopilot_review_submit';
+  const policy = policyByName.get(commandName);
+  assert(policy, `${commandPolicyPath}: required local host verdict command missing lifecycle policy: ${commandName}`);
+  if (policy) {
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local decision-doc quorum`);
+    assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
+    assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(policy, 'storyScopedMutating'), `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`);
+    assert(/decision-doc quorum DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local decision-doc quorum DONE gate`);
+    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must preserve the Authority no-overclaim boundary`);
+  }
+
+  const levelEntry = levelRegistry.get(commandName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required local host verdict command missing level entry: ${commandName}`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(levelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay lattice-local-host-verdict`);
+    assert(levelEntry.owner === 'handlers/verdict', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+    assert(/(decision-doc quorum.*DONE|DONE.*decision-doc quorum)/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
+  }
+
+  const registryEntry = registry.get(commandName);
+  assert(registryEntry, `${processFactRegistryPath}: required local host verdict command missing registry entry: ${commandName}`);
+  if (registryEntry) {
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${commandName} registry level must stay L4`);
+    assert(registryEntry.kind === 'host-verdict', `${processFactRegistryPath}: ${commandName} registry kind must stay host-verdict`);
+    assert(registryEntry.gateEvidence === true, `${processFactRegistryPath}: ${commandName} registry gateEvidence must stay true`);
+    assert(registryEntry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${commandName} must record process-events.jsonl evidence`);
+    for (const semantic of ['host-verdict', 'execution-evidence', 'gate-evidence']) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing ${semantic} semantic`);
+    }
+    assert(/(decision-doc quorum.*DONE|DONE.*decision-doc quorum)/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
+  }
+}
+
 function assertActiveLifecycleDocGuidance() {
   for (const relPath of activeLifecycleDocPaths) {
     const text = read(relPath);
@@ -2764,6 +2840,7 @@ function assertProcessFactCommandInventory() {
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {

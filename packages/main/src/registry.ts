@@ -58,6 +58,7 @@ import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
 import { createGapLogHandlers } from './handlers/gap-log.js';
 import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { createDoneClosureHandlers } from './handlers/done-closure.js';
+import { createDecisionDocQuorumHandlers } from './handlers/decision-doc-quorum.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeAntiExpansionHandlers } from './handlers/scope-anti-expansion.js';
@@ -210,6 +211,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // whose phase was persisted but whose branch did not merge back to main.
   registry.registerBatch(createDoneRecoverHandlers(ctx));
   registry.registerBatch(createDoneClosureHandlers(ctx));
+  registry.registerBatch(createDecisionDocQuorumHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));
 
