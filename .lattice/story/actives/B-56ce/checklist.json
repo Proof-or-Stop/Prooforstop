@@ -52,7 +52,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "When stale verification evidence is detected, terminal output says `EVIDENCE STALE ... hash binding changed` and shows `lattice verification_evidence_refresh_stale --storyId=B-56ce` followed by `lattice validate --story=B-56ce --json`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-stale-hint.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The shared stale evidence hint prints lattice recovery commands and explains HEAD/material hash binding drift.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The hint still renders nothing when no stale evidence entries exist.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The wording does not imply stale evidence means the original verification command logically failed.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
