@@ -1,0 +1,32 @@
+{
+  "storyId": "B-8448",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/cli-engine.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/cli-engine.ts",
+    "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/cli-engine.ts",
+    "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "README.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/annotation-system.md"
+  ],
+  "scopeChangeReason": "Initialize REVIEW scope contract from the documentation-only PLAN scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T13:22:57.122Z",
+  "updatedAt": "2026-06-13T13:22:57.122Z"
+}
