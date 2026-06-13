@@ -63,6 +63,14 @@ interface IntentFixtureLocation {
   name: string;
 }
 
+const INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS = new Set([
+  'koala-review-story-init',
+  'product-reviewer',
+]);
+
+const STORY_LEVEL_SCOPE_FIELDS = ['title', 'description', 'source', 'depends'] as const;
+type StoryLevelScopeField = typeof STORY_LEVEL_SCOPE_FIELDS[number];
+
 function isLegacyIntentRef(ref: string): boolean {
   return /^CHK-\d+:(happy|edge|adversarial):\d+$/.test(ref);
 }
@@ -130,6 +138,40 @@ function removeEmptyDir(path: string): boolean {
   if (readdirSync(path).length > 0) return false;
   rmdirSync(path);
   return true;
+}
+
+function storyUpdateActorFrom(args: { agent?: string; actor?: string }): string {
+  const explicit = args.agent?.trim() || args.actor?.trim();
+  if (explicit) return explicit;
+  return process.env.KOALA_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+}
+
+function isInitReviewerStoryUpdateActor(actor: string): boolean {
+  return INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS.has(actor.trim());
+}
+
+function storyLevelScopeMutations(args: {
+  title?: string;
+  description?: string;
+  source?: string;
+  depends?: string[];
+}): StoryLevelScopeField[] {
+  return STORY_LEVEL_SCOPE_FIELDS.filter(field => args[field] !== undefined);
+}
+
+function assertInitReviewerStoryScopeMutationAllowed(args: {
+  story: StoryInfo;
+  command: 'story_update';
+  actor: string;
+  scopeFields: StoryLevelScopeField[];
+}): void {
+  if (args.story.phase !== 'INIT') return;
+  if (args.scopeFields.length === 0) return;
+  if (!isInitReviewerStoryUpdateActor(args.actor)) return;
+  throw new Error(
+    `${args.command} refused: INIT reviewer lane "${args.actor}" cannot directly modify story-level scope field(s) ${args.scopeFields.join(', ')} in INIT. [init_reviewer_story_scope_mutation_blocked]\n` +
+    `→ Record requested expansion with scope_extension_proposal; the main/owner agent may then accept/reject via scope_extension_decide and rerun scope_freeze_check.`,
+  );
 }
 
 function shellQuote(value: string): string {
@@ -336,8 +378,17 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       priority?: string;
       source?: string;
       depends?: string[];
+      agent?: string;
+      actor?: string;
     }): string {
       const story = store.readStory(args.storyId);
+      const actor = storyUpdateActorFrom(args);
+      assertInitReviewerStoryScopeMutationAllowed({
+        story,
+        command: 'story_update',
+        actor,
+        scopeFields: storyLevelScopeMutations(args),
+      });
       if (args.title !== undefined) story.title = args.title;
       if (args.description !== undefined) story.description = args.description;
       if (args.priority !== undefined) story.priority = args.priority;

@@ -29,6 +29,7 @@ import type { ChecklistData, ScopeDiscardDigestData, ScopeFreezeCheckData, Story
 import { createScopeAntiExpansionHandlers } from '../handlers/scope-anti-expansion.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { createWorktreeHandlers } from '../handlers/worktree.js';
+import { createStoryQueryHandlers } from '../handlers/story-query.js';
 
 const NOW = '2026-06-12T12:00:00.000Z';
 const STORY_ID = 'B-scope-anti-expansion-smoke';
@@ -396,6 +397,69 @@ withTempContext('INIT reviewers cannot mutate checklist definitions directly', (
     actor: 'main-agent',
   });
   assert.equal(store.readChecklist(STORY_ID).items[0].title, 'Main agent applies an INIT fix');
+});
+
+withTempContext('INIT reviewers cannot mutate story-level scope fields directly', (root, store) => {
+  seedStory(store);
+  const handlers = createStoryQueryHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  const previousAgent = process.env.KOALA_AGENT;
+  process.env.KOALA_AGENT = 'koala-review-story-init';
+  try {
+    assert.throws(() => handlers.story_update({
+      storyId: STORY_ID,
+      title: 'Reviewer tries to add future capability',
+    }), /init_reviewer_story_scope_mutation_blocked/);
+  } finally {
+    if (previousAgent === undefined) delete process.env.KOALA_AGENT;
+    else process.env.KOALA_AGENT = previousAgent;
+  }
+  assert.throws(() => handlers.story_update({
+    storyId: STORY_ID,
+    description: 'Product reviewer tries to move future capability into current scope.',
+    actor: 'product-reviewer',
+  }), /init_reviewer_story_scope_mutation_blocked/);
+  assert.throws(() => handlers.story_update({
+    storyId: STORY_ID,
+    source: 'future-scope-reviewer-note',
+    agent: 'koala-review-story-init',
+  }), /init_reviewer_story_scope_mutation_blocked/);
+
+  handlers.story_update({
+    storyId: STORY_ID,
+    priority: 'medium',
+    actor: 'product-reviewer',
+  });
+  assert.equal(store.readStory(STORY_ID).priority, 'medium', 'reviewer may still update non-scope metadata');
+
+  handlers.story_update({
+    storyId: STORY_ID,
+    title: 'Main agent applies an INIT story title fix',
+    description: 'Main agent keeps this story scoped to the current INIT freeze regression.',
+    actor: 'main-agent',
+  });
+  const updated = store.readStory(STORY_ID);
+  assert.equal(updated.title, 'Main agent applies an INIT story title fix');
+  assert.equal(updated.description, 'Main agent keeps this story scoped to the current INIT freeze regression.');
+});
+
+withTempContext('frozen scope cannot be bypassed by reviewer story_update', (root, store) => {
+  seedStory(store);
+  writeGoodBoundaries(store);
+  freeze(store);
+  const handlers = createStoryQueryHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  assert.throws(() => handlers.story_update({
+    storyId: STORY_ID,
+    title: 'Reviewer smuggles a future capability after freeze',
+    agent: 'koala-review-story-init',
+  }), /init_reviewer_story_scope_mutation_blocked/);
+  assert.equal(getScopeAntiExpansionGuardFailureReason(STORY_ID, store, root), null, 'blocked reviewer mutation must leave freeze evidence fresh');
+
+  handlers.story_update({
+    storyId: STORY_ID,
+    title: 'Owner updates title after freeze',
+    actor: 'main-agent',
+  });
+  expectReason(store, /\[scope_freeze_check_stale\]/);
 });
 
 withTempStore('missing scope boundary blocks before worktree creation', (store) => {

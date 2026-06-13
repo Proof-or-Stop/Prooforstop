@@ -342,6 +342,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_update', description: '编辑 Story 信息', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
     description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
+    agent: z.string().optional().describe('操作者；INIT reviewer lane 不可直接改 story-level scope 字段'),
+    actor: z.string().optional().describe('操作者别名；INIT reviewer lane 不可直接改 story-level scope 字段'),
   }},
   { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index') }},
   { name: 'story_list', description: '列出全部 Story', schema: {

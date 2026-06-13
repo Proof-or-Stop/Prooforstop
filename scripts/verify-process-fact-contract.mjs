@@ -3188,6 +3188,15 @@ const inventory = [
         ],
       },
       {
+        relPath: 'packages/main/src/handlers/story-query.ts',
+        patterns: [
+          'INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS',
+          'storyLevelScopeMutations',
+          'init_reviewer_story_scope_mutation_blocked',
+          'scope_extension_proposal',
+        ],
+      },
+      {
         relPath: 'packages/main/src/handlers/scope-anti-expansion.ts',
         patterns: [
           'allowedPaths: args.allowedPaths',
@@ -3210,11 +3219,13 @@ const inventory = [
           'allowedPaths: z.array(z.string().min(1)).optional()',
           'excludedPaths: z.array(z.string().min(1)).optional()',
           'INIT reviewer lane 不可直接改需求定义',
+          'INIT reviewer lane 不可直接改 story-level scope 字段',
         ],
       },
       {
         relPath: 'packages/main/src/core/command-policy.ts',
         patterns: [
+          'INIT reviewer lanes cannot edit story title/description/source/depends',
           'INIT reviewer lanes cannot edit title/context/excludes',
           'must use scope_extension_proposal',
         ],
