@@ -5,7 +5,7 @@
       "desc": "Verification evidence for CHK-001:happy:0 is not probative: the recorded command is git diff --check, which only checks whitespace and does not prove the plan document exists or states that scope_check_save already exists while scope-check.json is the missing PLAN evidence artifact. Add reviewer-appropriate evidence using a content check such as test -f plus rg for those specific claims, then rerun validate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T01:48:59.917Z",
@@ -14,7 +14,9 @@
       "_hash": "bcb6cdf64f4fc37316f2c9e0e120219a210afce84bf7ce33851a57d757e9bd36",
       "files": [
         "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Added probative CHK-001:happy:0 docs_check evidence using test -f plus rg assertions for scope_check_save existence and scope-check.json missing PLAN evidence artifact; reran lattice validate with 12/12 verificationIntent coverage passing.",
+      "resolvedAt": "2026-06-13T01:50:56.858Z"
     }
   ]
 }
