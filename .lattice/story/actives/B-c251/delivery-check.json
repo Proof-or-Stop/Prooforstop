@@ -1,0 +1,68 @@
+{
+  "storyId": "B-c251",
+  "checkedAt": "2026-06-13T01:55:55.866Z",
+  "reviewRound": "2026-06-13T01:46:56.490Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "promise": "Document is an execution plan and handoff for improving missing_scope_check guidance ergonomics, not an implementation completion claim.",
+      "status": "verified",
+      "verifiedBy": "manual inspection plus transcript review",
+      "evidence": "Doc title and Purpose lines 1-16 define a document-only execution plan; Final Lattice Execution Handoff lines 406-465 hands work to a future story."
+    },
+    {
+      "docPath": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "promise": "Document states scope_check_save already exists and scope-check.json is the missing PLAN gate evidence.",
+      "status": "verified",
+      "verifiedBy": "manual inspection with rg",
+      "evidence": "Problem Statement and Correct Mental Model lines 23-48 state scope_check_save exists and produces/updates scope-check.json PLAN evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "promise": "Document prohibits auto-generation, main-agent self-signing, direct metadata edits, gate weakening, and scope_contract_check substitution.",
+      "status": "verified",
+      "verifiedBy": "manual inspection with rg",
+      "evidence": "Non-Goals lines 64-69 and guidance avoidance lines 188-192 exclude gate weakening, auto-generation, self-signing, direct story metadata edits, and scope_contract_check substitution."
+    },
+    {
+      "docPath": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "promise": "Document preserves the host-neutral Non-authority boundary and avoids Authority Server receipt-backed completion overclaim.",
+      "status": "verified",
+      "verifiedBy": "manual inspection with rg",
+      "evidence": "Host-Neutral Boundary lines 78-99, audit protocol lines 258-259, and audit prompts lines 293-295 distinguish local Non-authority guidance from Authority receipt proof and forbid receiptVerified/authorityDone/productionDone/fullAuthorityDone claims."
+    },
+    {
+      "docPath": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "promise": "Document includes a follow-up Lattice story handoff with concrete story_create and lifecycle commands.",
+      "status": "verified",
+      "verifiedBy": "manual inspection",
+      "evidence": "Final Lattice Execution Handoff lines 406-465 includes proposed follow-up story intent, story_create payload, and lifecycle commands through PLAN and DEV."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Transcript .lattice/story/actives/B-c251/evidence/transcript-diff.md records npm --prefix packages/main run build PASS, lattice validate --story=B-c251 --json PASS, npm test PASS, and verificationIntent coverage 12/12 after merging local main."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Transcript .lattice/story/actives/B-c251/evidence/transcript-diff.md records npm --prefix packages/main run build PASS, lattice validate --story=B-c251 --json PASS, npm test PASS, and verificationIntent coverage 12/12 after merging local main."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Transcript .lattice/story/actives/B-c251/evidence/transcript-diff.md records npm --prefix packages/main run build PASS, lattice validate --story=B-c251 --json PASS, npm test PASS, and verificationIntent coverage 12/12 after merging local main."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Transcript .lattice/story/actives/B-c251/evidence/transcript-diff.md records npm --prefix packages/main run build PASS, lattice validate --story=B-c251 --json PASS, npm test PASS, and verificationIntent coverage 12/12 after merging local main."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery artifact and transcript were inspected. Real-machine build and lattice validate evidence pass, verificationIntent coverage is 12/12, no unresolved TODO or Authority overclaim blocker was found."
+  },
+  "_hash": "aafffb943e090bb7c20c22e694bfe33f6a1a997f87fe490ca2a828f9bb86ea06"
+}

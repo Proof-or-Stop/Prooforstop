@@ -1,0 +1,66 @@
+{
+  "storyId": "B-c251",
+  "checkedAt": "2026-06-12T21:45:52.314Z",
+  "features": [
+    {
+      "feature": "Write the missing_scope_check guidance execution plan document",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist + understanding"
+    },
+    {
+      "feature": "Run two-host audit of the execution plan under no-arbitrary-optimization, real-correctness-only, consistency-of-logic constraints",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist + decision principles"
+    },
+    {
+      "feature": "Incorporate only real audit findings and save a final executable document with verification, rollback, and Non-authority/Authority boundary",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist + decision preMortem"
+    },
+    {
+      "feature": "Hand the finalized document to the Lattice execution flow without claiming implementation completion",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist + understanding outcome"
+    },
+    {
+      "feature": "Implement CLI code changes to story_review/session guidance in this story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-004 defines this as later Lattice execution after the document is finalized",
+      "source": "scope statement + decision option A"
+    },
+    {
+      "feature": "Auto-generate scope_check_save evidence or let the main agent self-sign scope review",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision rejects option C; scope_check_save must remain reviewer-written signed evidence",
+      "source": "understanding constraints + decision preMortem"
+    },
+    {
+      "feature": "Claim Authority Server completion or receipt-backed proof for this local guidance/document story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Non-authority/Authority separation constraint",
+      "source": "understanding facts + constraints"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 4,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "373541956549777e7ae2bcc8f67109bd3e44a562d26ec8d7ccdb30c522477b11",
+  "openQuestions": []
+}

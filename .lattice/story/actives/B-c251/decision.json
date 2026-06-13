@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Preserve gate authority: reviewer evidence remains reviewer-written and signed.",
+    "Fix only the real user-facing confusion, not broader lifecycle behavior.",
+    "Keep local CLI guidance separate from Authority Server proof.",
+    "Make execution reproducible through Lattice lifecycle artifacts."
+  ],
+  "drivers": [
+    "PLAN review blockers must be actionable without implying a missing command.",
+    "The execution document must be auditable before implementation.",
+    "High-risk lifecycle changes need clear rollback and verification."
+  ],
+  "options": [
+    {
+      "name": "A: Write audited execution plan first, then hand implementation to Lattice",
+      "pros": [
+        "Matches the user request for plan + two-host audit before execution",
+        "Avoids changing gate behavior before the correctness boundary is agreed",
+        "Keeps implementation scope narrow and testable"
+      ],
+      "cons": [
+        "Adds one lifecycle story before code changes",
+        "Requires a second execution step after the document is finalized"
+      ]
+    },
+    {
+      "name": "B: Directly implement better missing_scope_check hints now",
+      "pros": [
+        "Fastest path to changed behavior",
+        "Likely small code diff"
+      ],
+      "cons": [
+        "Skips the requested audited plan document",
+        "Risks changing the wrong surface because story_review already has some guidance"
+      ]
+    },
+    {
+      "name": "C: Auto-generate scope-check evidence when missing",
+      "pros": [
+        "Would remove a manual step for users"
+      ],
+      "cons": [
+        "Incorrectly weakens reviewer authority",
+        "Confuses main-agent execution with signed scope reviewer evidence",
+        "Violates the real gate semantics and should be rejected"
+      ]
+    }
+  ],
+  "chosen": "A: Write audited execution plan first, then hand implementation to Lattice",
+  "rationale": "Choose the audited execution plan first because this is a high-risk lifecycle ergonomics change and the existing command already exists; the real issue is consistency and actionability of guidance, not missing functionality.",
+  "preMortem": [
+    {
+      "scenario": "The plan accidentally weakens PLAN review by recommending auto-created scope-check evidence.",
+      "trigger": "Trying to make missing_scope_check disappear automatically.",
+      "consequence": "Main agent could self-absolve scope review and reduce gate integrity.",
+      "mitigation": "State that scope_check_save remains reviewer-written signed evidence; implementation may only improve guidance."
+    },
+    {
+      "scenario": "The plan overclaims Authority Server involvement.",
+      "trigger": "Treating local Lattice CLI guidance as receipt-backed proof.",
+      "consequence": "Users think Authority completion was verified when only local docs/hints changed.",
+      "mitigation": "Add explicit Non-authority/Authority boundary and no Authority Server completion claim."
+    },
+    {
+      "scenario": "The implementation target is too broad and becomes arbitrary optimization.",
+      "trigger": "Expanding from one blocker message to a general lifecycle assistant rewrite.",
+      "consequence": "Higher regression risk and inconsistent logic across gates.",
+      "mitigation": "Limit execution to missing_scope_check actionability and consistency across existing surfaces only."
+    }
+  ],
+  "timestamp": "2026-06-12T21:44:51.079Z"
+}
