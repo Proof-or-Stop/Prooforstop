@@ -56,9 +56,9 @@
           "command": "test -f docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md && rg -n \"English-Only Policy|Execution Phases|Complete Line-Level Translation Manifest|Reviewer Checklist\" docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
           "result": "pass",
           "note": "The execution document exists and now includes the English-only policy, staged execution plan, complete line-level manifest, and reviewer checklist.",
-          "headHash": "5dffc9bc9581b641b3b74da0d4b6c756e587c6fb",
-          "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
-          "timestamp": "2026-06-13T13:41:29.469Z"
+          "headHash": "f7b156cb14330046eed3376eded35a91823f710a",
+          "materialHash": "2376c65663ed65fa58e1e237b07919d8e608f262f1030bb4c8e402eb2c1cc2c4",
+          "timestamp": "2026-06-13T13:42:56.329Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "node -e \"const fs=require(\\\"fs\\\");const doc=fs.readFileSync(\\\"docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md\\\",\\\"utf8\\\");const src=fs.readFileSync(\\\"packages/main/src/cli-engine.ts\\\",\\\"utf8\\\").split(/\\\\n/).filter(l=>/[\\\\u3400-\\\\u9fff]/.test(l)).length;const m=doc.match(/```tsv\\\\n([\\\\s\\\\S]*?)\\\\n```/);const lines=m[1].trim().split(/\\\\n/);const head=lines.shift().split(\\\"\\\\t\\\");const rows=lines.map(l=>Object.fromEntries(l.split(\\\"\\\\t\\\").map((v,i)=>[head[i],v])));const bad=rows.filter(r=>/[\\\\u3400-\\\\u9fff]/.test(r.proposedEnglish||\\\"\\\")||(r.proposedEnglish||\\\"\\\").includes(\\\"[review wording]\\\")).length;if(src!==762||rows.length!==src||bad)process.exit(1);console.log(JSON.stringify({src,rows:rows.length,bad}));\"",
           "result": "pass",
           "note": "The document now has a complete line-level translation manifest: all 762 Chinese-bearing cli-engine.ts lines are present, every row has proposedEnglish, proposedEnglish has no Chinese, and no fallback placeholder remains.",
-          "headHash": "5dffc9bc9581b641b3b74da0d4b6c756e587c6fb",
-          "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
-          "timestamp": "2026-06-13T13:41:29.514Z"
+          "headHash": "f7b156cb14330046eed3376eded35a91823f710a",
+          "materialHash": "2376c65663ed65fa58e1e237b07919d8e608f262f1030bb4c8e402eb2c1cc2c4",
+          "timestamp": "2026-06-13T13:42:56.329Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "git diff --name-only main...HEAD && git diff --name-only",
           "result": "pass",
           "note": "The change set remains documentation/Lattice metadata only; packages/main/src/cli-engine.ts and docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md were not modified.",
-          "headHash": "5dffc9bc9581b641b3b74da0d4b6c756e587c6fb",
-          "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
-          "timestamp": "2026-06-13T13:41:29.549Z"
+          "headHash": "f7b156cb14330046eed3376eded35a91823f710a",
+          "materialHash": "2376c65663ed65fa58e1e237b07919d8e608f262f1030bb4c8e402eb2c1cc2c4",
+          "timestamp": "2026-06-13T13:42:56.329Z"
         }
       ]
     }
