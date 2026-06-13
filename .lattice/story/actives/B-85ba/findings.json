@@ -238,7 +238,7 @@
       "desc": "test-coverage blocker: requested F-007 flow-stability smoke is failing. `npm --prefix packages/main run test:flow-stability-smoke` exits 1 before the F-007 import-isolation assertions because artifact_declare accepts `.lattice-serve.json` instead of rejecting it as a runtime artifact. The smoke at packages/main/src/tasks/flow-stability-smoke.ts:2968 expects `.lattice-serve.json` to be handled by runtime-artifact-registry, but packages/main/src/core/runtime-artifact-registry.ts:121 only registers `.koala-serve.json`. This blocks REVIEW coverage confirmation for F-007 and leaves runtime artifact/declared artifact separation unverified.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T02:12:41.316Z",
@@ -248,7 +248,9 @@
       "files": [
         "packages/main/src/tasks/flow-stability-smoke.ts:2968",
         "packages/main/src/core/runtime-artifact-registry.ts:121"
-      ]
+      ],
+      "resolvedReason": "Fixed in 532fdc314 and ec448fead: runtime-artifact-registry now classifies both .koala-serve.json and .lattice-serve.json as serve metadata, flow-stability smoke covers the runtime-artifact/declared-artifact separation, and managed-asset assertions now match current global-thin/Lattice contracts while preserving true local drift checks. Reverified with npm --prefix packages/main run build, npm --prefix packages/main run test:flow-stability-smoke, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, node scripts/verify-process-fact-contract.mjs, and npm run test:runtime-fact-contract.",
+      "resolvedAt": "2026-06-13T02:24:03.496Z"
     }
   ]
 }
