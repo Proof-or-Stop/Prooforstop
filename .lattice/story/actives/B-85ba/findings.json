@@ -220,7 +220,7 @@
       "desc": "scope-freeze freshness hash includes discardDigest.updatedAt, so a metadata-only rewrite of the same discarded corpus changes freshnessHash and makes a previously valid scope_freeze_check stale. Evidence: packages/main/src/core/scope-anti-expansion.ts:537 includes updatedAt in discardCorpusIdentity, and packages/main/src/core/scope-anti-expansion.ts:611 folds that into freezeFreshnessPayload. Repro command: node --input-type=module pure evaluateScopeFreeze smoke showed same entries with only updatedAt changed produced different freshness hashes e781590c... vs 57c4755.... This can block INIT_CHECK after non-semantic metadata churn, contradicting the stable freshness hash contract.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-13T02:11:09.437Z",
@@ -229,7 +229,9 @@
       "_hash": "f7f1c53b40ae5d41f99d447374869ba383a76a95ab47e25c1b24630d3ee49422",
       "files": [
         "packages/main/src/core/scope-anti-expansion.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in 91e37a981: discardCorpusIdentity now excludes metadata-only updatedAt churn, and scope-anti-expansion smoke covers same-corpus updatedAt rewrites staying fresh while entry/overlap changes still stale or block. Reverified after later commits with npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, node scripts/verify-process-fact-contract.mjs, npm run test:runtime-fact-contract, and npm --prefix packages/main run test:flow-stability-smoke.",
+      "resolvedAt": "2026-06-13T02:23:57.888Z"
     },
     {
       "id": "B-85ba:F-012",
