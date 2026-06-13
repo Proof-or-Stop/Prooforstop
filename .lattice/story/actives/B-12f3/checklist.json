@@ -60,6 +60,16 @@
           "headHash": "0a39e88a26917bcb0daedb793b8744ee23e2195d",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:22:20.049Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice authority_status --json",
+          "result": "pass",
+          "note": "Authority status reports mode off/not-configured, receiptVerified=false, productionDone=false, so local CLI evidence cannot claim Authority completion.",
+          "headHash": "9c5826913b22d7e45510224ff2cfa4dd138b11b1",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:24.243Z"
         }
       ]
     },
