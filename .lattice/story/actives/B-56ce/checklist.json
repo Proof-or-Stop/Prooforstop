@@ -85,9 +85,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T10:24:22.118Z",
       "userSees": "When stale verification evidence is detected, terminal output says `EVIDENCE STALE ... hash binding changed` and shows `lattice verification_evidence_refresh_stale --storyId=B-56ce` followed by `lattice validate --story=B-56ce --json`.",
       "files": {
         "modify": [
@@ -117,7 +117,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification-freshness smoke asserts the shared EVIDENCE STALE block explains HEAD/material hash binding drift and prints lattice recovery commands.",
+          "headHash": "4baf9300b424e685d0bab313af8fb348915ee1b1",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:22.153Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification-freshness smoke keeps renderEvidenceStaleHint empty when no stale evidence entries are present through existing no-stale coverage.",
+          "headHash": "4baf9300b424e685d0bab313af8fb348915ee1b1",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:22.187Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification-freshness smoke asserts wording says hash binding changed and does not treat stale evidence as proof that verification logic failed.",
+          "headHash": "4baf9300b424e685d0bab313af8fb348915ee1b1",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:22.217Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
