@@ -125,23 +125,23 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/cli-engine.ts",
-          "command": "git show --unified=40 bc4917ad0 -- packages/main/src/cli-engine.ts",
+          "command": "rg -n \"runCli —|koala CLI|koala-hook|lattice-hook\" packages/main/src/cli-engine.ts packages/main/src/core/hooks.ts docs/guide-hooks.md",
           "result": "pass",
-          "note": "Second audit fix by Claude CLI: cli-engine hook startup prefixes now use [lattice-hook] for preCommand/postCommand/onError; no [koala-hook] remains in packages/main/src/cli-engine.ts.",
-          "headHash": "bc4917ad077408be8bd427e21e46b3afbe71eee8",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:46:34.731Z"
+          "note": "Review findings fixed: runCli comment now says Lattice CLI; cli-engine and shared hook runner user-visible hook diagnostics use [lattice-hook]; docs/guide-hooks.md documents [lattice-hook].",
+          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:56:49.542Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
-          "command": "rg -n 'koala-hook|koala-\\[a-z\\]\\+-|/koala-\\[a-z\\]' packages/main/src/cli-engine.ts packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "command": "git show --stat 88f311664",
           "result": "pass",
-          "note": "Second audit fix tightened the smoke allowlist: removed koala-hook and broad koala-[a-z]+- classification while preserving specific legacy/process rules.",
-          "headHash": "dbf42f97dad7af6f98d067c79a5c9d8cf7a3228e",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:46:41.050Z"
+          "note": "Smoke allowlist no longer permits broad koala CLI or koala-hook branding; exact KoalaConfig legacy internal type is the only new hook-source allowlist.",
+          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:56:49.542Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,10 +149,10 @@
           "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
-          "note": "Branding smoke passed after allowlist tightening: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0; cli-engine branding smoke passed.",
-          "headHash": "e2b0572742a23617734ea1b2169fa8edd1438fe0",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:46:46.440Z"
+          "note": "Branding smoke now scans cli-engine src/dist plus hooks src/dist and passed with all four unclassified counts at 0.",
+          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:56:49.542Z"
         }
       ]
     },
@@ -205,13 +205,12 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Build passed on current HEAD after Claude CLI second audit fix: @lattice-agent/core@0.3.5 build ran tsc with exit 0.",
-          "headHash": "dc616276ea454b8ce78a634d501c2a50167910dc",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:46:55.432Z"
+          "note": "Build passed after resolving F-001/F-002; tsc exit 0.",
+          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:56:49.542Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -219,20 +218,20 @@
           "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
-          "note": "Current HEAD smoke passed against src and generated dist: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0; cli-engine branding smoke passed.",
-          "headHash": "0472de84c2249ebc8465158d6e1ee81726b03e6d",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:01.404Z"
+          "note": "Current smoke output: cli-engine branding audit: PASS cli-engine src unclassified=0, cli-engine dist unclassified=0, hooks src unclassified=0, hooks dist unclassified=0; cli-engine branding smoke passed.",
+          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:56:49.542Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
           "command": "node scripts/verify-process-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
           "result": "pass",
-          "note": "Current HEAD checks passed: Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified.",
-          "headHash": "5a6a6213d232437e890dfd570237a0b068622fbd",
-          "materialHash": "f406f9fa4c54fbdf473f923d86ae1acfcd28c51eda88ca6dbbf1b1135db27467",
-          "timestamp": "2026-06-13T10:47:11.177Z"
+          "note": "Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified.",
+          "headHash": "c19bdb25cc67633e6208e69f9476e379cef4ed3b",
+          "materialHash": "5134598c8bc255f1061e0e4481b3a30fd5c3c556051181646807f5529cf9025e",
+          "timestamp": "2026-06-13T10:56:49.542Z"
         }
       ]
     },
