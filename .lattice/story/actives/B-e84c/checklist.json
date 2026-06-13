@@ -142,6 +142,26 @@
           "headHash": "201667206dfdb8faecf4ea82373289358450604c",
           "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
           "timestamp": "2026-06-13T13:37:14.771Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:fail_closed_session_brief",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js codex session_brief --help",
+          "result": "pass",
+          "note": "Actual fail-closed rejection check exited non-zero (exit code 1). Output rejected Unsupported command: lattice codex session_brief, limited the Codex namespace to lattice codex verify/doctor, and printed the ordinary replacement: Use the ordinary command instead: lattice session_brief.",
+          "headHash": "0d9324379a2ee64def376da2ac135fdf62e8088e",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:43:00.899Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:fail_closed_aux_doc_list",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js codex aux_doc_list --help",
+          "result": "pass",
+          "note": "Actual fail-closed rejection check exited non-zero (exit code 1). Output rejected Unsupported command: lattice codex aux_doc_list, limited the Codex namespace to lattice codex verify/doctor, and printed the ordinary replacement: Use the ordinary command instead: lattice aux_doc_list.",
+          "headHash": "0d9324379a2ee64def376da2ac135fdf62e8088e",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:43:00.899Z"
         }
       ]
     },
@@ -291,6 +311,16 @@
           "headHash": "8103c15735a69050eb8e15b04fbe8db2f307807d",
           "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
           "timestamp": "2026-06-13T13:37:43.413Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:fail_closed_forbidden_codex_workflow_commands",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js codex session_brief --help; node bin/lattice.js codex aux_doc_list --help",
+          "result": "pass",
+          "note": "Delivery evidence now includes the two actual forbidden Codex-prefixed workflow command checks: both help invocations exited with code 1, rejected the unsupported lattice codex workflow command, and printed the ordinary replacements lattice session_brief and lattice aux_doc_list.",
+          "headHash": "0d9324379a2ee64def376da2ac135fdf62e8088e",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:43:00.899Z"
         }
       ]
     }
