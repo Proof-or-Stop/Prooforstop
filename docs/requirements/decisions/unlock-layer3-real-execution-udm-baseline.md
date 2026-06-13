@@ -108,7 +108,7 @@ owns one real execution scenario.
 | Story | Purpose | Terminal expectation |
 |---|---|---|
 | `UDM-REAL-COORD` | Freeze target, define suite run id, collect evidence, run final audit. | DONE after all child stories resolve. |
-| `UDM-REAL-REPAIR` | Prove repair loop by starting with a failing implementation. | DONE after fail -> repair -> pass. |
+| `UDM-REAL-REPAIR` | Prove repair loop by starting with a failing implementation. | DONE after TEST validation fail -> DEV repair -> final TEST validation pass. |
 | `UDM-REAL-REVIEW-LOOP` | Prove REVIEW finding returns to DEV and closes with evidence. | DONE after finding -> fix -> fresh review. |
 | `UDM-REAL-EVIDENCE-GATE` | Prove missing/stale evidence blocks TEST/DONE. | `EXPECTED_BLOCK` for the tested transition; coordinator story may later finish after recording evidence. |
 | `UDM-REAL-BLOCK-ESCALATE` | Prove unsafe, uncertain, protected, destructive, or non-equivalent work blocks without being converted into repair work. | `EXPECTED_BLOCK`. |
@@ -259,16 +259,16 @@ Create a small task where the first validation must fail.
 Required sequence:
 
 ```text
-DEV implementation -> validation FAIL -> repair attempt -> validation PASS -> REVIEW -> TEST -> DONE
+DEV implementation -> REVIEW -> TEST/lattice validate FAIL -> DEV repair attempt -> REVIEW -> TEST/lattice validate PASS -> DONE
 ```
 
 Pass criteria:
 
 ```text
-firstValidation=FAIL
+firstTestValidation=FAIL
 repairAttemptCount>=1
 repairAttemptCount<=maxRepairAttempts
-finalValidation=PASS
+finalTestValidation=PASS
 falseDone=false
 ```
 

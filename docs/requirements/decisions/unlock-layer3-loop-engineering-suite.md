@@ -27,14 +27,14 @@ preventing false DONE?
 The allowed claim after unlock is:
 
 ```text
-Lattice has validated a correctness-protected Loop Engineering model for the
-tested task classes.
+Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+artifacts in the tested task classes.
 ```
 
 Chinese wording:
 
 ```text
-Lattice 具备 correctness-protected unattended development model，用于已验证的任务类别。
+Lattice 已验证：formal Loop Engineering claim path 可以消费 fresh UDM proof artifacts，并仅解锁对应的 Layer 3 claim。
 ```
 
 The unlock does not allow these claims:
@@ -125,8 +125,8 @@ safety.
 What can be said after Layer 3 passes:
 
 ```text
-Lattice has validated a correctness-protected Loop Engineering model for the
-tested task classes.
+Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+artifacts in the tested task classes.
 ```
 
 What cannot be said after Layer 3 alone:
@@ -135,6 +135,8 @@ What cannot be said after Layer 3 alone:
 Lattice is production-grade.
 Lattice can run unattended development safely for arbitrary projects.
 Lattice can claim production DONE without Authority receipt verification.
+Lattice has proven real Lattice Story lifecycle execution for the Loop
+Engineering scenarios without the real-execution UDM baseline.
 ```
 
 ## 5. Artifact Root
@@ -601,14 +603,14 @@ The final Layer 3 report must include:
 Allowed wording after passing:
 
 ```text
-Lattice has validated a correctness-protected Loop Engineering model for the
-tested task classes.
+Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+artifacts in the tested task classes.
 ```
 
 Chinese wording:
 
 ```text
-Lattice 具备 correctness-protected unattended development model，用于已验证的任务类别。
+Lattice 已验证：formal Loop Engineering claim path 可以消费 fresh UDM proof artifacts，并仅解锁对应的 Layer 3 claim。
 ```
 
 Forbidden wording:
