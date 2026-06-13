@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add decision-doc quorum detector and DONE gate",
+      "context": "Detect changed docs/requirements/decisions/*.md against main...HEAD, read host_verdict process events, and require 3 distinct rounds with at least 2 distinct passing hosts and fresh material digest before DONE. Do not rely on prose-only evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "DONE is blocked with exact missing round/host/digest details when decision-doc quorum is absent.",
+      "excludes": [
+        "Do not auto-spawn hosts",
+        "Do not weaken existing review_pass gates"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Provide CLI-visible diagnostics for the decision-doc gate",
+      "context": "Expose the same quorum check through a readable command or story_advance failure details so operators know which round, host, or digest is missing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A user can run a Lattice command and see whether the 3x2 decision-doc quorum is satisfied.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Cover pass and fail paths with focused tests",
+      "context": "Add deterministic coverage for no decision-doc changes, missing verdicts, insufficient hosts, insufficient rounds, stale digest, and passing quorum.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "The regression suite proves decision-doc quorum failures cannot silently pass DONE.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document process fact contract for host quorum gate",
+      "context": "Update relevant lifecycle/process docs and registry checks so host_verdict quorum is a gate-consumed workflow fact when decision docs change.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "userSees": "Maintainers see host_verdict quorum described as a hard lifecycle gate, not advisory memory.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
