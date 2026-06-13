@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-13T13:51:58.992Z",
       "reviewRunId": "B-e84c:RR-013",
       "_hash": "1b460ca1a41c46ac83396341402a0ab3aecff9db989493e2714510271d1f417e"
+    },
+    {
+      "id": "B-e84c:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage review pass: independently reran forbidden namespace fail-closed checks (node bin/lattice.js codex session_brief --help and aux_doc_list --help exit nonzero with host-neutral replacements), allowed adapter help (node bin/lattice-codex.js codex_doctor --help and verify_codex --help), forbidden namespace repo scan (only smoke-test rejection assertions), residual workflow-wrapper and bare-doctor scans (README/src/dist residuals are explicitly documented as future cleanup, not claimed done), NAV inventory (49 decision md files and NAV entry), no-overclaim scan, and evidence_inspect freshness (all refs fresh by materialHash). No blocker for this lane.",
+      "createdAt": "2026-06-13T13:55:59.820Z",
+      "reviewRound": "2026-06-13T13:51:58.992Z",
+      "reviewRunId": "B-e84c:RR-012",
+      "_hash": "f450ff8bc4b96834d5133794d8a50ad05efce8f00203dff95e4d30b1bde54347"
     }
   ]
 }
