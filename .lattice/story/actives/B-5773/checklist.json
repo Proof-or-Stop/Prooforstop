@@ -17,12 +17,46 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "test",
+            "desc": "grep for glossary heading in plan doc finds exactly one Glossary section with at least 8 term entries (blocked/excluded/source of truth/iteration/Story/evidence/Git/finding/real-machine tests); WHY: confirms glossary section was added with required terms",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for style guide heading in plan doc finds exactly one CLI Style Guide section containing rules for imperative verb, sentence case, no final period, boolean flag patterns (Enable/Disable/Emit/Skip/Fail if), schema noun phrases, and preserve-identifiers rule; WHY: confirms style guide section was added with all required formatting rules",
+            "type": "cli"
+          },
+          {
+            "desc": "glossary section appears before the first M-row (M001) in the document confirming near-top placement; WHY: placement requirement from context",
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "glossary entry for real-machine tests explicitly states KEPT and references realMachineTests code identifier -> edge case where a glossary term intentionally preserves a non-standard phrase; WHY: background says this term is deliberately kept, glossary must document the exception",
+            "type": "cli"
+          },
+          {
+            "desc": "glossary distinguishes blocked (execution deny) vs excluded (scope) and explicitly states avoid forbidden -> three related terms must be disambiguated not just listed; WHY: core value of glossary is disambiguation",
+            "type": "cli"
+          },
+          {
+            "desc": "style guide boolean flag pattern list includes all five verbs (Enable/Disable/Emit/Skip/Fail if) -> partial lists would leave gaps; WHY: context specifies exactly these five",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "search the glossary section for any Chinese characters (Unicode CJK range) -> zero matches; WHY: an English glossary containing Chinese defeats its purpose",
+            "type": "cli"
+          },
+          {
+            "desc": "glossary does not endorse the deprecated terms it replaces (truth source / round-as-iteration-synonym / finding item should not appear as recommended terms); WHY: adversarial check that glossary does not accidentally endorse what it bans",
+            "type": "cli"
+          },
+          {
+            "desc": "style guide does not contain contradictory rules (e.g. both use-period and no-period); scan for conflicting directives; WHY: a self-contradictory style guide is worse than none",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
