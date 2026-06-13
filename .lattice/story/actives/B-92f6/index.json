@@ -1,0 +1,40 @@
+{
+  "storyId": "B-92f6",
+  "name": "fix-branding-smoke-annotation",
+  "title": "Add missing @changes annotation to branding smoke task",
+  "description": "convergence_check reports Code annotations compliant=false because the task annotation validator requires @changes on packages/main/src/tasks/cli-engine-branding-smoke.ts. Add the missing field and verify annotation validation passes.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "annotation",
+    "cli-engine-branding-smoke",
+    "convergence"
+  ],
+  "createdAt": "2026-06-13T12:44:21.389Z",
+  "startedAt": "2026-06-13T12:44:21.389Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-13T12:44:21.398Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:45:57.996Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-92f6",
+    "branch": "story/B-92f6",
+    "createdAt": "2026-06-13T12:45:58.156Z"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-92f6",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice convergence_check",
+    "lattice decision_set",
+    "lattice finding_add",
+    "lattice review_pass_set",
+    "lattice review_run_start",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "node packages/main/dist/tasks/cli-validate.js",
+    "node scripts/validate-tasks.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions/annotation-system.md",
+    "package.json",
+    "packages/main/dist/tasks/cli-engine-branding-smoke.js",
+    "packages/main/dist/tasks/cli-validate.js",
+    "packages/main/package.json",
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "packages/main/tsconfig.json",
+    "scripts/validate-tasks.js"
+  ],
+  "excludedCommands": [
+    "koala",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Tiny annotation correctness fix. No OMX usage. No direct story JSON or fixture edits. Build may read normal project dependency files but intended write scope remains the branding smoke task annotation and generated dist sync if needed.",
+  "createdAt": "2026-06-13T12:45:44.103Z",
+  "updatedAt": "2026-06-13T12:45:44.103Z",
+  "_hash": "96d5be4a4565efb370dc420adb4af218fdb94839a1fd8e7a20f06cb21d6dc57f"
+}
