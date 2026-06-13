@@ -1,0 +1,251 @@
+{
+  "command": "koala validate --story=B-e84c --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-vTWRZF; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-y4fMjL; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — CLI help confirms the local Codex wrapper command documented for adapter diagnostics resolves to codex_doctor.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — CLI help confirms the documented local Codex wrapper verification command resolves to verify_codex.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md) — The plan does not recommend the bare local Codex wrapper doctor command that opens general Lattice doctor instead of Codex adapter diagnostics.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md) — The forbidden guidance scan includes session_brief and aux_doc_list.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md) — The forbidden guidance scan also includes story, checklist, validate, review, finding, summary, delivery, and convergence workflow families.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Repository scan only reports negative smoke-test assertions for forbidden Codex-prefixed workflow commands, not business guidance in docs or templates.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/NAV.md) — docs/requirements/NAV.md includes the Lattice Codex Command Boundary Execution Plan entry.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — NAV file count equals the number of markdown files in docs/requirements/decisions.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/NAV.md) — The NAV update does not delete existing decision entries while adding the missing document entry.\",\"  ✓ CHK-004:happy:0 [happy/must/manual] covered via manual_transcript — Validation evidence records the CLI help checks and scan commands used to review the document.\",\"  ✓ CHK-004:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md) — The delivery summary distinguishes document review completion from later template/README cleanup execution.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md) — The story does not claim production, authority, unattended, or full convergence readiness from this document review.\"],\"warnings\":[],\"timestamp\":\"2026-06-13T14:03:26.232Z\",\"headSha\":\"4456cbda2f467b6bf1542389d35e1873466f53ef\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-vTWRZF; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-y4fMjL; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":998}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"CLI help confirms the local Codex wrapper command documented for adapter diagnostics resolves to codex_doctor.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node bin/lattice-codex.js codex_doctor --help\",\"result\":\"pass\",\"note\":\"Help output resolves to lattice codex_doctor and states Alias: lattice codex doctor, confirming the documented local wrapper diagnostic uses the Codex adapter command.\",\"headHash\":\"01a5d46a5ce1c0aa52c785a0738bce6d58e47997\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:53.939Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"CLI help confirms the documented local Codex wrapper verification command resolves to verify_codex.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node bin/lattice-codex.js verify_codex --help\",\"result\":\"pass\",\"note\":\"Help output resolves to lattice verify_codex and documents the optional storyId evidence argument, confirming the documented verification wrapper is valid.\",\"headHash\":\"01a5d46a5ce1c0aa52c785a0738bce6d58e47997\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:53.939Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The plan does not recommend the bare local Codex wrapper doctor command that opens general Lattice doctor instead of Codex adapter diagnostics.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"command\":\"rg -n lattice-codex docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"result\":\"pass\",\"note\":\"The bare doctor form is described only as known residual guidance to replace; accepted guidance and verification commands use node bin/lattice-codex.js codex_doctor / verify_codex.\",\"headHash\":\"01a5d46a5ce1c0aa52c785a0738bce6d58e47997\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:53.939Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The forbidden guidance scan includes session_brief and aux_doc_list.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"command\":\"rg -n \\\"session_brief|aux_doc_list\\\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document includes session_brief and aux_doc_list in the workflow boundary table and forbidden Codex-prefixed namespace pattern, while the residual future-work paragraph now separately names README workflow-wrapper guidance for both commands.\",\"headHash\":\"33644b9f94656fc95c3c2745c44e02a85f797ada\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:42.963Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The forbidden guidance scan also includes story, checklist, validate, review, finding, summary, delivery, and convergence workflow families.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"command\":\"rg -n \\\"story_|checklist_|validate|review_|finding_|summary_set|delivery_check_set|convergence_check\\\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document includes the broader host-neutral workflow families in the command-boundary table and forbidden Codex-prefixed namespace pattern, including story, checklist, validate, review, finding, summary, delivery, and convergence commands.\",\"headHash\":\"33644b9f94656fc95c3c2745c44e02a85f797ada\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:42.963Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Repository scan only reports negative smoke-test assertions for forbidden Codex-prefixed workflow commands, not business guidance in docs or templates.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"rg -n --hidden --glob \\\"!docs/story/**\\\" \\\"lattice-codex\\\\.js\\\\s+(session_brief|aux_doc_list|story_)\\\" README.md docs packages/main/src packages/main/dist .Codex .codex\",\"result\":\"pass\",\"note\":\"The refreshed scan, excluding docs/story per repository instruction, reports README workflow-wrapper guidance and src/dist adapter-check display-command hits. The decision doc now explicitly narrows this evidence by naming those residuals as future cleanup targets instead of claiming non-document targets are clean.\",\"headHash\":\"33644b9f94656fc95c3c2745c44e02a85f797ada\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:42.963Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"docs/requirements/NAV.md includes the Lattice Codex Command Boundary Execution Plan entry.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"rg -n lattice-codex-command-boundary docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"NAV includes Lattice Codex Command Boundary Execution Plan with the correct decision document link.\",\"headHash\":\"01a5d46a5ce1c0aa52c785a0738bce6d58e47997\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:53.939Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"NAV file count equals the number of markdown files in docs/requirements/decisions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l; rg -n ^\\\\>\\\\ 49\\\\ 个文件 docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"The decisions markdown inventory is 49 files and NAV declares 49 files.\",\"headHash\":\"01a5d46a5ce1c0aa52c785a0738bce6d58e47997\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:53.939Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The NAV update does not delete existing decision entries while adding the missing document entry.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"git show --format= --unified=3 e3d8360d3 -- docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"The NAV material diff updates the count and adds missing decision entries; no existing decision entry is removed.\",\"headHash\":\"01a5d46a5ce1c0aa52c785a0738bce6d58e47997\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:53.939Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Validation evidence records the CLI help checks and scan commands used to review the document.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node bin/lattice-codex.js codex_doctor --help; node bin/lattice-codex.js verify_codex --help; rg -n --hidden --glob \\\"!docs/story/**\\\" \\\"lattice-codex\\\\.js\\\\s+(session_brief|aux_doc_list|story_)\\\" README.md docs packages/main/src packages/main/dist .Codex .codex\",\"result\":\"pass\",\"note\":\"Fresh evidence records the allowed Codex adapter help checks and the residual workflow-wrapper scan used to review the document. codex_doctor and verify_codex help resolve to the supported adapter commands; the scan output is captured as residual future work rather than completed cleanup.\",\"headHash\":\"33644b9f94656fc95c3c2745c44e02a85f797ada\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:42.963Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"The delivery summary distinguishes document review completion from later template/README cleanup execution.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"command\":\"rg -n \\\"Workflow-wrapper guidance|Adapter-check display-command|future cleanup|node bin/lattice-codex\\\\.js (doctor|session_brief|aux_doc_list|story_create)\\\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"result\":\"pass\",\"note\":\"The delivery boundary now distinguishes document review completion from later README, init-asset, source, and dist cleanup by listing diagnostic, workflow-wrapper, and adapter-check display-command residuals as future cleanup targets.\",\"headHash\":\"33644b9f94656fc95c3c2745c44e02a85f797ada\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:42.963Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"The story does not claim production, authority, unattended, or full convergence readiness from this document review.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"command\":\"rg -n \\\"full project convergence|production readiness|Authority readiness|unattended readiness\\\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md\",\"result\":\"pass\",\"note\":\"The no-overclaim boundary still says this document plan does not claim full project convergence, production readiness, Authority readiness, or unattended readiness.\",\"headHash\":\"33644b9f94656fc95c3c2745c44e02a85f797ada\",\"materialHash\":\"786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0\",\"timestamp\":\"2026-06-13T13:51:42.963Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-13T14:03:26.622Z",
+  "headHash": "4456cbda2f467b6bf1542389d35e1873466f53ef",
+  "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "CLI help confirms the local Codex wrapper command documented for adapter diagnostics resolves to codex_doctor.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js codex_doctor --help",
+          "result": "pass",
+          "note": "Help output resolves to lattice codex_doctor and states Alias: lattice codex doctor, confirming the documented local wrapper diagnostic uses the Codex adapter command.",
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "CLI help confirms the documented local Codex wrapper verification command resolves to verify_codex.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js verify_codex --help",
+          "result": "pass",
+          "note": "Help output resolves to lattice verify_codex and documents the optional storyId evidence argument, confirming the documented verification wrapper is valid.",
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The plan does not recommend the bare local Codex wrapper doctor command that opens general Lattice doctor instead of Codex adapter diagnostics.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n lattice-codex docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The bare doctor form is described only as known residual guidance to replace; accepted guidance and verification commands use node bin/lattice-codex.js codex_doctor / verify_codex.",
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The forbidden guidance scan includes session_brief and aux_doc_list.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n \"session_brief|aux_doc_list\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes session_brief and aux_doc_list in the workflow boundary table and forbidden Codex-prefixed namespace pattern, while the residual future-work paragraph now separately names README workflow-wrapper guidance for both commands.",
+          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:42.963Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The forbidden guidance scan also includes story, checklist, validate, review, finding, summary, delivery, and convergence workflow families.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n \"story_|checklist_|validate|review_|finding_|summary_set|delivery_check_set|convergence_check\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes the broader host-neutral workflow families in the command-boundary table and forbidden Codex-prefixed namespace pattern, including story, checklist, validate, review, finding, summary, delivery, and convergence commands.",
+          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:42.963Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Repository scan only reports negative smoke-test assertions for forbidden Codex-prefixed workflow commands, not business guidance in docs or templates.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n --hidden --glob \"!docs/story/**\" \"lattice-codex\\.js\\s+(session_brief|aux_doc_list|story_)\" README.md docs packages/main/src packages/main/dist .Codex .codex",
+          "result": "pass",
+          "note": "The refreshed scan, excluding docs/story per repository instruction, reports README workflow-wrapper guidance and src/dist adapter-check display-command hits. The decision doc now explicitly narrows this evidence by naming those residuals as future cleanup targets instead of claiming non-document targets are clean.",
+          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:42.963Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "docs/requirements/NAV.md includes the Lattice Codex Command Boundary Execution Plan entry.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n lattice-codex-command-boundary docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV includes Lattice Codex Command Boundary Execution Plan with the correct decision document link.",
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "NAV file count equals the number of markdown files in docs/requirements/decisions.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l; rg -n ^\\>\\ 49\\ 个文件 docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The decisions markdown inventory is 49 files and NAV declares 49 files.",
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "The NAV update does not delete existing decision entries while adding the missing document entry.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "git show --format= --unified=3 e3d8360d3 -- docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The NAV material diff updates the count and adds missing decision entries; no existing decision entry is removed.",
+          "headHash": "01a5d46a5ce1c0aa52c785a0738bce6d58e47997",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:53.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Validation evidence records the CLI help checks and scan commands used to review the document.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js codex_doctor --help; node bin/lattice-codex.js verify_codex --help; rg -n --hidden --glob \"!docs/story/**\" \"lattice-codex\\.js\\s+(session_brief|aux_doc_list|story_)\" README.md docs packages/main/src packages/main/dist .Codex .codex",
+          "result": "pass",
+          "note": "Fresh evidence records the allowed Codex adapter help checks and the residual workflow-wrapper scan used to review the document. codex_doctor and verify_codex help resolve to the supported adapter commands; the scan output is captured as residual future work rather than completed cleanup.",
+          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:42.963Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "The delivery summary distinguishes document review completion from later template/README cleanup execution.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n \"Workflow-wrapper guidance|Adapter-check display-command|future cleanup|node bin/lattice-codex\\.js (doctor|session_brief|aux_doc_list|story_create)\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The delivery boundary now distinguishes document review completion from later README, init-asset, source, and dist cleanup by listing diagnostic, workflow-wrapper, and adapter-check display-command residuals as future cleanup targets.",
+          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:42.963Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "The story does not claim production, authority, unattended, or full convergence readiness from this document review.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "command": "rg -n \"full project convergence|production readiness|Authority readiness|unattended readiness\" docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "result": "pass",
+          "note": "The no-overclaim boundary still says this document plan does not claim full project convergence, production readiness, Authority readiness, or unattended readiness.",
+          "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:51:42.963Z"
+        }
+      }
+    ]
+  }
+}
