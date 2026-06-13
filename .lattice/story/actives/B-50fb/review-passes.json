@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-12T21:52:23.432Z",
       "reviewRunId": "B-50fb:RR-007",
       "_hash": "542fae306d9eeb7cb57fe658bfb96b6ad20f4ee0fe83ff397623be6ed46a2279"
+    },
+    {
+      "id": "B-50fb:RP-004",
+      "agent": "koala-review-docs",
+      "note": "PASS docs scope rename review. Evidence: README.md:581 documents global @lattice-agent/core realpath and marks @koala-agent/core only as legacy fallback; README.md:691 says canonical package is @lattice-agent/core and legacy package fallback is @koala-agent/core; docs/requirements/decisions/authority-client-role.md:20 and :252 use @lattice-agent/core as workflow client package with @koala-agent/core only as legacy package fallback. Negative search rg -n @koala-agent/core README.md docs plus markdown scoped fallback search returned only fallback-context hits outside legacy exclusions, so active README/truth-source docs do not keep the old Koala npm scope as current usage.",
+      "createdAt": "2026-06-13T01:44:14.895Z",
+      "reviewRound": "2026-06-12T21:52:23.432Z",
+      "reviewRunId": "B-50fb:RR-012",
+      "_hash": "42549b8826fd90c721c5e40e6b7ad92581f97486aa9fe4dce424f1a195ca9244"
     }
   ]
 }
