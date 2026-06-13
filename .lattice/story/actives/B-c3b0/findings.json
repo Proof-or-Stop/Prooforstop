@@ -1,0 +1,43 @@
+{
+  "findings": [
+    {
+      "id": "B-c3b0:F-001",
+      "desc": "packages/main/src/handlers/done-effects.ts:131-137 watches package.json, root package-lock.json, and packages/main package metadata for the post-DONE build predicate, but omits packages/main/package-lock.json even though packages/main/package.json runs the build in that package and the repository contains a package-local lockfile. A DONE merge that changes only packages/main/package-lock.json will skip runDoneMainPackageBuildAfterMerge, leaving the local main dist unrefreshed under the dependency graph the package actually uses. The smoke coverage in packages/main/src/tasks/worktree-authority-smoke.ts:816-849 also omits this path, so the regression is not guarded.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T12:11:38.588Z",
+      "reviewRound": "2026-06-13T12:09:08.341Z",
+      "reviewRunId": "B-c3b0:RR-001",
+      "_hash": "c18f3768ce2551be7d13fef049451a3237fe52b2fe7195e58755c492e79c2c9f",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ],
+      "resolvedReason": "Include packages/main/package-lock.json in the DONE post-merge build trigger and smoke coverage so dependency lockfile-only changes refresh packages/main/dist.",
+      "resolvedAt": "2026-06-13T12:17:49.384Z"
+    },
+    {
+      "id": "B-c3b0:F-002",
+      "desc": "Concept blocker: the normal story_advance DONE path refreshes packages/main/dist after a runtime-input merge via runDoneMainPackageBuildAfterMerge (packages/main/src/handlers/done-effects.ts:739), but done_recover has an independent recovery merge path that merges a partial-DONE story branch into main (packages/main/src/handlers/done-recover.ts:75-80) and then cleans the worktree/branch without invoking the build hook or documenting an equivalent guarantee. Because done_recover is the documented command for completing partial-DONE merges (docs/requirements/decisions/story-lifecycle.md:160), a recovered story that changes packages/main/src can leave main merged while global lattice still sees stale packages/main/dist. This weakens the hard product rule that runtime-affecting packages/main changes merged by DONE are immediately visible to the global CLI.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T12:22:01.041Z",
+      "reviewRound": "2026-06-13T12:17:42.201Z",
+      "reviewRunId": "B-c3b0:RR-009",
+      "_hash": "dad048b946a985e2276d6fb99d40223b225048c9cfc07e7a60c2b63b9dc8e9f6",
+      "files": [
+        "packages/main/src/handlers/done-recover.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "resolvedReason": "done_recover now invokes the shared post-merge packages/main build hook after recovery merges, with smoke coverage and lifecycle docs updated.",
+      "resolvedAt": "2026-06-13T12:27:58.166Z"
+    }
+  ]
+}

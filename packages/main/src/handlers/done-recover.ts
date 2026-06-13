@@ -9,7 +9,10 @@ import {
   resolveMainBranchWorktree,
   resolveMainRepoRoot,
 } from '../core/partial-done-recovery.js';
-import { acquireDoneMainMergeLock } from './done-effects.js';
+import {
+  acquireDoneMainMergeLock,
+  runDoneMainPackageBuildAfterMerge,
+} from './done-effects.js';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -73,12 +76,14 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
 
       const lines: string[] = [];
       git(mainMergeRoot, ['merge-tree', '--write-tree', 'main', partial.branch]);
+      const mainShaBeforeRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
+      let mainShaAfterRecoveryMerge = mainShaBeforeRecoveryMerge;
       git(
         mainMergeRoot,
         ['-c', 'commit.gpgsign=false', 'merge', partial.branch, '--no-ff', '-m', `merge: ${storyId} ${partial.title}`],
       );
+      mainShaAfterRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
       lines.push(`✓ ${partial.branch} merged into main`);
-
       for (const line of removeStoryWorktree(mainRepoRoot, storyId, partial.worktreePath)) {
         lines.push(line);
       }
@@ -87,6 +92,13 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
         git(mainMergeRoot, ['branch', '-d', partial.branch]);
         lines.push(`✓ ${partial.branch} deleted`);
       }
+
+      lines.push(runDoneMainPackageBuildAfterMerge(
+        mainMergeRoot,
+        mainShaBeforeRecoveryMerge,
+        mainShaAfterRecoveryMerge,
+        { buildRunner: ctx.doneMainBuildRunner },
+      ));
 
       const remaining = detectPartialDoneStories(mainMergeRoot, store).find(entry => entry.storyId === storyId);
       if (remaining) {

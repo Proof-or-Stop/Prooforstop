@@ -1,0 +1,26 @@
+{
+  "task": "Make DONE merge rebuild the local main CLI dist when packages/main runtime inputs changed.",
+  "outcome": "After a story touching packages/main/src reaches DONE, the terminal output includes a post-DONE CLI rebuild line such as `✓ packages/main build refreshed after DONE merge`, and immediately running `lattice help` from main shows the newly merged command instead of stale dist output.",
+  "facts": [
+    "Global lattice on this machine resolves to packages/main/dist/cli.js through the npm symlink.",
+    "TypeScript source changes under packages/main/src do not update dist until npm --prefix packages/main run build is executed.",
+    "applyDoneMergeEffects already runs after story branch merge into local main and before worktree cleanup/report completion.",
+    "docs-only stories should not pay a rebuild cost if CLI runtime inputs did not change.",
+    "Decision chose a targeted changed-path rebuild hook with helper-level smoke coverage rather than unconditional rebuild or hook-only reminders."
+  ],
+  "constraints": [
+    "Do not change remote push or release approval policy.",
+    "Do not publish or reinstall global packages automatically.",
+    "The rebuild must be tied to DONE merge effects, not a remembered manual shell habit.",
+    "If rebuild fails after merge, the user must receive explicit recovery guidance instead of silently assuming dist is fresh."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/package.json",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-06-13T11:57:03.541Z"
+}
