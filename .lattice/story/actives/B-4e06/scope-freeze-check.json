@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4e06",
+  "checkedAt": "2026-06-13T13:45:29.322Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "72843322666dc7aa87ff2224eb572459757fe0aedea6d857fd509f0ad473322e",
+  "executionBoundaryHash": "625bc25cd154a8416ebf1bdb187a2cbf30bd3b274128eab554f835d44de0f27b",
+  "freshnessHash": "cc4d20446efa43abd8ecbe2bb753bba4ee511190cdfd892c37c5a1db3e5b88c3",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not allow automatic mutation of DONE or DISCARDED stories.",
+    "Do not broaden this story into unrelated adapter or production-readiness work.",
+    "Do not change sourceManifestDigest implementation unless the help import issue reproduces again.",
+    "Do not let verificationEvidence silently satisfy missing verificationIntent for normal stories.",
+    "Do not modify ClawCreek application code or edit ClawCreek story JSON directly.",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not allow automatic mutation of DONE or DISCARDED stories.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not allow automatic mutation of DONE or DISCARDED stories.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not broaden this story into unrelated adapter or production-readiness work.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not broaden this story into unrelated adapter or production-readiness work.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not change sourceManifestDigest implementation unless the help import issue reproduces again.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change sourceManifestDigest implementation unless the help import issue reproduces again.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not let verificationEvidence silently satisfy missing verificationIntent for normal stories.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not let verificationEvidence silently satisfy missing verificationIntent for normal stories.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify ClawCreek application code or edit ClawCreek story JSON directly.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify ClawCreek application code or edit ClawCreek story JSON directly.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "1b651241c37123918a257dba6dc12ef9c66ab90feebf372f593a131779023763"
+}

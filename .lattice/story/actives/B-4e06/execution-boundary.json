@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4e06",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice checklist_update --help",
+    "lattice decision_*",
+    "lattice execution_boundary_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice story_review",
+    "lattice understanding_*",
+    "lattice validate*",
+    "node scripts/verify-init-check-bootstrap.mjs",
+    "node scripts/verify-process-fact-contract.mjs",
+    "node scripts/verify-story-review-structured-output.mjs",
+    "npm --prefix packages/main run build",
+    "rg*",
+    "sed*"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice-cli",
+    "shell"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/dist",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "omx*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story",
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Execution is limited to the two documented CLI defects, their tests, and required docs/build outputs.",
+  "createdAt": "2026-06-13T13:42:18.937Z",
+  "updatedAt": "2026-06-13T13:42:18.937Z",
+  "_hash": "625bc25cd154a8416ebf1bdb187a2cbf30bd3b274128eab554f835d44de0f27b"
+}
