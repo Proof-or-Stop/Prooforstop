@@ -79,8 +79,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-13T13:37:14.042Z",
       "endTime": null,
       "userSees": "Document review shows the forbidden guidance scan covers the full host-neutral workflow command boundary, not only session recovery and document discovery.",
       "files": {
@@ -211,6 +211,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Command examples verified against actual CLI help and document wording."
+    },
+    {
+      "timestamp": "2026-06-13T13:37:14.042Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start forbidden guidance scan coverage evidence recording."
     }
   ]
 }
