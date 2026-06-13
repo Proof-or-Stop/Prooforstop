@@ -18,6 +18,24 @@
       ],
       "resolvedReason": "Include packages/main/package-lock.json in the DONE post-merge build trigger and smoke coverage so dependency lockfile-only changes refresh packages/main/dist.",
       "resolvedAt": "2026-06-13T12:17:49.384Z"
+    },
+    {
+      "id": "B-c3b0:F-002",
+      "desc": "Concept blocker: the normal story_advance DONE path refreshes packages/main/dist after a runtime-input merge via runDoneMainPackageBuildAfterMerge (packages/main/src/handlers/done-effects.ts:739), but done_recover has an independent recovery merge path that merges a partial-DONE story branch into main (packages/main/src/handlers/done-recover.ts:75-80) and then cleans the worktree/branch without invoking the build hook or documenting an equivalent guarantee. Because done_recover is the documented command for completing partial-DONE merges (docs/requirements/decisions/story-lifecycle.md:160), a recovered story that changes packages/main/src can leave main merged while global lattice still sees stale packages/main/dist. This weakens the hard product rule that runtime-affecting packages/main changes merged by DONE are immediately visible to the global CLI.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T12:22:01.041Z",
+      "reviewRound": "2026-06-13T12:17:42.201Z",
+      "reviewRunId": "B-c3b0:RR-009",
+      "_hash": "dad048b946a985e2276d6fb99d40223b225048c9cfc07e7a60c2b63b9dc8e9f6",
+      "files": [
+        "packages/main/src/handlers/done-recover.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ]
     }
   ]
 }
