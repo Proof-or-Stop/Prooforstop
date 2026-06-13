@@ -13,9 +13,9 @@
         "Do not auto-spawn hosts",
         "Do not weaken existing review_pass gates"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T22:06:55.138Z",
-      "endTime": null,
+      "endTime": "2026-06-13T22:10:06.542Z",
       "verificationIntent": {
         "happy": [
           {
@@ -38,7 +38,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
+          "result": "pass",
+          "note": "Smoke covers changed decision docs with three distinct runId rounds, two distinct PASS hostId values per round, and current decision-doc materialDigest; detector ok=true and DONE guard consumes it.",
+          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
+          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
+          "timestamp": "2026-06-13T22:10:06.577Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
+          "result": "pass",
+          "note": "Smoke covers no docs/requirements/decisions/*.md change against main...HEAD; report applicable=false and ok=true, so DONE is not blocked.",
+          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
+          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
+          "timestamp": "2026-06-13T22:10:06.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
+          "result": "pass",
+          "note": "Smoke covers duplicate hosts, duplicate run IDs, stale materialDigest, non-pass decisions, and prose-only review_pass events; all are ignored or invalid and cannot satisfy quorum.",
+          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
+          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
+          "timestamp": "2026-06-13T22:10:06.656Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after wiring evaluateDecisionDocQuorum into canFinishGuard and DONE failure formatting.",
+          "headHash": "5c2f312b693cfa6134f142bbb0446715e5d97b42",
+          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
+          "timestamp": "2026-06-13T22:10:06.713Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
