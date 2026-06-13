@@ -183,7 +183,9 @@ Repair semantics:
 3. Parse evidence `intentRef` values in the form `CHK-001:happy:0`.
 4. For every lane/index with evidence but no intent, synthesize an intent entry.
 5. Do not overwrite existing intent unless `replaceExisting:true`.
-6. Ignore or report malformed `intentRef` values; do not guess.
+6. Report malformed `intentRef` values and fail closed without writing any
+   reconstructed intent for that repair run; do not ignore, partially repair, or
+   guess malformed refs.
 7. Refuse to synthesize intent from failing evidence unless an explicit future
    option is designed.
 8. Write an audit event that records story id, item ids, lanes, count,
