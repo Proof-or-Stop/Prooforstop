@@ -811,7 +811,7 @@ function assertPhaseToolsOverrideStillBlocks(): void {
     assert.match(output, /Lifecycle: gateEvidence/);
     assert.match(output, /Requested phase: DEV/);
     assert.match(output, /Allowed phases: DEV, REVIEW/);
-    assert.match(output, /Current phaseTools allow: session_brief, next, status/);
+    assert.match(output, /Current phaseTools allow: session_brief, next, (?:done_closure, )?status/);
   } finally {
     rmSync(override.root, { recursive: true, force: true });
   }
@@ -2246,7 +2246,7 @@ function assertGlobalLinkRepair(): void {
     const worktree = join(root, 'repo', '.worktrees', 'B-smoke');
     const worktreePackage = join(worktree, 'packages', 'main');
     const mainPackage = join(mainRepo, 'packages', 'main');
-    const globalPackage = join(root, 'global', 'node_modules', '@koala-agent', 'core');
+    const globalPackage = join(root, 'global', 'node_modules', '@lattice-agent', 'core');
     mkdirSync(worktreePackage, { recursive: true });
     mkdirSync(mainPackage, { recursive: true });
     mkdirSync(dirname(globalPackage), { recursive: true });
@@ -2967,12 +2967,12 @@ function assertDeclaredArtifactGateHotfix(): void {
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
-        path: '.lattice-serve.json',
+        path: '.koala-serve.json',
         reason: 'attacker tries to declare the dev-server handshake file',
         relatedIntent: 'CHK-001:happy:0',
       }),
       /is a runtime artifact, already handled by runtime-artifact-registry/,
-      'artifact_declare must reject a runtime artifact path (.lattice-serve.json)',
+      'artifact_declare must reject a runtime artifact path (.koala-serve.json)',
     );
     // === CHK-002 happy: a tests/output/ generated path is declarable ===
     handlers.artifact_declare({

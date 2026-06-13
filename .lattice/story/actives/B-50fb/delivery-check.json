@@ -1,0 +1,54 @@
+{
+  "storyId": "B-50fb",
+  "checkedAt": "2026-06-13T01:51:00.945Z",
+  "reviewRound": "2026-06-12T21:52:23.432Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md:581",
+      "promise": "Runtime scan guidance names global @lattice-agent/core as canonical and bounds @koala-agent/core to legacy fallback.",
+      "status": "verified",
+      "verifiedBy": "git diff plus focused rg over README/docs/runtime sources",
+      "evidence": "README.md:581 says global @lattice-agent/core realpath with legacy fallback @koala-agent/core; focused rg shows remaining @koala-agent/core docs hits are fallback-context only."
+    },
+    {
+      "docPath": "README.md:691",
+      "promise": "Global install guidance identifies lattice as primary CLI, @lattice-agent/core as canonical package, and koala/@koala-agent/core only as legacy compatibility.",
+      "status": "verified",
+      "verifiedBy": "git diff README.md and transcript-diff package bin check",
+      "evidence": "README.md:691 documents canonical package @lattice-agent/core and legacy package fallback @koala-agent/core; transcript shows bin.lattice and legacy bin.koala both map to dist/cli.js."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md:20",
+      "promise": "Authority client role truth-source uses @lattice-agent/core as workflow client package and frames @koala-agent/core as legacy package fallback, without expanding authority claims.",
+      "status": "verified",
+      "verifiedBy": "git diff docs/requirements/decisions/authority-client-role.md",
+      "evidence": "Lines 20 and 252 were updated to Lattice CLI / legacy koala wording with @lattice-agent/core canonical and @koala-agent/core legacy fallback."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": ".lattice/story/actives/B-50fb/evidence/transcript-diff.md shows packages/main/package.json prints @lattice-agent/core 0.3.5, bin.lattice=dist/cli.js, bin.koala=dist/cli.js, workspace names are lattice/@lattice-agent/*/@lattice, and rg over manifests/lockfiles found no old @koala-agent scopes or @koala/game."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "test-evidence PASS covers runtime canonical-first behavior through node scripts/verify-runtime-fact-contract.mjs, node scripts/verify-entrypoints.mjs, npm --prefix packages/main run test:worktree-repair-smoke, and focused rg classification of remaining @koala-agent/core hits as legacy fallback only."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "README.md and docs/requirements/decisions/authority-client-role.md diff plus focused rg verify active docs state @lattice-agent/core as canonical and retain Koala wording only as legacy alias/fallback or historical context."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "lattice validate --story=B-50fb passed after merge/refresh with 12/12 verification intents covered; review findings F-001 and F-002 are resolved with targeted validation-protocol and worktree-repair smoke coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery is closed: final HEAD is synced with main, git tree was clean before signing, summary is accepted, test evidence is PASS with 12/12 coverage, docs promises are verified, review findings are resolved, @lattice-agent/core is canonical, and @koala-agent/core remains only a bounded legacy fallback/alias."
+  },
+  "_hash": "719435dca79b06fc9726120b1ffa40bd36fba4444131404eecdfdcd1a3cc6565"
+}

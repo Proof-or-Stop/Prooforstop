@@ -75,6 +75,10 @@ async function main() {
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');
   check(registrySource.includes('driftMessage'), 'runtime registry entries should declare driftMessage');
   check(registrySource.includes('repairHint'), 'runtime registry should include repair hints where applicable');
+  check(registrySource.includes('@lattice-agent/core'), 'runtime registry should name @lattice-agent/core as canonical');
+  check(registrySource.includes('@koala-agent/core is only a legacy compatibility fallback'), 'runtime registry should label @koala-agent/core as legacy compatibility only');
+  check(checksSource.includes("const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core'"), 'runtime checks should resolve @lattice-agent/core as canonical');
+  check(checksSource.includes("const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core'"), 'runtime checks should keep bounded @koala-agent/core fallback');
   check(registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint should prefer lattice and preserve koala fallback');
   check(registrySource.includes('node_modules/.bin/lattice'), 'project-local-bin guidance should prefer lattice local bins');
   check(doctorSource.includes('runRuntimeEnvironmentChecks'), 'doctor should call runRuntimeEnvironmentChecks');

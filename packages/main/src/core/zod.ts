@@ -1,6 +1,6 @@
 /**
  * Shared zod re-export for monorepo packages that must hand schemas back to
- * @koala-agent/core at runtime.
+ * @lattice-agent/core at runtime.
  *
  * Why this exists:
  * - cli-engine uses z.object(tool.schema) and several instanceof checks.

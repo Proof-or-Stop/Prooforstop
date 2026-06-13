@@ -625,10 +625,14 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 2_000,
     }).trim();
-    const globalCore = join(globalRoot, '@koala-agent', 'core');
-    if (existsSync(currentCore) && existsSync(globalCore)) {
+    const globalCoreCandidates = [
+      { path: join(globalRoot, '@lattice-agent', 'core'), label: '@lattice-agent/core', legacy: false },
+      { path: join(globalRoot, '@koala-agent', 'core'), label: '@koala-agent/core', legacy: true },
+    ];
+    const globalCore = globalCoreCandidates.find(candidate => existsSync(candidate.path));
+    if (existsSync(currentCore) && globalCore) {
       const currentReal = realpathSync(currentCore);
-      const globalReal = realpathSync(globalCore);
+      const globalReal = realpathSync(globalCore.path);
       const koalaCommand = resolveKoalaCommandPath(root);
       const koalaReal = koalaCommand && existsSync(koalaCommand) ? realpathSync(koalaCommand) : '';
       const actualKoalaUsesGlobalCore = !!koalaReal && pathContains(globalReal, koalaReal);
@@ -639,7 +643,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
           'Global fallback heartbeat',
           'warn',
           false,
-          `global @koala-agent/core resolves to ${globalReal}, not current worktree ${currentReal}; treat global koala as heartbeat-only, not current-worktree gate/status evidence`,
+          `global ${globalCore.legacy ? `${globalCore.label} legacy fallback` : globalCore.label} resolves to ${globalReal}, not current worktree ${currentReal}; treat global koala as heartbeat-only, not current-worktree gate/status evidence`,
           resolveCodexSessionBriefCommand(root),
         );
         return;

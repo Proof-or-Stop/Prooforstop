@@ -1,0 +1,43 @@
+{
+  "findings": [
+    {
+      "id": "B-50fb:F-001",
+      "desc": "XState fallback can produce a false-positive PLAN→DEV preflight when config loading fails. transition-orchestrator.ts:157/165 treats getGuardFailureReason(..., DEV) === null as the fallback canSend decision, but machine.ts:117-133 canStartDev returns false on any loadConfig/read/review exception, while machine.ts:413-445 lets getGuardFailureReason fall through to null on the same config-load failure. On runtimes where snapshot.can is unavailable, story_advance DEV can proceed into actor.send/post-effects and report a successful transition even though the actor guard keeps the state in PLAN. The fallback should fail closed or share the actual guard predicate, and the orchestrator should verify newState matches the requested target before writing DEV-side effects.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-12T21:37:52.966Z",
+      "reviewRound": "2026-06-12T21:34:37.455Z",
+      "reviewRunId": "B-50fb:RR-002",
+      "_hash": "620ef36ec0b4edb678df903dc6fda7e06200568b09b60c2834c85d4d275ee5e4",
+      "files": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "resolvedReason": "Repro: validation-protocol smoke seeds PLAN story then makes loadConfig throw via legacy .koala storyDir; getGuardFailureReason(...,DEV) still returns null. Root cause: transition-orchestrator fallback used that human-facing renderer as canSend oracle while machine canStartDev fails closed on config/read/review errors. Fix: machine guard predicates are exported/shared through canSendStoryEventWithoutSnapshotCan; orchestrator fallback no longer uses getGuardFailureReason and assertStoryTransitionReachedTarget verifies actor.send reached DEV before any DEV side effects. ReproTest: npm --prefix packages/main run test:validation-protocol, npm --prefix packages/main run build, npm test, node scripts/verify-process-fact-contract.mjs all pass.",
+      "resolvedAt": "2026-06-12T21:52:47.681Z"
+    },
+    {
+      "id": "B-50fb:F-002",
+      "desc": "Mixed canonical+legacy global installs can leave the legacy @koala-agent/core symlink pointing at a deleted story worktree. resolveGlobalCorePackagePath prefers @lattice-agent/core as soon as it exists (worktree.ts:66-72), and repairGlobalKoalaLinkBeforeWorktreeDelete then only inspects that one selected path (worktree.ts:90-110). During DONE cleanup, done-effects calls this once without an explicit legacy path, so if @lattice-agent/core exists but @koala-agent/core is the symlink into the story worktree, the legacy fallback required by decision option A is never repaired. The updated smoke coverage only exercises the canonical default plus explicit single-path calls, not the mixed transition install.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-12T21:38:25.657Z",
+      "reviewRound": "2026-06-12T21:34:37.455Z",
+      "reviewRunId": "B-50fb:RR-004",
+      "_hash": "5abeed50eb59c67f325e5f60cae26abf0036c45432172f08b2cf3c8a21e890a3",
+      "files": [
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "resolvedReason": "Repro: worktree-repair smoke simulates global node_modules containing canonical @lattice-agent/core plus legacy @koala-agent/core symlink into the story worktree. Root cause: resolveGlobalCorePackagePath selected only the first package path, so a canonical install masked a stale legacy symlink during DONE cleanup. Fix: repairGlobalKoalaLinkBeforeWorktreeDelete now resolves all present canonical and legacy core package entries and relinks every symlink pointing into the worktree pending deletion while preserving explicit single-path repair calls. ReproTest: npm --prefix packages/main run test:worktree-repair-smoke, npm --prefix packages/main run build, npm test, node scripts/verify-runtime-fact-contract.mjs, node scripts/verify-entrypoints.mjs all pass.",
+      "resolvedAt": "2026-06-12T21:52:33.446Z"
+    }
+  ]
+}
