@@ -1,0 +1,66 @@
+{
+  "storyId": "B-22b0",
+  "checkedAt": "2026-06-13T13:28:06.354Z",
+  "features": [
+    {
+      "feature": "Inventory B-12f3 local DONE evidence versus Authority boundary",
+      "covered_by": "CHK-001 plus understanding facts distinguish B-12f3 local DONE, prior Authority dry-run fail-closed, and separate CLI Non-authority evidence versus Authority Server proof.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-22b0 checklist/understanding/decision"
+    },
+    {
+      "feature": "Attempt real Authority Server path using configured trust env or record fail-closed blocker",
+      "covered_by": "CHK-002 plus decision option A require real Authority path first, then fail closed on missing actor key, runner id, job, session, or gate_decision receipt.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-22b0 checklist/decision"
+    },
+    {
+      "feature": "Final B-12f3 Authority audit outcome without overclaim",
+      "covered_by": "CHK-003 plus understanding outcome requires either verified receipt-backed Authority proof or blocked result with authorityDone=false and fullAuthorityDone=false.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-22b0 checklist/understanding"
+    },
+    {
+      "feature": "Rewriting B-12f3 lifecycle history",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Story description and understanding constraints explicitly forbid rewriting B-12f3 history.",
+      "source": "Authority audit boundary"
+    },
+    {
+      "feature": "Fabricating or locally minting Authority receipts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraints forbid fabricating, locally minting, or inferring Authority Server receipts; decision rejects treating local DONE as sufficient.",
+      "source": "Authority receipt boundary"
+    },
+    {
+      "feature": "Printing or reading secret contents",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraints forbid printing customer/server/actor keys or secret file contents; preMortem requires redacted status fields only.",
+      "source": "secret handling boundary"
+    },
+    {
+      "feature": "Broad Authority framework optimization or credential/provisioning implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Decision option C is rejected as arbitrary broad optimization; story scope is audit/proof classification only.",
+      "source": "scope containment boundary"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e4de4dd9361091be235b0bfca918385b3e070a5a5cbfa1e37aa9fed26b1ca6e9",
+  "openQuestions": []
+}

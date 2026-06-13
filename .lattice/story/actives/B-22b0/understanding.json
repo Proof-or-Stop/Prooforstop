@@ -1,0 +1,32 @@
+{
+  "task": "Produce a receipt-backed Authority audit outcome for already-DONE story B-12f3 without rewriting its local lifecycle history.",
+  "outcome": "Terminal result says either \"B-12f3 Authority receipt verified: receiptVerified=true, authorityDone=true\" with receipt id and verified server proof, or \"B-12f3 Authority proof blocked: missing actor key/runner id/gate_decision receipt; authorityDone=false, fullAuthorityDone=false\".",
+  "facts": [
+    "B-12f3 is already local lifecycle DONE and contains local Non-authority verification, delivery, summary, and an Authority dry-run fail-closed record.",
+    "B-12f3 CHK-004 recorded authorityDone=false, fullAuthorityDone=false, receipt.provided=false; that is not Authority Server completion.",
+    "In the B-22b0 worktree, default authority_status did not load authority_trust.env because the secret file is gitignored and not copied into worktrees.",
+    "Using LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env loads the configured Authority URL/customer key/server key without printing secrets.",
+    "Current trust-env backed status still reports actorKeyConfigured=false, runnerConfigured=false, receiptVerified=false, productionDone=false, and eligibilityReason=authority_receipt_missing.",
+    "Authority docs require a verified native gate_decision receipt plus proper actor/runner/session binding before production Authority DONE can be claimed."
+  ],
+  "constraints": [
+    "Do not fabricate, locally mint, or infer Authority Server receipts.",
+    "Do not rewrite B-12f3 history to pretend its prior local DONE was Authority DONE.",
+    "Do not print customer API keys, server keys, actor keys, or secret file contents.",
+    "Only fix or record real correctness issues; no arbitrary optimization or broad Authority framework work.",
+    "Maintain host-neutral semantics: local CLI evidence is Non-authority until receipt-backed server proof is verified.",
+    "If prerequisites are missing, fail closed with authorityDone=false and fullAuthorityDone=false."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "lattice authority_status",
+    "lattice authority_enforce_policy",
+    "lattice authority_receipt_fetch",
+    "lattice authority_receipt_verify",
+    "lattice authority_job_status",
+    "lattice autopilot_execute",
+    "B-22b0 checklist verificationEvidence",
+    "B-22b0 summary/delivery evidence"
+  ],
+  "timestamp": "2026-06-13T13:26:20.742Z"
+}
