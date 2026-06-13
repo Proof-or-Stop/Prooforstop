@@ -4,7 +4,7 @@
   "title": "Add scope anti-expansion gate before INIT_CHECK",
   "description": "Add a lightweight INIT to INIT_CHECK gate that freezes user-confirmed scope before any worktree is created. Canonical boundary source is scope-boundary.json written from story_create inputs or an explicit INIT-only scope_boundary_set repair; absent boundary blocks INIT_CHECK. The gate blocks excluded future-capability keywords for correctness_fix stories by default, routes reviewer expansion through explicit proposals, and treats discard digest repeats as blockers unless a mitigation is recorded.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "scope-anti-expansion",
@@ -217,6 +217,15 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-06-13T02:39:54.936Z",
+      "branch": "story/B-85ba",
+      "user": "Harmonygo",
+      "sessionId": "sess-48242d555ec09b52",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T02:45:28.534Z",
       "branch": "story/B-85ba",
       "user": "Harmonygo",
       "sessionId": "sess-48242d555ec09b52",
