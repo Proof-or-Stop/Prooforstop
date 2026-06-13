@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add required @changes field to branding smoke task annotation",
+      "context": "Validator reports packages/main/src/tasks/cli-engine-branding-smoke.ts:2 missing required field @changes. Add a concise changes summary without changing smoke behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "userSees": "node packages/main/dist/tasks/cli-validate.js prints PASSED: All task annotations are valid.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
