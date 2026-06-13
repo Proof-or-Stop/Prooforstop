@@ -120,7 +120,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3; lattice authority_enforce_policy --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
+          "result": "pass",
+          "note": "The configured Authority path was attempted through redacted CLI commands: authority_status loaded authority_trust_env with productionInert=false and customerApiKeyConfigured=true; policy discovery against https://staging.hostneutral.net returned authority-policy.v1 and explicitly stated no receipt, no gate pass, and no evidence submission.",
+          "headHash": "ed9f60887223cc57308cf49232cb6ca889b4560f",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:34:51.499Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json; lattice authority_enforce_runner --once --dryRun --json --authorityMode=enforce --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
+          "result": "pass",
+          "note": "Authority proof is blocked, not verified: autopilot_execute returned status=fail, receipt.provided=false, receipt.verified=false, authorityDone=false, fullAuthorityDone=false; runner dry-run returned status=fail because actor key and runner id are missing.",
+          "headHash": "ed9f60887223cc57308cf49232cb6ca889b4560f",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:34:51.499Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "redacted authority_status / policy discovery / authority dry-run / runner dry-run for B-12f3",
+          "result": "pass",
+          "note": "No secret values were printed or committed, and no Authority overclaim was made: status kept receiptVerified=false, productionDone=false, canClaimProductionDone=false; dry-run kept authorityDone=false and fullAuthorityDone=false without a native gate_decision receipt.",
+          "headHash": "ed9f60887223cc57308cf49232cb6ca889b4560f",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:34:51.499Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
