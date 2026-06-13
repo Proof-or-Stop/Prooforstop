@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Conventions before edits: lock a glossary + style guide first, then apply mechanically",
+    "Behavior-sensitive code is not prose: isolate it and require tests, never silently retranslate",
+    "Preserve the deliverable's verifiable invariants (762<->762, zero Chinese, identifiers, T/M consistency)"
+  ],
+  "drivers": [
+    "Open-source readiness needs consistent, idiomatic English",
+    "An implementer must not mistranslate regex behavior into a runtime change",
+    "T/M divergence already produced finding F-005 in B-8448"
+  ],
+  "options": [
+    {
+      "name": "Verified-script glossary sweep + manual command-desc shortening + dedicated behavior-sensitive subsection",
+      "pros": [
+        "Count-verified replacements are auditable and safe",
+        "Behavior-sensitive rows are clearly quarantined and test-gated",
+        "Invariant re-checks are cheap after every pass"
+      ],
+      "cons": [
+        "Several passes; command-desc shortening needs manual judgement"
+      ]
+    },
+    {
+      "name": "Free-form manual re-edit of the whole manifest",
+      "pros": [
+        "Maximum flexibility per row"
+      ],
+      "cons": [
+        "Error-prone across 762 rows",
+        "Hard to verify",
+        "Risk of breaking the invariant or T/M consistency"
+      ]
+    }
+  ],
+  "chosen": "Verified-script glossary sweep + manual command-desc shortening + dedicated behavior-sensitive subsection",
+  "rationale": "The count-verified replacement-script approach already worked for the 19 reviewer fixes; reusing it keeps the 762-row sweep safe and auditable, while a dedicated behavior-sensitive subsection plus a reviewStatus marker quarantines the regex rows so they get test updates instead of being silently retranslated. 'real-machine tests' is kept because realMachineTests is a 37-reference code identifier.",
+  "preMortem": [
+    {
+      "scenario": "A glossary substitution changes a row with a different meaning",
+      "trigger": "Same Chinese/English substring used in two senses (e.g. 执行命令 input vs record)",
+      "consequence": "A wrong translation enters the authoritative manifest",
+      "mitigation": "Use exact-count replacements with expected counts; disambiguate by row ID/surface; review the diff before commit"
+    },
+    {
+      "scenario": "Editing rows breaks the 762<->762 invariant or introduces Chinese into proposedEnglish",
+      "trigger": "Accidental row add/remove or a bad substitution",
+      "consequence": "validate fails verification coverage",
+      "mitigation": "The script re-checks 762 rows + zero Chinese after every pass and aborts on mismatch"
+    },
+    {
+      "scenario": "Behavior-sensitive regex rows are treated as prose, so a later implementer changes runtime matching",
+      "trigger": "Rows not clearly marked as behavior-sensitive",
+      "consequence": "Silent behavior change when the source is eventually translated",
+      "mitigation": "Enumerate all regex/.test/.match-over-Chinese rows, mark reviewStatus + list them in a dedicated subsection that requires test updates"
+    }
+  ],
+  "timestamp": "2026-06-13T18:58:04.420Z"
+}

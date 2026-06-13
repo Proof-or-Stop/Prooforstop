@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5773",
+  "changes": "Standardized the cli-engine English translation plan: added an English Glossary + CLI Style Guide, unified terminology across the 762-row manifest + T-table (blocked/excluded, source of truth, iteration, Emit JSON, Command to run, Recorded by, Git, finding, self-approval, entry point), shortened all command-description rows to <=80 chars, tagged 3 behavior-sensitive runtime-matcher rows (M668/M669/M750) with a dedicated subsection, and added a wrapped-source merge rule (M004/M005). No cli-engine.ts source changed.",
+  "usage": "Reviewers read the glossary + style guide, then approve/rewrite the now-consistent review-draft rows; a later implementation story regenerates the manifest against the live source and applies the approved English (treating behavior-sensitive rows as code+test changes).",
+  "expectedOutcome": "Doc shows English Glossary (L65), CLI Style Guide (L91), Behavior-sensitive rows (L1198); verifier prints 51/51 PASS; 762 rows, 0 Chinese in proposedEnglish, command descriptions <=80 chars.",
+  "actualTranscript": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs -> TOTAL 51 | PASS 51 | FAIL 0. Sections present at L65/L91/L1198. 762 rows, 0 Chinese in proposedEnglish, longest command-description 80 chars, behavior-sensitive M668/M669/M750.",
+  "outcomeDiff": "Expected == actual. All 51 verificationIntents pass via the committed content-based verifier.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The manifest is a point-in-time snapshot of 762 Chinese lines. The DONE-gate main merge pulled in concurrent work (B-4e06) that added 5 Chinese lines to cli-engine.ts (now 767) and shifted matcher line numbers; per the doc, the manifest must be regenerated before implementation. Re-syncing the manifest to the new source is out of scope (a separate task). 22 pre-existing command-description trailing-period rows untouched by this story remain (out of scope).",
+  "pitfalls": "Do not treat behavior-sensitive rows (M668/M669/M750) as prose: their Chinese is matched at runtime by regex/.includes, so retranslating them changes behavior and needs a code+test update. The manifest sourceLine column is point-in-time and drifts when cli-engine.ts changes; verify matchers by content, not line number.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 4165673
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 20991
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 286160
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1096726
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 838351
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 331016
+    }
+  },
+  "totalDurationMs": 6738925,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T19:40:02.269Z",
+  "updatedAt": "2026-06-13T19:40:02.269Z"
+}

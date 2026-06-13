@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-5773:RP-001",
+      "agent": "koala-review-concept",
+      "note": "B-5773 is docs-only (one .md file changed, zero .ts files). No code symbols deleted. The story standardizes English terminology in the CLI manifest TSV: forbidden->blocked/excluded, truth-source->source of truth, round->iteration in review/reflection loop contexts. All deprecated-term occurrences in the final doc are confined to the glossary definitions themselves (correct usage). Residual uses of truth-source in other repo docs (NAV.md, authority-client-role.md, legacy-omx artifacts) are pre-existing, out-of-scope for this story, and do not constitute orphaned residue from a concept deletion. REVIEW round and reviewRound identifier are explicitly carved out by the glossary and correctly retained in TSV rows. No blocking findings.",
+      "createdAt": "2026-06-13T19:16:08.484Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-001",
+      "_hash": "6838bd73aef61cf5273b536de327a8cbbd5b635d80f5f27e053c2b6e09ea465a"
+    },
+    {
+      "id": "B-5773:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 0 exported symbols (docs-only diff). Step 2: Paragraphs examined via grep: glossary (17 terms), CLI style guide (6 rules), behavior-sensitive section (3 rows + coordination notes), wrapped-source merge rule, T-table sample, manifest spot-checks. Step 3: 51/51 automated verification checks pass; 762 manifest rows confirmed; Chinese in proposedEnglish only in M668/M669/M750 (correct behavior-sensitive rows); no banned terms (truth source, finding item, self-pardon, Output JSON) in proposedEnglish; M586/M588 correctly use self-approval; M747/M751 correctly use Git repository; M036-M053 use iteration not round; M019/M020 period inconsistency with T018/T019 is minor and consistent with pre-existing manifest pattern; M750 lowercase git in proposedEnglish is pre-existing (only status changed); no blockers.",
+      "createdAt": "2026-06-13T19:21:28.305Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-004",
+      "_hash": "11b3a4da7ba3ae17a0d40b33c1734a6ece9b7060931b6cc564421f8a4d007135"
+    },
+    {
+      "id": "B-5773:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 7 previously-hollow assertions (F-001..F-007) are now substantive and document-state-dependent. Verifier 51/51 PASS. No coverage blockers.",
+      "createdAt": "2026-06-13T19:27:42.638Z",
+      "reviewRound": "2026-06-13T19:25:45.221Z",
+      "reviewRunId": "B-5773:RR-005",
+      "_hash": "f2211a90fde89361bf33ade1bc6c7e715ccb2e772638c4936f9dc0a22d71824a"
+    },
+    {
+      "id": "B-5773:RP-004",
+      "agent": "koala-review-quality",
+      "note": "M109 proposedEnglish confirmed: no trailing period (ends with DISCARDED). Invariants: 51/51 PASS (verify-b5773.mjs) — 762 manifest rows, 0 Chinese in proposedEnglish, all command-description rows <=80 chars, behavior-sensitive M668/M669/M750 still tagged. Trailing-period scan: no new command-description violations introduced by this branch (22 pre-existing on main, branch reduced from 49→22 by fixing; 0 newly added violations). Quality lane: clean.",
+      "createdAt": "2026-06-13T19:28:14.822Z",
+      "reviewRound": "2026-06-13T19:25:45.221Z",
+      "reviewRunId": "B-5773:RR-006",
+      "_hash": "d9afbe36be3fffea16ecb6ff1978b7222fb58eae8655c0e7539c69d826cc6185"
+    },
+    {
+      "id": "B-5773:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 51/51 verifier checks pass. CHK-004:happy:2 and CHK-004:edge:0 are substantive: they assert (a) count of genuine Chinese-matcher source lines (3) equals count of tagged behavior-sensitive rows (3: M668/M669/M750), and (b) every tagged rows chineseSource appears inside a genuine matcher source line by content. Both checks are non-vacuous: they fail when a matcher is untagged (count mismatch) or a non-matcher is tagged (bsCovered false). Grep confirms exactly 3 genuine Chinese-matchers in cli-engine.ts at lines 2311/2314/3926 (shifted +8 from 2303/2306/3887 after git merge main, sourcing 767 Chinese lines vs manifests point-in-time 762). The 5-line delta is an out-of-scope merge artefact documented by the sourceLine point-in-time semantics; it is not a coverage defect for this standardization story. verificationIntent to verificationEvidence coverage is genuine across all checklist items with no gaps or blockers.",
+      "createdAt": "2026-06-13T19:38:32.748Z",
+      "reviewRound": "2026-06-13T19:36:36.052Z",
+      "reviewRunId": "B-5773:RR-007",
+      "_hash": "da482c5a6314f6044f323bfaf40ce92bd5e18e73e1b4ac1950b6dcb5c57416b7"
+    }
+  ]
+}

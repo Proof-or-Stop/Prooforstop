@@ -1,0 +1,985 @@
+{
+  "command": "koala validate --story=B-5773 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-VfjTr9; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-h8GmNQ; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 51/51 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — grep for glossary heading in plan doc finds exactly one Glossary section with at least 8 term entries (blocked/excluded/source of truth/iteration/Story/evidence/Git/finding/real-machine tests); WHY: confirms glossary section was added with required terms\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript — grep for style guide heading in plan doc finds exactly one CLI Style Guide section containing rules for imperative verb, sentence case, no final period, boolean flag patterns (Enable/Disable/Emit/Skip/Fail if), schema noun phrases, and preserve-identifiers rule; WHY: confirms style guide section was added with all required formatting rules\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript — glossary section appears before the first M-row (M001) in the document confirming near-top placement; WHY: placement requirement from context\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — glossary entry for real-machine tests explicitly states KEPT and references realMachineTests code identifier -> edge case where a glossary term intentionally preserves a non-standard phrase; WHY: background says this term is deliberately kept, glossary must document the exception\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript — glossary distinguishes blocked (execution deny) vs excluded (scope) and explicitly states avoid forbidden -> three related terms must be disambiguated not just listed; WHY: core value of glossary is disambiguation\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via manual_transcript — style guide boolean flag pattern list includes all five verbs (Enable/Disable/Emit/Skip/Fail if) -> partial lists would leave gaps; WHY: context specifies exactly these five\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — search the glossary section for any Chinese characters (Unicode CJK range) -> zero matches; WHY: an English glossary containing Chinese defeats its purpose\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript — glossary does not endorse the deprecated terms it replaces (truth source / round-as-iteration-synonym / finding item should not appear as recommended terms); WHY: adversarial check that glossary does not accidentally endorse what it bans\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via manual_transcript — style guide does not contain contradictory rules (e.g. both use-period and no-period); scan for conflicting directives; WHY: a self-contradictory style guide is worse than none\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — count TSV manifest rows M001..M762 -> exactly 762 data rows present (762<->762 invariant preserved); WHY: the cardinal invariant that no rows were added or dropped during the sweep\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via manual_transcript — grep all proposedEnglish fields for Chinese characters (CJK Unicode range) -> zero matches; WHY: zero-Chinese-in-proposedEnglish is a hard constraint\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via manual_transcript — grep for deprecated term finding item in proposedEnglish columns -> zero occurrences replaced by finding; WHY: suggestion #17 requires dropping finding item\",\"  ✓ CHK-002:happy:3 [happy/must/cli] covered via manual_transcript — grep for source of truth (hyphenated or spaced) in proposedEnglish -> all occurrences use source of truth not truth source; WHY: suggestion #8 unification\",\"  ✓ CHK-002:happy:4 [happy/must/cli] covered via manual_transcript — T-table entries for terms modified in the manifest agree with their M-row twins (spot-check at least 5 T/M pairs); WHY: T/M twin consistency is the F-005 lesson explicitly called out in context\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — M272/M286/M290/M302/M305 all use Emit JSON (not Output JSON or Print JSON) -> exact verb unification per suggestion #5; WHY: partial unification (4 of 5 rows changed) would be a defect\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via manual_transcript — M019/M177/M185 use Command to run and their paired result fields use Command result -> input/output field naming per suggestion #6; WHY: these are paired concepts that must use paired terms\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via manual_transcript — M076/M086/M225/M236/M241 use Recorded by or Actor consistently -> suggestion #7 unification; WHY: mixed usage across these 5 rows would be inconsistent\",\"  ✓ CHK-002:edge:3 [edge/must/cli] covered via manual_transcript — M586/M588 use prevent self-approval/self-waiver -> suggestion #9 specific wording; WHY: security-critical wording must be exact\",\"  ✓ CHK-002:edge:4 [edge/must/cli] covered via manual_transcript — M747/M751 capitalize Git (product name) not git (command) in prose context -> suggestion #14; WHY: Git vs git distinction is in the glossary\",\"  ✓ CHK-002:edge:5 [edge/must/cli] covered via manual_transcript — M036-M053 (reflection loop) use iteration not round -> suggestion #16 unification across an 18-row range; WHY: range sweep must not miss interior rows\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — introduce a phantom 763rd row by appending a line after M762 and verify the 762-count check catches it -> confirms the invariant check is real not vacuous; WHY: adversarial test that the verification itself works\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via manual_transcript — search for any proposedEnglish cell that still contains truth source or round (in iteration context) or finding item -> stale deprecated terms surviving the sweep; WHY: adversarial sweep for missed replacements\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via manual_transcript — verify no M-row proposedEnglish contains a code identifier that was accidentally translated (e.g. realMachineTests must not become real-machine-tests in a code-reference context, command names like story_start must not be translated); WHY: the preserve-identifiers rule must survive a bulk sweep\",\"  ✓ CHK-002:adversarial:3 [adversarial/must/cli] covered via manual_transcript — for every T-table entry modified by CHK-002, confirm the corresponding M-row(s) also reflect the change and vice versa -> no orphaned T-table or M-row edits; WHY: adversarial check for one-sided edits that break T/M twin consistency\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — measure character length of proposedEnglish for every command-description row -> none exceeds 80 characters (or a stated threshold); the previously-longest row (218 chars) is now under the limit; WHY: the core deliverable is shortening over-long descriptions\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — specifically check M215/M339/M543/M650/M655 proposedEnglish are shortened to imperative verb + sentence case + no final period format; WHY: these 5 rows are explicitly named in context as must-shorten\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via manual_transcript — the shortened rows still convey the original command purpose (not just truncated mid-sentence); each begins with an imperative verb; WHY: shortening must not destroy meaning\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — rows at exactly the length threshold (e.g. 79 or 80 chars) are left alone and not over-shortened to trivial stubs; WHY: boundary condition -- only over-long rows should be shortened\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via manual_transcript — the detailed rules removed from command descriptions appear in a schema/longHelp note or annotation (not simply deleted); WHY: context says rules move to schema/longHelp, not disappear\",\"  ✓ CHK-003:edge:2 [edge/must/cli] covered via manual_transcript — command-description rows that were already short (median 70 chars) are unchanged by CHK-003; diff shows no edits to rows under threshold; WHY: over-zealous shortening of already-good rows is scope creep\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — 762-row count is still exactly 762 after CHK-003 edits -> shortening did not accidentally delete or merge rows; WHY: row-count invariant must survive every checklist item\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via manual_transcript — no proposedEnglish in shortened rows contains Chinese characters -> zero-Chinese invariant after edits; WHY: shortening might introduce Chinese if copy-pasting from source column\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/cli] covered via manual_transcript — T-table entries corresponding to the 5 shortened command-description rows (if any) still match their M-row twins after shortening; WHY: adversarial check that CHK-003 edits did not break T/M consistency established by CHK-002\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — M668 and M669 are tagged with behavior-sensitive; requires test update marker in their proposedEnglish or a dedicated annotation column; WHY: these two rows are the known behavior-sensitive cases from context\",\"  ✓ CHK-004:happy:1 [happy/must/cli] covered via manual_transcript — a Behavior-sensitive rows subsection exists in the plan document listing all identified rows with their cli-engine.ts line references and the reason (regex/.test/.match over Chinese); WHY: context requires documenting the risk not just tagging\",\"  ✓ CHK-004:happy:2 [happy/must/cli] covered via manual_transcript — grep cli-engine.ts for all regex/.test/.match patterns that reference Chinese string literals -> every such occurrence has a corresponding M-row tagged behavior-sensitive; WHY: the full set must be identified not just M668/M669\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — rows that use .test() or .match() but only on English strings or identifiers (not Chinese) are NOT tagged behavior-sensitive -> false positives excluded; WHY: over-tagging dilutes the signal\",\"  ✓ CHK-004:edge:1 [edge/must/cli] covered via manual_transcript — if additional behavior-sensitive rows beyond M668/M669 are found, they are all listed with line references and rationale; WHY: context says identify the full set, partial enumeration is a defect\",\"  ✓ CHK-004:edge:2 [edge/must/cli] covered via manual_transcript — behavior-sensitive rows are explicitly excluded from the CHK-002 glossary sweep (their proposedEnglish is not treated as ordinary prose translation); WHY: the plan execution order puts CHK-004 before CHK-002 precisely for this reason\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — attempt to apply the glossary sweep to a behavior-sensitive row (e.g. change a Chinese regex pattern in M668 proposedEnglish) -> the tag prevents this and the row retains its original code-aware translation; WHY: adversarial scenario where a bulk find-replace silently corrupts runtime code\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/cli] covered via manual_transcript — the behavior-sensitive tag uses the exact string from the context (behavior-sensitive; requires test update) not a paraphrase -> grep-checkable marker; WHY: downstream automation or reviewers may grep for this exact string\",\"  ✓ CHK-004:adversarial:2 [adversarial/must/cli] covered via manual_transcript — 762-row count and zero-Chinese-in-proposedEnglish invariants still hold after CHK-004 (behavior-sensitive rows are tagged but not deleted or merged); WHY: tagging must not break structural invariants\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript — a documented Wrapped-source merge rule section exists in the plan document explaining that multi-line source fragments forming one logical sentence are reviewed and translated as one unit; WHY: the rule must be documented not just applied\",\"  ✓ CHK-005:happy:1 [happy/must/cli] covered via manual_transcript — M004 and M005 are annotated as a merged pair (e.g. via a merge-group marker or cross-reference) and their combined proposedEnglish reads as one coherent sentence about runCli extraTools/extraRegister; WHY: M004/M005 are the canonical example from context\",\"  ✓ CHK-005:happy:2 [happy/must/cli] covered via manual_transcript — any other fragmented pairs similar to M004/M005 are also identified and annotated with the merge rule; WHY: context says apply to M004/M005 and similar pairs\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via manual_transcript — M004 and M005 remain as two separate rows (not collapsed into one) preserving the 762-row invariant -> the merge rule is a translation/review annotation not a row deletion; WHY: merging rows would break the 762<->762 invariant\",\"  ✓ CHK-005:edge:1 [edge/must/cli] covered via manual_transcript — the merge rule clearly defines criteria for identifying wrapped-source pairs (e.g. a sentence split across adjacent rows where neither fragment is grammatically complete alone) -> the rule is reproducible not ad-hoc; WHY: vague rules cannot be applied consistently\",\"  ✓ CHK-005:edge:2 [edge/must/cli] covered via manual_transcript — if no additional fragmented pairs beyond M004/M005 exist, the document explicitly states M004/M005 is the only identified case -> absence of others is documented not silent; WHY: a reviewer cannot distinguish found-none from did-not-look\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via manual_transcript — verify M004 proposedEnglish alone is marked as incomplete/partial (not a standalone translation) -> if someone reads M004 without M005 they see the merge annotation; WHY: adversarial scenario where a row-by-row implementer processes M004 in isolation\",\"  ✓ CHK-005:adversarial:1 [adversarial/must/cli] covered via manual_transcript — 762-row count still exactly 762 after CHK-005 -> merge annotations did not accidentally add or remove rows; WHY: structural invariant must survive all checklist items\",\"  ✓ CHK-005:adversarial:2 [adversarial/must/cli] covered via manual_transcript — the merge rule does not conflict with the behavior-sensitive tagging from CHK-004 (if a behavior-sensitive row is also part of a wrapped pair, both annotations coexist); WHY: adversarial cross-item interaction -- two annotation systems must not clobber each other\"],\"warnings\":[],\"timestamp\":\"2026-06-13T19:39:06.182Z\",\"headSha\":\"b0b37ac284194f59b37d6ce679953f082da356ce\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-VfjTr9; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-h8GmNQ; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1213}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":51,\"reason\":\"verificationIntent entries present (51)\"},\"verificationCoverage\":{\"total\":51,\"required\":51,\"covered\":51,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep for glossary heading in plan doc finds exactly one Glossary section with at least 8 term entries (blocked/excluded/source of truth/iteration/Story/evidence/Git/finding/real-machine tests); WHY: confirms glossary section was added with required terms\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"glossary terms present; rows≈18\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"grep for style guide heading in plan doc finds exactly one CLI Style Guide section containing rules for imperative verb, sentence case, no final period, boolean flag patterns (Enable/Disable/Emit/Skip/Fail if), schema noun phrases, and preserve-identifiers rule; WHY: confirms style guide section was added with all required formatting rules\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"style guide rules present\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"glossary section appears before the first M-row (M001) in the document confirming near-top placement; WHY: placement requirement from context\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"glossary before M001\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"glossary entry for real-machine tests explicitly states KEPT and references realMachineTests code identifier -> edge case where a glossary term intentionally preserves a non-standard phrase; WHY: background says this term is deliberately kept, glossary must document the exception\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"real-machine KEPT documented\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"glossary distinguishes blocked (execution deny) vs excluded (scope) and explicitly states avoid forbidden -> three related terms must be disambiguated not just listed; WHY: core value of glossary is disambiguation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"blocked/excluded/forbidden disambiguated\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"style guide boolean flag pattern list includes all five verbs (Enable/Disable/Emit/Skip/Fail if) -> partial lists would leave gaps; WHY: context specifies exactly these five\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"all 5 flag verbs\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"search the glossary section for any Chinese characters (Unicode CJK range) -> zero matches; WHY: an English glossary containing Chinese defeats its purpose\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no Chinese in glossary\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"glossary does not endorse the deprecated terms it replaces (truth source / round-as-iteration-synonym / finding item should not appear as recommended terms); WHY: adversarial check that glossary does not accidentally endorse what it bans\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"deprecated terms only in avoid context\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"style guide does not contain contradictory rules (e.g. both use-period and no-period); scan for conflicting directives; WHY: a self-contradictory style guide is worse than none\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no contradictory period rule\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"count TSV manifest rows M001..M762 -> exactly 762 data rows present (762<->762 invariant preserved); WHY: the cardinal invariant that no rows were added or dropped during the sweep\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"rows=762\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"grep all proposedEnglish fields for Chinese characters (CJK Unicode range) -> zero matches; WHY: zero-Chinese-in-proposedEnglish is a hard constraint\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no Chinese in proposedEnglish\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"grep for deprecated term finding item in proposedEnglish columns -> zero occurrences replaced by finding; WHY: suggestion #17 requires dropping finding item\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no finding item\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"grep for source of truth (hyphenated or spaced) in proposedEnglish -> all occurrences use source of truth not truth source; WHY: suggestion #8 unification\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no truth source in EN\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:happy:4\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"T-table entries for terms modified in the manifest agree with their M-row twins (spot-check at least 5 T/M pairs); WHY: T/M twin consistency is the F-005 lesson explicitly called out in context\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:4\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"T/M twin agree 54/115\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"M272/M286/M290/M302/M305 all use Emit JSON (not Output JSON or Print JSON) -> exact verb unification per suggestion #5; WHY: partial unification (4 of 5 rows changed) would be a defect\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"Emit JSON on 5 rows, no Output JSON\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"M019/M177/M185 use Command to run and their paired result fields use Command result -> input/output field naming per suggestion #6; WHY: these are paired concepts that must use paired terms\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"Command to run + Command result\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"M076/M086/M225/M236/M241 use Recorded by or Actor consistently -> suggestion #7 unification; WHY: mixed usage across these 5 rows would be inconsistent\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"Recorded by/Actor\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"M586/M588 use prevent self-approval/self-waiver -> suggestion #9 specific wording; WHY: security-critical wording must be exact\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"self-approval\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:edge:4\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"M747/M751 capitalize Git (product name) not git (command) in prose context -> suggestion #14; WHY: Git vs git distinction is in the glossary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:4\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"Git capitalized\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:edge:5\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"M036-M053 (reflection loop) use iteration not round -> suggestion #16 unification across an 18-row range; WHY: range sweep must not miss interior rows\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:5\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no 'round' in M036-053 (18 rows)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"introduce a phantom 763rd row by appending a line after M762 and verify the 762-count check catches it -> confirms the invariant check is real not vacuous; WHY: adversarial test that the verification itself works\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"row-count predicate PASSES on real doc (762) and FAILS on a tampered 763-row copy (non-vacuous)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"search for any proposedEnglish cell that still contains truth source or round (in iteration context) or finding item -> stale deprecated terms surviving the sweep; WHY: adversarial sweep for missed replacements\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no stale deprecated terms\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"verify no M-row proposedEnglish contains a code identifier that was accidentally translated (e.g. realMachineTests must not become real-machine-tests in a code-reference context, command names like story_start must not be translated); WHY: the preserve-identifiers rule must survive a bulk sweep\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"identifiers preserved\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"for every T-table entry modified by CHK-002, confirm the corresponding M-row(s) also reflect the change and vice versa -> no orphaned T-table or M-row edits; WHY: adversarial check for one-sided edits that break T/M twin consistency\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:3\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no orphaned T-rows retaining swept terms (residual: none)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"measure character length of proposedEnglish for every command-description row -> none exceeds 80 characters (or a stated threshold); the previously-longest row (218 chars) is now under the limit; WHY: the core deliverable is shortening over-long descriptions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"0 cmd-desc >80 (longest 80); statedThreshold=true\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"specifically check M215/M339/M543/M650/M655 proposedEnglish are shortened to imperative verb + sentence case + no final period format; WHY: these 5 rows are explicitly named in context as must-shorten\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"named rows shortened, imperative, no period\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"the shortened rows still convey the original command purpose (not just truncated mid-sentence); each begins with an imperative verb; WHY: shortening must not destroy meaning\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"begins with imperative verb\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"rows at exactly the length threshold (e.g. 79 or 80 chars) are left alone and not over-shortened to trivial stubs; WHY: boundary condition -- only over-long rows should be shortened\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no trivial stubs\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"the detailed rules removed from command descriptions appear in a schema/longHelp note or annotation (not simply deleted); WHY: context says rules move to schema/longHelp, not disappear\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"style guide documents moving extra detail to schema/longHelp (not deleting it)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"command-description rows that were already short (median 70 chars) are unchanged by CHK-003; diff shows no edits to rows under threshold; WHY: over-zealous shortening of already-good rows is scope creep\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"CHK-003 did not shorten already-<=80 command-description rows (67 checked vs main; non-glossary reductions: none)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"762-row count is still exactly 762 after CHK-003 edits -> shortening did not accidentally delete or merge rows; WHY: row-count invariant must survive every checklist item\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"still 762 rows\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"no proposedEnglish in shortened rows contains Chinese characters -> zero-Chinese invariant after edits; WHY: shortening might introduce Chinese if copy-pasting from source column\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"no Chinese in cmd-desc\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"T-table entries corresponding to the 5 shortened command-description rows (if any) still match their M-row twins after shortening; WHY: adversarial check that CHK-003 edits did not break T/M consistency established by CHK-002\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"for each shortened named row, no T-twin exists OR its English agrees (no orphaned T/M after shortening)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"M668 and M669 are tagged with behavior-sensitive; requires test update marker in their proposedEnglish or a dedicated annotation column; WHY: these two rows are the known behavior-sensitive cases from context\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"M668/M669 tagged; total bs=3\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"a Behavior-sensitive rows subsection exists in the plan document listing all identified rows with their cli-engine.ts line references and the reason (regex/.test/.match over Chinese); WHY: context requires documenting the risk not just tagging\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"behavior-sensitive subsection lists rows w/ line refs\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"grep cli-engine.ts for all regex/.test/.match patterns that reference Chinese string literals -> every such occurrence has a corresponding M-row tagged behavior-sensitive; WHY: the full set must be identified not just M668/M669\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"genuine Chinese-matcher source lines (3) == tagged behavior-sensitive rows (3); each tagged row's source found in a matcher line by content (sourceLine point-in-time, drifts after\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"rows that use .test() or .match() but only on English strings or identifiers (not Chinese) are NOT tagged behavior-sensitive -> false positives excluded; WHY: over-tagging dilutes the signal\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"every tagged row maps to a genuine Chinese-matcher source line, no English-only .test row tagged; tagged=M668/M669/M750\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"if additional behavior-sensitive rows beyond M668/M669 are found, they are all listed with line references and rationale; WHY: context says identify the full set, partial enumeration is a defect\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"all 3 bs rows listed\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:edge:2\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"behavior-sensitive rows are explicitly excluded from the CHK-002 glossary sweep (their proposedEnglish is not treated as ordinary prose translation); WHY: the plan execution order puts CHK-004 before CHK-002 precisely for this reason\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"bs rows retain code form (not prose-swept)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"attempt to apply the glossary sweep to a behavior-sensitive row (e.g. change a Chinese regex pattern in M668 proposedEnglish) -> the tag prevents this and the row retains its original code-aware translation; WHY: adversarial scenario where a bulk find-replace silently corrupts runtime code\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"tag present guards rows\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"the behavior-sensitive tag uses the exact string from the context (behavior-sensitive; requires test update) not a paraphrase -> grep-checkable marker; WHY: downstream automation or reviewers may grep for this exact string\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"exact marker string present\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-004:adversarial:2\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"762-row count and zero-Chinese-in-proposedEnglish invariants still hold after CHK-004 (behavior-sensitive rows are tagged but not deleted or merged); WHY: tagging must not break structural invariants\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"invariants hold after CHK-004\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"a documented Wrapped-source merge rule section exists in the plan document explaining that multi-line source fragments forming one logical sentence are reviewed and translated as one unit; WHY: the rule must be documented not just applied\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"wrapped-source rule section exists\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"M004 and M005 are annotated as a merged pair (e.g. via a merge-group marker or cross-reference) and their combined proposedEnglish reads as one coherent sentence about runCli extraTools/extraRegister; WHY: M004/M005 are the canonical example from context\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"M004/M005 combined reads coherently\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:happy:2\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"any other fragmented pairs similar to M004/M005 are also identified and annotated with the merge rule; WHY: context says apply to M004/M005 and similar pairs\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"similar pairs noted\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"M004 and M005 remain as two separate rows (not collapsed into one) preserving the 762-row invariant -> the merge rule is a translation/review annotation not a row deletion; WHY: merging rows would break the 762<->762 invariant\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"M004/M005 remain separate, 762 rows\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"the merge rule clearly defines criteria for identifying wrapped-source pairs (e.g. a sentence split across adjacent rows where neither fragment is grammatically complete alone) -> the rule is reproducible not ad-hoc; WHY: vague rules cannot be applied consistently\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"criteria defined\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:edge:2\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"if no additional fragmented pairs beyond M004/M005 exist, the document explicitly states M004/M005 is the only identified case -> absence of others is documented not silent; WHY: a reviewer cannot distinguish found-none from did-not-look\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"wrapped-source section documents M004/M005 and states the identified cases (no silent omission of others)\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"verify M004 proposedEnglish alone is marked as incomplete/partial (not a standalone translation) -> if someone reads M004 without M005 they see the merge annotation; WHY: adversarial scenario where a row-by-row implementer processes M004 in isolation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"M004 marked as part of merged pair\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"762-row count still exactly 762 after CHK-005 -> merge annotations did not accidentally add or remove rows; WHY: structural invariant must survive all checklist items\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"still 762 after CHK-005\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}},{\"intentRef\":\"CHK-005:adversarial:2\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"the merge rule does not conflict with the behavior-sensitive tagging from CHK-004 (if a behavior-sensitive row is also part of a wrapped pair, both annotations coexist); WHY: adversarial cross-item interaction -- two annotation systems must not clobber each other\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs\",\"result\":\"pass\",\"note\":\"wrapped-merge rows (M004/M005/M463/M464/M465) and behavior-sensitive rows (M668/M669/M750) are disjoint — annotations do not conflict\",\"headHash\":\"a5f90126da568a8bb2f3ab39670357b7ecd53a3d\",\"materialHash\":\"427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af\",\"timestamp\":\"2026-06-13T19:36:26.892Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-13T19:39:07.505Z",
+  "headHash": "b0b37ac284194f59b37d6ce679953f082da356ce",
+  "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+  "verificationCoverage": {
+    "total": 51,
+    "required": 51,
+    "covered": 51,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep for glossary heading in plan doc finds exactly one Glossary section with at least 8 term entries (blocked/excluded/source of truth/iteration/Story/evidence/Git/finding/real-machine tests); WHY: confirms glossary section was added with required terms",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "glossary terms present; rows≈18",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "grep for style guide heading in plan doc finds exactly one CLI Style Guide section containing rules for imperative verb, sentence case, no final period, boolean flag patterns (Enable/Disable/Emit/Skip/Fail if), schema noun phrases, and preserve-identifiers rule; WHY: confirms style guide section was added with all required formatting rules",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "style guide rules present",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "glossary section appears before the first M-row (M001) in the document confirming near-top placement; WHY: placement requirement from context",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "glossary before M001",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "glossary entry for real-machine tests explicitly states KEPT and references realMachineTests code identifier -> edge case where a glossary term intentionally preserves a non-standard phrase; WHY: background says this term is deliberately kept, glossary must document the exception",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "real-machine KEPT documented",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "glossary distinguishes blocked (execution deny) vs excluded (scope) and explicitly states avoid forbidden -> three related terms must be disambiguated not just listed; WHY: core value of glossary is disambiguation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "blocked/excluded/forbidden disambiguated",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "style guide boolean flag pattern list includes all five verbs (Enable/Disable/Emit/Skip/Fail if) -> partial lists would leave gaps; WHY: context specifies exactly these five",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "all 5 flag verbs",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "search the glossary section for any Chinese characters (Unicode CJK range) -> zero matches; WHY: an English glossary containing Chinese defeats its purpose",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no Chinese in glossary",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "glossary does not endorse the deprecated terms it replaces (truth source / round-as-iteration-synonym / finding item should not appear as recommended terms); WHY: adversarial check that glossary does not accidentally endorse what it bans",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "deprecated terms only in avoid context",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "style guide does not contain contradictory rules (e.g. both use-period and no-period); scan for conflicting directives; WHY: a self-contradictory style guide is worse than none",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no contradictory period rule",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "count TSV manifest rows M001..M762 -> exactly 762 data rows present (762<->762 invariant preserved); WHY: the cardinal invariant that no rows were added or dropped during the sweep",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "rows=762",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "grep all proposedEnglish fields for Chinese characters (CJK Unicode range) -> zero matches; WHY: zero-Chinese-in-proposedEnglish is a hard constraint",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no Chinese in proposedEnglish",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "grep for deprecated term finding item in proposedEnglish columns -> zero occurrences replaced by finding; WHY: suggestion #17 requires dropping finding item",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no finding item",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:3",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "grep for source of truth (hyphenated or spaced) in proposedEnglish -> all occurrences use source of truth not truth source; WHY: suggestion #8 unification",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no truth source in EN",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:4",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "T-table entries for terms modified in the manifest agree with their M-row twins (spot-check at least 5 T/M pairs); WHY: T/M twin consistency is the F-005 lesson explicitly called out in context",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "T/M twin agree 54/115",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "M272/M286/M290/M302/M305 all use Emit JSON (not Output JSON or Print JSON) -> exact verb unification per suggestion #5; WHY: partial unification (4 of 5 rows changed) would be a defect",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Emit JSON on 5 rows, no Output JSON",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "M019/M177/M185 use Command to run and their paired result fields use Command result -> input/output field naming per suggestion #6; WHY: these are paired concepts that must use paired terms",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Command to run + Command result",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "M076/M086/M225/M236/M241 use Recorded by or Actor consistently -> suggestion #7 unification; WHY: mixed usage across these 5 rows would be inconsistent",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Recorded by/Actor",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:3",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "M586/M588 use prevent self-approval/self-waiver -> suggestion #9 specific wording; WHY: security-critical wording must be exact",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "self-approval",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:4",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "M747/M751 capitalize Git (product name) not git (command) in prose context -> suggestion #14; WHY: Git vs git distinction is in the glossary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "Git capitalized",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:5",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "M036-M053 (reflection loop) use iteration not round -> suggestion #16 unification across an 18-row range; WHY: range sweep must not miss interior rows",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no 'round' in M036-053 (18 rows)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "introduce a phantom 763rd row by appending a line after M762 and verify the 762-count check catches it -> confirms the invariant check is real not vacuous; WHY: adversarial test that the verification itself works",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "row-count predicate PASSES on real doc (762) and FAILS on a tampered 763-row copy (non-vacuous)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "search for any proposedEnglish cell that still contains truth source or round (in iteration context) or finding item -> stale deprecated terms surviving the sweep; WHY: adversarial sweep for missed replacements",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no stale deprecated terms",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "verify no M-row proposedEnglish contains a code identifier that was accidentally translated (e.g. realMachineTests must not become real-machine-tests in a code-reference context, command names like story_start must not be translated); WHY: the preserve-identifiers rule must survive a bulk sweep",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "identifiers preserved",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:3",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "for every T-table entry modified by CHK-002, confirm the corresponding M-row(s) also reflect the change and vice versa -> no orphaned T-table or M-row edits; WHY: adversarial check for one-sided edits that break T/M twin consistency",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no orphaned T-rows retaining swept terms (residual: none)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "measure character length of proposedEnglish for every command-description row -> none exceeds 80 characters (or a stated threshold); the previously-longest row (218 chars) is now under the limit; WHY: the core deliverable is shortening over-long descriptions",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "0 cmd-desc >80 (longest 80); statedThreshold=true",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "specifically check M215/M339/M543/M650/M655 proposedEnglish are shortened to imperative verb + sentence case + no final period format; WHY: these 5 rows are explicitly named in context as must-shorten",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "named rows shortened, imperative, no period",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "the shortened rows still convey the original command purpose (not just truncated mid-sentence); each begins with an imperative verb; WHY: shortening must not destroy meaning",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "begins with imperative verb",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "rows at exactly the length threshold (e.g. 79 or 80 chars) are left alone and not over-shortened to trivial stubs; WHY: boundary condition -- only over-long rows should be shortened",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no trivial stubs",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "the detailed rules removed from command descriptions appear in a schema/longHelp note or annotation (not simply deleted); WHY: context says rules move to schema/longHelp, not disappear",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "style guide documents moving extra detail to schema/longHelp (not deleting it)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "command-description rows that were already short (median 70 chars) are unchanged by CHK-003; diff shows no edits to rows under threshold; WHY: over-zealous shortening of already-good rows is scope creep",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "CHK-003 did not shorten already-<=80 command-description rows (67 checked vs main; non-glossary reductions: none)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "762-row count is still exactly 762 after CHK-003 edits -> shortening did not accidentally delete or merge rows; WHY: row-count invariant must survive every checklist item",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "still 762 rows",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "no proposedEnglish in shortened rows contains Chinese characters -> zero-Chinese invariant after edits; WHY: shortening might introduce Chinese if copy-pasting from source column",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "no Chinese in cmd-desc",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "T-table entries corresponding to the 5 shortened command-description rows (if any) still match their M-row twins after shortening; WHY: adversarial check that CHK-003 edits did not break T/M consistency established by CHK-002",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "for each shortened named row, no T-twin exists OR its English agrees (no orphaned T/M after shortening)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "M668 and M669 are tagged with behavior-sensitive; requires test update marker in their proposedEnglish or a dedicated annotation column; WHY: these two rows are the known behavior-sensitive cases from context",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M668/M669 tagged; total bs=3",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "a Behavior-sensitive rows subsection exists in the plan document listing all identified rows with their cli-engine.ts line references and the reason (regex/.test/.match over Chinese); WHY: context requires documenting the risk not just tagging",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "behavior-sensitive subsection lists rows w/ line refs",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:2",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "grep cli-engine.ts for all regex/.test/.match patterns that reference Chinese string literals -> every such occurrence has a corresponding M-row tagged behavior-sensitive; WHY: the full set must be identified not just M668/M669",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "genuine Chinese-matcher source lines (3) == tagged behavior-sensitive rows (3); each tagged row's source found in a matcher line by content (sourceLine point-in-time, drifts after",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "rows that use .test() or .match() but only on English strings or identifiers (not Chinese) are NOT tagged behavior-sensitive -> false positives excluded; WHY: over-tagging dilutes the signal",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "every tagged row maps to a genuine Chinese-matcher source line, no English-only .test row tagged; tagged=M668/M669/M750",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "if additional behavior-sensitive rows beyond M668/M669 are found, they are all listed with line references and rationale; WHY: context says identify the full set, partial enumeration is a defect",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "all 3 bs rows listed",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:2",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "behavior-sensitive rows are explicitly excluded from the CHK-002 glossary sweep (their proposedEnglish is not treated as ordinary prose translation); WHY: the plan execution order puts CHK-004 before CHK-002 precisely for this reason",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "bs rows retain code form (not prose-swept)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "attempt to apply the glossary sweep to a behavior-sensitive row (e.g. change a Chinese regex pattern in M668 proposedEnglish) -> the tag prevents this and the row retains its original code-aware translation; WHY: adversarial scenario where a bulk find-replace silently corrupts runtime code",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "tag present guards rows",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "the behavior-sensitive tag uses the exact string from the context (behavior-sensitive; requires test update) not a paraphrase -> grep-checkable marker; WHY: downstream automation or reviewers may grep for this exact string",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "exact marker string present",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:2",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "762-row count and zero-Chinese-in-proposedEnglish invariants still hold after CHK-004 (behavior-sensitive rows are tagged but not deleted or merged); WHY: tagging must not break structural invariants",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "invariants hold after CHK-004",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "a documented Wrapped-source merge rule section exists in the plan document explaining that multi-line source fragments forming one logical sentence are reviewed and translated as one unit; WHY: the rule must be documented not just applied",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "wrapped-source rule section exists",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:1",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "M004 and M005 are annotated as a merged pair (e.g. via a merge-group marker or cross-reference) and their combined proposedEnglish reads as one coherent sentence about runCli extraTools/extraRegister; WHY: M004/M005 are the canonical example from context",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M004/M005 combined reads coherently",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:2",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "any other fragmented pairs similar to M004/M005 are also identified and annotated with the merge rule; WHY: context says apply to M004/M005 and similar pairs",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "similar pairs noted",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "M004 and M005 remain as two separate rows (not collapsed into one) preserving the 762-row invariant -> the merge rule is a translation/review annotation not a row deletion; WHY: merging rows would break the 762<->762 invariant",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M004/M005 remain separate, 762 rows",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "the merge rule clearly defines criteria for identifying wrapped-source pairs (e.g. a sentence split across adjacent rows where neither fragment is grammatically complete alone) -> the rule is reproducible not ad-hoc; WHY: vague rules cannot be applied consistently",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "criteria defined",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:2",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "if no additional fragmented pairs beyond M004/M005 exist, the document explicitly states M004/M005 is the only identified case -> absence of others is documented not silent; WHY: a reviewer cannot distinguish found-none from did-not-look",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "wrapped-source section documents M004/M005 and states the identified cases (no silent omission of others)",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "verify M004 proposedEnglish alone is marked as incomplete/partial (not a standalone translation) -> if someone reads M004 without M005 they see the merge annotation; WHY: adversarial scenario where a row-by-row implementer processes M004 in isolation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "M004 marked as part of merged pair",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "762-row count still exactly 762 after CHK-005 -> merge annotations did not accidentally add or remove rows; WHY: structural invariant must survive all checklist items",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "still 762 after CHK-005",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:2",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "the merge rule does not conflict with the behavior-sensitive tagging from CHK-004 (if a behavior-sensitive row is also part of a wrapped pair, both annotations coexist); WHY: adversarial cross-item interaction -- two annotation systems must not clobber each other",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-5773/evidence/verify-b5773.mjs",
+          "result": "pass",
+          "note": "wrapped-merge rows (M004/M005/M463/M464/M465) and behavior-sensitive rows (M668/M669/M750) are disjoint — annotations do not conflict",
+          "headHash": "a5f90126da568a8bb2f3ab39670357b7ecd53a3d",
+          "materialHash": "427cade1c2d45f94e042cf00ed312e887dc607b8dcb3cf39e11a8f6664c653af",
+          "timestamp": "2026-06-13T19:36:26.892Z"
+        }
+      }
+    ]
+  }
+}

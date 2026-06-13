@@ -1,0 +1,148 @@
+{
+  "findings": [
+    {
+      "id": "B-5773:F-001",
+      "desc": "CHK-003:edge:1 verificationEvidence is hollow: ok() is called with literal `true` (line 74 of verify-b5773.mjs). Intent requires confirming that detailed rules removed from command descriptions appear in schema/longHelp annotation, not simply deleted. The verifier unconditionally passes this check with the note \"advisory\" — no document assertion is made.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:19.639Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "3d46c675cdde187b88f602ea203a71bb51184e742682ccab8190eb397901be8b",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ],
+      "resolvedReason": "CHK-003:edge:1 now asserts the style guide documents moving detail to schema/longHelp (commit d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:25:58.469Z"
+    },
+    {
+      "id": "B-5773:F-002",
+      "desc": "CHK-003:edge:2 verificationEvidence is hollow: ok() is called with literal `true` (line 75 of verify-b5773.mjs). Intent requires confirming via diff that command-description rows already under threshold were not touched by CHK-003 edits. The verifier unconditionally passes this check with the note \"diff-based, trusted\" — no diff or row-content assertion is performed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:24.055Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "523506925275b8943f01a73456977da4a526845953284d686cad0c34d0a7d463",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ],
+      "resolvedReason": "CHK-003:edge:2 now diffs vs git main and asserts no already-<=80 command-description row was shortened for non-glossary reasons (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:25:58.942Z"
+    },
+    {
+      "id": "B-5773:F-003",
+      "desc": "CHK-003:adversarial:2 verificationEvidence is hollow: ok() is called with literal `true` (line 78 of verify-b5773.mjs). Intent requires checking that T-table entries for the 5 shortened command-description rows still match their M-row twins after shortening. The verifier delegates entirely to CHK-002:adversarial:3 without performing any targeted T/M cross-check for the CHK-003-specific shortened rows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:32.287Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "14bbb7960a640e70064191439761346da974cadd6d1032f5012f9a8e00f02bb2",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ],
+      "resolvedReason": "CHK-003:adversarial:2 now checks T/M twins for the 5 named shortened rows (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:25:59.409Z"
+    },
+    {
+      "id": "B-5773:F-004",
+      "desc": "CHK-004:edge:0 verificationEvidence is hollow: ok() is called with literal `true` (line 90 of verify-b5773.mjs). Intent requires confirming that rows using .test()/.match() only on English strings are NOT tagged behavior-sensitive (false-positive exclusion check). The verifier makes no assertion — it unconditionally passes with the note \"English-only .test rows not tagged.\"",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:36.931Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "e15d0bad8c8b0ac9ec44ab71dd3e499b830b33fddd2ee60861302949caf8ea22",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ],
+      "resolvedReason": "CHK-004:edge:0 now asserts only genuine Chinese-matcher rows (lines 2303/2306/3887) are tagged behavior-sensitive (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:25:59.856Z"
+    },
+    {
+      "id": "B-5773:F-005",
+      "desc": "CHK-005:edge:2 verificationEvidence is hollow: ok() is called with literal `true` (line 104 of verify-b5773.mjs). Intent requires that if no additional fragmented pairs beyond M004/M005 exist, the document explicitly states M004/M005 is the only identified case (absence documented, not silent). The verifier makes no assertion whatsoever about this documentation requirement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:41.690Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "0b7781b67cfa187ca2daa80f127db7e7c438dfc427d34aee3ab967d7ad2adf0f",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ],
+      "resolvedReason": "CHK-005:edge:2 now asserts the wrapped-source section documents M004/M005 and the identified cases (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:26:00.359Z"
+    },
+    {
+      "id": "B-5773:F-006",
+      "desc": "CHK-005:adversarial:2 verificationEvidence is hollow: ok() is called with literal `true` (line 107 of verify-b5773.mjs). Intent requires verifying that the merge rule and behavior-sensitive tagging coexist without conflict (if a row is in both systems, both annotations are present). The verifier performs no cross-check — unconditionally passes with note \"disjoint rows.\"",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:46.330Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "1e74371ec68a9b6c7cb7fc34bde8b53a741d7579b7d7f3a99347f0bbeda3b072",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ],
+      "resolvedReason": "CHK-005:adversarial:2 now asserts wrapped-pair rows and behavior-sensitive rows are disjoint (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:26:00.828Z"
+    },
+    {
+      "id": "B-5773:F-007",
+      "desc": "CHK-002:adversarial:0 verificationEvidence is hollow: the second conjunct of the ok() check on line 60 is `(mrows.length+1)!==762`, which expands to `763!==762` — a mathematical tautology that is always true regardless of document content. The intent requires simulating a phantom 763rd row to prove the count check is non-vacuous, but the verifier never mutates or re-reads the document; it cannot detect whether a tampered file would actually fail.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T19:15:55.192Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-002",
+      "_hash": "9c65bd0e1e3abfb060f36028f5e271694176300f7443f450f208c297f10d4a03",
+      "files": [
+        ".lattice/story/actives/B-5773/evidence/verify-b5773.mjs"
+      ],
+      "resolvedReason": "CHK-002:adversarial:0 now runs the row-count predicate on a tampered 763-row copy and asserts it fails (non-vacuous) (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:26:01.290Z"
+    },
+    {
+      "id": "B-5773:F-008",
+      "desc": "quality-style-guide: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md line ~472 (M109) — changed command-description row ends with a trailing period (\"Discard a Story: clean up its worktree and branch, then mark it DISCARDED.\") in violation of the new CLI Style Guide rule 1 this diff introduces (\"no final period\"). M109 was explicitly in-scope for CHK-002 (#18) and was reworded, yet the period was preserved. Fix: remove the trailing period.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T19:17:22.739Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-003",
+      "_hash": "3d78a0e710480cdc556e41325f40f48c0920bbd20064becb023b3d497b276274",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ],
+      "resolvedReason": "M109 trailing period removed to satisfy the no-final-period style rule (d1dcef25b).",
+      "resolvedAt": "2026-06-13T19:26:01.758Z"
+    }
+  ]
+}

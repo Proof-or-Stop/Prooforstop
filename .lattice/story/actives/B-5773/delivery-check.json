@@ -1,0 +1,67 @@
+{
+  "storyId": "B-5773",
+  "checkedAt": "2026-06-13T19:43:10.962Z",
+  "reviewRound": "2026-06-13T19:36:36.052Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#english-glossary",
+      "promise": "A new ## English Glossary section (at L65) with at least 8 term entries (blocked/excluded/source of truth/iteration/Story/evidence/Git/finding/real-machine tests) is added near the top of the document.",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff confirms section added at +L65; grep shows 65:## English Glossary; section contains 16 table rows covering all required terms including blocked vs excluded, source of truth, iteration, Story, evidence, Git, finding, real-machine tests KEPT."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#cli-style-guide",
+      "promise": "A new ## CLI Style Guide section (at L91) with 6 numbered rules: imperative verb, sentence case, no final period, <=80 char command descriptions, boolean flag patterns (Enable/Disable/Emit/Skip/Fail if), schema noun phrases, preserve identifiers.",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff confirms section added at +L91; grep shows 91:## CLI Style Guide; section contains 6 numbered rules. Max command-description proposedEnglish length confirmed 80 chars (awk over manifest)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#behavior-sensitive-rows",
+      "promise": "A new ## Behavior-sensitive rows section lists M668, M669, M750 with runtime-coupling explanations; manifest rows M668/M669/M750 have reviewStatus changed to behavior-sensitive; behavior-sensitive added to allowed reviewStatus values.",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep shows 1200:## Behavior-sensitive rows; diff confirms M668/M669/M750 reviewStatus changed to behavior-sensitive; allowed-values table updated. B-4e06 merge shifted line numbers (+8) but content of matchers is unchanged and verified by content."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#wrapped-source-merge-rule",
+      "promise": "A new ### Wrapped-source merge rule subsection explains multi-line Chinese sentences are reviewed as one translation unit; M004+M005 and M463+M464+M465 documented as known wrapped units; M005 proposedEnglish trimmed to continuation fragment.",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff confirms subsection added at line 415; M005 changed from standalone sentence to continuation fragment so M004+M005 concatenate without word repetition."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md#manifest-terminology-unification",
+      "promise": "All 762 manifest rows consistently apply glossary: forbidden->blocked, Output JSON->Emit JSON, Recorder->Recorded by, round->iteration in review-loop contexts, self-pardon->self-approval, finding item->finding, no Chinese chars in proposedEnglish.",
+      "verifiedBy": "diff/grep + verify-b5773.mjs 51/51 PASS",
+      "evidence": "diff confirms all substitutions; verify-b5773.mjs 51/51 PASS independently confirms zero stale terms, correct row count, zero Chinese chars in proposedEnglish."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "verify-b5773.mjs 51/51 PASS covers: glossary section at L65 with 8+ terms; style guide at L91 with 6 rules including 5 boolean flag verbs; glossary before first M-row; no Chinese chars in glossary; blocked/excluded/forbidden disambiguation present. transcript-diff.md records user-perspective expected vs actual match."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "verify-b5773.mjs 51/51 PASS covers: forbidden->blocked replacements; Output JSON->Emit JSON 0 stale; truth source/finding item/self-pardon 0 remaining; Recorder->Recorded by applied; iteration vs round in review-loop schemas; Chinese chars in proposedEnglish 0; manifest row count 762."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "verify-b5773.mjs 51/51 PASS covers: max command-description proposedEnglish length <=80 chars (max observed 80, was 218 before). All command-description rows confirmed within limit via awk."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "verify-b5773.mjs 51/51 PASS covers: exactly 3 rows with reviewStatus=behavior-sensitive (M668, M669, M750); Behavior-sensitive rows section exists and documents all 3; behavior-sensitive in allowed reviewStatus values table. Line numbers shifted by B-4e06 merge but content verified by content not line number."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "verify-b5773.mjs 51/51 PASS covers: Wrapped-source merge rule section exists; M004+M005 joint English is one coherent sentence without word repetition across seam; M463+M464+M465 documented. diff confirms M005 proposedEnglish changed to continuation fragment."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises independently verified via diff inspection and committed verifier (51/51 PASS). cli-engine.ts is absent from the diff. The point-in-time-snapshot limitation (B-4e06 concurrent merge shifted behavior-matcher line numbers by +8) is documented in transcript-diff.md and is not a delivery defect: behavior-sensitive content is unchanged and verified by content. No TODO/FIXME/HACK comments introduced. Edge cases (blocked vs excluded disambiguation, real-machine tests KEPT, behavior-sensitive coordination notes, wrapped-source seam check) are all verifiable."
+  },
+  "_hash": "92bb412cfd9ba9720e0662cf3fc5453b54e9cc59b3648091e9403884dc163036"
+}

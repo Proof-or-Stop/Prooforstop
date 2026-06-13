@@ -1,0 +1,157 @@
+{
+  "storyId": "B-5773",
+  "checkedAt": "2026-06-13T19:00:08.105Z",
+  "features": [
+    {
+      "feature": "#1 Glossary: term choices (blocked vs excluded, source of truth, iteration vs round, Story vs story, Git vs git, evidence uncountable, finding not finding item, real-machine tests kept)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#2 Shorten over-long command descriptions (M215, M339, M543, M650, M655 and similar)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#3 Wrapped-source merge rule for multi-line source fragments (e.g. M004/M005)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#4 Isolate behavior-sensitive regex rows (M668/M669 and full set), tag as requiring test updates",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#5 Emit JSON terminology at M272/M286/M290/M302/M305",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#6 Command to run / Command result for execution input/output fields M019/M177/M185",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#7 Recorded by / Actor for attribution fields M076/M086/M225/M236/M241",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#8 source-of-truth terminology unified across manifest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#9 prevent self-approval/self-waiver wording for M586/M588",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#10 Rename code identifier realMachineTests to real-machine-tests",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Renaming the code identifier realMachineTests (real-machine tests kept as-is) — scope-boundary excluded; user approved keeping it",
+      "source": "description"
+    },
+    {
+      "feature": "#11 entry point terminology in prose",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#12 PROMPT casing / full prompt / detailed help for M007/M670",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#13 T/M twin consistency (T-table and M-manifest kept in sync)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#14 Git capitalization in M747/M751",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#15 CLI style guide (command descriptions = imperative verb + sentence case + no final period; boolean flags; schema fields as noun phrases)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#16 iteration vs round in reflection loop rows M036-M053",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#17 Drop finding item in favor of finding",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#18 Discard-story wording M109",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#19 Fail when for M409 (boolean flag style)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "#20 Preserve identifiers rule in style guide (command names, enum values, JSON keys, IDs, filenames, legacy aliases)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 19,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f6d20437df506bd1dbf3b5731752235ff66b7f716be7efdfc137d4772567ceed",
+  "openQuestions": []
+}
