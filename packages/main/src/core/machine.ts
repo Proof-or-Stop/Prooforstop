@@ -19,6 +19,10 @@ import { isFindingBlocking } from './advisory.js';
 import { evaluateReviewerQuorum } from './reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
 import {
+  evaluateDecisionDocQuorum,
+  formatDecisionDocQuorumFailure,
+} from './decision-doc-quorum.js';
+import {
   digestScopeFreezeCheck,
   evaluateScopeFreeze,
   storedScopeFreezeDiscardMitigations,
@@ -412,6 +416,13 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   if (unverified.length > 0) {
     return false;
   }
+
+  const decisionDocQuorum = evaluateDecisionDocQuorum({
+    projectRoot: context.projectRoot,
+    storyId: context.storyId,
+    store: context.store,
+  });
+  if (!decisionDocQuorum.ok) return false;
 
   return true;
 }
@@ -834,6 +845,15 @@ export function getGuardFailureReason(
     if (unverifiedPromises.length > 0) {
       const names = unverifiedPromises.map(p => p.docPath).join(', ');
       return `Cannot enter DONE: ${unverifiedPromises.length} docsPromise entries unverified and not waived: ${names}. [unverified_promise] → Use delivery_waiver_add to write a waiver or re-run reviewer → Run story_advance DEV to rework and fill in`;
+    }
+
+    const decisionDocQuorum = evaluateDecisionDocQuorum({
+      projectRoot: projectRoot ?? process.cwd(),
+      storyId,
+      store,
+    });
+    if (!decisionDocQuorum.ok) {
+      return formatDecisionDocQuorumFailure(decisionDocQuorum);
     }
   }
 
