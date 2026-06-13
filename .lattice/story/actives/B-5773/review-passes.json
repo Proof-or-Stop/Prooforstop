@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-13T19:13:53.453Z",
       "reviewRunId": "B-5773:RR-001",
       "_hash": "6838bd73aef61cf5273b536de327a8cbbd5b635d80f5f27e053c2b6e09ea465a"
+    },
+    {
+      "id": "B-5773:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 0 exported symbols (docs-only diff). Step 2: Paragraphs examined via grep: glossary (17 terms), CLI style guide (6 rules), behavior-sensitive section (3 rows + coordination notes), wrapped-source merge rule, T-table sample, manifest spot-checks. Step 3: 51/51 automated verification checks pass; 762 manifest rows confirmed; Chinese in proposedEnglish only in M668/M669/M750 (correct behavior-sensitive rows); no banned terms (truth source, finding item, self-pardon, Output JSON) in proposedEnglish; M586/M588 correctly use self-approval; M747/M751 correctly use Git repository; M036-M053 use iteration not round; M019/M020 period inconsistency with T018/T019 is minor and consistent with pre-existing manifest pattern; M750 lowercase git in proposedEnglish is pre-existing (only status changed); no blockers.",
+      "createdAt": "2026-06-13T19:21:28.305Z",
+      "reviewRound": "2026-06-13T19:13:53.453Z",
+      "reviewRunId": "B-5773:RR-004",
+      "_hash": "11b3a4da7ba3ae17a0d40b33c1734a6ece9b7060931b6cc564421f8a4d007135"
     }
   ]
 }
