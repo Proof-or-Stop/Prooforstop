@@ -136,7 +136,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Authority-mode dry-run reports receipt/readiness missing and keeps authorityDone=false/fullAuthorityDone=false; local REVIEW/TEST/DONE evidence is reported only as Non-authority unless verified gate_decision receipt proof exists.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Authority status and authority-mode dry-run evidence show fail-closed behavior without configured Authority readiness or receipt proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Local lifecycle validation remains usable as Non-authority evidence while Authority completion remains blocked without verified receipt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE summary and delivery materials must not claim receiptVerified, authorityDone, productionDone, or fullAuthorityDone unless receipt-backed proof is actually verified.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
