@@ -288,11 +288,13 @@
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
+          "file": "docs/guide-hooks.md",
+          "command": "git show --name-only --format='%H%n%an <%ae>%n%s' ce395d900 && git status --short",
           "result": "pass",
-          "note": "Worktree isolation confirmed: git status shows only story/B-3cca branch files modified; no stash operations performed; no files outside packages/main scope touched",
-          "headHash": "5dc8f46642bcefef62e72e82b72ecb1c21e1d5e9",
+          "note": "Claude-authored commit ce395d900 was authored by koala-implementer <koala-implementer@noreply.local> in the B-3cca worktree and changed only docs/guide-hooks.md plus packages/main/src/tasks/cli-engine-branding-smoke.ts; Codex reviewed and accepted the staged diff before commit. Current status after TEST contains only Lattice metadata/test-evidence files.",
+          "headHash": "2016caa681a10779776a162476983212737cb3a2",
           "materialHash": "095c36b45b0da84adce92e3992c78bdf812efba8a70554b5d050318a1ff209a8",
-          "timestamp": "2026-06-13T11:24:44.384Z"
+          "timestamp": "2026-06-13T11:28:05.611Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
