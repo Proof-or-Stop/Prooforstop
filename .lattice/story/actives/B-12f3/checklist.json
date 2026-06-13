@@ -135,6 +135,16 @@
           "headHash": "419144dbce725516aadbe6692dbf40c807c04178",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:22:43.889Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "MSG=$(sed -n '378p' packages/main/src/handlers/story-review.ts); printf '%s\\\\n' \"$MSG\" | rg -q 'implementation/main agent must not self-sign' && ! printf '%s\\\\n' \"$MSG\" | rg -q 'scope_contract_check|receiptVerified|authorityDone|productionDone|fullAuthorityDone'",
+          "result": "pass",
+          "note": "The guidance forbids main-agent self-signing/manual metadata editing and avoids exact Authority completion flag claims.",
+          "headHash": "d8b50267b1b16859ef93c835f21bf7b3952ff486",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:49.042Z"
         }
       ]
     },
