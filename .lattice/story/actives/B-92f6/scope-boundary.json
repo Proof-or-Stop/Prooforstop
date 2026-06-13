@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-92f6",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add the missing @changes metadata field to packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "If required by build output, synchronize only packages/main/dist/tasks/cli-engine-branding-smoke.js"
+  ],
+  "excluded": [
+    "Do not directly edit docs/story/ or tests/fixtures/",
+    "Do not expand Koala/Lattice branding cleanup beyond the annotation validator error",
+    "Do not modify unrelated active stories B-a94f or B-c3b0",
+    "Do not run omx or read/write/use .omx/"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved executing the annotation-error fix through Lattice on 2026-06-13; scope is limited to the missing @changes metadata error.",
+  "createdAt": "2026-06-13T12:45:26.152Z",
+  "updatedAt": "2026-06-13T12:45:26.152Z",
+  "_hash": "54579d7d7d93f469c4178750f4cb79c27d36fffbbb29d777620a8a37a2c089c4"
+}

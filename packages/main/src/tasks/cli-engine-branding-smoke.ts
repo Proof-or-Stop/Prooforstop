@@ -5,6 +5,7 @@
  * @title CLI-engine branding audit smoke
  * @type feature
  * @priority high
+ * @changes - [CHK-001] Add the required annotation metadata change summary for the CLI-engine branding smoke task.
  * @description
  * Scans src/dist CLI, hook runner, and related guide docs for unclassified
  * "koala/Koala" occurrences. Classified references (legacy alias, process lanes,

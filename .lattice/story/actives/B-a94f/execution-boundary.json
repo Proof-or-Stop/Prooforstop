@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a94f",
+  "allowedCommands": [
+    "chmod 600 authority_trust.env",
+    "cp /Users/jek/Documents/Work/Koala/cord-team/authority_trust.env authority_trust.env",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git show *",
+    "git status *",
+    "grep *",
+    "lattice *",
+    "node packages/main/dist/*",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *",
+    "test -f *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "functions.apply_patch",
+    "functions.exec_command",
+    "multi_agent_v1.spawn_agent",
+    "multi_agent_v1.wait_agent",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    ".gitignore",
+    "AGENTS.md",
+    "authority_trust.env",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts"
+  ],
+  "excludedCommands": [
+    "cat /Users/jek/Documents/Work/Koala/cord-team/authority_trust.env",
+    "cat authority_trust.env",
+    "curl *",
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "omx *",
+    "wget *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    ".omx/**",
+    "tests/fixtures",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Do not print secret values from authority_trust.env. The file may be copied locally and chmod 600, but must remain untracked/ignored. Tests should use synthetic env text, not real secrets.",
+  "createdAt": "2026-06-13T12:16:02.270Z",
+  "updatedAt": "2026-06-13T12:16:02.270Z",
+  "_hash": "0eda75a6390f87a628227f5bce5d1acf69f492d7289c65ab4d4f4bfe9118d0ea"
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-92f6",
+  "changes": "Added one required @changes metadata line to packages/main/src/tasks/cli-engine-branding-smoke.ts so the existing @task annotation satisfies the annotation validator.",
+  "usage": "Run npm --prefix packages/main run build, then node packages/main/dist/tasks/cli-validate.js to verify task annotations from the built CLI output.",
+  "expectedOutcome": "The validator prints PASSED: All task annotations are valid instead of the previous missing @changes error for cli-engine-branding-smoke.ts.",
+  "actualTranscript": "node packages/main/dist/tasks/cli-validate.js printed Errors: 0, Warnings: 0, and PASSED: All task annotations are valid. lattice validate --story=B-92f6 --json returned status pass and allPass true.",
+  "outcomeDiff": "No user-facing diff remains for the annotation validator success line; expected and actual both show PASSED: All task annotations are valid.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for the missing @changes annotation error; unrelated convergence blockers remain outside this story.",
+  "pitfalls": "Fresh worktrees may lack packages/main/dist, so run npm --prefix packages/main run build before invoking the dist validator directly.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 96598
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13105
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 178284
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 103027
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 141530
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 97893
+    }
+  },
+  "totalDurationMs": 630446,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T12:54:51.835Z",
+  "updatedAt": "2026-06-13T12:54:51.835Z"
+}

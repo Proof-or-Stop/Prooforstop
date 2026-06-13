@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a94f",
+  "mode": "feature",
+  "allowed": [
+    "Add gitignore protection for root authority_trust.env so secrets/trust material are not committed",
+    "Add targeted tests proving precedence, off-mode behavior, and no Authority completion overclaim",
+    "Copy the provided authority_trust.env to the Lattice CLI repository root as a local untracked secret/trust profile",
+    "Load root authority_trust.env only in Authority configuration resolution paths",
+    "Map supported trust-file aliases such as LATTICE_AUTHORITY_LIVE_URL, LATTICE_AUTHORITY_LIVE_PUBLIC_KEY, and LATTICE_AUTHORITY_CUSTOMER_API_KEY_FILE to canonical Authority settings when explicit CLI/env values are absent"
+  ],
+  "excluded": [
+    "Do not add global dotenv loading for unrelated commands",
+    "Do not commit authority_trust.env contents or any secret value",
+    "Do not mint or fake Authority receipts",
+    "Do not modify the remote Authority Server implementation",
+    "Do not override explicit CLI arguments or already exported LATTICE_AUTHORITY_* environment variables",
+    "Do not set authorityDone/fullAuthorityDone/productionDone true without verified receipt-backed Authority Server proof"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested placing /Users/jek/Documents/Work/Koala/cord-team/authority_trust.env at the Lattice CLI root and using it by default when Authority is needed.",
+  "createdAt": "2026-06-13T12:15:45.705Z",
+  "updatedAt": "2026-06-13T12:15:45.705Z",
+  "_hash": "a602b3ce8b65bde78960bffd2d167398e4edfb45d71a47459b819a6c4f217aca"
+}
