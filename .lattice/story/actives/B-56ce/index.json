@@ -1,0 +1,41 @@
+{
+  "storyId": "B-56ce",
+  "name": "cli-flow-recovery-ux-gaps",
+  "title": "Improve CLI flow recovery diagnostics for validation, stale evidence, owner lease, delivery check, and Codex aliases",
+  "description": "Fix verified CLI/process recovery UX gaps without weakening Lattice gates: timeout failures need explicit timeout/config guidance, stale verification evidence should explain hash binding drift and recovery commands, owner lease same-worktree cases need safer takeover guidance, delivery-check fallback wording must preserve reviewer signature boundaries, and unsupported lattice codex core-command namespace should suggest the ordinary lattice command. The fix must stay host-neutral and only address real correctness/flow recovery issues.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-06-13T10:06:22.391Z",
+  "startedAt": "2026-06-13T10:06:22.391Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-13T10:06:22.392Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:07:31.831Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-56ce",
+    "branch": "story/B-56ce",
+    "createdAt": "2026-06-13T10:07:31.908Z"
+  }
+}
