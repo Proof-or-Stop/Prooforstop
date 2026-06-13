@@ -1,0 +1,209 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-12f3:RR-001",
+      "storyId": "B-12f3",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "startedAt": "2026-06-13T10:24:53.158Z",
+      "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+      "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+      "promptHash": "f8f7f2fb17a1cf14cf287c365f00dc2761a9fff88b4037aa1f77f338947cb923",
+      "scopeBinding": {
+        "scopeContractHash": "d2d8a8c0cb2ec06edb12d79d1f24e4972d42102e530161f8da2d3d9ae3ad32c8",
+        "diffPackHash": "f0c4fb5df668522dc55b898d56ce3abf377e025c7a755fcdf872c469ee3734dc",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "073b30c6e096d84a9b44b6b3daea6da79186f3e48511b72825d1ca87551f3b24",
+          "37eeb9b879fc5f582afe5863fcd2f12f6317c4ca30e8a5994ae93cb380c6bbd1",
+          "5f3365067f631fdbc2fe052b0c5c78500eda8992b926af95beb517ef78789eee",
+          "a149db6eb1175ac868351e7b43f342c5ee445f9f1ac77973f985a8c325f4793d",
+          "eef7c9eaeb28501bdb9d557390733d9f1d1e47fe5b5677a72fb8031445ab08d4"
+        ],
+        "bindingHash": "aad66e3ae932456a2e3139d0da96aa5bd3ad4c67c3a45c5659e85ab8fe9e3469"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "workspaceMode": "story-worktree",
+        "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+        "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+        "bindingHash": "a2d0e93ce92e9cb574fa85a225804111e17392eff652822f4efaee2b1867ae4f"
+      },
+      "_hash": "3cd1f47b4eadb7f502ba42063019cc943deeebb543048900a1b6f5b77e0ae48d"
+    },
+    {
+      "reviewRunId": "B-12f3:RR-002",
+      "storyId": "B-12f3",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "startedAt": "2026-06-13T10:25:00.840Z",
+      "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+      "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+      "promptHash": "9ab227718112c78c5f24780387a93095196089032bf35f691bf616b34287b1b5",
+      "scopeBinding": {
+        "scopeContractHash": "d2d8a8c0cb2ec06edb12d79d1f24e4972d42102e530161f8da2d3d9ae3ad32c8",
+        "diffPackHash": "f0c4fb5df668522dc55b898d56ce3abf377e025c7a755fcdf872c469ee3734dc",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "073b30c6e096d84a9b44b6b3daea6da79186f3e48511b72825d1ca87551f3b24",
+          "37eeb9b879fc5f582afe5863fcd2f12f6317c4ca30e8a5994ae93cb380c6bbd1",
+          "5f3365067f631fdbc2fe052b0c5c78500eda8992b926af95beb517ef78789eee",
+          "a149db6eb1175ac868351e7b43f342c5ee445f9f1ac77973f985a8c325f4793d",
+          "eef7c9eaeb28501bdb9d557390733d9f1d1e47fe5b5677a72fb8031445ab08d4"
+        ],
+        "bindingHash": "aad66e3ae932456a2e3139d0da96aa5bd3ad4c67c3a45c5659e85ab8fe9e3469"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "workspaceMode": "story-worktree",
+        "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+        "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+        "bindingHash": "a2d0e93ce92e9cb574fa85a225804111e17392eff652822f4efaee2b1867ae4f"
+      },
+      "_hash": "1e1eeba7cea2a774e1300e4a207466f3ae266bc4b61df5f10b946b6c4f461913"
+    },
+    {
+      "reviewRunId": "B-12f3:RR-003",
+      "storyId": "B-12f3",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "startedAt": "2026-06-13T10:25:07.823Z",
+      "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+      "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+      "promptHash": "b495821ac7bb865226ffb0520fa8ad01361510745ab260ecb5fe926deee68db4",
+      "scopeBinding": {
+        "scopeContractHash": "d2d8a8c0cb2ec06edb12d79d1f24e4972d42102e530161f8da2d3d9ae3ad32c8",
+        "diffPackHash": "f0c4fb5df668522dc55b898d56ce3abf377e025c7a755fcdf872c469ee3734dc",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "073b30c6e096d84a9b44b6b3daea6da79186f3e48511b72825d1ca87551f3b24",
+          "37eeb9b879fc5f582afe5863fcd2f12f6317c4ca30e8a5994ae93cb380c6bbd1",
+          "5f3365067f631fdbc2fe052b0c5c78500eda8992b926af95beb517ef78789eee",
+          "a149db6eb1175ac868351e7b43f342c5ee445f9f1ac77973f985a8c325f4793d",
+          "eef7c9eaeb28501bdb9d557390733d9f1d1e47fe5b5677a72fb8031445ab08d4"
+        ],
+        "bindingHash": "aad66e3ae932456a2e3139d0da96aa5bd3ad4c67c3a45c5659e85ab8fe9e3469"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "workspaceMode": "story-worktree",
+        "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+        "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+        "bindingHash": "a2d0e93ce92e9cb574fa85a225804111e17392eff652822f4efaee2b1867ae4f"
+      },
+      "_hash": "da883a093181c61da946d91a390b87ff5518693a669ae967c26bbaf7b9c416b6"
+    },
+    {
+      "reviewRunId": "B-12f3:RR-004",
+      "storyId": "B-12f3",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "startedAt": "2026-06-13T10:26:14.937Z",
+      "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+      "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+      "promptHash": "f8f7f2fb17a1cf14cf287c365f00dc2761a9fff88b4037aa1f77f338947cb923",
+      "scopeBinding": {
+        "scopeContractHash": "d2d8a8c0cb2ec06edb12d79d1f24e4972d42102e530161f8da2d3d9ae3ad32c8",
+        "diffPackHash": "f0c4fb5df668522dc55b898d56ce3abf377e025c7a755fcdf872c469ee3734dc",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "073b30c6e096d84a9b44b6b3daea6da79186f3e48511b72825d1ca87551f3b24",
+          "37eeb9b879fc5f582afe5863fcd2f12f6317c4ca30e8a5994ae93cb380c6bbd1",
+          "5f3365067f631fdbc2fe052b0c5c78500eda8992b926af95beb517ef78789eee",
+          "a149db6eb1175ac868351e7b43f342c5ee445f9f1ac77973f985a8c325f4793d",
+          "eef7c9eaeb28501bdb9d557390733d9f1d1e47fe5b5677a72fb8031445ab08d4"
+        ],
+        "bindingHash": "aad66e3ae932456a2e3139d0da96aa5bd3ad4c67c3a45c5659e85ab8fe9e3469"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "workspaceMode": "story-worktree",
+        "headHash": "5d71299ebd64a669e217439ab77e4ece5eaddd6d",
+        "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+        "bindingHash": "a2d0e93ce92e9cb574fa85a225804111e17392eff652822f4efaee2b1867ae4f"
+      },
+      "_hash": "78d14fef6e48d341dce3cca8d7768957d5854c519f0914182927f37098f4ab70"
+    },
+    {
+      "reviewRunId": "B-12f3:RR-005",
+      "storyId": "B-12f3",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-13T10:24:31.092Z",
+      "startedAt": "2026-06-13T10:26:27.839Z",
+      "headHash": "c59b4c3340fb83b4f1d88b1c9b2cb68c1e3a6926",
+      "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+      "promptHash": "9ab227718112c78c5f24780387a93095196089032bf35f691bf616b34287b1b5",
+      "scopeBinding": {
+        "scopeContractHash": "d2d8a8c0cb2ec06edb12d79d1f24e4972d42102e530161f8da2d3d9ae3ad32c8",
+        "diffPackHash": "f0c4fb5df668522dc55b898d56ce3abf377e025c7a755fcdf872c469ee3734dc",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "073b30c6e096d84a9b44b6b3daea6da79186f3e48511b72825d1ca87551f3b24",
+          "37eeb9b879fc5f582afe5863fcd2f12f6317c4ca30e8a5994ae93cb380c6bbd1",
+          "5f3365067f631fdbc2fe052b0c5c78500eda8992b926af95beb517ef78789eee",
+          "a149db6eb1175ac868351e7b43f342c5ee445f9f1ac77973f985a8c325f4793d",
+          "eef7c9eaeb28501bdb9d557390733d9f1d1e47fe5b5677a72fb8031445ab08d4"
+        ],
+        "bindingHash": "aad66e3ae932456a2e3139d0da96aa5bd3ad4c67c3a45c5659e85ab8fe9e3469"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-12f3",
+        "workspaceMode": "story-worktree",
+        "headHash": "c59b4c3340fb83b4f1d88b1c9b2cb68c1e3a6926",
+        "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+        "bindingHash": "f9ac2ce2b889f8442df9dd990e43a57d964ed9a4a1f0ed74a2e7624724438906"
+      },
+      "_hash": "b2da3afd3df3c111237997c4051a561ff774d80627ad5a6b0f33c1042448585d"
+    }
+  ]
+}

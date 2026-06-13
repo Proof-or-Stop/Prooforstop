@@ -1,0 +1,26 @@
+{
+  "task": "Improve missing_scope_check PLAN blocker guidance",
+  "outcome": "When a PLAN review is blocked by missing_scope_check, the terminal says scope-check.json is missing PLAN gate evidence, scope_check_save already exists, a scope-plan reviewer must write it, and Authority completion still requires verified receipt proof.",
+  "facts": [
+    "B-c251 produced an audited execution plan for this implementation.",
+    "Current story_review emits missing_scope_check from packages/main/src/handlers/story-review.ts when understanding exists and scope-check.json is absent.",
+    "scope_check_save already exists and writes signed scope-check.json through packages/main/src/handlers/scope-check.ts.",
+    "CLI help schema for scope_check_save is registered in packages/main/src/cli-engine.ts.",
+    "packages/main/src/tasks/story-review-ergonomics-smoke.ts already covers story_review ergonomics and can host a targeted regression assertion.",
+    "authority_status reports authorityMode=off, authorityReady=false, receiptVerified=false, productionDone=false, so Authority completion must fail closed without receipt-backed proof."
+  ],
+  "constraints": [
+    "Do not weaken PLAN review gates.",
+    "Do not auto-generate scope-check.json or allow main-agent self-signing.",
+    "Do not confuse scope_contract_check with scope_check_save.",
+    "Do not claim receiptVerified, authorityDone, productionDone, or fullAuthorityDone without verified Authority Server receipt evidence.",
+    "Keep the change narrow and only fix the real guidance/actionability issue."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+  ],
+  "timestamp": "2026-06-13T10:13:45.075Z"
+}

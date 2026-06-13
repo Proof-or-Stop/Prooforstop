@@ -1,0 +1,68 @@
+{
+  "storyId": "B-12f3",
+  "checkedAt": "2026-06-13T10:34:06.496Z",
+  "reviewRound": "2026-06-13T10:24:31.092Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "promise": "missing_scope_check guidance must explain missing scope-check.json PLAN evidence, the existing scope_check_save command, reviewer-written scope-plan evidence, no main-agent self-sign/manual metadata edit, no scope_contract_check substitute, and no Authority completion claim.",
+      "status": "verified",
+      "verifiedBy": "manual source/doc review plus targeted smoke",
+      "evidence": "packages/main/src/handlers/story-review.ts message names scope-check.json, scope_check_save, scope-plan reviewer, no self-sign/manual metadata edit, and non-Authority boundary; story-review-ergonomics-smoke PASS asserts positive and negative constraints."
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-review.ts",
+      "promise": "story_review missing_scope_check emits the improved actionable blocker text without weakening scope-check signature or review-round verification semantics.",
+      "status": "verified",
+      "verifiedBy": "git diff and smoke test",
+      "evidence": "Diff changes only the missing_scope_check message; surrounding scopeData hash/reviewRound checks remain intact; node packages/main/dist/tasks/story-review-ergonomics-smoke.js PASS."
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts",
+      "promise": "scope_check_save help identifies reviewer-written PLAN scope evidence consumed by story_review and intended for scope-plan reviewers.",
+      "status": "verified",
+      "verifiedBy": "CLI help output",
+      "evidence": "node packages/main/dist/cli.js scope_check_save --help prints: Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for koala-review-scope-plan/scope-plan reviewers."
+    },
+    {
+      "docPath": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+      "promise": "targeted smoke covers the missing_scope_check message path and negative constraints for scope_contract_check remediation, self-signing language, and Authority overclaim terms.",
+      "status": "verified",
+      "verifiedBy": "targeted smoke execution",
+      "evidence": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js PASS; source asserts scope-check.json/scope_check_save/scope-plan reviewer and rejects scope_contract_check plus receiptVerified/authorityDone/productionDone/fullAuthorityDone terms."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md",
+      "promise": "Local CLI evidence and status surfaces remain Non-authority diagnostics; production/full Authority completion requires verified receipt-backed proof and must fail closed without it.",
+      "status": "verified",
+      "verifiedBy": "authority status and dry-run",
+      "evidence": "lattice authority_status --json reports mode off, status not-configured, receiptVerified=false, productionDone=false, canClaimProductionDone=false; lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json reports status fail, authorityDone=false, fullAuthorityDone=false, receipt.provided=false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Inspection evidence verified the canonical story_review missing_scope_check source, existing scope_check_save/help surfaces, command ownership distinction that scope_check_save is PLAN-only evidence, and authority_status not-configured with receipt/production flags false."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reviewed source diff and live help output. The missing_scope_check message names scope-check.json missing PLAN gate evidence, existing scope_check_save, scope-plan reviewer-written evidence, no main-agent self-sign/manual metadata edit, and Non-authority boundary. scope_check_save --help identifies reviewer-written PLAN scope evidence consumed by story_review."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Ran node packages/main/dist/tasks/story-review-ergonomics-smoke.js: PASS. The smoke asserts positive guidance and negative constraints for scope_contract_check remediation, self-signing language, and Authority overclaim terms."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Ran npm --prefix packages/main run build: PASS; lattice validate --story=B-12f3 --json: PASS with 12/12 verification coverage and npm test PASS; lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json: fail-closed with authorityDone=false, fullAuthorityDone=false, receipt.provided=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Accepted. Delivery is tightly scoped to missing_scope_check and scope_check_save guidance plus a targeted smoke. Edge/adversarial coverage checks reviewer-written PLAN scope evidence, rejects scope_contract_check substitution, blocks self-sign/manual metadata guidance, and preserves the Non-authority boundary without unresolved implementation TODOs."
+  },
+  "_hash": "45fab3711e16f6fa365afa5f8a4ae155fe53360e4f1af295630d27f802ed951c"
+}

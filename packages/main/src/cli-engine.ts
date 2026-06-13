@@ -1675,7 +1675,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // Scope Check (B-d4d1: scope agent writes signed scope-check.json)
-  { name: 'scope_check_save', description: '保存 scope check 结果（由 scope agent 调用）', schema: {
+  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for koala-review-scope-plan/scope-plan reviewers.', schema: {
     storyId: z.string().describe('Story ID'),
     features: z.array(z.object({
       feature: z.string(),

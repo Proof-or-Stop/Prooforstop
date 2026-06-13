@@ -1,0 +1,304 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inspect existing missing_scope_check and scope_check_save guidance surfaces",
+      "context": "Identify the narrow canonical touchpoints for story_review blocker text, session guidance, and command help without changing gate semantics. Also record Authority readiness status and fail-closed behavior when Authority is not configured.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-13T10:22:10.467Z",
+      "endTime": "2026-06-13T10:22:27.903Z",
+      "userSees": "Terminal evidence includes: \"missing_scope_check source: packages/main/src/handlers/story-review.ts\"; \"scope_check_save help: available\"; \"Authority status: not-configured, receiptVerified=false, productionDone=false\".",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspection identifies the exact existing story_review missing_scope_check message source and existing scope_check_save command/help surfaces.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inspection distinguishes scope_check_save PLAN evidence from later scope_contract_check guards.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inspection records Authority readiness as not configured and does not claim Authority completion from local CLI evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"missing_scope_check|scope-check\\\\.json|scope_check_save\" packages/main/src/handlers/story-review.ts packages/main/src/cli-engine.ts packages/main/src/handlers/scope-check.ts",
+          "result": "pass",
+          "note": "Inspection identifies story-review.ts as the missing_scope_check source and confirms scope_check_save handler/help surfaces exist.",
+          "headHash": "f595214fd5879fdc641080a3efe6f0fa9c0b5847",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:15.257Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"scope_check_save allowedPhases: PLAN|scope_contract_acknowledge must NOT cover PLAN|scope_check_save must NOT be broadened\" packages/main/src/tasks/command-ownership-contract.ts",
+          "result": "pass",
+          "note": "Inspection confirms scope_check_save remains PLAN evidence and scope_contract_acknowledge/scope_contract_check are not substitutes for PLAN scope_check_save.",
+          "headHash": "0a39e88a26917bcb0daedb793b8744ee23e2195d",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:20.049Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice authority_status --json",
+          "result": "pass",
+          "note": "Authority status reports mode off/not-configured, receiptVerified=false, productionDone=false, so local CLI evidence cannot claim Authority completion.",
+          "headHash": "9c5826913b22d7e45510224ff2cfa4dd138b11b1",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:24.243Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement narrow missing_scope_check guidance improvements",
+      "context": "Update only the surfaces needed to explain scope-check.json, scope_check_save, reviewer-written evidence, and Non-authority boundaries. Do not add auto-generation, self-signing, or Authority overclaim behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-13T10:22:33.809Z",
+      "endTime": "2026-06-13T10:22:52.561Z",
+      "userSees": "Terminal output for a missing scope check includes: \"PLAN review is blocked because scope-check.json is missing\"; \"scope_check_save already exists\"; \"run a scope-plan reviewer\"; \"local CLI guidance is not Authority Server completion\".",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_review missing_scope_check guidance mentions missing scope-check.json, existing scope_check_save, and scope-plan reviewer-written evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "scope_check_save help clarifies reviewer-written PLAN gate evidence without changing command schema or allowed phase semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guidance does not instruct the main implementation agent to self-sign, manually edit story metadata, or claim Authority receipt verification/production completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "MSG=$(sed -n '378p' packages/main/src/handlers/story-review.ts); printf '%s\\\\n' \"$MSG\" | rg -q 'scope-check\\\\.json is missing PLAN gate evidence' && printf '%s\\\\n' \"$MSG\" | rg -q 'scope_check_save.*already exists' && printf '%s\\\\n' \"$MSG\" | rg -q 'koala-review-scope-plan / scope-plan reviewer'",
+          "result": "pass",
+          "note": "The implemented missing_scope_check message names the missing scope-check.json artifact, existing scope_check_save command, and reviewer-written evidence path.",
+          "headHash": "3e42f7810aa29d57ab21704982cdd780c74e9349",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:39.219Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js scope_check_save --help | rg -n \"reviewer-written PLAN scope evidence|scope-check\\\\.json|story_review|koala-review-scope-plan|scope-plan reviewers\"",
+          "result": "pass",
+          "note": "scope_check_save help clarifies reviewer-written PLAN scope evidence consumed by story_review without changing schema.",
+          "headHash": "419144dbce725516aadbe6692dbf40c807c04178",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:43.889Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "MSG=$(sed -n '378p' packages/main/src/handlers/story-review.ts); printf '%s\\\\n' \"$MSG\" | rg -q 'implementation/main agent must not self-sign' && ! printf '%s\\\\n' \"$MSG\" | rg -q 'scope_contract_check|receiptVerified|authorityDone|productionDone|fullAuthorityDone'",
+          "result": "pass",
+          "note": "The guidance forbids main-agent self-signing/manual metadata editing and avoids exact Authority completion flag claims.",
+          "headHash": "d8b50267b1b16859ef93c835f21bf7b3952ff486",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:49.042Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add targeted tests or smokes for the improved guidance",
+      "context": "Cover the actionable message and negative cases for self-signing, gate weakening, and Authority overclaim. Prefer targeted message-path tests over broad lifecycle rewrites.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-13T10:22:58.266Z",
+      "endTime": "2026-06-13T10:23:19.936Z",
+      "userSees": "Smoke output includes: \"✓ story review ergonomics smoke passed\" and fails if the missing_scope_check message omits scope-check.json/scope_check_save or contains self-signing or Authority overclaim wording.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A targeted story-review ergonomics smoke covers the missing_scope_check message path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke protects the distinction between scope_check_save and scope_contract_check remediation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke contains negative assertions against self-signing language and Authority overclaim terms in the local guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Targeted story-review ergonomics smoke now covers the missing_scope_check message path and passes.",
+          "headHash": "5f40bd57c8d9b5bfbd2310d5fbed044469f1a79b",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:03.394Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "command": "rg -n \"scope_contract_check\" packages/main/src/tasks/story-review-ergonomics-smoke.ts && node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes a negative assertion that missing_scope_check guidance does not point to scope_contract_check as remediation, and the smoke passes.",
+          "headHash": "f6fafaac7e2b898267999cbc1f487072af9502c8",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:10.291Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "command": "rg -n \"receiptVerified|authorityDone|productionDone|fullAuthorityDone|self-sign\" packages/main/src/tasks/story-review-ergonomics-smoke.ts && node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes negative assertions against self-signing language and exact Authority overclaim flags, and the smoke passes.",
+          "headHash": "3aaea2334367899a2a349850e47c069f264822dd",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:15.546Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Run Authority-enforced review, validation, delivery, summary, and DONE closure",
+      "context": "Complete local Lattice lifecycle only as Non-authority evidence unless a verified Authority gate_decision receipt is available. In Authority mode, DONE must fail closed without receipt-backed Authority proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-13T10:23:26.169Z",
+      "endTime": "2026-06-13T10:23:48.193Z",
+      "userSees": "Authority dry-run output includes: \"status: fail\"; \"authorityDone: false\"; \"fullAuthorityDone: false\"; \"receipt.provided: false\"; and next actions for customer API key, actor key, runner id, and gate_decision receipt.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Authority status and authority-mode dry-run evidence show fail-closed behavior without configured Authority readiness or receipt proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Local lifecycle validation remains usable as Non-authority evidence while Authority completion remains blocked without verified receipt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE summary and delivery materials must not claim receiptVerified, authorityDone, productionDone, or fullAuthorityDone unless receipt-backed proof is actually verified.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json",
+          "result": "pass",
+          "note": "Authority dry-run fails closed without configured Authority readiness or receipt proof: status=fail, authorityDone=false, fullAuthorityDone=false, receipt.provided=false.",
+          "headHash": "9c22f7f406f29dcc5660e5bf15879a34893fdaa7",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:31.818Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Local build and targeted smoke pass as Non-authority evidence while Authority dry-run remains blocked without verified receipt proof.",
+          "headHash": "e524aa175238f32a295ff34f160e87ccab2b2d53",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:36.551Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "lattice authority_status --json && lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json",
+          "result": "pass",
+          "note": "Authority status and dry-run keep receiptVerified=false, productionDone=false, authorityDone=false, and fullAuthorityDone=false without receipt-backed proof; delivery and summary must preserve this boundary before DONE.",
+          "headHash": "9a1a2e5a90c0db77bebe09c7e278587b31a24b8a",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:42.626Z"
+        }
+      ]
+    }
+  ]
+}
