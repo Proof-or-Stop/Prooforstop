@@ -28,7 +28,6 @@ const pkgRoot = join(here, '..', '..');
 const NEUTRAL_TOKEN_PATTERNS: RegExp[] = [
   // Legacy env var names (process tokens — preserved by design).
   /KOALA_\*/g,
-  /KOALA_/g,
   /\bKOALA_[A-Z0-9_]+\b/g,
   // koala-codex / koala-review-* / koala-implementer / etc. are process lanes.
   /\bkoala-(?:codex|review[a-z-]*|implementer|reviewer|eval[a-z-]*|delivery|init|agent|story[a-z-]*)\b/gi,

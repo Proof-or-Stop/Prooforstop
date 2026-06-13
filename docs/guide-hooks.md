@@ -178,7 +178,7 @@ Lattice 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPr
 ## 调试
 
 - hook 没触发？跑 `lattice doctor` 看 health.jsonl 里有没有 `hook:exec` / `hook:timeout` / `hook:resolve` 条目
-- hook 没拿到环境变量？hook 命令开头加 `env | grep KOALA_ > /tmp/lattice-env-debug.txt`
+- hook 没拿到环境变量？hook 命令开头加 `env | sort > /tmp/lattice-env-debug.txt`
 - hook 输出污染主命令？看 stdout 是不是回了非空字符串——postCommand 应该把日志写文件而不是 stdout
 
 ## 不支持的场景
