@@ -7,10 +7,41 @@
       "relatedDocs": [
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "userSees": "node packages/main/dist/tasks/cli-validate.js prints PASSED: All task annotations are valid.",
+      "userSees": "Terminal output includes \"PASSED: All task annotations are valid.\" from node packages/main/dist/tasks/cli-validate.js.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "packages/main/dist/tasks/cli-engine-branding-smoke.js"
+        ],
+        "create": [],
+        "test": [
+          "scripts/validate-tasks.js",
+          "packages/main/dist/tasks/cli-validate.js"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After adding @changes, the dist annotation validator accepts all task annotations and prints the exact PASSED line.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The source validator also accepts the same @changes metadata, proving the fix is in source and not only generated dist.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence_check no longer reports the previous missing @changes annotation error for cli-engine-branding-smoke.ts.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
