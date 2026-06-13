@@ -10,9 +10,9 @@
         "docs/requirements/decisions/annotation-system.md"
       ],
       "userSees": "The document opens with \"# CLI Engine English Open-Source Surface Execution Plan\" and includes a \"Translation Review Table\" section.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T13:19:38.692Z",
-      "endTime": null,
+      "endTime": "2026-06-13T13:22:51.111Z",
       "files": {
         "modify": [],
         "create": [
@@ -48,6 +48,38 @@
         "Do not run omx or read/write/use .omx/.",
         "Do not directly edit docs/story/ or packages/main/tests/fixtures/.",
         "Do not translate README or the wider docs set in this story; only create the review execution document."
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "test -f docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md && rg -n \"English-Only Policy|Execution Phases|Reviewer Checklist\" docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "result": "pass",
+          "note": "The new execution document exists and contains the required English-only policy, staged execution plan, and reviewer checklist sections.",
+          "headHash": "33f5749a4004020bfdaeec4833226d181c5b0761",
+          "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
+          "timestamp": "2026-06-13T13:22:51.159Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Chinese source|Proposed English|packages/main/src/cli-engine.ts|Translation Review Table\" docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes the cli-engine.ts source reference and a Translation Review Table with Chinese source and Proposed English columns.",
+          "headHash": "33f5749a4004020bfdaeec4833226d181c5b0761",
+          "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
+          "timestamp": "2026-06-13T13:22:51.203Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only main...HEAD",
+          "result": "pass",
+          "note": "Observed change set contains B-8448 metadata and docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md only; packages/main/src/cli-engine.ts and docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md were not modified.",
+          "headHash": "33f5749a4004020bfdaeec4833226d181c5b0761",
+          "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
+          "timestamp": "2026-06-13T13:22:51.242Z"
+        }
       ]
     }
   ],
@@ -60,6 +92,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin writing the reviewable English translation execution plan document."
+    },
+    {
+      "timestamp": "2026-06-13T13:22:51.111Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Execution document committed and verification checks passed."
     }
   ]
 }
