@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-decb",
+  "allowedCommands": [
+    "bash",
+    "cat",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg",
+    "sed",
+    "zsh"
+  ],
+  "allowedTools": [
+    "functions.exec_command"
+  ],
+  "allowedPaths": [
+    "docs/guide.md",
+    "package.json",
+    "packages/main/package.json",
+    "README.md",
+    "scripts/package-desktop.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout",
+    "git clean",
+    "git push",
+    "git reset",
+    "npm publish",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".git",
+    ".lattice",
+    "dist",
+    "node_modules"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "本story限定于命名统一的小改动，不包含发布流程的脚本增强。",
+  "createdAt": "2026-06-13T14:21:37.035Z",
+  "updatedAt": "2026-06-13T14:21:37.035Z",
+  "_hash": "306ec34deb7d9742be68d7eb0274df37bcce91d8f2886c573f4a2084dc9d74ee"
+}

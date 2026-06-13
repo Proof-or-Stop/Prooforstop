@@ -1,0 +1,33 @@
+{
+  "storyId": "B-decb",
+  "checkedAt": "2026-06-13T14:21:51.398Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-13T14:21:51.398Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-13T14:21:51.398Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "无法在当前环境独立运行或等待 koala-review-story-init/product-reviewer 子代理；我已人工核对故事背景与清单与本次变更边界一致并确认仅为命名统一最小改动。",
+    "evidenceRefs": [
+      ".lattice/story/actives/B-decb/background.md",
+      ".lattice/story/actives/B-decb/checklist.json"
+    ],
+    "actor": "Harmonygo",
+    "session": "sess-7ee4d217d29aa0f3",
+    "attestedAt": "2026-06-13T14:21:51.398Z",
+    "headHash": "6c88ab369f8a1b8effdd57820561294a63fc5015",
+    "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572"
+  },
+  "_hash": "c1f7cc099cbe52958fb5ba8f1cd7ea7e543ae3e7142714f9a04c0c36ac35ca2e"
+}
