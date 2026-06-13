@@ -80,7 +80,7 @@
       "desc": "docs/guide-hooks.md still presents Koala wording as current Hook user-facing docs after F-004. Evidence: docs/guide-hooks.md:3 says hooks are configured in koala.config.json rather than lattice.config.json; docs/guide-hooks.md:45 instructs users to add hooks to koala.config.json; docs/guide-hooks.md:91 describes KOALA_COMMAND as the koala command name; docs/guide-hooks.md:93 describes KOALA_ROOT as the koala project root. Remaining koala hits should be explicit legacy/config/env/path/process/example compatibility, but these lines still make Koala read as the current product naming.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-13T11:14:48.292Z",
@@ -89,7 +89,9 @@
       "_hash": "926ffc3eb8862b1feae52b88f802b8ade1f51e6c3590c59e9f309049fe9032e5",
       "files": [
         "docs/guide-hooks.md"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit 9d25478e0: docs/guide-hooks.md now presents lattice.config.json as current hook config and koala.config.json only as legacy fallback; KOALA_COMMAND and KOALA_ROOT descriptions now say legacy env var names for current Lattice command/project root.",
+      "resolvedAt": "2026-06-13T11:22:40.167Z"
     },
     {
       "id": "B-3cca:F-006",
