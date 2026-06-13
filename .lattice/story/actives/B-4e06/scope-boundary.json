@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4e06",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add an audited repair path for stories with verificationEvidence but missing verificationIntent.",
+    "Add smoke and regression coverage for the repair path, bootstrap path, and current help-command health.",
+    "Fix INIT_CHECK worktree bootstrap to use configured gitRoot and signed workspace resolution.",
+    "Improve story_review and validate diagnostics for evidence-without-intent legacy stories.",
+    "Update requirements documentation when the implemented behavior differs from the plan."
+  ],
+  "excluded": [
+    "Do not allow automatic mutation of DONE or DISCARDED stories.",
+    "Do not broaden this story into unrelated adapter or production-readiness work.",
+    "Do not change sourceManifestDigest implementation unless the help import issue reproduces again.",
+    "Do not let verificationEvidence silently satisfy missing verificationIntent for normal stories.",
+    "Do not modify ClawCreek application code or edit ClawCreek story JSON directly."
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved creating a Lattice story from the execution document; P3 sourceManifestDigest issue is verified and excluded for now.",
+  "createdAt": "2026-06-13T13:42:18.937Z",
+  "updatedAt": "2026-06-13T13:42:18.937Z",
+  "_hash": "72843322666dc7aa87ff2224eb572459757fe0aedea6d857fd509f0ad473322e"
+}
