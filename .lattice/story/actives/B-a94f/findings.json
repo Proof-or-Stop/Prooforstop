@@ -52,6 +52,23 @@
         "packages/main/src/handlers/lattice-cli.ts",
         "packages/main/src/tasks/authority-status-smoke.ts"
       ]
+    },
+    {
+      "id": "B-a94f:F-004",
+      "desc": "conduit_status violates the off-mode zero-I/O boundary by calling resolveAuthorityCustomerApiKey after loadAuthorityConfig has correctly short-circuited off mode.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T12:58:37.564Z",
+      "reviewRound": "2026-06-13T12:55:05.110Z",
+      "reviewRunId": "B-a94f:RR-005",
+      "_hash": "26a29d12c29de146d4a961fe2cb7cc267d8337d646e6bbe6bea7f9a463a1d69b",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
     }
   ]
 }
