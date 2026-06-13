@@ -276,6 +276,16 @@
           "headHash": "9c22f7f406f29dcc5660e5bf15879a34893fdaa7",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:23:31.818Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Local build and targeted smoke pass as Non-authority evidence while Authority dry-run remains blocked without verified receipt proof.",
+          "headHash": "e524aa175238f32a295ff34f160e87ccab2b2d53",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:36.551Z"
         }
       ]
     }
