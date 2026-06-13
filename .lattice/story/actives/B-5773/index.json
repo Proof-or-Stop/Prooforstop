@@ -4,7 +4,7 @@
   "title": "Standardize cli-engine English translation manifest (glossary, CLI style, behavior-safe regex)",
   "description": "Follow-up to B-8448. The cli-engine English execution plan's 762-row translation manifest (docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md) is complete but its proposedEnglish drafts are not internally consistent: core terms vary (blocked/forbidden/excluded, source of truth vs truth source, round vs iteration, Story/story), some command descriptions are too long for the lattice help list (longest 218 chars), wrapped multi-line source lines are translated as disjoint fragments (M004/M005), and several rows are not prose but behavior-sensitive regex code (M668/M669 match Chinese strings at runtime). This story establishes a fixed English glossary + CLI style guide and applies it across all 762 manifest rows and the T-table catalog, shortens over-long command descriptions, defines a wrapped-source merge rule, and isolates behavior-sensitive rows so they are gated with tests rather than treated as translation. The term 'real-machine tests' is kept as-is (established code identifier realMachineTests, 37 references). No cli-engine.ts source is changed; the deliverable remains the reviewable plan document, rows stay review-draft.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "english",
@@ -78,6 +78,14 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-06-13T19:28:41.776Z",
+      "branch": "story/B-5773",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T19:33:18.478Z",
       "branch": "story/B-5773",
       "user": "Harmonygo",
       "agent": "main"
