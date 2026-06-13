@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5773",
+  "mode": "maintenance",
+  "allowed": [
+    "Define and apply a wrapped-source merge rule for multi-line source (e.g. M004/M005)",
+    "Edit docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md: add an English glossary + CLI style guide section",
+    "Shorten over-long command-description rows, moving rules to schema/longHelp wording",
+    "Tag behavior-sensitive regex rows (e.g. M668/M669) as requiring test updates",
+    "Unify terminology in proposedEnglish across the 762-row manifest and the T-table catalog (T/M kept consistent)"
+  ],
+  "excluded": [
+    "Changing the manifest row count or the chineseSource/sourceLine columns",
+    "Modifying packages/main/src/cli-engine.ts or any source code",
+    "Performing the actual cli-engine.ts translation (deferred to a later implementation story)",
+    "Renaming the code identifier realMachineTests (real-machine tests kept as-is)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User reviewed the B-8448 deliverable with 20 structural suggestions on 2026-06-13 and approved creating this story as proposed at medium priority; chose to keep real-machine tests unchanged.",
+  "createdAt": "2026-06-13T18:56:50.213Z",
+  "updatedAt": "2026-06-13T18:56:50.213Z",
+  "_hash": "c15966772561e2db2fc77be6baad778d0cfdee18aeb2361a87a799b6caa8084f"
+}
