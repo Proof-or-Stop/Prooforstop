@@ -152,6 +152,26 @@
           "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
           "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
           "timestamp": "2026-06-13T13:51:42.963Z"
+        },
+        {
+          "intentRef": "CHK-002:fail_closed:codex_session_brief_transcript",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js codex session_brief --help",
+          "result": "pass",
+          "note": "Actual fail-closed transcript observed exit code 1 with text: Unsupported command: lattice codex session_brief. The Codex adapter namespace only supports: lattice codex verify, lattice codex doctor. Use the ordinary command instead: lattice session_brief.",
+          "headHash": "c36023a9a2b1b1064db1b129ece295f9d9df0746",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:57:47.396Z"
+        },
+        {
+          "intentRef": "CHK-002:fail_closed:codex_aux_doc_list_transcript",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js codex aux_doc_list --help",
+          "result": "pass",
+          "note": "Actual fail-closed transcript observed exit code 1 with text: Unsupported command: lattice codex aux_doc_list. The Codex adapter namespace only supports: lattice codex verify, lattice codex doctor. Use the ordinary command instead: lattice aux_doc_list.",
+          "headHash": "c36023a9a2b1b1064db1b129ece295f9d9df0746",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:57:47.396Z"
         }
       ]
     },
@@ -312,6 +332,26 @@
           "headHash": "33644b9f94656fc95c3c2745c44e02a85f797ada",
           "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
           "timestamp": "2026-06-13T13:51:42.963Z"
+        },
+        {
+          "intentRef": "CHK-004:fail_closed:codex_session_brief_transcript",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js codex session_brief --help",
+          "result": "pass",
+          "note": "Actual fail-closed transcript observed exit code 1 with text: Unsupported command: lattice codex session_brief. The Codex adapter namespace only supports: lattice codex verify, lattice codex doctor. Use the ordinary command instead: lattice session_brief.",
+          "headHash": "c36023a9a2b1b1064db1b129ece295f9d9df0746",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:57:47.396Z"
+        },
+        {
+          "intentRef": "CHK-004:fail_closed:codex_aux_doc_list_transcript",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js codex aux_doc_list --help",
+          "result": "pass",
+          "note": "Actual fail-closed transcript observed exit code 1 with text: Unsupported command: lattice codex aux_doc_list. The Codex adapter namespace only supports: lattice codex verify, lattice codex doctor. Use the ordinary command instead: lattice aux_doc_list.",
+          "headHash": "c36023a9a2b1b1064db1b129ece295f9d9df0746",
+          "materialHash": "786be11b143e24734c42b17fe64490d5ffa0418f1b1b8be08ef8be40b8885ed0",
+          "timestamp": "2026-06-13T13:57:47.396Z"
         }
       ]
     }
