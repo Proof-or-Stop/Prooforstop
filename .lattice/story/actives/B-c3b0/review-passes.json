@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-13T12:43:26.573Z",
       "reviewRunId": "B-c3b0:RR-011",
       "_hash": "b318d1a97c04995a3d1a9b65907deaa2fa42a24dfa5d12ed5894e1aa9d638299"
+    },
+    {
+      "id": "B-c3b0:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage adequate: fresh smoke passes; predicate covers packages/main/src, package metadata, root and package-local lockfiles; helper covers skip/success/failure messaging; done_recover smoke covers runtime success, docs-only skip, and failure after cleanup. Residual advisory: normal DONE runtime-change success/failure is helper-level rather than full e2e.",
+      "createdAt": "2026-06-13T12:52:27.908Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-013",
+      "_hash": "2961af9ac140367bf446b1c24a4fa2a67207a1fbd05a848c5d26f90a522a1f9c"
     }
   ]
 }
