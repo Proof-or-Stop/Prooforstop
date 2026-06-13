@@ -1,0 +1,135 @@
+{
+  "findings": [
+    {
+      "id": "B-3cca:F-001",
+      "desc": "The branding smoke has a false negative: packages/main/src/cli-engine.ts:3353 still says \"runCli — koala CLI 运行时入口\", and packages/main/src/tasks/cli-engine-branding-smoke.ts:55 classifies any line matching /koala CLI/ as allowed. The new npm smoke passes (src unclassified=0 dist unclassified=0), so this scoped cleanup can leave a current CLI-engine branding remnant undetected. Narrow the allowlist to explicit legacy alias contexts or update the source/dist comment so the smoke fails on real Koala-branding remnants.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T10:49:39.175Z",
+      "reviewRound": "2026-06-13T10:47:51.054Z",
+      "reviewRunId": "B-3cca:RR-001",
+      "_hash": "ce25fe208c5bce45ade84c88a244766251c87d714c1e8c5285698d092a1f11a0",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Fixed in commit 88f311664: runCli runtime comment now says Lattice CLI; the broad koala CLI allowlist was removed; branding smoke now scans cli-engine and hooks src/dist and passes with all unclassified counts at 0.",
+      "resolvedAt": "2026-06-13T10:57:40.108Z"
+    },
+    {
+      "id": "B-3cca:F-002",
+      "desc": "Second hook branding fix is partial: cli-engine now announces [lattice-hook] at packages/main/src/cli-engine.ts:3771,3818,3839, but the shared hook runner it immediately calls still emits [koala-hook] diagnostics at packages/main/src/core/hooks.ts:212,220,229,231,241,242 for internal error, timeout, failure, stderr, and success-with-stdout. Those are current CLI stderr lines a user can see, not legacy aliases or reviewer/process tokens, so hook output can still present Koala as the product identity. Migrate those hook-runner labels to Lattice or explicitly justify them as preserved legacy compatibility with evidence.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T10:50:06.271Z",
+      "reviewRound": "2026-06-13T10:47:51.054Z",
+      "reviewRunId": "B-3cca:RR-002",
+      "_hash": "9fc4212ba06258b1abd91315eccffffe28b07193c31be02246b6fc32e2baa880",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/hooks.ts"
+      ],
+      "resolvedReason": "Fixed in commit 88f311664: shared hook runner diagnostics in packages/main/src/core/hooks.ts now emit [lattice-hook]; docs/guide-hooks.md was synced; branding smoke now includes hooks src/dist so this cannot regress silently.",
+      "resolvedAt": "2026-06-13T10:57:45.921Z"
+    },
+    {
+      "id": "B-3cca:F-003",
+      "desc": "packages/main/src/tasks/cli-engine-branding-smoke.ts:51 still classifies any line matching legacy.*koala or koala.*legacy. Because classification is line-level, a future user-visible current-product phrase such as \"legacy cleanup: Koala is the current CLI\" would be excluded from the unclassified count solely due to the word legacy. This leaves a hidden broad allowlist in the adversarial branding smoke; replace it with exact legacy annotations/tokens used by current source lines.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T11:00:28.424Z",
+      "reviewRound": "2026-06-13T10:57:27.947Z",
+      "reviewRunId": "B-3cca:RR-005",
+      "_hash": "22590ae5933f7428a70b6f70aea0a68865a381bda2af177732a0fcb677abd08e",
+      "files": [
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 202077355: removed the broad legacy.*koala/koala.*legacy allowlist and replaced it with exact legacy alias patterns; npm --prefix packages/main run build and npm --prefix packages/main run test:cli-engine-branding-smoke passed with all unclassified counts at 0.",
+      "resolvedAt": "2026-06-13T11:03:17.242Z"
+    },
+    {
+      "id": "B-3cca:F-004",
+      "desc": "F-003 broad allowlist itself is fixed: packages/main/src/tasks/cli-engine-branding-smoke.ts:50-53 now uses exact legacy alias patterns instead of legacy.*koala/koala.*legacy. But the hook guide still contains current-product/user-facing Koala wording that this story should clean: docs/guide-hooks.md:1 titles the guide \"koala Hooks 指南\", docs/guide-hooks.md:3 says \"koala 在每条命令...\" and calls it the koala framework, docs/guide-hooks.md:7 says \"Koala 初始化\", docs/guide-hooks.md:30 instructs users to run \"koala session_brief\", docs/guide-hooks.md:180 instructs \"koala doctor\", and docs/guide-hooks.md:192 describes koala self-observation. The smoke passes because FILES_TO_AUDIT is limited to cli-engine/hooks src/dist at packages/main/src/tasks/cli-engine-branding-smoke.ts:99-104, so this user-visible hook documentation branding gap is not caught.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T11:05:09.003Z",
+      "reviewRound": "2026-06-13T11:02:30.634Z",
+      "reviewRunId": "B-3cca:RR-007",
+      "_hash": "b9e7e633789a94501c2b00d9df18f742a42757db68961dde08383a5959f1f2a4",
+      "files": [
+        "docs/guide-hooks.md",
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit ce395d900: docs/guide-hooks.md now uses Lattice/lattice for current-product hook guide wording, preserving only explicit compatibility/config/env/path/example Koala tokens; cli-engine-branding-smoke now audits docs/guide-hooks.md and reports guide-hooks doc unclassified=0 after build and smoke rerun.",
+      "resolvedAt": "2026-06-13T11:12:55.043Z"
+    },
+    {
+      "id": "B-3cca:F-005",
+      "desc": "docs/guide-hooks.md still presents Koala wording as current Hook user-facing docs after F-004. Evidence: docs/guide-hooks.md:3 says hooks are configured in koala.config.json rather than lattice.config.json; docs/guide-hooks.md:45 instructs users to add hooks to koala.config.json; docs/guide-hooks.md:91 describes KOALA_COMMAND as the koala command name; docs/guide-hooks.md:93 describes KOALA_ROOT as the koala project root. Remaining koala hits should be explicit legacy/config/env/path/process/example compatibility, but these lines still make Koala read as the current product naming.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T11:14:48.292Z",
+      "reviewRound": "2026-06-13T11:12:44.397Z",
+      "reviewRunId": "B-3cca:RR-010",
+      "_hash": "926ffc3eb8862b1feae52b88f802b8ade1f51e6c3590c59e9f309049fe9032e5",
+      "files": [
+        "docs/guide-hooks.md"
+      ],
+      "resolvedReason": "Fixed in commit 9d25478e0: docs/guide-hooks.md now presents lattice.config.json as current hook config and koala.config.json only as legacy fallback; KOALA_COMMAND and KOALA_ROOT descriptions now say legacy env var names for current Lattice command/project root.",
+      "resolvedAt": "2026-06-13T11:22:40.167Z"
+    },
+    {
+      "id": "B-3cca:F-006",
+      "desc": "F-004 fix is incomplete: docs/guide-hooks.md still presents Koala as current product wording in hook documentation, and the branding smoke only passes because the docs audit has broad allowlist entries for koala.config and .koala paths. Evidence: docs/guide-hooks.md:3 tells users to configure hooks in koala.config.json, docs/guide-hooks.md:91 and docs/guide-hooks.md:93 describe KOALA_COMMAND/KOALA_ROOT as koala command/project rather than Lattice, docs/guide-hooks.md:104 says health issues are appended to ~/.koala/health.jsonl, while packages/main/src/tasks/cli-engine-branding-smoke.ts:29 allows any koala.config line and packages/main/src/tasks/cli-engine-branding-smoke.ts:31 allows any .koala line. Repro: npm --prefix packages/main run test:cli-engine-branding-smoke passes with guide-hooks doc unclassified=0 despite these user-facing remnants.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T11:14:57.471Z",
+      "reviewRound": "2026-06-13T11:12:44.397Z",
+      "reviewRunId": "B-3cca:RR-011",
+      "_hash": "8adb98e1ce3f5fb6376b510bb56541268ec81200b89ac577b05b3af5f72150ae",
+      "files": [
+        "docs/guide-hooks.md",
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 9d25478e0: docs/guide-hooks.md marks .koala health/activity paths as legacy runtime/mirror paths, and cli-engine-branding-smoke no longer allowlists whole lines for koala.config or .koala; it strips contextual legacy tokens then fails on remaining koala/Koala text.",
+      "resolvedAt": "2026-06-13T11:22:53.375Z"
+    },
+    {
+      "id": "B-3cca:F-007",
+      "desc": "Test coverage for F-004 is still a false negative for full branding cleanup: npm --prefix packages/main run test:cli-engine-branding-smoke passes and reports guide-hooks doc unclassified=0, but docs/guide-hooks.md still has user-facing current-product Koala wording at line 3 (configure hooks in koala.config.json), line 45 (add hooks field to koala.config.json), line 91 (KOALA_COMMAND is described as koala command name), and line 93 (KOALA_ROOT is described as koala project root). The smoke misses these because packages/main/src/tasks/cli-engine-branding-smoke.ts classifies any line with KOALA_ via /KOALA_/ and any line with koala.config via /koala\\.config/i, so current-product prose on those lines is allowed solely due to compatibility tokens. Exact repro: npm --prefix packages/main run test:cli-engine-branding-smoke output cli-engine src unclassified=0, cli-engine dist unclassified=0, hooks src unclassified=0, hooks dist unclassified=0, guide-hooks doc unclassified=0.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-13T11:15:50.656Z",
+      "reviewRound": "2026-06-13T11:12:44.397Z",
+      "reviewRunId": "B-3cca:RR-012",
+      "_hash": "400070819d9bd56175bf6ff7187bc98d5b4bb0e52a6b923c75f8ad91fa54fcf3",
+      "files": [
+        "docs/guide-hooks.md",
+        "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 9d25478e0: branding smoke now uses token-based stripping instead of broad /KOALA_/ or /koala.config/ line allowlists; npm --prefix packages/main run test:cli-engine-branding-smoke passes with guide-hooks doc unclassified=0 under the stricter scanner.",
+      "resolvedAt": "2026-06-13T11:22:58.123Z"
+    }
+  ]
+}

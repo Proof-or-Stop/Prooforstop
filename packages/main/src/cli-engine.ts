@@ -1,5 +1,5 @@
 /**
- * koala CLI 引擎
+ * Lattice CLI 引擎
  *
  * 把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。
  * main 自己的 cli.ts 是 bin 入口，直接调 runCli()；
@@ -102,7 +102,7 @@ const verificationIntentItemSchema = z.object({
  * @type feature
  * @priority high
  * @description
- *   Koala exposes code/story operations through a managed automated interface:
+ *   Lattice exposes code/story operations through a managed automated interface:
  *   people and AI both go through CLI schemas, command gates, handlers, and logs.
  *   Superpowers can trigger workflow by registering extra tools and handlers, but
  *   main command definitions win because MAIN_TOOLS are searched before extras.
@@ -510,7 +510,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     metadata: z.record(z.string(), z.unknown()).optional().describe('附加 metadata'),
   }},
   // B-a2f1 CHK-003: single-shot recover — refresh stale evidence + revalidate.
-  { name: 'recover_evidence', description: 'Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 koala metadata / runtime / declared artifact 时放行）', schema: {
+  { name: 'recover_evidence', description: 'Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 lattice metadata / runtime / declared artifact 时放行）', schema: {
     storyId: z.string().min(1).describe('Story ID'),
   }},
   // B-cf60: per-story declared product artifact — register a generated path so
@@ -853,10 +853,10 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
   }},
-  { name: 'capability_list', description: 'List host-neutral Koala capability profiles and degradations (text/json)', schema: {
+  { name: 'capability_list', description: 'List host-neutral Lattice capability profiles and degradations (text/json)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'capability_probe', description: 'Probe one host-neutral Koala capability profile and visible degradations (text/json)', schema: {
+  { name: 'capability_probe', description: 'Probe one host-neutral Lattice capability profile and visible degradations (text/json)', schema: {
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
@@ -1035,7 +1035,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'story_export', description: 'Export a Koala Story as Canonical Story v0 without claiming production authority', schema: {
+  { name: 'story_export', description: 'Export a Lattice Story as Canonical Story v0 without claiming production authority', schema: {
     storyId: z.string().describe('Story ID to export'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for canonical-story JSON'),
@@ -1485,10 +1485,10 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'codex_doctor', description: 'Codex adapter 诊断：输出 Codex adapter 检查状态（不写 process-event evidence）。Alias: lattice codex doctor', schema: {
     json: z.boolean().optional().describe('结构化 JSON 输出'),
   }},
-  { name: 'check', description: '检查 Koala 管理资产/模板漂移；--apply/--upgrade 显式同步安全项', schema: {
+  { name: 'check', description: '检查 Lattice 管理资产/模板漂移；--apply/--upgrade 显式同步安全项', schema: {
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     apply: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE'),
-    upgrade: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产到当前 Koala 模板；等价于 --apply'),
+    upgrade: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产到当前 Lattice 模板；等价于 --apply'),
     reviewLocalEdits: z.boolean().optional().describe('输出 STALE_LOCAL_EDIT 的结构化人工审查摘要'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('覆盖自动检测的 init profile'),
     assetMode: z.enum(['full', 'thin']).optional().describe('覆盖 Codex prompt asset 模式；full=生成 .Codex/agents，thin=使用 prompt registry'),
@@ -1496,7 +1496,7 @@ export const MAIN_TOOLS: ToolDef[] = [
 
   // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)
   { name: 'audit', description: '框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）', schema: {
-    framework: z.boolean().optional().describe('扫 CLAUDE.md / packages/koala/CLAUDE.md 的 CLI 命令/flag/路径 drift（当前 MVP 唯一档）'),
+    framework: z.boolean().optional().describe('扫 CLAUDE.md / packages/main/CLAUDE.md 的 CLI 命令/flag/路径 drift（当前 MVP 唯一档）'),
     mode: z.enum(['semi-auto', 'full-auto', 'off']).optional().describe('覆盖配置默认模式；off = 直接退出不跑'),
   }},
 
@@ -1519,7 +1519,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     agent: z.string().optional().describe('调用者身份（审计字段，默认从 KOALA_AGENT 读）'),
   }},
 
-  // Verifier (koala 内建代码验证)
+  // Verifier (Lattice 内建代码验证)
   { name: 'validate', description: '运行项目验证（静态 + 逻辑 + 集成测试）', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),
     story: z.string().optional().describe('只跑 story 改动涉及的 transition（TEST gate 用）'),
@@ -1814,7 +1814,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     explicitExcludes: z.array(z.string()).optional().describe('Files explicitly out of scope'),
     scopeChangeReason: z.string().optional().describe('Reason recorded on the generated contract'),
   }},
-  { name: 'guard_session_start', description: 'Start (or restart) a Koala-managed scope-guard session projection for a story', schema: {
+  { name: 'guard_session_start', description: 'Start (or restart) a Lattice-managed scope-guard session projection for a story', schema: {
     storyId: z.string().describe('Story ID'),
     provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Guard mode depends on provider and context flags.'),
     nativeHookVerified: z.boolean().optional().describe('Set true when the host-native PreToolUse hook is confirmed installed (Claude Code .claude/settings.json or Codex .codex/hooks.json), enabling native-pretool mode.'),
@@ -2120,7 +2120,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // B-ad2c: dev-memory — lightweight non-authoritative experience capture
-  { name: 'dev_memory_capture', description: '捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Koala gate evidence）', schema: {
+  { name: 'dev_memory_capture', description: '捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Lattice gate evidence）', schema: {
     category: z.enum(['failure-mode','pattern','anti-pattern','workflow','tool-quirk','guard-bypass','debugging','communication','other']).describe('经验类别'),
     scope: z.enum(['project','global','story-candidate']).optional().describe('存储范围（默认 project）'),
     summary: z.string().describe('一句话摘要（≥10 字符）'),
@@ -2153,7 +2153,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('JSON 格式输出'),
   }},
   { name: 'dev_memory_finish', description: '结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）', schema: {
-    storyId: z.string().optional().describe('活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Koala 外部会话可省略'),
+    storyId: z.string().optional().describe('活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Lattice 外部会话可省略'),
     storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/.lattice/story/actives；legacy .koala/story/actives 仍可读）'),
     query: z.string().optional().describe('可选：相关性过滤词'),
     scope: z.enum(['global']).optional().describe('无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选'),
@@ -2503,7 +2503,7 @@ function printHelp(activeStory?: ActiveStory | null) {
 
     ── REVIEW ──
     9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # 进入代码审查
-   10. koala-reviewer 审查代码，提 finding                     # critical/high 必须 resolve
+   10. Lattice reviewer 审查代码，提 finding                   # critical/high 必须 resolve
 
     ── TEST → DONE ──
    11. lattice story_advance --storyId=B-xxx --phase=TEST
@@ -2514,7 +2514,7 @@ function printHelp(activeStory?: ActiveStory | null) {
     如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再由人类显式运行 lattice release_approve_push --confirm，然后手动 git push origin main。
 
   初始化新项目:
-    lattice init                          # 在当前目录初始化 Lattice/Koala project state
+    lattice init                          # 在当前目录初始化 Lattice project state
 
   提示: 简单参数用 --key=value，复杂参数(array/object)用 JSON 格式
   出错? 用 lattice <command> --help 查看完整参数说明
@@ -3049,7 +3049,7 @@ export function enforceStoryOwnerLeaseGate(
       const activeAgeMs = Date.now() - Date.parse(lease.heartbeatAt);
       const activeAge = Number.isFinite(activeAgeMs) ? formatLeaseAge(activeAgeMs) : 'unknown';
       throw new Error(
-        `${storyId} is owned by another Koala session (${lease.sessionId}) whose owner lease is ` +
+        `${storyId} is owned by another Lattice session (${lease.sessionId}) whose owner lease is ` +
         `still ACTIVE (heartbeat ${activeAge} ago). --takeover only transfers a STALE lease ` +
         `(no heartbeat for 30+ minutes). To seize an active session's lock, rerun with ` +
         `--forceTakeover — a deliberate human override.`,
@@ -3115,7 +3115,7 @@ export function enforceReviewerReadOnlyCommandGate(
   throw new Error(
     `[${REVIEWER_READONLY_ENV}=1] Command "${cmd}" is not allowed in read-only reviewer mode ` +
     `(effective ownershipClass: ${clsLabel}). ` +
-    `Advisory read-only reviewers may only run read-only Koala commands and should return ` +
+    `Advisory read-only reviewers may only run read-only Lattice commands and should return ` +
     `structured findings to the story owner. ` +
     `To run write commands, unset ${REVIEWER_READONLY_ENV} and ensure you are the story owner.`,
   );
@@ -3351,7 +3351,7 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
 // ── Main ──
 
 /**
- * runCli — koala CLI 运行时入口
+ * runCli — Lattice CLI 运行时入口
  *
  * @param opts.extraTools     第三方包的 ToolDef 列表，会合进 help 和 dispatch
  * @param opts.extraRegister  第三方包的 register 函数，在 createMainRegistry 之后调用
@@ -3609,7 +3609,7 @@ export async function runCli(opts?: {
   try {
     staleWarnings = detectStaleState(ctx);
     if (staleWarnings.length > 0) {
-      process.stderr.write('⚠ koala stale state warnings:\n');
+      process.stderr.write('⚠ Lattice stale state warnings:\n');
       for (const w of staleWarnings) process.stderr.write(`  - ${w}\n`);
     }
   } catch { /* never block */ }
@@ -3777,7 +3777,7 @@ export async function runCli(opts?: {
     }
     // preCommand hook — non-blocking failure, awaited so it always runs before the handler
     if (config0?.hooks?.preCommand && !READ_ONLY_COMMANDS.has(cmd)) {
-      process.stderr.write(`[koala-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+      process.stderr.write(`[lattice-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
     if (!READ_ONLY_COMMANDS.has(cmd)) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
@@ -3824,7 +3824,7 @@ export async function runCli(opts?: {
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       if (config0?.hooks?.postCommand && !READ_ONLY_COMMANDS.has(cmd)) {
-        process.stderr.write(`[koala-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+        process.stderr.write(`[lattice-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       if (!READ_ONLY_COMMANDS.has(cmd)) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
@@ -3845,7 +3845,7 @@ export async function runCli(opts?: {
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
       if (config0?.hooks?.onError) {
-        process.stderr.write(`[koala-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+        process.stderr.write(`[lattice-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
         KOALA_ERROR: String(e?.message || e),

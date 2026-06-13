@@ -8,9 +8,73 @@
         "README.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-13T10:34:22.558Z",
+      "endTime": "2026-06-13T10:41:19.533Z",
+      "userSees": "Terminal prints \"cli-engine branding audit: PASS src unclassified=0 dist unclassified=0\" after the audit/classification scan.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run a focused scan that lists every Koala/koala/@koala hit in packages/main/src/cli-engine.ts and generated packages/main/dist/cli-engine.js, then classify each remaining hit as current-product wording or legacy compatibility.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm hard compatibility tokens such as koala command alias, koala.config.json fallback, .koala legacy story path, koala-codex detection, and koala-review-* reviewer lanes are preserved as process or compatibility contracts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the audit if any non-allowlisted Koala wording still presents Koala as the current product identity in CLI help, descriptions, comments, diagnostics, or hook logs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "grep -n koala packages/main/src/cli-engine.ts",
+          "result": "pass",
+          "note": "All koala/Koala hits classified: KOALA_* env vars, koala.config.json, .koala path, koala-codex, koala-review-* lanes, koala-hook, koala-implementer, git commit tokens preserved; user-visible Koala changed to Lattice (lines 3117, 3603)",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Verified: koala CLI alias (bin/koala→dist/cli.js), koala.config.json legacy fallback comment at line 2646, .koala path via LEGACY_KOALA_DIR, koala-codex at line 2780, koala-review-* lanes at lines 577-592 all preserved unchanged",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "branding smoke regex patterns compiled without matching KOALA_* env vars or process lanes; branding smoke test output: cli-engine branding audit: PASS src unclassified=0 dist unclassified=0",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,17 +84,155 @@
         "README.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-13T10:41:23.083Z",
+      "endTime": "2026-06-13T11:02:19.144Z",
+      "userSees": "Terminal prints \"lattice current branding: PASS legacy tokens preserved\" after src/cli-engine.ts no longer has unclassified current-product Koala wording.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect changed CLI-engine text and confirm user-visible current-product references say Lattice rather than Koala for engine comments, capability/story descriptions, check descriptions, owner/read-only diagnostics, metadata commit prefixes, stale warnings, and hook logs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm legacy aliases and process-lane identifiers remain exact where required, but surrounding visible wording labels them as legacy alias, fallback, or process contract rather than current product naming.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the branding smoke or equivalent allowlist scan to ensure no unclassified Koala/koala/@koala hit remains in src/cli-engine.ts after the cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/guide-hooks.md",
+          "command": "rg -n 'legacy\\.\\*koala|koala\\.\\*legacy|koala 命令|koala 项目|koala Hooks|koala doctor|koala session_brief|koala-hook' docs/guide-hooks.md packages/main/src/tasks/cli-engine-branding-smoke.ts packages/main/src/core/hooks.ts packages/main/src/cli-engine.ts",
+          "result": "pass",
+          "note": "F-005/F-006 fixed in commit 9d25478e0: hook guide now presents lattice.config.json as current config, describes koala.config.json only as legacy fallback, rewrites KOALA_COMMAND/KOALA_ROOT as legacy env var names for current Lattice command/project root, and uses lattice examples/debug paths.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "command": "code inspection after 9d25478e0",
+          "result": "pass",
+          "note": "F-006/F-007 false negative fixed: smoke no longer uses whole-line CLASSIFIED_PATTERNS for /KOALA_/, /koala.config/, or /.koala/; it strips exact neutral compatibility tokens and then fails if any koala/Koala text remains.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
+          "result": "pass",
+          "note": "Branding smoke passed after F-003 fix, still scanning cli-engine src/dist and hooks src/dist with all unclassified counts at 0.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Regenerate and verify CLI engine output",
       "context": "Run the package build so dist/cli-engine.js matches src/cli-engine.ts. Verify remaining Koala hits are only allowlisted legacy compatibility tokens and that standard build/runtime checks pass.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-13T10:42:02.749Z",
+      "endTime": "2026-06-13T11:02:19.480Z",
+      "userSees": "Terminal prints \"cli-engine branding smoke passed\" and TypeScript build exits 0, proving dist/cli-engine.js matches the cleaned source.",
+      "files": {
+        "modify": [
+          "packages/main/dist/cli-engine.js",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run build and confirm packages/main/dist/cli-engine.js is regenerated from the cleaned TypeScript source.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the focused branding smoke against both src and dist so generated output preserves the same allowlisted legacy classification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run process/entrypoint verification to prove preserved koala-review-* and legacy alias handling still satisfy process contracts after the wording cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after hook guide and strict branding smoke changes.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
+          "result": "pass",
+          "note": "Strict branding smoke passed: cli-engine src=0, cli-engine dist=0, hooks src=0, hooks dist=0, guide-hooks doc=0. The scanner now catches bad lines like KOALA_COMMAND plus current-product koala wording.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs; node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified; verify-entrypoints reported ok 1/26 through ok 26/26 and entrypoints verified after strict smoke changes.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -40,10 +242,71 @@
         "AGENTS.md",
         "README.md"
       ],
-      "userSees": "Checklist evidence names the Claude CLI command/session used for the implementation pass and confirms the edit occurred inside the B-3cca worktree.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "Terminal/evidence text includes \"Claude CLI implementation: PASS worktree=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca\".",
+      "status": "done",
+      "startTime": "2026-06-13T10:42:25.801Z",
+      "endTime": "2026-06-13T10:42:46.827Z",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Record the exact Claude CLI command/session output summary used for the implementation pass, including that it ran inside /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm Claude CLI did not edit outside the B-3cca worktree and that Codex reviewed the resulting git diff before committing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail completion if evidence only says the main agent edited files without an observable Claude CLI invocation or transcript summary.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "claude -p --model sonnet --agent koala-implementer ...; git commit --author=koala-implementer <koala-implementer@noreply.local>",
+          "result": "pass",
+          "note": "Claude CLI koala-implementer session was launched in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca for F-004 and produced staged edits to docs/guide-hooks.md plus cli-engine-branding-smoke.ts; the session became nonresponsive after edits, was interrupted, and the accepted staged changes were committed as ce395d900 with author koala-implementer.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/guide-hooks.md",
+          "command": "git show --name-only --format='%H%n%an <%ae>%n%s' ce395d900 && git status --short",
+          "result": "pass",
+          "note": "Claude-authored commit ce395d900 was authored by koala-implementer <koala-implementer@noreply.local> in the B-3cca worktree and changed only docs/guide-hooks.md plus packages/main/src/tasks/cli-engine-branding-smoke.ts; Codex reviewed and accepted the staged diff before commit. Current status after TEST contains only Lattice metadata/test-evidence files.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "claude -p --model sonnet --agent koala-implementer ... (second attempt); manual integration commit 9d25478e0",
+          "result": "pass",
+          "note": "Second Claude CLI koala-implementer attempt started with lattice session_brief but became nonresponsive before business edits; Codex interrupted it, applied the narrow F-005/F-006/F-007 integration patch, and committed transparently as 9d25478e0 rather than pretending it was Claude-authored.",
+          "headHash": "ca72a66a7c938e84db5b118a16e21361bd4c172f",
+          "materialHash": "14963587c8c12543e69a8ad1d1ff220f004dd474554390a8d1c21e551029f0e4",
+          "timestamp": "2026-06-13T11:31:22.855Z"
+        }
+      ]
     }
   ]
 }

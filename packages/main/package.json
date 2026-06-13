@@ -140,7 +140,8 @@
     "test:authority-cross-repo-live-smoke": "node dist/tasks/authority-live-receipt-ref-gate-smoke.js",
     "test:authority-live-python-e2e": "node dist/tasks/authority-live-python-e2e-smoke.js",
     "test:authority-live-python-full-e2e": "node dist/tasks/authority-live-python-full-e2e-smoke.js",
-    "test:authority-live-python-stub": "node dist/tasks/authority-live-python-stub-smoke.js"
+    "test:authority-live-python-stub": "node dist/tasks/authority-live-python-stub-smoke.js",
+    "test:cli-engine-branding-smoke": "node dist/tasks/cli-engine-branding-smoke.js"
   },
   "dependencies": {
     "@lattice-agent/lab": "0.3.1",

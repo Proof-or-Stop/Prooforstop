@@ -1,0 +1,25 @@
+{
+  "storyId": "B-3cca",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/hooks.ts",
+    "packages/main/dist/cli-engine.js",
+    "packages/main/package.json",
+    "docs/guide-hooks.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-entrypoints.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Review findings B-3cca:F-001 and B-3cca:F-002 showed remaining current-product Koala branding in runCli comment and shared hook-runner stderr diagnostics; docs/guide-hooks.md is included only to keep the documented hook prefix in sync.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T10:29:41.070Z",
+  "updatedAt": "2026-06-13T10:51:14.193Z"
+}

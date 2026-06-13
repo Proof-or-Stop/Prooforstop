@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-3cca:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test-coverage review pass: checklist verification intents/evidence cover src+dist branding scan, preserved legacy/process tokens, hook prefix cleanup, and process contracts. Reran npm --prefix packages/main run test:cli-engine-branding-smoke => PASS src unclassified=0 dist unclassified=0; node scripts/verify-process-fact-contract.mjs => Process fact contract verified; node scripts/verify-entrypoints.mjs => ok 1/26..26/26 entrypoints verified.",
+      "createdAt": "2026-06-13T10:50:11.255Z",
+      "reviewRound": "2026-06-13T10:47:51.054Z",
+      "reviewRunId": "B-3cca:RR-003",
+      "_hash": "5f774de43b690f92a71ea5ee4d8a4adf7dcfd4ec049421431abc964f7598b1d4"
+    },
+    {
+      "id": "B-3cca:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: Coverage after F-001/F-002 fixes is sufficient. Checklist evidence covers npm --prefix packages/main run build, npm --prefix packages/main run test:cli-engine-branding-smoke scanning cli-engine src/dist and hooks src/dist, node scripts/verify-process-fact-contract.mjs, node scripts/verify-entrypoints.mjs, and finding resolution for B-3cca:F-001 and B-3cca:F-002. Reviewer spot-check reran smoke, process fact contract, and entrypoint verification successfully.",
+      "createdAt": "2026-06-13T10:59:24.922Z",
+      "reviewRound": "2026-06-13T10:57:27.947Z",
+      "reviewRunId": "B-3cca:RR-006",
+      "_hash": "ae497b944efb3092f6df953647ecbbdb6e8782f10669cfea758695f4893b3445"
+    },
+    {
+      "id": "B-3cca:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept pass after F-001/F-002 resolution: current-product CLI and hook diagnostics use Lattice/[lattice-hook] in source and dist; remaining koala tokens are compatibility/process contracts (KOALA_* env, koala.config legacy fallback, .koala legacy path, koala alias/reviewer lanes) covered by the focused branding smoke; docs/guide-hooks.md documents the new [lattice-hook] failure/timeout wording. npm --prefix packages/main run test:cli-engine-branding-smoke passed with all unclassified counts at 0.",
+      "createdAt": "2026-06-13T10:59:34.204Z",
+      "reviewRound": "2026-06-13T10:57:27.947Z",
+      "reviewRunId": "B-3cca:RR-004",
+      "_hash": "fc1927b24d55e348ecc564ed6ddae53590871ff6e0c99d3a3fbad6d91e246c86"
+    },
+    {
+      "id": "B-3cca:RP-004",
+      "agent": "koala-review-concept",
+      "note": "PASS: reviewed packages/main/src/cli-engine.ts:2361,3511,3771,3818,3839 and packages/main/src/core/hooks.ts:212,220,229,231,241,242 plus package metadata at packages/main/package.json:2,16-17. Current user-facing CLI/help/version/unknown-command and hook diagnostics use Lattice as primary branding; remaining koala references are explicit legacy alias/internal compatibility tokens. Branding smoke passed with cli-engine/hooks src/dist unclassified=0.",
+      "createdAt": "2026-06-13T11:05:16.208Z",
+      "reviewRound": "2026-06-13T11:02:30.634Z",
+      "reviewRunId": "B-3cca:RR-008",
+      "_hash": "142ae60b0d7465731bbf0b15ea171b6bcb842c2c678374ce02ff70eeee24e28a"
+    },
+    {
+      "id": "B-3cca:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage PASS for scoped CLI-engine/hook branding verification. Reviewed checklist evidence and reran: npm --prefix packages/main run build (pass, tsc exit 0); npm --prefix packages/main run test:cli-engine-branding-smoke (pass, cli-engine src/dist and hooks src/dist unclassified=0); node scripts/verify-process-fact-contract.mjs (pass, Process fact contract verified); node scripts/verify-entrypoints.mjs (pass, ok 1/26..26/26 entrypoints verified). F-003 is resolved: smoke allowlist now uses exact legacy alias patterns instead of legacy.*koala/koala.*legacy. Existing F-004 is already recorded by quality lane and not duplicated here.",
+      "createdAt": "2026-06-13T11:06:04.428Z",
+      "reviewRound": "2026-06-13T11:02:30.634Z",
+      "reviewRunId": "B-3cca:RR-009",
+      "_hash": "7ccf6dcf9bbe8560b4980658a64b98aed18a8642888c4a0aa4a53973ecdc3146"
+    },
+    {
+      "id": "B-3cca:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: F-004 coverage is represented and independently verified. Evidence: packages/main/src/tasks/cli-engine-branding-smoke.ts includes FILES_TO_AUDIT target label=guide-hooks doc path=docs/guide-hooks.md required=true, so hook guide Koala remnants are now in the smoke scope. Commands passed in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca: npm --prefix packages/main run build (tsc exit 0); npm --prefix packages/main run test:cli-engine-branding-smoke output cli-engine src unclassified=0, cli-engine dist unclassified=0, hooks src unclassified=0, hooks dist unclassified=0, guide-hooks doc unclassified=0; node scripts/verify-process-fact-contract.mjs output Process fact contract verified; node scripts/verify-entrypoints.mjs output ok 1/26 through ok 26/26 and entrypoints verified. Checklist evidence also records CHK-003:edge:0 for guide-hooks doc smoke coverage after F-004.",
+      "createdAt": "2026-06-13T11:15:17.672Z",
+      "reviewRound": "2026-06-13T11:12:44.397Z",
+      "reviewRunId": "B-3cca:RR-012",
+      "_hash": "e7ee5d2e215363b8211cc69290eef845eb10511ad7d5dcb3ff3a592a91f9f5d5"
+    },
+    {
+      "id": "B-3cca:RP-007",
+      "agent": "koala-review-concept",
+      "note": "PASS: latest HEAD presents Lattice/lattice as the current product wording in cli-engine, hook diagnostics, and docs/guide-hooks.md. Remaining Koala references are explicit legacy alias/fallback/runtime/env compatibility tokens (koala.config.json, .koala health path, KOALA_* env vars, reviewer lane names). Verified with npm --prefix packages/main run test:cli-engine-branding-smoke: cli-engine/hooks/guide-hooks all unclassified=0.",
+      "createdAt": "2026-06-13T11:25:53.894Z",
+      "reviewRound": "2026-06-13T11:24:39.834Z",
+      "reviewRunId": "B-3cca:RR-018",
+      "_hash": "4a536851454ca1726e804a23d69ea43f37b115ccbc3223b43e0d38951b64b405"
+    },
+    {
+      "id": "B-3cca:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: F-005/F-006/F-007 are resolved and covered. Verified latest HEAD with npm --prefix packages/main run build, npm --prefix packages/main run test:cli-engine-branding-smoke (including guide-hooks doc unclassified=0), node scripts/verify-process-fact-contract.mjs, and node scripts/verify-entrypoints.mjs. Branding smoke uses token-based stripping instead of broad whole-line KOALA/koala.config/.koala allowlists.",
+      "createdAt": "2026-06-13T11:26:07.644Z",
+      "reviewRound": "2026-06-13T11:24:39.834Z",
+      "reviewRunId": "B-3cca:RR-017",
+      "_hash": "5cedeea43d4ab5bc211fc62bf34cb9d1be4e03dba787465fb5ef528c10aff038"
+    },
+    {
+      "id": "B-3cca:RP-009",
+      "agent": "koala-review-quality",
+      "note": "Quality lane PASS on latest HEAD 7038feb: packages/main/src/tasks/cli-engine-branding-smoke.ts uses token-based stripping, not whole-line allowlists, for KOALA_* env names, koala.config legacy fallback tokens, .koala legacy runtime paths, and legacy alias text. docs/guide-hooks.md presents current product as Lattice/lattice and remaining koala hits are explicit legacy alias/env/path/fallback contexts. Verified npm --prefix packages/main run build and npm --prefix packages/main run test:cli-engine-branding-smoke; smoke reports cli-engine/hooks/doc unclassified=0.",
+      "createdAt": "2026-06-13T11:26:14.269Z",
+      "reviewRound": "2026-06-13T11:24:39.834Z",
+      "reviewRunId": "B-3cca:RR-016",
+      "_hash": "466278d17fbfe84673f1cce41b5d4aa7c30405a7c7b69adcc70452f633413aa9"
+    }
+  ]
+}

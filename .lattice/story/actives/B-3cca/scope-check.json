@@ -1,0 +1,73 @@
+{
+  "storyId": "B-3cca",
+  "checkedAt": "2026-06-13T10:28:49.073Z",
+  "features": [
+    {
+      "feature": "Current-product Koala wording in packages/main/src/cli-engine.ts is audited and replaced with Lattice wording",
+      "covered_by": "CHK-001, CHK-002, plan.md#CHK-001, plan.md#CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background + README current Lattice/legacy alias framing"
+    },
+    {
+      "feature": "Legacy compatibility tokens remain stable and explicitly legacy-labelled where visible: koala CLI alias, koala.config.json, .koala path, koala-codex, koala-review-* lanes",
+      "covered_by": "CHK-001 edge, CHK-002 edge, CHK-003 adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "README.md; docs/requirements/decisions/story-lifecycle.md; docs/requirements/decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Generated dist output is regenerated from TypeScript and scanned instead of manually edited",
+      "covered_by": "CHK-001 happy, CHK-003 happy, CHK-003 edge, plan.md#CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background Key Insights; checklist files.modify packages/main/dist/cli-engine.js"
+    },
+    {
+      "feature": "Focused branding smoke exists and is wired through package scripts so src/dist allowlist regressions fail mechanically",
+      "covered_by": "CHK-001 files.create, CHK-002 files.test, CHK-003 files.create/test, CHK-003 files.modify packages/main/package.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist files and verificationIntent"
+    },
+    {
+      "feature": "Process facts and reviewer lane contracts are protected after cleanup",
+      "covered_by": "CHK-001 edge, CHK-003 adversarial: scripts/verify-process-fact-contract.mjs and scripts/verify-entrypoints.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/story-lifecycle.md process fact/reviewer lane sections"
+    },
+    {
+      "feature": "Authority wording remains thin-client/read-only and does not imply production authority, receipt verification, or evidence submission",
+      "covered_by": "CHK-001 relatedDocs authority-client-role.md, CHK-002 current-product wording review, CHK-003 process/entrypoint verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/authority-client-role.md PD-1/PD-2 constraints"
+    },
+    {
+      "feature": "Claude CLI implementation requirement is independently captured as observable evidence, including worktree boundary and Codex diff review",
+      "covered_by": "CHK-004, plan.md#CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request and background Conversational Texture"
+    },
+    {
+      "feature": "Truth docs are review inputs rather than implementation targets for this CLI-engine cleanup",
+      "covered_by": "relatedDocs on CHK-001/CHK-002/CHK-004; understanding touchpoints limited to cli-engine, dist, package.json, smoke task",
+      "status": "excluded",
+      "excluded_by": "checklist files fields omit README.md and docs/requirements/decisions/*.md from modify/create/test; no doc edits required to satisfy user-visible CLI-engine cleanup",
+      "source": "README.md; docs/requirements/decisions/authority-client-role.md; docs/requirements/decisions/story-lifecycle.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e0cc8c392a50dce607e0c06bb89c18ccfff6658ab610d77a4cfb0afc507e9635",
+  "openQuestions": []
+}

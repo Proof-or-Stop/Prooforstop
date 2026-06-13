@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Current product identity in user-facing CLI output should say Lattice, not Koala.",
+    "Legacy compatibility identifiers must remain stable when they are consumed by existing users or lifecycle gates.",
+    "Generated dist output must come from the TypeScript build, not manual edits.",
+    "Claude CLI participation must be visible as evidence, not only implied by conversation."
+  ],
+  "drivers": [
+    "User reported visible Koala remnants in CLI-engine output after package rename.",
+    "Reviewer lanes and legacy aliases still depend on some koala-prefixed tokens.",
+    "The change touches CLI help/diagnostics and process-adjacent strings, so verification must include scan and build checks."
+  ],
+  "options": [
+    {
+      "name": "A: Classified cleanup with legacy allowlist",
+      "pros": [
+        "Removes current-product Koala branding while preserving stable compatibility contracts.",
+        "Produces an auditable list of remaining legacy tokens.",
+        "Matches the user request without risking reviewer lane or alias breakage."
+      ],
+      "cons": [
+        "Some koala strings will intentionally remain, so verification must classify them instead of expecting zero hits."
+      ]
+    },
+    {
+      "name": "B: Blind global Koala to Lattice replacement",
+      "pros": [
+        "Fastest apparent cleanup and likely reduces raw grep count most aggressively."
+      ],
+      "cons": [
+        "Could break koala command alias, koala.config.json fallback, .koala legacy paths, koala-codex detection, and koala-review-* process gates."
+      ]
+    },
+    {
+      "name": "C: Documentation-only explanation of residuals",
+      "pros": [
+        "Lowest code risk and preserves all compatibility behavior."
+      ],
+      "cons": [
+        "Does not satisfy the user-visible cleanup request because cli-engine help and diagnostics would still present Koala as current product identity."
+      ]
+    }
+  ],
+  "chosen": "A: Classified cleanup with legacy allowlist",
+  "rationale": "Choose classified cleanup because it is the only option that both fixes user-visible product identity and protects lifecycle/runtime compatibility contracts. The implementation will rename current-product wording, label remaining koala tokens as legacy where visible, and add a focused scan so future changes cannot reintroduce unclassified Koala branding.",
+  "preMortem": [
+    {
+      "scenario": "Reviewer lane names are renamed accidentally",
+      "trigger": "A broad replace changes koala-review-* tokens in cli-engine or related process files.",
+      "consequence": "REVIEW/DONE gates cannot match signed reviewer evidence or process fact contract checks fail.",
+      "mitigation": "Treat koala-review-* as allowlisted legacy/process contract and verify with process fact contract checks."
+    },
+    {
+      "scenario": "Legacy command/config users lose compatibility",
+      "trigger": "The cleanup removes koala alias wording or koala.config.json fallback handling instead of labeling it legacy.",
+      "consequence": "Existing users with old command/config paths get broken behavior or confusing diagnostics.",
+      "mitigation": "Preserve legacy command/config/path tokens and ensure visible text says legacy alias/fallback."
+    },
+    {
+      "scenario": "dist output diverges from source",
+      "trigger": "Generated packages/main/dist/cli-engine.js is manually edited or not regenerated after TypeScript changes.",
+      "consequence": "Runtime CLI output still differs from source or build overwrites the cleanup later.",
+      "mitigation": "Edit src only, run npm --prefix packages/main run build, and scan both src and dist."
+    }
+  ],
+  "timestamp": "2026-06-13T10:25:46.940Z"
+}

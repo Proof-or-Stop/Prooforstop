@@ -1,0 +1,39 @@
+{
+  "storyId": "B-3cca",
+  "checkedAt": "2026-06-13T11:30:30.245Z",
+  "reviewRound": "2026-06-13T11:24:39.834Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/guide-hooks.md",
+      "promise": "Hook guide presents Lattice/lattice as the current product identity and leaves Koala only as explicit legacy alias, fallback config, legacy env var, or legacy runtime path compatibility.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD + rg Koala/koala/KOALA in docs/guide-hooks.md",
+      "evidence": "Diff retitles the guide to Lattice Hooks, makes lattice.config.json the current hook config, marks koala.config.json as legacy fallback, and describes KOALA_* rows as legacy env var names for current Lattice semantics; remaining rg hits are legacy alias/fallback/env/path examples."
+    },
+    {
+      "docPath": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+      "promise": "Branding smoke scans cli-engine src/dist, hooks src/dist, and docs/guide-hooks.md with token-based classification so compatibility tokens cannot hide current-product Koala prose.",
+      "status": "verified",
+      "verifiedBy": "code inspection + npm --prefix packages/main run test:cli-engine-branding-smoke",
+      "evidence": "Smoke uses token-based stripping for KOALA_*, process lanes, legacy config/path tokens, and then fails on any remaining koala/Koala text. Latest run passed with cli-engine src=0, cli-engine dist=0, hooks src=0, hooks dist=0, guide-hooks doc=0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-003:edge",
+      "transcript": "npm --prefix packages/main run test:cli-engine-branding-smoke -> PASS: cli-engine branding audit: PASS cli-engine src unclassified=0, cli-engine dist unclassified=0, hooks src unclassified=0, hooks dist unclassified=0, guide-hooks doc unclassified=0; cli-engine branding smoke passed."
+    },
+    {
+      "featureId": "B-3cca:validate",
+      "transcript": "lattice validate --story=B-3cca -> PASS: Project validation commands passed via npm test / npm run test:e2e / node packages/main/dist/tasks/cli-e2e.js; Verification intent coverage: 12/12 covered; hint says verification green and proceed to DONE pre-check."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer inspected main...HEAD diff, story summary, transcript-diff, finding list, checklist coverage, docs/guide-hooks.md, and cli-engine-branding-smoke.ts. All recorded findings are resolved; branding smoke and lattice validate passed. Remaining branch sync with main is a DONE merge pre-check, not a delivery content blocker."
+  },
+  "_hash": "2f069645de9c19d81a0c7f4b103977a7ffeeb03e5d5651861de8250f83b3deda"
+}
