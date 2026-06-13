@@ -180,9 +180,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Fresh TypeScript build passed at current HEAD with decision-doc quorum smoke task, CLI command registration, and process-fact contract updates compiled.",
-          "headHash": "bfcbc731e2db692657c4abef2cf7258aab412d36",
+          "headHash": "83b3389d891a1c4df6be82b23743bd5418af12e5",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:25:24.567Z"
+          "timestamp": "2026-06-13T22:26:37.334Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -190,9 +190,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Focused smoke covers insufficient hosts, insufficient rounds via duplicate runId, and stale materialDigest as blocking states with structured diagnostics.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "headHash": "83b3389d891a1c4df6be82b23743bd5418af12e5",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "timestamp": "2026-06-13T22:26:37.366Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -200,19 +200,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
           "result": "pass",
           "note": "Focused smoke would fail if duplicate hosts, duplicate rounds, stale digests, non-pass decisions, or prose-only review_pass evidence were accepted as host_verdict quorum.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "headHash": "83b3389d891a1c4df6be82b23743bd5418af12e5",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
-        },
-        {
-          "intentRef": "CHK-003:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run build",
-          "result": "pass",
-          "note": "TypeScript build passed with the new detector API and smoke task.",
-          "headHash": "6be2bdebd89cef0a0a11cb7817d27e92831c2e17",
-          "materialHash": "76b14f7aa91d8900cf924fcffaab8b2364ccfda0fb12502784d7627be385b6b4",
-          "timestamp": "2026-06-13T22:10:14.810Z"
+          "timestamp": "2026-06-13T22:26:37.394Z"
         }
       ]
     },
