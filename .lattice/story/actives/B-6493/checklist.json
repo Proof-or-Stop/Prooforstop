@@ -27,9 +27,9 @@
       "title": "Surface the same warning in handoff_inspect and cover with a focused smoke test",
       "context": "inspectHandoffPack must carry phaseAuthorityWarning into HandoffInspection and renderHandoffInspectionText must render it. Add a focused smoke (tasks/) that builds a pack with a worktree ahead of mirror and asserts the warning appears in create+inspect output, asserts absence when in sync, and asserts packHash is byte-identical for the in-sync case.",
       "userSees": "lattice handoff_inspect on a stale-phase pack shows the phase-authority warning; the regression suite proves the warning fires only on divergence and never perturbs packHash.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T15:49:23.287Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:inspect-render:0",
