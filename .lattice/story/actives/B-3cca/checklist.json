@@ -292,6 +292,15 @@
           "headHash": "5bfb5c8eda53185255d28c54e0a26ced70cdced0",
           "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
           "timestamp": "2026-06-13T10:42:41.710Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Session used forceTakeover to recover stale lease from previous interrupted session (sess-bc4bd082f0301eed). All writes confirmed via lattice CLI audit trail in process-events.jsonl.",
+          "headHash": "8c74c0bc70f35d3c9771d550a1ed344a04dc0000",
+          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
+          "timestamp": "2026-06-13T10:42:42.100Z"
         }
       ]
     }
