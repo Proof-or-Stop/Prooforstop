@@ -406,6 +406,41 @@ Add or extend smoke coverage for these scenarios:
    - `lattice checklist_update --help` exits zero.
    - No implementation change to `sourceManifestDigest` is part of the story.
 
+### Decision Document 3-Round / 2-Host Verification
+
+Because this story changes Lattice core workflow behavior, the decision document
+itself must pass a bounded multi-host verification before the implementation can
+be considered ready for DONE.
+
+This applies to this document and to any other decision document materially
+created or changed by this story. It is not satisfied by the main agent reading
+its own prose, by one local reviewer, or by smoke tests alone.
+
+Required audit shape:
+
+| Requirement | Rule |
+| --- | --- |
+| Rounds | Exactly three bounded audit rounds before DONE. |
+| Hosts per round | At least two independent host perspectives per round. Prefer Codex CLI + Claude CLI when both are available. |
+| Anchors | Each host in a round reviews the same anchors: changed decision docs, story id, checklist, verificationIntent, plan, relevant commits, material hash, and command/test evidence available for that round. |
+| Prompt principles | Every host prompt includes: `don't optimize for the sake of optimization`, `don't optimize arbitrarily`, `only fix real correctness issues`, and `preserve consistency of logic`. |
+| Verdict shape | Each host returns PASS or BLOCK with concrete source refs and command/evidence refs. Advisory-only notes do not block unless they identify a real correctness issue. |
+| Freshness | Any material repair after a round makes later claims from that round stale; repaired anchors require a fresh round. |
+| Completion | The decision-doc gate passes only when all three rounds have two independent PASS verdicts over fresh anchors, or all real BLOCK findings have been repaired and re-verified in fresh rounds. |
+
+The three rounds should be used for different pressure:
+
+1. Round 1 checks scope and product correctness: whether the document solves the
+   real ClawCreek failure without expanding into P3 or future capability claims.
+2. Round 2 checks implementation alignment: whether code, command policy,
+   process facts, tests, and docs match the decision document.
+3. Round 3 checks final closure: whether validation evidence, review findings,
+   build output, and rollout notes still match the final material state.
+
+This audit is a requirement for Lattice core decision documents. It does not by
+itself create `fullAuthorityDone`, does not convert host verdicts into Authority
+receipts, and does not relax any lifecycle gate.
+
 ### Manual Replay
 
 Use a copied fixture or temporary project shaped like ClawCreek. Do not mutate
@@ -441,6 +476,9 @@ lattice checklist_update --help
 ```
 
 Also run the new or extended smoke tasks added by the implementation story.
+Before DONE, record or reference the three rounds of two-host decision-document
+verification described above. If a repair changes material anchors after any
+round, rerun the affected verification round over fresh anchors.
 
 If tracked `dist` is part of the global CLI install path, confirm the built
 runtime contains the new command before testing globally.
@@ -462,6 +500,8 @@ The fix is complete when:
 7. The current `checklist_update --help` behavior remains healthy.
 8. No changes are made to `sourceManifestDigest` unless the issue is reproduced
    as a separate story.
+9. Every decision document materially created or changed by this story has fresh
+   three-round, two-host verification evidence before DONE.
 
 ## Rollout Notes
 
