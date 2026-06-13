@@ -264,7 +264,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json",
+          "result": "pass",
+          "note": "Authority dry-run fails closed without configured Authority readiness or receipt proof: status=fail, authorityDone=false, fullAuthorityDone=false, receipt.provided=false.",
+          "headHash": "9c22f7f406f29dcc5660e5bf15879a34893fdaa7",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:31.818Z"
+        }
+      ]
     }
   ]
 }
