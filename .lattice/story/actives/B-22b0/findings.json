@@ -44,13 +44,15 @@
       "desc": "Focused re-review: evidence_inspect does not visibly preserve failed Authority proof result semantics. checklist_get shows CHK-002:authority-proof-fail:* and CHK-003:authority-proof-fail:* refs with result=fail, and required CHK-002/CHK-003 intent refs as waiver/pass that do not overclaim Authority. But evidence_inspect --storyId=B-22b0 only shows aggregate output in text mode, and evidence_inspect --storyId=B-22b0 --format=json lists the custom refs without result/verdict/note fields. The requested active evidence surface therefore still does not show the custom Authority proof fail refs with result=fail through evidence_inspect.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-13T13:49:38.122Z",
       "reviewRound": "2026-06-13T13:45:17.695Z",
       "reviewRunId": "B-22b0:RR-007",
-      "_hash": "30af82590adf05099ae24c70e13c4d142b4e2c39df527d50fe75883f01fdf955"
+      "_hash": "30af82590adf05099ae24c70e13c4d142b4e2c39df527d50fe75883f01fdf955",
+      "resolvedReason": "Fixed by changing packages/main/src/core/lattice-evidence.ts so evidence_inspect JSON preserves checklist verificationEvidence result, verdict, note, and waiverType. packages/main/src/tasks/lattice-evidence-smoke.ts now asserts failed custom proof refs remain result=fail/verdict=blocked_classified with note, while waiver refs remain waiver/pass/permanent. Verified with node packages/main/dist/cli.js evidence_inspect --storyId=B-22b0 --format=json; global lattice still points to main dist until DONE merge/rebuild.",
+      "resolvedAt": "2026-06-13T13:58:22.478Z"
     }
   ]
 }
