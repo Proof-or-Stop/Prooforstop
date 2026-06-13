@@ -43,7 +43,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "grep -n koala packages/main/src/cli-engine.ts",
+          "result": "pass",
+          "note": "All koala/Koala hits classified: KOALA_* env vars, koala.config.json, .koala path, koala-codex, koala-review-* lanes, koala-hook, koala-implementer, git commit tokens preserved; user-visible Koala changed to Lattice (lines 3117, 3603)",
+          "headHash": "259976fb23976da078b7db03d8697e6871357cc1",
+          "materialHash": "22890f937e04478f562bff0d925764c4109965b7827c5572b686011ff54b4d2a",
+          "timestamp": "2026-06-13T10:40:56.662Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
