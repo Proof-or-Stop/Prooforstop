@@ -41,7 +41,14 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "excludes": [
+        "Do not modify packages/main/src/cli-engine.ts in this documentation-only story.",
+        "Do not modify the existing untracked docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md file.",
+        "Do not run omx or read/write/use .omx/.",
+        "Do not directly edit docs/story/ or packages/main/tests/fixtures/.",
+        "Do not translate README or the wider docs set in this story; only create the review execution document."
+      ]
     }
   ]
 }
