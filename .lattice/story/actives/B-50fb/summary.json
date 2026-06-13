@@ -1,0 +1,56 @@
+{
+  "storyId": "B-50fb",
+  "changes": "Renamed published package metadata and runtime resolution from Koala scope to Lattice scope: package manifests and lockfiles now use @lattice-agent/core, @lattice-agent/utils, @lattice-agent/lab, @lattice-agent/cli-guess-number, and @lattice/game; runtime/bootstrap/docs prefer @lattice-agent/core with @koala-agent/core only as explicit legacy fallback; fixed review findings for fail-closed PLAN to DEV fallback and mixed canonical plus legacy global symlink cleanup.",
+  "usage": "Use the package as @lattice-agent/core 0.3.5 and invoke the CLI through lattice. The koala binary remains as a legacy compatibility alias to dist/cli.js, but docs and runtime diagnostics treat Lattice as canonical.",
+  "expectedOutcome": "User can inspect package metadata and see @lattice-agent/core 0.3.5, workspace packages under @lattice-agent or @lattice, lattice as the primary bin, and no old Koala package scopes in manifests or lockfiles.",
+  "actualTranscript": "node package checks printed @lattice-agent/core 0.3.5, bin.lattice=dist/cli.js, bin.koala=dist/cli.js; workspace manifests printed lattice, @lattice-agent/core, @lattice-agent/utils, @lattice-agent/lab, @lattice-agent/cli-guess-number, @lattice/game; rg for @koala-agent scopes and @koala/game in manifests and lockfiles returned no matches; lattice validate --story=B-50fb passed with 12/12 verification intents covered.",
+  "outcomeDiff": "No user-visible diff remains: expected package identity, bin compatibility, manifest scan, and validation coverage all match actual output.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered",
+  "pitfalls": "After merging main before DONE, evidence material hashes became stale and had to be refreshed after rerunning the validation commands. Owner lease changed between short CLI invocations, so forceTakeover was needed to continue the same authorized story flow.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 109445
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5444
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 271966
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 3801533
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 14450263
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 247945
+    }
+  },
+  "totalDurationMs": 18886597,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T01:49:47.494Z",
+  "updatedAt": "2026-06-13T01:49:47.494Z"
+}
