@@ -12,7 +12,7 @@
       "userSees": "The document opens with \"# CLI Engine English Open-Source Surface Execution Plan\" and includes a \"Translation Review Table\" section.",
       "status": "done",
       "startTime": "2026-06-13T13:19:38.692Z",
-      "endTime": "2026-06-13T13:22:51.111Z",
+      "endTime": "2026-06-13T13:41:29.382Z",
       "files": {
         "modify": [],
         "create": [
@@ -53,32 +53,32 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "test -f docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md && rg -n \"English-Only Policy|Execution Phases|Reviewer Checklist\" docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "command": "test -f docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md && rg -n \"English-Only Policy|Execution Phases|Complete Line-Level Translation Manifest|Reviewer Checklist\" docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
           "result": "pass",
-          "note": "The new execution document exists and contains the required English-only policy, staged execution plan, and reviewer checklist sections.",
-          "headHash": "33f5749a4004020bfdaeec4833226d181c5b0761",
+          "note": "The execution document exists and now includes the English-only policy, staged execution plan, complete line-level manifest, and reviewer checklist.",
+          "headHash": "5dffc9bc9581b641b3b74da0d4b6c756e587c6fb",
           "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
-          "timestamp": "2026-06-13T13:22:51.159Z"
+          "timestamp": "2026-06-13T13:41:29.469Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
-          "command": "rg -n \"Chinese source|Proposed English|packages/main/src/cli-engine.ts|Translation Review Table\" docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const doc=fs.readFileSync(\\\"docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md\\\",\\\"utf8\\\");const src=fs.readFileSync(\\\"packages/main/src/cli-engine.ts\\\",\\\"utf8\\\").split(/\\\\n/).filter(l=>/[\\\\u3400-\\\\u9fff]/.test(l)).length;const m=doc.match(/```tsv\\\\n([\\\\s\\\\S]*?)\\\\n```/);const lines=m[1].trim().split(/\\\\n/);const head=lines.shift().split(\\\"\\\\t\\\");const rows=lines.map(l=>Object.fromEntries(l.split(\\\"\\\\t\\\").map((v,i)=>[head[i],v])));const bad=rows.filter(r=>/[\\\\u3400-\\\\u9fff]/.test(r.proposedEnglish||\\\"\\\")||(r.proposedEnglish||\\\"\\\").includes(\\\"[review wording]\\\")).length;if(src!==762||rows.length!==src||bad)process.exit(1);console.log(JSON.stringify({src,rows:rows.length,bad}));\"",
           "result": "pass",
-          "note": "The document includes the cli-engine.ts source reference and a Translation Review Table with Chinese source and Proposed English columns.",
-          "headHash": "33f5749a4004020bfdaeec4833226d181c5b0761",
+          "note": "The document now has a complete line-level translation manifest: all 762 Chinese-bearing cli-engine.ts lines are present, every row has proposedEnglish, proposedEnglish has no Chinese, and no fallback placeholder remains.",
+          "headHash": "5dffc9bc9581b641b3b74da0d4b6c756e587c6fb",
           "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
-          "timestamp": "2026-06-13T13:22:51.203Z"
+          "timestamp": "2026-06-13T13:41:29.514Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "command": "git diff --name-only main...HEAD",
+          "command": "git diff --name-only main...HEAD && git diff --name-only",
           "result": "pass",
-          "note": "Observed change set contains B-8448 metadata and docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md only; packages/main/src/cli-engine.ts and docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md were not modified.",
-          "headHash": "33f5749a4004020bfdaeec4833226d181c5b0761",
+          "note": "The change set remains documentation/Lattice metadata only; packages/main/src/cli-engine.ts and docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md were not modified.",
+          "headHash": "5dffc9bc9581b641b3b74da0d4b6c756e587c6fb",
           "materialHash": "f664d07d29cf3086d9ec27124c852f033fe12d6c9389112d86a2d6c491345d28",
-          "timestamp": "2026-06-13T13:22:51.242Z"
+          "timestamp": "2026-06-13T13:41:29.549Z"
         }
       ]
     }
