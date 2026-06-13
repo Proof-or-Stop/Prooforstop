@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T22:20:57.467Z",
       "reviewRunId": "B-2c0c:RR-006",
       "_hash": "d5197f53bfb2b2a3062a0194a1c6f566d7725dd32a0901ace9a365621fe0b0ac"
+    },
+    {
+      "id": "B-2c0c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept review PASS: decision-doc quorum is enforced as a local DONE gate only. evaluateDecisionDocQuorum requires changed direct docs/requirements/decisions/*.md, fresh materialDigest, three distinct runId rounds, and two distinct PASS host_verdict hostIds per round; stale, prose-only, duplicate-host, and non-pass verdicts are ignored. machine.ts consumes the evaluator in DONE guard/failure path without deriving Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone. command policy/process fact registry classify autopilot_review_submit as local host-verdict gate evidence and decision_doc_quorum_check as read-only diagnostics. Verified with npm --prefix packages/main run test:decision-doc-quorum-smoke and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-13T22:29:15.513Z",
+      "reviewRound": "2026-06-13T22:27:08.733Z",
+      "reviewRunId": "B-2c0c:RR-008",
+      "_hash": "87a6d9bdc3785024711d7d8364a55442b4f659af0baea3a7f6be265029619a8c"
     }
   ]
 }
