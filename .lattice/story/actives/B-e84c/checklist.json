@@ -153,8 +153,8 @@
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-13T13:37:26.392Z",
       "endTime": null,
       "userSees": "Document review shows the new decision document is listed in requirements navigation and the NAV count matches the decision file inventory.",
       "files": {
@@ -263,6 +263,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Forbidden guidance scan coverage verified against document text and repository scan output."
+    },
+    {
+      "timestamp": "2026-06-13T13:37:26.392Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start requirements NAV synchronization evidence recording."
     }
   ]
 }
