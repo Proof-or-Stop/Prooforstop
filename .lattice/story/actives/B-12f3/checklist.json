@@ -286,6 +286,17 @@
           "headHash": "e524aa175238f32a295ff34f160e87ccab2b2d53",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:23:36.551Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "lattice authority_status --json && lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json",
+          "result": "pass",
+          "note": "Authority status and dry-run keep receiptVerified=false, productionDone=false, authorityDone=false, and fullAuthorityDone=false without receipt-backed proof; delivery and summary must preserve this boundary before DONE.",
+          "headHash": "9a1a2e5a90c0db77bebe09c7e278587b31a24b8a",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:42.626Z"
         }
       ]
     }
