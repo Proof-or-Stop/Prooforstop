@@ -1,0 +1,250 @@
+{
+  "command": "koala validate --story=B-c251 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-JJqFkD; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-vHxsA7; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check — Draft plan document exists and states that scope_check_save already exists while scope-check.json is the missing PLAN evidence artifact.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check — Plan explicitly rejects auto-generating scope_check_save evidence or letting the main agent self-sign scope review.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check — Plan cannot claim Authority Server completion, receipt verification, or changed PLAN gate semantics for this documentation story.\",\"  ✓ CHK-002:happy:0 [happy/must/manual] covered via manual_transcript — Two independent host-style audit reports exist and both review the same draft plan artifact.\",\"  ✓ CHK-002:edge:0 [edge/must/manual] covered via manual_transcript — Audit prompts require no arbitrary optimization, only real correctness issues, and consistency of logic.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/manual] covered via manual_transcript — Audits explicitly check that the plan does not weaken scope_check_save reviewer authority or confuse CLI Non-authority with Authority Server receipt proof.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md) — Final plan incorporates accepted audit findings and records rejected non-correctness suggestions with rationale.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md) — Final plan includes verification and rollback steps specific to missing_scope_check guidance, not a broad lifecycle rewrite.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md) — Final plan preserves scope_check_save as PLAN-only reviewer-written signed evidence and excludes auto-signing or Authority overclaim.\",\"  ✓ CHK-004:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md) — Final plan names the follow-up implementation story scope and the Lattice commands needed to execute it.\",\"  ✓ CHK-004:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md) — Execution handoff distinguishes document completion from implementation completion and requires normal lifecycle gates for the follow-up.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md) — Execution handoff does not claim that Lattice already changed story_review/session behavior, nor that Authority Server has verified anything.\"],\"warnings\":[],\"timestamp\":\"2026-06-13T01:46:32.140Z\",\"headSha\":\"628469ccad0997772f3f3794223f79cec5df3745\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-JJqFkD; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-vHxsA7; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1270}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Draft plan document exists and states that scope_check_save already exists while scope-check.json is the missing PLAN evidence artifact.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"No whitespace errors in the execution plan document diff.\",\"headHash\":\"2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:46:08.907Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Plan explicitly rejects auto-generating scope_check_save evidence or letting the main agent self-sign scope review.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Plan explicitly covers scope_check_save, missing scope-check.json, no self-signing/auto-generation, Authority boundary, and follow-up execution handoff.\",\"headHash\":\"2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:46:08.907Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Plan cannot claim Authority Server completion, receipt verification, or changed PLAN gate semantics for this documentation story.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Document does not claim implementation or Authority completion; it names future follow-up lifecycle work.\",\"headHash\":\"2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:46:08.907Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Two independent host-style audit reports exist and both review the same draft plan artifact.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"multi_agent_v1 audits: Aquinas + Nietzsche over docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Two independent host-style audit reports reviewed the same draft artifact. Both returned BLOCKED on the same real schema issue in the scope_check_save example, with no other blockers.\",\"headHash\":\"9fa8ce5812f50ae4507e794eff88c3707f09342f\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:21.905Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Audit prompts require no arbitrary optimization, only real correctness issues, and consistency of logic.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"Audit prompts for Aquinas and Nietzsche\",\"result\":\"pass\",\"note\":\"Both audit prompts explicitly required no arbitrary optimization, only real correctness issues, and consistency of logic.\",\"headHash\":\"ae1c08de4f114873af301b3c428ef9687dd553aa\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:22.433Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Audits explicitly check that the plan does not weaken scope_check_save reviewer authority or confuse CLI Non-authority with Authority Server receipt proof.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"Aquinas + Nietzsche audit reports\",\"result\":\"pass\",\"note\":\"Both audits explicitly checked reviewer authority, self-signing, gate weakening, scope_contract_check confusion, and Authority overclaim; the only blocker was the invalid scope_check_save example schema, fixed in commit 9fa8ce5.\",\"headHash\":\"f9e5e4cac152591e7a5d2694e6c9b2ceeed465e7\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:22.838Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Final plan incorporates accepted audit findings and records rejected non-correctness suggestions with rationale.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"command\":\"rg -n \\\"Audit Incorporation|unsupported `agent` / `status` / `items`|features|summary|openQuestions\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Final plan records the accepted two-host audit finding and updates the scope_check_save example to current features/summary/openQuestions schema.\",\"headHash\":\"b3fd6793b11dab49fe6b4f44a780428870f30085\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:33.722Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Final plan includes verification and rollback steps specific to missing_scope_check guidance, not a broad lifecycle rewrite.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"command\":\"rg -n \\\"Future Implementation Plan|Verification Plan|Rollback Plan|Avoid new command surfaces|broad lifecycle assistant\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Final plan includes targeted execution, verification, and rollback steps for missing_scope_check guidance without broad lifecycle assistant scope.\",\"headHash\":\"84d36c664e0c9296ba40a44423a82ce26b8ed07e\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:34.139Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Final plan preserves scope_check_save as PLAN-only reviewer-written signed evidence and excludes auto-signing or Authority overclaim.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"command\":\"rg -n \\\"auto-generate|self-sign|Authority Server completion|receiptVerified|productionDone|authorityDone|fullAuthorityDone\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Final plan preserves scope_check_save as reviewer-written PLAN evidence and explicitly excludes auto-signing and Authority overclaim.\",\"headHash\":\"4bfccd13a3dacc32e80349f67c9528763637ad39\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:34.639Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Final plan names the follow-up implementation story scope and the Lattice commands needed to execute it.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"command\":\"rg -n \\\"Proposed follow-up story intent|Example creation command|lattice story_create|Improve missing_scope_check guidance ergonomics\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Final plan names the follow-up implementation story scope and includes a concrete lattice story_create command for Lattice execution.\",\"headHash\":\"802a48ad95dea427006fefec93dc1874b5c02c26\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:49.153Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Execution handoff distinguishes document completion from implementation completion and requires normal lifecycle gates for the follow-up.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"command\":\"rg -n \\\"This document does not implement|Implementation is not complete until the follow-up story reaches DONE|normal lifecycle\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Execution handoff clearly distinguishes this document from future implementation completion and requires normal Lattice lifecycle gates.\",\"headHash\":\"a1e840b1aa3301e814bd3b17ad1e4ffe5eca41a3\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:49.498Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Execution handoff does not claim that Lattice already changed story_review/session behavior, nor that Authority Server has verified anything.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"command\":\"rg -n \\\"does not implement|not complete|Do not weaken PLAN gates|auto-generate evidence|claim Authority Server completion\\\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md\",\"result\":\"pass\",\"note\":\"Execution handoff does not claim Lattice has already changed behavior and preserves no Authority Server completion claim.\",\"headHash\":\"d3b78dc2c30b6119cc06760555f1a97e7e509b0e\",\"materialHash\":\"f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6\",\"timestamp\":\"2026-06-13T01:45:49.877Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-13T01:46:32.534Z",
+  "headHash": "628469ccad0997772f3f3794223f79cec5df3745",
+  "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Draft plan document exists and states that scope_check_save already exists while scope-check.json is the missing PLAN evidence artifact.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "No whitespace errors in the execution plan document diff.",
+          "headHash": "2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:46:08.907Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Plan explicitly rejects auto-generating scope_check_save evidence or letting the main agent self-sign scope review.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Plan explicitly covers scope_check_save, missing scope-check.json, no self-signing/auto-generation, Authority boundary, and follow-up execution handoff.",
+          "headHash": "2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:46:08.907Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Plan cannot claim Authority Server completion, receipt verification, or changed PLAN gate semantics for this documentation story.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"scope_check_save|scope-check.json|Authority|Non-authority|missing_scope_check|follow-up\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Document does not claim implementation or Authority completion; it names future follow-up lifecycle work.",
+          "headHash": "2e9bd81d519a3cbc82ab410bab56f6d8c4eaf356",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:46:08.907Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Two independent host-style audit reports exist and both review the same draft plan artifact.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "multi_agent_v1 audits: Aquinas + Nietzsche over docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Two independent host-style audit reports reviewed the same draft artifact. Both returned BLOCKED on the same real schema issue in the scope_check_save example, with no other blockers.",
+          "headHash": "9fa8ce5812f50ae4507e794eff88c3707f09342f",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:21.905Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Audit prompts require no arbitrary optimization, only real correctness issues, and consistency of logic.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "Audit prompts for Aquinas and Nietzsche",
+          "result": "pass",
+          "note": "Both audit prompts explicitly required no arbitrary optimization, only real correctness issues, and consistency of logic.",
+          "headHash": "ae1c08de4f114873af301b3c428ef9687dd553aa",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:22.433Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Audits explicitly check that the plan does not weaken scope_check_save reviewer authority or confuse CLI Non-authority with Authority Server receipt proof.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Aquinas + Nietzsche audit reports",
+          "result": "pass",
+          "note": "Both audits explicitly checked reviewer authority, self-signing, gate weakening, scope_contract_check confusion, and Authority overclaim; the only blocker was the invalid scope_check_save example schema, fixed in commit 9fa8ce5.",
+          "headHash": "f9e5e4cac152591e7a5d2694e6c9b2ceeed465e7",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:22.838Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Final plan incorporates accepted audit findings and records rejected non-correctness suggestions with rationale.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"Audit Incorporation|unsupported `agent` / `status` / `items`|features|summary|openQuestions\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Final plan records the accepted two-host audit finding and updates the scope_check_save example to current features/summary/openQuestions schema.",
+          "headHash": "b3fd6793b11dab49fe6b4f44a780428870f30085",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:33.722Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Final plan includes verification and rollback steps specific to missing_scope_check guidance, not a broad lifecycle rewrite.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"Future Implementation Plan|Verification Plan|Rollback Plan|Avoid new command surfaces|broad lifecycle assistant\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Final plan includes targeted execution, verification, and rollback steps for missing_scope_check guidance without broad lifecycle assistant scope.",
+          "headHash": "84d36c664e0c9296ba40a44423a82ce26b8ed07e",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:34.139Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Final plan preserves scope_check_save as PLAN-only reviewer-written signed evidence and excludes auto-signing or Authority overclaim.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"auto-generate|self-sign|Authority Server completion|receiptVerified|productionDone|authorityDone|fullAuthorityDone\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Final plan preserves scope_check_save as reviewer-written PLAN evidence and explicitly excludes auto-signing and Authority overclaim.",
+          "headHash": "4bfccd13a3dacc32e80349f67c9528763637ad39",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:34.639Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Final plan names the follow-up implementation story scope and the Lattice commands needed to execute it.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"Proposed follow-up story intent|Example creation command|lattice story_create|Improve missing_scope_check guidance ergonomics\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Final plan names the follow-up implementation story scope and includes a concrete lattice story_create command for Lattice execution.",
+          "headHash": "802a48ad95dea427006fefec93dc1874b5c02c26",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:49.153Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Execution handoff distinguishes document completion from implementation completion and requires normal lifecycle gates for the follow-up.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"This document does not implement|Implementation is not complete until the follow-up story reaches DONE|normal lifecycle\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Execution handoff clearly distinguishes this document from future implementation completion and requires normal Lattice lifecycle gates.",
+          "headHash": "a1e840b1aa3301e814bd3b17ad1e4ffe5eca41a3",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:49.498Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Execution handoff does not claim that Lattice already changed story_review/session behavior, nor that Authority Server has verified anything.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "command": "rg -n \"does not implement|not complete|Do not weaken PLAN gates|auto-generate evidence|claim Authority Server completion\" docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "result": "pass",
+          "note": "Execution handoff does not claim Lattice has already changed behavior and preserves no Authority Server completion claim.",
+          "headHash": "d3b78dc2c30b6119cc06760555f1a97e7e509b0e",
+          "materialHash": "f7e5c235dedc8ef13ed4ad5dd226808fe9fc058f576c176bda64d24b0ee65bb6",
+          "timestamp": "2026-06-13T01:45:49.877Z"
+        }
+      }
+    ]
+  }
+}
