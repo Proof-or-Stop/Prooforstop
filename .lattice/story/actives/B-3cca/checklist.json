@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Audit CLI-engine Koala references",
+      "context": "Classify every Koala/koala/@koala hit in packages/main/src/cli-engine.ts as either current-product branding that should become Lattice or intentional legacy compatibility that must remain with explicit legacy wording.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Replace current-product Koala wording in CLI engine",
+      "context": "Update comments, command descriptions, help text, diagnostics, hook labels, and metadata prefixes that present Koala as current product identity. Preserve exact legacy identifiers and compatibility paths where changing them would break existing users or reviewer lanes.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regenerate and verify CLI engine output",
+      "context": "Run the package build so dist/cli-engine.js matches src/cli-engine.ts. Verify remaining Koala hits are only allowlisted legacy compatibility tokens and that standard build/runtime checks pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Record Claude CLI agent implementation evidence",
+      "context": "User explicitly requested a Claude CLI agent to perform the modification inside the Lattice flow. Capture the Claude CLI invocation/output summary as verification evidence, and ensure the agent edits only the story worktree while Codex reviews and integrates the result.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "README.md"
+      ],
+      "userSees": "Checklist evidence names the Claude CLI command/session used for the implementation pass and confirms the edit occurred inside the B-3cca worktree.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
