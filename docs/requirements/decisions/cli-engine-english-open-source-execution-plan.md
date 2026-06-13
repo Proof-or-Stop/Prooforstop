@@ -75,10 +75,10 @@ Required manifest columns:
 
 | Column | Meaning |
 |---|---|
-| `line` | Source line number at manifest generation time |
-| `surface` | `schema`, `command-description`, `help`, `error`, `hint`, `comment`, or `other` |
-| `chineseSource` | Exact Chinese-bearing source snippet |
 | `translationId` | Stable manifest row ID from this document |
+| `sourceLine` | Source line number at manifest generation time |
+| `surface` | `schema`, `command-description`, `help`, `error`, `hint`, `comment`, `cli-output`, or `other` |
+| `chineseSource` | Exact Chinese-bearing source snippet |
 | `proposedEnglish` | Proposed English replacement or wording |
 | `reviewStatus` | `review-draft`, `approved`, `needs-rewrite`, or `defer-to-legacy-archive` |
 
@@ -301,8 +301,8 @@ this table is the authoritative review packet for every Chinese-bearing
 | T125 | help | 值 | VALUE | Use uppercase placeholder in rendered help. |
 | T126 | help | 兼容 | Compatibility alias | Help footer. |
 | T127 | help | 必填 | required | Help footer. |
-| T128 | error | 参数校验失败 | Parameter validation failed | Error output. |
-| T129 | error | 参数校验失败（摘要） | Parameter validation failed (summary) | Error output. |
+| T128 | error | 参数校验失败 | Argument validation failed | Error output. |
+| T129 | error | 参数校验失败（摘要） | Argument validation failed (summary) | Error output. |
 | T130 | help | 执行命令 | Run a command | Main help. |
 | T131 | help | 查看参数 | Show command arguments | Main help. |
 | T132 | help | 显示此帮助 | Show this help | Main help. |
