@@ -123,14 +123,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/cli-engine.ts",
-          "command": "rg -n \"runCli —|koala CLI|koala-hook|lattice-hook\" packages/main/src/cli-engine.ts packages/main/src/core/hooks.ts docs/guide-hooks.md",
+          "kind": "docs_check",
+          "file": "docs/guide-hooks.md",
+          "command": "rg -n \"Koala|koala|@koala\" docs/guide-hooks.md packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "result": "pass",
-          "note": "Review findings fixed: runCli comment now says Lattice CLI; cli-engine and shared hook runner user-visible hook diagnostics use [lattice-hook]; docs/guide-hooks.md documents [lattice-hook].",
-          "headHash": "b70fe2426fed0236f6fc96b12984453336986e1b",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:26.499Z"
+          "note": "F-004 fixed by commit ce395d900: user-facing hook guide title, intro, init text, session_brief/doctor commands, state wording, and self-observation prose now use Lattice/lattice; remaining koala hits are explicit compatibility/config/env/path/example tokens such as koala.config.json, KOALA_ variables, .koala health/activity paths, and a legacy alias note.",
+          "headHash": "2cbcbd4405ce86ffc51c783176b09fcd4053aee9",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:12:21.564Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -215,12 +215,13 @@
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "command": "npm --prefix packages/main run test:cli-engine-branding-smoke",
           "result": "pass",
-          "note": "Current smoke output: cli-engine branding audit: PASS cli-engine src unclassified=0, cli-engine dist unclassified=0, hooks src unclassified=0, hooks dist unclassified=0; cli-engine branding smoke passed.",
-          "headHash": "2020773558d5e6fe96e5d014392781d60fd8b70e",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:14.822Z"
+          "note": "Branding smoke now audits guide-hooks doc in addition to cli-engine src/dist and hooks src/dist; output reports guide-hooks doc unclassified=0.",
+          "headHash": "2cbcbd4405ce86ffc51c783176b09fcd4053aee9",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:12:21.564Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -278,13 +279,12 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/cli-engine.ts",
-          "command": "git log story/B-3cca --oneline --author=koala-implementer | head -5",
+          "command": "claude -p --model sonnet --agent koala-implementer ...; git commit --author=koala-implementer <koala-implementer@noreply.local>",
           "result": "pass",
-          "note": "Claude CLI implementation: PASS worktree=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca. Commit 259976fb2 by koala-implementer <koala-implementer@noreply.local>: B-3cca: clean Koala branding from cli-engine + add branding smoke. Session operated entirely within the story worktree, no files outside B-3cca scope modified. All CHK-001..CHK-004 evidence recorded via lattice CLI in this session.",
-          "headHash": "b70fe2426fed0236f6fc96b12984453336986e1b",
-          "materialHash": "a22bdd923ebed4ddf14b4fd8811a0c668defda60a1642778c6ab95b2d03f41cb",
-          "timestamp": "2026-06-13T11:02:26.499Z"
+          "note": "Claude CLI koala-implementer session was launched in /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca for F-004 and produced staged edits to docs/guide-hooks.md plus cli-engine-branding-smoke.ts; the session became nonresponsive after edits, was interrupted, and the accepted staged changes were committed as ce395d900 with author koala-implementer.",
+          "headHash": "2cbcbd4405ce86ffc51c783176b09fcd4053aee9",
+          "materialHash": "2381e977bcb17c98a071d71ce1c2b56bd7fa2a08fbcaf10990588fa81f10db54",
+          "timestamp": "2026-06-13T11:12:21.564Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
