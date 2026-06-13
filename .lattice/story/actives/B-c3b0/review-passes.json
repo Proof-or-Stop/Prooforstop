@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-13T12:09:08.341Z",
       "reviewRunId": "B-c3b0:RR-008",
       "_hash": "c3092e981140732904fc418e0affdbff32435481655fe9444ce3d48d7ce1a1b9"
+    },
+    {
+      "id": "B-c3b0:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: packages/main/src/handlers/done-effects.ts:131 defines a narrow runtime-input predicate and :183 runs build/skip/failure guidance from the main SHA diff; normal DONE captures pre/post merge SHA then runs the helper after merge and cleanup at packages/main/src/handlers/done-effects.ts:607 and :739. Partial-DONE recovery records the same SHA window and reuses the helper with test seam at packages/main/src/handlers/done-recover.ts:79 and :96. Smoke coverage asserts runtime triggers, docs-only skips, stale-dist recovery text, and recovery cleanup-before-build-failure behavior in packages/main/src/tasks/worktree-authority-smoke.ts:817, :853, :907, :948, and :1006. No product-fit blocker found.",
+      "createdAt": "2026-06-13T12:46:33.517Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-010",
+      "_hash": "276a22b89d5f42fae9ae0c9e6a77597940d0c77bb6282b8c7df01f26b902b79b"
     }
   ]
 }
