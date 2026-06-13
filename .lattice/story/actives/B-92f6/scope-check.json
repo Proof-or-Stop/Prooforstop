@@ -1,0 +1,31 @@
+{
+  "storyId": "B-92f6",
+  "checkedAt": "2026-06-13T12:48:38.538Z",
+  "features": [
+    {
+      "feature": "Required @changes metadata for packages/main/src/tasks/cli-engine-branding-smoke.ts must be added in the documented format and tied to CHK-001.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "relatedDocs:docs/requirements/decisions/annotation-system.md"
+    },
+    {
+      "feature": "Behavioral or branding cleanup changes to the branding smoke task are outside this story, including scanner rules, classified token lists, audited file sets, output text, exit behavior, and broader brand cleanup.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 context: add a concise changes summary without changing smoke behavior",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "covered": 1,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "188c616b82477408a776002dba43afbb60ba8504c90f65bc3113cc6b2687de82",
+  "openQuestions": []
+}

@@ -1,0 +1,22 @@
+{
+  "task": "Fix the one annotation validator error by adding the required @changes field to the branding smoke task annotation.",
+  "outcome": "When the user runs `node packages/main/dist/tasks/cli-validate.js`, the terminal prints `PASSED: All task annotations are valid.` instead of `ERROR src/tasks/cli-engine-branding-smoke.ts:2 missing required field: @changes`.",
+  "facts": [
+    "node packages/main/dist/tasks/cli-validate.js reports src/tasks/cli-engine-branding-smoke.ts:2 missing required field: @changes.",
+    "docs/requirements/decisions/annotation-system.md lists @changes as a required @task field.",
+    "The required @changes format is `- [CHK-xxx] 描述`, so this story should add one line tied to CHK-001.",
+    "The existing task annotation belongs to B-3cca and describes the CLI-engine branding audit smoke; this story only fixes metadata validity."
+  ],
+  "constraints": [
+    "Do not run omx or read/write/use .omx/.",
+    "Do not directly edit docs/story/ or tests/fixtures/.",
+    "Do not expand the Koala/Lattice branding cleanup scope.",
+    "Keep runtime behavior unchanged; only task annotation metadata should change unless build output must be synchronized."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "packages/main/dist/tasks/cli-engine-branding-smoke.js"
+  ],
+  "timestamp": "2026-06-13T12:46:36.100Z"
+}

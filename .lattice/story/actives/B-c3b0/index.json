@@ -4,7 +4,7 @@
   "title": "Auto-build main CLI dist after DONE merges touch runtime sources",
   "description": "After a story merges back to local main, the global lattice executable can point at packages/main/dist/cli.js while packages/main/src has changed. This leaves main updated but the usable CLI stale. Make DONE merge rebuild the package when CLI runtime inputs changed, and make failure explicit.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "done-merge",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-13T11:55:00.637Z",
   "startedAt": "2026-06-13T11:55:00.637Z",
-  "endedAt": null,
+  "endedAt": "2026-06-13T13:00:46.574Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,105 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-13T11:56:24.435Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:02:40.297Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:09:08.341Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:14:47.893Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:17:42.201Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:22:23.184Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:27:51.640Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:29:13.296Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:43:26.573Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T12:54:58.155Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T13:00:46.574Z",
+      "branch": "story/B-c3b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-350de45eaf0f0f51",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c3b0",
-    "branch": "story/B-c3b0",
-    "createdAt": "2026-06-13T11:56:17.048Z"
-  }
+  "currentReviewRound": "2026-06-13T12:43:26.573Z"
 }

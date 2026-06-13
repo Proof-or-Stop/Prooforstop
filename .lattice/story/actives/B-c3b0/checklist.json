@@ -7,9 +7,64 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T12:06:43.353Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A DONE merge diff containing packages/main/src/handlers/done-effects.ts triggers exactly one packages/main build after the merge and before final DONE success output; successful run reports that packages/main build was refreshed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A DONE merge diff containing only docs/requirements/decisions/story-lifecycle.md or other non-runtime docs skips the packages/main build and still completes DONE without stale-dist warnings.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A mixed DONE merge diff with packages/main/package.json, packages/main/tsconfig.json, root package.json, or package-lock.json is treated as runtime-affecting and triggers the build even when no packages/main/src file changed.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding post-DONE build hook.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke asserts docs-only changes skip packages/main build and DONE output includes a visible skip line.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke asserts packages/main/package.json, packages/main/tsconfig.json, root package.json, package-lock.json, and packages/main/src/** trigger the build predicate.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +73,64 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T12:06:34.603Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "When the post-DONE packages/main build command exits successfully, DONE output includes a clear success line and does not print recovery guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When the build is skipped because no watched runtime input changed, the DONE path does not report a build failure or stale dist guidance.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When the post-merge build command exits non-zero after main has already been merged, the command fails visibly with the failed build command, captured output or error text, states that dist may be stale, and gives the recovery command npm --prefix packages/main run build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Stubbed success branch returns visible refreshed line naming npm --prefix packages/main run build.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Stubbed skip branch does not invoke the build runner and reports no stale-dist guidance.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Stubbed non-zero build branch throws with dist may be stale, recovery command, stdout, and stderr.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -29,9 +139,64 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-13T12:06:34.249Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke coverage exercises the changed-path predicate for representative watched inputs: packages/main/src/**, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke coverage exercises skip cases for docs-only and unrelated package paths without invoking a real npm install or a real package build.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke coverage stubs the post-DONE build hook to prove both success and non-zero build failure branches are observable, including recovery messaging, without performing remote operations or depending on global npm state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke exercises the changed-path predicate for every watched runtime input.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke exercises docs-only and unrelated package skip cases without invoking real npm.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke stubs success and failure build runners, including recovery messaging, without remote or global install operations.",
+          "headHash": "c598cc81e89c3fc339869859d1e07435df27ca25",
+          "materialHash": "6cf81aa18f0c7956c1992cbd376a851e3d57201b718c1ad9cd63a347291b2103",
+          "timestamp": "2026-06-13T13:00:24.528Z"
+        }
+      ]
     }
   ]
 }

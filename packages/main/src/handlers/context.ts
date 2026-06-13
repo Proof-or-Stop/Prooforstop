@@ -40,6 +40,8 @@ export interface HandlerContext {
   authoritySubmitter?: import('../core/authority-submit.js').AuthoritySubmitter;
   /** Test seam for autopilot executor command execution. Production uses the built-in argv runner. */
   autopilotCommandRunner?: import('../core/autopilot-executor.js').AutopilotCommandRunner;
+  /** Test seam for DONE / done_recover post-merge package build execution. Production uses npm. */
+  doneMainBuildRunner?: import('./done-effects.js').DoneMainBuildRunner;
   /**
    * Authority gate evaluator resolution options for `planner run --mode=authority
    * --until=DONE`. Production leaves this unset, so `resolveAuthorityGateEvaluator`

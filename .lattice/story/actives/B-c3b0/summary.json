@@ -1,0 +1,55 @@
+{
+  "storyId": "B-c3b0",
+  "changes": "Added a post-DONE packages/main build hook for runtime-affecting merges, extended it to done_recover, and covered package-local lockfile triggers plus recovery cleanup ordering.",
+  "usage": "Continue using lattice story_advance DONE and done_recover normally; when packages/main runtime inputs changed, the CLI now refreshes packages/main/dist automatically after the local main merge.",
+  "expectedOutcome": "After a runtime-affecting packages/main story reaches DONE or is recovered through done_recover, the global thin lattice CLI sees the refreshed dist without a manual npm build.",
+  "actualTranscript": "Ran npm --prefix packages/main run build, npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:flow-stability-smoke, and KOALA_SESSION_ID=sess-350de45eaf0f0f51 lattice validate --story=B-c3b0 --json; all passed with 9/9 verification intent coverage.",
+  "outcomeDiff": "Expected and actual match before DONE. The final live signal is expected during story_advance DONE, which should print the packages/main build refreshed line because this story changes packages/main/src.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Normal DONE runtime success/failure is covered through the shared helper and call-site review rather than a full real npm build inside every smoke fixture; this was accepted by coverage review to avoid slow/uncontrolled smoke behavior.",
+  "pitfalls": "Keep the hook targeted to runtime inputs only; making it unconditional would waste time on docs-only stories, while moving done_recover build before cleanup can recreate partial-DONE residue on build failure.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 76276
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7513
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 375862
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1744085
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1393773
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 267406
+    }
+  },
+  "totalDurationMs": 3864924,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T12:59:25.561Z",
+  "updatedAt": "2026-06-13T12:59:25.561Z"
+}

@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Keep DONE merge semantics deterministic and observable.",
+    "Rebuild only when CLI runtime inputs changed so docs-only DONE remains fast.",
+    "Fail loudly on stale dist risk instead of silently reporting success.",
+    "Keep the implementation local to DONE merge effects and focused tests."
+  ],
+  "drivers": [
+    "Global lattice points at packages/main/dist/cli.js in local development.",
+    "Missing build after DONE makes newly merged CLI commands unavailable.",
+    "The user asked for a hard rule rather than manual convention."
+  ],
+  "options": [
+    {
+      "name": "A: Rebuild packages/main after every DONE merge",
+      "pros": [
+        "Simple mental model",
+        "Eliminates stale dist after any DONE"
+      ],
+      "cons": [
+        "Adds unnecessary cost to docs-only or non-main-package stories",
+        "Could make unrelated DONE slower and noisier"
+      ]
+    },
+    {
+      "name": "B: Rebuild packages/main only when DONE merge changes CLI runtime inputs",
+      "pros": [
+        "Targets the actual stale-dist risk",
+        "Avoids cost for unrelated stories",
+        "Can be covered with a deterministic changed-path predicate smoke"
+      ],
+      "cons": [
+        "Requires maintaining the watched path list",
+        "A missed runtime input path would skip build incorrectly"
+      ]
+    },
+    {
+      "name": "C: Add only a post-merge hook or documentation reminder",
+      "pros": [
+        "Low implementation cost",
+        "Helps manual git pull workflows"
+      ],
+      "cons": [
+        "Does not enforce the Lattice DONE path itself",
+        "Still relies on user environment and hook installation"
+      ]
+    }
+  ],
+  "chosen": "B: Rebuild packages/main only when DONE merge changes CLI runtime inputs",
+  "rationale": "Choose a targeted hard rule in applyDoneMergeEffects: compare main before/after merge, rebuild packages/main when source/package runtime inputs changed, and surface build failure explicitly. This fixes the stale global lattice problem without turning every DONE into an unconditional build.",
+  "preMortem": [
+    {
+      "scenario": "Changed-path list misses a real CLI runtime input",
+      "trigger": "A story edits a runtime-affecting file outside the watched prefixes",
+      "consequence": "DONE skips build and global lattice stays stale",
+      "mitigation": "Use conservative watched prefixes: packages/main/src, packages/main/package.json, packages/main/tsconfig.json, root package.json, and package-lock.json; add smoke coverage for representative paths."
+    },
+    {
+      "scenario": "Post-merge build failure leaves DONE looking successful",
+      "trigger": "TypeScript compile fails after the story branch has already merged to main",
+      "consequence": "User believes DONE completed while dist is stale",
+      "mitigation": "Throw a clear post-merge rebuild error with command/output/recovery guidance before cleanup/reporting completes."
+    },
+    {
+      "scenario": "Smoke test becomes slow or brittle by running a full real DONE merge with npm build",
+      "trigger": "Test shells out through the entire lifecycle and package manager",
+      "consequence": "Local validation becomes expensive and flaky",
+      "mitigation": "Expose small helper functions for changed-path detection/build execution and cover them with task-level smoke, while existing DONE merge smoke continues to cover integration shape."
+    }
+  ],
+  "timestamp": "2026-06-13T11:56:55.766Z"
+}

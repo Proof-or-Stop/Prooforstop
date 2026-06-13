@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-c3b0:RP-001",
+      "agent": "koala-review-docs",
+      "note": "PASS docs accuracy: docs/requirements/decisions/story-lifecycle.md:158 describes local post-DONE packages/main build after local main merge, watched runtime inputs, visible skip line, stale-dist recovery command, and captured output. Verified against packages/main/src/handlers/done-effects.ts:125,131,182,193,202 and packages/main/src/tasks/worktree-authority-smoke.ts:816,851; no remote publish/global install/manual git pull hook overclaim found.",
+      "createdAt": "2026-06-13T12:11:16.175Z",
+      "reviewRound": "2026-06-13T12:09:08.341Z",
+      "reviewRunId": "B-c3b0:RR-005",
+      "_hash": "58c363fa69ce936b4144d8f6fe0c6e0493462de5bc79ba4959785926b8e93d17"
+    },
+    {
+      "id": "B-c3b0:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: post-DONE hook runs only after local main merge, triggers on watched packages/main runtime inputs, skips docs-only/unrelated changes with a visible line, fails visibly with captured build output and recovery command, and stays scoped to npm --prefix packages/main run build without release/publish/global install behavior.",
+      "createdAt": "2026-06-13T12:12:47.638Z",
+      "reviewRound": "2026-06-13T12:09:08.341Z",
+      "reviewRunId": "B-c3b0:RR-007",
+      "_hash": "28a3be566996dae66ded2b9e88a8607681237a1c77316ba50d40ff0c2191e544"
+    },
+    {
+      "id": "B-c3b0:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage pass: all CHK-001..CHK-003 verificationIntent entries have matching evidence; current materialHash 01a5752d17f4fad39861798c86d2cb45f4a5b68c21187720e91772a62fa9f48c matches recorded evidence; npm --prefix packages/main run build, npm --prefix packages/main run test:worktree-authority-smoke, and npm --prefix packages/main run test:flow-stability-smoke passed; session_brief shows validate PASS at 2026-06-13T12:08:42.286Z; build left no code/dist changes.",
+      "createdAt": "2026-06-13T12:13:07.708Z",
+      "reviewRound": "2026-06-13T12:09:08.341Z",
+      "reviewRunId": "B-c3b0:RR-008",
+      "_hash": "c3092e981140732904fc418e0affdbff32435481655fe9444ce3d48d7ce1a1b9"
+    },
+    {
+      "id": "B-c3b0:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: packages/main/src/handlers/done-effects.ts:131 defines a narrow runtime-input predicate and :183 runs build/skip/failure guidance from the main SHA diff; normal DONE captures pre/post merge SHA then runs the helper after merge and cleanup at packages/main/src/handlers/done-effects.ts:607 and :739. Partial-DONE recovery records the same SHA window and reuses the helper with test seam at packages/main/src/handlers/done-recover.ts:79 and :96. Smoke coverage asserts runtime triggers, docs-only skips, stale-dist recovery text, and recovery cleanup-before-build-failure behavior in packages/main/src/tasks/worktree-authority-smoke.ts:817, :853, :907, :948, and :1006. No product-fit blocker found.",
+      "createdAt": "2026-06-13T12:46:33.517Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-010",
+      "_hash": "276a22b89d5f42fae9ae0c9e6a77597940d0c77bb6282b8c7df01f26b902b79b"
+    },
+    {
+      "id": "B-c3b0:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: inspected done-effects, done-recover, context, worktree-authority-smoke, and story-lifecycle docs. Runtime-input predicate matches the documented package/main src/package/tsconfig and root package inputs; build command executes from mainMergeRoot; failure path surfaces stale dist, recovery command, and captured output; done_recover performs merge/cleanup/branch-delete before recovery build under the main write lock. Type check passed: npm --prefix packages/main run build -- --noEmit. Residual advisory: story_advance DONE runtime-change branch is covered via helper predicate plus metadata-only DONE smoke, while injected build-runner coverage is stronger on done_recover.",
+      "createdAt": "2026-06-13T12:50:09.899Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-011",
+      "_hash": "b318d1a97c04995a3d1a9b65907deaa2fa42a24dfa5d12ed5894e1aa9d638299"
+    },
+    {
+      "id": "B-c3b0:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage adequate: fresh smoke passes; predicate covers packages/main/src, package metadata, root and package-local lockfiles; helper covers skip/success/failure messaging; done_recover smoke covers runtime success, docs-only skip, and failure after cleanup. Residual advisory: normal DONE runtime-change success/failure is helper-level rather than full e2e.",
+      "createdAt": "2026-06-13T12:52:27.908Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-013",
+      "_hash": "2961af9ac140367bf446b1c24a4fa2a67207a1fbd05a848c5d26f90a522a1f9c"
+    },
+    {
+      "id": "B-c3b0:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Docs match done-effects and done-recover: watched CLI runtime inputs, visible skip line, stale-dist failure recovery command, and recovery cleanup-before-build semantics are accurately described without overpromising.",
+      "createdAt": "2026-06-13T12:54:02.378Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-014",
+      "_hash": "4d1cfb33be04e90314cdf64c451df86f8f3f2056372c31fb89dad963bf63a87d"
+    },
+    {
+      "id": "B-c3b0:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Quality re-pass on latest lane run: reviewed post-merge build predicate, normal DONE hook, done_recover cleanup-before-build ordering, package-local lockfile trigger, test seam safety, and smoke coverage; no blocking implementation findings.",
+      "createdAt": "2026-06-13T12:54:43.135Z",
+      "reviewRound": "2026-06-13T12:43:26.573Z",
+      "reviewRunId": "B-c3b0:RR-012",
+      "_hash": "d42ff706663f0b703a2d69701f863e2600f1a2ebe8711a724665f580eaf3f508"
+    }
+  ]
+}

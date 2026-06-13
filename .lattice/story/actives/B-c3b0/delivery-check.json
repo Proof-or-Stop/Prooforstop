@@ -1,0 +1,51 @@
+{
+  "storyId": "B-c3b0",
+  "checkedAt": "2026-06-13T12:58:36.578Z",
+  "reviewRound": "2026-06-13T12:43:26.573Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE and done_recover merges into local main detect whether the merge diff touches packages/main runtime inputs, run npm --prefix packages/main run build only when needed, print a visible skip line for docs-only/unrelated changes, and report stale-dist recovery guidance plus captured output on build failure.",
+      "status": "verified",
+      "verifiedBy": "reverse git diff plus code/evidence inspection",
+      "evidence": "Verified against done-effects runtime-input predicate/build helper, normal DONE pre/post main SHA usage, done_recover shared helper usage, worktree-authority smoke coverage, transcript-diff, and validate PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c3b0/evidence/transcript-diff.md",
+      "promise": "Records expected vs actual delivery evidence for build, worktree-authority smoke, flow-stability smoke, and lattice validate, with expected and actual matching for pre-DONE acceptance.",
+      "status": "verified",
+      "verifiedBy": "direct transcript-diff and test-evidence inspection",
+      "evidence": "Transcript records PASS for npm --prefix packages/main run build, npm --prefix packages/main run test:worktree-authority-smoke, npm --prefix packages/main run test:flow-stability-smoke, and KOALA_SESSION_ID=sess-350de45eaf0f0f51 lattice validate --story=B-c3b0 --json; test-evidence records validate PASS and 9/9 coverage."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build: PASS per checklist evidence and transcript-diff; worktree-authority smoke covers watched runtime-input trigger cases including packages/main/src/**, package metadata, tsconfig, root package files, and package-lock files."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:worktree-authority-smoke: PASS; smoke covers visible success line, docs-only skip without stale-dist guidance, and non-zero build failure with command, captured output, stale-dist warning, and recovery command."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:worktree-authority-smoke: PASS; smoke covers predicate, skip, success, failure, and done_recover runtime success/docs-only skip/failure-after-cleanup behavior with stubs."
+    },
+    {
+      "featureId": "FLOW-STABILITY",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke: PASS as recorded in transcript-diff and coverage review pass."
+    },
+    {
+      "featureId": "VALIDATE",
+      "transcript": "KOALA_SESSION_ID=sess-350de45eaf0f0f51 lattice validate --story=B-c3b0 --json: PASS; test-evidence summary says project validation commands passed and verification intent coverage is 9/9 with 0 required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are closed: docs align with implementation, transcript-diff records expected versus actual, focused smoke covers edge/adversarial branches, and lattice validate passed. Residual note: the final live post-DONE build line is naturally observed when this TEST story advances to DONE."
+  },
+  "_hash": "aeb551fb890435e510010082e62d60642684a0d442519e00084c02c928ada56d"
+}

@@ -1,0 +1,29 @@
+{
+  "storyId": "B-92f6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "packages/main/dist/tasks/cli-engine-branding-smoke.js"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "scripts/validate-tasks.js",
+    "packages/main/dist/tasks/cli-validate.js"
+  ],
+  "protectedFiles": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "explicitExcludes": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts behavior changes",
+    "packages/main/dist/tasks/cli-engine-branding-smoke.js behavior changes"
+  ],
+  "scopeChangeReason": "Initialize REVIEW scope contract from the PLAN-declared annotation metadata fix scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T12:50:34.947Z",
+  "updatedAt": "2026-06-13T12:50:34.947Z"
+}

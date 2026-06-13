@@ -1,0 +1,43 @@
+{
+  "storyId": "B-92f6",
+  "checkedAt": "2026-06-13T12:56:05.199Z",
+  "reviewRound": "2026-06-13T12:50:52.412Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/annotation-system.md",
+      "promise": "@task annotations require an @changes field, and @changes entries must use the format - [CHK-xxx] description.",
+      "status": "verified",
+      "verifiedBy": "manual diff/doc review",
+      "evidence": "Document lists @changes as a required field with format - [CHK-xxx] 描述; git diff adds @changes - [CHK-001] Add the required annotation metadata change summary for the CLI-engine branding smoke task."
+    },
+    {
+      "docPath": "docs/requirements/decisions/annotation-system.md",
+      "promise": "Each @changes entry is tied to a checklist item ID so coverage analysis can connect changes back to checklist work.",
+      "status": "met",
+      "verifiedBy": "manual diff/doc review",
+      "evidence": "The added metadata line references [CHK-001], matching the only checklist item for B-92f6."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/cli-validate.js actual transcript in .lattice/story/actives/B-92f6/evidence/transcript-diff.md: Errors: 0; Warnings: 0; PASSED: All task annotations are valid."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-92f6 --json recorded PASS/allPass true in test-evidence.json with Verification intent coverage 3/3 covered and 0 required missing."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "Edge/adversarial evidence recorded: node scripts/validate-tasks.js passed for source annotations, and lattice convergence_check reported Code annotations compliant: passed / All 60 annotations compliant; remaining convergence=false items are unrelated gaps/unfinished stories."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery accepted: the only code diff is the required @changes metadata line, it matches the documented CHK format, dist validator output reaches the user-visible PASSED line, validate passed with full verification coverage, and remaining convergence blockers are outside this story."
+  },
+  "_hash": "0895987cbfa232e2dcd6a0c1561cd3602880107500c9d7d69c9c1548d296c6a2"
+}
