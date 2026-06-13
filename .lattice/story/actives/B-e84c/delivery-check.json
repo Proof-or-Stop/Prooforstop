@@ -1,0 +1,72 @@
+{
+  "storyId": "B-e84c",
+  "checkedAt": "2026-06-13T14:06:46.458Z",
+  "reviewRound": "2026-06-13T13:58:26.707Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "promise": "Defines a host-neutral Lattice workflow command boundary and limits Codex-specific command guidance to adapter diagnostics and verification.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg, checklist_get evidence",
+      "evidence": "New plan contains command family table, forbidden namespace pattern, accepted Codex adapter commands, and checklist evidence CHK-001/CHK-002 records help and fail-closed checks."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "promise": "Does not claim README, init-assets, source, or dist cleanup is delivered by this document-review story.",
+      "status": "verified",
+      "verifiedBy": "rg residual-boundary scan and transcript-diff",
+      "evidence": "Lines around the residual local wrapper guidance state README.md, packages/main/src/init-assets.ts, generated packages/main/dist/init-assets*, and codex-adapter-check display-command cleanup are future cleanup; the text says the document review only makes the execution plan accurate and does not claim those targets are already cleaned."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "promise": "Records no-overclaim boundaries for production, Authority, unattended, convergence, and unrelated cleanup claims.",
+      "status": "verified",
+      "verifiedBy": "document diff and checklist evidence CHK-004",
+      "evidence": "The plan includes Non-Goals and No-Overclaim Boundary sections; CHK-004 adversarial evidence confirms it does not claim full project convergence, production readiness, Authority readiness, or unattended readiness."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Makes the new command-boundary decision plan discoverable from requirements navigation and keeps the inventory count consistent.",
+      "status": "verified",
+      "verifiedBy": "git diff and rg NAV checks",
+      "evidence": "NAV diff updates the count to 49 and adds the Lattice Codex Command Boundary Execution Plan link; checklist evidence records the decisions markdown inventory as 49 and no removed entries."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-e84c/evidence/transcript-diff.md",
+      "promise": "Captures final expected-vs-actual evidence for validation PASS, command-boundary checks, and out-of-scope residual cleanup.",
+      "status": "verified",
+      "verifiedBy": "git diff transcript-diff and session_brief",
+      "evidence": "Transcript-diff records node bin/lattice.js validate --story=B-e84c --json passing, npm test all pass, 12/12 verification intents covered, and the residual README workflow-wrapper, init-assets diagnostic, source, and dist hits as out of scope."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "TEST:validate",
+      "transcript": "session_brief reports last test run at 2026-06-13T14:04:45.753Z with result PASS. transcript-diff records node bin/lattice.js validate --story=B-e84c --json, status pass, fallback validation command npm test, test result all pass, verification intent coverage 12/12, warnings none."
+    },
+    {
+      "featureId": "CHK-001:codex-adapter-help",
+      "transcript": "checklist_get evidence records node bin/lattice-codex.js codex_doctor --help and node bin/lattice-codex.js verify_codex --help passing, resolving to supported Codex adapter diagnostic and verification commands."
+    },
+    {
+      "featureId": "CHK-002:fail-closed-workflow-namespace",
+      "transcript": "checklist_get evidence records node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help exiting non-zero with guidance to use lattice session_brief and lattice aux_doc_list."
+    },
+    {
+      "featureId": "CHK-003:nav-inventory",
+      "transcript": "checklist_get evidence records find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l plus NAV count check; result is 49 decision markdown files and NAV declares 49 files."
+    },
+    {
+      "featureId": "delivery:transcript-diff",
+      "transcript": "git diff main...HEAD shows .lattice/story/actives/B-e84c/evidence/transcript-diff.md added with Expected, Actual, and Conclusion sections covering NAV discoverability, adapter command resolution, fail-closed forbidden forms, explicit future cleanup residuals, and validate PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check verified the final diff in reverse: material changes are the new command-boundary execution plan and requirements NAV update, while Lattice metadata contains validate PASS plus transcript-diff evidence. The plan explicitly keeps README, init-assets, source, and dist cleanup as future work and does not claim those targets are delivered in this document-review story. No unresolved TODO remains inside the delivered document-review scope."
+  },
+  "_hash": "f499bafb14bb2ef515bd3b5175a0fcad17d792ac9dbfaefe13531e5ed9f95a79"
+}

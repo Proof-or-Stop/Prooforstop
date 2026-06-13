@@ -1,0 +1,56 @@
+{
+  "storyId": "B-22b0",
+  "changes": "Audited B-12f3 for receipt-backed Authority proof readiness and fixed evidence_inspect JSON so failed proof refs expose result, verdict, note, and waiverType. The audit records local DONE separately from Authority Server DONE.",
+  "usage": "Run authority_status with the configured trust env, then evidence_inspect --storyId=B-22b0 --format=json to inspect local audit evidence. True Authority proof still requires actor key, runner id or session, and a verified gate_decision receipt.",
+  "expectedOutcome": "Expected result was either a verified Authority Server receipt for B-12f3 or a fail-closed blocked result that refuses to claim Authority completion without receipt proof.",
+  "actualTranscript": "validate PASS after main merge; authority_status reports receiptVerified=false, productionDone=false, canClaimProductionDone=false, actorKeyConfigured=false, runnerConfigured=false, and eligibilityReason=authority_receipt_missing.",
+  "outcomeDiff": "Actual differs from desired true Authority proof: local audit and CLI evidence are complete, but receipt-backed Authority proof is blocked by missing external Authority runner credentials and receipt.",
+  "acceptanceVerdict": "partial",
+  "outcomeKind": "blocked",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No Authority Server completion is claimed. A true receipt-backed proof still needs LATTICE_AUTHORITY_ACTOR_KEY or actor key path, LATTICE_AUTHORITY_RUNNER_ID or session/job context, and a native gate_decision receipt that authority_receipt_verify can verify.",
+  "pitfalls": "Do not treat local DONE, waived coverage, or blocked_classified audit evidence as Authority DONE. Global lattice may need main rebuild after DONE merge before the evidence_inspect JSON projection change is visible outside the story worktree.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 414076
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 19331
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 339183
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1038473
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1017792
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 101432
+    }
+  },
+  "totalDurationMs": 2930287,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T13:35:24.093Z",
+  "updatedAt": "2026-06-13T14:06:43.971Z"
+}

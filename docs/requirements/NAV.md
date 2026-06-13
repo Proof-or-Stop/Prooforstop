@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 47 个文件
+> 49 个文件
 
 ## decisions
 
@@ -34,6 +34,7 @@
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
 - [Lattice Authority Receipt Contract](decisions/lattice-authority-receipt-contract.md)
 - [Lattice CLI Authority Client and Receipt Ref](decisions/lattice-cli-authority-client-receipt-ref.md)
+- [Lattice Codex Command Boundary Execution Plan](decisions/lattice-codex-command-boundary-execution-plan.md)
 - [项目愿景与定位](decisions/project-vision.md)
 - [koala 多角色分离改造方案](decisions/role-separation.md)
 - [Session Ownership and Write Leases](decisions/session-ownership-and-write-leases.md)
@@ -44,9 +45,11 @@
 - [Root Markdown Migration Execution Solution](decisions/root-markdown-migration-execution-solution.md)
 - [Review Run Start Workspace Diagnostics Execution Plan](decisions/review-run-start-workspace-diagnostics-execution-plan.md)
 - [Review Run Start Signed Workspace Resolution Execution Plan](decisions/review-run-start-signed-workspace-resolution-execution-plan.md)
+- [Missing Scope Check Guidance Execution Plan](decisions/scope-check-missing-guidance-execution-plan.md)
 - [@test 注释与 Fixture 规范](decisions/test-fixture-spec.md)
 - [testIntent 对抗审查体系](decisions/test-intent-review.md)
 - [测试完整性决策](decisions/testing-completeness.md)
 - [测试基础设施](decisions/testing-infra.md)
 - [真相源管理](decisions/truth-source.md)
 - [Verification Context Pack](decisions/verification-context-pack.md)
+- [Unlock Layer 3 Real Execution UDM Baseline](decisions/unlock-layer3-real-execution-udm-baseline.md)

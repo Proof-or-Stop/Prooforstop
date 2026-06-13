@@ -1,0 +1,56 @@
+{
+  "storyId": "B-decb",
+  "changes": "移除 koala legacy 兼容命名，仅保留 lattice 入口；桌面产物改为 lattice-<platform>-<arch>，并同步 README 与 guide 的文档示例。",
+  "usage": "执行 npm --prefix packages/main run build，再运行 npm --prefix packages/main run test:lattice-cli-migration-smoke；桌面产物使用 dist/desktop/lattice-<platform>-<arch> 命名。",
+  "expectedOutcome": "仓库中不再把 koala 作为 CLI 主入口；发布产物与文档使用统一的 lattice 命名；migration smoke 与 build 校验通过。",
+  "actualTranscript": "执行 build 和 migration smoke 后通过，`npm --prefix packages/main run test:lattice-cli-migration-smoke` 输出： ✓ lattice CLI migration smoke passed。",
+  "outcomeDiff": "未发现偏差：预期与实际一致，legacy alias 断言已更新为 lattice 命名核验。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "最开始 migration smoke 仍包含 koala 断言，需要一次更新后重跑 build 与测试；没有其他额外踩坑。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 38439
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6398
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 37433
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 159644
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 37732
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 22268
+    }
+  },
+  "totalDurationMs": 301915,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T14:26:16.719Z",
+  "updatedAt": "2026-06-13T14:26:16.719Z"
+}

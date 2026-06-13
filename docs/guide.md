@@ -28,7 +28,7 @@
 
 ## Lattice CLI Rollout
 
-`lattice` 是当前主命令入口，`koala` 只保留为 legacy alias。项目本地开发、
+`lattice` 是当前主命令入口。项目本地开发、
 巡检和恢复现场时优先使用：
 
 ```bash
@@ -45,7 +45,6 @@ lattice rollout_check --projects /path/to/project --json
 npm --prefix packages/main run build
 npm install -g ./packages/main
 lattice --version
-koala --version
 lattice check
 lattice doctor --format=json
 lattice rollout_check --projects "$(pwd)" --json

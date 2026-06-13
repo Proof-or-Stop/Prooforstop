@@ -52,7 +52,7 @@ function targetForHost() {
 function artifactName(target) {
   const [, platform, arch] = target.match(/^node18-(macos|linux|win)-(.+)$/) || [];
   if (!platform || !arch) throw new Error(`Unsupported pkg target: ${target}`);
-  return `koala-${platform}-${arch}${platform === 'win' ? '.exe' : ''}`;
+  return `lattice-${platform}-${arch}${platform === 'win' ? '.exe' : ''}`;
 }
 
 function writePkgEntrypoint() {
@@ -67,7 +67,7 @@ function copyIntoRuntime(snapshotRoot, runtimeRoot, relPath) {
   const source = join(snapshotRoot, relPath);
   const destination = join(runtimeRoot, relPath);
   if (!existsSync(source)) {
-    throw new Error('Packaged Koala asset is missing from the pkg snapshot: ' + relPath);
+    throw new Error('Packaged Lattice asset is missing from the pkg snapshot: ' + relPath);
   }
   mkdirSync(dirname(destination), { recursive: true });
   writeFileSync(destination, readFileSync(source));
@@ -75,10 +75,10 @@ function copyIntoRuntime(snapshotRoot, runtimeRoot, relPath) {
 
 function prepareRuntime() {
   const snapshotRoot = join(__dirname, '..', '..');
-  const runtimeRoot = mkdtempSync(join(tmpdir(), 'koala-desktop-'));
+  const runtimeRoot = mkdtempSync(join(tmpdir(), 'lattice-desktop-'));
   const manifestPath = join(__dirname, 'asset-manifest.json');
   if (!existsSync(manifestPath)) {
-    throw new Error('Packaged Koala asset manifest is missing from the pkg snapshot.');
+    throw new Error('Packaged Lattice asset manifest is missing from the pkg snapshot.');
   }
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   for (const relPath of manifest.files) copyIntoRuntime(snapshotRoot, runtimeRoot, relPath);
@@ -94,11 +94,11 @@ async function main() {
   const runtimeRoot = prepareRuntime();
   const bootstrapPath = join(runtimeRoot, 'bin', 'bootstrap-runner.js');
   if (!existsSync(bootstrapPath)) {
-    throw new Error('Packaged Koala bootstrap is missing from the desktop runtime.');
+    throw new Error('Packaged Lattice bootstrap is missing from the desktop runtime.');
   }
   const bootstrap = await import(pathToFileURL(bootstrapPath).href);
   if (typeof bootstrap.runLocalBootstrap !== 'function') {
-    throw new Error('Packaged Koala bootstrap does not export runLocalBootstrap().');
+    throw new Error('Packaged Lattice bootstrap does not export runLocalBootstrap().');
   }
   await bootstrap.runLocalBootstrap();
 }
@@ -226,7 +226,7 @@ function packageTarget(target) {
 
 function writeManifest(results) {
   writeFileSync(manifestPath, JSON.stringify({
-    entry: 'bin/koala.js via generated pkg-entry.js',
+    entry: 'bin/lattice.js via generated pkg-entry.js',
     artifacts: results,
   }, null, 2) + '\n', 'utf8');
 }
