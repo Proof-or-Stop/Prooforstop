@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-de86:F-001",
+      "desc": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:197 declares productionSafetyClaim=LOCKED and globalCapabilityClaim=LOCKED as Phase 1 success criteria, and lines 680-705 make higher-layer locks part of DONE. But the required final report schema and PASS rejection contract at lines 523-645 only carry claimBoundary prose plus Authority booleans; they do not require structured productionSafetyClaim=LOCKED/globalCapabilityClaim=LOCKED fields or matching rejection predicates. A report could therefore satisfy the documented realExecutionUdm=PASS contract while omitting machine-checkable proof that Production Safety and the global Capability Claim remained locked. This weakens the claim boundary and conflicts with the process rule that gate-consumed facts must be structured rather than inferred from prose. Add explicit higher-layer lock fields/summary and require them in the PASS rejection predicates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T01:48:11.429Z",
+      "reviewRound": "2026-06-13T01:45:08.363Z",
+      "reviewRunId": "B-de86:RR-005",
+      "_hash": "04798e09ebbe5dc0790dac60e3f754fbb924efbd6b7363c170d61211f961a470",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+      ]
+    }
+  ]
+}
