@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-8448:F-001",
+      "desc": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:30 reports 762 Chinese-bearing cli-engine.ts lines, but docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:167 defines the current table as a catalog and defers every-line coverage to a later manifest; docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:90 and :373 also state that every Chinese-bearing line still needs manifest mapping. The committed document contains 173 T### catalog rows, so it is a representative catalog plus an execution plan, not the complete every-Chinese-translation result set requested for human audit. This blocks the requested deliverable until the document includes an auditable line-level translation result/mapping for all 762 Chinese-bearing lines or clearly obtains user acceptance for a representative catalog instead.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T13:25:21.416Z",
+      "reviewRound": "2026-06-13T13:23:10.700Z",
+      "reviewRunId": "B-8448:RR-001",
+      "_hash": "c96472140c809bb910a17ad916aebb32d5f3c14ece8ffc1bc924d31bea9c0170",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "packages/main/src/cli-engine.ts"
+      ]
+    }
+  ]
+}
