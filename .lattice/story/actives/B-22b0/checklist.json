@@ -10,7 +10,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"B-12f3 Authority boundary inventory: local DONE=true; receiptVerified=false; authorityDone=false; fullAuthorityDone=false\" with source commands listed.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "B-12f3 local lifecycle DONE evidence is inventoried from Lattice commands without reading story files directly.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inventory distinguishes local Non-authority lifecycle evidence from Authority Server receipt-backed proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inventory does not rewrite B-12f3 history or convert previous dry-run fail-closed evidence into Authority completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
