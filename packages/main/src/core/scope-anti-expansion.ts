@@ -62,6 +62,7 @@ export interface ScopeFreezeEvaluationInput {
   checklist?: ScopeFreezeChecklistProjection[];
   discardDigest?: ScopeDiscardDigestData | null;
   repeatDiscardMitigation?: string;
+  repeatDiscardMitigations?: readonly ScopeFreezeDiscardMitigation[];
   now?: string;
 }
 
@@ -70,6 +71,13 @@ export interface ScopeFreezeEvaluationResult {
   normalizedScopeBoundary: ScopeBoundaryData | null;
   normalizedExecutionBoundary: ExecutionBoundaryData | null;
   currentDiscardDigest: string;
+}
+
+export interface ScopeFreezeDiscardMitigation {
+  digest: string;
+  overlapTerms: string[];
+  mitigation: string;
+  previousStoryId?: string;
 }
 
 export interface BuildScopeBoundaryInput {
@@ -461,8 +469,14 @@ export function findRepeatDiscardOverlaps(args: {
   currentDigest: string;
   discardDigest?: ScopeDiscardDigestData | null;
   mitigation?: string;
+  mitigations?: readonly ScopeFreezeDiscardMitigation[];
 }): ScopeFreezeDiscardOverlap[] {
   const mitigation = nonEmpty(args.mitigation) ? normalizeTerm(args.mitigation) : undefined;
+  const mitigationByOverlap = new Map<string, string>();
+  for (const item of args.mitigations ?? []) {
+    if (!nonEmpty(item.mitigation)) continue;
+    mitigationByOverlap.set(scopeFreezeDiscardOverlapKey(item), normalizeTerm(item.mitigation));
+  }
   const overlaps: ScopeFreezeDiscardOverlap[] = [];
   const seen = new Set<string>();
   for (const entry of args.discardDigest?.entries ?? []) {
@@ -471,20 +485,81 @@ export function findRepeatDiscardOverlaps(args: {
     const digestMatches = entry.digest === args.currentDigest;
     const overlapsEnough = digestMatches || ratio.ratio >= REPEAT_DISCARD_OVERLAP_THRESHOLD;
     if (!overlapsEnough) continue;
-    const key = `${entry.digest}::${ratio.terms.join('|')}`;
+    const overlapTerms = digestMatches && ratio.terms.length === 0 ? entryTerms : ratio.terms;
+    const key = scopeFreezeDiscardOverlapKey({
+      digest: entry.digest,
+      overlapTerms,
+      previousStoryId: entry.storyId,
+    });
     if (seen.has(key)) continue;
     seen.add(key);
+    const targetedMitigation = mitigationByOverlap.get(key);
     overlaps.push({
       digest: entry.digest,
-      overlapTerms: digestMatches && ratio.terms.length === 0 ? entryTerms : ratio.terms,
+      overlapTerms,
       overlapRatio: digestMatches ? 1 : ratio.ratio,
       ...(entry.storyId ? { previousStoryId: entry.storyId } : {}),
       ...(entry.reason ? { previousReason: entry.reason } : {}),
       ...(entry.discardedAt ? { previousDiscardedAt: entry.discardedAt } : {}),
-      ...(mitigation ?? entry.mitigation ? { mitigation: mitigation ?? entry.mitigation } : {}),
+      ...(mitigation ?? targetedMitigation ?? entry.mitigation ? { mitigation: mitigation ?? targetedMitigation ?? entry.mitigation } : {}),
     });
   }
   return overlaps;
+}
+
+export function scopeFreezeDiscardOverlapKey(overlap: {
+  digest: string;
+  overlapTerms: readonly string[];
+  previousStoryId?: string;
+}): string {
+  return digest({
+    kind: 'scope_freeze_discard_overlap_identity',
+    digest: normalizeTerm(overlap.digest),
+    previousStoryId: nonEmpty(overlap.previousStoryId) ? normalizeTerm(overlap.previousStoryId) : undefined,
+    overlapTerms: normalizeBoundaryArray(overlap.overlapTerms),
+  });
+}
+
+function discardCorpusIdentity(discardDigest: ScopeDiscardDigestData | null | undefined): unknown {
+  const entries = (discardDigest?.entries ?? []).map(entry => ({
+    digest: normalizeTerm(entry.digest),
+    storyId: nonEmpty(entry.storyId) ? normalizeTerm(entry.storyId) : undefined,
+    terms: normalizeBoundaryArray(entry.terms),
+  }));
+  entries.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  return {
+    updatedAt: nonEmpty(discardDigest?.updatedAt) ? normalizeTerm(discardDigest.updatedAt) : undefined,
+    entryCount: entries.length,
+    entries,
+  };
+}
+
+function repeatDiscardOverlapIdentity(overlaps: readonly ScopeFreezeDiscardOverlap[]): unknown {
+  const identities = overlaps.map(overlap => ({
+    key: scopeFreezeDiscardOverlapKey(overlap),
+    digest: normalizeTerm(overlap.digest),
+    previousStoryId: nonEmpty(overlap.previousStoryId) ? normalizeTerm(overlap.previousStoryId) : undefined,
+    overlapTerms: normalizeBoundaryArray(overlap.overlapTerms),
+  }));
+  identities.sort((a, b) => a.key.localeCompare(b.key));
+  return {
+    count: identities.length,
+    identities,
+  };
+}
+
+export function storedScopeFreezeDiscardMitigations(check: ScopeFreezeCheckData | null | undefined): ScopeFreezeDiscardMitigation[] {
+  const mitigations: ScopeFreezeDiscardMitigation[] = [];
+  for (const overlap of check?.repeatDiscardOverlaps ?? []) {
+    if (!nonEmpty(overlap.mitigation)) continue;
+    mitigations.push({
+      digest: overlap.digest,
+      overlapTerms: normalizeBoundaryArray(overlap.overlapTerms),
+      mitigation: normalizeTerm(overlap.mitigation),
+      ...(overlap.previousStoryId ? { previousStoryId: overlap.previousStoryId } : {}),
+    });
+  }
+  return mitigations;
 }
 
 function freezeFreshnessPayload(args: {
@@ -496,6 +571,8 @@ function freezeFreshnessPayload(args: {
   checklist?: ScopeFreezeChecklistProjection[];
   effectiveExcludedKeywords: string[];
   currentDiscardDigest: string;
+  discardDigest?: ScopeDiscardDigestData | null;
+  repeatDiscardOverlaps?: readonly ScopeFreezeDiscardOverlap[];
 }): unknown {
   return {
     schemaVersion: SCOPE_ANTI_EXPANSION_SCHEMA_VERSION,
@@ -516,6 +593,8 @@ function freezeFreshnessPayload(args: {
     })),
     effectiveExcludedKeywords: normalizeBoundaryArray(args.effectiveExcludedKeywords),
     currentDiscardDigest: args.currentDiscardDigest,
+    discardCorpus: discardCorpusIdentity(args.discardDigest),
+    repeatDiscardOverlapIdentity: repeatDiscardOverlapIdentity(args.repeatDiscardOverlaps ?? []),
   };
 }
 
@@ -528,6 +607,8 @@ export function computeScopeFreezeFreshnessHash(args: {
   checklist?: ScopeFreezeChecklistProjection[];
   effectiveExcludedKeywords: string[];
   currentDiscardDigest: string;
+  discardDigest?: ScopeDiscardDigestData | null;
+  repeatDiscardOverlaps?: readonly ScopeFreezeDiscardOverlap[];
 }): string {
   return digest(freezeFreshnessPayload(args));
 }
@@ -568,6 +649,7 @@ export function evaluateScopeFreeze(input: ScopeFreezeEvaluationInput): ScopeFre
     currentDigest: currentDiscardDigest,
     discardDigest: input.discardDigest,
     mitigation: input.repeatDiscardMitigation,
+    mitigations: input.repeatDiscardMitigations,
   });
 
   const issues: ScopeFreezeIssue[] = [];
@@ -618,6 +700,8 @@ export function evaluateScopeFreeze(input: ScopeFreezeEvaluationInput): ScopeFre
     checklist: input.checklist,
     effectiveExcludedKeywords: effectiveExcluded,
     currentDiscardDigest,
+    discardDigest: input.discardDigest,
+    repeatDiscardOverlaps,
   });
 
   const checkBase: ScopeFreezeCheckData = {

@@ -554,6 +554,32 @@ withTempGitContext('real discarded story digest blocks replacement without mitig
   });
   assert.match(mitigatedOutput, /PASS/);
   assert.equal(getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root), null);
+
+  const secondDiscardedStoryId = createStory('second-discarded-scope-freeze-direction-smoke');
+  const secondDiscardOutput = worktreeHandlers.story_discard({
+    storyId: secondDiscardedStoryId,
+    reason: 'A second attempt selected the same direction and was also discarded.',
+  });
+  assert.match(secondDiscardOutput, /discard digest recorded/);
+
+  const staleReason = getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root);
+  assert.match(staleReason ?? '', /\[scope_freeze_check_stale\]/, 'old mitigated freeze must go stale when aggregate discarded corpus changes');
+
+  const unmitigatedAfterSecondOutput = scopeHandlers.scope_freeze_check({ storyId: replacementStoryId });
+  assert.match(unmitigatedAfterSecondOutput, /FAIL/);
+  const secondFailedCheck = store.readScopeFreezeCheck(replacementStoryId);
+  assert.ok(
+    secondFailedCheck?.repeatDiscardOverlaps.some(overlap => overlap.previousStoryId === secondDiscardedStoryId),
+    'rerun without mitigation should detect the new discarded overlap',
+  );
+  assert.match(getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root) ?? '', /\[scope_freeze_check_failed\]|\[repeat_discarded_direction\]/);
+
+  const remitigatedOutput = scopeHandlers.scope_freeze_check({
+    storyId: replacementStoryId,
+    repeatDiscardMitigation: 'This retry documents why both discarded attempts are narrowed to the INIT_CHECK freshness regression.',
+  });
+  assert.match(remitigatedOutput, /PASS/);
+  assert.equal(getScopeAntiExpansionGuardFailureReason(replacementStoryId, store, root), null);
 });
 
 withTempStore('happy path passes with current boundary, freeze, and no pending proposals', (store) => {

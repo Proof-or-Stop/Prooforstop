@@ -21,6 +21,7 @@ import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
 import {
   digestScopeFreezeCheck,
   evaluateScopeFreeze,
+  storedScopeFreezeDiscardMitigations,
   type ScopeFreezeChecklistProjection,
 } from './scope-anti-expansion.js';
 
@@ -163,6 +164,7 @@ export function evaluateScopeAntiExpansionGate(
   const discardDigest = readScopeGateFailure('scope-discard-digest.json', () => store.readScopeDiscardDigestForFreeze(storyId));
   if (discardDigest.reason) return { ok: false, reason: discardDigest.reason };
 
+  const storedCheck = freezeCheck.value;
   const current = evaluateScopeFreeze({
     storyId,
     scopeBoundary: scopeBoundary.value,
@@ -170,12 +172,8 @@ export function evaluateScopeAntiExpansionGate(
     story: projectScopeFreezeStory(store, storyId),
     checklist: projectScopeFreezeChecklist(store, storyId),
     discardDigest: discardDigest.value,
-    repeatDiscardMitigation: freezeCheck.value?.repeatDiscardOverlaps.find(overlap => overlap.mitigation)?.mitigation,
+    repeatDiscardMitigations: storedScopeFreezeDiscardMitigations(storedCheck),
   });
-  const currentIssue = firstHardScopeIssue(current.check);
-  if (currentIssue) {
-    return { ok: false, reason: renderScopeFreezeIssue(storyId, currentIssue) };
-  }
 
   const pending = proposals.value.proposals.filter(proposal => proposal.status === 'pending');
   if (pending.length > 0) {
@@ -186,8 +184,11 @@ export function evaluateScopeAntiExpansionGate(
     };
   }
 
-  const storedCheck = freezeCheck.value;
   if (!storedCheck) {
+    const currentIssue = firstHardScopeIssue(current.check);
+    if (currentIssue) {
+      return { ok: false, reason: renderScopeFreezeIssue(storyId, currentIssue) };
+    }
     return {
       ok: false,
       reason: `Cannot enter INIT_CHECK: scope-freeze-check.json is missing. [missing_scope_freeze_check]\n` +
@@ -220,6 +221,10 @@ export function evaluateScopeAntiExpansionGate(
       reason: `Cannot enter INIT_CHECK: scope-freeze-check.json is stale relative to current scope/checklist/proposal inputs. [scope_freeze_check_stale]\n` +
         `→ Rerun scope_freeze_check before creating the worktree.`,
     };
+  }
+  const currentIssue = firstHardScopeIssue(current.check);
+  if (currentIssue) {
+    return { ok: false, reason: renderScopeFreezeIssue(storyId, currentIssue) };
   }
 
   return { ok: true, reason: null };

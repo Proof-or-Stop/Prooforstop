@@ -79,8 +79,10 @@ Both reviewers and tests must continue to assert:
   TEST without expanding scope or triggering an `OUT_OF_SCOPE` violation.
 - INIT scope anti-expansion commands may write `scope-boundary.json`,
   `execution-boundary.json`, `scope-freeze-check.json`,
-  `scope-extension-proposals.json`, and `scope-discard-digest.json` as
-  lifecycle artifacts. Classification only
+  and `scope-extension-proposals.json` as lifecycle artifacts. `story_discard`
+  produces `scope-discard-digest.json` for the discarded story; the
+  INIT_CHECK/scope freeze gate consumes the current story's discard digest plus
+  digest entries from every story currently in `DISCARDED` phase. Classification only
   recognizes these filenames as provenance; INIT_CHECK gate satisfaction still
   requires the machine guard to verify hashes, freshness, pending proposal
   state, excluded keyword hits, and repeat-discard mitigation.
