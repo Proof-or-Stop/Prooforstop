@@ -161,9 +161,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T10:24:28.788Z",
       "userSees": "When an active owner lease belongs to another session but the recorded owner cwd matches the current worktree, terminal output says this appears to be the same worktree after a session/context switch and instructs the operator to verify no other live session is writing before using `--forceTakeover`.",
       "files": {
         "modify": [
@@ -194,7 +194,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "story-owner-lease smoke asserts session_brief/renderOwnershipBlock show same-worktree context-switch guidance when owner cwd equals current cwd but session id differs.",
+          "headHash": "0e25a8cdcf826f8fa4527b9eee1667a945ff3328",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:28.821Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "story-owner-lease smoke asserts different-cwd active foreign leases retain the existing read-only/wait/forceTakeover guidance without same-worktree text.",
+          "headHash": "0e25a8cdcf826f8fa4527b9eee1667a945ff3328",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:28.851Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "story-owner-lease smoke asserts same-worktree gate rejection includes recovery text but does not transfer or refresh the lease without explicit takeover.",
+          "headHash": "0e25a8cdcf826f8fa4527b9eee1667a945ff3328",
+          "materialHash": "6f102ff3c798f685329813523c8bb5e32027f59cd086d89e51898bca285a981b",
+          "timestamp": "2026-06-13T10:24:28.880Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
