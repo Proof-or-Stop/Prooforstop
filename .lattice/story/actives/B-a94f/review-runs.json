@@ -200,6 +200,210 @@
         "bindingHash": "3773f984eca061dad539a684f712acbb83c22c559a6342db430e4880dbd90ca8"
       },
       "_hash": "bf83c81b1e60d0cdf31c5b7bd883d3cababe6763434250437e7576755e90e264"
+    },
+    {
+      "reviewRunId": "B-a94f:RR-004",
+      "storyId": "B-a94f",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-13T12:55:05.110Z",
+      "startedAt": "2026-06-13T12:55:16.959Z",
+      "headHash": "4a03b3f95cf8340e4e03127147818f18338c080c",
+      "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+      "promptHash": "f513a2a69541f59b4e0448e2da4bd1bf24d922c791c017a0e9149f1dc8ece79a",
+      "scopeBinding": {
+        "scopeContractHash": "e71abc08f2cdef5fbe044d6d769e281c2ae97f93b67987ed7976d5a87dde7e2e",
+        "diffPackHash": "dfa9198ec55c1e4879b0f16ce7398a04251d9fd23e1e696151c21bd1b3982309",
+        "reviewedChangedFiles": [
+          ".gitignore",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/handlers/authority-enforce.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:edge:1",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "10dd573d2b8719fab49f0d1b06642acb6bacc91a404856e934b0b2b8c320559a",
+          "135daa878cfa97055721c3730411b5153d6ee160949676b8d24db677f22d91f4",
+          "1dc452569b3a071261d7d9a3d3da26577e512e7e2311108fcb61e399044a97b8",
+          "2a057bfa892991a72752357690b9ce546c4caa1a69ab00baed18128446bacff9",
+          "2d2ab9fbf1f931f3cd70bd3cb6531ecae77df3feeb6ed596cf971c61fc8217ca",
+          "48bee83358275df46dbd1abbb942bc01cc903dceb4428f10735fff9bc9f8b9ba",
+          "48ec07266c0ddbdf175fb39e55be470cf6bfaabdccbbb5bbf32aba903458ca38",
+          "6793b1e442284e489484abc52f2be7d3ab8f5c978d4bfb2d039ac65f45d390c6",
+          "752ea013dae74c93be6c44f3e1ecf0d9ea08629c4b3d0379a32f5b6b4b02f294",
+          "7a3911690386fce5f5c004d6fb524c76cd30f01e315b69a721ca23d879cab9ae",
+          "9716a8927aafeb5c5622caa27b53a4a006755f13726cfcf9d76c10f9eaeec0f8",
+          "a505416e9a826be562051bbd834b507e896160ed63babdbd3ed6f31e4ff2dcbc",
+          "c0d6c4e25d25c1375f1879fc7e29f73abf7e3d181ed1f6dd39bdff5d81dafc7b",
+          "caf401614392d0a241c2672aca9610d9c771617587f16695e0e5d3a9acee6ed2",
+          "d60bb5aea6353ad56b071e9813ff0e98eee462fbc9c1be985700f2ec95a0a9f6",
+          "dc55b27386c44d3e853452cb871826aea3f59dd7ff2d76ad8da303622a087602",
+          "dff37037e9ca87c7d19e2003be12335ee2b24e45c21db94ba86a2fdcd294e7c8",
+          "e9c92693d3ff0c19541ff9dc1c27bc3e4fc4dd0cd23e075899ede3f6307b2eaf",
+          "f8bd8e4cc7a1446703666bc8b5e346cb444b00813d5d1f7442b4476ad848c640"
+        ],
+        "bindingHash": "35bd2ba5f71e7e833fff6fa53472813fefd7a87d2d56efff0b4a4d0c93993b7e"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "workspaceMode": "story-worktree",
+        "headHash": "4a03b3f95cf8340e4e03127147818f18338c080c",
+        "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+        "bindingHash": "00275e5328b746f3526ac160c860eceb1a0a96ec4d942d454680c161b5e6c420"
+      },
+      "_hash": "79a7ba7aeeca540bc03333bfa61827cca31767f1ea5ee684217de0ba669f026f"
+    },
+    {
+      "reviewRunId": "B-a94f:RR-005",
+      "storyId": "B-a94f",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-13T12:55:05.110Z",
+      "startedAt": "2026-06-13T12:55:17.446Z",
+      "headHash": "4a03b3f95cf8340e4e03127147818f18338c080c",
+      "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+      "promptHash": "3bf1970b6c4dfc5596d01c6ebf9c663c82c92c8c8619c597186845b34a4b6ff2",
+      "scopeBinding": {
+        "scopeContractHash": "e71abc08f2cdef5fbe044d6d769e281c2ae97f93b67987ed7976d5a87dde7e2e",
+        "diffPackHash": "dfa9198ec55c1e4879b0f16ce7398a04251d9fd23e1e696151c21bd1b3982309",
+        "reviewedChangedFiles": [
+          ".gitignore",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/handlers/authority-enforce.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:edge:1",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "10dd573d2b8719fab49f0d1b06642acb6bacc91a404856e934b0b2b8c320559a",
+          "135daa878cfa97055721c3730411b5153d6ee160949676b8d24db677f22d91f4",
+          "1dc452569b3a071261d7d9a3d3da26577e512e7e2311108fcb61e399044a97b8",
+          "2a057bfa892991a72752357690b9ce546c4caa1a69ab00baed18128446bacff9",
+          "2d2ab9fbf1f931f3cd70bd3cb6531ecae77df3feeb6ed596cf971c61fc8217ca",
+          "48bee83358275df46dbd1abbb942bc01cc903dceb4428f10735fff9bc9f8b9ba",
+          "48ec07266c0ddbdf175fb39e55be470cf6bfaabdccbbb5bbf32aba903458ca38",
+          "6793b1e442284e489484abc52f2be7d3ab8f5c978d4bfb2d039ac65f45d390c6",
+          "752ea013dae74c93be6c44f3e1ecf0d9ea08629c4b3d0379a32f5b6b4b02f294",
+          "7a3911690386fce5f5c004d6fb524c76cd30f01e315b69a721ca23d879cab9ae",
+          "9716a8927aafeb5c5622caa27b53a4a006755f13726cfcf9d76c10f9eaeec0f8",
+          "a505416e9a826be562051bbd834b507e896160ed63babdbd3ed6f31e4ff2dcbc",
+          "c0d6c4e25d25c1375f1879fc7e29f73abf7e3d181ed1f6dd39bdff5d81dafc7b",
+          "caf401614392d0a241c2672aca9610d9c771617587f16695e0e5d3a9acee6ed2",
+          "d60bb5aea6353ad56b071e9813ff0e98eee462fbc9c1be985700f2ec95a0a9f6",
+          "dc55b27386c44d3e853452cb871826aea3f59dd7ff2d76ad8da303622a087602",
+          "dff37037e9ca87c7d19e2003be12335ee2b24e45c21db94ba86a2fdcd294e7c8",
+          "e9c92693d3ff0c19541ff9dc1c27bc3e4fc4dd0cd23e075899ede3f6307b2eaf",
+          "f8bd8e4cc7a1446703666bc8b5e346cb444b00813d5d1f7442b4476ad848c640"
+        ],
+        "bindingHash": "35bd2ba5f71e7e833fff6fa53472813fefd7a87d2d56efff0b4a4d0c93993b7e"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "workspaceMode": "story-worktree",
+        "headHash": "4a03b3f95cf8340e4e03127147818f18338c080c",
+        "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+        "bindingHash": "00275e5328b746f3526ac160c860eceb1a0a96ec4d942d454680c161b5e6c420"
+      },
+      "_hash": "9778e4408d122fd4e2142e3725c1a4643d1184f07f6ddf6ed02a8a5214e59d3d"
+    },
+    {
+      "reviewRunId": "B-a94f:RR-006",
+      "storyId": "B-a94f",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-13T12:55:05.110Z",
+      "startedAt": "2026-06-13T12:55:17.921Z",
+      "headHash": "4a03b3f95cf8340e4e03127147818f18338c080c",
+      "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+      "promptHash": "d31738fc9950db442ee8fe8000b51ecc9ce49d0677b7ffbe81bc64a06132a0df",
+      "scopeBinding": {
+        "scopeContractHash": "e71abc08f2cdef5fbe044d6d769e281c2ae97f93b67987ed7976d5a87dde7e2e",
+        "diffPackHash": "dfa9198ec55c1e4879b0f16ce7398a04251d9fd23e1e696151c21bd1b3982309",
+        "reviewedChangedFiles": [
+          ".gitignore",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/handlers/authority-enforce.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:edge:1",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "10dd573d2b8719fab49f0d1b06642acb6bacc91a404856e934b0b2b8c320559a",
+          "135daa878cfa97055721c3730411b5153d6ee160949676b8d24db677f22d91f4",
+          "1dc452569b3a071261d7d9a3d3da26577e512e7e2311108fcb61e399044a97b8",
+          "2a057bfa892991a72752357690b9ce546c4caa1a69ab00baed18128446bacff9",
+          "2d2ab9fbf1f931f3cd70bd3cb6531ecae77df3feeb6ed596cf971c61fc8217ca",
+          "48bee83358275df46dbd1abbb942bc01cc903dceb4428f10735fff9bc9f8b9ba",
+          "48ec07266c0ddbdf175fb39e55be470cf6bfaabdccbbb5bbf32aba903458ca38",
+          "6793b1e442284e489484abc52f2be7d3ab8f5c978d4bfb2d039ac65f45d390c6",
+          "752ea013dae74c93be6c44f3e1ecf0d9ea08629c4b3d0379a32f5b6b4b02f294",
+          "7a3911690386fce5f5c004d6fb524c76cd30f01e315b69a721ca23d879cab9ae",
+          "9716a8927aafeb5c5622caa27b53a4a006755f13726cfcf9d76c10f9eaeec0f8",
+          "a505416e9a826be562051bbd834b507e896160ed63babdbd3ed6f31e4ff2dcbc",
+          "c0d6c4e25d25c1375f1879fc7e29f73abf7e3d181ed1f6dd39bdff5d81dafc7b",
+          "caf401614392d0a241c2672aca9610d9c771617587f16695e0e5d3a9acee6ed2",
+          "d60bb5aea6353ad56b071e9813ff0e98eee462fbc9c1be985700f2ec95a0a9f6",
+          "dc55b27386c44d3e853452cb871826aea3f59dd7ff2d76ad8da303622a087602",
+          "dff37037e9ca87c7d19e2003be12335ee2b24e45c21db94ba86a2fdcd294e7c8",
+          "e9c92693d3ff0c19541ff9dc1c27bc3e4fc4dd0cd23e075899ede3f6307b2eaf",
+          "f8bd8e4cc7a1446703666bc8b5e346cb444b00813d5d1f7442b4476ad848c640"
+        ],
+        "bindingHash": "35bd2ba5f71e7e833fff6fa53472813fefd7a87d2d56efff0b4a4d0c93993b7e"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-a94f",
+        "workspaceMode": "story-worktree",
+        "headHash": "4a03b3f95cf8340e4e03127147818f18338c080c",
+        "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
+        "bindingHash": "00275e5328b746f3526ac160c860eceb1a0a96ec4d942d454680c161b5e6c420"
+      },
+      "_hash": "9526ed7ebbdf3d44066133dc09f124b2ddb90549384f2bfca28fab966d38e2b2"
     }
   ]
 }
