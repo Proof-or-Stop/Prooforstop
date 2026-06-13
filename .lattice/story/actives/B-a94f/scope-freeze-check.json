@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a94f",
+  "checkedAt": "2026-06-13T12:16:12.872Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "a602b3ce8b65bde78960bffd2d167398e4edfb45d71a47459b819a6c4f217aca",
+  "executionBoundaryHash": "0eda75a6390f87a628227f5bce5d1acf69f492d7289c65ab4d4f4bfe9118d0ea",
+  "freshnessHash": "582e61f8a0c4c5a340c6e672b64609a711585e5ddc3e708d1ad6432ebaab8e43",
+  "effectiveExcludedKeywords": [
+    "Do not add global dotenv loading for unrelated commands",
+    "Do not commit authority_trust.env contents or any secret value",
+    "Do not mint or fake Authority receipts",
+    "Do not modify the remote Authority Server implementation",
+    "Do not override explicit CLI arguments or already exported LATTICE_AUTHORITY_* environment variables",
+    "Do not set authorityDone/fullAuthorityDone/productionDone true without verified receipt-backed Authority Server proof"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not add global dotenv loading for unrelated commands",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not add global dotenv loading for unrelated commands",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not commit authority_trust.env contents or any secret value",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not commit authority_trust.env contents or any secret value",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not mint or fake Authority receipts",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not mint or fake Authority receipts",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify the remote Authority Server implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify the remote Authority Server implementation",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not override explicit CLI arguments or already exported LATTICE_AUTHORITY_* environment variables",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not override explicit CLI arguments or already exported LATTICE_AUTHORITY_* environment variables",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not set authorityDone/fullAuthorityDone/productionDone true without verified receipt-backed Authority Server proof",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not set authorityDone/fullAuthorityDone/productionDone true without verified receipt-backed Authority Server proof",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "66447a6dfb83cece42fd8948355c60b1f57a94b322bc8ff9ce54e2d1cc19d2b2"
+}

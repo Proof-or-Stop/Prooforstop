@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add ignored root authority_trust.env support for Authority config resolution",
+      "context": "User provided /Users/jek/Documents/Work/Koala/cord-team/authority_trust.env and wants it placed at the Lattice CLI root for default Authority Server connection. The fix must keep secrets untracked, load the file only for Authority config paths, map LIVE_URL/LIVE_PUBLIC_KEY/CUSTOMER_API_KEY_FILE aliases to canonical LATTICE_AUTHORITY_* fields, and preserve precedence: explicit CLI/env overrides win over the file.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify Authority status uses the default trust file without Authority overclaim",
+      "context": "Authority default loading must improve readiness diagnostics and connection inputs, but must not set authorityDone/fullAuthorityDone or claim receipt verification without a real Authority receipt.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
