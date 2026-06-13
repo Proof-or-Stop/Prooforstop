@@ -4,7 +4,7 @@
   "title": "Clean Koala branding remnants from CLI engine",
   "description": "Audit packages/main/src/cli-engine.ts and generated dist output for Koala branding remnants after the package-scope rename. Replace user-visible current-product wording with Lattice while preserving explicitly legacy compatibility identifiers such as koala command alias, koala.config.json fallback, koala-codex fallback, and koala-review-* lane IDs. Use a Claude CLI agent for implementation inside the Lattice story worktree, then verify build, runtime checks, and focused Koala-reference classification.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-06-13T10:22:54.951Z",
   "startedAt": "2026-06-13T10:22:54.951Z",
@@ -62,6 +62,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-13T10:57:27.947Z",
+      "branch": "story/B-3cca",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T11:00:50.152Z",
       "branch": "story/B-3cca",
       "user": "Harmonygo",
       "agent": "main"
