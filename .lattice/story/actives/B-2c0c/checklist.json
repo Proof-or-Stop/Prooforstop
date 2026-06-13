@@ -203,9 +203,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
       "userSees": "Maintainers see host_verdict quorum described as a hard lifecycle gate, not advisory memory.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T22:12:30.726Z",
       "verificationIntent": {
         "happy": [
           {
@@ -228,7 +228,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"3 distinct review rounds|2 distinct PASSing hosts|fresh material digest|Authority Server receipt completion|decision_doc_quorum_check|autopilot_review_submit|host_verdict\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "result": "pass",
+          "note": "Docs state changed decision docs require three distinct rounds, at least two distinct PASSing hosts per round, fresh material digest, and separate local quorum from Authority receipt completion.",
+          "headHash": "d6b835d186e9e648a6c1d7636bba4819b7636cde",
+          "materialHash": "54d66b48f2c9e9f3f302e9a086cf0e55001755ea6b51ed45468e9a5f1f2022eb",
+          "timestamp": "2026-06-13T22:12:30.771Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact verifier asserts decision_doc_quorum_check is read-only L0 and autopilot_review_submit is L4 host-verdict gate evidence consumed by the local decision-doc quorum DONE gate.",
+          "headHash": "d6b835d186e9e648a6c1d7636bba4819b7636cde",
+          "materialHash": "54d66b48f2c9e9f3f302e9a086cf0e55001755ea6b51ed45468e9a5f1f2022eb",
+          "timestamp": "2026-06-13T22:12:30.800Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"autopilot_review_submit|host-verdict|host_verdict|decision-doc quorum.*DONE|DONE.*decision-doc quorum\" packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Registry and verifier reject advisory/prose-only drift by requiring host-verdict, execution-evidence, gate-evidence semantics and a DONE gate consumer while preserving the Authority no-overclaim boundary.",
+          "headHash": "d6b835d186e9e648a6c1d7636bba4819b7636cde",
+          "materialHash": "54d66b48f2c9e9f3f302e9a086cf0e55001755ea6b51ed45468e9a5f1f2022eb",
+          "timestamp": "2026-06-13T22:12:30.828Z"
+        }
+      ]
     }
   ]
 }
