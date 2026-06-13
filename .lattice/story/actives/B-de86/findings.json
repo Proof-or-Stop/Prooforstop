@@ -82,7 +82,7 @@
       "desc": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:259-263 makes UDM-REAL-REPAIR execute validation FAIL/PASS before REVIEW and TEST. AGENTS.md:71-88 and :131-139 define the real lifecycle as DEV -> REVIEW -> TEST, with lattice validate running in TEST and failing back to DEV. Because this real-execution plan is meant to be executable against actual Lattice stories, the current repair scenario can only be followed by either skipping REVIEW-before-TEST or treating a DEV-local command as TEST-stage validation. The scenario must state the actual loop as DEV -> REVIEW -> TEST/lattice validate FAIL -> DEV repair -> REVIEW -> TEST/lattice validate PASS -> DONE, or explicitly rename the early check as DEV-local verification and keep lattice validate in TEST.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T01:54:53.090Z",
@@ -92,7 +92,9 @@
       "files": [
         "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
         "AGENTS.md"
-      ]
+      ],
+      "resolvedReason": "Resolved with the same lifecycle correction as F-003: TEST-stage lattice validate remains after REVIEW, failed validation returns to DEV repair, and final pass occurs in TEST before DONE.",
+      "resolvedAt": "2026-06-13T01:56:31.368Z"
     }
   ]
 }
