@@ -811,7 +811,7 @@ function assertPhaseToolsOverrideStillBlocks(): void {
     assert.match(output, /Lifecycle: gateEvidence/);
     assert.match(output, /Requested phase: DEV/);
     assert.match(output, /Allowed phases: DEV, REVIEW/);
-    assert.match(output, /Current phaseTools allow: session_brief, next, status/);
+    assert.match(output, /Current phaseTools allow: session_brief, next, done_closure, status/);
   } finally {
     rmSync(override.root, { recursive: true, force: true });
   }
