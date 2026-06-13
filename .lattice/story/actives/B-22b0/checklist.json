@@ -127,33 +127,33 @@
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
           "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3; lattice authority_enforce_policy --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
-          "result": "pass",
-          "note": "The configured Authority path was attempted through redacted CLI commands: authority_status loaded authority_trust_env with productionInert=false and customerApiKeyConfigured=true; policy discovery against https://staging.hostneutral.net returned authority-policy.v1 and explicitly stated no receipt, no gate pass, and no evidence submission.",
-          "headHash": "ed9f60887223cc57308cf49232cb6ca889b4560f",
+          "result": "fail",
+          "note": "Authority proof path was attempted through redacted CLI commands, but this is blocked proof evidence rather than passing coverage: authority_status reports receiptVerified=false / productionDone=false / canClaimProductionDone=false and policy discovery returns no gate_decision receipt or evidence submission.",
+          "headHash": "43b9e373bf32068bd70b5fade3c69d240866cfd7",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
-          "timestamp": "2026-06-13T13:34:51.499Z"
+          "timestamp": "2026-06-13T13:43:02.532Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
-          "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json; lattice authority_enforce_runner --once --dryRun --json --authorityMode=enforce --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
-          "result": "pass",
-          "note": "Authority proof is blocked, not verified: autopilot_execute returned status=fail, receipt.provided=false, receipt.verified=false, authorityDone=false, fullAuthorityDone=false; runner dry-run returned status=fail because actor key and runner id are missing.",
-          "headHash": "ed9f60887223cc57308cf49232cb6ca889b4560f",
+          "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_enforce_runner --once --dryRun --json --authorityMode=enforce --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
+          "result": "fail",
+          "note": "Authority proof is blocked and must fail must-intent coverage: autopilot_execute returns status=fail with receipt.provided=false / receipt.verified=false / authorityDone=false / fullAuthorityDone=false, and runner dry-run fails because actor key and runner id prerequisites are missing.",
+          "headHash": "43b9e373bf32068bd70b5fade3c69d240866cfd7",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
-          "timestamp": "2026-06-13T13:34:51.499Z"
+          "timestamp": "2026-06-13T13:43:02.532Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
-          "command": "redacted authority_status / policy discovery / authority dry-run / runner dry-run for B-12f3",
-          "result": "pass",
-          "note": "No secret values were printed or committed, and no Authority overclaim was made: status kept receiptVerified=false, productionDone=false, canClaimProductionDone=false; dry-run kept authorityDone=false and fullAuthorityDone=false without a native gate_decision receipt.",
-          "headHash": "ed9f60887223cc57308cf49232cb6ca889b4560f",
+          "command": "LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3; lattice authority_enforce_policy --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_enforce_runner --once --dryRun --json --authorityMode=enforce --authorityURL=https://staging.hostneutral.net --authorityTimeoutMS=10000",
+          "result": "fail",
+          "note": "The transcript remains redacted and does not print or commit secret values, but the receipt-backed Authority proof is still absent: receiptVerified=false, productionDone=false, canClaimProductionDone=false, authorityDone=false, and fullAuthorityDone=false without a native gate_decision receipt.",
+          "headHash": "43b9e373bf32068bd70b5fade3c69d240866cfd7",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
-          "timestamp": "2026-06-13T13:34:51.499Z"
+          "timestamp": "2026-06-13T13:43:02.532Z"
         }
       ]
     },
@@ -207,34 +207,34 @@
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
-          "command": "lattice summary_set --storyId=B-22b0 ...; lattice summary_get --storyId=B-22b0",
-          "result": "pass",
-          "note": "Final audit result was produced as B-22b0 summary with outcomeKind=blocked and actual transcript: B-12f3 Authority audit result is BLOCKED missing actor key, runner id, and native gate_decision receipt; no verified receipt id exists.",
-          "headHash": "7afc4ece353dcbee3a442edb721c0c71d7ad2423",
+          "command": "lattice summary_get --storyId=B-22b0; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3",
+          "result": "fail",
+          "note": "Final audit result is blocked, not a passing proof: the summary records B-12f3 Authority audit result as BLOCKED with missing actor key, runner id, and native gate_decision receipt, and authority_status still has no verified receipt id.",
+          "headHash": "43b9e373bf32068bd70b5fade3c69d240866cfd7",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
-          "timestamp": "2026-06-13T13:35:39.833Z"
+          "timestamp": "2026-06-13T13:43:02.532Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
           "command": "lattice summary_get --storyId=B-22b0; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3",
-          "result": "pass",
-          "note": "The summary preserves the local DONE versus Authority DONE distinction: local DONE remains Non-authority, while authority_status reports receiptVerified=false, productionDone=false, canClaimProductionDone=false, and authority_receipt_missing.",
-          "headHash": "7afc4ece353dcbee3a442edb721c0c71d7ad2423",
+          "result": "fail",
+          "note": "The local DONE versus Authority DONE distinction is preserved as blocked evidence: local DONE remains Non-authority while authority_status reports receiptVerified=false, productionDone=false, canClaimProductionDone=false, and authority_receipt_missing.",
+          "headHash": "43b9e373bf32068bd70b5fade3c69d240866cfd7",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
-          "timestamp": "2026-06-13T13:35:39.833Z"
+          "timestamp": "2026-06-13T13:43:02.532Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
-          "command": "lattice summary_get --storyId=B-22b0; redacted authority_status for B-12f3",
-          "result": "pass",
-          "note": "The final delivery text does not overclaim Authority completion: it states blocked/partial, says the actual branch is not verified proof, and keeps authorityDone/fullAuthorityDone unavailable without a native gate_decision receipt/proof.",
-          "headHash": "7afc4ece353dcbee3a442edb721c0c71d7ad2423",
+          "command": "lattice summary_get --storyId=B-22b0; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice authority_status --json --authorityMode=enforce --storyId=B-12f3; LATTICE_AUTHORITY_TRUST_ENV_FILE=/Users/jek/Documents/Work/Orchestrate/authority_trust.env lattice autopilot_execute --mode=authority --storyId=B-12f3 --until=DONE --dryRun --json",
+          "result": "fail",
+          "note": "The delivery text avoids Authority overclaim, but this remains blocked proof evidence and therefore fails must-intent coverage: authorityDone/fullAuthorityDone are unavailable without native gate_decision receipt proof.",
+          "headHash": "43b9e373bf32068bd70b5fade3c69d240866cfd7",
           "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
-          "timestamp": "2026-06-13T13:35:39.833Z"
+          "timestamp": "2026-06-13T13:43:02.532Z"
         }
       ]
     }
