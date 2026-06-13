@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-13T01:59:14.956Z",
       "reviewRunId": "B-85ba:RR-029",
       "_hash": "55e9b98d2363bafdb00ff85e6cf8bb756df6c9bffd839073bc0361753634445f"
+    },
+    {
+      "id": "B-85ba:RP-015",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: F-007/F-009 coverage verified. packages/main/src/tasks/scope-anti-expansion-smoke.ts:496 exercises real story_discard -> replacement, unmitigated replacement fail, mitigated pass, second discarded corpus staling old mitigated freeze, rerun without mitigation fail, and remitigated pass. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; npm run test:process-fact-contract.",
+      "createdAt": "2026-06-13T02:01:16.556Z",
+      "reviewRound": "2026-06-13T01:59:14.956Z",
+      "reviewRunId": "B-85ba:RR-027",
+      "_hash": "ea426ffc5c2bfe9129ceb587fb94ac36f2e41ee90d4f92e79a3366740b8c00bb"
     }
   ]
 }
