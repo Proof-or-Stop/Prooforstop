@@ -178,7 +178,7 @@
       "desc": "[F-007] Mitigated freeze evidence can stay fresh after a new discarded-direction overlap appears. Repro: after a stored scope_freeze_check PASS with one repeatDiscardOverlaps mitigation, adding a second DISCARDED story whose scope-discard-digest overlaps the current INIT direction still makes getScopeAntiExpansionGuardFailureReason return null. Root cause: machine.ts recomputes current freeze using the first stored mitigation for all overlaps (lines 166-174), findRepeatDiscardOverlaps applies that mitigation to every digest entry (scope-anti-expansion.ts lines 459-485), and the gate only compares freshnessHash/scopeBoundaryHash/executionBoundaryHash (machine.ts lines 213-217). freshnessHash includes only currentDiscardDigest, not the aggregate discarded digest corpus or overlap set (scope-anti-expansion.ts lines 490-532), so the changed readScopeDiscardDigestForFreeze result from store.ts lines 529-565 is not treated as stale. Existing smoke covers initial discarded-story blocking/mitigation but not a post-freeze new discarded overlap. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:scope-anti-expansion-smoke; and a focused node repro that printed before:null, after:null, storedOverlapCount:1, mergedEntries:[B-new,B-old].",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-13T01:54:07.429Z",
@@ -190,7 +190,9 @@
         "packages/main/src/core/scope-anti-expansion.ts",
         "packages/main/src/core/store.ts",
         "packages/main/src/tasks/scope-anti-expansion-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in f889953: scope freeze freshness now includes discard corpus identity and repeat-discard overlap identity, and the INIT_CHECK gate reuses stored mitigations only by exact overlap key instead of applying one old mitigation to future overlaps. Smoke now covers old mitigated freeze going stale after a second discarded story appears, then failing without mitigation and passing after explicit remitiagation. Verified by npm --prefix packages/main run build, npm --prefix packages/main run test:scope-anti-expansion-smoke, npm --prefix packages/main run test:worktree-authority-smoke, npm test, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-13T01:59:23.171Z"
     }
   ]
 }
