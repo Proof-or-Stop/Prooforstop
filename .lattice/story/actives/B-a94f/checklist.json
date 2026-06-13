@@ -10,7 +10,48 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "运行 lattice authority_status --authorityMode=enforce --json 时，根目录 authority_trust.env 中的 URL/key path/public key 会被当作默认 Authority 配置读取；显式 env/CLI 覆盖仍然优先。",
+      "files": {
+        "modify": [
+          ".gitignore",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "authority_trust.env with LIVE_URL/LIVE_PUBLIC_KEY/CUSTOMER_API_KEY_FILE resolves to canonical Authority config when explicit env is absent",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "explicit LATTICE_AUTHORITY_URL and CUSTOMER_API_KEY_PATH override authority_trust.env values",
+            "type": "logic"
+          },
+          {
+            "id": "CHK-001:edge:1",
+            "desc": "missing authority_trust.env remains non-fatal and falls back to existing authority.md/default behavior",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "authority_trust.env remains gitignored and real secret values are not printed or committed",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
