@@ -153,9 +153,9 @@
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-13T13:37:26.392Z",
-      "endTime": null,
+      "endTime": "2026-06-13T13:37:27.098Z",
       "userSees": "Document review shows the new decision document is listed in requirements navigation and the NAV count matches the decision file inventory.",
       "files": {
         "modify": [
@@ -183,7 +183,41 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n lattice-codex-command-boundary docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV includes Lattice Codex Command Boundary Execution Plan with the correct decision document link.",
+          "headHash": "b66138eed81040271b83e6d631667cb7c827e90e",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:27.144Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l; rg -n ^\\>\\ 49\\ 个文件 docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The decisions markdown inventory is 49 files and NAV declares 49 files.",
+          "headHash": "b66138eed81040271b83e6d631667cb7c827e90e",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:27.185Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "git show --format= --unified=3 e3d8360d3 -- docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The NAV material diff updates the count and adds missing decision entries; no existing decision entry is removed.",
+          "headHash": "b66138eed81040271b83e6d631667cb7c827e90e",
+          "materialHash": "6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423",
+          "timestamp": "2026-06-13T13:37:27.222Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -272,6 +306,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start requirements NAV synchronization evidence recording."
+    },
+    {
+      "timestamp": "2026-06-13T13:37:27.098Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Requirements navigation reviewed against decision inventory and material diff."
     }
   ]
 }
