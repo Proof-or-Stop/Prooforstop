@@ -1,0 +1,23 @@
+{
+  "task": "Create a reviewable English execution document for translating Chinese-language surfaces in packages/main/src/cli-engine.ts.",
+  "outcome": "The user opens docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md and sees an English execution plan plus a Chinese source to proposed English translation table for review before implementation.",
+  "facts": [
+    "packages/main/src/cli-engine.ts currently has 762 lines containing Chinese characters.",
+    "The largest categories are schema descriptions (498 lines), tool descriptions (113 lines), comments (99 lines), console/help output (20 lines), and next-step hints (7 lines).",
+    "The user explicitly wants the project open-source surface to be English, including future code contents and documentation.",
+    "This story is documentation-only and should not modify cli-engine.ts implementation."
+  ],
+  "constraints": [
+    "Do not run omx or read/write/use .omx/.",
+    "Do not directly edit docs/story or tests/fixtures.",
+    "Do not modify packages/main/src/cli-engine.ts in this story.",
+    "Do not touch the existing untracked docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md file.",
+    "The execution document itself should be written in English while retaining Chinese source snippets in the translation table for review."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+    "packages/main/src/cli-engine.ts"
+  ],
+  "timestamp": "2026-06-13T13:15:44.965Z"
+}

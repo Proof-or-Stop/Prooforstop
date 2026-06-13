@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6493",
+  "mode": "feature",
+  "allowed": [
+    "Add a focused smoke test under packages/main/src/tasks",
+    "Add optional non-hashed phaseAuthorityWarning field to HandoffPack in core/lattice-handoff.ts",
+    "Carry warning through inspectHandoffPack + renderHandoffInspectionText",
+    "Compute divergence via resolveStoryAuthority inside createHandoffPack (failure = no warning)",
+    "Render the warning in handoff_create text/json output"
+  ],
+  "excluded": [
+    "Adding the field to HandoffPackHashInput or computeHandoffPackHash (packHash must stay stable)",
+    "Any authority mutation / productionDone / receipt behavior",
+    "Changing recoveryPoint.phase semantics",
+    "Changing resolveStoryAuthority itself",
+    "handoff_accept / handoff_resume projection semantics"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose the warning-only scope over deeper phase-resolution rework while dogfooding Lattice on itself (2026-06-13).",
+  "createdAt": "2026-06-13T15:36:48.421Z",
+  "updatedAt": "2026-06-13T15:36:48.421Z",
+  "_hash": "1cb81f9773228113a8fc4fdce55a067ee957304065686f978c01d2c79008a79a"
+}

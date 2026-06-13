@@ -9,10 +9,98 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "userSees": "A new docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md file contains the execution plan and translation table.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "The document opens with \"# CLI Engine English Open-Source Surface Execution Plan\" and includes a \"Translation Review Table\" section.",
+      "status": "done",
+      "startTime": "2026-06-13T13:19:38.692Z",
+      "endTime": "2026-06-13T13:41:29.382Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "test": [
+          "packages/main/src/cli-engine.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new execution document exists and states the English-only open-source policy, staged migration plan, verification commands, and reviewer workflow.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document includes a Chinese source to proposed English translation table for cli-engine.ts review, including representative public CLI help/schema/error/hint surfaces.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "This documentation story does not modify packages/main/src/cli-engine.ts or the existing untracked lattice-codex command boundary document.",
+            "type": "cli"
+          }
+        ]
+      },
+      "excludes": [
+        "Do not modify packages/main/src/cli-engine.ts in this documentation-only story.",
+        "Do not modify the existing untracked docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md file.",
+        "Do not run omx or read/write/use .omx/.",
+        "Do not directly edit docs/story/ or packages/main/tests/fixtures/.",
+        "Do not translate README or the wider docs set in this story; only create the review execution document."
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "test -f docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md && rg -n \"English-Only Policy|Execution Phases|Complete Line-Level Translation Manifest|Reviewer Checklist\" docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "result": "pass",
+          "note": "The execution document exists and now includes the English-only policy, staged execution plan, complete line-level manifest, and reviewer checklist.",
+          "headHash": "a7e38d4130caa4ba7e9c8e368b5ceb8426bd4e49",
+          "materialHash": "c858feb7719f327208482f115a7a8080e28cfcc198f0845f97b000e48de33379",
+          "timestamp": "2026-06-13T16:28:07.844Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const doc=fs.readFileSync(\\\"docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md\\\",\\\"utf8\\\");const src=fs.readFileSync(\\\"packages/main/src/cli-engine.ts\\\",\\\"utf8\\\").split(/\\\\n/).filter(l=>/[\\\\u3400-\\\\u9fff]/.test(l)).length;const m=doc.match(/```tsv\\\\n([\\\\s\\\\S]*?)\\\\n```/);const lines=m[1].trim().split(/\\\\n/);const head=lines.shift().split(\\\"\\\\t\\\");const rows=lines.map(l=>Object.fromEntries(l.split(\\\"\\\\t\\\").map((v,i)=>[head[i],v])));const bad=rows.filter(r=>/[\\\\u3400-\\\\u9fff]/.test(r.proposedEnglish||\\\"\\\")||(r.proposedEnglish||\\\"\\\").includes(\\\"[review wording]\\\")).length;if(src!==762||rows.length!==src||bad)process.exit(1);console.log(JSON.stringify({src,rows:rows.length,bad}));\"",
+          "result": "pass",
+          "note": "The document now has a complete line-level translation manifest: all 762 Chinese-bearing cli-engine.ts lines are present, every row has proposedEnglish, proposedEnglish has no Chinese, and no fallback placeholder remains.",
+          "headHash": "a7e38d4130caa4ba7e9c8e368b5ceb8426bd4e49",
+          "materialHash": "c858feb7719f327208482f115a7a8080e28cfcc198f0845f97b000e48de33379",
+          "timestamp": "2026-06-13T16:28:07.844Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-only main...HEAD && git diff --name-only",
+          "result": "pass",
+          "note": "The change set remains documentation/Lattice metadata only; packages/main/src/cli-engine.ts and docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md were not modified.",
+          "headHash": "a7e38d4130caa4ba7e9c8e368b5ceb8426bd4e49",
+          "materialHash": "c858feb7719f327208482f115a7a8080e28cfcc198f0845f97b000e48de33379",
+          "timestamp": "2026-06-13T16:28:07.844Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-13T13:19:38.692Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin writing the reviewable English translation execution plan document."
+    },
+    {
+      "timestamp": "2026-06-13T13:22:51.111Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Execution document committed and verification checks passed."
     }
   ]
 }

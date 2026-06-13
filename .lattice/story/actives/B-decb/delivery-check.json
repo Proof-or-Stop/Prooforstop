@@ -1,0 +1,35 @@
+{
+  "storyId": "B-decb",
+  "checkedAt": "2026-06-13T14:26:21.135Z",
+  "reviewRound": "2026-06-13T14:25:16.719Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "文档示例与发布产物路径统一为 lattice；CLI 名称从 koala 兼容别名迁移为 lattice。",
+      "status": "verified",
+      "verifiedBy": "docs review + diff check",
+      "evidence": "README.md updated (version/help/desktop artifact examples)."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "命令与目录文案不再使用 koala 入口作为主行为；仅保留 lattice 身份。",
+      "status": "verified",
+      "verifiedBy": "docs review + diff check",
+      "evidence": "docs/guide.md updated command examples and compatibility mentions."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "build 与 test:lattice-cli-migration-smoke 在本机执行通过：npm run build + ✓ lattice CLI migration smoke passed。"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "完成 build 与 migration smoke，补齐 docs 与命名一致性校验，且未发现未决 TODO。"
+  },
+  "_hash": "1391ec4784a97a6b53639390313d2998a787b51184e9505100f7a143b1aaab36"
+}

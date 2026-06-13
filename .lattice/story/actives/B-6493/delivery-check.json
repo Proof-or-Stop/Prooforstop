@@ -1,0 +1,55 @@
+{
+  "storyId": "B-6493",
+  "checkedAt": "2026-06-13T15:59:10.632Z",
+  "reviewRound": "2026-06-13T15:49:57.792Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/lattice-handoff.ts#PhaseAuthorityWarning",
+      "promise": "handoff_create attaches an advisory PhaseAuthorityWarning when the linked-worktree phase differs from the packed main-mirror phase, surfaced in text + JSON output",
+      "verifiedBy": "diff/grep",
+      "evidence": "buildPhaseAuthorityWarning exported and called from resolvePhaseAuthorityWarning inside createHandoffPack; handler renders warning line; inspectHandoffPack + renderHandoffInspectionText surface the same field. Live B-4e06 transcript confirms warning fires with correct text and JSON."
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-handoff.ts#HandoffInspection",
+      "promise": "handoff_inspect surfaces the phaseAuthorityWarning field in both inspection object and rendered text",
+      "verifiedBy": "diff/grep",
+      "evidence": "HandoffInspection interface gains optional phaseAuthorityWarning; inspectHandoffPack spreads field from pack; renderHandoffInspectionText renders phaseAuthority (ahead/divergent) line. Smoke case 6 asserts inspect carries warning and render matches /phaseAuthority (ahead)/."
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-handoff.ts#HandoffPackHashInput",
+      "promise": "packHash is byte-stable: phaseAuthorityWarning is outside HandoffPackHashInput so its presence never perturbs packHash",
+      "verifiedBy": "diff/grep",
+      "evidence": "HandoffPackHashInput type (lines 55-69) contains no phaseAuthorityWarning field. computeHandoffPackHash accepts only HandoffPackHashInput. Smoke case 5 asserts byte-identity with and without the warning field."
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-handoff.ts#recoveryPoint",
+      "promise": "recoveryPoint.phase semantics unchanged: the warning is advisory only and does not modify recoveryPoint",
+      "verifiedBy": "diff/grep",
+      "evidence": "createHandoffPack sets recoveryPoint.phase from canonical.phase (mirror value, pre-existing path). phaseAuthorityWarning is spread independently. Live transcript confirms recoveryPoint.phase remains INIT_CHECK on B-4e06."
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-handoff.ts#resolvePhaseAuthorityWarning",
+      "promise": "Resolver failure is non-fatal: any error in resolveStoryAuthority yields no warning and pack creation never throws",
+      "verifiedBy": "diff/grep",
+      "evidence": "resolvePhaseAuthorityWarning wraps resolveStoryAuthority in try { ... } catch { return undefined; }. No-worktree smoke case confirms no exception propagated from factory path."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "handoff-phase-authority-smoke.ts cases 1-5: buildPhaseAuthorityWarning worktree-ahead returns ahead warning with correct fields; phases-equal returns undefined; no-worktree returns undefined; authoritative-behind returns divergent warning; computeHandoffPackHash byte-identical with and without warning. All confirmed by live re-run: 6/6 PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "handoff-phase-authority-smoke.ts case 6: no-worktree factory yields undefined warning and silent render; grafted-warning pack yields inspection.phaseAuthorityWarning with relation=ahead; render matches /phaseAuthority (ahead)/; packHash unchanged after grafting. Live re-run: 6/6 PASS. B-4e06 live transcript confirms warning fires on real divergent story."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from source diff. Smoke suite (6 cases) covers ahead/in-sync/no-worktree/divergent/packHash-stability/inspect-render paths; re-run live confirms 6/6 PASS. Live B-4e06 transcript confirms the warning fires correctly on a real divergent story and is absent on a no-worktree story. No TODOs/FIXMEs in the diff. recoveryPoint.phase semantics intact; packHash byte-stable; resolver non-fatal."
+  },
+  "_hash": "0d5a70287f2ff68e097b4f84a1e7cd423008550ea144b50b285feb99c8e06034"
+}

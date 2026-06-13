@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Receipt-backed Authority claims must be mechanically verified, not inferred from local DONE or prose.",
+    "Host-neutral layering must remain explicit: CLI Non-authority evidence and Authority Server proof are separate results.",
+    "The audit should prefer the narrowest executable path and record blockers rather than broadening Authority architecture.",
+    "Secrets and credentials must be consumed only through configured paths and never printed or committed."
+  ],
+  "drivers": [
+    "User explicitly wants true Authority Server receipt-backed proof for B-12f3.",
+    "Current status loads trust env only when explicitly pointed at the root secret file from the worktree.",
+    "Configured trust env still lacks actor key and runner id, and no gate_decision receipt is currently verified."
+  ],
+  "options": [
+    {
+      "name": "A: Attempt real Authority path, then fail closed on missing prerequisites",
+      "pros": [
+        "Directly tries the user-requested receipt-backed path",
+        "Preserves Authority boundary if actor/runner/receipt are missing",
+        "Produces actionable evidence without rewriting B-12f3 history"
+      ],
+      "cons": [
+        "May end blocked if server prerequisites are not available in this environment",
+        "Requires careful secret-safe command usage"
+      ]
+    },
+    {
+      "name": "B: Treat B-12f3 local DONE as sufficient",
+      "pros": [
+        "Fast and already has local lifecycle artifacts"
+      ],
+      "cons": [
+        "Incorrectly conflates Non-authority local evidence with Authority Server proof",
+        "Would overclaim authorityDone/fullAuthorityDone without receipt-backed proof"
+      ]
+    },
+    {
+      "name": "C: Implement new Authority credential/provisioning framework now",
+      "pros": [
+        "Could eventually make future Authority runs smoother"
+      ],
+      "cons": [
+        "Arbitrary broad optimization beyond this audit",
+        "High blast radius and not required to answer whether B-12f3 has verified proof today"
+      ]
+    }
+  ],
+  "chosen": "A: Attempt real Authority path, then fail closed on missing prerequisites",
+  "rationale": "Choose the only path that can satisfy the user request when real Authority prerequisites exist while remaining correct and fail-closed when they do not.",
+  "preMortem": [
+    {
+      "scenario": "Trust env is not loaded from the story worktree",
+      "trigger": "authority_trust.env is gitignored in the main root and absent from the worktree",
+      "consequence": "CLI falls back to localhost default and misdiagnoses server readiness",
+      "mitigation": "Use LATTICE_AUTHORITY_TRUST_ENV_FILE pointing at the root secret file; record status fields without printing secrets"
+    },
+    {
+      "scenario": "Authority server prerequisites remain incomplete",
+      "trigger": "actor key, runner id, session, job, or gate_decision receipt is missing",
+      "consequence": "No true Authority proof can be produced",
+      "mitigation": "Record blocked_classified evidence with authorityDone=false/fullAuthorityDone=false and exact missing prerequisites"
+    },
+    {
+      "scenario": "Local DONE is accidentally overclaimed as Authority DONE",
+      "trigger": "Summary or checklist wording says receiptVerified/authorityDone without verified receipt",
+      "consequence": "Host-neutral contract is violated",
+      "mitigation": "Require receipt id plus authority_receipt_verify or job_status receipt-backed output before any Authority completion claim"
+    },
+    {
+      "scenario": "Secrets leak into logs or commits",
+      "trigger": "Printing authority_trust.env or committing copied secret files",
+      "consequence": "Credential exposure",
+      "mitigation": "Never cat the trust file; use status redacted fields only; keep authority_trust.env ignored and uncommitted"
+    }
+  ],
+  "timestamp": "2026-06-13T13:26:34.608Z"
+}

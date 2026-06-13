@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-e84c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: document keeps Lattice workflow commands host-neutral, limits Codex namespace to adapter diagnostics/verification, preserves fail-closed behavior, treats residual wrapper guidance as follow-up implementation rather than completed cleanup, and avoids unrelated optimization/readiness claims.",
+      "createdAt": "2026-06-13T13:40:09.442Z",
+      "reviewRound": "2026-06-13T13:37:59.600Z",
+      "reviewRunId": "B-e84c:RR-002",
+      "_hash": "bb80b3c141f49683829f50577ce09d7f4acc0208f6c1f26016d190e9bf57ab2e"
+    },
+    {
+      "id": "B-e84c:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: reviewed docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md and docs/requirements/NAV.md for clarity, internal consistency, no-overclaim boundary, scope boundary, NAV count/link consistency, and future-agent guidance. The plan clearly separates host-neutral workflow commands from Codex adapter diagnostics, explicitly preserves fail-closed behavior, avoids claiming implementation/Authority/production readiness, and NAV has 49 decision links matching 49 decision files with no missing targets. Runtime help checks confirmed allowed adapter forms resolve and forbidden Codex-prefixed workflow forms reject with host-neutral replacements.",
+      "createdAt": "2026-06-13T13:40:13.042Z",
+      "reviewRound": "2026-06-13T13:37:59.600Z",
+      "reviewRunId": "B-e84c:RR-001",
+      "_hash": "7d4c3287c2a3b91c0af907f5e6b335caba2cd3af2efb4558e79dd5ae08d569bd"
+    },
+    {
+      "id": "B-e84c:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed: docs/requirements/NAV.md lists the new command-boundary decision doc and declares 49 decision files matching the directory inventory; the decision doc keeps workflow guidance host-neutral, limits Codex commands to adapter diagnostics/verification, frames forbidden namespace forms only as rejection patterns/tests, identifies README/init-assets/dist residuals as future execution work, and explicitly avoids production/Authority/unattended/convergence readiness claims.",
+      "createdAt": "2026-06-13T13:40:44.959Z",
+      "reviewRound": "2026-06-13T13:37:59.600Z",
+      "reviewRunId": "B-e84c:RR-005",
+      "_hash": "1f9e35ed91783e555228c695ce27f6b38341a6b060aeed458ba841cb1d19d6a6"
+    },
+    {
+      "id": "B-e84c:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: the document-only change preserves the host-neutral workflow command model, limits Codex namespace guidance to adapter diagnostics/verification, avoids overclaiming broader readiness, and the resolved finding now has actual fail-closed evidence for forbidden Codex-prefixed session_brief and aux_doc_list forms exiting non-zero with ordinary Lattice replacements.",
+      "createdAt": "2026-06-13T13:46:11.902Z",
+      "reviewRound": "2026-06-13T13:43:10.955Z",
+      "reviewRunId": "B-e84c:RR-007",
+      "_hash": "5eb1beaa83ce8725ae3441dde7875e0354cde6d7794686ba378593b2af730f2e"
+    },
+    {
+      "id": "B-e84c:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: document scope is limited to the command-boundary execution plan and NAV update; prose consistently separates host-neutral workflow commands from Codex adapter diagnostics, preserves fail-closed behavior, names residual non-document cleanup without claiming it is done, and includes a no-overclaim boundary. Fresh reviewer checks confirmed forbidden node bin/lattice.js codex session_brief --help and aux_doc_list --help fail closed with ordinary replacements, allowed node bin/lattice-codex.js codex_doctor/verify_codex help resolves, NAV count is 49 with the new decision entry, and forbidden-guidance hits are limited to smoke-test assertions.",
+      "createdAt": "2026-06-13T13:46:15.252Z",
+      "reviewRound": "2026-06-13T13:43:10.955Z",
+      "reviewRunId": "B-e84c:RR-006",
+      "_hash": "b2351d04a7d1e24dad4e1138e32e5d0ae4266ea80f1a807fa42cfd435c8963ab"
+    },
+    {
+      "id": "B-e84c:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "REVIEW_PASS second round: B-e84c:F-001 is genuinely resolved. checklist_get now records actual fail-closed checks for node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help under CHK-002 plus CHK-004 delivery evidence; live reruns exited 1 and printed ordinary replacements lattice session_brief and lattice aux_doc_list. evidence_inspect reports all checklist evidence fresh against current material hash 6338bf721d0e571602f3acc23ca5fa74c85d1ea07e5cdb2fe35d1942292c8423, and original spot checks still pass.",
+      "createdAt": "2026-06-13T13:46:37.870Z",
+      "reviewRound": "2026-06-13T13:43:10.955Z",
+      "reviewRunId": "B-e84c:RR-008",
+      "_hash": "7efe47953f9c6c63775643f035f5dac696d7bc737c9eebf02f9a120e117b6df3"
+    },
+    {
+      "id": "B-e84c:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass for third REVIEW round. Verified host-neutral workflow command boundary is documented without adding Codex workflow aliases; Codex adapter namespace remains limited to doctor/verify diagnostics and verification; actual node bin/lattice.js codex session_brief --help and aux_doc_list --help fail closed with ordinary lattice replacements; adapter doctor/verify help commands resolve; residual wrapper guidance scan matches the future-work boundary now named in the decision doc; no unrelated optimization or readiness overclaim found.",
+      "createdAt": "2026-06-13T13:54:46.212Z",
+      "reviewRound": "2026-06-13T13:51:58.992Z",
+      "reviewRunId": "B-e84c:RR-010",
+      "_hash": "1359b5a28633834fb3d1b90c49173071124c9ea4cb16066425912bda8653095a"
+    },
+    {
+      "id": "B-e84c:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass for third REVIEW round after F-002: NAV has 49 decision links for 49 decision files with no missing or extra targets; command-boundary text keeps workflow commands host-neutral, limits Codex forms to adapter doctor/verify, and forbids lattice codex workflow namespace aliases; residual future-work boundary now explicitly names README.md lattice-codex workflow-wrapper examples and src/dist codex-adapter-checks display-command hits as not-yet-cleaned non-document targets; no production, Authority, unattended, or convergence readiness overclaim found. Checked allowed/rejected CLI help forms and diff whitespace. Separate open F-003 from quality lane was observed but is not a docs-text blocker.",
+      "createdAt": "2026-06-13T13:55:40.782Z",
+      "reviewRound": "2026-06-13T13:51:58.992Z",
+      "reviewRunId": "B-e84c:RR-013",
+      "_hash": "1b460ca1a41c46ac83396341402a0ab3aecff9db989493e2714510271d1f417e"
+    },
+    {
+      "id": "B-e84c:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage review pass: independently reran forbidden namespace fail-closed checks (node bin/lattice.js codex session_brief --help and aux_doc_list --help exit nonzero with host-neutral replacements), allowed adapter help (node bin/lattice-codex.js codex_doctor --help and verify_codex --help), forbidden namespace repo scan (only smoke-test rejection assertions), residual workflow-wrapper and bare-doctor scans (README/src/dist residuals are explicitly documented as future cleanup, not claimed done), NAV inventory (49 decision md files and NAV entry), no-overclaim scan, and evidence_inspect freshness (all refs fresh by materialHash). No blocker for this lane.",
+      "createdAt": "2026-06-13T13:55:59.820Z",
+      "reviewRound": "2026-06-13T13:51:58.992Z",
+      "reviewRunId": "B-e84c:RR-012",
+      "_hash": "f450ff8bc4b96834d5133794d8a50ad05efce8f00203dff95e4d30b1bde54347"
+    },
+    {
+      "id": "B-e84c:RP-010",
+      "agent": "koala-review-quality",
+      "note": "Quality/internal-consistency review pass. F-003 is resolved: checklist_get visibly exposes fail-closed manual transcript evidence in both CHK-002 and CHK-004 for node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help, including exit code 1 unsupported-command text, namespace limited to lattice codex verify/doctor, and ordinary replacements lattice session_brief / lattice aux_doc_list. finding_list resolution wording for F-003 matches those exact evidence refs, and evidence_inspect reports the refs fresh against the current material state.",
+      "createdAt": "2026-06-13T14:00:36.558Z",
+      "reviewRound": "2026-06-13T13:58:26.707Z",
+      "reviewRunId": "B-e84c:RR-014",
+      "_hash": "ad1d19914d51c4a31508fc3c8e3d8664999c96f58bdd7091b1e0a3752d103df3"
+    },
+    {
+      "id": "B-e84c:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs lane reviewed final round after F-001/F-002/F-003 resolution. NAV declares 49 decision files and contains the command-boundary entry; forbidden namespace scan shows only negative smoke assertions; residual README workflow-wrapper, init-assets doctor, and codex-adapter-checks display-command hits are explicitly bounded as future cleanup; allowed Codex adapter doctor/verify help resolves; forbidden codex session_brief/aux_doc_list fail closed with ordinary replacements; no Authority/production/unattended/convergence overclaim found.",
+      "createdAt": "2026-06-13T14:01:43.990Z",
+      "reviewRound": "2026-06-13T13:58:26.707Z",
+      "reviewRunId": "B-e84c:RR-017",
+      "_hash": "bfc8518d9fe61add7a6928375a1ebf567e8c82c6788408bb125c540df16671a9"
+    },
+    {
+      "id": "B-e84c:RP-012",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: checklist_get exposes F-001/F-003 fail-closed transcript evidence on CHK-002 and CHK-004; finding_list shows F-001, F-002, and F-003 resolved; live forbidden commands node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help exit non-zero with host-neutral replacements; allowed codex doctor and codex verify help resolves; scans show residual lattice-codex wrapper guidance is explicitly named as future cleanup and lattice codex workflow namespace hits are limited to negative smoke assertions; NAV entry/count and no-overclaim boundary are present.",
+      "createdAt": "2026-06-13T14:01:44.524Z",
+      "reviewRound": "2026-06-13T13:58:26.707Z",
+      "reviewRunId": "B-e84c:RR-018",
+      "_hash": "d9f1b19d97859bbb9a5326202dd2cc1d5ed01a097e68b995223883f53fc87eb1"
+    },
+    {
+      "id": "B-e84c:RP-013",
+      "agent": "koala-review-test-coverage",
+      "note": "REVIEW_PASS test-coverage final round. Rechecked actual fail-closed behavior: node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help both exited 1 with Unsupported command text, Codex namespace limited to verify/doctor, and ordinary replacements. Rechecked allowed adapter help: node bin/lattice.js codex doctor --help, node bin/lattice.js codex verify --help, node bin/lattice-codex.js codex_doctor --help, and node bin/lattice-codex.js verify_codex --help all resolved successfully. Forbidden guidance scan for lattice codex workflow families only reports negative smoke assertions in src/dist. Residual wrapper scans still find README/init-assets/codex-adapter-checks examples, and the decision doc explicitly marks these as future cleanup instead of completed work. NAV inventory is consistent inside the story worktree: 49 decision files, 49 NAV entries, and the command-boundary document is linked. Evidence freshness checked: no material diff/log entries for the decision doc or NAV after c36023 fail-closed evidence, and session_brief reports review hash freshness fresh. No blocker found.",
+      "createdAt": "2026-06-13T14:01:54.844Z",
+      "reviewRound": "2026-06-13T13:58:26.707Z",
+      "reviewRunId": "B-e84c:RR-015",
+      "_hash": "63567172bfa56a9a14893d73052b779a8f4cd00b251113dab8ee2502bf5ebb0a"
+    }
+  ]
+}

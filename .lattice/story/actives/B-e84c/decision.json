@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Keep Lattice workflow commands host-neutral.",
+    "Only correct document facts that are mechanically verifiable.",
+    "Preserve fail-closed Codex namespace behavior.",
+    "Keep review scope limited to the execution plan and NAV synchronization."
+  ],
+  "drivers": [
+    "The document will guide future agents and generated prompts.",
+    "Command examples must match real CLI behavior.",
+    "NAV must make truth-source documents discoverable."
+  ],
+  "options": [
+    {
+      "name": "A: Review and fix the document inside a narrow documentation story",
+      "pros": [
+        "Creates lifecycle evidence for the document review",
+        "Keeps edits scoped to the document and NAV",
+        "Allows TEST to use command and scan evidence"
+      ],
+      "cons": [
+        "More process overhead than a quick edit"
+      ]
+    },
+    {
+      "name": "B: Treat this as an informal note and leave the document outside story flow",
+      "pros": [
+        "Fastest immediate path"
+      ],
+      "cons": [
+        "Leaves no lifecycle evidence for a truth-source document",
+        "Does not demonstrate that document review can use Lattice gates"
+      ]
+    },
+    {
+      "name": "C: Expand scope to execute all template and README cleanup now",
+      "pros": [
+        "Would reduce known residual guidance immediately"
+      ],
+      "cons": [
+        "Violates the user request to review this document first",
+        "Overlaps with separate runtime/template cleanup work"
+      ]
+    }
+  ],
+  "chosen": "A: Review and fix the document inside a narrow documentation story",
+  "rationale": "Option A matches the user request for a full Lattice story review while avoiding arbitrary expansion into unrelated runtime and template cleanup.",
+  "preMortem": [
+    {
+      "scenario": "The review story silently fixes runtime source or README residuals",
+      "trigger": "The document scan exposes real residuals outside the approved files",
+      "consequence": "Scope expands beyond document review and collides with other active stories",
+      "mitigation": "Keep residual cleanup as follow-up execution work and only document the scan/gate here"
+    },
+    {
+      "scenario": "The document recommends a command that does not exist",
+      "trigger": "CLI help checks are skipped",
+      "consequence": "Future agents follow broken guidance",
+      "mitigation": "Require help checks for Codex adapter diagnostics and verification commands"
+    },
+    {
+      "scenario": "The document becomes undiscoverable",
+      "trigger": "NAV synchronization is skipped",
+      "consequence": "A truth-source decision exists but normal doc discovery misses it",
+      "mitigation": "Verify NAV count and entry in TEST"
+    }
+  ],
+  "timestamp": "2026-06-13T13:27:06.291Z"
+}

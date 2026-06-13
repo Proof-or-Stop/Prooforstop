@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "移除 koala 兼容命名并统一 lattice 发布命名",
+      "context": "将 packages/main 的 bin alias 从 koala 去掉，仅保留 lattice；桌面打包产物改为 lattice-<platform>-<arch>；并将文档示例中的 koala 调用统一为 lattice。",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "packages/main/package.json",
+        "scripts/package-desktop.mjs"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-13T14:25:08.655Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Migration smoke verifies --version/lattice help and removes koala.bin compatibility assertion.",
+          "headHash": "e12f486dccc7ee77634525e1f1e8e73e5c82ff14",
+          "materialHash": "b5b4f904485af06677e9d6c9c170396bf952488f7f06acf952ed8749c5b81572",
+          "timestamp": "2026-06-13T14:25:08.690Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6493",
+  "allowedCommands": [
+    "git *",
+    "lattice handoff_*",
+    "lattice story_*",
+    "lattice validate*",
+    "node *",
+    "npm --prefix packages/main run *",
+    "npm run test:*",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/core/story-authority-resolver.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "lattice dispatch_auto*",
+    "lattice story_advance *DONE*",
+    "npm publish*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "docs/story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Warning-only handoff phase-authority change; touches handoff core + a focused smoke. packHash must stay stable.",
+  "createdAt": "2026-06-13T15:37:08.346Z",
+  "updatedAt": "2026-06-13T15:37:08.346Z",
+  "_hash": "26a27a2804782ee787f56ace6127c263275485f655b14ed4ddc75d590a666a98"
+}

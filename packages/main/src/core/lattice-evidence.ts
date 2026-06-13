@@ -8,6 +8,7 @@ import {
   type EvidenceFreshness,
 } from './evidence-freshness.js';
 import type { StoryStore } from './store.js';
+import type { VerificationEvidence } from './types.js';
 
 export type LatticeEvidenceFreshnessStatus = 'fresh' | 'stale';
 
@@ -27,6 +28,10 @@ export interface LatticeEvidenceRef {
   itemId?: string;
   intentRef?: string;
   kind?: string;
+  result?: VerificationEvidence['result'];
+  verdict?: VerificationEvidence['verdict'];
+  note?: string;
+  waiverType?: VerificationEvidence['waiverType'];
   command?: string;
   file?: string;
   transcriptRefs: string[];
@@ -102,6 +107,23 @@ function stringField(record: Record<string, unknown>, key: string): string | und
 function booleanField(record: Record<string, unknown>, key: string): boolean | undefined {
   const value = record[key];
   return typeof value === 'boolean' ? value : undefined;
+}
+
+function resultField(record: Record<string, unknown>): VerificationEvidence['result'] | undefined {
+  const value = record.result;
+  return value === 'pass' || value === 'fail' ? value : undefined;
+}
+
+function verdictField(record: Record<string, unknown>): VerificationEvidence['verdict'] | undefined {
+  const value = record.verdict;
+  return value === 'success' || value === 'blocked_classified' || value === 'audit_only' || value === 'waived'
+    ? value
+    : undefined;
+}
+
+function waiverTypeField(record: Record<string, unknown>): VerificationEvidence['waiverType'] | undefined {
+  const value = record.waiverType;
+  return value === 'permanent' || value === 'deferred_gate_evidence' ? value : undefined;
 }
 
 function stringArrayValue(value: unknown): string[] {
@@ -198,6 +220,10 @@ function buildEvidenceRefs(root: string, records: Array<Record<string, unknown>>
       ...(stringField(record, 'itemId') ? { itemId: stringField(record, 'itemId') } : {}),
       ...(stringField(record, 'intentRef') ? { intentRef: stringField(record, 'intentRef') } : {}),
       ...(stringField(record, 'kind') ? { kind: stringField(record, 'kind') } : {}),
+      ...(resultField(record) ? { result: resultField(record) } : {}),
+      ...(verdictField(record) ? { verdict: verdictField(record) } : {}),
+      ...(stringField(record, 'note') ? { note: stringField(record, 'note') } : {}),
+      ...(waiverTypeField(record) ? { waiverType: waiverTypeField(record) } : {}),
       ...(stringField(record, 'command') ? { command: stringField(record, 'command') } : {}),
       ...(stringField(record, 'file') ? { file: stringField(record, 'file') } : {}),
       transcriptRefs: refs.transcriptRefs,

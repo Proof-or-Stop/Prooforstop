@@ -1,0 +1,24 @@
+{
+  "task": "把 Lattice CLI 的对外命名从 koala 兼容命名统一为 lattice",
+  "outcome": "用户看到 README/guide 和安装后可运行的桌面包都只显示 lattice：命令入口和产物文件名不再出现 koala，安装后执行不再有 legacy 别名依赖。",
+  "facts": [
+    "packages/main package.json 同时导出了 lattice 与 koala",
+    "桌面打包脚本产物名目前是 koala-<platform>-<arch>",
+    "README 与 docs/guide 存在 koala 兼容文案",
+    "仓内未发现除文档与启动文件外的其他外部引用"
+  ],
+  "constraints": [
+    "不改 CLI 功能逻辑，只做命名统一",
+    "仅改动范围内文件：packages/main/package.json、scripts/package-desktop.mjs、README.md、docs/guide.md",
+    "遵循 story scope-boundary 与 execution-boundary",
+    "保留可回滚的最小改动策略"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/package.json",
+    "scripts/package-desktop.mjs",
+    "README.md",
+    "docs/guide.md"
+  ],
+  "timestamp": "2026-06-13T14:22:10.005Z"
+}

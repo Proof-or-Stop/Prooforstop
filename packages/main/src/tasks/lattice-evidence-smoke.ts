@@ -70,6 +70,29 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
       notes: ['token-like transcript values redacted'],
     },
   };
+  const failedProofEvidence: VerificationEvidence = {
+    intentRef: 'CHK-006:authority-proof-fail:custom',
+    kind: 'manual_transcript',
+    command: 'lattice authority_status --json --storyId=B-12f3',
+    result: 'fail',
+    verdict: 'blocked_classified',
+    note: 'Authority proof remains blocked: receiptVerified=false, authorityDone=false, and no gate_decision receipt exists.',
+    headHash,
+    materialHash,
+    timestamp: now,
+  };
+  const waiverEvidence: VerificationEvidence = {
+    intentRef: 'CHK-006:edge:0',
+    kind: 'waiver',
+    command: 'waiver for lifecycle coverage only',
+    result: 'pass',
+    verdict: 'blocked_classified',
+    waiverType: 'permanent',
+    note: 'Lifecycle coverage waiver remains distinct from the failed Authority proof ref.',
+    headHash,
+    materialHash,
+    timestamp: now,
+  };
   const story: StoryInfo = {
     storyId: 'B-evidence',
     name: 'evidence-smoke',
@@ -98,21 +121,42 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
         status: 'done',
         startTime: now,
         endTime: now,
-        verificationEvidence: [{
-          intentRef: 'CHK-006:happy:0',
-          kind: 'manual_transcript',
-          file: 'transcripts/evidence-smoke.md',
-          result: 'pass',
-          note: 'Transcript reference for portability smoke.',
-          headHash,
-          materialHash,
-          timestamp: now,
-        }],
+        verificationEvidence: [
+          {
+            intentRef: 'CHK-006:happy:0',
+            kind: 'manual_transcript',
+            file: 'transcripts/evidence-smoke.md',
+            result: 'pass',
+            note: 'Transcript reference for portability smoke.',
+            headHash,
+            materialHash,
+            timestamp: now,
+          },
+          failedProofEvidence,
+          waiverEvidence,
+        ],
       },
     ],
   };
   store.writeStory('B-evidence', story);
   store.writeChecklist('B-evidence', checklist);
+}
+
+function assertEvidenceRefSemantics(refs: EvidenceInspection['evidenceRefs']): void {
+  const failedProof = refs.find(ref => ref.intentRef === 'CHK-006:authority-proof-fail:custom');
+  assert.ok(failedProof, 'custom failed proof evidence ref is projected');
+  assert.equal(failedProof.result, 'fail');
+  assert.equal(failedProof.verdict, 'blocked_classified');
+  assert.match(failedProof.note ?? '', /receiptVerified=false/);
+  assert.equal(failedProof.waiverType, undefined);
+
+  const waiver = refs.find(ref => ref.intentRef === 'CHK-006:edge:0');
+  assert.ok(waiver, 'waiver evidence ref is projected');
+  assert.equal(waiver.kind, 'waiver');
+  assert.equal(waiver.result, 'pass');
+  assert.equal(waiver.verdict, 'blocked_classified');
+  assert.equal(waiver.waiverType, 'permanent');
+  assert.match(waiver.note ?? '', /distinct from the failed Authority proof ref/);
 }
 
 function assertManifestFresh(manifest: EvidenceManifest, headHash: string, materialHash: string): void {
@@ -136,6 +180,7 @@ function assertManifestFresh(manifest: EvidenceManifest, headHash: string, mater
   assert.ok(manifest.evidenceRefs.some(ref => ref.receiptRefs.includes('local-runner-receipt-ref')), 'manifest carries receipt lineage per evidence ref');
   assert.ok(manifest.evidenceRefs.some(ref => ref.redaction.secretsRedacted), 'manifest carries redaction metadata per evidence ref');
   assert.ok(manifest.evidenceRefs.every(ref => ref.freshness.status === 'fresh'), 'all refs start fresh');
+  assertEvidenceRefSemantics(manifest.evidenceRefs);
   assert.equal(manifest.refreshGuidance.refreshOnlyProvidesGuidance, true);
   assert.equal(manifest.refreshGuidance.authorityChanged, false);
 }
@@ -148,6 +193,8 @@ function assertInspectionStale(inspection: EvidenceInspection, driftHead: string
   assert.equal(inspection.freshness.status, 'stale');
   assert.ok(inspection.freshness.staleRefs.includes('CHK-005:happy:0'), 'test evidence becomes stale after material drift');
   assert.ok(inspection.freshness.staleRefs.includes('CHK-006:happy:0'), 'transcript evidence becomes stale after material drift');
+  assert.ok(inspection.freshness.staleRefs.includes('CHK-006:authority-proof-fail:custom'), 'failed proof evidence becomes stale after material drift');
+  assert.ok(inspection.freshness.staleRefs.includes('CHK-006:edge:0'), 'waiver evidence becomes stale after material drift');
   assert.equal(inspection.authority.authorityChanged, false);
   assert.equal(inspection.authority.productionDone, false);
   assert.deepEqual(inspection.authority.receiptRefs, ['local-runner-receipt-ref']);
@@ -159,6 +206,7 @@ function assertInspectionStale(inspection: EvidenceInspection, driftHead: string
   assert.equal(inspection.refreshGuidance.authorityChanged, false);
   assert.ok(inspection.refreshGuidance.guidance.includes('does not refresh hashes'), 'refresh is guidance-only');
   assert.ok(inspection.refreshGuidance.recommendedCommands.includes('npm run test:lattice-handoff-smoke'), 'stale test command is suggested');
+  assertEvidenceRefSemantics(inspection.evidenceRefs);
 }
 
 const root = mkdtempSync(join(tmpdir(), 'koala-lattice-evidence-'));

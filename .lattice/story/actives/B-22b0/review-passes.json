@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-22b0:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review PASS: B-22b0 keeps B-12f3 local DONE separate from Authority receipt proof, records the actual result as blocked/partial with receiptVerified=false, authorityDone=false, fullAuthorityDone=false, and does not optimize arbitrarily or overclaim production Authority completion.",
+      "createdAt": "2026-06-13T13:37:58.266Z",
+      "reviewRound": "2026-06-13T13:36:11.057Z",
+      "reviewRunId": "B-22b0:RR-002",
+      "_hash": "0bd79a5eb87652f95112844bcfae5a538a66bf8d8ec6fc0d980a82ff46ddbc99"
+    },
+    {
+      "id": "B-22b0:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: CHK-001..CHK-003 each have verificationEvidence for happy, edge, and adversarial intents. blocked_classified is acceptable for the Authority proof branch because status, policy, and runner evidence show no verified native gate_decision receipt and keep receiptVerified, productionDone, authorityDone, and fullAuthorityDone false; the summary records blocked/partial, not true Authority proof.",
+      "createdAt": "2026-06-13T13:40:22.075Z",
+      "reviewRound": "2026-06-13T13:36:11.057Z",
+      "reviewRunId": "B-22b0:RR-005",
+      "_hash": "316845324870a3577c20224486eedb0b6872bb5060562a6f5ee7d06a9b097319"
+    },
+    {
+      "id": "B-22b0:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Focused F-003 re-review PASS. Ran local story-built CLI: node packages/main/dist/cli.js evidence_inspect --storyId=B-22b0 --format=json. Confirmed checklist evidence refs expose result/verdict/note; CHK-002:authority-proof-fail:status-policy and CHK-002:authority-proof-fail:runner-done have result=fail, verdict=blocked_classified, and notes; CHK-002 happy/edge/adversarial required waiver refs have kind=waiver, result=pass, waiverType=permanent. Also ran an inline node assertion over the local CLI JSON projection. Global lattice was not used for this semantic judgment.",
+      "createdAt": "2026-06-13T13:59:42.196Z",
+      "reviewRound": "2026-06-13T13:58:12.241Z",
+      "reviewRunId": "B-22b0:RR-008",
+      "_hash": "eb819e304d38c274e2d05a0758a27ee5bfb7e72830bcabe1c011e7c03731d8e4"
+    },
+    {
+      "id": "B-22b0:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test coverage review: checklist_get and validate show CHK-001..CHK-004 verificationIntent coverage is complete (12/12 required covered). npm build, lattice-evidence-smoke, and local worktree evidence_inspect JSON confirm CHK-004 projects result/verdict/note/waiverType, keeps failed Authority proof refs as result=fail verdict=blocked_classified, keeps lifecycle waivers distinguishable with waiverType=permanent, and does not verify receipts or change Authority productionDone/fullAuthorityDone semantics.",
+      "createdAt": "2026-06-13T14:03:07.627Z",
+      "reviewRound": "2026-06-13T13:58:12.241Z",
+      "reviewRunId": "B-22b0:RR-010",
+      "_hash": "9f18ea9e2c3233558fd9217ba883734781fcfb9dcc9bd0cd014c6238e46354e8"
+    },
+    {
+      "id": "B-22b0:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept PASS after F-001/F-002/F-003 fixes: B-12f3 remains clearly classified as local Non-authority DONE while Authority receipt proof remains blocked (receiptVerified=false, productionDone=false, authorityDone/fullAuthorityDone not claimed). The final B-22b0 summary and evidence keep the blocked branch explicit and do not promote waivers or dry-run failures into Authority completion. The F-003 code change is narrowly scoped to read-only evidence_inspect JSON projection of result/verdict/note/waiverType, with smoke coverage preserving failed proof refs as result=fail and waivers as pass/permanent; no arbitrary Authority behavior or optimization was introduced.",
+      "createdAt": "2026-06-13T14:03:08.011Z",
+      "reviewRound": "2026-06-13T13:58:12.241Z",
+      "reviewRunId": "B-22b0:RR-009",
+      "_hash": "91863f13bcc76fe55f1bf148b1241d63c2d70d7713e2484845736faf14d8f230"
+    }
+  ]
+}

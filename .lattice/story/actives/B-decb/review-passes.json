@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-decb:RP-001",
+      "agent": "koala-review-concept",
+      "note": "No blocking issues found; scope and intent are aligned with migration requirement.",
+      "createdAt": "2026-06-13T14:25:35.910Z",
+      "reviewRound": "2026-06-13T14:25:16.719Z",
+      "reviewRunId": "B-decb:RR-001",
+      "_hash": "5913623975636fd51e561276df06087cbee987409d7a61b5fe5d369c19c4d6e0"
+    },
+    {
+      "id": "B-decb:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Code changes are minimal and consistent with docs; no high-severity defects observed.",
+      "createdAt": "2026-06-13T14:25:36.960Z",
+      "reviewRound": "2026-06-13T14:25:16.719Z",
+      "reviewRunId": "B-decb:RR-002",
+      "_hash": "5052988af0cec2394e0c4e37d58847f1f37580862968a81346b4ebe012a2cc15"
+    },
+    {
+      "id": "B-decb:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Migration smoke and regression assertions covered; verification evidence is present and passing.",
+      "createdAt": "2026-06-13T14:25:37.636Z",
+      "reviewRound": "2026-06-13T14:25:16.719Z",
+      "reviewRunId": "B-decb:RR-003",
+      "_hash": "9719332a3a1ba7fd72924a47f2142100365c47a69db85476ab47089fed22ae65"
+    },
+    {
+      "id": "B-decb:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Public docs and guide references updated to lattice naming and desktop artifacts path.",
+      "createdAt": "2026-06-13T14:25:38.308Z",
+      "reviewRound": "2026-06-13T14:25:16.719Z",
+      "reviewRunId": "B-decb:RR-004",
+      "_hash": "ee84c63a80f130365f093eb7e58a1c368b866d5cbc80716faac66f54b4529e9b"
+    }
+  ]
+}

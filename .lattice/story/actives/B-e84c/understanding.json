@@ -1,0 +1,22 @@
+{
+  "task": "Review and correct the Lattice Codex command boundary execution plan as a truth-source document.",
+  "outcome": "Terminal shows B-e84c DONE with summary: the command-boundary execution plan has accurate Codex adapter commands, complete forbidden-guidance scans, synchronized NAV, and validation evidence for the document review.",
+  "facts": [
+    "The document is intended to guide future prompt/template cleanup work.",
+    "Host-neutral workflow commands must not be represented as Codex-specific workflow commands.",
+    "node bin/lattice-codex.js codex_doctor and node bin/lattice-codex.js verify_codex are valid local wrapper adapter commands.",
+    "The story is documentation-focused; DEV may edit docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md and docs/requirements/NAV.md only."
+  ],
+  "constraints": [
+    "Do not add broad lattice codex aliases for workflow commands.",
+    "Do not edit runtime source, README, generated adapter assets, or unrelated active stories in this review story.",
+    "Do not touch docs/story, tests/fixtures, or .omx.",
+    "Use command output and scans as verification evidence."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-13T13:27:16.028Z"
+}
