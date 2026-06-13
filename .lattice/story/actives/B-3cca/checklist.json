@@ -144,10 +144,38 @@
         "AGENTS.md",
         "README.md"
       ],
-      "userSees": "Checklist evidence names the Claude CLI command/session used for the implementation pass and confirms the edit occurred inside the B-3cca worktree.",
+      "userSees": "Verification evidence includes the Claude CLI command/session summary and states the implementation happened in the B-3cca worktree before Codex review.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Record the exact Claude CLI command/session output summary used for the implementation pass, including that it ran inside /Users/jek/Documents/Work/Orchestrate/.worktrees/B-3cca.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm Claude CLI did not edit outside the B-3cca worktree and that Codex reviewed the resulting git diff before committing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail completion if evidence only says the main agent edited files without an observable Claude CLI invocation or transcript summary.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
