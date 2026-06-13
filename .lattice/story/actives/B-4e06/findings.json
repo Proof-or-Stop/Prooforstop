@@ -50,6 +50,22 @@
         "packages/main/src/handlers/story-review.ts",
         "packages/main/src/tasks/verification-intent-repair-smoke.ts"
       ]
+    },
+    {
+      "id": "B-4e06:F-004",
+      "desc": "quality-cleanup: checklist.ts:202 dead-code guard `m[1] !== item.id` in reconstructMissingIntentsFromEvidence — the startsWith(`${item.id}:`) check on line 197 already guarantees m[1]===item.id after the regex matches; the continue on line 202 is unreachable and creates misleading code suggesting a cross-item scenario that cannot occur given the preceding guard",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T18:33:25.293Z",
+      "reviewRound": "2026-06-13T18:27:47.080Z",
+      "reviewRunId": "B-4e06:RR-001",
+      "_hash": "361e84b1963d8525764178d789959f11141b9aefb4800d1fe345444d7a3808bf",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ]
     }
   ]
 }
