@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-c3b0:F-001",
+      "desc": "packages/main/src/handlers/done-effects.ts:131-137 watches package.json, root package-lock.json, and packages/main package metadata for the post-DONE build predicate, but omits packages/main/package-lock.json even though packages/main/package.json runs the build in that package and the repository contains a package-local lockfile. A DONE merge that changes only packages/main/package-lock.json will skip runDoneMainPackageBuildAfterMerge, leaving the local main dist unrefreshed under the dependency graph the package actually uses. The smoke coverage in packages/main/src/tasks/worktree-authority-smoke.ts:816-849 also omits this path, so the regression is not guarded.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T12:11:38.588Z",
+      "reviewRound": "2026-06-13T12:09:08.341Z",
+      "reviewRunId": "B-c3b0:RR-001",
+      "_hash": "c18f3768ce2551be7d13fef049451a3237fe52b2fe7195e58755c492e79c2c9f",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ]
+    }
+  ]
+}
