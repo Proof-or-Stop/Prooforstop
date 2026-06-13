@@ -23,7 +23,7 @@
       "desc": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:100-115 names only residual local wrapper diagnostic guidance (`node bin/lattice-codex.js doctor`) as the known non-document cleanup boundary, but README.md:516-518 and README.md:602 still recommend `node bin/lattice-codex.js session_brief`, `aux_doc_list`, and `story_create` for ordinary workflow commands. Repro command used: rg -n --hidden lattice-codex\\.js\\s+(session_brief|aux_doc_list|story_) README.md docs packages/main/src packages/main/dist .Codex .codex. That command returns the README guidance hits plus Codex adapter-check display-command hits. Because this story reviews host-neutral command guidance and residual future-work boundaries, the decision doc or evidence is misleading unless it either names these workflow-wrapper residuals as future work or narrows the evidence claim.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-13T13:47:31.383Z",
@@ -34,7 +34,9 @@
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
         "README.md",
         "packages/main/src/core/codex-adapter-checks.ts"
-      ]
+      ],
+      "resolvedReason": "Root cause: the residual future-work paragraph only named the local wrapper diagnostic doctor guidance and omitted workflow-wrapper residuals surfaced by the reviewer scan. Fix: docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md now names README.md session_brief/aux_doc_list/story_create wrapper examples and src/dist codex-adapter-checks session_brief display-command hits as future cleanup targets, while explicitly stating this story only makes the execution plan accurate and does not clean those non-document targets. Evidence: CHK-002 residual_workflow_wrapper_scan_f002 plus exact CHK-002 intent refs record the rg scan excluding docs/story per repo instruction; CHK-004 residual_future_work_boundary_f002 plus exact CHK-004 intent refs record the updated residual-boundary paragraph and no-overclaim boundary.",
+      "resolvedAt": "2026-06-13T13:52:05.527Z"
     }
   ]
 }
