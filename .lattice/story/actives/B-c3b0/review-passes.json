@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-13T12:09:08.341Z",
       "reviewRunId": "B-c3b0:RR-005",
       "_hash": "58c363fa69ce936b4144d8f6fe0c6e0493462de5bc79ba4959785926b8e93d17"
+    },
+    {
+      "id": "B-c3b0:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: post-DONE hook runs only after local main merge, triggers on watched packages/main runtime inputs, skips docs-only/unrelated changes with a visible line, fails visibly with captured build output and recovery command, and stays scoped to npm --prefix packages/main run build without release/publish/global install behavior.",
+      "createdAt": "2026-06-13T12:12:47.638Z",
+      "reviewRound": "2026-06-13T12:09:08.341Z",
+      "reviewRunId": "B-c3b0:RR-007",
+      "_hash": "28a3be566996dae66ded2b9e88a8607681237a1c77316ba50d40ff0c2191e544"
     }
   ]
 }
