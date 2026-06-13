@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add an English glossary and CLI style guide to the plan document",
       "context": "Add a glossary + style-guide section near the top of the plan doc. Glossary fixes term choice: blocked (execution deny) vs excluded (scope) vs avoid 'forbidden'; 'source of truth' not 'truth source'; 'iteration' not 'round' in review loops; Story (product object) vs story; evidence as uncountable; Git (product) vs git (command); 'finding' not 'finding item'; 'real-machine tests' KEPT (code term realMachineTests). Style guide: command descriptions = imperative verb + sentence case + no final period; boolean flags = Enable/Disable/Emit/Skip/Fail if; schema fields = noun phrases; preserve command names, enum values, JSON keys, IDs, filenames, legacy aliases. Covers suggestions #1, #15, #20.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-13T19:13:29.881Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
