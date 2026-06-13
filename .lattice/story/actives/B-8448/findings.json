@@ -69,6 +69,22 @@
       "files": [
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-8448:F-005",
+      "desc": "quality-cleanup: cli-engine-english-open-source-execution-plan.md has an internal translation inconsistency for the Chinese phrase for parameter validation failure: the Translation Review Table (T128, line 304) proposes \"Parameter validation failed\" while the line-level manifest rows M679/M680 (lines 1038-1039) for the same phrase propose \"Argument validation failed\". The T-table is described as the reusable catalog for common phrases and the manifest is the authoritative per-line packet; they should agree on the English rendering of the same term.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T16:19:37.483Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-011",
+      "_hash": "a3bca5296bf9ababe26bab58129359c4d0e0b964e7ae6421f15d1d4acd5af82f",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ]
     }
   ]
 }
