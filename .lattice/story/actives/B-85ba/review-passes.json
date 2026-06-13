@@ -188,6 +188,15 @@
       "reviewRound": "2026-06-13T02:23:44.219Z",
       "reviewRunId": "B-85ba:RR-035",
       "_hash": "833a7dd57a4a64e63a19b5519ec380653db162d7c403d8a174fa95fbffe3b35e"
+    },
+    {
+      "id": "B-85ba:RP-022",
+      "agent": "koala-review-test-coverage",
+      "note": "Final test coverage review passed. F-013 is covered by scope-anti-expansion smoke: reviewer story_update blocks title/description/source scope mutations, priority remains allowed, main INIT title/description update remains allowed, frozen reviewer bypass is blocked without staling evidence, and owner update after freeze makes freeze stale. Verified commands passed: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:scope-anti-expansion-smoke; lattice validate --story=B-85ba.",
+      "createdAt": "2026-06-13T02:37:52.690Z",
+      "reviewRound": "2026-06-13T02:35:50.708Z",
+      "reviewRunId": "B-85ba:RR-043",
+      "_hash": "a5b4690cfaffd5ce1d2b68ff637f1e04da5e96461f2639ecea9de56a20ddeadb"
     }
   ]
 }
