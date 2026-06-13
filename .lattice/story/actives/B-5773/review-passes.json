@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-13T19:25:45.221Z",
       "reviewRunId": "B-5773:RR-006",
       "_hash": "d9afbe36be3fffea16ecb6ff1978b7222fb58eae8655c0e7539c69d826cc6185"
+    },
+    {
+      "id": "B-5773:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 51/51 verifier checks pass. CHK-004:happy:2 and CHK-004:edge:0 are substantive: they assert (a) count of genuine Chinese-matcher source lines (3) equals count of tagged behavior-sensitive rows (3: M668/M669/M750), and (b) every tagged rows chineseSource appears inside a genuine matcher source line by content. Both checks are non-vacuous: they fail when a matcher is untagged (count mismatch) or a non-matcher is tagged (bsCovered false). Grep confirms exactly 3 genuine Chinese-matchers in cli-engine.ts at lines 2311/2314/3926 (shifted +8 from 2303/2306/3887 after git merge main, sourcing 767 Chinese lines vs manifests point-in-time 762). The 5-line delta is an out-of-scope merge artefact documented by the sourceLine point-in-time semantics; it is not a coverage defect for this standardization story. verificationIntent to verificationEvidence coverage is genuine across all checklist items with no gaps or blockers.",
+      "createdAt": "2026-06-13T19:38:32.748Z",
+      "reviewRound": "2026-06-13T19:36:36.052Z",
+      "reviewRunId": "B-5773:RR-007",
+      "_hash": "da482c5a6314f6044f323bfaf40ce92bd5e18e73e1b4ac1950b6dcb5c57416b7"
     }
   ]
 }
