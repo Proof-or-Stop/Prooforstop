@@ -144,18 +144,26 @@ If the CLI prints a command example, it should be a shape example, not a fake
 passing review:
 
 ```bash
-lattice scope_check_save '{
-  "storyId":"B-xxxx",
-  "agent":"koala-review-scope-plan",
-  "status":"pass",
-  "items":[
-    {"kind":"covered","summary":"..."}
-  ],
-  "excluded":[
-    {"summary":"..."}
-  ],
-  "openQuestions":[]
-}'
+lattice scope_check_save \
+  --storyId=B-xxxx \
+  --features='[
+    {
+      "feature":"Explain missing_scope_check as missing PLAN evidence",
+      "covered_by":["story_review missing_scope_check guidance"],
+      "status":"covered",
+      "excluded_by":[],
+      "source":"story_review PLAN blocker"
+    },
+    {
+      "feature":"Authority Server receipt-backed completion",
+      "covered_by":[],
+      "status":"excluded",
+      "excluded_by":["out of scope for local CLI guidance"],
+      "source":"Authority boundary"
+    }
+  ]' \
+  --summary='{"total":2,"covered":1,"excluded":1,"gaps":0,"orphanSuspect":0,"drift":0}' \
+  --openQuestions='[]'
 ```
 
 The exact payload must match the current `scope_check_save --help` schema at
@@ -335,6 +343,15 @@ After the two-host audit:
 For this documentation story, accepted findings should be incorporated into this
 document before it is handed to the Lattice execution flow.
 
+### Accepted Audit Finding
+
+The two-host audit found one blocking correctness issue: the original
+`scope_check_save` example used an unsupported `agent` / `status` / `items` /
+`excluded` shape. This document now uses the current `storyId` / `features` /
+`summary` / optional `openQuestions` schema from `scope_check_save --help`.
+No other blockers were reported, and the Non-authority / Authority Server
+boundary remains unchanged.
+
 ## Verification Plan For This Document
 
 For this document-only story:
@@ -447,4 +464,3 @@ lattice story_advance --storyId=B-xxxx --phase=DEV
 
 Implementation is not complete until the follow-up story reaches DONE through
 Lattice REVIEW, TEST, delivery, summary, and final DONE gates.
-
