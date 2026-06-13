@@ -36,7 +36,14 @@
       "context": "117 command-description rows; longest 218 chars, median 70. CLI help lists need short imperative summaries; detailed rules belong in longHelp/schema descriptions. Shorten at least M215 (artifact_declare), M339 (DONE summary), M543 (INIT reviewer fallback attestation), M650 (dev-memory finish), M655 (session-start wrapper). Covers suggestion #2.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-004",
