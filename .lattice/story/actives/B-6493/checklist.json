@@ -29,7 +29,20 @@
       "userSees": "lattice handoff_inspect on a stale-phase pack shows the phase-authority warning; the regression suite proves the warning fires only on divergence and never perturbs packHash.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:inspect-render:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/handoff-phase-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:handoff-phase-authority-smoke",
+          "result": "pass",
+          "note": "Smoke asserts inspectHandoffPack carries the warning and renderHandoffInspectionText renders 'phaseAuthority (ahead)', silent when absent, packHash unchanged. Live: handoff_inspect on the B-4e06 pack shows the warning line.",
+          "headHash": "dcf893a68ef315652d3519190ae4b22ec5fcd0e5",
+          "materialHash": "53c6cc655ff9cbae005f0f54098642e8d6c6b2deb6197c2572ebaffad33ee327",
+          "timestamp": "2026-06-13T15:49:13.059Z"
+        }
+      ]
     }
   ]
 }
