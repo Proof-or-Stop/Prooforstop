@@ -5,7 +5,7 @@
       "desc": "Recorded verification evidence does not cover fail-closed rejected commands. checklist_get shows allowed CLI help checks for codex_doctor/verify_codex, forbidden-guidance rg scans, NAV count, residual-boundary, and no-overclaim evidence, but no evidence item executes a forbidden Codex-prefixed workflow command and records the expected rejection/non-zero fail-closed behavior. The closest CHK-002 adversarial evidence is a repository scan plus a note about negative smoke-test assertions, which does not by itself prove the command boundary rejects forbidden workflow commands.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T13:39:33.533Z",
@@ -14,7 +14,9 @@
       "_hash": "8563f5ae9322c91a2aac79c0653d6dabc74ad5f53f262d493608226b7641308e",
       "files": [
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Root cause: the prior checklist evidence proved allowed Codex adapter help and repository scan coverage, but did not execute forbidden Codex-prefixed workflow commands and record their fail-closed behavior. Evidence added: CHK-002 has manual transcripts for node bin/lattice.js codex session_brief --help and node bin/lattice.js codex aux_doc_list --help; both actual commands exited with code 1, rejected the unsupported lattice codex workflow command, limited the Codex namespace to verify/doctor, and printed ordinary replacements lattice session_brief and lattice aux_doc_list. CHK-004 also records the combined delivery evidence for those two rejection checks.",
+      "resolvedAt": "2026-06-13T13:43:16.430Z"
     }
   ]
 }
