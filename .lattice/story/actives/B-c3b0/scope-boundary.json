@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c3b0",
+  "mode": "maintenance",
+  "allowed": [
+    "Add focused smoke coverage for rebuild trigger and failure reporting",
+    "Add post-DONE merge rebuild logic for packages/main CLI dist when runtime inputs changed",
+    "Update lifecycle documentation if needed to describe automatic rebuild behavior"
+  ],
+  "excluded": [
+    "Change release or remote push policy",
+    "Introduce npm publish or global install automation",
+    "Refactor unrelated DONE gates or worktree cleanup behavior"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly agreed to make npm --prefix packages/main run build a hard rule after main updates through Lattice DONE merge.",
+  "createdAt": "2026-06-13T11:55:00.637Z",
+  "updatedAt": "2026-06-13T11:55:00.637Z",
+  "_hash": "381db993ff81802e6880e514183c0d712aefaea982005bb800c121f3f22e3113"
+}
