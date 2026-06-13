@@ -1,0 +1,50 @@
+{
+  "storyId": "B-8448",
+  "checkedAt": "2026-06-13T13:49:52.939Z",
+  "reviewRound": "2026-06-13T13:42:07.766Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "promise": "Document exists and contains English-Only Policy, Execution Phases, Translation Review Table, Complete Line-Level Translation Manifest, and Reviewer Checklist.",
+      "status": "verified",
+      "verifiedBy": "rg heading check plus direct document inspection",
+      "evidence": "Required headings present at lines 42, 65, 168, 351, and 1147; git diff main...HEAD adds this document."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "promise": "Complete Line-Level Translation Manifest matches all Chinese-bearing packages/main/src/cli-engine.ts lines.",
+      "status": "verified",
+      "verifiedBy": "Node manifest validator comparing sourceLine values against cli-engine.ts Chinese-bearing lines",
+      "evidence": "sourceChineseLines=762; manifestRows=762; missingCount=0; extraCount=0; duplicateCount=0; firstSourceLine=2; lastSourceLine=3949."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "promise": "Every proposedEnglish entry is reviewable English without Chinese text or [review wording] fallback placeholders.",
+      "status": "verified",
+      "verifiedBy": "Node manifest validator over proposedEnglish column",
+      "evidence": "proposedEnglishChineseCount=0; placeholderCount=0; blankProposedEnglishCount=0; badTranslationIdCount=0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "User-perspective document check: target decision document exists, required review sections are present, and the complete TSV manifest validates mechanically against packages/main/src/cli-engine.ts with 762/762 Chinese-bearing source lines covered and no proposedEnglish Chinese/fallback placeholders."
+    },
+    {
+      "featureId": "CHK-001:adversarial",
+      "transcript": "Documentation-only scope check: git diff main...HEAD -- packages/main/src/cli-engine.ts produced no output, confirming cli-engine.ts was not modified. git diff --name-status main...HEAD shows the new decision document plus Lattice metadata/evidence only."
+    },
+    {
+      "featureId": "CHK-001:validation",
+      "transcript": "Recorded evidence check: .lattice/story/actives/B-8448/evidence/transcript-diff.md records Expected, Actual, and Diff; .lattice/story/actives/B-8448/test-evidence.json reports result PASS/allPass true, npm test PASS, and verification intent coverage 3/3."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery verified from the user perspective: the review document is present, required sections exist, the manifest covers all 762 Chinese-bearing cli-engine.ts lines, proposedEnglish is clean, cli-engine.ts is unchanged, transcript diff exists, and validation evidence is PASS."
+  },
+  "_hash": "d6fdb068f417412119eaf3a8dc564f77c8723e74696b4b276065375309ce725a"
+}
