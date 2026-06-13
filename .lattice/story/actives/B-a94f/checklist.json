@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "authority-client smoke covers root authority_trust.env parsing, LIVE_URL/LIVE_PUBLIC_KEY/CUSTOMER_API_KEY_FILE alias normalization, ${VAR:-fallback} expansion, and canonical Authority config resolution.",
-          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
-          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
-          "timestamp": "2026-06-13T13:00:10.587Z"
+          "headHash": "a5708a55043961d6f685d2f93c5f32e540ea12c8",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:09:32.800Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -72,9 +72,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "authority-client smoke asserts precedence CLI/env > authority_trust_env > authority.md/default and customer API key env/path still override trust-file values.",
-          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
-          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
-          "timestamp": "2026-06-13T13:00:10.587Z"
+          "headHash": "a5708a55043961d6f685d2f93c5f32e540ea12c8",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:09:32.800Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -82,9 +82,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-enforce-policy-smoke.js",
           "result": "pass",
           "note": "smokes cover missing trust env as non-fatal and existing authority.md/default behavior, while policy discovery can use trust env URL when present.",
-          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
-          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
-          "timestamp": "2026-06-13T13:00:10.587Z"
+          "headHash": "a5708a55043961d6f685d2f93c5f32e540ea12c8",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:09:32.800Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -92,9 +92,9 @@
           "command": "git status --short --ignored -- authority_trust.env && git diff --check",
           "result": "pass",
           "note": "authority_trust.env reports as ignored (!!) in the story worktree, git diff --check is clean, and real-file verification only printed non-sensitive booleans/basenames, not secret values.",
-          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
-          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
-          "timestamp": "2026-06-13T13:00:10.587Z"
+          "headHash": "a5708a55043961d6f685d2f93c5f32e540ea12c8",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:09:32.800Z"
         }
       ]
     },
@@ -151,9 +151,9 @@
           "command": "node packages/main/dist/tasks/authority-status-smoke.js; node packages/main/dist/cli.js authority_status --authorityMode=enforce --json | non-sensitive JSON projection",
           "result": "pass",
           "note": "authority_status smoke and real-file projection show authorityTrustEnvLoaded=true, urlSource=authority_trust_env, baseURLConfigured=true, customerApiKeyConfigured=true, customerApiKeySource=authority_trust_env, and serverPublicKeyPinned=true.",
-          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
-          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
-          "timestamp": "2026-06-13T13:00:10.587Z"
+          "headHash": "a5708a55043961d6f685d2f93c5f32e540ea12c8",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:09:32.800Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -161,9 +161,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-status-smoke.js && dual authority_status/conduit_status off-mode repro projection",
           "result": "pass",
           "note": "Regression covers second-review finding: both authority_status and conduit_status in mode=off perform zero authority_trust.env/secret-file reads while enforce trust-file readiness remains covered.",
-          "headHash": "0e644e8b7e1f6e47422265217fc3b9cae7ea37bc",
-          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
-          "timestamp": "2026-06-13T13:00:09.825Z"
+          "headHash": "a5708a55043961d6f685d2f93c5f32e540ea12c8",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:09:32.800Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,9 +171,9 @@
           "command": "node packages/main/dist/tasks/authority-status-smoke.js && dual authority_status/conduit_status off-mode repro projection",
           "result": "pass",
           "note": "No-overclaim boundary remains intact for both status surfaces: productionDone=false and receiptVerified=false/canClaimProductionDone=false where exposed, with no Authority receipt claim from trust-file readiness.",
-          "headHash": "0e644e8b7e1f6e47422265217fc3b9cae7ea37bc",
-          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
-          "timestamp": "2026-06-13T13:00:09.825Z"
+          "headHash": "a5708a55043961d6f685d2f93c5f32e540ea12c8",
+          "materialHash": "a56c68cf03d354614e866b53e6620d989b3fb0ba378e65043ec23def3db42946",
+          "timestamp": "2026-06-13T13:09:32.800Z"
         }
       ]
     }
