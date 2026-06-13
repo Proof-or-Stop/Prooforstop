@@ -72,6 +72,9 @@ try {
   assert.equal(requiredFailure.status, 'fail');
   assert.equal(requiredFailure.allPass, false);
   assert.equal(requiredFailure.commands[0].code, 7);
+  const requiredFailureDetails = requiredFailure.details.join('\n');
+  assert.doesNotMatch(requiredFailureDetails, /timeout diagnostic/i);
+  assert.doesNotMatch(requiredFailureDetails, /timeoutMs|raise lattice\.config\.json validate\.commands\[\]\.timeoutMs/i);
 
   const optionalFailure = await executeValidationPlan({
     provider: 'smoke-optional-fail',
@@ -106,6 +109,8 @@ try {
   }, tmp);
   assert.equal(timeout.status, 'fail');
   assert.equal(timeout.commands[0].timedOut, true);
+  assert.match(timeout.details.join('\n'), /configured timeoutMs=100ms/);
+  assert.match(timeout.details.join('\n'), /lattice\.config\.json validate\.commands\[\]\.timeoutMs/);
 
   writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
     validate: {

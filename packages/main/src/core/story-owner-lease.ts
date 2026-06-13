@@ -37,7 +37,7 @@
 
 import { createHash } from 'crypto';
 import { hostname } from 'os';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import {
   existsSync,
   mkdirSync,
@@ -381,6 +381,17 @@ function nonEmptyString(value: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function normalizedCwdForCompare(value: unknown): string | null {
+  const cwd = nonEmptyString(value);
+  return cwd === null ? null : resolve(cwd);
+}
+
+function ownerCwdMatchesCurrent(ownerCwd: unknown, currentCwd: unknown): boolean {
+  const owner = normalizedCwdForCompare(ownerCwd);
+  const current = normalizedCwdForCompare(currentCwd);
+  return owner !== null && current !== null && owner === current;
+}
+
 /** Options shared by `acquireOwnerLease` / `refreshOwnerLease`. */
 export interface OwnerLeaseWriteOptions {
   /** koala command label recorded in the lease (audit context). */
@@ -706,6 +717,12 @@ export interface NonOwnerErrorContext {
   /** The CURRENT (rejected) session's id — so the operator sees both sides. */
   currentSessionId: string;
   /**
+   * The CURRENT working directory. When it equals the owner cwd but the session
+   * id differs, the operator is likely switching context in the same worktree.
+   * This only changes guidance text; it never transfers the lease.
+   */
+  currentCwd?: string;
+  /**
    * Clock injection for deterministic tests. Defaults to `Date.now()`.
    * Used only to compute the heartbeat age and the stale verdict.
    */
@@ -757,13 +774,16 @@ export function formatNonOwnerError(
   const staleStr = stale
     ? 'The owner lease is STALE (no heartbeat for 30+ minutes).'
     : 'The owner lease is still ACTIVE.';
+  const sameWorktreeGuidance = ownerCwdMatchesCurrent(lease.cwd, ctx.currentCwd)
+    ? ` Owner cwd matches the current cwd (${normalizedCwdForCompare(lease.cwd)}), so this may be a same-worktree context switch. Run lattice session_brief and confirm no live conflicting session; the lease is not transferred unless you rerun with an explicit takeover flag.`
+    : '';
   const nextAction = stale
     ? `Use read-only commands, wait for the owner, or rerun with --takeover to transfer the stale lease.`
     : `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;
   return (
     `${ctx.storyId} is owned by Koala session ${lease.sessionId}, heartbeat ${ageStr} ` +
     `(owner cwd: ${lease.cwd}). "${ctx.command}" is an owner-gated ${ctx.ownershipClass} command, ` +
-    `so this session (${ctx.currentSessionId}) cannot run it. ${staleStr} ${nextAction}`
+    `so this session (${ctx.currentSessionId}) cannot run it. ${staleStr}${sameWorktreeGuidance} ${nextAction}`
   );
 }
 
@@ -806,6 +826,10 @@ export interface OwnerLeaseView {
   isCurrentSessionOwner: boolean;
   /** The recommended next action for the inspecting session. */
   recommendation: OwnershipRecommendation;
+  /** True when a non-owner is inspecting from the same cwd recorded by owner. */
+  ownerCwdMatchesCurrent?: boolean;
+  /** Inspecting cwd used for same-worktree guidance, when known. */
+  currentCwd?: string | null;
   /**
    * The inspecting session's own id — carried so renderers stay pure (they can
    * show "this session (<id>)" without re-reading process state).
@@ -825,7 +849,9 @@ export function summarizeOwnerLease(
   storyDir: string,
   currentSessionId: string,
   now: number = Date.now(),
+  currentCwd: string = process.cwd(),
 ): OwnerLeaseView {
+  const normalizedCurrentCwd = normalizedCwdForCompare(currentCwd);
   const lease = readOwnerLease(storyDir);
   if (lease === null) {
     return {
@@ -837,6 +863,8 @@ export function summarizeOwnerLease(
       stale: false,
       isCurrentSessionOwner: false,
       recommendation: 'proceed',
+      ownerCwdMatchesCurrent: false,
+      currentCwd: normalizedCurrentCwd,
       currentSessionId,
     };
   }
@@ -852,6 +880,7 @@ export function summarizeOwnerLease(
     : stale
       ? 'takeover-available'
       : 'read-only';
+  const sameWorktree = !isOwner && ownerCwdMatchesCurrent(lease.cwd, currentCwd);
   return {
     hasLease: true,
     ownerSessionId: lease.sessionId,
@@ -861,6 +890,8 @@ export function summarizeOwnerLease(
     stale,
     isCurrentSessionOwner: isOwner,
     recommendation,
+    ownerCwdMatchesCurrent: sameWorktree,
+    currentCwd: normalizedCurrentCwd,
     currentSessionId,
   };
 }

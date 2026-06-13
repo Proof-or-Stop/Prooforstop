@@ -455,6 +455,11 @@ export function renderOwnershipBlock(view: OwnerLeaseView): string[] {
     lines.push(`  this session: OWNER — you may run story-scoped mutating commands.`);
   } else {
     lines.push(`  this session: NOT owner (${view.currentSessionId}).`);
+    if (view.ownerCwdMatchesCurrent) {
+      const cwd = view.currentCwd ? ` (${view.currentCwd})` : '';
+      lines.push(`  same worktree: owner cwd matches current cwd${cwd}. Treat this as a context switch: run lattice session_brief, confirm no live conflicting session, and use an explicit takeover flag if you intend to transfer the lease.`);
+      lines.push(`  same worktree: no lease transfer happens automatically.`);
+    }
   }
   // Recommended next action — proceed / read-only / takeover available.
   let rec: string;
@@ -972,6 +977,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
           const view = summarizeOwnerLease(
             ctx.store.storyDirPath(storyId),
             getSessionId(),
+            Date.now(),
+            process.cwd(),
           );
           for (const l of renderOwnershipBlock(view)) lines.push(l);
         } catch { /* probe — never block session_brief on ownership-render failure */ }

@@ -1,0 +1,316 @@
+{
+  "command": "koala validate --story=B-56ce --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-A9nYF1; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-MA4IVi; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — A timed-out validation command remains a failed validation and prints the timeout duration plus timeoutMs recovery guidance.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — A non-timeout failing validation command does not print timeout-specific recovery guidance.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — Timeout diagnostic text does not change allPass/status or mark required timeout failures as optional warnings.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — The shared stale evidence hint prints lattice recovery commands and explains HEAD/material hash binding drift.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — The hint still renders nothing when no stale evidence entries exist.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — The wording does not imply stale evidence means the original verification command logically failed.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-owner-lease-smoke.ts) — session_brief renders same-worktree context-switch guidance when the owner cwd and current cwd match but session id differs.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/story-owner-lease-smoke.ts) — Different-cwd active foreign owner leases keep the existing read-only/wait/forceTakeover guidance.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-owner-lease-smoke.ts) — Same-worktree guidance does not transfer or refresh the owner lease without explicit takeover intent.\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — DONE oracle missing-delivery-check hint names delivery_check_set plus the koala-review-delivery provenance requirement.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — Existing delivery-check hash mismatch and unverified docsPromise paths keep their current recovery hints.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — Fallback wording does not authorize main-agent self-review or weaken delivery-check DONE blocking.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/legacy-koala-compatibility-smoke.ts) — Unsupported codex-prefixed core commands suggest the equivalent ordinary lattice command.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/legacy-koala-compatibility-smoke.ts) — Supported codex adapter aliases verify and doctor continue resolving to verify_codex and codex_doctor.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/legacy-koala-compatibility-smoke.ts) — The fix does not create a broad second codex namespace for arbitrary lifecycle commands.\"],\"warnings\":[],\"timestamp\":\"2026-06-13T10:45:28.337Z\",\"headSha\":\"10f42a025b1cbccce53aae15d904fba5288070c4\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-A9nYF1; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-MA4IVi; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1095}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A timed-out validation command remains a failed validation and prints the timeout duration plus timeoutMs recovery guidance.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"validation-protocol smoke asserts timed-out validation remains status=fail and details include configured timeoutMs plus lattice.config.json validate.commands[].timeoutMs recovery guidance.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A non-timeout failing validation command does not print timeout-specific recovery guidance.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"validation-protocol smoke exercises non-timeout validation paths in the same executor without matching timeout-only diagnostics.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Timeout diagnostic text does not change allPass/status or mark required timeout failures as optional warnings.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"validation-protocol smoke keeps timedOut true and status fail, proving the diagnostic text does not change pass/fail gate semantics.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The shared stale evidence hint prints lattice recovery commands and explains HEAD/material hash binding drift.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"verification-freshness smoke asserts the shared EVIDENCE STALE block explains HEAD/material hash binding drift and prints lattice recovery commands.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The hint still renders nothing when no stale evidence entries exist.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"verification-freshness smoke keeps renderEvidenceStaleHint empty when no stale evidence entries are present through existing no-stale coverage.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The wording does not imply stale evidence means the original verification command logically failed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"verification-freshness smoke asserts wording says hash binding changed and does not treat stale evidence as proof that verification logic failed.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"session_brief renders same-worktree context-switch guidance when the owner cwd and current cwd match but session id differs.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-owner-lease-smoke.ts\",\"command\":\"npm --prefix packages/main run test:story-owner-lease-smoke\",\"result\":\"pass\",\"note\":\"story-owner-lease smoke asserts session_brief/renderOwnershipBlock show same-worktree context-switch guidance when owner cwd equals current cwd but session id differs.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Different-cwd active foreign owner leases keep the existing read-only/wait/forceTakeover guidance.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-owner-lease-smoke.ts\",\"command\":\"npm --prefix packages/main run test:story-owner-lease-smoke\",\"result\":\"pass\",\"note\":\"story-owner-lease smoke asserts different-cwd active foreign leases retain the existing read-only/wait/forceTakeover guidance without same-worktree text.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Same-worktree guidance does not transfer or refresh the owner lease without explicit takeover intent.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-owner-lease-smoke.ts\",\"command\":\"npm --prefix packages/main run test:story-owner-lease-smoke\",\"result\":\"pass\",\"note\":\"story-owner-lease smoke asserts same-worktree gate rejection includes recovery text but does not transfer or refresh the lease without explicit takeover.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"DONE oracle missing-delivery-check hint names delivery_check_set plus the koala-review-delivery provenance requirement.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"flow-stability smoke asserts the DONE oracle missing delivery-check hint names delivery_check_set and requires agentId=koala-review-delivery provenance.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Existing delivery-check hash mismatch and unverified docsPromise paths keep their current recovery hints.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"flow-stability smoke preserves existing DONE oracle rows for delivery-check hash/source behavior while only strengthening missing-delivery guidance.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Fallback wording does not authorize main-agent self-review or weaken delivery-check DONE blocking.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"flow-stability smoke asserts fallback wording says the main agent must not self-sign and missing delivery-check remains a blocking DONE row.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Unsupported codex-prefixed core commands suggest the equivalent ordinary lattice command.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/legacy-koala-compatibility-smoke.ts\",\"command\":\"npm --prefix packages/main run test:legacy-koala-compatibility-smoke\",\"result\":\"pass\",\"note\":\"legacy compatibility smoke asserts unsupported codex session_brief and aux_doc_list show the ordinary lattice command suggestion.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Supported codex adapter aliases verify and doctor continue resolving to verify_codex and codex_doctor.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/legacy-koala-compatibility-smoke.ts\",\"command\":\"npm --prefix packages/main run test:legacy-koala-compatibility-smoke\",\"result\":\"pass\",\"note\":\"legacy compatibility smoke preserves supported codex doctor adapter alias coverage while unsupported core commands stay rejected.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"The fix does not create a broad second codex namespace for arbitrary lifecycle commands.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/legacy-koala-compatibility-smoke.ts\",\"command\":\"npm --prefix packages/main run test:legacy-koala-compatibility-smoke\",\"result\":\"pass\",\"note\":\"legacy compatibility smoke proves the fix is a narrow diagnostic for known unsupported codex-prefixed core commands, not a broad second namespace.\",\"headHash\":\"a7e50360c469457cfe474e2866dfd0a970d68124\",\"materialHash\":\"be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a\",\"timestamp\":\"2026-06-13T10:45:23.258Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-13T10:45:28.850Z",
+  "headHash": "10f42a025b1cbccce53aae15d904fba5288070c4",
+  "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A timed-out validation command remains a failed validation and prints the timeout duration plus timeoutMs recovery guidance.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol smoke asserts timed-out validation remains status=fail and details include configured timeoutMs plus lattice.config.json validate.commands[].timeoutMs recovery guidance.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "A non-timeout failing validation command does not print timeout-specific recovery guidance.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol smoke exercises non-timeout validation paths in the same executor without matching timeout-only diagnostics.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Timeout diagnostic text does not change allPass/status or mark required timeout failures as optional warnings.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol smoke keeps timedOut true and status fail, proving the diagnostic text does not change pass/fail gate semantics.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The shared stale evidence hint prints lattice recovery commands and explains HEAD/material hash binding drift.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification-freshness smoke asserts the shared EVIDENCE STALE block explains HEAD/material hash binding drift and prints lattice recovery commands.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The hint still renders nothing when no stale evidence entries exist.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification-freshness smoke keeps renderEvidenceStaleHint empty when no stale evidence entries are present through existing no-stale coverage.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The wording does not imply stale evidence means the original verification command logically failed.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification-freshness smoke asserts wording says hash binding changed and does not treat stale evidence as proof that verification logic failed.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "session_brief renders same-worktree context-switch guidance when the owner cwd and current cwd match but session id differs.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "story-owner-lease smoke asserts session_brief/renderOwnershipBlock show same-worktree context-switch guidance when owner cwd equals current cwd but session id differs.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Different-cwd active foreign owner leases keep the existing read-only/wait/forceTakeover guidance.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "story-owner-lease smoke asserts different-cwd active foreign leases retain the existing read-only/wait/forceTakeover guidance without same-worktree text.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Same-worktree guidance does not transfer or refresh the owner lease without explicit takeover intent.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "story-owner-lease smoke asserts same-worktree gate rejection includes recovery text but does not transfer or refresh the lease without explicit takeover.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "DONE oracle missing-delivery-check hint names delivery_check_set plus the koala-review-delivery provenance requirement.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability smoke asserts the DONE oracle missing delivery-check hint names delivery_check_set and requires agentId=koala-review-delivery provenance.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Existing delivery-check hash mismatch and unverified docsPromise paths keep their current recovery hints.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability smoke preserves existing DONE oracle rows for delivery-check hash/source behavior while only strengthening missing-delivery guidance.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Fallback wording does not authorize main-agent self-review or weaken delivery-check DONE blocking.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability smoke asserts fallback wording says the main agent must not self-sign and missing delivery-check remains a blocking DONE row.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Unsupported codex-prefixed core commands suggest the equivalent ordinary lattice command.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
+          "result": "pass",
+          "note": "legacy compatibility smoke asserts unsupported codex session_brief and aux_doc_list show the ordinary lattice command suggestion.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Supported codex adapter aliases verify and doctor continue resolving to verify_codex and codex_doctor.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
+          "result": "pass",
+          "note": "legacy compatibility smoke preserves supported codex doctor adapter alias coverage while unsupported core commands stay rejected.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "The fix does not create a broad second codex namespace for arbitrary lifecycle commands.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
+          "result": "pass",
+          "note": "legacy compatibility smoke proves the fix is a narrow diagnostic for known unsupported codex-prefixed core commands, not a broad second namespace.",
+          "headHash": "a7e50360c469457cfe474e2866dfd0a970d68124",
+          "materialHash": "be770f8fe936c26ab0568c16153431d81aa3d94ed54dd0769ee8b0ac428fb00a",
+          "timestamp": "2026-06-13T10:45:23.258Z"
+        }
+      }
+    ]
+  }
+}

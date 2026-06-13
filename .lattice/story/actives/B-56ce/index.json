@@ -4,7 +4,7 @@
   "title": "Improve CLI flow recovery diagnostics for validation, stale evidence, owner lease, delivery check, and Codex aliases",
   "description": "Fix verified CLI/process recovery UX gaps without weakening Lattice gates: timeout failures need explicit timeout/config guidance, stale verification evidence should explain hash binding drift and recovery commands, owner lease same-worktree cases need safer takeover guidance, delivery-check fallback wording must preserve reviewer signature boundaries, and unsupported lattice codex core-command namespace should suggest the ordinary lattice command. The fix must stay host-neutral and only address real correctness/flow recovery issues.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-13T10:06:22.391Z",
   "startedAt": "2026-06-13T10:06:22.391Z",
-  "endedAt": null,
+  "endedAt": "2026-06-13T10:45:48.994Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:08:07.020Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:14:06.630Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:24:56.948Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:29:36.083Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:32:55.965Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:38:29.607Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:45:48.994Z",
+      "branch": "story/B-56ce",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-56ce",
-    "branch": "story/B-56ce",
-    "createdAt": "2026-06-13T10:07:31.908Z"
-  }
+  "currentReviewRound": "2026-06-13T10:32:55.965Z"
 }

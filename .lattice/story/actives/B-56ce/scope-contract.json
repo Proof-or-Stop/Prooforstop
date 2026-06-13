@@ -1,0 +1,36 @@
+{
+  "storyId": "B-56ce",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/evidence-stale-hint.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/cli-engine.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/verification-freshness-smoke.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "PLAN scope for B-56ce is limited to CLI recovery diagnostics and targeted smoke tests; protected truth docs are relatedDocs only unless a later reviewer-approved scope change is recorded.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-13T10:11:26.214Z",
+  "updatedAt": "2026-06-13T10:11:26.214Z"
+}

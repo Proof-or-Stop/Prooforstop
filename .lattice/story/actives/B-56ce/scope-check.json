@@ -1,0 +1,59 @@
+{
+  "storyId": "B-56ce",
+  "checkedAt": "2026-06-13T10:13:12.765Z",
+  "features": [
+    {
+      "feature": "Validation timeout failures diagnose timeout configuration clearly",
+      "covered_by": "CHK-001; plan.md#CHK-001; allowed modify packages/main/src/core/validation-executor.ts; test packages/main/src/tasks/validation-protocol-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan/scope_contract"
+    },
+    {
+      "feature": "Stale verification evidence explains HEAD/material hash-binding drift and recovery commands",
+      "covered_by": "CHK-002; plan.md#CHK-002; allowed modify packages/main/src/core/evidence-stale-hint.ts; test packages/main/src/tasks/verification-freshness-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan/scope_contract"
+    },
+    {
+      "feature": "Owner lease same-worktree context switch recovery guidance",
+      "covered_by": "CHK-003; plan.md#CHK-003; allowed modify packages/main/src/core/story-owner-lease.ts and packages/main/src/handlers/session.ts; test packages/main/src/tasks/story-owner-lease-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan/scope_contract"
+    },
+    {
+      "feature": "Delivery-check fallback preserves reviewer provenance boundary",
+      "covered_by": "CHK-004; plan.md#CHK-004; allowed modify packages/main/src/core/done-oracle.ts and packages/main/src/handlers/transition-effects.ts; test packages/main/src/tasks/flow-stability-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan/scope_contract"
+    },
+    {
+      "feature": "Unsupported codex core-command namespace suggests ordinary lattice commands without broad aliasing",
+      "covered_by": "CHK-005; plan.md#CHK-005; allowed modify packages/main/src/cli-engine.ts; test packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan/scope_contract"
+    },
+    {
+      "feature": "Mechanical scope contract defines allowed/protected/excluded files for this PLAN",
+      "covered_by": "plan.md#Scope Contract; scope_contract_show mode=enforce; allowedModify 7 files; allowedTest 5 files; protectedFiles 4 docs; explicitExcludes docs/story/** tests/fixtures/** .omx/**; scope_contract_check pass with 0 violations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/scope_contract"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "84d130f18057319568ee93aeff0d28971552ffe575119d1daa62cb990e5af878",
+  "openQuestions": []
+}

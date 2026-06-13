@@ -1,0 +1,62 @@
+{
+  "principles": [
+    "Preserve existing gate semantics and fail-closed behavior.",
+    "Improve operator recovery only where a verified ambiguity exists.",
+    "Use host-neutral lattice wording instead of host-specific shortcuts unless the command is truly adapter-specific.",
+    "Keep each change testable through existing smoke surfaces."
+  ],
+  "drivers": [
+    "Operators need actionable next commands when a gate failure is expected but recoverable.",
+    "Timeout and stale evidence failures should be distinguishable from logical test failures.",
+    "Delivery-check provenance and owner lease safety must remain explicit."
+  ],
+  "options": [
+    {
+      "name": "A: Targeted diagnostics and narrow alias suggestions",
+      "pros": [
+        "Small diff with low blast radius",
+        "Keeps all hard gates intact",
+        "Directly addresses the verified recovery confusion"
+      ],
+      "cons": [
+        "Does not add full owner_status or owner_takeover command family",
+        "Does not infer historical timeout durations automatically"
+      ]
+    },
+    {
+      "name": "B: Add new recovery commands for owner, timeout tuning, and delivery fallback",
+      "pros": [
+        "Could provide a richer recovery surface",
+        "May reduce future command memorization"
+      ],
+      "cons": [
+        "Larger design surface for a small verified issue",
+        "Higher risk of weakening reviewer/owner authority boundaries",
+        "Would require more docs and gate-policy work before it is safe"
+      ]
+    }
+  ],
+  "chosen": "A: Targeted diagnostics and narrow alias suggestions",
+  "rationale": "The verified issue is unclear recovery UX, not broken gate logic. Targeted diagnostics solve the immediate correctness problem while preserving lifecycle, reviewer, and owner lease semantics.",
+  "preMortem": [
+    {
+      "scenario": "A timeout hint accidentally makes timed-out validation look like a passing optional warning.",
+      "trigger": "The renderer adds recovery text but changes status/allPass or failure wording.",
+      "consequence": "A story could be advanced despite incomplete validation.",
+      "mitigation": "Only append detail text when result.timedOut is true; leave command code, timedOut, requiredFailures, status, and allPass logic unchanged and smoke-test failure status."
+    },
+    {
+      "scenario": "Delivery fallback text encourages the main agent to write delivery_check_set as itself.",
+      "trigger": "The hint says manual fallback without naming reviewer actor/provenance requirements.",
+      "consequence": "The DONE artifact loses independent reviewer meaning even though the hash is valid.",
+      "mitigation": "Write the hint as a boundary: fallback is only compliant when executed under koala-review-delivery provenance or by rerunning the reviewer, never as main-agent self-review."
+    },
+    {
+      "scenario": "Codex namespace compatibility broadens into a second command namespace with divergent semantics.",
+      "trigger": "Adding aliases for many codex-prefixed commands instead of the known core-command mistake.",
+      "consequence": "Docs and CLI behavior drift; host-neutral command model weakens.",
+      "mitigation": "Add only explicit guidance/aliases for known core commands or unknown-command suggestions; keep codex verify/doctor as adapter-specific."
+    }
+  ],
+  "timestamp": "2026-06-13T10:08:40.507Z"
+}
