@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Gate-consumed workflow facts must be mechanically checked in code, not inferred from prose.",
+    "A local host verdict is useful for quorum but must not pretend to be Authority DONE.",
+    "Decision-doc changes should be blocked only when the story actually changes docs/requirements/decisions/*.md.",
+    "Diagnostics must tell operators exactly which round, host, or digest is missing."
+  ],
+  "drivers": [
+    "B-4e06 proved the 3-round 2-host practice exists but is not yet a hard lifecycle rule.",
+    "The user explicitly approved turning that practice into a gate.",
+    "Existing host_verdict process events already provide a structured fact stream."
+  ],
+  "options": [
+    {
+      "name": "A: DONE guard consumes host_verdict quorum over changed decision-doc digest",
+      "pros": [
+        "Hard-blocks DONE at the lifecycle point where acceptance matters.",
+        "Reuses existing process-events host_verdict facts and autopilot_review_submit writer.",
+        "Keeps no-decision-doc stories unaffected."
+      ],
+      "cons": [
+        "Requires a new digest helper and clear diagnostics for operators.",
+        "Stories that change decision docs must learn to record host verdicts before DONE."
+      ]
+    },
+    {
+      "name": "B: Only add a validate warning or story_review advisory",
+      "pros": [
+        "Smaller implementation with low risk of blocking existing stories.",
+        "Easy to document."
+      ],
+      "cons": [
+        "Does not satisfy the user request for a hard rule.",
+        "Can be forgotten or bypassed after tests pass."
+      ]
+    },
+    {
+      "name": "C: Auto-spawn hosts from story_advance DONE",
+      "pros": [
+        "Could reduce manual steps for operators."
+      ],
+      "cons": [
+        "Expands scope into host orchestration, subprocess policy, and failure recovery.",
+        "Contradicts this story exclusion: do not auto-spawn hosts.",
+        "Much harder to audit safely."
+      ]
+    }
+  ],
+  "chosen": "A: DONE guard consumes host_verdict quorum over changed decision-doc digest",
+  "rationale": "Option A is the narrowest implementation that makes the rule real: it consumes structured host_verdict facts at the DONE gate, leaves unrelated stories alone, and gives explicit diagnostics without adding host orchestration or Authority receipt semantics.",
+  "preMortem": [
+    {
+      "scenario": "Gate blocks every story, even when no decision docs changed.",
+      "trigger": "Changed-file detector treats metadata or unrelated docs as decision-doc material.",
+      "consequence": "Normal Lattice development gets stuck behind irrelevant host quorum requirements.",
+      "mitigation": "Only activate the gate when git diff against main includes docs/requirements/decisions/*.md files; add no-change smoke coverage."
+    },
+    {
+      "scenario": "Gate accepts stale host verdicts after decision docs changed again.",
+      "trigger": "Host verdict materialDigest is not compared to the current changed decision-doc digest.",
+      "consequence": "A repaired or expanded decision document reaches DONE using old review evidence.",
+      "mitigation": "Compute a stable current digest over changed decision docs and require every counted PASS verdict to match it."
+    },
+    {
+      "scenario": "One host can satisfy both slots in a round by submitting twice.",
+      "trigger": "Quorum counts verdict rows instead of distinct hostId values.",
+      "consequence": "The two-host independence rule becomes fake.",
+      "mitigation": "Group passing verdicts by runId and count distinct hostId values; duplicate host verdicts in the same round count once."
+    },
+    {
+      "scenario": "Operator cannot tell how to fix a blocked DONE.",
+      "trigger": "Guard returns only a generic canFinish failure.",
+      "consequence": "Users hand-edit metadata or abandon the flow.",
+      "mitigation": "Expose decision_doc_quorum_check and make DONE failure text include changed files, digest, valid rounds, missing rounds, and suggested autopilot_review_submit command."
+    }
+  ],
+  "timestamp": "2026-06-13T22:00:15.849Z"
+}

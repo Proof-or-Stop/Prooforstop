@@ -15,7 +15,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Logic test builds a story with changed docs/requirements/decisions/*.md against main...HEAD plus host_verdict process events for three distinct review rounds, at least two distinct passing hosts, and the current material digest; the DONE guard reports the decision-doc quorum as satisfied.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Logic test builds a story with no changed docs/requirements/decisions/*.md against main...HEAD; the quorum detector returns not-applicable and DONE is not blocked by missing host_verdict events.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CLI or guard test attempts story_advance --phase=DONE with prose-only evidence, duplicate hosts, duplicate rounds, or stale material digest; the gate blocks and names the missing or invalid round, host, and digest facts instead of accepting text evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,33 @@
+{
+  "task": "Make decision-doc three-round two-host verification a hard DONE gate.",
+  "outcome": "User runs `lattice story_advance {\"storyId\":\"B-xxxx\",\"phase\":\"DONE\"}` after changing `docs/requirements/decisions/*.md`; without fresh 3x2 host verdicts they see `Cannot enter DONE: decision-doc quorum missing ...`, and with three fresh two-host PASS rounds DONE proceeds normally.",
+  "facts": [
+    "B-4e06 recorded decision-doc host_verdict process events but the lifecycle did not mechanically require them.",
+    "Existing autopilot_review_submit writes type=host_verdict events into process-events.jsonl with runId, hostId, provider, decision, and materialDigest.",
+    "DONE transition is guarded by canFinishGuard/getGuardFailureReason in packages/main/src/core/machine.ts.",
+    "Core decision docs live under docs/requirements/decisions/*.md.",
+    "No existing helper computes a digest over only changed decision docs, so this story will add a small dedicated digest helper rather than reuse full-tree currentMaterialHash."
+  ],
+  "constraints": [
+    "Do not auto-spawn hosts; the gate only consumes already-recorded host_verdict facts.",
+    "Do not require Authority receipt server integration for this local quorum gate.",
+    "Do not weaken existing test, bug, delivery-check, review-pass, or scope gates.",
+    "Do not touch OMX or .omx paths."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/decision-doc-quorum.ts",
+    "packages/main/src/handlers/decision-doc-quorum.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+    "packages/main/package.json",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+  ],
+  "timestamp": "2026-06-13T21:59:48.109Z"
+}
