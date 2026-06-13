@@ -4,7 +4,7 @@
   "title": "Improve missing_scope_check guidance ergonomics",
   "description": "Make missing_scope_check PLAN blockers actionable by explaining that scope_check_save exists, scope-check.json is the missing PLAN evidence artifact, and the next action is reviewer-written scope_check_save evidence. Do not weaken PLAN gates, auto-generate evidence, or claim Authority Server completion. Execute with Authority-enforced semantics: local work may proceed only as Non-authority evidence, while Authority completion requires receipt-backed proof and must fail closed when Authority readiness is missing.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-13T10:10:44.940Z",
   "startedAt": "2026-06-13T10:10:44.940Z",
@@ -41,11 +41,20 @@
       "branch": "story/B-12f3",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-13T10:24:31.092Z",
+      "branch": "story/B-12f3",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-12f3",
     "branch": "story/B-12f3",
     "createdAt": "2026-06-13T10:12:45.673Z"
-  }
+  },
+  "currentReviewRound": "2026-06-13T10:24:31.092Z"
 }
