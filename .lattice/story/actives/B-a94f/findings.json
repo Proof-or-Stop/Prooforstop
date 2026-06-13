@@ -17,6 +17,24 @@
         "packages/main/src/core/authority-client.ts",
         "packages/main/src/tasks/authority-status-smoke.ts"
       ]
+    },
+    {
+      "id": "B-a94f:F-002",
+      "desc": "Off-mode status keeps config loading zero-I/O, but then calls resolveAuthorityCustomerApiKey separately; that resolver reads authority_trust.env without checking mode, making mode=off report customerApiKeySource=authority_trust_env.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T12:52:41.870Z",
+      "reviewRound": "2026-06-13T12:47:53.726Z",
+      "reviewRunId": "B-a94f:RR-002",
+      "_hash": "d3f5bc9f85d35020b380ba0e41f8846cc125f6457a3d2bfaa888e1a62e62eb18",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
     }
   ]
 }
