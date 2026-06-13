@@ -43,7 +43,7 @@
       "desc": "CHK-002:adversarial:0 — no integration test confirms that when story_review or validate processes a story with evidence-without-intent, the issued diagnostic retains severity=blocker and does not downgrade. The evidence ref points at verification-intent-repair-smoke.ts, which only tests the pure detector function. The no-downgrade guarantee is only enforced by reading the source code of story-review.ts (line 248: severity:blocker is hardcoded), not by a live CLI call. This is advisory: the code path is visually correct, but the behavioral contract is not regression-protected by an executable assertion.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-13T18:32:52.692Z",
@@ -53,7 +53,9 @@
       "files": [
         "packages/main/src/handlers/story-review.ts",
         "packages/main/src/tasks/verification-intent-repair-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Integration check asserts the legacy issue stays severity=blocker and a no-evidence lane keeps the generic blocker; gate not weakened. commit 7d8e09b47.",
+      "resolvedAt": "2026-06-13T18:41:33.238Z"
     },
     {
       "id": "B-4e06:F-004",
