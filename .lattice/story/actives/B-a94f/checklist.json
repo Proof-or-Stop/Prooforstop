@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "authority-client smoke covers root authority_trust.env parsing, LIVE_URL/LIVE_PUBLIC_KEY/CUSTOMER_API_KEY_FILE alias normalization, ${VAR:-fallback} expansion, and canonical Authority config resolution.",
-          "headHash": "8e7e653ea44e1a3c412de4ffcde203e49c264279",
-          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
-          "timestamp": "2026-06-13T12:54:52.710Z"
+          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
+          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
+          "timestamp": "2026-06-13T13:00:10.587Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -72,9 +72,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js",
           "result": "pass",
           "note": "authority-client smoke asserts precedence CLI/env > authority_trust_env > authority.md/default and customer API key env/path still override trust-file values.",
-          "headHash": "8e7e653ea44e1a3c412de4ffcde203e49c264279",
-          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
-          "timestamp": "2026-06-13T12:54:52.710Z"
+          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
+          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
+          "timestamp": "2026-06-13T13:00:10.587Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -82,9 +82,9 @@
           "command": "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-enforce-policy-smoke.js",
           "result": "pass",
           "note": "smokes cover missing trust env as non-fatal and existing authority.md/default behavior, while policy discovery can use trust env URL when present.",
-          "headHash": "8e7e653ea44e1a3c412de4ffcde203e49c264279",
-          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
-          "timestamp": "2026-06-13T12:54:52.710Z"
+          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
+          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
+          "timestamp": "2026-06-13T13:00:10.587Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -92,9 +92,9 @@
           "command": "git status --short --ignored -- authority_trust.env && git diff --check",
           "result": "pass",
           "note": "authority_trust.env reports as ignored (!!) in the story worktree, git diff --check is clean, and real-file verification only printed non-sensitive booleans/basenames, not secret values.",
-          "headHash": "8e7e653ea44e1a3c412de4ffcde203e49c264279",
-          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
-          "timestamp": "2026-06-13T12:54:52.710Z"
+          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
+          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
+          "timestamp": "2026-06-13T13:00:10.587Z"
         }
       ]
     },
@@ -151,9 +151,9 @@
           "command": "node packages/main/dist/tasks/authority-status-smoke.js; node packages/main/dist/cli.js authority_status --authorityMode=enforce --json | non-sensitive JSON projection",
           "result": "pass",
           "note": "authority_status smoke and real-file projection show authorityTrustEnvLoaded=true, urlSource=authority_trust_env, baseURLConfigured=true, customerApiKeyConfigured=true, customerApiKeySource=authority_trust_env, and serverPublicKeyPinned=true.",
-          "headHash": "8e7e653ea44e1a3c412de4ffcde203e49c264279",
-          "materialHash": "1ad4c508fee5957b623583437d54ae302f24aadac7e6435efbb71011757e4979",
-          "timestamp": "2026-06-13T12:54:52.710Z"
+          "headHash": "87c6b3b5f3e06c10e8de6cb5800d09d14b785f05",
+          "materialHash": "e358912911529ff04ceaf4bf744b7abda40cc6afea3cfd921917f52933eb9c13",
+          "timestamp": "2026-06-13T13:00:10.587Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
