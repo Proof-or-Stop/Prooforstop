@@ -398,7 +398,7 @@ this table is the authoritative review packet for every Chinese-bearing
 | T165 | hint | 自动重试 | Retry automatically | Story/worktree hint. |
 | T166 | hint | worktree 创建失败 | Failed to create worktree | Story/worktree hint. |
 | T167 | hint | 已在 INIT_CHECK 阶段，重试 worktree 创建 | Already in INIT_CHECK; retrying worktree creation | Story/worktree hint. |
-| T168 | comment | 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回） | Inject the next-step hint. Only commands registered in `hints.ts` are decorated; other commands are returned unchanged. | Comment. |
+| T168 | comment | 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回） | Append next-step guidance. Only commands registered in `hints.ts` are decorated; other commands are returned unchanged. | Comment. |
 | T169 | comment | story_create: 停在 INIT 时追加下一步提示 | `story_create`: append next-step guidance when the Story stops at INIT. | Comment. |
 | T170 | comment | story_advance phase=INIT_CHECK：成功后自动调 dev_start 创建 worktree | `story_advance phase=INIT_CHECK`: after success, automatically call `dev_start` to create the worktree. | Comment. |
 | T171 | comment | 探测当前 phase；若已在 INIT_CHECK 就跳过 advance 直接 dev_start 重试 | Detect the current phase; if already in INIT_CHECK, skip advance and retry `dev_start` directly. | Comment. |
@@ -525,21 +525,21 @@ M089	331	schema	直接指定阶段	Directly specify phase.	review-draft
 M090	332	schema	B-0af4: 绕过同名 story idempotency 强制新建（同名未完成 story 默认会被复用）	B-0af4: bypass same-name story idempotency and force creation; unfinished same-name stories are reused by default.	review-draft
 M091	333	schema	B-45ed CHK-006: 四段式 background.md 内容。需含 "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理" 4 段，每段 ≥ 50 字符，总长 ≥ 300，触发事件段须含具体编号（B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD）。fromDraft 模式下不需要	B-45ed CHK-006: four-section background.md content. Must include Trigger Event, Key Insight, Tradeoff, and Conversation Texture sections; each section at least 50 characters, total at least 300, and Trigger Event must include a concrete ID (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode.	review-draft
 M092	334	schema	B-9975: 从已审查的 draft 创建 story（传 draft name）。保守停在 INIT，再走正常 INIT_CHECK gates	B-9975: create a story from a reviewed draft by passing draft name. Conservatively stops in INIT, then follows normal INIT_CHECK gates.	review-draft
-M093	336	command-description	推进 Story 到下一阶段	Advance Story to the next phase	review-draft
+M093	336	command-description	推进 Story 到下一阶段	Advance a Story to the next phase	review-draft
 M094	337	schema	目标阶段	Target phase.	review-draft
 M095	338	schema	开发清单	Development checklist.	review-draft
 M096	339	schema	只预览 INIT_CHECK bootstrap，不推进 phase/创建 worktree	Preview INIT_CHECK bootstrap only; do not advance phase or create worktree.	review-draft
 M097	340	schema	确认执行有副作用的推进（兼容脚本参数）	Confirm a side-effecting advance (compatible script argument).	review-draft
-M098	342	command-description	编辑 Story 信息	Edit Story information.	review-draft
+M098	342	command-description	编辑 Story 信息	Edit Story metadata	review-draft
 M099	343	schema	新标题	New title.	review-draft
 M100	344	schema	新描述 / 新优先级	New description. / New priority.	review-draft
 M101	345	schema	操作者；INIT reviewer lane 不可直接改 story-level scope 字段	Actor; INIT reviewer lanes may not directly change story-level scope fields.	review-draft
 M102	346	schema	操作者别名；INIT reviewer lane 不可直接改 story-level scope 字段	Actor alias; INIT reviewer lanes may not directly change story-level scope fields.	review-draft
 M103	348	command-description	读取 Story 详情 / 附带 index.json 全字段（phase/priority/name/description/...）到 result.index	Read Story details; include all index.json fields in result.index	review-draft
-M104	349	command-description	列出全部 Story	List all Stories.	review-draft
+M104	349	command-description	列出全部 Story	List all Stories	review-draft
 M105	350	schema	按阶段过滤（与 active 互斥）	Filter by phase (mutually exclusive with active).	review-draft
 M106	351	schema	仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增	List only non-terminal stories (exclude DONE/DISCARDED/IDEA). Added by B-89c7 CHK-016.	review-draft
-M107	358	command-description	检测并修复僵尸 story / 终态 worktree residue（默认 dry run）	Detect and repair zombie stories or terminal worktree residue (dry run default)	review-draft
+M107	358	command-description	检测并修复僵尸 story / 终态 worktree residue（默认 dry run）	Detect and repair zombie Stories or terminal worktree residue (dry run default)	review-draft
 M108	359	schema	true=只报告；false=执行修复（默认 true）	true=report only; false=perform repair (default true).	review-draft
 M109	361	command-description	废弃 Story：清理 worktree/分支并标记为 DISCARDED	Discard a Story: clean up its worktree and branch, then mark it DISCARDED	review-draft
 M110	363	schema	废弃原因（写入事件记录）	Discard reason (written to event log).	review-draft
@@ -554,8 +554,8 @@ M118	374	schema	优先级	Priority.	review-draft
 M119	375	schema	开发清单（≥ 1 项）	Development checklist (at least 1 item).	review-draft
 M120	376	schema	四段式 background.md 内容（必填，同 story_create 校验）	Four-section background.md content (required; same validation as story_create).	review-draft
 M121	377	schema	关键词	Keywords.	review-draft
-M122	379	command-description	列出所有 draft	List all drafts.	review-draft
-M123	380	command-description	删除指定 draft	Delete the specified draft.	review-draft
+M122	379	command-description	列出所有 draft	List all drafts	review-draft
+M123	380	command-description	删除指定 draft	Delete the specified draft	review-draft
 M124	381	schema	要删除的 draft 名称	Name of the draft to delete.	review-draft
 M125	383	command-description	保存 draft check 结果（由 reviewer 调用，签名 draft 的 background + checklist）	Save draft check results (reviewer-called; signs draft background and checklist)	review-draft
 M126	384	schema	Draft 名称	Draft name.	review-draft
@@ -564,18 +564,18 @@ M128	387	schema	issue 严重度	Issue severity.	review-draft
 M129	388	schema	desc 必填且 ≥ 1 字符 / issue 具体描述	desc is required and must be at least 1 character. / Issue details.	review-draft
 M130	389	schema	Reviewer 提出的 issue 列表（允许空数组）	List of issues raised by the reviewer; empty array is allowed.	review-draft
 M131	390	schema	Reviewer 自报 agent id，仅审计追溯用	Reviewer self-reported agent ID, used only for audit tracing.	review-draft
-M132	392	command-description	对 draft check 中的 issue 写入 resolution（≥ 20 字符）	Write a resolution for an issue in a draft check (at least 20 characters).	review-draft
+M132	392	command-description	对 draft check 中的 issue 写入 resolution（≥ 20 字符）	Write a resolution for an issue in a draft check (at least 20 characters)	review-draft
 M133	393	schema	Draft 名称	Draft name.	review-draft
 M134	394	schema	Issue ID（如 INIT-001）	Issue ID, for example INIT-001.	review-draft
 M135	395	schema	resolution ≥ 20 字符 / 书面消解结论	resolution must be at least 20 characters. / Written resolution conclusion.	review-draft
 M136	399	command-description	对抗审查 checklist 完整性	Adversarially review checklist completeness	review-draft
-M137	402	command-description	驳回一个被误报的 riskSignal 分类（B-5010）	Dismiss a falsely reported riskSignal category (B-5010).	review-draft
+M137	402	command-description	驳回一个被误报的 riskSignal 分类（B-5010）	Dismiss a falsely reported riskSignal category (B-5010)	review-draft
 M138	404	schema	要驳回的 riskSignal.category（如 "状态机/门禁"、"test runner 框架"）	riskSignal.category to dismiss, for example state machine/gate or test runner framework.	review-draft
 M139	405	schema	驳回理由（≥ 5 字符，写清楚为什么该 signal 在本 story 是误报）	Dismissal reason (at least 5 characters); explain why this signal is a false positive for the story.	review-draft
-M140	407	command-description	生成 test-intent agent 交接包（PLAN 阶段）	Generate a test-intent agent handoff packet (PLAN phase).	review-draft
+M140	407	command-description	生成 test-intent agent 交接包（PLAN 阶段）	Generate a test-intent agent handoff packet (PLAN phase)	review-draft
 M141	409	schema	只交接指定 checklist item ID；缺省为全部	Hand off only specified checklist item IDs; defaults to all.	review-draft
-M142	413	command-description	读取 checklist	Read checklist	review-draft
-M143	414	command-description	向已有 story 追加 checklist item	Append a checklist item to an existing story.	review-draft
+M142	413	command-description	读取 checklist	Read the checklist	review-draft
+M143	414	command-description	向已有 story 追加 checklist item	Append a checklist item to an existing story	review-draft
 M144	415	schema	做什么（一句话）	What to do, in one sentence.	review-draft
 M145	416	schema	根因/参考方案	Root cause or reference approach.	review-draft
 M146	417	schema	关联文档路径（用于三次提醒）	Related documentation paths used for the three reminders.	review-draft
@@ -586,7 +586,7 @@ M150	425	schema	happy/edge/adversarial 验证意图（PLAN 阶段）	Happy-path,
 M151	426	schema	PLAN 阶段追加 item 时必须提供的 replan/scope audit 理由（≥10 字符）	Required replan/scope audit reason when adding an item during PLAN (at least 10 characters).	review-draft
 M152	427	schema	操作者/agent lane；INIT reviewer lane 不可直接改需求定义	Actor or agent lane; INIT reviewer lanes may not directly change requirement definitions.	review-draft
 M153	428	schema	操作者别名；INIT reviewer lane 不可直接改需求定义	Actor alias; INIT reviewer lanes may not directly change requirement definitions.	review-draft
-M154	430	command-description	从 story 中移除一个 checklist item（必须给出裁决 + 理由）	Remove a checklist item from a story; requires disposition and justification.	review-draft
+M154	430	command-description	从 story 中移除一个 checklist item（必须给出裁决 + 理由）	Remove a checklist item from a story; requires disposition and justification	review-draft
 M155	431	schema	要移除的项 ID	ID of the item to remove.	review-draft
 M156	432	schema	裁决: accept=确认删除合理 / reject=不该删但要移除 / partial=部分合理	Disposition: accept=deletion is valid, reject=should not be deleted but remove it, partial=partially valid.	review-draft
 M157	433	schema	删除理由（≥10 字符）	Deletion justification (at least 10 characters).	review-draft
@@ -604,7 +604,7 @@ M168	449	schema	覆盖 verificationIntent 的证据列表	Evidence list covering
 M169	450	schema	变更原因 / 操作者	Change reason. / Actor.	review-draft
 M170	451	schema	操作者别名；INIT reviewer lane 不可直接改需求定义	Actor alias; INIT reviewer lanes may not directly change requirement definitions.	review-draft
 M171	452	schema	subagent 结果是否成功（仅 status=done 时有效，默认 true）	Whether the subagent result succeeded; only valid when status=done, default true.	review-draft
-M172	454	command-description	为 checklist item 追加/更新 verificationIntent 覆盖证据	Add or update evidence satisfying a checklist item's verificationIntent.	review-draft
+M172	454	command-description	为 checklist item 追加/更新 verificationIntent 覆盖证据	Add or update evidence satisfying a checklist item's verificationIntent	review-draft
 M173	457	schema	如 CHK-001:happy:0 或自定义 intent id	For example CHK-001:happy:0 or a custom intent ID.	review-draft
 M174	459	schema	证据结论语义；不覆盖 result pass/fail gate	Evidence verdict semantics; does not override the result pass/fail gate.	review-draft
 M175	460	schema	kind=waiver 时可标记为临时 gate 自测 evidence	When kind=waiver, this can mark temporary gate self-test evidence.	review-draft
@@ -720,7 +720,7 @@ M284	617	schema	下一步建议；只记录，不执行	Suggested next action; r
 M285	618	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
 M286	619	schema	输出 JSON	Emit JSON.	review-draft
 M287	620	schema	输出格式	Output format.	review-draft
-M288	622	command-description	读取 REVIEW reflection loop 状态（read-only）	Read REVIEW reflection loop status (read-only).	review-draft
+M288	622	command-description	读取 REVIEW reflection loop 状态（read-only）	Read REVIEW reflection loop status (read-only)	review-draft
 M289	624	schema	可选 loop id 过滤	Optional loop ID filter.	review-draft
 M290	625	schema	输出 JSON	Emit JSON.	review-draft
 M291	626	schema	输出格式	Output format.	review-draft
@@ -736,7 +736,7 @@ M300	637	schema	关闭原因	Close reason.	review-draft
 M301	638	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
 M302	639	schema	输出 JSON	Emit JSON.	review-draft
 M303	640	schema	输出格式	Output format.	review-draft
-M304	642	command-description	显示 REVIEW reflection loop 记录策略（read-only）	Show REVIEW reflection loop recording policy (read-only).	review-draft
+M304	642	command-description	显示 REVIEW reflection loop 记录策略（read-only）	Show REVIEW reflection loop recording policy (read-only)	review-draft
 M305	643	schema	输出 JSON	Emit JSON.	review-draft
 M306	644	schema	输出格式	Output format.	review-draft
 M307	647	comment	Understanding (Pre-context Intake snapshot, OMX 风格)	Understanding (pre-context intake snapshot, OMX-style legacy reference).	review-draft
@@ -747,7 +747,7 @@ M311	652	schema	已知事实	Known facts.	review-draft
 M312	653	schema	约束条件	Constraints.	review-draft
 M313	654	schema	未知问题（拆 checklist 前应消化）	Unknowns to resolve before splitting the checklist.	review-draft
 M314	655	schema	可能的代码触点	Possible code touchpoints.	review-draft
-M315	657	command-description	读取 understanding snapshot	Read the understanding snapshot.	review-draft
+M315	657	command-description	读取 understanding snapshot	Read the understanding snapshot	review-draft
 M316	660	comment	Decision (RALPLAN-DR 结构化决策, OMX ralplan 风格)	Decision (RALPLAN-DR structured decision, OMX ralplan-style legacy reference).	review-draft
 M317	661	command-description	PLAN 阶段落结构化决策（principles/drivers/options/chosen/preMortem）	Record a structured PLAN decision (principles/drivers/options/chosen/preMortem)	review-draft
 M318	663	schema	3-5 条设计原则	3-5 design principles.	review-draft
@@ -756,20 +756,20 @@ M320	669	schema	≥ 2 个备选 + pros/cons	At least 2 options with pros and con
 M321	670	schema	选择的 option.name	Selected option.name.	review-draft
 M322	671	schema	选择理由 (≥ 10 字符)	Selection rationale (at least 10 characters).	review-draft
 M323	677	schema	预演失败场景（高风险 story 要求 ≥ 3）	Pre-mortem failure scenarios (at least 3 for high-risk stories).	review-draft
-M324	679	command-description	读取 decision snapshot	Read decision snapshot.	review-draft
-M325	683	command-description	启动 PLAN grill 澄清 session（写 grill.json，不写证据）	Start a PLAN grill clarification session (writes grill.json, not evidence).	review-draft
+M324	679	command-description	读取 decision snapshot	Read decision snapshot	review-draft
+M325	683	command-description	启动 PLAN grill 澄清 session（写 grill.json，不写证据）	Start a PLAN grill clarification session (writes grill.json, not evidence)	review-draft
 M326	685	schema	本轮 grill 的主题或焦点	Topic or focus of this grill round.	review-draft
-M327	687	command-description	记录 grill 问题和回答（无回答则 unresolved）	Record grill question and answer (unanswered becomes unresolved).	review-draft
+M327	687	command-description	记录 grill 问题和回答（无回答则 unresolved）	Record grill question and answer (unanswered becomes unresolved)	review-draft
 M328	689	schema	Grill session ID；缺省使用最新 open session	Grill session ID; defaults to the latest open session.	review-draft
 M329	690	schema	澄清问题	Clarifying question.	review-draft
 M330	691	schema	回答；缺省时记录为 unresolved	Answer; defaults to unresolved when omitted.	review-draft
 M331	692	schema	问题状态；缺省由 answer 是否存在推断	Question status; inferred from whether answer exists by default.	review-draft
 M332	693	schema	可选来源，如 user / reviewer / implementer	Optional source, such as user/reviewer/implementer.	review-draft
-M333	695	command-description	关闭 grill session，并返回 remainingUnknowns	Close grill session and return remainingUnknowns.	review-draft
+M333	695	command-description	关闭 grill session，并返回 remainingUnknowns	Close grill session and return remainingUnknowns	review-draft
 M334	697	schema	Grill session ID；缺省使用最新 open session	Grill session ID; defaults to the latest open session.	review-draft
 M335	698	schema	关闭备注	Close note.	review-draft
 M336	699	schema	关闭者标识	Closed-by identifier.	review-draft
-M337	701	command-description	读取 grill planning artifact	Read grill planning artifact.	review-draft
+M337	701	command-description	读取 grill planning artifact	Read grill planning artifact	review-draft
 M338	703	schema	只读取指定 grill session	Read only the specified grill session.	review-draft
 M339	706	command-description	DONE 前必须落：story 完成总结（changes/usage/user acceptance/limitations/pitfalls + 自动扫真机覆盖骨架）	Record the required Story completion summary	review-draft
 M340	708	schema	改了什么（每个文件关键改动，用户视角，≥ 10 字符）	What changed (key changes per file from the user perspective, at least 10 characters).	review-draft
@@ -781,10 +781,10 @@ M345	713	schema	DONE gate 必填：用户价值验收结论	DONE gate required: 
 M346	715	schema	已知限制 / 设计偏离（没有就写 "none — fully covered"）	Known limitations or design deviations (write "none — fully covered" if none).	review-draft
 M347	716	schema	踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）	Pitfalls record: where it got stuck, how many retries, and what the next person should know (at least 10 characters; no empty platitudes).	review-draft
 M348	717	schema	{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 Lattice 报错列出缺失项	{case name: reason}; explain each sandbox:false case that was not run, otherwise Lattice reports missing entries.	review-draft
-M349	719	command-description	读取 story summary	Read story summary.	review-draft
+M349	719	command-description	读取 story summary	Read story summary	review-draft
 M350	723	command-description	报告 bug	Report a bug	review-draft
 M351	725	schema	描述 / 关联 checklist ID	Description. / Related checklist ID.	review-draft
-M352	727	command-description	更新 bug 状态	update bug status	review-draft
+M352	727	command-description	更新 bug 状态	Update bug status	review-draft
 M353	729	schema	新状态	New status.	review-draft
 M354	731	schema	用户可观测的症状	User-observable symptom.	review-draft
 M355	732	schema	最小复现步骤	Minimal reproduction steps.	review-draft
@@ -794,13 +794,13 @@ M358	735	schema	修复点说明	Fix evidence explanation.	review-draft
 M359	736	schema	复现测试路径	Reproduction test path.	review-draft
 M360	737	schema	调试证据链（标 fixed 时建议提供）	Debugging evidence chain; recommended when marking fixed.	review-draft
 M361	739	command-description	查看 bug 列表（不传 storyId 时全局汇总） / Story ID；不传则列出全部 story 的 bugs	View bug list; without storyId, show a global summary across all stories	review-draft
-M362	740	command-description	跨 story bug 质量仪表盘（markdown/json）	Cross-story bug quality dashboard (markdown/json).	review-draft
+M362	740	command-description	跨 story bug 质量仪表盘（markdown/json）	Cross-story bug quality dashboard (markdown/json)	review-draft
 M363	741	schema	输出格式（默认 json）	Output format (default: json).	review-draft
 M364	745	command-description	记录测试证据	Record test evidence	review-draft
 M365	747	schema	场景 / 命令	Scenario. / Command.	review-draft
 M366	748	schema	输出 / 预期	Output. / Expected output.	review-draft
 M367	749	schema	结果	Result.	review-draft
-M368	751	command-description	查看最新测试证据快照（当前不是历史列表）	View latest test evidence snapshot (currently not a historical list).	review-draft
+M368	751	command-description	查看最新测试证据快照（当前不是历史列表）	View latest test evidence snapshot (currently not a historical list)	review-draft
 M369	752	command-description	读取 fixture 文件	Read fixture file	review-draft
 M370	753	schema	fixture 路径（相对 fixturesDir，不含 .json）	Fixture path relative to fixturesDir, without .json.	review-draft
 M371	755	command-description	替换 fixture cases（兼容维护命令）	Replace fixture cases (compatibility maintenance command)	review-draft
@@ -823,7 +823,7 @@ M387	775	schema	收集 trace	Collect trace.	review-draft
 M388	777	command-description	按 fixtureId 执行单 case 或链	Run a single case or chain by fixtureId	review-draft
 M389	780	command-description	检查 story checklist 与代码任务元数据覆盖率	Check coverage between story checklist and code task metadata	review-draft
 M390	781	schema	Story ID 或 Story ID 数组	Story ID or array of Story IDs.	review-draft
-M391	785	command-description	扫描真相源目录，提取需求点/决策/约束/问题	Scan source-of-truth dirs; extract requirements, decisions, constraints	review-draft
+M391	785	command-description	扫描真相源目录，提取需求点/决策/约束/问题	Scan source-of-truth directories	review-draft
 M392	786	schema	只返回统计摘要	Return only a statistics summary.	review-draft
 M393	788	command-description	生成真相源导航	Generate source-of-truth navigation	review-draft
 M394	789	command-description	分析真相源中的矛盾/模糊/缺失	Analyze contradictions, ambiguity, and gaps in sources of truth	review-draft
@@ -1005,7 +1005,7 @@ M569	1665	schema	summary ≥ 10 字符 / 闭合自检总结	summary must be at l
 M570	1666	schema	闭合自检	Closing self-check.	review-draft
 M571	1667	schema	Reviewer 自报 agent id，仅审计追溯	Reviewer self-reported agent ID, only for audit tracing.	review-draft
 M572	1670	comment	Delivery Waiver (B-35ed CHK-005: 豁免审计，主 agent 为未验证的 docsPromise 补充豁免理由)	Delivery Waiver (B-35ed CHK-005: waiver audit; main agent adds waiver reason for unverified docsPromise).	review-draft
-M573	1671	command-description	为 delivery-check.json 中某条 docsPromise 添加豁免理由（重签名）	Add a waiver reason to a docsPromise entry in delivery-check.json (re-sign).	review-draft
+M573	1671	command-description	为 delivery-check.json 中某条 docsPromise 添加豁免理由（重签名）	Add a waiver reason to a docsPromise entry in delivery-check.json (re-sign)	review-draft
 M574	1673	schema	要豁免的 docPath（匹配 docsPromises[].docPath）	docPath to waive (matches docsPromises[].docPath).	review-draft
 M575	1674	schema	豁免理由（≥ 30 字符）	Waiver reason (at least 30 characters).	review-draft
 M576	1683	comment	B-ed3e CHK-002: 5 档 status	B-ed3e CHK-002: five-level status.	review-draft
@@ -1175,16 +1175,16 @@ M739	3640	comment	统一日志：写入 .lattice/activity.jsonl（双源模块�
 M740	3641	comment	写入失败属于 PERSIST 类（audit 不完整 → 事后无法回溯），改为 reportHealthIssue	Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.	review-draft
 M741	3642	comment	staleWarnings 也一并落盘，便于事后做趋势分析（agent 多久会忘记 advance 一次）	staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).	review-draft
 M742	3774	cli-output	错误: ${e.message}\n	Error: ${e.message}\n	review-draft
-M743	3805	comment	注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）	Inject next-step hint (only effective for commands registered in hints.ts; other commands return unchanged).	review-draft
-M744	3810	comment	next-step hint (e.g. "→ 验证全绿").	next-step hint (e.g. "-> Validation passed").	review-draft
+M743	3805	comment	注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）	Append next-step guidance. Only commands registered in hints.ts are decorated; other commands are returned unchanged.	review-draft
+M744	3810	comment	next-step hint (e.g. "→ 验证全绿").	next-step hint (e.g. "Next: Validation passed").	review-draft
 M745	3853	cli-output	错误: ${e.message}\n	Error: ${e.message}\n	review-draft
 M746	3859	comment	story_create: 停在 INIT 时追加下一步提示	story_create: append next-step hint when stopping in INIT.	review-draft
-M747	3871	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\n-> Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
-M748	3876	cli-output	${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${result}\n\n${wtResult}\n\n${syncResult}\n\n-> Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
-M749	3880	other	→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
-M750	3887	other	当前目录不是 git 仓库	Current directory is not a git repository.	behavior-sensitive
-M751	3893	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\n-> First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
-M752	3896	cli-output	${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n 1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n 2. cd 到提示的 worktree 路径\n 3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）	${result}${metadataLine}\n-> Story is currently in INIT. Next steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)	review-draft
+M747	3871	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\nNext: Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
+M748	3876	cli-output	${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${result}\n\n${wtResult}\n\n${syncResult}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
+M749	3880	other	→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	Next: After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
+M750	3887	other	当前目录不是 git 仓库	Current directory is not a Git repository	behavior-sensitive
+M751	3893	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\nNext: First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
+M752	3896	cli-output	${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n 1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n 2. cd 到提示的 worktree 路径\n 3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）	${result}${metadataLine}\nStory is currently in INIT.\nNext steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)	review-draft
 M753	3901	comment	story_advance phase=INIT_CHECK：成功后自动调 dev_start 创建 worktree	story_advance phase=INIT_CHECK: after success, automatically call dev_start to create the worktree.	review-draft
 M754	3902	comment	B-5246: phase 已经在 INIT_CHECK 时（重试场景）允许 dev_start 重跑而不抛	B-5246: when phase is already INIT_CHECK (retry scenario), allow dev_start to rerun without throwing	review-draft
 M755	3903	comment	"Cannot transition INIT_CHECK→INIT_CHECK"。这样 worktree 第一次创建失败时 agent	"Cannot transition INIT_CHECK->INIT_CHECK". This lets an agent retry after the first worktree creation failure.	review-draft
@@ -1193,8 +1193,8 @@ M757	3920	comment	探测当前 phase；若已在 INIT_CHECK 就跳过 advance �
 M758	3921	comment	story_get 默认返回 {checklist, review}；phase 需要 detail:true 才在 result.index.phase	story_get returns {checklist, review} by default; phase requires detail:true to appear at result.index.phase.	review-draft
 M759	3927	other	Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建	Story ${storyId} is already in INIT_CHECK; retrying worktree creation	review-draft
 M760	3932	comment	story_get 失败时退回原行为	Fall back to original behavior when story_get fails.	review-draft
-M761	3947	cli-output	${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${advanceResult}\n\n${wtResult}${syncSegment}\n\n-> Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
-M762	3949	cli-output	${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	${advanceResult}\n⚠ Failed to create worktree: ${e.message}\n-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
+M761	3947	cli-output	${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
+M762	3949	cli-output	${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	${advanceResult}\n⚠ Failed to create worktree: ${e.message}\nNext: After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
 ```
 
 ## Behavior-sensitive rows
@@ -1218,6 +1218,12 @@ Coordination notes for the implementation story:
 - M668/M669 must be translated together with the help/schema text they match
   (the dry-run-related `describe(...)` values), and a test must assert the
   dry-run note still renders for `always-on` and `default-on` commands.
+- While making that M668/M669 change, the proposed regexes may also be
+  de-duplicated for clarity — e.g. M669's
+  `/default dry run|default dry-run|default dry run|default dry-run|default true/i`
+  collapses to `/(?:default dry[- ]run|default true)/i`. Apply any such
+  simplification together with the matched-text translation and the locking
+  test, never as a standalone edit.
 - M750 must be translated together with M747 and M751 so the produced substring
   and the `.includes()` probe remain identical, with a test that exercises the
   not-a-Git-repository branch.
