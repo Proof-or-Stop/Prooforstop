@@ -188,7 +188,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Targeted story-review ergonomics smoke now covers the missing_scope_check message path and passes.",
+          "headHash": "5f40bd57c8d9b5bfbd2310d5fbed044469f1a79b",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:23:03.394Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
