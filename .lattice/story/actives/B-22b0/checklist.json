@@ -90,7 +90,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees final audit line: \"B-12f3 Authority audit result: VERIFIED receiptId=<id>\" or \"B-12f3 Authority audit result: BLOCKED missing prerequisites; local DONE remains Non-authority\".",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final audit result summarizes exactly whether receipt-backed Authority proof was verified or blocked.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Summary preserves the distinction between local DONE and Authority Server DONE for B-12f3.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delivery and summary text do not overclaim Authority completion, productionDone, or fullAuthorityDone when receipt proof is absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
