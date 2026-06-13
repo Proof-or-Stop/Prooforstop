@@ -50,6 +50,16 @@
           "headHash": "f595214fd5879fdc641080a3efe6f0fa9c0b5847",
           "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
           "timestamp": "2026-06-13T10:22:15.257Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"scope_check_save allowedPhases: PLAN|scope_contract_acknowledge must NOT cover PLAN|scope_check_save must NOT be broadened\" packages/main/src/tasks/command-ownership-contract.ts",
+          "result": "pass",
+          "note": "Inspection confirms scope_check_save remains PLAN evidence and scope_contract_acknowledge/scope_contract_check are not substitutes for PLAN scope_check_save.",
+          "headHash": "0a39e88a26917bcb0daedb793b8744ee23e2195d",
+          "materialHash": "7bf187f572a17f69cc13c116fccfeade2fb4703f55010a8afe5893010c8495c2",
+          "timestamp": "2026-06-13T10:22:20.049Z"
         }
       ]
     },
