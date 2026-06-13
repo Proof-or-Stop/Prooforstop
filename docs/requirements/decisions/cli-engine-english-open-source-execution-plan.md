@@ -62,6 +62,56 @@ Allowed exceptions:
 - Legacy runtime names that are not language text, such as `KOALA_*`,
   `koala.config.json`, and `koala` as a compatibility alias.
 
+## English Glossary
+
+This glossary locks the preferred English term for recurring concepts so the
+manifest and the T-table stay consistent (the same Chinese maps to the same
+English unless the surface gives it a genuinely different meaning). The
+left-hand term is preferred; the right-hand note explains what to avoid.
+
+| Preferred term | Use it for / avoid |
+|---|---|
+| **blocked** | An execution deny rule: a command/tool/path the policy refuses to run. Prefer `blocked` over `forbidden` for execution-deny wording. |
+| **excluded** | A scope rule: a feature point or path declared out of scope. Keep `excluded` for scope wording; do not blur it with `blocked`. |
+| (avoid `forbidden`) | Replace `forbidden` with `blocked` when it is an execution deny rule, or with `excluded` when it is a scope rule. |
+| **source of truth** | The authoritative origin of requirements/decisions. Use `source of truth` / `sources of truth`; avoid `truth source` / `truth-source`. |
+| **iteration** | One pass of a review or reflection loop. Use `iteration` (`this iteration` / `next iteration` / `previous iteration`); avoid `round` as a synonym inside review/reflection loops. (`reviewRound` the code identifier and "REVIEW round" the phase concept stay as-is.) |
+| **Story** | The capitalized product object (a Lattice work item). `story` lowercase is generic prose. |
+| **Git** | The product / proper noun is `Git`; the command stays lowercase `git` (e.g. `git init`, `git commit`). |
+| **evidence** | Uncountable noun. Write "evidence", "a piece of evidence", or "evidence entries"; never "an evidence" or "evidences". |
+| **finding** | A reviewer-recorded issue. Use `finding`; avoid `finding item`. |
+| **real-machine tests** | KEPT verbatim because it mirrors the code identifier `realMachineTests`. Do not "normalize" this phrase. |
+| **Command to run** / **Command result** | Schema wording for the executed-command input and its output. Use `Command to run` for the command input field and `Command result` for its result; avoid bare `execution result`. |
+| **Recorded by** (or **Actor**) | The party that wrote a record. Use `Recorded by; defaults to …` (or `Actor`); avoid bare `Recorder`. |
+| **entry point** (prose) vs **entrypoint** (code) | In prose write `entry point`; keep `entrypoint` only when it is a literal code identifier. Keep identifiers such as `runCli` as-is. |
+| **full prompt** / **detailed help** | Wording for the long help text. Use `Full prompt` or `Detailed help text shown in lattice <cmd> --help`; avoid the bare uppercase `PROMPT` in prose. |
+| **Emit JSON** | Flag wording for JSON output. Use `Emit JSON.`; avoid `Output JSON.`. |
+| **prevent self-approval / self-waiver** | Anti-self-exemption wording. Use `prevent self-approval` / `prevent self-waiver`; avoid `self-pardon`. |
+
+## CLI Style Guide
+
+These rules govern the `proposedEnglish` wording in the manifest and the T-table.
+They describe how the eventual source text should read; they do not change any
+identifier.
+
+1. **Command descriptions**: imperative verb, sentence case, no final period.
+   Example: `Create a Story entry` (not `Creates a story entry.`).
+2. **Boolean flags**: phrase as an action — `Enable …`, `Disable …`, `Emit …`,
+   `Skip …`, or `Fail if …`. Example: `Emit JSON.`, `Fail if the gate is red.`.
+3. **Schema fields**: noun phrases. No final period unless the value is a full
+   sentence. Example: `Allowed tool or adapter names`.
+4. **User-visible output** (hints, errors, `cli-output`): short, actionable, no
+   internal jargon. Prefer plain English over abbreviations.
+5. **Preserve identifiers exactly**: command names, enum values, JSON keys, IDs,
+   filenames, and legacy aliases (`lattice` / `koala`) are never reworded, and
+   template tokens such as `${e.message}` are kept verbatim.
+6. **Apply the glossary**: use `blocked` vs `excluded` per the glossary, and use
+   `source of truth` and `iteration` consistently.
+
+There is no rule in this guide that both requires and forbids a final period:
+command descriptions take no final period, schema fields take none unless the
+value is a full sentence, and full-sentence output keeps its period.
+
 ## Execution Phases
 
 ### Phase 0 - Freeze The Translation Manifest
@@ -80,7 +130,12 @@ Required manifest columns:
 | `surface` | `schema`, `command-description`, `help`, `error`, `hint`, `comment`, `cli-output`, or `other` |
 | `chineseSource` | Exact Chinese-bearing source snippet |
 | `proposedEnglish` | Proposed English replacement or wording |
-| `reviewStatus` | `review-draft`, `approved`, `needs-rewrite`, or `defer-to-legacy-archive` |
+| `reviewStatus` | `review-draft`, `approved`, `needs-rewrite`, `defer-to-legacy-archive`, or `behavior-sensitive` |
+
+The `behavior-sensitive` marker flags a row whose source line is runtime code
+that matches or parses the Chinese text (regex `.test()` / `.match()`, or a
+string comparison such as `.includes()`). These rows must not be applied as
+plain prose; see the "Behavior-sensitive rows" subsection below.
 
 Required command shape:
 
@@ -191,7 +246,7 @@ this table is the authoritative review packet for every Chinese-bearing
 | T015 | schema | 证据结论语义；不覆盖 result pass/fail gate | Evidence verdict semantics; does not override the `result` pass/fail gate | Reused in evidence schemas. |
 | T016 | schema | kind=waiver 时可标记为临时 gate 自测 evidence；后续 validate 会要求替换真实证据 | For `kind=waiver`, marks temporary self-test gate evidence. A later `validate` run will require real replacement evidence. | Keep `kind=waiver`. |
 | T017 | schema | 测试/文档文件路径 | Test or documentation file path | Reused. |
-| T018 | schema | 执行命令 | Executed command | Reused. |
+| T018 | schema | 执行命令 | Command to run | Reused. |
 | T019 | schema | 执行结果 | Command result | Reused. |
 | T020 | schema | 为什么此证据覆盖该 intent | Why this evidence satisfies the intent | Reused. |
 | T021 | schema | 记录证据时的 git HEAD | Git HEAD when the evidence was recorded | Evidence freshness. |
@@ -355,15 +410,34 @@ This is the reviewer-facing translation manifest for every Chinese-bearing
 `review-draft` proposal: approve it, rewrite it, or mark it as a deliberate
 legacy/archive exception before the implementation story edits source text.
 
+### Wrapped-source merge rule
+
+When one logical Chinese sentence is wrapped across consecutive source lines,
+each physical line becomes its own manifest row (one row per source line, so the
+762<->762 line invariant holds), but the rows are **reviewed and translated as a
+single translation unit**. Read the paired `proposedEnglish` cells together: they
+must concatenate into one coherent English sentence, with no word repeated across
+the seam and no clause left dangling. The reusable T-table entry for such a unit
+(e.g. `T004`) carries the fully joined sentence for reference.
+
+Known wrapped units in this manifest:
+
+- **M004 + M005** (`cli-engine.ts:6-7`) — one sentence about
+  `runCli({extraTools, extraRegister})` merging utility tools and handlers.
+  Joined twin: `T004`.
+- **M463 + M464 + M465** (`cli-engine.ts:1504-1506`) — one comment describing
+  how `audit_gap_add` writes `B-META-framework-audit` findings; the three cells
+  already concatenate into one coherent sentence.
+
 ```tsv
 translationId	sourceLine	surface	chineseSource	proposedEnglish	reviewStatus
 M001	2	comment	Lattice CLI 引擎	Lattice CLI engine	review-draft
 M002	4	comment	把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。	Wrap the shared dispatch, parse, log, and phase-gate logic in the callable runCli function.	review-draft
 M003	5	comment	main 自己的 cli.ts 是 bin 入口，直接调 runCli()；	The main package cli.ts is the binary entrypoint and calls runCli() directly.	review-draft
 M004	6	comment	第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils	Third-party bootstrap scripts can pass extraTools and extraRegister to runCli to merge utility tools	review-draft
-M005	7	comment	的工具和 handler 一起合进来。	Merge those tools and handlers together.	review-draft
+M005	7	comment	的工具和 handler 一起合进来。	and handlers.	review-draft
 M006	63	comment	一行描述（出现在 lattice help 列表里） */	Short description shown in the lattice help command list.	review-draft
-M007	65	comment	完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description */	Full PROMPT shown in lattice <cmd> --help. Optional; defaults to showing description only.	review-draft
+M007	65	comment	完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description */	Full prompt shown in lattice <cmd> --help. Optional; defaults to showing description only.	review-draft
 M008	91	schema	可选稳定 id；缺省时自动按 CHK-001:happy:0 推导	Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.	review-draft
 M009	92	schema	验证意图描述	Verification intent description.	review-draft
 M010	93	schema	验证类型	Verification type.	review-draft
@@ -375,8 +449,8 @@ M015	133	schema	如 CHK-001:happy:0 或自定义 intent id	For example CHK-001:h
 M016	135	schema	证据结论语义；不覆盖 result pass/fail gate	Evidence verdict semantics; does not override the result pass/fail gate.	review-draft
 M017	136	schema	kind=waiver 时可标记为临时 gate 自测 evidence；后续 validate 会要求替换真实证据	When kind=waiver, this can mark temporary gate self-test evidence; later validate will require real evidence to replace it.	review-draft
 M018	137	schema	测试/文档文件路径	Test or documentation file path.	review-draft
-M019	138	schema	执行命令	Run command.	review-draft
-M020	139	schema	执行结果	Execution result.	review-draft
+M019	138	schema	执行命令	Command to run.	review-draft
+M020	139	schema	执行结果	Command result.	review-draft
 M021	140	schema	为什么此证据覆盖该 intent	Why this evidence satisfies the intent.	review-draft
 M022	141	schema	记录证据时的 git HEAD	git HEAD when evidence was recorded.	review-draft
 M023	142	schema	记录证据时的非 story-metadata 实体文件哈希	Non-story-metadata material file hash when evidence was recorded.	review-draft
@@ -392,12 +466,12 @@ M032	187	schema	可选 scope contract hash	Optional scope contract hash.	review-
 M033	191	schema	参与本次 reflection iteration 的 host id	Host ID participating in this reflection iteration.	review-draft
 M034	192	schema	能力快照引用；只记录，不验证 receipt	Capability snapshot reference; recorded only and receipt is not verified.	review-draft
 M035	193	schema	本次可见 host 降级	Visible host degradations in this iteration.	review-draft
-M036	197	schema	相对上一轮是否改善	Whether this improved compared with the previous round.	review-draft
-M037	198	schema	本轮证据质量	Evidence quality for this round.	review-draft
+M036	197	schema	相对上一轮是否改善	Whether this improved compared with the previous iteration.	review-draft
+M037	198	schema	本轮证据质量	Evidence quality for this iteration.	review-draft
 M038	199	schema	失败类型	Failure type.	review-draft
 M039	200	schema	继续 loop 的风险水平	Risk level for continuing the loop.	review-draft
 M040	201	schema	当前根因假设	Current root-cause hypothesis.	review-draft
-M041	202	schema	下一轮 prompt patch 建议；只记录，不执行	Suggested prompt patch for the next round; recorded only, not executed.	review-draft
+M041	202	schema	下一轮 prompt patch 建议；只记录，不执行	Suggested prompt patch for the next iteration; recorded only, not executed.	review-draft
 M042	203	schema	reflection 建议决策	Reflection recommended decision.	review-draft
 M043	204	schema	建议理由	Recommendation reason.	review-draft
 M044	205	schema	可复用经验；上下文记录，不是 gate evidence	Reusable lesson; contextual record, not gate evidence.	review-draft
@@ -406,10 +480,10 @@ M046	210	schema	风险评分	Risk score.	review-draft
 M047	211	schema	回归评分	Regression score.	review-draft
 M048	212	schema	置信评分	Confidence score.	review-draft
 M049	213	schema	是否实际测量成本；默认 false	Whether cost was actually measured; default false.	review-draft
-M050	214	schema	本轮成本记录；只记录	Cost used this round; recorded only.	review-draft
-M051	215	schema	本轮耗时记录；只记录	Time used this round; recorded only.	review-draft
-M052	216	schema	本轮实际运行命令记录	Commands actually run this round.	review-draft
-M053	217	schema	本轮参考 evidence refs；不验证 receipt	Evidence refs referenced this round; receipts are not verified.	review-draft
+M050	214	schema	本轮成本记录；只记录	Cost used this iteration; recorded only.	review-draft
+M051	215	schema	本轮耗时记录；只记录	Time used this iteration; recorded only.	review-draft
+M052	216	schema	本轮实际运行命令记录	Commands actually run this iteration.	review-draft
+M053	217	schema	本轮参考 evidence refs；不验证 receipt	Evidence refs referenced this iteration; receipts are not verified.	review-draft
 M054	221	schema	下一步 prompt 建议；只记录，不执行	Suggested next prompt; recorded only, not executed.	review-draft
 M055	222	schema	人工 rollback 命令提示；只记录，不执行	Manual rollback command hint; recorded only, not executed.	review-draft
 M056	223	schema	建议 handoff host；只记录，不自动 handoff	Suggested handoff host; recorded only, no automatic handoff.	review-draft
@@ -432,17 +506,17 @@ M072	307	schema	用户确认排除/不做的 scope 条目	Scope entries the user
 M073	308	schema	excluded 的兼容别名	Compatibility alias for excluded.	review-draft
 M074	309	schema	必须为 true：确认这是用户确认过的 INIT scope 边界	Must be true: confirms this is the user-confirmed INIT scope boundary.	review-draft
 M075	310	schema	确认说明或来源摘录	Confirmation note or source excerpt.	review-draft
-M076	311	schema	记录者；默认 story_create	Recorder; defaults to story_create.	review-draft
+M076	311	schema	记录者；默认 story_create	Recorded by; defaults to story_create.	review-draft
 M077	315	schema	可选：story_create 同步写入 scope-boundary.json；缺省时需 INIT 阶段运行 scope_boundary_set	Optional: story_create writes scope-boundary.json synchronously; otherwise run scope_boundary_set during INIT.	review-draft
 M078	317	schema	允许执行或验证的命令模式	Allowed command patterns for execution or verification.	review-draft
 M079	318	schema	允许使用的工具/adapter 名称	Allowed tool or adapter names.	review-draft
 M080	319	schema	允许访问的相对路径；拒绝 absolute / .. traversal	Allowed relative paths; rejects absolute paths and .. traversal.	review-draft
-M081	320	schema	明确禁止的命令模式	Explicitly forbidden command patterns.	review-draft
-M082	321	schema	明确禁止使用的工具/adapter 名称	Explicitly forbidden tool or adapter names.	review-draft
-M083	322	schema	明确禁止访问的相对路径；拒绝 absolute / .. traversal	Explicitly forbidden relative paths; rejects absolute paths and .. traversal.	review-draft
+M081	320	schema	明确禁止的命令模式	Explicitly blocked command patterns.	review-draft
+M082	321	schema	明确禁止使用的工具/adapter 名称	Explicitly blocked tool or adapter names.	review-draft
+M083	322	schema	明确禁止访问的相对路径；拒绝 absolute / .. traversal	Explicitly blocked relative paths; rejects absolute paths and .. traversal.	review-draft
 M084	323	schema	excludedPaths 的兼容别名	Compatibility alias for excludedPaths.	review-draft
 M085	324	schema	执行边界确认说明	Execution-boundary confirmation note.	review-draft
-M086	325	schema	记录者；默认 story_create	Recorder; defaults to story_create.	review-draft
+M086	325	schema	记录者；默认 story_create	Recorded by; defaults to story_create.	review-draft
 M087	329	schema	可选：story_create 同步写入 execution-boundary.json；缺省时需 INIT 阶段运行 execution_boundary_set	Optional: story_create writes execution-boundary.json synchronously; otherwise run execution_boundary_set during INIT.	review-draft
 M088	330	schema	ID 前缀(默认 B)	ID prefix (default: B).	review-draft
 M089	331	schema	直接指定阶段	Directly specify phase.	review-draft
@@ -465,7 +539,7 @@ M105	350	schema	按阶段过滤（与 active 互斥）	Filter by phase (mutually
 M106	351	schema	仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增	List only non-terminal stories (exclude DONE/DISCARDED/IDEA). Added by B-89c7 CHK-016.	review-draft
 M107	358	command-description	检测并修复僵尸 story / 终态 worktree residue（默认 dry run）	Detect and repair zombie stories or terminal worktree residue (dry run by default).	review-draft
 M108	359	schema	true=只报告；false=执行修复（默认 true）	true=report only; false=perform repair (default true).	review-draft
-M109	361	command-description	废弃 Story：清理 worktree/分支并标记为 DISCARDED	Discard Story: clean worktree/branch and mark as DISCARDED.	review-draft
+M109	361	command-description	废弃 Story：清理 worktree/分支并标记为 DISCARDED	Discard a Story: clean up its worktree and branch, then mark it DISCARDED.	review-draft
 M110	363	schema	废弃原因（写入事件记录）	Discard reason (written to event log).	review-draft
 M111	364	schema	强制丢弃未提交改动	Force-discard uncommitted changes.	review-draft
 M112	365	schema	临时 story 专用：删除 story metadata，并在安全时回退纯 metadata init commit	Temporary-story only: delete story metadata and safely revert metadata-only init commit when safe.	review-draft
@@ -533,16 +607,16 @@ M173	457	schema	如 CHK-001:happy:0 或自定义 intent id	For example CHK-001:h
 M174	459	schema	证据结论语义；不覆盖 result pass/fail gate	Evidence verdict semantics; does not override the result pass/fail gate.	review-draft
 M175	460	schema	kind=waiver 时可标记为临时 gate 自测 evidence	When kind=waiver, this can mark temporary gate self-test evidence.	review-draft
 M176	461	schema	测试/文档文件路径	Test or documentation file path.	review-draft
-M177	462	schema	执行命令	Run command.	review-draft
-M178	463	schema	执行结果	Execution result.	review-draft
+M177	462	schema	执行命令	Command to run.	review-draft
+M178	463	schema	执行结果	Command result.	review-draft
 M179	464	schema	为什么此证据覆盖该 intent	Why this evidence satisfies the intent.	review-draft
 M180	466	command-description	批量追加/更新 verificationIntent 覆盖证据（避免并发写 checklist 丢 evidence）	Batch add/update verificationIntent coverage evidence (avoid losing evidence during concurrent checklist writes).	review-draft
 M181	470	schema	如 CHK-001:happy:0 或自定义 intent id	For example CHK-001:happy:0 or a custom intent ID.	review-draft
 M182	472	schema	证据结论语义；不覆盖 result pass/fail gate	Evidence verdict semantics; does not override the result pass/fail gate.	review-draft
 M183	473	schema	kind=waiver 时可标记为临时 gate 自测 evidence	When kind=waiver, this can mark temporary gate self-test evidence.	review-draft
 M184	474	schema	测试/文档文件路径	Test or documentation file path.	review-draft
-M185	475	schema	执行命令	Run command.	review-draft
-M186	476	schema	执行结果	Execution result.	review-draft
+M185	475	schema	执行命令	Command to run.	review-draft
+M186	476	schema	执行结果	Command result.	review-draft
 M187	477	schema	为什么此证据覆盖该 intent	Why this evidence satisfies the intent.	review-draft
 M188	478	schema	证据数组；同一次调用内读写 checklist 一次	Evidence array; reads and writes the checklist once in the same call.	review-draft
 M189	480	command-description	刷新 stale verificationEvidence 的 HEAD/material hash（需先重跑对应验证命令）	Refresh HEAD/material hashes for stale verificationEvidence; rerun the matching verification command first.	review-draft
@@ -570,8 +644,8 @@ M210	507	schema	新增 dependency edges	Added dependency edges.	review-draft
 M211	508	schema	新增 required refs	Added required refs.	review-draft
 M212	509	schema	新 token budget	New token budget.	review-draft
 M213	510	schema	附加 metadata	Additional metadata.	review-draft
-M214	513	command-description	Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 lattice metadata / runtime / declared artifact 时放行）	Single-shot recover: refresh stale evidence and revalidate; allowed only when the worktree contains only lattice metadata/runtime/declared-artifact changes.	review-draft
-M215	520	command-description	把一个生成物路径声明为本 story 的预期产出，使 dirty classifier 归为 declared_artifact_changes，并要求 DONE gate 有匹配的 verificationEvidence/promise 引用	Declare a generated artifact path as an expected output of this story; classify dirty changes as declared_artifact_changes and require matching verificationEvidence/promise references in the DONE gate.	review-draft
+M214	513	command-description	Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 lattice metadata / runtime / declared artifact 时放行）	Refresh stale evidence and revalidate in a single shot	review-draft
+M215	520	command-description	把一个生成物路径声明为本 story 的预期产出，使 dirty classifier 归为 declared_artifact_changes，并要求 DONE gate 有匹配的 verificationEvidence/promise 引用	Declare an expected generated artifact for this Story	review-draft
 M216	522	schema	相对仓库根的精确路径（无 glob/通配符；无 leading slash；无 .. 段）	Exact path relative to the repository root; no globs, wildcards, leading slash, or .. segments.	review-draft
 M217	523	schema	为什么把此文件声明为本 story 的预期产出	Why this file is declared as an expected output of this story.	review-draft
 M218	524	schema	关联引用：CHK-NNN:(happy|edge|adversarial):IDX 或 promise:<docPath>	Related reference: CHK-NNN:(happy|edge|adversarial):IDX or promise:<docPath>.	review-draft
@@ -581,24 +655,24 @@ M221	529	schema	用户确认允许做的范围条目	Scope entries the user conf
 M222	530	schema	用户确认排除/不做的范围条目	Scope entries the user confirmed as excluded or not to be done.	review-draft
 M223	531	schema	必须为 true：确认这是用户确认过的 INIT scope 边界	Must be true: confirms this is the user-confirmed INIT scope boundary.	review-draft
 M224	532	schema	确认说明或来源摘录	Confirmation note or source excerpt.	review-draft
-M225	533	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorder; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M225	533	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorded by; defaults to KOALA_AGENT/USER/main-agent.	review-draft
 M226	535	command-description	INIT 阶段保存执行边界（命令/tool/path allow/block），供 INIT_CHECK anti-expansion gate 消费	Save execution boundaries in INIT (command/tool/path allow/block) for the INIT_CHECK anti-expansion gate.	review-draft
 M227	537	schema	允许执行或验证的命令模式	Allowed command patterns for execution or verification.	review-draft
 M228	538	schema	明确禁止的命令模式（alias: excludedCommands）	Explicitly blocked command patterns (alias: excludedCommands).	review-draft
-M229	539	schema	明确禁止的命令模式	Explicitly forbidden command patterns.	review-draft
+M229	539	schema	明确禁止的命令模式	Explicitly blocked command patterns.	review-draft
 M230	540	schema	允许使用的工具/adapter 名称	Allowed tool or adapter names.	review-draft
-M231	541	schema	明确禁止使用的工具/adapter 名称	Explicitly forbidden tool or adapter names.	review-draft
+M231	541	schema	明确禁止使用的工具/adapter 名称	Explicitly blocked tool or adapter names.	review-draft
 M232	542	schema	允许访问的相对路径；拒绝 absolute / .. traversal	Allowed relative paths; rejects absolute paths and .. traversal.	review-draft
-M233	543	schema	明确禁止访问的相对路径；拒绝 absolute / .. traversal	Explicitly forbidden relative paths; rejects absolute paths and .. traversal.	review-draft
-M234	544	schema	明确禁止访问的相对路径	Explicitly forbidden relative paths.	review-draft
+M233	543	schema	明确禁止访问的相对路径；拒绝 absolute / .. traversal	Explicitly blocked relative paths; rejects absolute paths and .. traversal.	review-draft
+M234	544	schema	明确禁止访问的相对路径	Explicitly blocked relative paths.	review-draft
 M235	545	schema	执行边界补充说明	Additional execution-boundary notes.	review-draft
-M236	546	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorder; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M236	546	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorded by; defaults to KOALA_AGENT/USER/main-agent.	review-draft
 M237	548	command-description	INIT 阶段写入 scope freeze check 结果；accepted extension decision 会让旧 freeze evidence stale	Write the scope freeze check result during INIT; accepted extension decisions make old freeze evidence stale.	review-draft
 M238	550	schema	可选断言；不能覆盖 core evaluateScopeFreeze 的结果	Optional assertion; cannot override the core evaluateScopeFreeze result.	review-draft
 M239	551	schema	冻结检查说明；也可作为 repeated-discard mitigation 文本	Freeze-check note; can also serve as repeated-discard mitigation text.	review-draft
 M240	552	schema	重复 discarded direction 的缓解说明	Mitigation note for repeated discarded direction.	review-draft
-M241	553	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorder; defaults to KOALA_AGENT/USER/main-agent.	review-draft
-M242	555	command-description	INIT reviewer 提出 scope extension proposal（只记录 proposal，不接受 scope，不改 checklist）	INIT reviewer proposes a scope extension; records the proposal only, does not accept scope, and does not change checklist.	review-draft
+M241	553	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorded by; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M242	555	command-description	INIT reviewer 提出 scope extension proposal（只记录 proposal，不接受 scope，不改 checklist）	Propose a scope extension as the INIT reviewer (proposal only)	review-draft
 M243	557	schema	扩展提案叙述；不能作为 accepted scope 生效	Extension proposal narrative; cannot take effect as accepted scope.	review-draft
 M244	558	schema	为什么 reviewer 认为需要扩展	Why the reviewer thinks an extension is needed.	review-draft
 M245	559	schema	提出者；默认 KOALA_AGENT/USER/main-agent	Proposer; defaults to KOALA_AGENT/USER/main-agent.	review-draft
@@ -627,26 +701,26 @@ M267	598	schema	可选 loop id；缺省由 handler 生成	Optional loop ID; defa
 M268	599	schema	可选 REVIEW round；缺省使用 story.currentReviewRound	Optional REVIEW round; defaults to story.currentReviewRound.	review-draft
 M269	600	schema	触发 loop 的结构化来源	Structured source that triggered the loop.	review-draft
 M270	601	schema	人工 rollback 所需引用；只记录，不执行	References required for manual rollback; recorded only, not executed.	review-draft
-M271	602	schema	记录者；默认 KOALA_AGENT/USER/main	Recorder; defaults to KOALA_AGENT/USER/main.	review-draft
-M272	603	schema	输出 JSON	Output JSON.	review-draft
+M271	602	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
+M272	603	schema	输出 JSON	Emit JSON.	review-draft
 M273	604	schema	输出格式	Output format.	review-draft
 M274	606	command-description	记录 REVIEW reflection loop 迭代（recording-only，不执行 host/rollback/handoff）	Record a REVIEW reflection loop iteration; recording only, does not run host, rollback, or handoff.	review-draft
 M275	608	schema	review_loop_start 返回的 loopId	loopId returned by review_loop_start.	review-draft
 M276	609	schema	可选 REVIEW round；缺省使用 story.currentReviewRound	Optional REVIEW round; defaults to story.currentReviewRound.	review-draft
-M277	610	schema	本轮触发上下文	Trigger context for this round.	review-draft
-M278	611	schema	本轮 host/capability 记录；不启动 host	Host/capability record for this round; does not start a host.	review-draft
+M277	610	schema	本轮触发上下文	Trigger context for this iteration.	review-draft
+M278	611	schema	本轮 host/capability 记录；不启动 host	Host/capability record for this iteration; does not start a host.	review-draft
 M279	612	schema	人工 rollback 所需引用；只记录，不执行	References required for manual rollback; recorded only, not executed.	review-draft
-M280	613	schema	本轮 reflection 判断	Reflection judgment for this round.	review-draft
-M281	614	schema	本轮成本/证据/命令记录	Cost, evidence, and command record for this round.	review-draft
-M282	615	schema	本轮最终决策	Final decision for this round.	review-draft
+M280	613	schema	本轮 reflection 判断	Reflection judgment for this iteration.	review-draft
+M281	614	schema	本轮成本/证据/命令记录	Cost, evidence, and command record for this iteration.	review-draft
+M282	615	schema	本轮最终决策	Final decision for this iteration.	review-draft
 M283	616	schema	最终决策理由	Final decision reason.	review-draft
 M284	617	schema	下一步建议；只记录，不执行	Suggested next action; recorded only, not executed.	review-draft
-M285	618	schema	记录者；默认 KOALA_AGENT/USER/main	Recorder; defaults to KOALA_AGENT/USER/main.	review-draft
-M286	619	schema	输出 JSON	Output JSON.	review-draft
+M285	618	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
+M286	619	schema	输出 JSON	Emit JSON.	review-draft
 M287	620	schema	输出格式	Output format.	review-draft
 M288	622	command-description	读取 REVIEW reflection loop 状态（read-only）	Read REVIEW reflection loop status (read-only).	review-draft
 M289	624	schema	可选 loop id 过滤	Optional loop ID filter.	review-draft
-M290	625	schema	输出 JSON	Output JSON.	review-draft
+M290	625	schema	输出 JSON	Emit JSON.	review-draft
 M291	626	schema	输出格式	Output format.	review-draft
 M292	628	command-description	记录 REVIEW reflection loop 关闭事件（recording-only，不执行 merge/DONE/receipt）	Record REVIEW reflection loop close event; recording only, does not merge, mark DONE, or issue receipt.	review-draft
 M293	630	schema	要关闭的 loopId	loopId to close.	review-draft
@@ -657,11 +731,11 @@ M297	634	schema	关闭时 material hash	Material hash at close time.	review-draf
 M298	635	schema	已解决证据引用	Resolved evidence references.	review-draft
 M299	636	schema	替代证据引用	Superseding evidence references.	review-draft
 M300	637	schema	关闭原因	Close reason.	review-draft
-M301	638	schema	记录者；默认 KOALA_AGENT/USER/main	Recorder; defaults to KOALA_AGENT/USER/main.	review-draft
-M302	639	schema	输出 JSON	Output JSON.	review-draft
+M301	638	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
+M302	639	schema	输出 JSON	Emit JSON.	review-draft
 M303	640	schema	输出格式	Output format.	review-draft
 M304	642	command-description	显示 REVIEW reflection loop 记录策略（read-only）	Show REVIEW reflection loop recording policy (read-only).	review-draft
-M305	643	schema	输出 JSON	Output JSON.	review-draft
+M305	643	schema	输出 JSON	Emit JSON.	review-draft
 M306	644	schema	输出格式	Output format.	review-draft
 M307	647	comment	Understanding (Pre-context Intake snapshot, OMX 风格)	Understanding (pre-context intake snapshot, OMX-style legacy reference).	review-draft
 M308	648	command-description	PLAN 阶段落 task 理解快照（task/outcome/facts/constraints/unknowns/touchpoints）	Record the task understanding snapshot in PLAN (task/outcome/facts/constraints/unknowns/touchpoints).	review-draft
@@ -695,7 +769,7 @@ M335	698	schema	关闭备注	Close note.	review-draft
 M336	699	schema	关闭者标识	Closed-by identifier.	review-draft
 M337	701	command-description	读取 grill planning artifact	Read grill planning artifact.	review-draft
 M338	703	schema	只读取指定 grill session	Read only the specified grill session.	review-draft
-M339	706	command-description	DONE 前必须落：story 完成总结（changes/usage/user acceptance/limitations/pitfalls + 自动扫真机覆盖骨架）	Required before DONE: story completion summary (changes/usage/user acceptance/limitations/pitfalls plus auto-scanned real-machine coverage skeleton).	review-draft
+M339	706	command-description	DONE 前必须落：story 完成总结（changes/usage/user acceptance/limitations/pitfalls + 自动扫真机覆盖骨架）	Record the required Story completion summary	review-draft
 M340	708	schema	改了什么（每个文件关键改动，用户视角，≥ 10 字符）	What changed (key changes per file from the user perspective, at least 10 characters).	review-draft
 M341	709	schema	怎么用（slash / tool / 调用示例，≥ 10 字符）	How to use it (slash/tool/call example, at least 10 characters).	review-draft
 M342	710	schema	DONE gate 必填：用户视角的预期可见结果 / expected transcript（≥ 10 字符）	DONE gate required: user-perspective expected visible result or expected transcript (at least 10 characters).	review-draft
@@ -747,13 +821,13 @@ M387	775	schema	收集 trace	Collect trace.	review-draft
 M388	777	command-description	按 fixtureId 执行单 case 或链	Run a single case or chain by fixtureId	review-draft
 M389	780	command-description	检查 story checklist 与代码任务元数据覆盖率	Check coverage between story checklist and code task metadata	review-draft
 M390	781	schema	Story ID 或 Story ID 数组	Story ID or array of Story IDs.	review-draft
-M391	785	command-description	扫描真相源目录，提取需求点/决策/约束/问题	Scan truth-source directories and extract requirements, decisions, constraints, and questions	review-draft
+M391	785	command-description	扫描真相源目录，提取需求点/决策/约束/问题	Scan source-of-truth directories and extract requirements, decisions, constraints, and questions	review-draft
 M392	786	schema	只返回统计摘要	Return only a statistics summary.	review-draft
-M393	788	command-description	生成真相源导航	Generate truth-source navigation	review-draft
-M394	789	command-description	分析真相源中的矛盾/模糊/缺失	Analyze contradictions, ambiguity, and gaps in truth sources	review-draft
-M395	790	command-description	从真相源提取候选 story	Extract candidate stories from truth sources	review-draft
+M393	788	command-description	生成真相源导航	Generate source-of-truth navigation	review-draft
+M394	789	command-description	分析真相源中的矛盾/模糊/缺失	Analyze contradictions, ambiguity, and gaps in sources of truth	review-draft
+M395	790	command-description	从真相源提取候选 story	Extract candidate stories from sources of truth	review-draft
 M396	791	command-description	从代码元数据提取 requirements 文档	Extract requirements documents from code metadata	review-draft
-M397	792	command-description	对比真相源 vs 代码现实，输出差距报告	Compare truth sources with code reality and output a gap report	review-draft
+M397	792	command-description	对比真相源 vs 代码现实，输出差距报告	Compare sources of truth with code reality and output a gap report	review-draft
 M398	793	command-description	判断项目是否收敛（需求覆盖、测试通过、无差距）	Determine whether the project has converged (requirements covered, tests passing, no gaps)	review-draft
 M399	794	comment	Dashboard (实时看板)	Dashboard (real-time dashboard).	review-draft
 M400	795	command-description	实时 story 进度看板（每 N 秒刷新，支持多项目切换）	Real-time story progress dashboard (refreshes every N seconds, supports multiple projects)	review-draft
@@ -765,7 +839,7 @@ M405	802	command-description	只输出当前最可信的下一步（复用 sessi
 M406	803	schema	轻量模式（默认 true）	Concise mode (default: true).	review-draft
 M407	810	command-description	显示 story session capsule（投影状态，不是 gate evidence）	Show story session capsule (projected state, not gate evidence)	review-draft
 M408	813	schema	输出格式	Output format.	review-draft
-M409	814	schema	引用缺失时 hard fail	Hard fail when references are missing.	review-draft
+M409	814	schema	引用缺失时 hard fail	Fail when references are missing.	review-draft
 M410	816	command-description	创建/更新 story session capsule 投影	Create or update the story session capsule projection	review-draft
 M411	819	schema	从 story/checklist/process-events 重建基础 capsule	Rebuild base capsule from story/checklist/process-events	review-draft
 M412	820	schema	摘要	Summary.	review-draft
@@ -805,7 +879,7 @@ M445	1469	schema	要恢复的 Story ID	Story ID to recover.	review-draft
 M446	1481	command-description	验证 Codex adapter 资产、入口 heartbeat 与硬证据	Verify Codex adapter assets, entrypoint heartbeat, and hard evidence	review-draft
 M447	1482	schema	结构化 JSON 输出	Structured JSON output.	review-draft
 M448	1483	schema	可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence	Optional Story ID; defaults to inferring from the story/* branch and recording process-event evidence.	review-draft
-M449	1485	command-description	Codex adapter 诊断：输出 Codex adapter 检查状态（不写 process-event evidence）。Alias: lattice codex doctor	Codex adapter diagnostics: output Codex adapter check status without writing process-event evidence. Alias: lattice codex doctor	review-draft
+M449	1485	command-description	Codex adapter 诊断：输出 Codex adapter 检查状态（不写 process-event evidence）。Alias: lattice codex doctor	Report Codex adapter diagnostics status	review-draft
 M450	1486	schema	结构化 JSON 输出	Structured JSON output.	review-draft
 M451	1488	command-description	检查 Lattice 管理资产/模板漂移；--apply/--upgrade 显式同步安全项	Check drift in Lattice-managed assets/templates; --apply/--upgrade explicitly sync safe items	review-draft
 M452	1489	schema	结构化 JSON 输出	Structured JSON output.	review-draft
@@ -857,8 +931,8 @@ M497	1545	command-description	调 evaluator agent 对 browser 应用打分（功
 M498	1547	schema	lattice serve 端口（默认 3456）	lattice serve port (default: 3456).	review-draft
 M499	1549	command-description	保存 evaluator 打分结果到 eval-evidence.json	Save evaluator scoring result to eval-evidence.json	review-draft
 M500	1551	schema	evaluator 输出的 JSON 字符串	JSON string output by evaluator.	review-draft
-M501	1554	comment	Finding (koala-reviewer 发现项)	Finding (koala-reviewer finding item).	review-draft
-M502	1555	command-description	添加 finding（koala-reviewer 发现项）	Add a finding (koala-reviewer finding item)	review-draft
+M501	1554	comment	Finding (koala-reviewer 发现项)	Finding (koala-reviewer finding).	review-draft
+M502	1555	command-description	添加 finding（koala-reviewer 发现项）	Add a finding (koala-reviewer finding)	review-draft
 M503	1557	schema	发现描述	Finding description.	review-draft
 M504	1558	schema	严重程度	Severity.	review-draft
 M505	1568	schema	分类（legacy category 会归一为 missing）	Category (legacy category is normalized to missing).	review-draft
@@ -899,7 +973,7 @@ M539	1620	schema	desc 必填且 ≥ 1 字符 / issue 具体描述（reviewer 主
 M540	1621	schema	Reviewer 提出的 issue 列表；critical/high 会阻塞 INIT_CHECK，允许空数组	List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.	review-draft
 M541	1622	schema	Reviewer 自报 agent 名；product-reviewer 必须传 product-reviewer	Reviewer self-reported agent name; product-reviewer must pass product-reviewer.	review-draft
 M542	1623	schema	Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 koala-review-story-init	Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass koala-review-story-init.	review-draft
-M543	1630	command-description	受控 fallback：无法 spawn INIT reviewer 时显式、可审计地生成签名 init-check.json（默认禁用，需 acknowledge + fallbackReason）	Controlled fallback: explicitly and auditably generate signed init-check.json when INIT reviewer cannot be spawned (disabled by default; requires acknowledge and fallbackReason)	review-draft
+M543	1630	command-description	受控 fallback：无法 spawn INIT reviewer 时显式、可审计地生成签名 init-check.json（默认禁用，需 acknowledge + fallbackReason）	Create an audited INIT reviewer fallback attestation	review-draft
 M544	1632	schema	fallbackReason 必须 ≥ 30 字符 / 为什么 INIT reviewer 无法运行 + 你人工核查了什么（durable 审计 attestation）	fallbackReason must be at least 30 characters / Why INIT reviewer cannot run plus what you manually checked (durable audit attestation).	review-draft
 M545	1633	schema	必须显式传 true：确认你在刻意顶替独立 INIT reviewer 做 attestation	Must explicitly pass true: confirms you are intentionally substituting for independent INIT reviewer attestation.	review-draft
 M546	1634	schema	mode: z.enum(['repair', 'fallback']).optional().describe("审计分类：repair（修复缺失出口）/ fallback（无 subagent 环境顶替），默认 repair"),	audit classification: repair (fix missing exit) / fallback (substitute when no subagent environment exists), default repair.	review-draft
@@ -942,9 +1016,9 @@ M582	1699	comment	不校验业务完整性；主 agent 之后用 scope_question_
 M583	1705	schema	Open Questions：reviewer 在 decisions/ 扫到"看见但不归类"的矛盾/疑问，主 agent 必须用 scope_question_resolve 消解	Open Questions: contradictions/questions reviewers notice in decisions/ but do not classify; main agent must resolve them with scope_question_resolve.	review-draft
 M584	1708	comment	B-ed3e CHK-003: scope_question_resolve — 主 agent 对 reviewer 抛出的 OQ 写入书面 resolution	B-ed3e CHK-003: scope_question_resolve - main agent writes resolution for an OQ raised by reviewer.	review-draft
 M585	1709	comment	设计原则：resolution 不入签名 _hash（resolution 是 main agent 动作，不污染 reviewer 判定签名域）	Design principle: resolution is not included in signed _hash because resolution is a main-agent action and must not pollute the reviewer judgment signature domain.	review-draft
-M586	1710	command-description	主 agent 对 scope reviewer 抛出的 Open Question 写入书面 resolution（防自我赦免）	Main agent writes a resolution for an Open Question raised by the scope reviewer (prevents self-pardon)	review-draft
+M586	1710	command-description	主 agent 对 scope reviewer 抛出的 Open Question 写入书面 resolution（防自我赦免）	Main agent writes a resolution for an Open Question raised by the scope reviewer (prevents self-approval)	review-draft
 M587	1712	schema	Open Question ID（如 OQ-1）	Open Question ID, for example OQ-1.	review-draft
-M588	1713	schema	resolution 必填且 ≥ 20 字符（书面消解，防自我赦免） / 主 agent 的书面消解结论（≥ 20 字符，应引 decisions/ 原文）	resolution is required and must be at least 20 characters (written resolution, prevents self-pardon). / Main agent written resolution conclusion (at least 20 characters; should cite original decisions/ text).	review-draft
+M588	1713	schema	resolution 必填且 ≥ 20 字符（书面消解，防自我赦免） / 主 agent 的书面消解结论（≥ 20 字符，应引 decisions/ 原文）	resolution is required and must be at least 20 characters (written resolution, prevents self-approval). / Main agent written resolution conclusion (at least 20 characters; should cite original decisions/ text).	review-draft
 M589	1714	schema	resolution 的证据指针（decisions/ 路径或 checklist item id），默认 []	Evidence pointers for resolution (decisions/ path or checklist item ID), default [].	review-draft
 M590	1718	command-description	生成标准 implementer prompt 字符串（主 agent 派发 CHK-xxx 用）	Generate standard implementer prompt string (used by main agent to dispatch CHK-xxx)	review-draft
 M591	1720	schema	Checklist item ID（如 CHK-001）	Checklist item ID, for example CHK-001.	review-draft
@@ -955,7 +1029,7 @@ M595	1726	command-description	[deprecated: 请改用 lattice dispatch] 生成标
 M596	1728	schema	Finding ID（如 F-001 或 B-xxx:F-001 完整形式）	Finding ID, for example F-001 or the full B-xxx:F-xxx form.	review-draft
 M597	1729	schema	subagent 类型（如 koala-implementer / koala-review-channel）；复用 CHK-008 分级矩阵	subagent type, for example koala-implementer / koala-review-channel; reuses the CHK-008 grading matrix.	review-draft
 M598	1732	comment	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `lattice dispatch`，全阶段开放)	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases).	review-draft
-M599	1733	command-description	统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）	Unified dispatch entrypoint: generate a subagent prompt from exactly one of itemId, findingId, or clusterId (available in all phases)	review-draft
+M599	1733	command-description	统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）	Dispatch a subagent prompt for one item, finding, or cluster	review-draft
 M600	1735	schema	Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个	Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.	review-draft
 M601	1736	schema	Finding ID（F-xxx 或 B-xxx:F-xxx）；与 itemId / clusterId 互斥	Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId/clusterId.	review-draft
 M602	1737	schema	Cluster ID（CL-xxx）；与 itemId / findingId 互斥	Cluster ID (CL-xxx); mutually exclusive with itemId/findingId.	review-draft
@@ -971,7 +1045,7 @@ M611	1754	command-description	全量写入 plan.md（每个 checklist item 需�
 M612	1756	schema	plan.md 完整内容	Complete plan.md content.	review-draft
 M613	1758	command-description	读取 plan.md 全文	Read the full plan.md	review-draft
 M614	1762	comment	Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints 实时计算)	Reviewer list (B-fdcf CHK-001: opt-in list query, calculated in real time from riskSignals/touchpoints).	review-draft
-M615	1763	command-description	列出当前 story 的 opt-in reviewer 名单（baseline concept/quality/test-coverage + 按信号挂载 behavior/docs；channel LLM 已退役）	List the current story opt-in reviewers (baseline concept/quality/test-coverage plus signal-mounted behavior/docs; channel LLM retired)	review-draft
+M615	1763	command-description	列出当前 story 的 opt-in reviewer 名单（baseline concept/quality/test-coverage + 按信号挂载 behavior/docs；channel LLM 已退役）	List the current Story's opt-in reviewers	review-draft
 M616	1765	schema	输出结构化 JSON（含 reviewers 数组）	Output structured JSON including reviewers array.	review-draft
 M617	1766	schema	逗号分隔的内置 REVIEW reviewer lane 或短名，强制加挂；写入 story.events 审计（reviewer_forced）	Comma-separated built-in REVIEW reviewer lane or short name to force-add; writes story.events audit (reviewer_forced).	review-draft
 M618	1770	command-description	设置项目 workflow profile（light/balanced/strict）	Set project workflow profile (light/balanced/strict)	review-draft
@@ -1006,12 +1080,12 @@ M646	2150	schema	相关性查询词	Relevance query.	review-draft
 M647	2151	schema	最多包含条目数（默认 5）	Maximum number of entries to include (default: 5).	review-draft
 M648	2152	schema	行数预算（默认 60）	Line budget (default: 60).	review-draft
 M649	2153	schema	JSON 格式输出	JSON output format.	review-draft
-M650	2155	command-description	结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）	Finish session: by default write a story candidate in active story; without a story, report/promote project entries (no story directory required)	review-draft
+M650	2155	command-description	结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）	Finish the dev-memory session	review-draft
 M651	2156	schema	活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Lattice 外部会话可省略	Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Lattice sessions.	review-draft
 M652	2157	schema	story 目录根路径（默认 <root>/.lattice/story/actives；legacy .koala/story/actives 仍可读）	Story directory root path (default <root>/.lattice/story/actives; legacy .koala/story/actives remains readable).	review-draft
 M653	2158	schema	可选：相关性过滤词	Optional relevance filter query.	review-draft
 M654	2159	schema	无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选	When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.	review-draft
-M655	2161	command-description	会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制；不是生命周期 dev_start，不创建 worktree 或推进 phase）	Session-start wrapper: output dev-memory preflight context plus a reminder to call dev_memory_finish at the end (does not start external agent binary; not lifecycle dev_start; does not create worktree or advance phase)	review-draft
+M655	2161	command-description	会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制；不是生命周期 dev_start，不创建 worktree 或推进 phase）	Start a dev-memory session wrapper	review-draft
 M656	2162	schema	agent 名称（如 claude / codex；仅用于显示，不启动进程）	Agent name, such as claude/codex; display only, does not start an external process.	review-draft
 M657	2163	schema	预飞相关性查询词	Preflight relevance query.	review-draft
 M658	2164	schema	预飞最多条目数（默认 5）	Maximum number of preflight entries (default 5).	review-draft
@@ -1024,9 +1098,9 @@ M664	2183	comment	分支格式: story/B-xxxx → storyId = B-xxxx	Branch format:
 M665	2184	comment	返回 null 表示非 story 分支（全量可用）。	Return null for non-story branches (all commands available).	review-draft
 M666	2197	comment	story 文件不存在，不过滤	Story file does not exist, so do not filter.	review-draft
 M667	2201	comment	非 git 目录或其他错误，不过滤	Not a git directory or another error, so do not filter.	review-draft
-M668	2303	other	if (/始终为 dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {	if (/always dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {	review-draft
-M669	2306	other	if (/默认 dry run|默认 dry-run|default dry run|default dry-run|默认 true/i.test(combined)) {	if (/default dry run|default dry-run|default dry run|default dry-run|default true/i.test(combined)) {	review-draft
-M670	2364	comment	如果有 longHelp（核心命令），先打印完整 PROMPT	If longHelp exists for a core command, print the full PROMPT first.	review-draft
+M668	2303	other	if (/始终为 dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {	if (/always dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {	behavior-sensitive
+M669	2306	other	if (/默认 dry run|默认 dry-run|default dry run|default dry-run|默认 true/i.test(combined)) {	if (/default dry run|default dry-run|default dry run|default dry-run|default true/i.test(combined)) {	behavior-sensitive
+M670	2364	comment	如果有 longHelp（核心命令），先打印完整 PROMPT	If longHelp exists for a core command, print the full prompt first.	review-draft
 M671	2372	cli-output	无参数\n	No arguments\n	review-draft
 M672	2373	cli-output	用法: ${brand.primaryBin} ${tool.name}	Usage: ${brand.primaryBin} ${tool.name}	review-draft
 M673	2380	cli-output	参数:	Arguments:	review-draft
@@ -1070,7 +1144,7 @@ M710	2583	comment	忽略无法识别的 positional 参数	Ignore unrecognized po
 M711	2646	comment	向上查找项目配置（lattice.config.json 优先，koala.config.json 兜底）确定项目根	Walk upward to find project config (prefer lattice.config.json, fall back to koala.config.json) and determine project root.	review-draft
 M712	2867	comment	Runtime enum re-validation (CLAUDE.md「Handler 编码约定」): a missing policy	Runtime enum re-validation (CLAUDE.md Handler coding convention): a missing policy	review-draft
 M713	2943	comment	"Handler 编码约定"): the flag counts as set ONLY for a real boolean `true` or	Handler coding convention: the flag counts as set ONLY for a real boolean true or	review-draft
-M714	3354	comment	runCli — Lattice CLI 运行时入口	runCli: Lattice CLI runtime entrypoint.	review-draft
+M714	3354	comment	runCli — Lattice CLI 运行时入口	runCli: Lattice CLI runtime entry point.	review-draft
 M715	3356	comment	@param opts.extraTools 第三方包的 ToolDef 列表，会合进 help 和 dispatch	@param opts.extraTools ToolDef list from third-party packages, merged into help and dispatch.	review-draft
 M716	3357	comment	@param opts.extraRegister 第三方包的 register 函数，在 createMainRegistry 之后调用	@param opts.extraRegister register function from third-party packages, called after createMainRegistry.	review-draft
 M717	3358	comment	（收到 Registry 实例后用 registry.registerBatch(...) 注入 handler）	(after receiving the Registry instance, inject handlers with registry.registerBatch(...))	review-draft
@@ -1103,11 +1177,11 @@ M743	3805	comment	注入 next-step hint（hints.ts 注册的命令才有效；�
 M744	3810	comment	next-step hint (e.g. "→ 验证全绿").	next-step hint (e.g. "-> Validation passed").	review-draft
 M745	3853	cli-output	错误: ${e.message}\n	Error: ${e.message}\n	review-draft
 M746	3859	comment	story_create: 停在 INIT 时追加下一步提示	story_create: append next-step hint when stopping in INIT.	review-draft
-M747	3871	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	${result}\n⚠ Current directory is not a git repository: story was recorded, but the from-draft worktree cannot be created automatically.\n-> Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
+M747	3871	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\n-> Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
 M748	3876	cli-output	${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${result}\n\n${wtResult}\n\n${syncResult}\n\n-> Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
 M749	3880	other	→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
-M750	3887	other	当前目录不是 git 仓库	Current directory is not a git repository.	review-draft
-M751	3893	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'	${result}\n⚠ Current directory is not a git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\n-> First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
+M750	3887	other	当前目录不是 git 仓库	Current directory is not a git repository.	behavior-sensitive
+M751	3893	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\n-> First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
 M752	3896	cli-output	${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n 1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n 2. cd 到提示的 worktree 路径\n 3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）	${result}${metadataLine}\n-> Story is currently in INIT. Next steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)	review-draft
 M753	3901	comment	story_advance phase=INIT_CHECK：成功后自动调 dev_start 创建 worktree	story_advance phase=INIT_CHECK: after success, automatically call dev_start to create the worktree.	review-draft
 M754	3902	comment	B-5246: phase 已经在 INIT_CHECK 时（重试场景）允许 dev_start 重跑而不抛	B-5246: when phase is already INIT_CHECK (retry scenario), allow dev_start to rerun without throwing	review-draft
@@ -1120,6 +1194,32 @@ M760	3932	comment	story_get 失败时退回原行为	Fall back to original behav
 M761	3947	cli-output	${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${advanceResult}\n\n${wtResult}${syncSegment}\n\n-> Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
 M762	3949	cli-output	${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	${advanceResult}\n⚠ Failed to create worktree: ${e.message}\n-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
 ```
+
+## Behavior-sensitive rows
+
+The rows below have `reviewStatus = behavior-sensitive`. Their source line is
+runtime code that **matches or parses** the Chinese text (a regex `.test()`, or
+a `.includes()` string comparison), so translating the Chinese alters runtime
+matching. **These rows must NOT be applied as plain prose during the glossary
+sweep.** Each requires a coordinated code-plus-test update in the implementation
+story: change the matched literal and every site that produces or consumes it in
+the same change, then update the locking test.
+
+| Row | Source line | Why it is behavior-sensitive |
+|---|---|---|
+| M668 | `cli-engine.ts:2303` | `/始终为 dry-run|…/i.test(combined)` — the regex matches the Chinese help text at runtime to decide the dry-run note. Translating the regex without re-anchoring it to the (also-translated) help text breaks dry-run detection. |
+| M669 | `cli-engine.ts:2306` | `/默认 dry run|…|默认 true/i.test(combined)` — same dry-run detector; the Chinese alternatives match the live help/schema text. |
+| M750 | `cli-engine.ts:3887` | `result.includes('当前目录不是 git 仓库')` — a guard that detects the "not a Git repository" branch by substring. It is coupled to its producers M747 (`cli-engine.ts:3871`) and M751 (`cli-engine.ts:3893`): if M750's literal is translated, M747/M751 must be translated to the *exact same* substring in the same change, or the guard never fires. |
+
+Coordination notes for the implementation story:
+
+- M668/M669 must be translated together with the help/schema text they match
+  (the dry-run-related `describe(...)` values), and a test must assert the
+  dry-run note still renders for `always-on` and `default-on` commands.
+- M750 must be translated together with M747 and M751 so the produced substring
+  and the `.includes()` probe remain identical, with a test that exercises the
+  not-a-Git-repository branch.
+
 ## Review Rules For New Rows
 
 When an implementation story encounters Chinese text not covered by the table:
