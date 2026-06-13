@@ -1,0 +1,56 @@
+{
+  "storyId": "B-85ba",
+  "changes": "Added a hard INIT scope anti-expansion gate before INIT_CHECK: persisted scope/execution boundaries, scope freeze checks, extension proposal/decision artifacts, excluded keyword blocks, discard digest repeat protection, story_update/checklist reviewer mutation blocks, process-fact registry entries, docs, prompts, and smoke coverage.",
+  "usage": "Use story_create with scopeBoundary/executionBoundary or run scope_boundary_set, execution_boundary_set, scope_freeze_check, and scope_extension_proposal/decide during INIT before story_advance INIT_CHECK. INIT reviewers must propose expansion rather than mutating checklist or story scope.",
+  "expectedOutcome": "A story cannot enter INIT_CHECK until user-confirmed allowed/excluded scope, execution boundary, fresh passing freeze evidence, no pending extension proposal, and no repeated discarded direction are all satisfied.",
+  "actualTranscript": "lattice validate --story=B-85ba passed: npm test completed story-lifecycle and gap-convergence with ALL PASS, and verification intent coverage reported 15/15 covered. Focused build, scope anti-expansion smoke, worktree authority smoke, flow stability smoke, process fact contract, runtime fact contract, and npm test all passed.",
+  "outcomeDiff": "Expected and actual match. The only note is that validate used fallback npm test discovery because this repo has no validate.ts/js/mts, while focused smoke and contract commands directly cover the story behavior.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by smoke, contract, review, and validate evidence",
+  "pitfalls": "Important pitfalls resolved: discard digests must be read across DISCARDED stories, freshness must ignore metadata-only updatedAt churn, background.md participates in repeat-direction detection, .lattice-serve.json is a runtime artifact, and story_update was a late INIT reviewer scope bypass.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 268024
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 22103
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 611154
+    },
+    "DEV": {
+      "count": 9,
+      "durationMs": 21604707
+    },
+    "REVIEW": {
+      "count": 9,
+      "durationMs": 3063425
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 44786
+    }
+  },
+  "totalDurationMs": 25614207,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T02:40:39.723Z",
+  "updatedAt": "2026-06-13T02:40:39.723Z"
+}
