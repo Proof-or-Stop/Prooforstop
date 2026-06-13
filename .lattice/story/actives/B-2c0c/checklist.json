@@ -43,12 +43,12 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
+          "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Smoke covers changed decision docs with three distinct runId rounds, two distinct PASS hostId values per round, and current decision-doc materialDigest; detector ok=true and DONE guard consumes it.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "note": "Fresh TypeScript build passed at current HEAD after DONE guard integration, quorum diagnostic wiring, and reviewer metadata commits.",
+          "headHash": "60550ede97b4c14b3496fafc3ac7276036940906",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "timestamp": "2026-06-13T22:25:24.378Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
