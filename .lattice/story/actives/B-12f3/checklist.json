@@ -51,7 +51,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "When story_review reports missing_scope_check, the terminal explains that scope-check.json is missing, scope_check_save already exists, the scope-plan reviewer must persist evidence, and local guidance is not Authority completion.",
+      "userSees": "Terminal output for a missing scope check includes: \"PLAN review is blocked because scope-check.json is missing\"; \"scope_check_save already exists\"; \"run a scope-plan reviewer\"; \"local CLI guidance is not Authority Server completion\".",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-review.ts",
