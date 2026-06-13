@@ -28,6 +28,17 @@ export function formatValidationCommand(command: ValidationCommand): string {
   return [command.command, ...command.args].join(' ').trim();
 }
 
+function formatTimeoutDiagnostics(command: ValidationCommand): string[] {
+  const timeout =
+    typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
+      ? `${command.timeoutMs}ms`
+      : 'unavailable';
+  return [
+    `  timeout diagnostic: command exceeded configured timeoutMs=${timeout}.`,
+    '  If this command legitimately needs longer, raise lattice.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
+  ];
+}
+
 function commandCwd(projectRoot: string, cwd?: string): string {
   if (!cwd) return projectRoot;
   return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
@@ -214,6 +225,9 @@ export async function executeValidationPlan(
     const mark = failed ? (result.optional ? '⚠' : '✗') : '✓';
     const suffix = result.timedOut ? ' (timed out)' : '';
     details.push(`${mark} ${result.label}: ${formatValidationCommand(command)}${suffix}`.trim());
+    if (result.timedOut) {
+      details.push(...formatTimeoutDiagnostics(command));
+    }
     if (result.output.trim()) {
       details.push(...result.output.trim().split('\n').filter(Boolean).map((line) => `  ${line}`));
     }

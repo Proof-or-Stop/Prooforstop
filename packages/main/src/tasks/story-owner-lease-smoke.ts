@@ -607,6 +607,17 @@ try {
     assert.ok(activeMsg.includes('read-only'), 'active error suggests read-only commands');
     assert.ok(activeMsg.includes('--forceTakeover'), 'active error suggests --forceTakeover (the active-lease next action)');
     assert.ok(!activeMsg.includes('--takeover '), 'active error does NOT suggest plain --takeover for an active lease');
+    const sameWorktreeMsg = formatNonOwnerError(foreignLease, {
+      storyId: 'B-6974',
+      command: 'checklist_update',
+      ownershipClass: 'storyScopedMutating',
+      currentSessionId: 'sess-intruder',
+      currentCwd: '/tmp/owner-wt',
+      now: baseMs + 8 * 60 * 1000,
+    });
+    assert.ok(sameWorktreeMsg.includes('same-worktree context switch'), 'same-cwd error explains the context-switch case');
+    assert.ok(sameWorktreeMsg.includes('lattice session_brief'), 'same-cwd error tells the operator to inspect session_brief');
+    assert.ok(sameWorktreeMsg.includes('not transferred unless'), 'same-cwd error states the lease is not transferred automatically');
 
     // 13b. STALE foreign lease (>30min old) → STALE verdict + --takeover action.
     const staleMsg = formatNonOwnerError(foreignLease, {
@@ -671,6 +682,9 @@ try {
     assert.equal(foreignActiveView.isCurrentSessionOwner, false, 'foreign lease → isCurrentSessionOwner:false');
     assert.equal(foreignActiveView.stale, false, 'foreign 5m-old lease is active');
     assert.equal(foreignActiveView.recommendation, 'read-only', 'a foreign active lease → recommendation:read-only');
+    assert.equal(foreignActiveView.ownerCwdMatchesCurrent, false, 'different cwd → no same-worktree guidance');
+    const foreignSameWorktreeView = summarizeOwnerLease(ownDir, 'sess-other', baseMs + 5 * 60 * 1000, '/tmp/my-wt');
+    assert.equal(foreignSameWorktreeView.ownerCwdMatchesCurrent, true, 'same owner cwd/current cwd is detected for guidance');
 
     // 14d. Foreign STALE lease → recommendation:takeover-available.
     const foreignStaleView = summarizeOwnerLease(
@@ -730,6 +744,15 @@ try {
     }).join('\n');
     assert.ok(activeForeignLines.includes('read-only only'), 'foreign active block recommends read-only only');
     assert.ok(activeForeignLines.includes('--forceTakeover'), 'foreign active block mentions --forceTakeover as the override');
+    const sameWorktreeLines = renderOwnershipBlock({
+      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'koala-env',
+      ownerCwd: '/tmp/owner-wt', heartbeatAge: '2m ago', stale: false,
+      isCurrentSessionOwner: false, recommendation: 'read-only', currentSessionId: 'sess-me',
+      ownerCwdMatchesCurrent: true, currentCwd: '/tmp/owner-wt',
+    }).join('\n');
+    assert.ok(sameWorktreeLines.includes('same worktree'), 'same-worktree block labels the context-switch case');
+    assert.ok(sameWorktreeLines.includes('lattice session_brief'), 'same-worktree block tells the operator to inspect session_brief');
+    assert.ok(sameWorktreeLines.includes('no lease transfer happens automatically'), 'same-worktree block states there is no automatic transfer');
   }
 
   // ── 16. CHK-004: renderMetaAuditBlock — B-META shared audit state ────────
@@ -912,8 +935,11 @@ try {
       (err: Error) =>
         err.message.includes(storyId) &&
         err.message.includes('sess-A') &&
-        err.message.includes('owner-gated'),
-      'session B on the same story is fail-closed rejected with owner guidance naming session A',
+        err.message.includes('owner-gated') &&
+        err.message.includes('same-worktree context switch') &&
+        err.message.includes('lattice session_brief') &&
+        err.message.includes('not transferred unless'),
+      'session B on the same story is fail-closed rejected with owner guidance naming session A and same-worktree recovery text',
     );
     // The rejection performed NO lease write (no silent steal by B).
     assert.equal(
@@ -1084,6 +1110,9 @@ try {
     const briefLines = renderOwnershipBlock(foreignView).join('\n');
     assert.ok(briefLines.includes('NOT owner'), 'session_brief ownership block marks the bystander NOT owner');
     assert.ok(briefLines.includes('read-only only'), 'session_brief ownership block tells the bystander read-only only');
+    const sameCwdView = summarizeOwnerLease(storyDir, getSessionId(), Date.now(), '/tmp/owner-wt');
+    const sameCwdLines = renderOwnershipBlock(sameCwdView).join('\n');
+    assert.ok(sameCwdLines.includes('same worktree'), 'session_brief adds same-worktree guidance when owner cwd equals current cwd');
 
     process.env.KOALA_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();

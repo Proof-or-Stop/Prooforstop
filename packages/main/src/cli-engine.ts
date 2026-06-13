@@ -1675,7 +1675,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // Scope Check (B-d4d1: scope agent writes signed scope-check.json)
-  { name: 'scope_check_save', description: '保存 scope check 结果（由 scope agent 调用）', schema: {
+  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for koala-review-scope-plan/scope-plan reviewers.', schema: {
     storyId: z.string().describe('Story ID'),
     features: z.array(z.object({
       feature: z.string(),
@@ -3071,6 +3071,7 @@ export function enforceStoryOwnerLeaseGate(
       command: cmd,
       ownershipClass: cls,
       currentSessionId: getSessionId(),
+      currentCwd: process.cwd(),
     }),
   );
 }
@@ -3501,6 +3502,14 @@ export async function runCli(opts?: {
   } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     process.stdout.write(`${formatLatticeVersionLine()}\n`);
     return;
+  }
+
+  if (cmd === 'codex' && (argv[1] === 'session_brief' || argv[1] === 'aux_doc_list')) {
+    const ordinary = argv[1];
+    console.error(`Unsupported command: lattice codex ${ordinary}`);
+    console.error('The Codex adapter namespace only supports: lattice codex verify, lattice codex doctor.');
+    console.error(`Use the ordinary command instead: lattice ${ordinary}`);
+    process.exit(1);
   }
 
   const tool = TOOLS.find(t => t.name === cmd);

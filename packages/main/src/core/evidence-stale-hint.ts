@@ -2,7 +2,7 @@
  * evidence-stale-hint — single source of truth for stale verificationEvidence UX.
  *
  * Design:
- *   - Any user-visible surface (session_brief / story_advance pre-check / koala validate
+ *   - Any user-visible surface (session_brief / story_advance pre-check / lattice validate
  *     text output / hints.ts decorators) that detects stale verification evidence must call this module's
  *     renderEvidenceStaleHint; reconstructing marker strings or recovery commands inside the surface is not allowed.
  *   - The three surfaces produce byte-identical output (B-a2f1 decision.json preMortem #2).
@@ -82,9 +82,10 @@ export function findStaleEvidence(projectRoot: string, storyId: string): StaleEv
  * Output format (must remain stable — all three surfaces assert this format by byte-equality):
  *
  *   ⚠ EVIDENCE STALE (materialHash drift after abc1234): 2 verification intent(s) stale for B-xxxx
+ *     Meaning: stale means the recorded HEAD/material hash binding changed; it does not necessarily mean the verification logic failed.
  *     Run to recover:
- *       koala verification_evidence_refresh_stale --storyId=B-xxxx
- *       koala validate --story=B-xxxx --json
+ *       lattice verification_evidence_refresh_stale --storyId=B-xxxx
+ *       lattice validate --story=B-xxxx --json
  *
  * Do not output literal placeholders like `<storyId>` / `<B-xxx>` (preMortem #3).
  */
@@ -98,9 +99,10 @@ export function renderEvidenceStaleHint(
   const count = stale.length;
   const lines = [
     `${EVIDENCE_STALE_MARKER}${headSuffix}: ${count} verification intent(s) stale for ${storyId}`,
+    `  Meaning: stale means the recorded HEAD/material hash binding changed; it does not necessarily mean the verification logic failed.`,
     `  Run to recover:`,
-    `    koala verification_evidence_refresh_stale --storyId=${storyId}`,
-    `    koala validate --story=${storyId} --json`,
+    `    lattice verification_evidence_refresh_stale --storyId=${storyId}`,
+    `    lattice validate --story=${storyId} --json`,
   ];
   return lines.join('\n');
 }

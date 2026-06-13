@@ -412,7 +412,7 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
 assertChecklistUpdateEvidenceGetsMaterialHash();
 
 // ── B-a2f1 CHK-001/002: stale-evidence UX must surface byte-identical recovery
-// block across session_brief / story_advance pre-check / koala validate hint. ──
+// block across session_brief / story_advance pre-check / lattice validate hint. ──
 function assertStaleEvidenceHintCrossSurface(): void {
   const root = mkdtempRoot();
   try {
@@ -487,9 +487,13 @@ function assertStaleEvidenceHintCrossSurface(): void {
     // (2) renderEvidenceStaleHint produces the canonical recovery block.
     const renderedBlock = renderEvidenceStaleHint(storyId, stale, { currentHead: driftHead });
     assert.ok(renderedBlock.includes(EVIDENCE_STALE_MARKER), 'rendered block must include marker constant');
-    assert.ok(renderedBlock.includes(`koala verification_evidence_refresh_stale --storyId=${storyId}`),
+    assert.ok(renderedBlock.includes('HEAD/material hash binding changed'),
+      'rendered block must explain stale means evidence binding drift, not necessarily verification logic failure');
+    assert.ok(renderedBlock.includes('does not necessarily mean the verification logic failed'),
+      'rendered block must explicitly clarify stale evidence does not necessarily mean verification logic failed');
+    assert.ok(renderedBlock.includes(`lattice verification_evidence_refresh_stale --storyId=${storyId}`),
       'rendered block must include refresh_stale command with literal storyId');
-    assert.ok(renderedBlock.includes(`koala validate --story=${storyId} --json`),
+    assert.ok(renderedBlock.includes(`lattice validate --story=${storyId} --json`),
       'rendered block must include validate command with literal storyId');
     assert.ok(renderedBlock.includes(storyId), 'rendered block must include literal storyId');
     // preMortem #3 anti-placeholder anchors:
@@ -514,7 +518,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
     assert.ok(!briefOutput.includes('<storyId>'), 'session_brief must not contain <storyId> placeholder');
 
     // (4) validate-hint surface: feed synthetic validate JSON through decorateResult.
-    //     Use a fake result that mimics `koala validate --story=B-a2f1 --json` returning
+    //     Use a fake result that mimics `lattice validate --story=B-a2f1 --json` returning
     //     allPass=false + verificationCoverage with stale entries.
     const fakeValidateJson = JSON.stringify({
       provider: 'koala-verifier',
@@ -577,7 +581,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
   }
 }
 
-/** Extract the EVIDENCE STALE block (marker line + the following 3 indented
+/** Extract the EVIDENCE STALE block (marker line + the following 4 indented
  *  recovery lines) from a surface output, so we can assert byte-identity
  *  against the renderer output without false negatives from surface-specific
  *  preamble/trailing text. */
@@ -585,8 +589,8 @@ function extractStaleBlock(output: string): string {
   const lines = output.split('\n');
   const markerIdx = lines.findIndex(l => l.startsWith(EVIDENCE_STALE_MARKER));
   if (markerIdx < 0) return '';
-  // Renderer emits exactly 4 lines: marker / "  Run to recover:" / 2 command lines.
-  return lines.slice(markerIdx, markerIdx + 4).join('\n');
+  // Renderer emits exactly 5 lines: marker / meaning / "Run to recover" / 2 command lines.
+  return lines.slice(markerIdx, markerIdx + 5).join('\n');
 }
 
 assertStaleEvidenceHintCrossSurface();
@@ -789,7 +793,7 @@ await assertRecoverEvidenceCommand();
 // ── B-a2f1 CHK-004: end-to-end main-merge regression ──
 // Simulate the real B-c9f5 failure: a user finishes DEV with evidence pinned
 // at baseSha/baseMaterialHash, then merges main (which drifts materialHash),
-// then runs session_brief / story_advance --phase=REVIEW / koala validate.
+// then runs session_brief / story_advance --phase=REVIEW / lattice validate.
 // All three surfaces must surface the EVIDENCE STALE marker with a
 // byte-identical recovery block that uses the real storyId (no placeholders),
 // and the recover_evidence single-shot must (a) succeed when only stale
@@ -992,7 +996,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     updatedStory.phase = 'DEV';
     store.writeStory(storyId, updatedStory);
 
-    // ── 6. Surface #3: koala validate (via decorateResult hint) ────────────
+    // ── 6. Surface #3: lattice validate (via decorateResult hint) ──────────
     const fakeValidateJson = JSON.stringify({
       provider: 'koala-verifier',
       allPass: false,

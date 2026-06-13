@@ -29,6 +29,7 @@ import {
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
 import { readHealthIssues } from '../core/health.js';
@@ -1731,6 +1732,8 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /koala_metadata_changes/);
     assert.match(testBrief, /Working tree dirty/);
     assert.match(testBrief, /delivery_check_set/);
+    assert.match(testBrief, /agentId=koala-review-delivery/);
+    assert.match(testBrief, /main agent must not self-sign/);
     assert.match(testBrief, /summary_set/);
     // B-4b22: koala_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
@@ -2199,6 +2202,8 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|KOALA_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
+    assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=koala-review-delivery/);
+    assert.match(byId.get('delivery-check')?.hint ?? '', /main agent must not self-sign/);
     assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
     assert.equal(byId.get('story-summary')?.status, 'fail');
     assert.equal(byId.get('story-summary')?.source, 'summary.json');
@@ -3582,6 +3587,57 @@ function assertDoneOracleSameSource(): void {
     assert.equal(byId.get('story-summary')?.blocking, true, 'baseline: missing summary is blocking');
     assert.equal(byId.get('declared-artifacts-referenced')?.status, 'pass', 'baseline: no declarations → pass');
     assert.equal(byId.get('declared-artifacts-committed')?.status, 'pass', 'baseline: no declarations → pass');
+
+    const closingSelfCheck = {
+      hasRealMachineTest: true,
+      hasEdgeCaseCoverage: true,
+      hasUnresolvedTodos: false,
+      summary: 'DONE oracle delivery branch smoke',
+    };
+    const realMachineTests = [{
+      featureId: 'flow-stability-smoke',
+      transcript: 'npm --prefix packages/main run test:flow-stability-smoke',
+    }];
+
+    store.writeDeliveryCheck(storyId, {
+      storyId,
+      checkedAt: '2026-05-15T12:30:00.000Z',
+      reviewRound,
+      agentId: 'koala-review-delivery',
+      docsPromises: [],
+      realMachineTests,
+      closingSelfCheck,
+      _hash: 'tampered-delivery-check-hash',
+    });
+    const hashMismatchRows = buildDoneChecklist(storyId, store, root);
+    const hashMismatchRow = new Map(hashMismatchRows.map(r => [r.id, r])).get('delivery-check');
+    assert.equal(hashMismatchRow?.status, 'fail', 'delivery-check hash mismatch must fail');
+    assert.equal(hashMismatchRow?.detail, 'delivery-check.json _hash mismatch');
+    assert.equal(hashMismatchRow?.source, 'delivery-check.json._hash');
+    assert.match(hashMismatchRow?.hint ?? '', /Re-run the koala-review-delivery reviewer to generate a new delivery-check\.json/);
+
+    const docsPromises = [{
+      docPath: 'docs/requirements/decisions/flow-stability-smoke.md',
+      promise: 'Document the flow-stability delivery assertion.',
+      status: 'unverified' as const,
+    }];
+    store.writeDeliveryCheck(storyId, {
+      storyId,
+      checkedAt: '2026-05-15T12:31:00.000Z',
+      reviewRound,
+      agentId: 'koala-review-delivery',
+      docsPromises,
+      realMachineTests,
+      closingSelfCheck,
+      _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, reviewRound),
+    });
+    const unverifiedDocsRows = buildDoneChecklist(storyId, store, root);
+    const unverifiedDocsRow = new Map(unverifiedDocsRows.map(r => [r.id, r])).get('delivery-check');
+    assert.equal(unverifiedDocsRow?.status, 'fail', 'unverified docsPromise must fail');
+    assert.equal(unverifiedDocsRow?.detail, '1 docsPromise entries are unverified and not waived');
+    assert.equal(unverifiedDocsRow?.source, 'delivery-check.json.docsPromises');
+    assert.match(unverifiedDocsRow?.hint ?? '', /Use delivery_waiver_add to write a waiver/);
+    assert.match(unverifiedDocsRow?.hint ?? '', /re-run the koala-review-delivery reviewer to add verification evidence/);
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();

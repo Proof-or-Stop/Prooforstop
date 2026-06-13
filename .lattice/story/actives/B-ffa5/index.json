@@ -1,0 +1,31 @@
+{
+  "storyId": "B-ffa5",
+  "name": "sync-dist-missing-scope-guidance",
+  "title": "Sync executable missing_scope_check guidance output",
+  "description": "After B-12f3 DONE, src guidance changed but built dist CLI output still shows stale missing_scope_check/scope_check_save help text. This follow-up only fixes executable artifact consistency so the tested CLI surface matches the source change.",
+  "type": "chore",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "createdAt": "2026-06-13T10:37:36.028Z",
+  "startedAt": "2026-06-13T10:37:36.028Z",
+  "endedAt": "2026-06-13T10:40:35.741Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-13T10:37:36.029Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-13T10:40:35.741Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "Post-init audit found no remaining executable CLI guidance mismatch: source, local dist, node packages/main/dist/cli.js, and global lattice now all show the B-12f3 missing_scope_check/scope_check_save guidance. No real correctness issue remains; do not implement arbitrary changes."
+    }
+  ]
+}

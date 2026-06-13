@@ -1,0 +1,73 @@
+{
+  "storyId": "B-12f3",
+  "checkedAt": "2026-06-13T10:16:43.678Z",
+  "features": [
+    {
+      "feature": "Canonical missing_scope_check PLAN blocker guidance",
+      "covered_by": "CHK-002; packages/main/src/handlers/story-review.ts:376; docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md Phase 2",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story goal and execution plan"
+    },
+    {
+      "feature": "scope_check_save command help identifies reviewer-written PLAN gate evidence and current payload schema",
+      "covered_by": "CHK-002; packages/main/src/cli-engine.ts:1678; lattice scope_check_save --help",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope_check_save help surface"
+    },
+    {
+      "feature": "Existing scope_check_save handler and signature gate are inspected without gate weakening",
+      "covered_by": "CHK-001; packages/main/src/handlers/scope-check.ts:24; packages/main/src/core/command-policy.ts:286; packages/main/src/core/process-fact-levels.ts:237",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope evidence gate inspection"
+    },
+    {
+      "feature": "Targeted regression smoke covers missing_scope_check actionability and negative self-signing or Authority-overclaim language",
+      "covered_by": "CHK-003; packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "verification plan"
+    },
+    {
+      "feature": "Non-authority local ergonomics remain separate from Authority Server receipt-backed completion",
+      "covered_by": "CHK-004; lattice authority_status --storyId=B-12f3 shows status=not-configured, mode=off, receiptVerified=false, productionDone=false",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "Authority boundary"
+    },
+    {
+      "feature": "scope_check_save is kept distinct from scope_contract_check and later lifecycle scope contracts",
+      "covered_by": "CHK-001; CHK-002; CHK-003; docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md Correct Mental Model",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "PLAN vs later lifecycle boundary"
+    },
+    {
+      "feature": "session_brief missing_scope_check-specific guidance",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Execution plan says touch session_brief only if it already consumes PLAN blockers; packages/main/src/handlers/session.ts:519 only gives the generic story_review next step and does not consume missing_scope_check issue text.",
+      "source": "session_brief inspection"
+    },
+    {
+      "feature": "Authority Server receipt verification or production DONE semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope for local CLI guidance; Authority is not configured and any Authority completion claim must fail closed without verified native gate_decision receipt.",
+      "source": "Authority boundary"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 6,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "428b9866e069f48c3f5446cb7f0cbec842cd0b37c28bb4da6b276d2ef98bf278",
+  "openQuestions": []
+}

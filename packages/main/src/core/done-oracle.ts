@@ -459,7 +459,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'delivery-check',
       detail: 'Missing delivery-check.json (requires koala-review-delivery reviewer signature)',
-      hint: 'Run the koala-review-delivery reviewer and use delivery_check_set to write the signed artifact',
+      hint: 'Run the koala-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with koala-review-delivery provenance / agentId=koala-review-delivery; the main agent must not self-sign.',
       source: 'delivery-check.json',
     }));
   } else {
