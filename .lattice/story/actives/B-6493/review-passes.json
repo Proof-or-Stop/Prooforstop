@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-13T15:49:57.792Z",
       "reviewRunId": "B-6493:RR-001",
       "_hash": "1b62f66aafb02eff54e430a107a40452b5c40f6b5afd87f95b2313d5c8f77ec6"
+    },
+    {
+      "id": "B-6493:RP-003",
+      "agent": "koala-review-concept",
+      "note": "No concept deletions or replacements in this diff. All new symbols (PhaseAuthorityWarning, buildPhaseAuthorityWarning, resolvePhaseAuthorityWarning, phaseAuthorityWarning field) are self-contained and consistently named. The phaseAuthority token in session.ts (pre-existing, unrelated) was confirmed not touched by this story. packHashInput explicitly enumerates only HandoffPackHashInput fields (no spread), so phaseAuthorityWarning is categorically excluded from hash computation. normalizeHandoffPack uses ...value spread, preserving the warning when reading persisted packs. resolvePhaseAuthorityWarning is non-exported (module-private) and non-fatal. buildPhaseAuthorityWarning is exported for testability — computeHandoffPackHash was already exported on main. Divergent vs ahead distinction is conceptually sound: phaseRank returns -1 for unknown phases, correctly landing in divergent when ordering cannot be determined. No residual/dead code, no naming inconsistency, no doc-promised features without implementation.",
+      "createdAt": "2026-06-13T15:54:52.490Z",
+      "reviewRound": "2026-06-13T15:49:57.792Z",
+      "reviewRunId": "B-6493:RR-003",
+      "_hash": "728d43682bcb1b797ce0631dc3aef012ec1f065df22d028ec6011940b555caf7"
     }
   ]
 }
