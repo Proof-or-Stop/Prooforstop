@@ -187,12 +187,12 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:decision-doc-quorum-smoke",
+          "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Focused smoke passes valid 3-round/2-host/fresh-digest quorum and no decision-doc-change not-applicable path.",
-          "headHash": "f699a0c88cb5654718c2e9e71228fcd391af0ca9",
+          "note": "Fresh TypeScript build passed at current HEAD with decision-doc quorum smoke task, CLI command registration, and process-fact contract updates compiled.",
+          "headHash": "bfcbc731e2db692657c4abef2cf7258aab412d36",
           "materialHash": "3ad418cc98afe9c8e7ba4446f4516363a7e8fce48225bd1b390c42f466e5f7c5",
-          "timestamp": "2026-06-13T22:19:55.404Z"
+          "timestamp": "2026-06-13T22:25:24.567Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
