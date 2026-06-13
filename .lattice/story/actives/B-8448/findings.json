@@ -1,0 +1,96 @@
+{
+  "findings": [
+    {
+      "id": "B-8448:F-001",
+      "desc": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:30 reports 762 Chinese-bearing cli-engine.ts lines, but docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:167 defines the current table as a catalog and defers every-line coverage to a later manifest; docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:90 and :373 also state that every Chinese-bearing line still needs manifest mapping. The committed document contains 173 T### catalog rows, so it is a representative catalog plus an execution plan, not the complete every-Chinese-translation result set requested for human audit. This blocks the requested deliverable until the document includes an auditable line-level translation result/mapping for all 762 Chinese-bearing lines or clearly obtains user acceptance for a representative catalog instead.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-13T13:25:21.416Z",
+      "reviewRound": "2026-06-13T13:23:10.700Z",
+      "reviewRunId": "B-8448:RR-001",
+      "_hash": "c96472140c809bb910a17ad916aebb32d5f3c14ece8ffc1bc924d31bea9c0170",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Resolved by docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md Complete Line-Level Translation Manifest. The manifest has 762 rows matching the 762 Chinese-bearing packages/main/src/cli-engine.ts lines, with proposedEnglish populated for each row and no Chinese or fallback placeholders in proposedEnglish.",
+      "resolvedAt": "2026-06-13T13:42:47.816Z"
+    },
+    {
+      "id": "B-8448:F-002",
+      "desc": "Translation review packet is incomplete for approval. The document reports 762 Chinese-bearing cli-engine.ts lines and says implementation must not start until every line maps to an approved catalog row (docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:30, :89-91), but the Translation Review Table is only 173 rows and ends at T173 (same doc :167-169, :345). It omits later public CLI command descriptions/schema descriptions that still expose Chinese text, including draft_check_set/draft_issue_resolve (packages/main/src/cli-engine.ts:383, :392), delivery_waiver_add/scope_question_resolve (packages/main/src/cli-engine.ts:1671, :1710), and dispatch/background_set (packages/main/src/cli-engine.ts:1733, :1742). Since this story is meant to provide Chinese-source-to-English translation material for reviewer approval, later implementation would still need to invent unreviewed translations.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-13T13:26:02.189Z",
+      "reviewRound": "2026-06-13T13:23:10.700Z",
+      "reviewRunId": "B-8448:RR-004",
+      "_hash": "51beea4cc43a4c7ba0c42089f6f5947abd8e45385cf177d24cdbe8bedd05b594",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Resolved by adding the missing later CLI public surfaces to the Complete Line-Level Translation Manifest, including draft_check_set, draft_issue_resolve, delivery_waiver_add, scope_question_resolve, dispatch, background_set, help output, and INIT_CHECK hints. Mechanical validation confirms 762 source lines map to 762 manifest rows.",
+      "resolvedAt": "2026-06-13T13:42:48.503Z"
+    },
+    {
+      "id": "B-8448:F-003",
+      "desc": "quality-cleanup: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md line 75-83 specifies column order as line|surface|chineseSource|translationId|proposedEnglish|reviewStatus, but the actual TSV block at line 359 uses translationId|sourceLine|surface|chineseSource|proposedEnglish|reviewStatus — translationId and line swap positions, and the column is renamed from `line` to `sourceLine`. An implementer running the spec-prescribed extract script would need to reconcile which column order is authoritative before writing or validating the manifest.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T16:19:16.540Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-011",
+      "_hash": "abd98262b5b77eceb9853a09826b26fff576c714254e61e42a8175de253b0d32",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ],
+      "resolvedReason": "Fixed in commit 2c07f23e7 (spec-table order/sourceLine rename, cli-output enum, Argument-validation term).",
+      "resolvedAt": "2026-06-13T16:22:30.015Z"
+    },
+    {
+      "id": "B-8448:F-004",
+      "desc": "quality-cleanup: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md line 79 defines valid `surface` enum values as schema|command-description|help|error|hint|comment|other, but the TSV manifest (starting at line 359) uses `cli-output` as a surface value (28 rows: M671-M762 area) which is not in the defined enum. The values `error` and `hint` appear only in the T-table (not in the TSV). An implementer writing the extract script or validating manifest rows would encounter surface values not matching the documented enum.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T16:19:23.912Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-011",
+      "_hash": "9e73171d9eeeb2d699c6adadf2470f912d16dc1481684552e105eff79f168b41",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ],
+      "resolvedReason": "Fixed in commit 2c07f23e7 (spec-table order/sourceLine rename, cli-output enum, Argument-validation term).",
+      "resolvedAt": "2026-06-13T16:22:30.516Z"
+    },
+    {
+      "id": "B-8448:F-005",
+      "desc": "quality-cleanup: cli-engine-english-open-source-execution-plan.md has an internal translation inconsistency for the Chinese phrase for parameter validation failure: the Translation Review Table (T128, line 304) proposes \"Parameter validation failed\" while the line-level manifest rows M679/M680 (lines 1038-1039) for the same phrase propose \"Argument validation failed\". The T-table is described as the reusable catalog for common phrases and the manifest is the authoritative per-line packet; they should agree on the English rendering of the same term.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-13T16:19:37.483Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-011",
+      "_hash": "a3bca5296bf9ababe26bab58129359c4d0e0b964e7ae6421f15d1d4acd5af82f",
+      "files": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ],
+      "resolvedReason": "Fixed in commit 2c07f23e7 (spec-table order/sourceLine rename, cli-output enum, Argument-validation term).",
+      "resolvedAt": "2026-06-13T16:22:31.070Z"
+    }
+  ]
+}

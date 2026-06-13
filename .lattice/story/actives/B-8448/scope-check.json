@@ -1,0 +1,38 @@
+{
+  "storyId": "B-8448",
+  "checkedAt": "2026-06-13T13:19:05.155Z",
+  "features": [
+    {
+      "feature": "planned create path docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md covers reviewable cli-engine.ts English translation execution document",
+      "covered_by": "CHK-001 files.create names docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md; userSees requires the expected H1 and Translation Review Table; verificationIntent happy/edge covers English-only policy, staged migration plan, verification commands, reviewer workflow, and Chinese source to proposed English translation table.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "lattice checklist_get B-8448 CHK-001"
+    },
+    {
+      "feature": "source implementation changes to packages/main/src/cli-engine.ts are excluded in this story",
+      "covered_by": "n/a",
+      "status": "excluded",
+      "excluded_by": "CHK-001 context says not to change CLI source; files.modify is empty; excludes explicitly says not to modify packages/main/src/cli-engine.ts; adversarial verificationIntent checks that the documentation story does not modify cli-engine.ts.",
+      "source": "lattice checklist_get B-8448 CHK-001"
+    },
+    {
+      "feature": ".omx, docs/story, packages/main/tests/fixtures, and existing untracked lattice-codex command-boundary doc are excluded",
+      "covered_by": "n/a",
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes explicitly ban running/using .omx, direct docs/story or packages/main/tests/fixtures edits, and modifying docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md.",
+      "source": "lattice checklist_get B-8448 CHK-001"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 1,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "16bc68d37c125663a67ab6d1282ebba5f470fc6203771e1a6a61330cb5e3e0b6",
+  "openQuestions": []
+}

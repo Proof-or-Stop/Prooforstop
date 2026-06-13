@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-8448:RP-001",
+      "agent": "koala-review-quality",
+      "note": "Quality/readability review passed: the execution plan is concrete, table-driven, and enforceable through a required manifest plus no-new-Chinese smoke gate; no blocker found.",
+      "createdAt": "2026-06-13T13:25:23.119Z",
+      "reviewRound": "2026-06-13T13:23:10.700Z",
+      "reviewRunId": "B-8448:RR-002",
+      "_hash": "0d0d5bbfd5db90593f069c15cb26bbc646e0075a030762b0dc6d32e328d44d42"
+    },
+    {
+      "id": "B-8448:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Checklist evidence covers the documentation story: the new decision doc contains the English-only policy, execution phases, verification strategy, reviewer checklist, and a cli-engine.ts translation table with Chinese source and proposed English across schema/help/error/hint surfaces; branch diff/status show packages/main/src/cli-engine.ts, docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md, docs/story, and fixtures were not modified.",
+      "createdAt": "2026-06-13T13:25:31.328Z",
+      "reviewRound": "2026-06-13T13:23:10.700Z",
+      "reviewRunId": "B-8448:RR-003",
+      "_hash": "c56d35ae1d742e611b986367d8e1af1d89bd15405c46bfa37710099a9300e931"
+    },
+    {
+      "id": "B-8448:RP-003",
+      "agent": "koala-review-concept",
+      "note": "B-8448:F-001 is resolved: the document now includes a Complete Line-Level Translation Manifest with 762 rows matching all 762 Chinese-bearing packages/main/src/cli-engine.ts lines, with sourceLine/chineseSource/proposedEnglish/reviewStatus populated and no future-manifest deferral.",
+      "createdAt": "2026-06-13T13:44:36.083Z",
+      "reviewRound": "2026-06-13T13:42:07.766Z",
+      "reviewRunId": "B-8448:RR-005",
+      "_hash": "62d764afcc3a682fa3b5d5f6b9eb99a69df6fb28c1cea6f76945b7fcaf871c91"
+    },
+    {
+      "id": "B-8448:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality pass: the document remains navigable with policy, phased execution, verification, catalog, manifest, and reviewer checklist sections; the execution plan is concrete; the TSV manifest is parseable, line-numbered, explicitly review-draft, and covers all 762 Chinese-bearing cli-engine.ts lines without claiming approval.",
+      "createdAt": "2026-06-13T13:45:30.067Z",
+      "reviewRound": "2026-06-13T13:42:07.766Z",
+      "reviewRunId": "B-8448:RR-008",
+      "_hash": "342bd1f7c4f93662c6f9859964387aabd23081b6a6adb9da043b22a17e928333"
+    },
+    {
+      "id": "B-8448:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Docs re-review passed: F-002 examples are covered by complete manifest rows with proposed English, and the document distinguishes the reusable catalog from the line-level review-draft manifest without granting final approval.",
+      "createdAt": "2026-06-13T13:45:31.767Z",
+      "reviewRound": "2026-06-13T13:42:07.766Z",
+      "reviewRunId": "B-8448:RR-007",
+      "_hash": "9a0d501cf03c1a4f33d3469a476557f0cfd579b549fba6291c693f6cb22760db"
+    },
+    {
+      "id": "B-8448:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Independent coverage review passed: document opens with required title and contains Translation Review Table plus complete manifest; manifest has 762 unique sourceLine rows matching all 762 Chinese-bearing cli-engine.ts lines; proposedEnglish has no Chinese and no [review wording] placeholders; git diff/status show cli-engine.ts and the protected command-boundary document were not modified.",
+      "createdAt": "2026-06-13T13:45:39.921Z",
+      "reviewRound": "2026-06-13T13:42:07.766Z",
+      "reviewRunId": "B-8448:RR-006",
+      "_hash": "f49af5fa9f5252125c9b12461b1f195a762d28101e40785ffcb73fa156f20fed"
+    },
+    {
+      "id": "B-8448:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All three must-priority intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0) have manual_transcript evidence with result=pass. Evidence headHashes are stale relative to current HEAD (011428b) due to post-evidence commits, but re-running all three evidence commands against current HEAD confirms they still pass: document exists with all required sections; manifest has 762 rows matching 762 Chinese-bearing source lines, proposedEnglish is free of Chinese characters and placeholders; only .lattice metadata and the doc file changed since evidence was recorded, cli-engine.ts not modified.",
+      "createdAt": "2026-06-13T16:15:30.421Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-010",
+      "_hash": "664487748c55dc362afe5738c263a7e02299d4674bcf4cd49e6e673aa860d7ef"
+    },
+    {
+      "id": "B-8448:RP-008",
+      "agent": "koala-review-concept",
+      "note": "Docs-only story: the single deliverable is a new .md file (cli-engine-english-open-source-execution-plan.md) plus story metadata. Zero TypeScript/JS source files changed. No code symbols deleted or renamed, so no residue scan is needed. Script references in the doc (extract-cli-engine-english-manifest.mjs, verify-runtime-fact-contract.mjs, verify-entrypoints.mjs) are explicitly scoped to future implementation stories, not deliverables of B-8448. No concept deletion/replacement residue found; concept lane cleared.",
+      "createdAt": "2026-06-13T16:15:50.066Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-009",
+      "_hash": "b2391f7709664481d2d42bab3d8a5562c782f67f5ca9c5d3d70addc0247df1b2"
+    },
+    {
+      "id": "B-8448:RP-009",
+      "agent": "koala-review-docs",
+      "note": "Step 1 extracted 0 changed exported symbols (docs-only story); Step 2 compared the deliverable doc directly against cli-engine.ts. Checked: source Chinese-line count=762, manifest row count=762, sourceLine set diff=exact match, residual Chinese in proposedEnglish=0, empty proposedEnglish=0, duplicate sourceLines=0, duplicate translationIds=0. Translation quality sampled at 30 rows (every 25th row plus first 10 and last 8): all English renderings are grammatically correct, technically accurate, and free of machine-translation defects. Doc structure contains all required sections (Purpose, Non-Goals, Audit Snapshot, Execution Phases 0-4, Verification Strategy, Translation Review Table, Complete Line-Level Translation Manifest, Review Rules, Test Updates, Reviewer Checklist). No blocking or advisory issues found.",
+      "createdAt": "2026-06-13T16:15:59.880Z",
+      "reviewRound": "2026-06-13T16:13:45.164Z",
+      "reviewRunId": "B-8448:RR-012",
+      "_hash": "84a20c3dd42e03d79ca3a79d5131de6cbcd070f877af2c4b87bd40c5b8b5fa00"
+    },
+    {
+      "id": "B-8448:RP-010",
+      "agent": "koala-review-quality",
+      "note": "Round 4 quality pass. F-003 confirmed: spec table column order now matches TSV header exactly (translationId/sourceLine/surface/chineseSource/proposedEnglish/reviewStatus). F-004 confirmed: cli-output added to surface enum; 28 manifest rows use it and all pass. F-005 confirmed: T128/T129 now read Argument validation failed / Argument validation failed (summary), matching M679/M680; no Parameter validation failed remains. Manifest invariants verified: 762 data rows (M001-M762), TSV header order exact match to spec, 0 Chinese characters in proposedEnglish column, all surface values in manifest are valid enum members. No new regressions introduced by the fix commit.",
+      "createdAt": "2026-06-13T16:26:32.819Z",
+      "reviewRound": "2026-06-13T16:22:22.939Z",
+      "reviewRunId": "B-8448:RR-013",
+      "_hash": "968326f920674f03d93c9c0db8980e00e096096d6f30f273c1eb567649632d0b"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-8448",
+  "changes": "Created and expanded docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md. The document now contains the English-only policy, execution phases, reusable translation catalog, and a complete 762-row line-level translation manifest for every Chinese-bearing packages/main/src/cli-engine.ts line.",
+  "usage": "Open docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md and review the Complete Line-Level Translation Manifest. Approve, rewrite, or defer each review-draft row before starting a later implementation story that edits cli-engine.ts.",
+  "expectedOutcome": "User can audit every Chinese source line from cli-engine.ts with a proposed English translation in one review document.",
+  "actualTranscript": "Manifest validation reported sourceCount=762, manifestRows=762, badProposedEnglish=0, fallback=0, malformed=0. lattice validate --story=B-8448 --json reported status=pass and allPass=true.",
+  "outcomeDiff": "No difference: the document now includes the complete per-line review packet requested.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The translations are review-draft proposals, not final approved source edits. This story intentionally did not modify packages/main/src/cli-engine.ts.",
+  "pitfalls": "Initial REVIEW found that a 173-row catalog was not enough for the user review need. The fix was to add a parseable 762-row TSV manifest and mechanically check row count, no Chinese in proposedEnglish, and no fallback placeholders.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 52405
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10825
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 246376
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1160883
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 499071
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 56937
+    }
+  },
+  "totalDurationMs": 2026516,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-13T13:48:07.597Z",
+  "updatedAt": "2026-06-13T13:48:07.597Z"
+}
