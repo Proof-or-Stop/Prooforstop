@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Gate rules must be mechanically enforceable, not prompt-only.",
+    "Escalation should target risky stories without making ordinary clean stories pay the full review cost.",
+    "Host independence must be proven from durable identity, session, and key facts rather than display strings.",
+    "Decision-doc policy changes remain high-impact and always require 3x2."
+  ],
+  "drivers": [
+    "The user requested all development to automatically follow 3x2 when first REVIEW round finds two or more problems.",
+    "The B-2c0c audit found the existing decision-doc quorum independence proof is too weak.",
+    "Open-source contributors need a clear execution document before code changes."
+  ],
+  "options": [
+    {
+      "name": "A: Threshold-triggered escalation plus stronger shared host-independence predicate",
+      "pros": [
+        "Keeps normal one-round REVIEW for clean stories",
+        "Automatically escalates stories with first-round quality risk",
+        "Reuses and strengthens the existing decision-doc quorum model",
+        "Provides one shared independence predicate for future gates"
+      ],
+      "cons": [
+        "Requires new evaluator and artifact work in a later implementation story",
+        "Requires careful stale-material handling so verdicts cannot be reused after changes"
+      ]
+    },
+    {
+      "name": "B: Force every story through 3 rounds x 2 hosts",
+      "pros": [
+        "Simple policy statement",
+        "Maximizes independent review coverage"
+      ],
+      "cons": [
+        "High latency and cost for trivial stories",
+        "Likely to create review fatigue and rubber-stamp behavior",
+        "Does not directly fix the existing host independence spoof gap"
+      ]
+    },
+    {
+      "name": "C: Keep 3x2 only for decision docs",
+      "pros": [
+        "Smallest behavior change",
+        "Preserves current normal REVIEW speed"
+      ],
+      "cons": [
+        "Fails the user-requested rule for all development",
+        "Misses risky implementation stories whose first review round exposes multiple verified problems",
+        "Leaves no escalation artifact for non-doc stories"
+      ]
+    }
+  ],
+  "chosen": "A: Threshold-triggered escalation plus stronger shared host-independence predicate",
+  "rationale": "Choose threshold-triggered escalation because it satisfies the explicit all-development rule while keeping normal development usable. The implementation plan must first strengthen host independence, then add a reusable escalation evaluator and DONE gate consumption path.",
+  "preMortem": [
+    {
+      "scenario": "Escalation can be spoofed by changing hostId strings while the same host, session, or key submits all passes.",
+      "trigger": "The evaluator counts display hostId only and ignores sessionId or keyId.",
+      "consequence": "3x2 appears satisfied without independent review.",
+      "mitigation": "Persist hostId, provider, sessionId, keyId, and signed identity facts in host_verdict process events, then count independent host groups through one shared predicate."
+    },
+    {
+      "scenario": "Every story becomes slow because 3x2 is applied unconditionally.",
+      "trigger": "Implementation treats the policy as global always-on instead of first-round threshold-triggered.",
+      "consequence": "Review fatigue increases and ordinary fixes become expensive.",
+      "mitigation": "Default to normal REVIEW; trigger escalation only for decision-doc changes or first REVIEW round verified finding count >= 2, with optional critical finding policy explicitly documented."
+    },
+    {
+      "scenario": "A story fixes first-round findings and later reuses stale 3x2 verdicts after material changes.",
+      "trigger": "Host verdicts are not bound to final HEAD, material, and validation digest.",
+      "consequence": "DONE can pass with reviews over old material.",
+      "mitigation": "Bind every counted verdict to current material digest and validation digest; stale digest mismatch must fail closed."
+    },
+    {
+      "scenario": "The new rule is documented but not enforced in lifecycle gates.",
+      "trigger": "Only AGENTS, README, or prompt text changes are made.",
+      "consequence": "Agents may skip escalation and still enter DONE.",
+      "mitigation": "Add process fact registry entries, CLI status command, evaluator tests, and DONE gate failure reasons as mandatory implementation acceptance criteria."
+    }
+  ],
+  "timestamp": "2026-06-14T22:45:44.507Z"
+}

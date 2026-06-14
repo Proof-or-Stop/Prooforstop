@@ -16,7 +16,53 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees: Wrote docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md and verified it documents the >=2 first-round verified findings trigger, the always-on decision-doc 3x2 rule, true host/session/key independence, implementation touchpoints, tests, and rollout steps.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "plan-doc-complete",
+            "desc": "The execution plan exists in docs/requirements/decisions/ and clearly states the normal default REVIEW path plus automatic 3x2 escalation when the first REVIEW round records two or more verified findings.",
+            "type": "docs"
+          },
+          {
+            "id": "decision-doc-always-on",
+            "desc": "The plan preserves the existing always-on 3x2 DONE gate for direct decision-doc changes regardless of finding count.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "independence-proof",
+            "desc": "The plan identifies hostId-only counting as insufficient and requires durable host, provider, session, key, signature, and material binding for counted 3x2 verdicts.",
+            "type": "docs"
+          },
+          {
+            "id": "stale-material",
+            "desc": "The plan requires verdicts to become stale when final HEAD, material digest, or validation digest changes.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "spoof-negative-controls",
+            "desc": "The plan requires negative controls proving same-session, same-key, duplicate-host, stale-digest, FAIL, BLOCKED, suspected, and disproven evidence cannot satisfy 3x2.",
+            "type": "docs"
+          },
+          {
+            "id": "no-prompt-only-gate",
+            "desc": "The plan requires process fact registry and lifecycle gate enforcement, so AGENTS, prompt, or prose-only changes cannot count as implementation.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
