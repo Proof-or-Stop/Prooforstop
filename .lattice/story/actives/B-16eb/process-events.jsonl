@@ -1,0 +1,22 @@
+{"type":"dispatch","storyId":"B-16eb","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-06-14T18:28:36.855Z"}
+{"type":"dispatch","storyId":"B-16eb","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-14T18:28:38.478Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":11,"issueCount":17,"timestamp":"2026-06-14T18:31:19.802Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":5,"timestamp":"2026-06-14T18:35:22.446Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-14T18:36:07.534Z"}
+{"type":"dispatch","checklistId":"CHK-002","timestamp":"2026-06-14T18:36:34.288Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-14T18:38:13.080Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-14T18:38:22.634Z"}
+{"type":"dispatch","checklistId":"CHK-003","timestamp":"2026-06-14T18:38:43.987Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-e5fc491aceb1b54c","runId":"decision-doc-b16eb-round-1","hostId":"b16eb-r1-host-a","provider":"codex-local","decision":"blocked","materialDigest":"3b7d1e3e54bc59371243b8c379682e396aaca2f0dfefa8e45f339cf443a77c71","timestamp":"2026-06-14T18:40:43.397Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-433c3919136ffc39","runId":"decision-doc-b16eb-round-1","hostId":"b16eb-r1-host-b","provider":"codex-local","decision":"blocked","materialDigest":"09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588","timestamp":"2026-06-14T18:40:51.496Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-20dbeefc9d5e852e","runId":"decision-doc-b16eb-round-1","hostId":"b16eb-r1-host-c","provider":"codex-local","decision":"pass","materialDigest":"09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588","timestamp":"2026-06-14T18:42:36.150Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-061b36fe238a4dd3","runId":"decision-doc-b16eb-round-1","hostId":"b16eb-r1-host-d","provider":"codex-local","decision":"pass","materialDigest":"09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588","timestamp":"2026-06-14T18:43:05.243Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-a60c0b23de5e1783","runId":"decision-doc-b16eb-round-2","hostId":"b16eb-r2-host-a","provider":"codex-local","decision":"pass","materialDigest":"09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588","timestamp":"2026-06-14T18:44:22.207Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-5dfd9f4544c63176","runId":"decision-doc-b16eb-round-2","hostId":"b16eb-r2-host-b","provider":"codex-local","decision":"pass","materialDigest":"09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588","timestamp":"2026-06-14T18:44:33.355Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-f34fe879839df093","runId":"decision-doc-b16eb-round-3","hostId":"b16eb-r3-host-b","provider":"codex-local","decision":"pass","materialDigest":"09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588","timestamp":"2026-06-14T18:44:52.339Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-6bef402be8d3addb","runId":"decision-doc-b16eb-round-3","hostId":"b16eb-r3-host-a","provider":"codex-local","decision":"pass","materialDigest":"09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588","timestamp":"2026-06-14T18:44:53.378Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-14T18:46:02.187Z"}
+{"type":"review_pass","storyId":"B-16eb","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-16eb:RP-001","timestamp":"2026-06-14T18:48:09.422Z"}
+{"type":"review_pass","storyId":"B-16eb","command":"review_pass_set","role":"reviewer","agent":"koala-review-docs","result":"pass","reviewPassId":"B-16eb:RP-002","timestamp":"2026-06-14T18:48:24.319Z"}
+{"type":"review_pass","storyId":"B-16eb","command":"review_pass_set","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","reviewPassId":"B-16eb:RP-003","timestamp":"2026-06-14T18:48:34.409Z"}
+{"type":"review_pass","storyId":"B-16eb","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-16eb:RP-004","timestamp":"2026-06-14T18:48:51.343Z"}

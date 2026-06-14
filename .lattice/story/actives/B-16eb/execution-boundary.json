@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-16eb",
+  "allowedCommands": [
+    "git add*",
+    "git apply*",
+    "git commit*",
+    "git diff*",
+    "git stash*",
+    "git status*",
+    "lattice *",
+    "nl *",
+    "rg *",
+    "sed *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/*",
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push*",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Documentation audit only; no code implementation or destructive git operations.",
+  "createdAt": "2026-06-14T18:28:14.542Z",
+  "updatedAt": "2026-06-14T18:28:14.542Z",
+  "_hash": "eb18da4b596ee495b91a28945c5599bd245c2ee5576b93c0afaff23dfea60bb1"
+}

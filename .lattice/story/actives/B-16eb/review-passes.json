@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-16eb:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: docs/requirements/decisions/decision-doc-promotion-execution-plan.md defines a detailed future execution plan, stays documentation-only for this story, coherently covers scope anti-expansion, digest freshness, verificationRequirements, and Authority boundary, and decision_doc_quorum_check plus local host_verdict rows confirm real 3x2 local quorum evidence.",
+      "createdAt": "2026-06-14T18:48:09.421Z",
+      "reviewRound": "2026-06-14T18:46:16.427Z",
+      "reviewRunId": "B-16eb:RR-001",
+      "_hash": "832267abc6fc6a4b9803fbf2a32b59f28630de215d1f31dd44a2f1fe38169804"
+    },
+    {
+      "id": "B-16eb:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Reviewed docs/requirements/decisions/decision-doc-promotion-execution-plan.md, docs/requirements/NAV.md, truth-source, lifecycle gate, and Authority boundary docs. No blocker: canonical decision-doc path, NAV link, future-only implementation wording, local quorum vs Authority boundary, and AGENTS workflow are consistent.",
+      "createdAt": "2026-06-14T18:48:24.319Z",
+      "reviewRound": "2026-06-14T18:46:16.427Z",
+      "reviewRunId": "B-16eb:RR-003",
+      "_hash": "996b22a99701a3e74b66b76ace5f4bb8cd00224d1c0129be304a625cf12ae216"
+    },
+    {
+      "id": "B-16eb:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: checklist has happy/edge/adversarial intents with matching evidence for all three items; decision_doc_quorum_check evidence covers missing-evidence fail-closed behavior, final 3-round/2-host quorum, and ignored prose/blocked/mismatched verdicts; evidence_inspect confirms current material-hash freshness and no Authority/productionDone completion claim; docs-only validation plan is sufficient for the document-only material change.",
+      "createdAt": "2026-06-14T18:48:34.409Z",
+      "reviewRound": "2026-06-14T18:46:16.427Z",
+      "reviewRunId": "B-16eb:RR-002",
+      "_hash": "4eb4fbfa4f6ae1591b0a7d3f795629fc2c40c19a425bfa7f4a8ebe9330cd4c6b"
+    },
+    {
+      "id": "B-16eb:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: changed material files are limited to NAV plus the decision-doc promotion plan; the plan has clear future implementation phases, explicit non-goal/stop boundaries, Authority/local-quorum separation, and no source-code scope expansion or hidden obligations outside future scoped stories.",
+      "createdAt": "2026-06-14T18:48:51.342Z",
+      "reviewRound": "2026-06-14T18:46:16.427Z",
+      "reviewRunId": "B-16eb:RR-004",
+      "_hash": "ab0ddf574d77e1a57e31c07875e109b02df23253a9d203b2e1dadbfca7811e24"
+    }
+  ]
+}

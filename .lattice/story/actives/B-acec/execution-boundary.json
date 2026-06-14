@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-acec",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "node scripts/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/*",
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+    "docs/requirements/NAV.md",
+    "packages/main/package.json",
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "scripts/**"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "omx*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/tests/fixtures/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation may edit CLI source/tests/scripts and the existing execution doc; story/fixture files must only be touched through Lattice commands.",
+  "createdAt": "2026-06-14T19:45:26.379Z",
+  "updatedAt": "2026-06-14T19:45:26.379Z",
+  "_hash": "0615ee0666b93ddc5506068ead8d69b8f4691f06dad71bca6083710b49114abb"
+}

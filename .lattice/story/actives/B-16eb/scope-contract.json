@@ -1,0 +1,22 @@
+{
+  "storyId": "B-16eb",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/NAV.md",
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "docs/requirements/decisions/authority-*.md"
+  ],
+  "scopeChangeReason": "Initialize enforce scope contract from PLAN file declarations for the B-16eb documentation-only decision-doc audit.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-14T18:37:43.477Z",
+  "updatedAt": "2026-06-14T18:37:43.477Z"
+}

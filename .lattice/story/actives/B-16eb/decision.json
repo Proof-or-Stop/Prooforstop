@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Keep the work documentation-only and do not implement future CLI commands in this story.",
+    "Use Lattice hard gates and structured host_verdict evidence rather than prose-only review claims.",
+    "Preserve scope, evidence freshness, and Authority boundary semantics in the execution plan."
+  ],
+  "drivers": [
+    "The user asked for real 3 round 2 host validation of the document.",
+    "The document changes a decision-doc path and therefore should exercise the decision-doc quorum gate.",
+    "The plan will guide future implementation of durable decision-doc promotion."
+  ],
+  "options": [
+    {
+      "name": "A: Dedicated documentation audit story with 3x2 quorum",
+      "pros": [
+        "Keeps B-a57f isolated",
+        "Lets Lattice gates consume the actual changed decision doc",
+        "Provides structured evidence for the user question"
+      ],
+      "cons": [
+        "Adds lifecycle overhead for a document-only change"
+      ]
+    },
+    {
+      "name": "B: Single-host audit on main",
+      "pros": [
+        "Faster and already partially done"
+      ],
+      "cons": [
+        "Does not answer the user 3x2 question",
+        "Would bypass the decision-doc quorum mechanism"
+      ]
+    },
+    {
+      "name": "C: Implement decision_doc_proposal now",
+      "pros": [
+        "Would directly build the future capability"
+      ],
+      "cons": [
+        "Expands scope beyond the current request",
+        "Raises higher implementation and regression risk"
+      ]
+    }
+  ],
+  "chosen": "A: Dedicated documentation audit story with 3x2 quorum",
+  "rationale": "Choose a dedicated documentation audit story because the user specifically asked for Lattice 3 round 2 host validation, while implementation of future commands is explicitly out of scope.",
+  "preMortem": [
+    {
+      "scenario": "The audit story silently expands into implementing decision_doc_proposal or decision_doc_save.",
+      "trigger": "Reviewer or agent treats the execution plan as authorization to code the commands now.",
+      "consequence": "Scope expansion contaminates a document audit and risks unrelated CLI behavior changes.",
+      "mitigation": "Keep scope boundary and checklist limited to docs plus quorum evidence; any implementation becomes a separate story."
+    },
+    {
+      "scenario": "The document is reviewed by prose only and still lacks real 3x2 host_verdict evidence.",
+      "trigger": "Reviewers write pass notes but no structured host_verdict rounds are recorded.",
+      "consequence": "The user question remains unanswered and DONE gate should block the changed decision doc.",
+      "mitigation": "Record three distinct autopilot_review_submit rounds with two distinct hosts each and verify decision_doc_quorum_check."
+    },
+    {
+      "scenario": "The document overclaims local quorum as Authority or production completion.",
+      "trigger": "Wording around host verdicts uses Authority or productionDone language loosely.",
+      "consequence": "Future implementers may confuse local workflow evidence with receipt-backed Authority completion.",
+      "mitigation": "Review and grep for Authority boundary language; require explicit no productionDone/no Authority receipt completion wording."
+    }
+  ],
+  "timestamp": "2026-06-14T18:31:11.899Z"
+}

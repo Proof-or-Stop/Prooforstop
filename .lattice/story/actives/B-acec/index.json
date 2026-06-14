@@ -1,0 +1,44 @@
+{
+  "storyId": "B-acec",
+  "name": "implement-decision-doc-promotion",
+  "title": "Implement decision document promotion commands",
+  "description": "Implement the first version of the controlled decision-doc promotion workflow described by B-16eb: create story-local decision_doc_proposal artifacts, render read-only previews, and save accepted proposals into docs/requirements/decisions/*.md with scope and freshness checks. This story should turn the execution plan into local Lattice CLI behavior without changing Authority receipt semantics or productionDone semantics.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user-approved follow-up after B-16eb",
+  "keywords": [
+    "decision-doc-promotion",
+    "decision_doc_proposal",
+    "decision_doc_save",
+    "decision_doc_preview",
+    "scope-freshness",
+    "process-fact"
+  ],
+  "createdAt": "2026-06-14T19:45:26.379Z",
+  "startedAt": "2026-06-14T19:45:26.379Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-14T19:45:26.393Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-14T19:47:27.734Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-acec",
+    "branch": "story/B-acec",
+    "createdAt": "2026-06-14T19:47:27.841Z"
+  }
+}

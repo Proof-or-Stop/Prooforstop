@@ -1,0 +1,56 @@
+{
+  "storyId": "B-16eb",
+  "changes": "Added docs/requirements/decisions/decision-doc-promotion-execution-plan.md as the durable execution plan for future decision-doc promotion, and updated docs/requirements/NAV.md so the new decision doc is discoverable. Recorded Lattice PLAN, REVIEW, TEST, and 3 round x 2 host quorum evidence for the document.",
+  "usage": "Future implementation stories can use this plan as the contract for adding decision_doc_proposal, decision_doc_preview, and decision_doc_save. For this completed story, run lattice decision_doc_quorum_check --storyId=B-16eb --json to inspect the local decision-doc quorum evidence.",
+  "expectedOutcome": "B-16eb completes with the decision-doc promotion execution plan in docs/requirements/decisions, NAV linked, decision_doc_quorum_check ok:true, and validate covering all verification intents.",
+  "actualTranscript": "lattice decision_doc_quorum_check --storyId=B-16eb --json returned ok:true with three valid rounds and two passing hosts per round. lattice validate --story=B-16eb passed npm test fallback and reported verification intent coverage 9/9 covered.",
+  "outcomeDiff": "No user-visible acceptance gap. Operationally, REVIEW->TEST lint first failed until npm --prefix packages/main run build refreshed ignored packages/main/dist output in the worktree; after that lint and validation passed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story is documentation and Lattice evidence only. It does not implement decision_doc_proposal, decision_doc_preview, decision_doc_save, configurable path policy, Authority receipt semantics, or productionDone semantics.",
+  "pitfalls": "Two early host verdicts were blocked because those hosts confused single-file sha256 with the canonical decision_doc_quorum_check materialDigest. The blocked rows stayed recorded and were ignored by the quorum checker; corrected hosts used the CLI digest and passed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 95541
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 8421
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 333352
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 644560
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 266908
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 78197
+    }
+  },
+  "totalDurationMs": 1426990,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-14T18:52:01.532Z",
+  "updatedAt": "2026-06-14T18:52:01.532Z"
+}

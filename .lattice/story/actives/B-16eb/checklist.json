@@ -1,0 +1,277 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Move the execution plan into a dedicated Lattice story worktree",
+      "context": "Apply the already drafted decision-doc promotion execution plan and NAV update inside the story worktree so review and DONE gates operate on the actual changed files.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "The document changes are tracked by a dedicated Lattice story rather than an ad hoc main edit.",
+      "status": "done",
+      "startTime": "2026-06-14T18:36:07.534Z",
+      "endTime": "2026-06-14T18:38:12.946Z",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The drafted execution plan and NAV entry exist in the B-16eb story worktree and are tracked as story-scoped changes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Only the allowed document files and Lattice story metadata are changed; no implementation files are pulled into this doc-audit story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan changes are not accepted as an ad hoc main edit or unstaged historical patch; they must pass this story worktree lifecycle.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "command": "test -f docs/requirements/decisions/decision-doc-promotion-execution-plan.md && rg -n \"Decision Doc Promotion Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The decision document exists in the B-16eb worktree and NAV links it at docs/requirements/NAV.md:15.",
+          "headHash": "e502ae7670190db0fd2bef6fa80c5e12180a1c96",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:13.012Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git show --name-only --format=%H%n%s 38439074b50be1da5c3a4541a57bb819fe4d2490 && git diff --check HEAD~1 HEAD",
+          "result": "pass",
+          "note": "Material commit 38439074 changed only docs/requirements/NAV.md and docs/requirements/decisions/decision-doc-promotion-execution-plan.md, and whitespace check passed.",
+          "headHash": "e502ae7670190db0fd2bef6fa80c5e12180a1c96",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:13.046Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git branch --show-current && git log -1 --oneline",
+          "result": "pass",
+          "note": "The work is on local story branch story/B-16eb and committed through the Lattice story lifecycle, not kept as an ad hoc main edit.",
+          "headHash": "e502ae7670190db0fd2bef6fa80c5e12180a1c96",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:13.080Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Audit the plan for scope, freshness, and Authority boundaries",
+      "context": "Ensure the plan forbids DEV-time scope expansion, requires proposal/source-decision freshness, and keeps local quorum separate from Authority/production completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "userSees": "The execution plan explicitly protects scope and Authority boundaries.",
+      "status": "done",
+      "startTime": "2026-06-14T18:36:34.288Z",
+      "endTime": "2026-06-14T18:38:22.508Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution plan explicitly covers DEV-time scope boundaries, proposal/source decision digest freshness, and local Authority boundary language.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV and path references remain consistent with docs/requirements/decisions/decision-doc-promotion-execution-plan.md.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not sneak in implementation of decision_doc_proposal, decision_doc_save, configurable paths, Authority semantics, or productionDone semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "command": "rg -n \"sourceDecisionDigest|materialDigest|verificationRequirements|Authority receipt|productionDone\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "The plan includes proposal/source digest freshness fields, verificationRequirements, and explicit local quorum vs Authority/productionDone boundary language.",
+          "headHash": "2c53d49115e933d464afd03f82541c6c79a55379",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:22.556Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n \"Decision Doc Promotion Execution Plan|decision-doc-promotion-execution-plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV points to docs/requirements/decisions/decision-doc-promotion-execution-plan.md with the expected title.",
+          "headHash": "2c53d49115e933d464afd03f82541c6c79a55379",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:22.600Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "rg -n \"scope extension|does not set `authorityDone`|does not set `fullAuthorityDone`|does not set `productionDone`|This execution plan is documentation-only|It does not authorize source-code implementation scope\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly states DEV-time target paths require PLAN scope or accepted scope extension, keeps Authority/productionDone claims out, and declares the current execution plan documentation-only.",
+          "headHash": "2c53d49115e933d464afd03f82541c6c79a55379",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:22.633Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run 3 round 2 host review evidence for the decision doc",
+      "context": "Because the story changes docs/requirements/decisions/*.md, record local host_verdict evidence for three distinct rounds and two distinct hosts per round, then verify the decision_doc_quorum_check diagnostic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "userSees": "The decision-doc quorum diagnostic reports pass for this story.",
+      "status": "done",
+      "startTime": "2026-06-14T18:38:43.987Z",
+      "endTime": "2026-06-14T18:46:02.028Z",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_doc_quorum_check reports pass for B-16eb after three rounds with two distinct hosts per round record fresh host_verdict evidence for the current decision-doc digest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The diagnostic rejects stale, duplicate-host, prose-only, or insufficient-round evidence instead of silently passing the doc change.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE cannot rely on the author narrative alone; it must consume structured fresh host_verdict evidence for this decision document.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice decision_doc_quorum_check --storyId=B-16eb --json",
+          "result": "pass",
+          "note": "Final quorum check returned ok:true for materialDigest 09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588 with three valid rounds: round-1 hosts C/D, round-2 hosts A/B, and round-3 hosts A/B.",
+          "headHash": "73fdde5d40d228e08954eaa55d3cdea9400632cc",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:46:02.105Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice decision_doc_quorum_check --storyId=B-16eb --json before and after host verdict submission",
+          "result": "pass",
+          "note": "Pre-check before verdict submission reported ok:false with validRounds=0; final output also ignored earlier blocked/mismatched verdicts, proving insufficient and non-pass evidence does not silently pass.",
+          "headHash": "73fdde5d40d228e08954eaa55d3cdea9400632cc",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:46:02.147Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "tail -n 12 .lattice/story/actives/B-16eb/process-events.jsonl && lattice decision_doc_quorum_check --storyId=B-16eb --json",
+          "result": "pass",
+          "note": "Process events contain structured host_verdict rows with runId, hostId, decision, and materialDigest; dispatch/subagent prose events and blocked verdicts were ignored by the quorum checker.",
+          "headHash": "73fdde5d40d228e08954eaa55d3cdea9400632cc",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:46:02.186Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-14T18:38:12.946Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Document material commit and scope contract exist for the dedicated story worktree."
+    },
+    {
+      "timestamp": "2026-06-14T18:38:22.508Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Content audit confirms the execution plan protects scope, freshness, and Authority boundaries without implementing future CLI behavior."
+    },
+    {
+      "timestamp": "2026-06-14T18:38:43.987Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start recording real 3 round 2 host decision-doc quorum evidence."
+    },
+    {
+      "timestamp": "2026-06-14T18:46:02.028Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Three rounds with two passing hosts per round were recorded and verified by decision_doc_quorum_check."
+    }
+  ]
+}
