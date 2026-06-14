@@ -101,7 +101,43 @@
       "userSees": "`lattice help` lists decision_doc_proposal, decision_doc_preview, and decision_doc_save with correct policy behavior.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice help exposes decision_doc_proposal, decision_doc_preview, and decision_doc_save, and each command routes to the registered handler with expected aliases and schemas.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "COMMAND_POLICIES phase/ownership/destructiveRisk settings match the execution plan: proposal PLAN/DEV story-scoped metadata, preview read-only all phases, save DEV story-scoped gateEvidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Process fact registry and verification script assert proposal/save L4 semantics and explicit non-Authority/non-productionDone boundary text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
