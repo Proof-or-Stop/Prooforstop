@@ -22,6 +22,23 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:94",
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:266"
       ]
+    },
+    {
+      "id": "B-acec:F-002",
+      "desc": "CHK-001 adversarial / CHK-004 adversarial require preview to be read-only for story metadata, process events, and project docs, but the smoke only snapshots decision-doc-proposals.json and the target doc around decision_doc_preview. It does not snapshot process-events.jsonl or store.readProcessEvents before/after preview, so a regression that appends a decision_doc_preview process event would still pass. Evidence: packages/main/src/tasks/decision-doc-promotion-smoke.ts:226-233 checks proposal metadata and target absence only; handler path under review is packages/main/src/handlers/decision-doc-promotion.ts:410-423.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T21:44:10.832Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-005",
+      "_hash": "c5dfeb7b4f6b6cb7c9bdec2bcc050210f774aaa95829ddc114b0832729da55fb",
+      "files": [
+        "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+        "packages/main/src/handlers/decision-doc-promotion.ts"
+      ]
     }
   ]
 }
