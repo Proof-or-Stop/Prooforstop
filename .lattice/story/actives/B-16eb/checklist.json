@@ -89,9 +89,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
       "userSees": "The execution plan explicitly protects scope and Authority boundaries.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-14T18:36:34.288Z",
-      "endTime": null,
+      "endTime": "2026-06-14T18:38:22.508Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
@@ -121,7 +121,44 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "command": "rg -n \"sourceDecisionDigest|materialDigest|verificationRequirements|Authority receipt|productionDone\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "The plan includes proposal/source digest freshness fields, verificationRequirements, and explicit local quorum vs Authority/productionDone boundary language.",
+          "headHash": "2c53d49115e933d464afd03f82541c6c79a55379",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:22.556Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n \"Decision Doc Promotion Execution Plan|decision-doc-promotion-execution-plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV points to docs/requirements/decisions/decision-doc-promotion-execution-plan.md with the expected title.",
+          "headHash": "2c53d49115e933d464afd03f82541c6c79a55379",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:22.600Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "rg -n \"scope extension|does not set `authorityDone`|does not set `fullAuthorityDone`|does not set `productionDone`|This execution plan is documentation-only|It does not authorize source-code implementation scope\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly states DEV-time target paths require PLAN scope or accepted scope extension, keeps Authority/productionDone claims out, and declares the current execution plan documentation-only.",
+          "headHash": "2c53d49115e933d464afd03f82541c6c79a55379",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:22.633Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -173,6 +210,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Document material commit and scope contract exist for the dedicated story worktree."
+    },
+    {
+      "timestamp": "2026-06-14T18:38:22.508Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Content audit confirms the execution plan protects scope, freshness, and Authority boundaries without implementing future CLI behavior."
     }
   ]
 }
