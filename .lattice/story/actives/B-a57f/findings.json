@@ -23,7 +23,7 @@
       "desc": "CHK-003:edge:0 (must): verifier uses ok(ref, true, ...) hardcoded pass — the intent requires verifying Phase-2 changes were comment-only (no logic lines changed), but Phase 1 and Phase 2 were squashed into one commit (ad6212a65) leaving no Phase-1 baseline to diff against. The note claims build + behavior-sensitive integrity cover it, but those proxies do not prove comment-only scope. Evidence should be a waiver with explicit explanation of the Phase-1/2 squash, or an alternative mechanical check showing no non-comment/non-describe-string lines changed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-14T21:19:35.754Z",
@@ -33,7 +33,9 @@
       "files": [
         "packages/main/src/cli-engine.ts",
         ".lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs"
-      ]
+      ],
+      "resolvedReason": "Replaced the hollow ok(CHK-003:edge:0,true) with a code-skeleton equality check: cli-engine.ts vs main with comments stripped + string content blanked (template-expr code preserved) are byte-identical (117892 chars) => only string/comment content changed, no logic, despite the Phase 1+2 squash. Commit dfaddf39e + the syntax fix; verifier 65/65.",
+      "resolvedAt": "2026-06-14T21:40:20.177Z"
     }
   ]
 }
