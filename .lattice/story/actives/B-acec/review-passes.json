@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-14T21:39:21.758Z",
       "reviewRunId": "B-acec:RR-002",
       "_hash": "46377819ec31e3fff6159f9b2a5b3727ca5f190f583ec86ed6c300913bc7c8a7"
+    },
+    {
+      "id": "B-acec:RP-003",
+      "agent": "koala-review-concept",
+      "note": "PASS: F-001 runtime backdoor is closed. decision_doc_save no longer reads checklist/files and authorizes only scope contract allowedCreate/allowedModify or accepted/approved scope extension; smoke test blocks checklist-only target and process fact contract passes. Concept boundary remains no automatic save, no custom/nested target path support, and no Authority/production completion claims. Non-blocking F-004 records stale requirements wording that still mentions checklist/file declarations.",
+      "createdAt": "2026-06-14T22:13:44.603Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-006",
+      "_hash": "bba2196fde5bab02b0f194ddb7ed31992cd91e62a840707b9b885494e8f466bc"
     }
   ]
 }
