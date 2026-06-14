@@ -69,7 +69,7 @@
       "desc": "Runtime F-001 is fixed, but the durable requirements plan still describes checklist/file declarations as a valid decision_doc_save authorization source. docs/requirements/decisions/decision-doc-promotion-execution-plan.md lines 266-268 say the save target may be covered by scope contract, allowed file declarations, or an accepted scope extension, and lines 397-399 say PLAN scope, checklist file declarations, or accepted scope extension. The handler now correctly has no checklist fallback and authorizes only scope-contract allowedCreate/allowedModify or accepted/approved scope extension, so the doc should be updated to avoid re-teaching the DEV scope backdoor.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-14T22:13:29.243Z",
@@ -81,7 +81,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:398",
         "packages/main/src/handlers/decision-doc-promotion.ts:301",
         "packages/main/src/handlers/decision-doc-promotion.ts:306"
-      ]
+      ],
+      "resolvedReason": "Docs updated to remove the checklist/file-declaration authorization fallback. decision_doc_save is now documented as authorized only by story scope contract allowedCreate/allowedModify or an accepted/approved scope extension, matching the runtime gate.",
+      "resolvedAt": "2026-06-14T22:25:01.421Z"
     }
   ]
 }
