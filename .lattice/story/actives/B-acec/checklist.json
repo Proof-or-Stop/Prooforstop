@@ -51,9 +51,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "decision-doc-promotion smoke passed 8 checks, including proposal creation DDP-001, story-local proposal metadata, deterministic preview Markdown, and no target doc before save.",
-          "headHash": "bec60dfb45724e3331b55d31dfb97c2114d4722c",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:57:49.359Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Smoke invalid payload check rejects bad slug, missing verificationRequirements, invalid alternatives, and custom nested target path before proposal metadata count changes.",
-          "headHash": "bec60dfb45724e3331b55d31dfb97c2114d4722c",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:57:49.399Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Smoke snapshots decision-doc-proposals.json, raw process-events.jsonl, and store.readProcessEvents before preview, then confirms all are unchanged and no docs/requirements/decisions target is written.",
-          "headHash": "bec60dfb45724e3331b55d31dfb97c2114d4722c",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:57:49.429Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         }
       ]
     },
@@ -128,9 +128,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Smoke save(create) writes exactly docs/requirements/decisions/promotion-smoke.md for a scope-contract-authorized fresh proposal, marks proposal status saved, records save metadata, and stores decision_doc_save process event.",
-          "headHash": "9b051d3eccbd2bd91fb11d055eda104c7194eccd",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:57:56.621Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,9 +138,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Smoke verifies existing target with mode=create reports target already exists, missing target with mode=update reports target does not exist, and neither path writes the missing-update target.",
-          "headHash": "9b051d3eccbd2bd91fb11d055eda104c7194eccd",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:57:56.649Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,9 +148,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Smoke verifies checklist-only files.create cannot authorize decision_doc_save without scope-contract allowedCreate, accepted scope extension still authorizes a target outside the contract, and stale proposal/source digests fail closed before writes.",
-          "headHash": "9b051d3eccbd2bd91fb11d055eda104c7194eccd",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:57:56.677Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         }
       ]
     },
@@ -209,9 +209,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Smoke check command-specific help exposes decision_doc_proposal, decision_doc_preview, and decision_doc_save schemas and aliases via per-command --help, avoiding active-phase filtering in global help.",
-          "headHash": "c4dd49df8ed0d5d561a8f0aa522527149de0f410",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:58:05.500Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -219,9 +219,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verified command policy phase/ownership/destructiveRisk alignment: proposal PLAN/DEV storyScopedMutating metadata-write, preview readOnly all phases none, save DEV storyScopedMutating gateEvidence metadata-write.",
-          "headHash": "c4dd49df8ed0d5d561a8f0aa522527149de0f410",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:58:05.532Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -229,9 +229,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verified proposal/save L4 process fact registration, decision-doc-proposals.json and process-events.jsonl artifact registration, and explicit non-Authority/non-productionDone handler contract tokens.",
-          "headHash": "c4dd49df8ed0d5d561a8f0aa522527149de0f410",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:58:05.564Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         }
       ]
     },
@@ -288,9 +288,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Focused smoke creates a temp project, verifies command-specific help, seeds decision.json, creates proposal, previews Markdown, saves canonical doc, and confirms saved Markdown is included in preview output.",
-          "headHash": "b091cd3a7cab7d3c44ea20e2330ae6778c2c6f83",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:58:12.553Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -298,9 +298,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Focused smoke covers stale source/proposal digest, missing verificationRequirements, invalid alternatives, mode mismatch, overwrite guards, and accepted scope-extension authorization.",
-          "headHash": "b091cd3a7cab7d3c44ea20e2330ae6778c2c6f83",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:58:12.588Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -308,9 +308,9 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke && npm --prefix packages/main run test:scope-contract-smoke && npm --prefix packages/main run test:scope-contract-plan-scope-smoke",
           "result": "pass",
           "note": "Focused smoke proves checklist-only scope backdoor and non-canonical target path are blocked, preview has no proposal/process-event/doc write side effects, and scope-contract regressions still pass.",
-          "headHash": "b091cd3a7cab7d3c44ea20e2330ae6778c2c6f83",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:58:12.619Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         }
       ]
     },
@@ -364,9 +364,9 @@
           "command": "git diff --quiet -- docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md; echo docs_diff_exit:$?",
           "result": "pass",
           "note": "docs_diff_exit:0 confirmed no doc update was needed: B-16eb execution doc and NAV already matched the shipped first-version CLI contract.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -374,9 +374,9 @@
           "command": "git diff --quiet -- docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md; echo docs_diff_exit:$?",
           "result": "pass",
           "note": "Existing B-16eb document already describes proposal, preview, save, canonical docs/requirements/decisions/<slug>.md target, scope/freshness guards, and local-only Authority boundary; no implementation drift required doc edits.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -384,9 +384,9 @@
           "command": "rg -n \"Authority|authorityDone|fullAuthorityDone|productionDone|customerKeyRef|Layer4|custom|automatic\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md",
           "result": "pass",
           "note": "Search hits in the execution doc are boundary/non-goal statements: no automatic promotion, no custom paths in first version, no Authority receipt completion, no authorityDone/fullAuthorityDone/productionDone claims.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
-          "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "headHash": "13553d17650a7e8dca08fd28a2b64c0e6c1bb706",
+          "materialHash": "e30fdcc3c128865d99ff923a17a64115d83f2d63f45e413caa186d8597cdd7d9",
+          "timestamp": "2026-06-14T22:02:24.009Z"
         }
       ]
     }
