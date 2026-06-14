@@ -14,7 +14,7 @@
         "packages/main/src/core/machine.ts",
         "packages/main/src/core/process-fact-registry.ts"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-14T22:54:01.815Z",
       "endTime": "2026-06-14T23:04:48.965Z",
       "userSees": "User sees: Wrote docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md and verified it documents the >=2 first-round verified findings trigger, the always-on decision-doc 3x2 rule, true host/session/key independence, implementation touchpoints, tests, and rollout steps.",
@@ -283,6 +283,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Addressed REVIEW findings with document fixes and refreshed docs_check evidence."
+    },
+    {
+      "timestamp": "2026-06-14T23:12:33.977Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen CHK-001 to fix REVIEW finding B-1550:F-004 by strengthening coverage evidence commands."
     }
   ]
 }
