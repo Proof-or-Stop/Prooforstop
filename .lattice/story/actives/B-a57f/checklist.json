@@ -55,7 +55,16 @@
       "context": "Add english-open-source-surface-smoke that fails when new Chinese appears in active source and active docs, with explicit allowlists for: this review document, generated translation manifests, legacy/archive docs, and migration-compatibility tests that still assert old output. Wire it into the verify/test surface.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
