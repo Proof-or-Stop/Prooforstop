@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-14T21:39:21.758Z",
       "reviewRunId": "B-acec:RR-003",
       "_hash": "eb30e9aee104136eec0c10a90c210ae0b02c864b8824f1321f12bb3ad00d9591"
+    },
+    {
+      "id": "B-acec:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review PASS. Reviewed decision-doc promotion handler, CLI/policy/registry/store/type wiring, lifecycle/process-fact registry entries, and focused smoke coverage. Path traversal is blocked by slug and canonical target checks; preview is read-only at handler and policy level; save requires confirm/mode/scope/fresh source/proposal digests and records local-only process events with explicit non-Authority boundary. Verified build, process fact contract, decision-doc-promotion smoke, and scope-contract regressions.",
+      "createdAt": "2026-06-14T21:46:14.593Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-002",
+      "_hash": "46377819ec31e3fff6159f9b2a5b3727ca5f190f583ec86ed6c300913bc7c8a7"
     }
   ]
 }
