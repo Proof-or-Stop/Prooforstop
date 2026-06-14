@@ -168,9 +168,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
       "userSees": "The decision-doc quorum diagnostic reports pass for this story.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-14T18:38:43.987Z",
-      "endTime": null,
+      "endTime": "2026-06-14T18:46:02.028Z",
       "files": {
         "modify": [],
         "create": [],
@@ -198,7 +198,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice decision_doc_quorum_check --storyId=B-16eb --json",
+          "result": "pass",
+          "note": "Final quorum check returned ok:true for materialDigest 09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588 with three valid rounds: round-1 hosts C/D, round-2 hosts A/B, and round-3 hosts A/B.",
+          "headHash": "73fdde5d40d228e08954eaa55d3cdea9400632cc",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:46:02.105Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice decision_doc_quorum_check --storyId=B-16eb --json before and after host verdict submission",
+          "result": "pass",
+          "note": "Pre-check before verdict submission reported ok:false with validRounds=0; final output also ignored earlier blocked/mismatched verdicts, proving insufficient and non-pass evidence does not silently pass.",
+          "headHash": "73fdde5d40d228e08954eaa55d3cdea9400632cc",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:46:02.147Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "tail -n 12 .lattice/story/actives/B-16eb/process-events.jsonl && lattice decision_doc_quorum_check --storyId=B-16eb --json",
+          "result": "pass",
+          "note": "Process events contain structured host_verdict rows with runId, hostId, decision, and materialDigest; dispatch/subagent prose events and blocked verdicts were ignored by the quorum checker.",
+          "headHash": "73fdde5d40d228e08954eaa55d3cdea9400632cc",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:46:02.186Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -228,6 +263,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start recording real 3 round 2 host decision-doc quorum evidence."
+    },
+    {
+      "timestamp": "2026-06-14T18:46:02.028Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Three rounds with two passing hosts per round were recorded and verified by decision_doc_quorum_check."
     }
   ]
 }
