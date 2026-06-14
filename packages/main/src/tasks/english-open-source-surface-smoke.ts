@@ -55,6 +55,9 @@ const CJK_RE_G = new RegExp(CJK_RE.source, 'g');
 // ─── Scan set (paths relative to repo root) ──────────────────────────────────
 // ACTIVE source: every .ts under the main package src tree.
 const SRC_GLOB_ROOT = join(pkgRoot, 'src');
+// ACTIVE source: the utils package src tree (aux_/truth_/gap_ command surface
+// that appears in `lattice help` / `<cmd> --help`).
+const UTILS_SRC_GLOB_ROOT = join(repoRoot, 'packages', 'utils', 'src');
 // ACTIVE docs: the published guides + the live decision records.
 const DOC_FILES: string[] = [
   join(repoRoot, 'README.md'),
@@ -137,6 +140,11 @@ const ALLOWLIST_PENDING_SOURCE_MIGRATION: readonly string[] = [
   'packages/main/src/handlers/evaluate.ts',
   'packages/main/src/handlers/verifier.ts',
   'packages/main/src/tasks/extract.ts',
+  // Behavior-sensitive: aux-diagnose matches Chinese rootCause substrings at
+  // runtime (.includes('<zh>')) and returns coupled Chinese advice — a
+  // Chinese-in/Chinese-out subsystem that needs a coordinated code+test change.
+  // Deferred to the same follow-up as M668/M669/M750.
+  'packages/utils/src/handlers/aux-diagnose.ts',
 ];
 
 // 4) Deferred behavior-sensitive lines in cli-engine.ts (M668 / M669 / M750).
@@ -219,6 +227,8 @@ function collectScanSet(): string[] {
   const files = new Set<string>();
   // Active source: all .ts under packages/main/src.
   for (const f of walk(SRC_GLOB_ROOT, (p) => p.endsWith('.ts'))) files.add(f);
+  // Active source: all .ts under packages/utils/src (the aux_/truth_ CLI surface).
+  for (const f of walk(UTILS_SRC_GLOB_ROOT, (p) => p.endsWith('.ts'))) files.add(f);
   // Active docs: the named guide files.
   for (const f of DOC_FILES) if (existsSync(f)) files.add(f);
   // Active decision records: all .md under docs/requirements/decisions.
