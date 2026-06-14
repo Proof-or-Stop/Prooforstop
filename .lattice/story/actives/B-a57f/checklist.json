@@ -88,6 +88,78 @@
         "test": [
           "packages/main/src/tasks"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build -> exits 0; WHY: translated source compiles without TypeScript errors",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/koala.js validate -> exits 0 with no failures; WHY: full validation suite passes after translation",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js help 2>&1 | grep -cP [\\x{4e00}-\\x{9fff}] -> 0; WHY: top-level help output contains no Chinese",
+            "type": "cli"
+          },
+          {
+            "desc": "For each command name from lattice help, run node bin/lattice.js <cmd> --help 2>&1 | grep -cP CJK -> 0 for all commands; WHY: per-command help is fully English",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -nP [\\x{4e00}-\\x{9fff}] packages/main/src/cli-engine.ts | grep -v // | grep -v M668 | grep -v M669 | grep -v M750 -> only comment lines and the 3 deferred rows remain; no .describe() / description / printHelp / error / hint lines contain Chinese; WHY: public surface is fully translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the existing test suite (npm --prefix packages/main run test:cli-engine-branding-smoke or equivalent) -> all tests pass; WHY: tests asserting old Chinese output have been updated",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rP [\\x{4e00}-\\x{9fff}] packages/main/src/tasks/ | grep -v legacy | grep -v compat -> tests no longer assert Chinese output except explicitly named compatibility tests; WHY: test assertions match new English output",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Intentionally invoke an unknown command: node bin/lattice.js xyzzy_nonexistent 2>&1 -> suggestion/error message is in English, not Chinese; WHY: unknown-command suggestion path is translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Invoke a command with invalid JSON: node bin/lattice.js story_create {bad 2>&1 -> validation error is English; WHY: Zod validation error text is translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Count remaining CJK characters in cli-engine.ts non-comment lines: grep -P [\\x{4e00}-\\x{9fff}] cli-engine.ts | grep -vP ^\\s*// | wc -l -> exactly 3 lines (M668 line 2303-ish, M669 line 2306-ish, M750 line 3887-ish); WHY: only the deferred behavior-sensitive rows retain Chinese in code",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify command names, enum values, and JSON keys are unchanged: diff the list of registerTool/command name strings before and after -> identical; WHY: identifiers must not be reworded during translation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify Next: hint style is preserved: grep -P Next: packages/main/src/cli-engine.ts -> hints use the arrow Next: format from the plan; WHY: plan requires specific hint style",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After Phase 1, re-run the extract script from CHK-001 against the modified cli-engine.ts -> manifest reflects the current state (reduced Chinese count for translated lines, deferred rows still present); WHY: manifest script remains valid after source edits",
+            "type": "cli"
+          },
+          {
+            "desc": "Search for partial/mixed translations: grep -nP [\\x{4e00}-\\x{9fff}] cli-engine.ts | grep -vP ^\\s*// | grep -v M668 | grep -v M669 | grep -v M750 -> 0 lines; WHY: no line has a half-Chinese half-English translation leftover",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify M668/M669/M750 lines are byte-identical to their pre-Phase-1 content (git diff of those specific lines shows no change); WHY: deferred rows must NOT be touched, even accidentally",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node bin/lattice.js story_create with a Chinese-character title (e.g. title=测试) -> command succeeds and stores the Chinese title without error; WHY: translation of CLI surface must not break user-supplied Chinese data",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
