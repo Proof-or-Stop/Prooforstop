@@ -3,7 +3,6 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import type {
-  ChecklistData,
   DecisionData,
   DecisionDocProposal,
   DecisionDocProposalAlternative,
@@ -285,11 +284,6 @@ function listMatches(filePath: string, patterns: readonly string[] | undefined):
   return (patterns ?? []).some((pattern) => pathMatchesPattern(filePath, pattern));
 }
 
-function checklistCoversTarget(checklist: ChecklistData, targetPath: string, mode: 'create' | 'update'): boolean {
-  const field = mode === 'create' ? 'create' : 'modify';
-  return checklist.items.some((item) => listMatches(targetPath, item.files?.[field] ?? []));
-}
-
 function contractCoversTarget(contract: ScopeContractData | null, targetPath: string, mode: 'create' | 'update'): boolean {
   if (!contract) return false;
   return mode === 'create'
@@ -307,13 +301,11 @@ function acceptedExtensionCoversTarget(data: ScopeExtensionProposalData, targetP
 function assertTargetInScope(ctx: HandlerContext, storyId: string, targetPath: string, mode: 'create' | 'update'): void {
   const contract = ctx.store.readScopeContract(storyId);
   if (contractCoversTarget(contract, targetPath, mode)) return;
-  const checklist = ctx.store.readChecklist(storyId);
-  if (checklistCoversTarget(checklist, targetPath, mode)) return;
   const extensions = ctx.store.readScopeExtensionProposals(storyId);
   if (acceptedExtensionCoversTarget(extensions, targetPath)) return;
-  const expectedField = mode === 'create' ? 'allowedCreate/files.create' : 'allowedModify/files.modify';
+  const expectedField = mode === 'create' ? 'scope contract allowedCreate' : 'scope contract allowedModify';
   throw new Error(
-    `decision_doc_save target ${targetPath} is outside story scope; declare it in ${expectedField} or an accepted scope extension before saving`,
+    `decision_doc_save target ${targetPath} is outside story scope; declare it in ${expectedField} or an accepted/approved scope extension before saving`,
   );
 }
 

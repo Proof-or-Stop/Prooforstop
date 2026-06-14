@@ -12,6 +12,7 @@ import type {
   DecisionData,
   DecisionDocProposal,
   ScopeContractData,
+  ScopeExtensionProposalData,
   StoryInfo,
 } from '../core/types.js';
 
@@ -52,6 +53,15 @@ function runCli(root: string, command: string, args: Record<string, unknown>, al
     if (allowFailure) return text;
     throw new Error(text);
   }
+}
+
+function runHelp(root: string, command: string): string {
+  return execFileSync(process.execPath, [cliPath, '--root', root, command, '--help'], {
+    cwd: root,
+    env: sessionEnv,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
 }
 
 function seedDecision(): DecisionData {
@@ -174,6 +184,7 @@ function makeRepo(): { root: string; store: StoryStore } {
         modify: [],
         create: [
           'docs/requirements/decisions/promotion-smoke.md',
+          'docs/requirements/decisions/checklist-only.md',
           'docs/requirements/decisions/stale-proposal.md',
           'docs/requirements/decisions/stale-source.md',
           'docs/requirements/decisions/missing-update.md',
@@ -206,6 +217,32 @@ function makeRepo(): { root: string; store: StoryStore } {
   return { root, store };
 }
 
+function acceptedScopeExtension(targetPath: string): ScopeExtensionProposalData {
+  const now = new Date().toISOString();
+  return {
+    storyId,
+    updatedAt: now,
+    proposals: [{
+      proposalId: 'SEP-B-ddp-smoke-001',
+      storyId,
+      proposedBy: 'decision-doc-promotion-smoke',
+      proposedAt: now,
+      reason: 'Allow this smoke-only decision document through an accepted extension.',
+      patch: { allowed: [targetPath] },
+      status: 'accepted',
+      decidedAt: now,
+      decision: {
+        decision: 'accepted',
+        decidedBy: 'decision-doc-promotion-smoke',
+        decidedAt: now,
+        rationale: 'Smoke verifies accepted scope extension authorization.',
+        _hash: 'decision-doc-promotion-smoke-decision',
+      },
+      _hash: 'decision-doc-promotion-smoke-proposal',
+    }],
+  };
+}
+
 let passed = 0;
 function check(name: string, fn: () => void): void {
   fn();
@@ -215,6 +252,25 @@ function check(name: string, fn: () => void): void {
 
 const { root, store } = makeRepo();
 try {
+  check('command-specific help exposes registered schemas phase-independently', () => {
+    const proposalHelp = runHelp(root, 'decision_doc_proposal');
+    assert.match(proposalHelp, /lattice decision_doc_proposal/);
+    assert.match(proposalHelp, /Alias: lattice decision doc proposal/);
+    assert.match(proposalHelp, /--slug/);
+    assert.match(proposalHelp, /--verificationRequirements/);
+
+    const previewHelp = runHelp(root, 'decision_doc_preview');
+    assert.match(previewHelp, /lattice decision_doc_preview/);
+    assert.match(previewHelp, /Read-only render/);
+    assert.match(previewHelp, /--proposalId/);
+
+    const saveHelp = runHelp(root, 'decision_doc_save');
+    assert.match(saveHelp, /lattice decision_doc_save/);
+    assert.match(saveHelp, /create\|update/);
+    assert.match(saveHelp, /--confirm/);
+    assert.match(saveHelp, /--expectedProposalDigest/);
+  });
+
   check('proposal -> preview(read-only) -> save(create) happy path', () => {
     const proposalOut = runCli(root, 'decision_doc_proposal', baseProposal('promotion-smoke'));
     assert.match(proposalOut, /Decision doc proposal DDP-001 saved/);
@@ -225,11 +281,16 @@ try {
 
     const proposalFilePath = store.storyFilePath(storyId, 'decision-doc-proposals.json');
     const proposalFileBeforePreview = readFileSync(proposalFilePath, 'utf8');
+    const processEventsPath = store.storyFilePath(storyId, 'process-events.jsonl');
+    const processEventsFileBeforePreview = readFileSync(processEventsPath, 'utf8');
+    const processEventsBeforePreview = store.readProcessEvents(storyId);
     const preview = runCli(root, 'decision_doc_preview', { storyId, proposalId: 'DDP-001' });
     assert.match(preview, /Decision doc preview for DDP-001/);
     assert.match(preview, /Target exists: no/);
     assert.match(preview, /# Decision Doc Promotion Smoke promotion-smoke/);
     assert.equal(readFileSync(proposalFilePath, 'utf8'), proposalFileBeforePreview, 'preview must not mutate proposal metadata');
+    assert.equal(readFileSync(processEventsPath, 'utf8'), processEventsFileBeforePreview, 'preview must not append process-events.jsonl');
+    assert.deepEqual(store.readProcessEvents(storyId), processEventsBeforePreview, 'preview must not change the process-event projection');
     assert.equal(existsSync(join(root, proposal.targetPath)), false, 'preview must not write the target doc');
 
     const save = runCli(root, 'decision_doc_save', {
@@ -259,8 +320,8 @@ try {
     ), true);
   });
 
-  check('outside scope save is blocked before target write', () => {
-    runCli(root, 'decision_doc_proposal', baseProposal('outside-scope'));
+  check('checklist-only scope backdoor is blocked before target write', () => {
+    runCli(root, 'decision_doc_proposal', baseProposal('checklist-only'));
     const refused = runCli(root, 'decision_doc_save', {
       storyId,
       proposalId: 'DDP-002',
@@ -268,7 +329,25 @@ try {
       confirm: true,
     }, true);
     assert.match(refused, /outside story scope/);
-    assert.equal(existsSync(join(root, 'docs/requirements/decisions/outside-scope.md')), false);
+    assert.match(refused, /scope contract allowedCreate|accepted\/approved scope extension/);
+    assert.equal(existsSync(join(root, 'docs/requirements/decisions/checklist-only.md')), false);
+  });
+
+  check('accepted scope extension authorizes a target outside the scope contract', () => {
+    const targetPath = 'docs/requirements/decisions/extension-allowed.md';
+    store.writeScopeExtensionProposals(storyId, acceptedScopeExtension(targetPath));
+    runCli(root, 'decision_doc_proposal', baseProposal('extension-allowed'));
+    const proposal = latestProposal(store, 'DDP-003');
+    const save = runCli(root, 'decision_doc_save', {
+      storyId,
+      proposalId: 'DDP-003',
+      mode: 'create',
+      confirm: true,
+      expectedProposalDigest: proposal.proposalDigest,
+      expectedSourceDecisionDigest: proposal.sourceDecisionDigest,
+    });
+    assert.match(save, /Decision doc saved to docs\/requirements\/decisions\/extension-allowed\.md/);
+    assert.equal(existsSync(join(root, targetPath)), true);
   });
 
   check('invalid proposal payloads fail before metadata is written', () => {
@@ -295,14 +374,14 @@ try {
 
   check('stale proposal digest fails closed', () => {
     runCli(root, 'decision_doc_proposal', baseProposal('stale-proposal'));
-    const original = latestProposal(store, 'DDP-003');
+    const original = latestProposal(store, 'DDP-004');
     runCli(root, 'decision_doc_proposal', baseProposal('stale-proposal', {
-      proposalId: 'DDP-003',
+      proposalId: 'DDP-004',
       decision: 'The stale-proposal decision changed after review and must require an updated digest approval.',
     }));
     const refused = runCli(root, 'decision_doc_save', {
       storyId,
-      proposalId: 'DDP-003',
+      proposalId: 'DDP-004',
       mode: 'create',
       confirm: true,
       expectedProposalDigest: original.proposalDigest,
@@ -313,7 +392,7 @@ try {
 
   check('stale source decision digest fails closed', () => {
     runCli(root, 'decision_doc_proposal', baseProposal('stale-source'));
-    const proposal = latestProposal(store, 'DDP-004');
+    const proposal = latestProposal(store, 'DDP-005');
     store.writeDecision(storyId, {
       ...seedDecision(),
       rationale: 'The source decision changed after proposal review, so the promotion must be refreshed before save.',
@@ -321,7 +400,7 @@ try {
     });
     const refused = runCli(root, 'decision_doc_save', {
       storyId,
-      proposalId: 'DDP-004',
+      proposalId: 'DDP-005',
       mode: 'create',
       confirm: true,
       expectedProposalDigest: proposal.proposalDigest,
@@ -344,7 +423,7 @@ try {
     runCli(root, 'decision_doc_proposal', baseProposal('missing-update'));
     const missingUpdate = runCli(root, 'decision_doc_save', {
       storyId,
-      proposalId: 'DDP-005',
+      proposalId: 'DDP-006',
       mode: 'update',
       confirm: true,
     }, true);
