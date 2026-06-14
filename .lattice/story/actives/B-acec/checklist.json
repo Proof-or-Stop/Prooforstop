@@ -86,9 +86,9 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
       "userSees": "`lattice decision_doc_save ...` writes the decision doc only when scope and digest checks pass; stale or out-of-scope saves are blocked.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-14T19:55:34.191Z",
-      "endTime": null,
+      "endTime": "2026-06-14T21:36:09.842Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/decision-doc-promotion.ts",
@@ -120,7 +120,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke save(create) writes exactly docs/requirements/decisions/promotion-smoke.md for an in-scope fresh proposal, marks proposal status saved, records save metadata, and stores decision_doc_save process event.",
+          "headHash": "102dd3cc666c9295725c6a6db996ac1924b25366",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:09.906Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke verifies existing target with mode=create reports target already exists, missing target with mode=update reports target does not exist, and neither path writes the missing-update target.",
+          "headHash": "102dd3cc666c9295725c6a6db996ac1924b25366",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:09.946Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke verifies outside-scope save refuses before target write, stale proposal digest fails closed, and stale source decision digest fails closed.",
+          "headHash": "102dd3cc666c9295725c6a6db996ac1924b25366",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:09.980Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
