@@ -44,7 +44,7 @@ type DecisionDocSaveArgs = {
   mode: 'create' | 'update';
   confirm?: boolean;
   targetPath?: string;
-  expectedProposalDigest?: string;
+  expectedProposalDigest: string;
   expectedSourceDecisionDigest?: string;
 };
 
@@ -130,6 +130,13 @@ function requireText(value: unknown, field: string, minLength: number): string {
   if (typeof value !== 'string') throw new Error(`${field} is required`);
   const trimmed = value.trim();
   if (trimmed.length < minLength) throw new Error(`${field} must be at least ${minLength} characters`);
+  return trimmed;
+}
+
+function requireReviewedDigest(value: unknown, field: string): string {
+  if (typeof value !== 'string') throw new Error(`${field} is required`);
+  const trimmed = value.trim();
+  if (!trimmed) throw new Error(`${field} is required`);
   return trimmed;
 }
 
@@ -446,7 +453,8 @@ export function createDecisionDocPromotionHandlers(ctx: HandlerContext) {
         throw new Error(`decision_doc_save refused ${proposal.status} proposal ${proposal.id}`);
       }
       const proposalDigest = assertProposalIntegrity(proposal);
-      if (args.expectedProposalDigest && args.expectedProposalDigest !== proposalDigest) {
+      const expectedProposalDigest = requireReviewedDigest(args.expectedProposalDigest, 'expectedProposalDigest');
+      if (expectedProposalDigest !== proposalDigest) {
         throw new Error(`expectedProposalDigest is stale for ${proposal.id}`);
       }
 
@@ -459,14 +467,15 @@ export function createDecisionDocPromotionHandlers(ctx: HandlerContext) {
 
       let sourceDecisionDigest: string | undefined;
       if (proposal.sourceDecision === 'decision.json') {
+        const expectedSourceDecisionDigest = requireReviewedDigest(args.expectedSourceDecisionDigest, 'expectedSourceDecisionDigest');
         sourceDecisionDigest = digestDecision(ctx.store.readDecision(args.storyId), args.storyId);
         if (!proposal.sourceDecisionDigest || proposal.sourceDecisionDigest !== sourceDecisionDigest) {
           throw new Error(`source decision digest is stale for ${proposal.id}; refresh the proposal before saving`);
         }
-        if (args.expectedSourceDecisionDigest && args.expectedSourceDecisionDigest !== sourceDecisionDigest) {
+        if (expectedSourceDecisionDigest !== sourceDecisionDigest) {
           throw new Error(`expectedSourceDecisionDigest is stale for ${proposal.id}`);
         }
-      } else if (args.expectedSourceDecisionDigest) {
+      } else if (args.expectedSourceDecisionDigest !== undefined) {
         throw new Error('expectedSourceDecisionDigest is only valid when sourceDecision is "decision.json"');
       }
 

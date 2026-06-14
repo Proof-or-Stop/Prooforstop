@@ -236,7 +236,9 @@ lattice decision_doc_save '{
   "storyId": "B-xxxx",
   "proposalId": "DDP-001",
   "mode": "create",
-  "confirm": true
+  "confirm": true,
+  "expectedProposalDigest": "<reviewed proposalDigest>",
+  "expectedSourceDecisionDigest": "<reviewed sourceDecisionDigest>"
 }'
 ```
 
@@ -244,6 +246,14 @@ Expected behavior:
 
 - Requires `confirm: true`.
 - Requires a valid proposal.
+- Requires non-blank `expectedProposalDigest` from the reviewed proposal and
+  refuses save when it differs from the current proposal digest.
+- For proposals sourced from `decision.json`, requires non-blank
+  `expectedSourceDecisionDigest` from the reviewed source decision and refuses
+  save when it differs from the current source decision digest.
+- For manual-source proposals, refuses any supplied
+  `expectedSourceDecisionDigest` because there is no `decision.json` anchor to
+  review.
 - Requires `mode: "create"` when the target file does not exist.
 - Requires `mode: "update"` when the target file already exists.
 - Refuses overwrite unless `mode: "update"` is explicit.
@@ -261,10 +271,10 @@ docs/requirements/decisions/<slug>.md
   - proposal digest;
   - rendered doc digest;
   - current HEAD and material hash.
-- Verifies that the proposal digest and source decision digest are still fresh
-  at save time. If `decision.json` or the proposal changed after preview/review,
-  the command must fail closed and ask for a refreshed proposal or explicit
-  reviewer re-approval.
+- Verifies that the reviewed proposal digest and, when applicable, reviewed
+  source decision digest are still fresh at save time. If `decision.json` or
+  the proposal changed after review, the command must fail closed and ask for a
+  refreshed proposal or explicit reviewer re-approval.
 - Verifies that the target path is covered by the story scope contract
   (`allowedCreate` for creates or `allowedModify` for updates), or by an
   mechanically valid accepted/approved scope extension. The save command must
@@ -394,9 +404,13 @@ decision-doc 3x2 host verdict quorum.
 - `confirm !== true`;
 - proposal id is missing or unknown;
 - proposal status is `rejected` or `superseded`;
-- proposal digest no longer matches the reviewed proposal;
-- source decision digest no longer matches the decision used to create the
-  proposal, unless the proposal is refreshed and reviewed again;
+- `expectedProposalDigest` is missing, blank, or no longer matches the reviewed
+  proposal;
+- `sourceDecision === "decision.json"` and `expectedSourceDecisionDigest` is
+  missing, blank, or no longer matches the reviewed source decision;
+- `sourceDecision === "manual"` and `expectedSourceDecisionDigest` is supplied;
+- source decision digest no longer matches the current `decision.json`, unless
+  the proposal is refreshed and reviewed again;
 - target path is outside `docs/requirements/decisions/*.md`;
 - target path is not covered by the scope contract's `allowedCreate` or
   `allowedModify`, or by a mechanically valid accepted/approved scope
@@ -554,7 +568,8 @@ Tests:
 - refuse non-canonical directory;
 - refuse a target path outside scope contract `allowedCreate`/`allowedModify`
   and without a mechanically valid accepted/approved scope extension;
-- refuse stale proposal/source-decision digests;
+- refuse missing, blank, or stale reviewed proposal/source-decision digest
+  anchors;
 - save marks proposal saved.
 
 ### Phase 4. Wire CLI, Policy, And Registry
@@ -615,6 +630,9 @@ Minimum tests for the implementation story:
 - Edge: target missing with `mode: "update"` -> refused.
 - Edge: proposal was reviewed but `decision.json` changed before save ->
   refused until refreshed.
+- Edge: `decision_doc_save` omits or blanks `expectedProposalDigest` -> refused.
+- Edge: `decision_doc_save` omits `expectedSourceDecisionDigest` for a
+  `decision.json` proposal -> refused.
 - Adversarial: slug with `../` -> refused.
 - Adversarial: path outside `docs/requirements/decisions/*.md` -> refused.
 - Adversarial: target path not covered by scope contract `allowedCreate` /
@@ -639,20 +657,26 @@ Minimum tests for the implementation story:
 5. After usage stabilizes, consider a separate story for configurable
    decision-doc directories.
 
-## Open Questions
+## Shipped Decisions
 
-- Should `decision_doc_proposal` be allowed in PLAN only, or PLAN and DEV?
-- Should `decision_doc_save` require a scope-plan reviewer acknowledgement
-  before writing the doc?
-- Should updates to an existing decision doc require a `supersession` field?
-- Should proposal artifacts be part of the process fact registry as L3 signed
-  artifacts, or remain story metadata until saved?
-- Should `decision_doc_preview` be mandatory before save, or just a convenience
-  command?
+- `decision_doc_proposal` is allowed in PLAN and DEV because proposal refreshes
+  may be needed after implementation discoveries.
+- `decision_doc_save` requires `confirm:true`, a reviewed
+  `expectedProposalDigest`, and, for `decision.json` proposals, a reviewed
+  `expectedSourceDecisionDigest`. It does not require a separate scope-plan
+  reviewer acknowledgement; scope is enforced through the scope contract or a
+  mechanically valid accepted/approved scope extension.
+- Updates to an existing decision doc are guarded by explicit `mode:"update"`;
+  the first shipped version does not require a separate `supersession` field.
+- Proposal artifacts are L4 digest-bound process facts registered for
+  `decision_doc_save` consumption. They are not cryptographically signed.
+- `decision_doc_preview` is an optional read-only convenience command. Save
+  freshness is anchored by the reviewed proposal/source digests, not by a
+  mandatory preview event.
 
-These are implementation choices. The core requirement is stable: durable
-project decisions need an explicit promotion path, and saved decision docs must
-remain protected by the existing 3x2 host quorum DONE gate.
+The core requirement is stable: durable project decisions need an explicit
+promotion path, and saved decision docs must remain protected by the existing
+3x2 host quorum DONE gate.
 
 ## Acceptance Criteria
 
@@ -666,7 +690,8 @@ The future implementation is complete when:
 - invalid paths and accidental overwrites are refused;
 - target paths outside scope contract `allowedCreate`/`allowedModify` and
   without a mechanically valid accepted/approved scope extension are refused;
-- stale proposal/source-decision digests are refused;
+- missing, blank, and stale reviewed proposal/source-decision digest anchors
+  are refused;
 - saved decision docs trigger the existing decision-doc quorum DONE gate;
 - process fact registry and contract verifier cover the new commands;
 - tests cover happy, edge, adversarial, and gate integration cases;

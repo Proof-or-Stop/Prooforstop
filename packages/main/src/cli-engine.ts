@@ -718,8 +718,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     mode: z.enum(['create', 'update']).describe('create requires missing target; update requires existing target'),
     confirm: z.boolean().describe('Must be true to write the target decision doc'),
     targetPath: z.string().optional().describe('Must match the proposal canonical target when supplied; custom paths are rejected'),
-    expectedProposalDigest: z.string().optional().describe('Optional reviewed proposal digest; stale values fail closed'),
-    expectedSourceDecisionDigest: z.string().optional().describe('Optional reviewed source decision digest; stale values fail closed'),
+    expectedProposalDigest: z.string().trim().min(1).describe('Required reviewed proposal digest; stale values fail closed'),
+    expectedSourceDecisionDigest: z.string().trim().min(1).optional().describe('Required when sourceDecision is decision.json; invalid for manual source decisions; stale values fail closed'),
   }},
   // Grill planning artifact (PLAN context only; not verification/validation evidence)
   { name: 'grill_start', description: '启动 PLAN grill 澄清 session（写 grill.json，不写证据）', schema: {

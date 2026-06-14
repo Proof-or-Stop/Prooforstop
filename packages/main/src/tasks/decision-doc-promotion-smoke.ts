@@ -143,6 +143,14 @@ function latestProposal(store: StoryStore, id: string): DecisionDocProposal {
   return proposal;
 }
 
+function reviewedAnchors(proposal: DecisionDocProposal): { expectedProposalDigest: string; expectedSourceDecisionDigest: string } {
+  assert.ok(proposal.sourceDecisionDigest, `expected source decision digest for ${proposal.id}`);
+  return {
+    expectedProposalDigest: proposal.proposalDigest,
+    expectedSourceDecisionDigest: proposal.sourceDecisionDigest,
+  };
+}
+
 function makeRepo(): { root: string; store: StoryStore } {
   const root = mkdtempSync(join(tmpdir(), 'decision-doc-promotion-'));
   git(root, ['init', '-b', 'main']);
@@ -309,6 +317,8 @@ try {
     assert.match(saveHelp, /create\|update/);
     assert.match(saveHelp, /--confirm/);
     assert.match(saveHelp, /--expectedProposalDigest/);
+    assert.match(saveHelp, /Required reviewed proposal digest/);
+    assert.match(saveHelp, /Required when sourceDecision is decision\.json/);
   });
 
   check('proposal -> preview(read-only) -> save(create) happy path', () => {
@@ -338,8 +348,7 @@ try {
       proposalId: 'DDP-001',
       mode: 'create',
       confirm: true,
-      expectedProposalDigest: proposal.proposalDigest,
-      expectedSourceDecisionDigest: proposal.sourceDecisionDigest,
+      ...reviewedAnchors(proposal),
     });
     assert.match(save, /Decision doc saved to docs\/requirements\/decisions\/promotion-smoke\.md/);
     assert.match(save, /authorityBoundary: local workflow evidence only/);
@@ -360,13 +369,64 @@ try {
     ), true);
   });
 
+  check('save requires reviewed proposal and source decision anchors', () => {
+    const proposal = latestProposal(store, 'DDP-001');
+    const anchors = reviewedAnchors(proposal);
+    const targetAbs = join(root, proposal.targetPath);
+    const savedBefore = readFileSync(targetAbs, 'utf8');
+
+    const missingProposalDigest = runCli(root, 'decision_doc_save', {
+      storyId,
+      proposalId: 'DDP-001',
+      mode: 'update',
+      confirm: true,
+      expectedSourceDecisionDigest: anchors.expectedSourceDecisionDigest,
+    }, true);
+    assert.match(missingProposalDigest, /expectedProposalDigest/);
+    assert.equal(readFileSync(targetAbs, 'utf8'), savedBefore, 'missing proposal anchor must not rewrite target');
+
+    const blankProposalDigest = runCli(root, 'decision_doc_save', {
+      storyId,
+      proposalId: 'DDP-001',
+      mode: 'update',
+      confirm: true,
+      expectedProposalDigest: '   ',
+      expectedSourceDecisionDigest: anchors.expectedSourceDecisionDigest,
+    }, true);
+    assert.match(blankProposalDigest, /expectedProposalDigest/);
+    assert.equal(readFileSync(targetAbs, 'utf8'), savedBefore, 'blank proposal anchor must not rewrite target');
+
+    const missingSourceDigest = runCli(root, 'decision_doc_save', {
+      storyId,
+      proposalId: 'DDP-001',
+      mode: 'update',
+      confirm: true,
+      expectedProposalDigest: anchors.expectedProposalDigest,
+    }, true);
+    assert.match(missingSourceDigest, /expectedSourceDecisionDigest is required/);
+    assert.equal(readFileSync(targetAbs, 'utf8'), savedBefore, 'missing source anchor must not rewrite target');
+
+    const staleSourceAnchor = runCli(root, 'decision_doc_save', {
+      storyId,
+      proposalId: 'DDP-001',
+      mode: 'update',
+      confirm: true,
+      expectedProposalDigest: anchors.expectedProposalDigest,
+      expectedSourceDecisionDigest: 'stale-source-decision-digest',
+    }, true);
+    assert.match(staleSourceAnchor, /expectedSourceDecisionDigest is stale/);
+    assert.equal(readFileSync(targetAbs, 'utf8'), savedBefore, 'stale source anchor must not rewrite target');
+  });
+
   check('checklist-only scope backdoor is blocked before target write', () => {
     runCli(root, 'decision_doc_proposal', baseProposal('checklist-only'));
+    const proposal = latestProposal(store, 'DDP-002');
     const refused = runCli(root, 'decision_doc_save', {
       storyId,
       proposalId: 'DDP-002',
       mode: 'create',
       confirm: true,
+      ...reviewedAnchors(proposal),
     }, true);
     assert.match(refused, /outside story scope/);
     assert.match(refused, /scope contract allowedCreate|accepted\/approved scope extension/);
@@ -384,8 +444,7 @@ try {
       proposalId: 'DDP-003',
       mode: 'create',
       confirm: true,
-      expectedProposalDigest: proposal.proposalDigest,
-      expectedSourceDecisionDigest: proposal.sourceDecisionDigest,
+      ...reviewedAnchors(proposal),
     }, true);
     assert.match(forgedRefused, /mechanically valid accepted\/approved scope extension/);
     assert.equal(existsSync(join(root, targetPath)), false, 'forged extension must not authorize the target write');
@@ -396,8 +455,7 @@ try {
       proposalId: 'DDP-003',
       mode: 'create',
       confirm: true,
-      expectedProposalDigest: proposal.proposalDigest,
-      expectedSourceDecisionDigest: proposal.sourceDecisionDigest,
+      ...reviewedAnchors(proposal),
     });
     assert.match(save, /Decision doc saved to docs\/requirements\/decisions\/extension-allowed\.md/);
     assert.equal(existsSync(join(root, targetPath)), true);
@@ -437,7 +495,7 @@ try {
       proposalId: 'DDP-004',
       mode: 'create',
       confirm: true,
-      expectedProposalDigest: original.proposalDigest,
+      ...reviewedAnchors(original),
     }, true);
     assert.match(refused, /expectedProposalDigest is stale/);
     assert.equal(existsSync(join(root, 'docs/requirements/decisions/stale-proposal.md')), false);
@@ -456,8 +514,7 @@ try {
       proposalId: 'DDP-005',
       mode: 'create',
       confirm: true,
-      expectedProposalDigest: proposal.proposalDigest,
-      expectedSourceDecisionDigest: proposal.sourceDecisionDigest,
+      ...reviewedAnchors(proposal),
     }, true);
     assert.match(refused, /source decision digest is stale/);
     assert.equal(existsSync(join(root, 'docs/requirements/decisions/stale-source.md')), false);
@@ -465,20 +522,24 @@ try {
   });
 
   check('create/update mode guards prevent accidental overwrite and wrong update', () => {
+    const savedProposal = latestProposal(store, 'DDP-001');
     const createAgain = runCli(root, 'decision_doc_save', {
       storyId,
       proposalId: 'DDP-001',
       mode: 'create',
       confirm: true,
+      ...reviewedAnchors(savedProposal),
     }, true);
     assert.match(createAgain, /target already exists/);
 
     runCli(root, 'decision_doc_proposal', baseProposal('missing-update'));
+    const proposal = latestProposal(store, 'DDP-006');
     const missingUpdate = runCli(root, 'decision_doc_save', {
       storyId,
       proposalId: 'DDP-006',
       mode: 'update',
       confirm: true,
+      ...reviewedAnchors(proposal),
     }, true);
     assert.match(missingUpdate, /target does not exist/);
     assert.equal(existsSync(join(root, 'docs/requirements/decisions/missing-update.md')), false);
