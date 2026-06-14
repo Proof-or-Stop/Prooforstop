@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-14T22:06:32.674Z",
       "reviewRunId": "B-acec:RR-009",
       "_hash": "9241865cf355b18720f79793319cff65010f9af6cce03dcd82ed573182e72c13"
+    },
+    {
+      "id": "B-acec:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Second-round quality review PASS: inspected latest non-metadata commit 13553d176 and current handler/policy/registry/smoke code. decision_doc_save no longer accepts checklist files as scope authorization; save is limited to scope-contract allowedCreate/allowedModify or accepted/approved scope extension. decision_doc_preview remains read-only in handler and smoke snapshots proposal metadata, raw process-events.jsonl, store.readProcessEvents, and target doc. Per-command help smoke is phase-independent and direct --help output exposes proposal/preview/save schemas. Verification run: npm --prefix packages/main run build; npm --prefix packages/main run test:decision-doc-promotion-smoke; npm --prefix packages/main run test:scope-contract-smoke; npm --prefix packages/main run test:scope-contract-plan-scope-smoke; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-14T22:17:16.419Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-007",
+      "_hash": "76952a9964aae8e1f993e1d73087a5300a3c0e82b72c7d8991537e9ecd072247"
     }
   ]
 }
