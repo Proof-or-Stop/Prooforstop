@@ -6,7 +6,16 @@
       "context": "Add scripts/extract-cli-engine-english-manifest.mjs (per the plan's required command shape) that scans packages/main/src/cli-engine.ts and emits the line-level manifest (columns: translationId, sourceLine, surface, chineseSource, proposedEnglish, reviewStatus). Regenerate against the CURRENT source (767 Chinese lines), re-anchor sourceLine, add the 5 rows missing since the 762-row snapshot, carry over the approved English from the plan doc, and keep M668/M669/M750 marked behavior-sensitive (out of scope here). Implementation may not start until every Chinese line maps to an approved row. relatedDocs: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "create": [
+          "scripts/extract-cli-engine-english-manifest.mjs"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
