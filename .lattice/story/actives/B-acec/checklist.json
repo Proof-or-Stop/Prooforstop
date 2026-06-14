@@ -244,9 +244,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
       "userSees": "`npm --prefix packages/main run build` and focused regression commands pass for the new workflow.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-14T19:55:34.659Z",
-      "endTime": null,
+      "endTime": "2026-06-14T21:36:30.836Z",
       "files": {
         "modify": [
           "packages/main/package.json"
@@ -280,7 +280,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Focused smoke creates a temp project, seeds decision.json, creates proposal, previews Markdown, saves canonical doc, and confirms saved Markdown is included in preview output.",
+          "headHash": "d0d84e27e974db42a61b8af9d15bcdc5e78dc2b5",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:30.910Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Focused smoke covers stale source/proposal digest, missing verificationRequirements, invalid alternatives, mode mismatch, and overwrite guards.",
+          "headHash": "d0d84e27e974db42a61b8af9d15bcdc5e78dc2b5",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:30.950Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke && npm --prefix packages/main run test:scope-contract-smoke && npm --prefix packages/main run test:scope-contract-plan-scope-smoke",
+          "result": "pass",
+          "note": "Focused smoke proves out-of-scope save and non-canonical target path are blocked, preview has no write side effects, and scope-contract regressions still pass after lifecycle artifact registration.",
+          "headHash": "d0d84e27e974db42a61b8af9d15bcdc5e78dc2b5",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:30.982Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
