@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a57f",
+  "mode": "custom",
+  "allowed": [
+    "Add a no-new-Chinese gate smoke test with allowlists",
+    "Add scripts/extract-cli-engine-english-manifest.mjs and regenerate/freeze the manifest against current cli-engine.ts (767 lines)",
+    "Translate active docs (README.md, docs/guide.md, docs/guide-hooks.md, active docs/requirements/decisions/) and archive historical Chinese",
+    "Translate internal comments in cli-engine.ts",
+    "Translate the public CLI surface of packages/main/src/cli-engine.ts to English (command/schema/help/error/suggestion/hint)",
+    "Update tests that assert old Chinese CLI output"
+  ],
+  "excluded": [
+    "Changing CLI logic or behavior beyond translating text strings",
+    "Retranslating the plan doc itself or generated manifests (allowlisted)",
+    "The 3 behavior-sensitive rows M668/M669/M750 (regex/.includes matchers over Chinese) — deferred to a follow-up story",
+    "Translating inactive/legacy archive content (moved, not translated)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User reviewed the plan across 3 rounds and on 2026-06-14 approved executing it as one Lattice story (Phases 0-4), with behavior-sensitive rows M668/M669/M750 deferred to a follow-up story.",
+  "createdAt": "2026-06-14T16:27:46.547Z",
+  "updatedAt": "2026-06-14T16:27:46.547Z",
+  "_hash": "119e973d077ce9e80c8c641304731c78c25b0d8ef6733bca464e94daca473bec"
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a57f",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "node --input-type=module *",
+    "node -e *",
+    "node *",
+    "node bin/koala.js *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm run *",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-a57f",
+    "docs",
+    "packages/main/src",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Large translation refactor of cli-engine.ts + active docs + new gate. cli-engine.ts logic is NOT changed (text only). Behavior-sensitive rows M668/M669/M750 are not touched here.",
+  "createdAt": "2026-06-14T16:27:48.096Z",
+  "updatedAt": "2026-06-14T16:27:48.096Z",
+  "_hash": "5909d002f216fb3f840029003c762c687a893317e40226d9f0550946136014ea"
+}
