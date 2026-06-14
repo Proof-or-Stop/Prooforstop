@@ -205,13 +205,13 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/dist/cli.js help | rg \"decision_doc_(proposal|preview|save)|decision doc (proposal|preview|save)\"",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "CLI help lists decision_doc_proposal, decision_doc_preview, and decision_doc_save with user-facing alias descriptions.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
+          "note": "Smoke check command-specific help exposes decision_doc_proposal, decision_doc_preview, and decision_doc_save schemas and aliases via per-command --help, avoiding active-phase filtering in global help.",
+          "headHash": "c4dd49df8ed0d5d561a8f0aa522527149de0f410",
           "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "timestamp": "2026-06-14T21:58:05.500Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -219,19 +219,19 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verified command policy phase/ownership/destructiveRisk alignment: proposal PLAN/DEV storyScopedMutating metadata-write, preview readOnly all phases none, save DEV storyScopedMutating gateEvidence metadata-write.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
+          "headHash": "c4dd49df8ed0d5d561a8f0aa522527149de0f410",
           "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "timestamp": "2026-06-14T21:58:05.532Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process fact contract verified proposal/save L4 process fact registration, decision-doc-proposals.json artifact registration, and explicit non-Authority/non-productionDone handler contract tokens.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
+          "note": "Process fact contract verified proposal/save L4 process fact registration, decision-doc-proposals.json and process-events.jsonl artifact registration, and explicit non-Authority/non-productionDone handler contract tokens.",
+          "headHash": "c4dd49df8ed0d5d561a8f0aa522527149de0f410",
           "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "timestamp": "2026-06-14T21:58:05.564Z"
         }
       ]
     },
