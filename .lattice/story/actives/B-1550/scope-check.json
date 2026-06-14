@@ -1,0 +1,87 @@
+{
+  "storyId": "B-1550",
+  "checkedAt": "2026-06-14T22:52:45.973Z",
+  "features": [
+    {
+      "feature": "Create docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md as the only material deliverable",
+      "covered_by": "CHK-001 files.create plus plan objective",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1550/plan.md#CHK-001"
+    },
+    {
+      "feature": "Document the default ordinary REVIEW path and automatic 3x2 escalation when first REVIEW round records >=2 verified findings",
+      "covered_by": "CHK-001 required content items 1-2 and verificationIntent happy.plan-doc-complete",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1550/plan.md#CHK-001"
+    },
+    {
+      "feature": "Document that direct decision-doc changes remain always-on 3x2 regardless of finding count",
+      "covered_by": "CHK-001 required content item 3 and verificationIntent happy.decision-doc-always-on",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1550/plan.md#CHK-001"
+    },
+    {
+      "feature": "Document countable problem semantics for verified first-round reviewer findings and exclusions for suspected, disproven, advisory-only, B-META, pass-only, and non-reviewer notes",
+      "covered_by": "CHK-001 required content item 4",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1550/plan.md#CHK-001"
+    },
+    {
+      "feature": "Document stronger host independence semantics beyond hostId string counting, including durable host, provider, session, key or signing identity, signature, and material binding",
+      "covered_by": "CHK-001 required content item 5 and verificationIntent edge.independence-proof",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1550/background.md"
+    },
+    {
+      "feature": "Document gate placement so REVIEW may report escalation status while TEST/DONE enforce fresh final material review",
+      "covered_by": "CHK-001 required content item 6 and related lifecycle gate docs",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Document future artifacts, status command, host-verdict event shape, evaluator integration, concrete code touchpoints, tests, rollout, and acceptance criteria",
+      "covered_by": "CHK-001 required content items 7-10 and listed relatedDocs/code touchpoints",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-1550/plan.md#CHK-001"
+    },
+    {
+      "feature": "Preserve local host verdict / decision-doc quorum distinction from Authority Server receipt completion",
+      "covered_by": "CHK-001 non-goals plus lifecycle-gate-receipt-consumption local decision-doc quorum section",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+    },
+    {
+      "feature": "Implement packages/main/src/** lifecycle, quorum, verdict, registry, schema, or command changes in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 Non-Goals: documentation-only; source implementation belongs to a later story",
+      "source": ".lattice/story/actives/B-1550/plan.md#CHK-001"
+    },
+    {
+      "feature": "Claim Authority receipt verification, productionDone, fullAuthorityDone, or Authority Server completion from local host verdicts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 Non-Goals and lifecycle-gate-receipt-consumption local decision-doc quorum boundary",
+      "source": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 8,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f3cbca3ea3b1db8c12a00742da360e04e71c017e2321ead9d9b07d51d5170b10",
+  "openQuestions": []
+}
