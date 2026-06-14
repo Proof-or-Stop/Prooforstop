@@ -199,9 +199,9 @@
       "id": "CHK-002",
       "title": "Phase 1: translate the public CLI surface of cli-engine.ts and update affected tests",
       "context": "Replace Chinese with the approved English for command descriptions, Zod .describe() values, printHelp labels/examples, validation error text, unknown-command suggestions, and story/worktree next-step hints. Do NOT touch M668/M669/M750. Update any test that asserts the old Chinese output. Preserve command names, enum values, JSON keys, identifiers, and the -> Next: hint style from the plan.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-14T21:09:51.733Z",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts"
