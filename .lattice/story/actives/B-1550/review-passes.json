@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-14T23:13:48.422Z",
       "reviewRunId": "B-1550:RR-010",
       "_hash": "2deaffdf2d07aee26c0fcb0a9c6e4c818e4bf7833053f098c116df352cdc34f2"
+    },
+    {
+      "id": "B-1550:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: final changed Markdown is English/ASCII and consistent. perl non-ASCII checks over .lattice/story/actives/B-1550/plan.md and docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md returned no output; git diff --check for changed markdown returned no output. Authority wording remains evidence-only: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:27 says the plan does not claim Authority Server receipt completion, lines 297-299 separate Authority-backed verdicts from local workflow evidence and forbidden flags, and lines 650-697 repeat that local quorum is not Authority receipt or production completion.",
+      "createdAt": "2026-06-14T23:16:42.465Z",
+      "reviewRound": "2026-06-14T23:13:48.422Z",
+      "reviewRunId": "B-1550:RR-011",
+      "_hash": "27c4cc3334dc66dedd09f3026146ca89e28c8bdcbefccd901aa0167a5f80820a"
     }
   ]
 }
