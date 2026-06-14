@@ -193,8 +193,18 @@ AND every counted verdict is bound to current head/material/validation evidence
 
 ### `review-escalation.json`
 
-Add a story-local derived artifact, written by an evaluator or by the gate when
-status is requested:
+Add a story-local derived artifact for durable gate diagnostics. This artifact
+must not be written by the read-only `review_escalation_status` command.
+
+Version 1 should support two safe write paths:
+
+1. DONE pre-check / DONE gate writes or refreshes the artifact while evaluating
+   the hard gate.
+2. A separate explicitly mutating command such as `review_escalation_snapshot`
+   writes the same report for handoff diagnostics.
+
+Read-only status commands compute the same report in memory and print it without
+writing files.
 
 ```json
 {
@@ -224,9 +234,9 @@ status is requested:
 }
 ```
 
-The gate can compute this on demand, but a persisted artifact improves
-diagnostics, handoff, and session recovery. If persisted, it must include enough
-hashes to detect staleness.
+The gate can compute this on demand, but a persisted gate/snapshot artifact
+improves diagnostics, handoff, and session recovery. If persisted, it must
+include enough hashes to detect staleness.
 
 ### Host Verdict Process Event
 
@@ -254,9 +264,35 @@ Required fields for counted new-policy verdicts:
   "validationDigest": "...",
   "promptDigest": "...",
   "artifactDigest": "...",
+  "signature": "ed25519:...",
+  "signatureKeyId": "key-...",
+  "signaturePayloadDigest": "sha256:...",
   "issuedAt": "2026-06-14T00:00:00.000Z"
 }
 ```
+
+Local verdict identity fields are not enough when they are self-asserted. Every
+counted local verdict must include a signature over the canonical verdict
+payload, and the quorum evaluator must verify that signature before counting the
+verdict. The signed payload must include at least:
+
+- `storyId`;
+- `runId` or `reviewWaveId`;
+- `hostId`;
+- `provider`;
+- `sessionId`;
+- `keyId` or `identityDigest`;
+- `decision`;
+- `headHash`;
+- `materialDigest`;
+- `validationDigest`;
+- `promptDigest`;
+- `artifactDigest`;
+- `issuedAt`.
+
+The `keyId` used for independence must match the key that verifies the
+signature. A verdict with mismatched `keyId`, unverifiable signature,
+unsupported signature scheme, or missing signed material binding must not count.
 
 Authority-backed verdicts may provide stronger server-minted identity and
 receipt fields. Local verdicts remain local workflow evidence and must not set
@@ -278,17 +314,21 @@ Required behavior:
 2. Reject verdicts whose material binding does not match current material.
 3. Reject verdicts whose validation binding is stale or missing when validation
    evidence exists.
-4. Reject duplicate `verdictId`.
-5. Reject duplicate `hostId` in the same quorum round.
-6. Reject shared `sessionId` in the same quorum round.
-7. Reject shared `keyId` or `identityDigest` in the same quorum round.
-8. Reject new-policy verdicts with missing `sessionId` or missing key identity.
-9. Report ignored verdicts with structured reasons.
+4. Reject verdicts whose canonical payload signature is missing or invalid.
+5. Reject verdicts whose signed `keyId` does not match the key identity used for
+   independence.
+6. Reject duplicate `verdictId`.
+7. Reject duplicate `hostId` in the same quorum round.
+8. Reject shared `sessionId` in the same quorum round.
+9. Reject shared `keyId` or `identityDigest` in the same quorum round.
+10. Reject new-policy verdicts with missing `sessionId` or missing key identity.
+11. Report ignored verdicts with structured reasons.
 
 Pseudo-code:
 
 ```ts
 function areIndependent(a, b) {
+  if (!verifyVerdictSignature(a) || !verifyVerdictSignature(b)) return false;
   if (!a.hostId || !b.hostId) return false;
   if (!a.sessionId || !b.sessionId) return false;
   if (!identityKey(a) || !identityKey(b)) return false;
@@ -382,6 +422,11 @@ Fail output must include:
 
 Read-only. Reports whether the story requires 3x2 and why.
 
+This command must not write `review-escalation.json`. It should compute the
+current report from story evidence, host verdicts, and current material, then
+print text or JSON. Persisted snapshots belong to DONE gate evaluation or a
+separate mutating command.
+
 Example:
 
 ```bash
@@ -410,6 +455,9 @@ to persist the identity fields already accepted by the command schema:
 - `validationDigest` when provided;
 - `promptDigest`;
 - `artifactDigest`;
+- `signature`;
+- `signatureKeyId`;
+- `signaturePayloadDigest`;
 - `issuedAt`.
 
 If a future command name is preferred, it must be a thin alias over the same
@@ -426,6 +474,9 @@ shared sessionId
 shared key identity
 missing identity field
 stale material
+missing signature
+invalid signature
+signature key mismatch
 ```
 
 ## File-Level Execution Plan
@@ -435,10 +486,10 @@ stale material
 | `packages/main/src/core/host-independence.ts` | New shared independence predicate and ignored-verdict reason model. |
 | `packages/main/src/core/review-escalation.ts` | New trigger evaluator, quorum evaluator, report formatter, and derived artifact model. |
 | `packages/main/src/core/decision-doc-quorum.ts` | Replace hostId-only counting with shared independence predicate; keep direct decision-doc change detection. |
-| `packages/main/src/handlers/verdict.ts` | Persist `sessionId`, `keyId`, `reviewWaveId`, `validationDigest`, `promptDigest`, and `artifactDigest` into `host_verdict` process events. |
+| `packages/main/src/handlers/verdict.ts` | Persist `sessionId`, `keyId`, `reviewWaveId`, `validationDigest`, `promptDigest`, `artifactDigest`, and signature metadata into `host_verdict` process events. |
 | `packages/main/src/core/machine.ts` | Add review-escalation DONE gate alongside decision-doc quorum; keep REVIEW gate behavior unchanged except diagnostics. |
 | `packages/main/src/handlers/decision-doc-quorum.ts` | Surface new ignored reasons in existing read-only diagnostics. |
-| `packages/main/src/handlers/review-escalation.ts` | Add read-only status handler if commands are split by handler file. |
+| `packages/main/src/handlers/review-escalation.ts` | Add read-only status handler and, if needed, a separate mutating snapshot handler. |
 | `packages/main/src/cli-engine.ts` | Add `review_escalation_status` schema and update `autopilot_review_submit` descriptions to require identity fields for new-policy 3x2. |
 | `packages/main/src/core/command-policy.ts` | Register read-only status command and confirm host verdict writes remain reviewer evidence writes. |
 | `packages/main/src/core/process-fact-registry.ts` | Register review-escalation trigger, host-verdict identity fields, quorum result, and DONE gate consumption. |
@@ -484,6 +535,8 @@ stale material
 | Different `hostId`, same `keyId` | Not independent. |
 | Different `hostId`, missing `sessionId` | Does not count for new-policy 3x2. |
 | Different `hostId`, missing `keyId` or identity digest | Does not count for new-policy 3x2. |
+| Different `hostId`, fabricated `keyId`, no valid payload signature | Does not count for new-policy 3x2. |
+| Valid identity fields but signature payload omits material digest | Does not count for new-policy 3x2. |
 | Same host submits PASS twice in one quorum round | Second verdict ignored as duplicate. |
 | One PASS and one FAIL in a quorum round | Only PASS counts; round invalid if fewer than 2 independent PASS hosts remain. |
 | One PASS and one BLOCKED in a quorum round | Only PASS counts; round invalid if fewer than 2 independent PASS hosts remain. |
@@ -517,7 +570,9 @@ if product review wants it.
 ### Phase 1. Strengthen Host Verdict Identity
 
 Update local host-verdict write paths so process events preserve identity and
-binding fields. Add tests proving these fields survive `autopilot_review_submit`.
+binding fields. Add canonical payload signing and verification before any local
+verdict can count toward quorum. Add tests proving these fields and signature
+metadata survive `autopilot_review_submit`.
 
 Stop condition: if host identity cannot be captured reliably, do not wire the
 new DONE gate yet.
@@ -584,14 +639,15 @@ Implementation is complete only when all are true:
    findings.
 5. Same-session or same-key host-verdict spoofing fails.
 6. Missing session/key identity fails for new-policy 3x2 evidence.
-7. Stale head/material/validation digest fails.
-8. Three rounds with two independent PASS hosts each passes the local 3x2
+7. Missing, invalid, mismatched, or material-weak local verdict signatures fail.
+8. Stale head/material/validation digest fails.
+9. Three rounds with two independent PASS hosts each passes the local 3x2
    requirement.
-9. `decision_doc_quorum_check` and `review_escalation_status` report the same
+10. `decision_doc_quorum_check` and `review_escalation_status` report the same
    ignored-verdict reasons used by DONE.
-10. Process fact registry and contract verification cover every new
+11. Process fact registry and contract verification cover every new
     gate-consumed fact.
-11. Documentation states clearly that local host verdict quorum is not Authority
+12. Documentation states clearly that local host verdict quorum is not Authority
     Server receipt completion.
 
 ## Operator Transcript
