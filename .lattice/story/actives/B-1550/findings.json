@@ -51,6 +51,22 @@
       ],
       "resolvedReason": "Resolved by requiring canonical local host_verdict payload signatures, signature verification before counting, keyId/signature key consistency, and signed material binding; see verificationEvidence intentRef B-1550:F-003.",
       "resolvedAt": "2026-06-14T23:05:45.101Z"
+    },
+    {
+      "id": "B-1550:F-004",
+      "desc": "CHK-001 verificationEvidence intentRef B-1550:F-001 still uses one alternation command: rg -n \"Proposed Artifacts|Proposed CLI Surface|File-Level Execution Plan|Rollout Plan|Acceptance Criteria\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md. WHY: rg exits 0 if any one label matches, so the evidence would still pass if Proposed CLI Surface, File-Level Execution Plan, Rollout Plan, or Acceptance Criteria were removed individually. I confirmed the semantics with printf \"## Proposed Artifacts\\n\" | rg -n \"Proposed Artifacts|Proposed CLI Surface|File-Level Execution Plan|Rollout Plan|Acceptance Criteria\" returning exit=0. F-001 is therefore not fully resolved: the document currently contains those sections, but the recorded coverage evidence does not mechanically require all artifacts/commands/code touchpoints/rollout/acceptance dimensions. severity high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T23:11:19.744Z",
+      "reviewRound": "2026-06-14T23:04:58.714Z",
+      "reviewRunId": "B-1550:RR-007",
+      "_hash": "f529c3dbb992259eb859a3d502ecb45af0f1e0a06dea9736ec4f12f88b0457b2",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ]
     }
   ]
 }
