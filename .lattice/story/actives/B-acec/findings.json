@@ -39,6 +39,24 @@
         "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
         "packages/main/src/handlers/decision-doc-promotion.ts"
       ]
+    },
+    {
+      "id": "B-acec:F-003",
+      "desc": "CHK-003 happy evidence says `node packages/main/dist/cli.js help | rg \"decision_doc_(proposal|preview|save)|decision doc (proposal|preview|save)\"` lists decision_doc_proposal, decision_doc_preview, and decision_doc_save, but in the B-acec REVIEW worktree that exact check only lists decision_doc_preview because printHelp filters active-story commands by current phase. Command-specific --help and the process fact contract do cover schema/registry, but the recorded help-list evidence is not reproducible for this story context. Evidence: packages/main/src/cli-engine.ts:2515-2517 filters help by phase; observed output in this review matched only decision_doc_preview.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T21:44:19.035Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-005",
+      "_hash": "c079d213bc1fc6687ac0d7515736c22aea1a29f2d016c866783af86d1142161f",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ]
     }
   ]
 }
