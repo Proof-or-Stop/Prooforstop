@@ -15,6 +15,62 @@
           "scripts/extract-cli-engine-english-manifest.mjs"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scripts/extract-cli-engine-english-manifest.mjs exists and is executable via node -> exits 0 and produces non-empty output to stdout; WHY: confirms the script was created and runs without error",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node scripts/extract-cli-engine-english-manifest.mjs > /tmp/manifest.md; grep -c translationId /tmp/manifest.md -> at least 1 header row with the 6 required columns (translationId, sourceLine, surface, chineseSource, proposedEnglish, reviewStatus); WHY: manifest schema matches the plan spec",
+            "type": "cli"
+          },
+          {
+            "desc": "Count manifest data rows (excluding header) -> exactly 767 rows, matching grep -cP CJK cli-engine.ts; WHY: every Chinese-bearing line has a manifest entry, no omissions",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -P behavior-sensitive /tmp/manifest.md lists exactly M668, M669, M750 -> no other rows carry that status; WHY: re-scan for runtime Chinese matchers found nothing beyond the known 3",
+            "type": "cli"
+          },
+          {
+            "desc": "Diff the manifest proposedEnglish column against the plan doc T-table approved English for overlapping IDs -> approved English is carried over unchanged; WHY: ensures plan-doc approved translations are preserved",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the extract script twice in succession -> output is byte-identical (deterministic); WHY: manifest generation must be reproducible for CI freezing",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the 5 drifted/new rows (767 minus original 762) are present in the manifest with correct sourceLine anchoring -> sourceLine values match actual grep -n positions in current cli-engine.ts; WHY: re-anchoring after B-4e06 drift is correct",
+            "type": "cli"
+          },
+          {
+            "desc": "Manifest rows whose reviewStatus is not approved or behavior-sensitive -> zero rows with review-draft or needs-rewrite remain; WHY: gate condition requires all rows approved or deferred before Phase 1 starts",
+            "type": "cli"
+          },
+          {
+            "desc": "No source string in cli-engine.ts is edited in this phase -> git diff packages/main/src/cli-engine.ts shows zero changes after CHK-001; WHY: Phase 0 is manifest-only, no source edits",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject a new Chinese comment into cli-engine.ts (line 1: // 测试), re-run extract script -> manifest row count increases to 768 and the new line appears with a translationId; revert the injection; WHY: script must detect arbitrary new Chinese lines, not just known ones",
+            "type": "cli"
+          },
+          {
+            "desc": "Delete one known Chinese line from cli-engine.ts, re-run extract -> manifest row count drops to 766 and the deleted row disappears; revert; WHY: script is source-driven not hardcoded",
+            "type": "cli"
+          },
+          {
+            "desc": "Rename cli-engine.ts temporarily, run extract -> script exits non-zero or prints a clear error mentioning the missing file; revert; WHY: script must fail gracefully when source is missing",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
