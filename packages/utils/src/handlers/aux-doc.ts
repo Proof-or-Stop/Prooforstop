@@ -33,7 +33,7 @@ function scanMdDir(dir: string, root: string, out: DocEntry[], skipPaths: Set<st
     const full = join(dir, e.name);
     if (e.isDirectory()) {
       if (SKIP_DIRS.has(e.name)) continue;
-      // 跳过 koala 管理的运行数据子树（storyDir / fixturesDir）
+      // Skip koala-managed runtime data subtrees (storyDir / fixturesDir)
       const rel = relative(root, full).split('\\').join('/');
       if (skipPaths.has(rel)) continue;
       scanMdDir(full, root, out, skipPaths);
@@ -67,26 +67,26 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
   const { root } = ctx;
   return {
     /**
-     * 列出项目文档（用于 PLAN 阶段挑选 relatedDocs）。
-     * 扫描 koala.config.json 的 docDirs（默认 docs/, requirements/），
-     * 加上根目录的 CLAUDE.md / README.md / AGENTS.md。
-     * 提取每篇 md 的 H1 标题，按目录分组输出。
+     * List project docs (for picking relatedDocs in the PLAN phase).
+     * Scans the docDirs from koala.config.json (defaults to docs/, requirements/),
+     * plus CLAUDE.md / README.md / AGENTS.md at the project root.
+     * Extracts the H1 title of each markdown file and groups the output by directory.
      */
     aux_doc_list(args?: { format?: 'text' | 'json' }): string {
       const config = loadConfig(root);
       const docDirs = config.docDirs ?? DEFAULT_DOC_DIRS;
       const all: DocEntry[] = [];
-      // koala 管理的运行数据子树（story/fixtures），扫描时跳过
+      // koala-managed runtime data subtrees (story/fixtures); skipped while scanning
       const skipPaths = new Set<string>();
       if (config.storyDir) skipPaths.add(config.storyDir.split('\\').join('/'));
       if (config.fixturesDir) skipPaths.add(config.fixturesDir.split('\\').join('/'));
-      // storyDir 通常是 docs/story/actives，也跳掉父级 docs/story
+      // storyDir is usually docs/story/actives; also skip the parent docs/story
       if (config.storyDir) {
         const parent = dirname(config.storyDir).split('\\').join('/');
         if (parent !== '.' && parent !== '') skipPaths.add(parent);
       }
 
-      // 根目录的固定 md 文件
+      // Fixed markdown files at the project root
       for (const name of ROOT_DOC_FILES) {
         const full = join(root, name);
         if (!existsSync(full)) continue;
@@ -102,7 +102,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
         } catch { /* ignore */ }
       }
 
-      // 配置的 docDirs
+      // Configured docDirs
       for (const dir of docDirs) {
         const full = join(root, dir);
         if (!existsSync(full)) continue;
@@ -113,7 +113,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
         return JSON.stringify({ count: all.length, docs: all }, null, 2);
       }
 
-      // text 格式：按顶级目录分组
+      // text format: grouped by top-level directory
       const groups = new Map<string, DocEntry[]>();
       for (const d of all) {
         const top = d.path.includes('/') ? d.path.split('/')[0] + '/' : '<root>';
@@ -127,7 +127,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
       for (const [group, items] of groups.entries()) {
         items.sort((a, b) => a.path.localeCompare(b.path));
         lines.push(group === '<root>' ? '## (root)' : `## ${group}`);
-        // path 列宽对齐
+        // Align the path column width
         const maxPath = Math.max(...items.map(i => i.path.length));
         for (const item of items) {
           const pad = ' '.repeat(Math.max(2, maxPath - item.path.length + 2));
@@ -135,7 +135,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
         }
         lines.push('');
       }
-      lines.push('→ 在 checklist item 的 relatedDocs 字段填写上述路径（可带 #锚点）');
+      lines.push('→ Put the paths above in a checklist item\'s relatedDocs field (a #anchor may be appended)');
       return lines.join('\n');
     },
   };

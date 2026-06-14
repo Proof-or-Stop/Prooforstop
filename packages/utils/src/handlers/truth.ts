@@ -9,7 +9,7 @@ import { loadConfig } from '../../../main/dist/core/config.js';
 export function createTruthHandlers(ctx: HandlerContext) {
   const { root } = ctx;
   return {
-    // ── 真相源工具 ──────────────────────────────────
+    // ── Source-of-truth tools ──────────────────────────────────
 
     truth_scan(args?: { summary?: boolean }): string {
       return JSON.stringify(scanTruth(root, { summary: args?.summary }), null, 2);
@@ -27,7 +27,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
       return JSON.stringify(truthToStory(root), null, 2);
     },
 
-    /** 从代码元数据 + Story 反向提取真相源文档 */
+    /** Reverse-extract source-of-truth docs from code metadata and Stories */
     truth_extract(): string {
       const config = loadConfig(root);
       const scanRoot = join(root, config.scanRoot);
@@ -35,7 +35,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
       const extractedDir = join(root, 'docs', 'requirements', 'extracted');
       mkdirSync(extractedDir, { recursive: true });
 
-      // 按文件分组
+      // Group by file
       const byFile = new Map<string, typeof tasks>();
       for (const t of tasks) {
         const file = t.sourceFile || 'unknown';
@@ -44,7 +44,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
         byFile.set(file, list);
       }
 
-      // 读 Story 数据
+      // Read Story data
       const storiesDir = join(root, config.storyDir);
       const stories: Array<{ id: string; title: string; description: string; phase: string }> = [];
       if (existsSync(storiesDir)) {
@@ -59,10 +59,10 @@ export function createTruthHandlers(ctx: HandlerContext) {
         }
       }
 
-      // 生成架构文档
-      let archMd = `# 项目架构（自动提取）\n\n`;
-      archMd += `> 由 \`koala truth_extract\` 从代码元数据自动生成\n\n`;
-      archMd += `## 文件结构\n\n`;
+      // Generate the architecture doc
+      let archMd = `# Project architecture (auto-extracted)\n\n`;
+      archMd += `> Auto-generated from code metadata by \`koala truth_extract\`\n\n`;
+      archMd += `## File structure\n\n`;
       for (const [file, fns] of byFile) {
         archMd += `### ${file}\n\n`;
         for (const fn of fns) {
@@ -74,10 +74,10 @@ export function createTruthHandlers(ctx: HandlerContext) {
       }
       writeFileSync(join(extractedDir, 'architecture.md'), archMd);
 
-      // 生成 Story 摘要文档
+      // Generate the Story summary doc
       if (stories.length > 0) {
-        let storyMd = `# Story 摘要（自动提取）\n\n`;
-        storyMd += `> 由 \`koala truth_extract\` 从 Story 数据自动生成\n\n`;
+        let storyMd = `# Story summary (auto-extracted)\n\n`;
+        storyMd += `> Auto-generated from Story data by \`koala truth_extract\`\n\n`;
         for (const s of stories) {
           storyMd += `## ${s.id}: ${s.title} [${s.phase}]\n\n`;
           storyMd += `${s.description}\n\n`;
@@ -85,8 +85,8 @@ export function createTruthHandlers(ctx: HandlerContext) {
         writeFileSync(join(extractedDir, 'stories.md'), storyMd);
       }
 
-      // 生成功能清单
-      let featuresMd = `# 功能清单（自动提取）\n\n`;
+      // Generate the feature list
+      let featuresMd = `# Feature list (auto-extracted)\n\n`;
       const features = tasks.filter(t => t.type === 'feature' && t.description);
       const grouped = new Map<string, string[]>();
       for (const f of features) {
@@ -102,7 +102,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
       }
       writeFileSync(join(extractedDir, 'features.md'), featuresMd);
 
-      return `提取完成:\n- ${extractedDir}/architecture.md（${byFile.size} 个文件，${tasks.length} 个函数）\n- ${extractedDir}/stories.md（${stories.length} 个 Story）\n- ${extractedDir}/features.md（${features.length} 个功能）\n\n→ 用 koala truth_nav 更新导航`;
+      return `Extraction done:\n- ${extractedDir}/architecture.md (${byFile.size} files, ${tasks.length} functions)\n- ${extractedDir}/stories.md (${stories.length} Stories)\n- ${extractedDir}/features.md (${features.length} features)\n\n→ Run koala truth_nav to update the navigation`;
     },
   };
 }

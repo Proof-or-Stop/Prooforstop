@@ -20,7 +20,7 @@ interface ImpactEdge {
   from: string;
   to: string;
   weight: number;
-  /** 该边是回边（形成循环） */
+  /** This edge is a back edge (forms a cycle) */
   isCycle?: boolean;
 }
 
@@ -28,7 +28,7 @@ interface ArchTraceResult {
   logicLines: LogicLine[];
   impactGraph: ImpactEdge[];
   blindZones: string[];
-  cycles: string[][]; // 检测到的循环路径
+  cycles: string[][]; // Detected cycle paths
 }
 
 export function createAuxTraceHandlers(ctx: HandlerContext) {
@@ -43,7 +43,7 @@ export function createAuxTraceHandlers(ctx: HandlerContext) {
 
       progress('aux_trace: scanning all traces...');
       const snapshots = scanAllTraces(root);
-      if (snapshots.length === 0) return JSON.stringify({ hint: '→ 无 trace 数据，请先运行 test_auto 积累 trace 快照' });
+      if (snapshots.length === 0) return JSON.stringify({ hint: '→ No trace data; run test_auto first to accumulate trace snapshots' });
 
       const logicLines: LogicLine[] = [];
       const edgeCounter = new Map<string, { weight: number; isCycle: boolean }>();
@@ -69,7 +69,7 @@ export function createAuxTraceHandlers(ctx: HandlerContext) {
             commits: [snap.commit],
           });
         }
-        // 标记回边
+        // Mark back edges
         for (const ce of cycleEdges) {
           const ek = `${ce.from}→${ce.to}`;
           const existing = edgeCounter.get(ek);
@@ -87,7 +87,7 @@ export function createAuxTraceHandlers(ctx: HandlerContext) {
       }
       impactGraph.sort((a, b) => b.weight - a.weight);
 
-      // 收集所有检测到的循环路径
+      // Collect all detected cycle paths
       const cycles = detectCycles(impactGraph);
 
       const blindZones = detectBlindZones(root, config, allFunctions);
@@ -100,7 +100,7 @@ export function createAuxTraceHandlers(ctx: HandlerContext) {
   };
 }
 
-/** 从调用树提取链 + 检测环（图遍历，遇到回边标记而非截断） */
+/** Extract chains from the call tree and detect cycles (graph traversal: mark back edges instead of truncating) */
 function extractGraph(nodes: ProfileNode[]): {
   chains: Array<Array<{ fn: string; file: string }>>;
   cycleEdges: Array<{ from: string; to: string }>;
@@ -120,9 +120,9 @@ function extractGraph(nodes: ProfileNode[]): {
     for (const child of node.children) {
       const childKey = `${child.fn}@${child.file}`;
       if (visited.has(childKey)) {
-        // 回边：形成循环，标记但不递归
+        // Back edge: forms a cycle; mark it but do not recurse
         cycleEdges.push({ from: key, to: childKey });
-        chains.push(current); // 到此为止记录链
+        chains.push(current); // Record the chain up to this point
         continue;
       }
       visited.add(childKey);
@@ -139,9 +139,9 @@ function extractGraph(nodes: ProfileNode[]): {
   return { chains, cycleEdges };
 }
 
-/** 从 impactGraph 中找出所有循环路径 */
+/** Find all cycle paths in the impactGraph */
 function detectCycles(edges: ImpactEdge[]): string[][] {
-  // 建邻接表
+  // Build the adjacency list
   const adj = new Map<string, string[]>();
   const allNodes = new Set<string>();
   for (const e of edges) {
@@ -160,14 +160,14 @@ function detectCycles(edges: ImpactEdge[]): string[][] {
     const inStack = new Set<string>();
 
     function dfs(node: string): void {
-      if (cycles.length >= 10) return; // 限制输出
+      if (cycles.length >= 10) return; // Limit output
       globalVisited.add(node);
       stack.push(node);
       inStack.add(node);
 
       for (const next of (adj.get(node) || [])) {
         if (inStack.has(next)) {
-          // 找到循环：从 next 到当前 stack 末尾
+          // Found a cycle: from next to the current top of the stack
           const cycleStart = stack.indexOf(next);
           if (cycleStart >= 0) {
             cycles.push([...stack.slice(cycleStart), next]);
@@ -291,7 +291,7 @@ function generateMermaid(result: ArchTraceResult): string {
     }
   }
   if (result.cycles.length > 0) {
-    lines.push(`  %% 检测到 ${result.cycles.length} 个循环依赖`);
+    lines.push(`  %% Detected ${result.cycles.length} circular dependencies`);
   }
   return lines.join('\n');
 }

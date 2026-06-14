@@ -11,7 +11,7 @@ import { loadConfig } from '../../../main/dist/core/config.js';
 export function createAuxHandlers(ctx: HandlerContext) {
   const { store, scanRoot } = ctx;
   return {
-    // ── Aux 辅助工具：扫描/查询/分析 ─────────────────────
+    // ── Aux helper tools: scan / query / analyze ─────────────────────
 
     aux_scan(args: {
       format?: 'json' | 'markdown';
@@ -51,7 +51,7 @@ export function createAuxHandlers(ctx: HandlerContext) {
       }
 
       return JSON.stringify({
-        _hint: '→ 用 koala aux_detail \'{"files":["要改的文件"]}\' 查看签名和属性，不需要 Read 源文件',
+        _hint: '→ Run koala aux_detail \'{"files":["file-to-change"]}\' to view signatures and properties without reading the source file',
         tasks,
         validation: {
           passed: validation.passed,
@@ -78,7 +78,7 @@ export function createAuxHandlers(ctx: HandlerContext) {
       return locateTasks(args.query, scanRoot);
     },
 
-    /** 按文件查看详情：签名、类属性、import */
+    /** Show file details: signatures, class properties, imports */
     aux_detail(args: { files: string[] }): string {
       const config = loadConfig(ctx.root);
       const sr = join(ctx.root, config.scanRoot);
@@ -95,11 +95,11 @@ export function createAuxHandlers(ctx: HandlerContext) {
         // imports
         const imports = lines.filter(l => l.trimStart().startsWith('import ')).map(l => l.trim());
 
-        // 函数/方法签名 + 类属性
+        // Function/method signatures + class properties
         const functions: Array<{ name: string; signature: string; line: number; test?: string }> = [];
         const classProps: string[] = [];
 
-        // 该文件的元数据
+        // Metadata for this file
         const fileTasks = tasks.filter(t => t.sourceFile === file);
         for (const t of fileTasks) {
           functions.push({
@@ -110,14 +110,14 @@ export function createAuxHandlers(ctx: HandlerContext) {
           });
         }
 
-        // 提取类属性（如 board: Cell[][]）
+        // Extract class properties (e.g. board: Cell[][])
         const classBodyMatch = code.match(/class\s+\w+[^{]*\{([\s\S]*)/);
         if (classBodyMatch) {
           const body = classBodyMatch[1];
           const propPattern = /^\s+(\w+)\s*[!?]?\s*:\s*([^;=]+)/gm;
           let m;
           while ((m = propPattern.exec(body)) !== null) {
-            // 跳过方法体内的变量
+            // Skip variables inside method bodies
             const indent = m[0].length - m[0].trimStart().length;
             if (indent <= 4) classProps.push(`${m[1]}: ${m[2].trim()}`);
           }

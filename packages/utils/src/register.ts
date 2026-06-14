@@ -1,6 +1,7 @@
 /**
- * @lattice-agent/utils 的注册入口。
- * Bootstrap 脚本调用 register(registry, ctx) 把所有辅助 handler 注入 main 的 Registry。
+ * Registration entry point for @lattice-agent/utils.
+ * A bootstrap script calls register(registry, ctx) to inject all auxiliary
+ * handlers into the main package's Registry.
  */
 import type { Registry } from '../../main/dist/registry.js';
 import type { HandlerContext } from '../../main/dist/handlers/context.js';
