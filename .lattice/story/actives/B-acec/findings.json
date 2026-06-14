@@ -108,7 +108,7 @@
       "desc": "decision_doc_save accepts accepted/approved scope-extension proposals by status and patch.allowed only, without validating the scope-extension proposal/decision hashes. The smoke currently constructs an accepted extension with dummy _hash values and save succeeds, so a tampered scope-extension-proposals.json can authorize a decision-doc write outside the scope contract.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-14T22:30:28.418Z",
@@ -120,7 +120,9 @@
         "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
         "packages/main/src/core/process-fact-registry.ts",
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "decision_doc_save now validates accepted/approved scope-extension proposals with existing scope anti-expansion digest helpers before path matching can authorize an outside-contract target: story id, proposal status, decision status, decision _hash, and proposal _hash must all be fresh. Smoke now refuses forged dummy _hash extensions and accepts a helper-built signed extension.",
+      "resolvedAt": "2026-06-14T22:44:29.431Z"
     }
   ]
 }
