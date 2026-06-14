@@ -127,10 +127,10 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "Smoke save(create) writes exactly docs/requirements/decisions/promotion-smoke.md for an in-scope fresh proposal, marks proposal status saved, records save metadata, and stores decision_doc_save process event.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
+          "note": "Smoke save(create) writes exactly docs/requirements/decisions/promotion-smoke.md for a scope-contract-authorized fresh proposal, marks proposal status saved, records save metadata, and stores decision_doc_save process event.",
+          "headHash": "9b051d3eccbd2bd91fb11d055eda104c7194eccd",
           "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "timestamp": "2026-06-14T21:57:56.621Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,19 +138,19 @@
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
           "note": "Smoke verifies existing target with mode=create reports target already exists, missing target with mode=update reports target does not exist, and neither path writes the missing-update target.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
+          "headHash": "9b051d3eccbd2bd91fb11d055eda104c7194eccd",
           "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "timestamp": "2026-06-14T21:57:56.649Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "Smoke verifies outside-scope save refuses before target write, stale proposal digest fails closed, and stale source decision digest fails closed.",
-          "headHash": "85e399dbbf04e9cd44152796d03c2d6677723cbe",
+          "note": "Smoke verifies checklist-only files.create cannot authorize decision_doc_save without scope-contract allowedCreate, accepted scope extension still authorizes a target outside the contract, and stale proposal/source digests fail closed before writes.",
+          "headHash": "9b051d3eccbd2bd91fb11d055eda104c7194eccd",
           "materialHash": "67df8d57f6cfc3153d2404dfc72e3d31800e37c97df7f67b80b844d53e947caa",
-          "timestamp": "2026-06-14T21:39:49.041Z"
+          "timestamp": "2026-06-14T21:57:56.677Z"
         }
       ]
     },
