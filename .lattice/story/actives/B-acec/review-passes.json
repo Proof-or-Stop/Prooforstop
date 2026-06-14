@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-acec:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Docs lane PASS: decision-doc-promotion execution doc and NAV are unchanged versus main, and that is reasonable because the existing B-16eb document already matches the implemented first-version CLI contract. Reviewed docs/requirements/decisions/decision-doc-promotion-execution-plan.md, docs/requirements/NAV.md, handler/policy/registry/schema surfaces, and process-fact verifier. No drift found: no automatic promotion, no custom or nested path support, no Authority receipt completion, no authorityDone/fullAuthorityDone/productionDone/customerKeyRef claims, and Layer4 references are limited to required process fact contract semantics.",
+      "createdAt": "2026-06-14T21:42:27.890Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-003",
+      "_hash": "eb30e9aee104136eec0c10a90c210ae0b02c864b8824f1321f12bb3ad00d9591"
+    }
+  ]
+}
