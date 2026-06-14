@@ -31,7 +31,16 @@
     "docs/requirements/decisions/authority-*.md"
   ],
   "scopeChangeReason": "Initialize enforce scope contract from B-acec PLAN file declarations before implementing decision-doc promotion commands.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Decision doc promotion introduces a new story-local lifecycle metadata artifact decision-doc-proposals.json, so lifecycle-registry.ts must recognize it for the scope gate instead of treating generated Lattice metadata as product code drift.",
+      "timestamp": "2026-06-14T21:33:27.620Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-14T19:53:03.494Z",
-  "updatedAt": "2026-06-14T19:53:03.494Z"
+  "updatedAt": "2026-06-14T21:33:27.620Z"
 }

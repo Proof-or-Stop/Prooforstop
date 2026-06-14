@@ -8,9 +8,9 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
       "userSees": "`lattice decision_doc_proposal ...` records a proposal and `decision_doc_preview ...` prints the target Markdown without writing a file.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-14T19:54:13.267Z",
-      "endTime": null,
+      "endTime": "2026-06-14T21:35:56.680Z",
       "files": {
         "modify": [
           "packages/main/src/core/store.ts",
@@ -43,7 +43,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "decision-doc-promotion smoke passed 6 checks, including proposal creation DDP-001, story-local proposal metadata, deterministic preview Markdown, and no target doc before save.",
+          "headHash": "452f975f2c4d635ddd19534edd5df7b20fc2bb6c",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:35:56.731Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke invalid payload check rejects bad slug, missing verificationRequirements, invalid alternatives, and custom nested target path before proposal metadata count changes.",
+          "headHash": "452f975f2c4d635ddd19534edd5df7b20fc2bb6c",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:35:56.762Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke snapshots decision-doc-proposals.json before preview, confirms preview output, unchanged proposal metadata, and no docs/requirements/decisions target write.",
+          "headHash": "452f975f2c4d635ddd19534edd5df7b20fc2bb6c",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:35:56.792Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
