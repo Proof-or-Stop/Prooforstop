@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1550",
+  "mode": "maintenance",
+  "allowed": [
+    "Create one execution-plan decision document for the 3x2 review escalation rule under docs/requirements/decisions/.",
+    "Record Lattice planning/review evidence for this documentation-only story.",
+    "Reference existing lifecycle, decision-doc quorum, host verdict, and review evidence code/doc touchpoints for implementation guidance."
+  ],
+  "excluded": [
+    "Do not change existing CLI behavior, lifecycle gates, reviewer commands, or host verdict schemas in this story.",
+    "Do not edit docs/story or tests/fixtures directly.",
+    "Do not implement source-code changes for the 3x2 gate in this story.",
+    "Do not use omx or any .omx directory."
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly agreed on 2026-06-14 to write a detailed execution plan for the 3 round x 2 host gate rule, including the rule that first REVIEW round with two or more problems triggers 3x2 for all development.",
+  "createdAt": "2026-06-14T22:44:08.834Z",
+  "updatedAt": "2026-06-14T22:44:08.834Z",
+  "_hash": "8426f609d7d1a68c714c8c602a1ce3e444ccb5cdcb3b0fa7cdbcbcfd68a7a0f0"
+}
