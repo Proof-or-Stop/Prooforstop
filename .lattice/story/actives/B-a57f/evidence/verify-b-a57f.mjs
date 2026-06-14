@@ -90,7 +90,7 @@ ok('CHK-003:happy:0', ceCJK === 3, `cli-engine.ts CJK = ${ceCJK}`);
 { const c = read(CE).split('\n').filter((l) => /^\s*\/\//.test(l) && CJK.test(l)).length; ok('CHK-003:happy:1', c === 0, `Chinese comment lines = ${c}`); }
 ok('CHK-003:happy:2', shCode('npm --prefix packages/main run build') === 0, 'build green');
 ok('CHK-003:happy:3', shCode('node bin/koala.js validate --story=B-a57f') === 0, 'validate green');
-{ const skMain = codeSkeleton(tryStr(`git show main:${CE} 2>/dev/null`)); const skCur = codeSkeleton(read(CE)); ok('CHK-003:edge:0', skMain.length > 0 && skMain === skCur, `cli-engine.ts code skeleton (strings+comments blanked, ${} preserved) identical to main => only string/comment content changed, no logic (${skMain.length} chars)`); }
+{ const skMain = codeSkeleton(tryStr(`git show main:${CE} 2>/dev/null`)); const skCur = codeSkeleton(read(CE)); ok('CHK-003:edge:0', skMain.length > 0 && skMain === skCur, 'cli-engine.ts code skeleton (strings+comments blanked, template-expr code preserved) identical to main => only string/comment content changed, no logic; ' + skMain.length + ' chars'); }
 ok('CHK-003:edge:1', true, 'comment meaning preserved (docs reviewer lane)');
 ok('CHK-003:edge:2', ceCJK === 3, 'comment translation scoped to cli-engine.ts');
 { const c = read(CE).split('\n').filter((l) => /待办|修复|临时/.test(l)).length; ok('CHK-003:adversarial:0', c === 0, `Chinese TODO/FIXME/HACK markers = ${c}`); }
