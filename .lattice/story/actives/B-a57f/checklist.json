@@ -23,7 +23,16 @@
       "context": "Replace Chinese with the approved English for command descriptions, Zod .describe() values, printHelp labels/examples, validation error text, unknown-command suggestions, and story/worktree next-step hints. Do NOT touch M668/M669/M750. Update any test that asserts the old Chinese output. Preserve command names, enum values, JSON keys, identifiers, and the -> Next: hint style from the plan.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      }
     },
     {
       "id": "CHK-003",
