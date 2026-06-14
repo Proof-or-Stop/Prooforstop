@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-14T23:09:05.102Z",
       "reviewRunId": "B-acec:RR-018",
       "_hash": "38c4f41e4c6fec77447d13623e4953a9b4884453de84eb0820b32e1dc26b7cf9"
+    },
+    {
+      "id": "B-acec:RP-014",
+      "agent": "koala-review-quality",
+      "note": "Latest digest-anchor fix passes quality review: CLI schema requires expectedProposalDigest, runtime revalidates it, sourceDecision=decision.json requires expectedSourceDecisionDigest, manual source rejects that anchor, and all digest/source/scope/mode/git-head errors happen before target writes and metadata/process-event writes.",
+      "createdAt": "2026-06-14T23:16:13.447Z",
+      "reviewRound": "2026-06-14T23:09:05.102Z",
+      "reviewRunId": "B-acec:RR-019",
+      "_hash": "1ce7b3424720775d68e00933d76b92fb8bd355a986299605428e8a678f988361"
     }
   ]
 }
