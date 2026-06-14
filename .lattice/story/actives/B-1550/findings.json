@@ -16,6 +16,19 @@
         ".lattice/story/actives/B-1550/plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-1550:F-002",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:196 says review-escalation.json can be written when status is requested, but lines 381-383 and 443 define review_escalation_status as read-only. WHY: the plan must choose on-demand computation or a separate mutating writer/gate artifact path; otherwise implementation either violates command-policy scope discipline or drops the promised artifact. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-14T23:02:10.977Z",
+      "reviewRound": "2026-06-14T22:58:14.585Z",
+      "reviewRunId": "B-1550:RR-002",
+      "_hash": "d21dff40bced0371029163c6d0b5666572fa2bebb99dc28d48c495d5308c6042"
     }
   ]
 }
