@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-14T22:06:32.674Z",
       "reviewRunId": "B-acec:RR-006",
       "_hash": "bba2196fde5bab02b0f194ddb7ed31992cd91e62a840707b9b885494e8f466bc"
+    },
+    {
+      "id": "B-acec:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Second-round test-coverage review PASS. F-002 fixed: decision-doc smoke snapshots decision-doc-proposals.json, raw process-events.jsonl, and store.readProcessEvents before decision_doc_preview, then asserts all unchanged plus no target doc write. F-003 fixed: CHK-003 happy evidence uses command-specific decision_doc_* --help, while edge/adversarial evidence is covered by node scripts/verify-process-fact-contract.mjs for policy and process fact semantics instead of phase-filtered global help. Rechecked CHK-001..005 coverage with lattice validate --story=B-acec: 15/15 covered, 0 required missing. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:decision-doc-promotion-smoke; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:scope-contract-smoke; npm --prefix packages/main run test:scope-contract-plan-scope-smoke; lattice validate --story=B-acec.",
+      "createdAt": "2026-06-14T22:13:59.301Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-009",
+      "_hash": "9241865cf355b18720f79793319cff65010f9af6cce03dcd82ed573182e72c13"
     }
   ]
 }
