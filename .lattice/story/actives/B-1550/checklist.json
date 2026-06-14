@@ -135,6 +135,78 @@
           "headHash": "b21f2b22a571821f6870b07b9c4eb3de89bd254c",
           "materialHash": "5d2c7b7e3abc3e2e2998a118f3dd82a22ed580dba2c1a23dab37c7f82804229a",
           "timestamp": "2026-06-14T22:57:15.315Z"
+        },
+        {
+          "intentRef": "plan-doc-complete",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"Default: ordinary stories|firstReviewRound.countableProblems >= 2|Decision-Doc Always-On Rule\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document states the default REVIEW path, the >=2 first-round countable-problem trigger, and the decision-doc always-on rule.",
+          "headHash": "bc5098e7ee46f559d9a1317db2416310d9e9cbe8",
+          "materialHash": "5d2c7b7e3abc3e2e2998a118f3dd82a22ed580dba2c1a23dab37c7f82804229a",
+          "timestamp": "2026-06-14T22:58:05.150Z"
+        },
+        {
+          "intentRef": "decision-doc-always-on",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"Decision-Doc Always-On Rule|docs/requirements/decisions/\\*.md|requires3x2=true\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves direct decision-doc changes as always requiring 3x2 regardless of finding count.",
+          "headHash": "bc5098e7ee46f559d9a1317db2416310d9e9cbe8",
+          "materialHash": "5d2c7b7e3abc3e2e2998a118f3dd82a22ed580dba2c1a23dab37c7f82804229a",
+          "timestamp": "2026-06-14T22:58:05.150Z"
+        },
+        {
+          "intentRef": "independence-proof",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"hostId|sessionId|keyId|identityDigest|Provider diversity\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly rejects hostId-only independence and requires host, provider, session, key or identity digest, and material binding for counted verdicts.",
+          "headHash": "bc5098e7ee46f559d9a1317db2416310d9e9cbe8",
+          "materialHash": "5d2c7b7e3abc3e2e2998a118f3dd82a22ed580dba2c1a23dab37c7f82804229a",
+          "timestamp": "2026-06-14T22:58:05.150Z"
+        },
+        {
+          "intentRef": "stale-material",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"stale|materialDigest|validationDigest|headHash\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document requires head, material, and validation binding and makes stale material or validation verdicts ignored.",
+          "headHash": "bc5098e7ee46f559d9a1317db2416310d9e9cbe8",
+          "materialHash": "5d2c7b7e3abc3e2e2998a118f3dd82a22ed580dba2c1a23dab37c7f82804229a",
+          "timestamp": "2026-06-14T22:58:05.150Z"
+        },
+        {
+          "intentRef": "spoof-negative-controls",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"same-session|same-key|duplicate|FAIL|BLOCKED|suspected|disproven|stale\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes negative controls for same-session, same-key, duplicate-host, stale digest, FAIL, BLOCKED, suspected, and disproven paths.",
+          "headHash": "bc5098e7ee46f559d9a1317db2416310d9e9cbe8",
+          "materialHash": "5d2c7b7e3abc3e2e2998a118f3dd82a22ed580dba2c1a23dab37c7f82804229a",
+          "timestamp": "2026-06-14T22:58:05.150Z"
+        },
+        {
+          "intentRef": "no-prompt-only-gate",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -n \"process-fact-registry|process-fact-levels|verify-process-fact-contract|not Authority Server receipts\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && LC_ALL=C grep -n \"[^ -~]\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md || true",
+          "result": "pass",
+          "note": "The document requires registry and contract verification for gate-consumed facts, separates local host verdicts from Authority receipts, and the ASCII check returned no non-ASCII lines.",
+          "headHash": "bc5098e7ee46f559d9a1317db2416310d9e9cbe8",
+          "materialHash": "5d2c7b7e3abc3e2e2998a118f3dd82a22ed580dba2c1a23dab37c7f82804229a",
+          "timestamp": "2026-06-14T22:58:05.150Z"
         }
       ]
     }
