@@ -55,7 +55,37 @@
       "userSees": "The execution plan explicitly protects scope and Authority boundaries.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution plan explicitly covers DEV-time scope boundaries, proposal/source decision digest freshness, and local Authority boundary language.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV and path references remain consistent with docs/requirements/decisions/decision-doc-promotion-execution-plan.md.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not sneak in implementation of decision_doc_proposal, decision_doc_save, configurable paths, Authority semantics, or productionDone semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
