@@ -197,7 +197,38 @@
       "userSees": "The decision-doc promotion document matches the implemented first-version CLI contract.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "If implementation details differ from the plan, the decision-doc promotion execution doc is updated to match the shipped first-version CLI contract and NAV remains aligned.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If no documentation change is needed, evidence explains why the existing B-16eb document already matches the implementation.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation does not claim custom paths, automatic promotion, Authority receipt completion, authorityDone, fullAuthorityDone, productionDone, customerKeyRef, or Layer4 support.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
