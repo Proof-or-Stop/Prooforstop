@@ -1,0 +1,27 @@
+{
+  "findings": [
+    {
+      "id": "B-acec:F-001",
+      "desc": "decision_doc_save scope guard can be bypassed conceptually because it accepts current checklist file declarations after the scope contract fails. checklist_update permits files updates in DEV, while decision_doc_save is also DEV-only, so a DEV actor can add docs/requirements/decisions/<slug>.md to checklist files and then save without a PLAN-frozen scope contract or accepted scope extension. This violates the product boundary that save must not become a back door for expanding story scope during DEV.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-14T21:43:51.887Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-001",
+      "_hash": "41fcfc7c40a8cbc36d078d0dce470bf28b3b9852d605b00467b5d5217c8d5186",
+      "files": [
+        "packages/main/src/handlers/decision-doc-promotion.ts:307",
+        "packages/main/src/handlers/decision-doc-promotion.ts:310",
+        "packages/main/src/handlers/checklist.ts:413",
+        "packages/main/src/handlers/checklist.ts:422",
+        "packages/main/src/handlers/checklist.ts:511",
+        "packages/main/src/core/config.ts:216",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:94",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:266"
+      ]
+    }
+  ]
+}
