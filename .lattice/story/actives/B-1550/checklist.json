@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the 3x2 review escalation execution plan",
+      "context": "Document trigger semantics, host independence proof, gate placement, artifacts, code touchpoints, tests, rollout, and acceptance criteria. The plan must specify that normal stories start with the existing REVIEW flow, then escalate to three rounds by two independent hosts when the first REVIEW round records two or more verified findings. Decision-doc changes remain always-on 3x2.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/handlers/verdict.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
