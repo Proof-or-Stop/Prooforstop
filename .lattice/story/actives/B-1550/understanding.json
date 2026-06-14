@@ -7,7 +7,8 @@
     "Audit found the current decision-doc quorum only counts hostId strings and does not prove independent host/session/key identity.",
     "finding_add defaults evidenceState to verified; suspected and disproven findings are advisory and should not trigger escalation.",
     "review_run_start binds REVIEW evidence to a signed current review round with head/material hash freshness.",
-    "B-1550 decision_set selected threshold-triggered escalation plus a stronger shared host-independence predicate."
+    "B-1550 decision_set selected threshold-triggered escalation plus a stronger shared host-independence predicate.",
+    "Implementation touchpoints to be listed in the document include packages/main/src/core/decision-doc-quorum.ts, packages/main/src/handlers/verdict.ts, packages/main/src/core/machine.ts, packages/main/src/core/process-fact-registry.ts, packages/main/src/core/process-fact-levels.ts, scripts/verify-process-fact-contract.mjs, and packages/main/src/tasks/decision-doc-quorum-smoke.ts, but they are reference-only in this story."
   ],
   "constraints": [
     "Do not implement source-code changes in this story.",
@@ -19,16 +20,7 @@
   ],
   "unknowns": [],
   "touchpoints": [
-    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-    "docs/requirements/decisions/story-lifecycle.md",
-    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
-    "packages/main/src/core/decision-doc-quorum.ts",
-    "packages/main/src/handlers/verdict.ts",
-    "packages/main/src/core/machine.ts",
-    "packages/main/src/core/process-fact-registry.ts",
-    "packages/main/src/core/process-fact-levels.ts",
-    "scripts/verify-process-fact-contract.mjs",
-    "packages/main/src/tasks/decision-doc-quorum-smoke.ts"
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
   ],
-  "timestamp": "2026-06-14T22:45:59.397Z"
+  "timestamp": "2026-06-14T22:53:41.240Z"
 }
