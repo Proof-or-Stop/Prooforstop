@@ -29,6 +29,22 @@
       "reviewRound": "2026-06-14T22:58:14.585Z",
       "reviewRunId": "B-1550:RR-002",
       "_hash": "d21dff40bced0371029163c6d0b5666572fa2bebb99dc28d48c495d5308c6042"
+    },
+    {
+      "id": "B-1550:F-003",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:236 lists counted host_verdict identity fields and lines 275-286 define the independence predicate, but neither requires a signature over the local verdict payload nor verification of that signature before counting; keyId/identityDigest remain self-asserted labels, so the planned gate can still be spoofed by fabricated session/key values despite the story requiring signature/material-bound independence. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-14T23:02:38.491Z",
+      "reviewRound": "2026-06-14T22:58:14.585Z",
+      "reviewRunId": "B-1550:RR-001",
+      "_hash": "dd43aaf7c191813563db42bd5bb1b92efd4df2825492b5d91a96bf0aaad44c8a",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ]
     }
   ]
 }
