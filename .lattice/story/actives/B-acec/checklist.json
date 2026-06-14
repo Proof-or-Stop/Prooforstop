@@ -147,10 +147,10 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "Smoke proves decision_doc_save rejects a forged accepted scope extension carrying dummy proposal/decision _hash values, then accepts the same outside-contract target only after a helper-built scope extension with fresh proposal and decision hashes is installed; stale proposal/source digests still fail closed.",
-          "headHash": "bb03992811ec419263526fbec639ad9ba8d22880",
+          "note": "Smoke passed 9 checks including missing expectedProposalDigest, blank expectedProposalDigest, missing expectedSourceDecisionDigest for decision.json proposals, stale expectedSourceDecisionDigest, stale proposal digest, stale source decision digest, and scope guarded save paths.",
+          "headHash": "c581c957c2fe1ef4dcd71be993a251431278fb75",
           "materialHash": "eadb1353da2d67a2eb5270e469c9b7abd1516fe05de5b287f11ae6b016489e3e",
-          "timestamp": "2026-06-14T22:40:14.316Z"
+          "timestamp": "2026-06-14T23:05:04.397Z"
         }
       ]
     },
@@ -208,10 +208,10 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "Smoke check command-specific help exposes decision_doc_proposal, decision_doc_preview, and decision_doc_save schemas and aliases via per-command --help, avoiding active-phase filtering in global help.",
-          "headHash": "bb03992811ec419263526fbec639ad9ba8d22880",
+          "note": "Smoke help check verifies decision_doc_save --help exposes expectedProposalDigest as a required reviewed digest and documents expectedSourceDecisionDigest as required when sourceDecision is decision.json.",
+          "headHash": "c581c957c2fe1ef4dcd71be993a251431278fb75",
           "materialHash": "eadb1353da2d67a2eb5270e469c9b7abd1516fe05de5b287f11ae6b016489e3e",
-          "timestamp": "2026-06-14T22:40:14.316Z"
+          "timestamp": "2026-06-14T23:05:04.397Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,10 +228,10 @@
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process fact contract verified proposal/save L4 process fact registration, decision-doc-proposals.json and process-events.jsonl artifact registration, and explicit non-Authority/non-productionDone handler contract tokens.",
-          "headHash": "bb03992811ec419263526fbec639ad9ba8d22880",
+          "note": "Process fact contract verified after the anchor change; decision_doc_save remains L4 gate evidence and the proposal/save artifact relationship stays registered.",
+          "headHash": "c581c957c2fe1ef4dcd71be993a251431278fb75",
           "materialHash": "eadb1353da2d67a2eb5270e469c9b7abd1516fe05de5b287f11ae6b016489e3e",
-          "timestamp": "2026-06-14T22:40:14.316Z"
+          "timestamp": "2026-06-14T23:05:04.397Z"
         }
       ]
     },
@@ -297,10 +297,10 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "Focused smoke covers stale source/proposal digest, missing verificationRequirements, invalid alternatives, mode mismatch, overwrite guards, and accepted scope-extension authorization.",
-          "headHash": "bb03992811ec419263526fbec639ad9ba8d22880",
+          "note": "Focused smoke now covers missing, blank, and stale reviewed digest anchors while keeping create, scope-extension, stale source, and mode guard happy and negative paths supplied with both digests when required.",
+          "headHash": "c581c957c2fe1ef4dcd71be993a251431278fb75",
           "materialHash": "eadb1353da2d67a2eb5270e469c9b7abd1516fe05de5b287f11ae6b016489e3e",
-          "timestamp": "2026-06-14T22:40:14.316Z"
+          "timestamp": "2026-06-14T23:05:04.397Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -361,12 +361,12 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "docs_check",
-          "command": "! rg \"PLAN scope|declared scope|declared in PLAN|outside PLAN scope|scope-extension path|scope coverage\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "command": "rg -n \"Open Questions|Optional reviewed proposal digest|Optional reviewed source decision digest|stale proposal/source-decision digests|preview mandatory|PLAN only|L3 signed\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
           "result": "pass",
-          "note": "Decision-doc promotion plan no longer uses stale PLAN-scope or scope-extension-path wording; save authorization is documented as scope contract allowedCreate/allowedModify or a mechanically valid accepted/approved scope extension.",
-          "headHash": "bb03992811ec419263526fbec639ad9ba8d22880",
+          "note": "Doc scan returned no matches, and the former Open Questions section is now shipped decisions describing PLAN/DEV proposal timing, save acknowledgements and anchors, L4 proposal facts, and optional preview.",
+          "headHash": "c581c957c2fe1ef4dcd71be993a251431278fb75",
           "materialHash": "eadb1353da2d67a2eb5270e469c9b7abd1516fe05de5b287f11ae6b016489e3e",
-          "timestamp": "2026-06-14T22:40:14.316Z"
+          "timestamp": "2026-06-14T23:05:04.397Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
