@@ -9,6 +9,7 @@ import type {
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData,
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
+  DecisionDocProposalFile,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -312,6 +313,28 @@ export class StoryStore {
 
   writeDecision(storyId: string, data: DecisionData): void {
     this.writeJson(storyId, 'decision.json', data);
+  }
+
+  // ── Decision doc promotion proposals ──
+
+  readDecisionDocProposals(storyId: string): DecisionDocProposalFile {
+    try {
+      return this.readJson<DecisionDocProposalFile>(storyId, 'decision-doc-proposals.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) {
+        return {
+          schemaVersion: 'lattice.decision_doc_proposals.v1',
+          storyId,
+          updatedAt: '',
+          proposals: [],
+        };
+      }
+      throw e;
+    }
+  }
+
+  writeDecisionDocProposals(storyId: string, data: DecisionDocProposalFile): void {
+    this.writeJson(storyId, 'decision-doc-proposals.json', data);
   }
 
   // ── Summary (B-093b: DONE-gate forced completion summary) ──

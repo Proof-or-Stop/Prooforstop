@@ -90,6 +90,8 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   finding_resolve: 'finding',
   finding_dismiss: 'finding',
   autopilot_review_submit: 'host-verdict',
+  decision_doc_proposal: 'gate-evidence',
+  decision_doc_save: 'gate-evidence',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -113,6 +115,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  decision_doc_proposal: ['schema-contract', 'gate-evidence'],
+  decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
@@ -297,6 +301,20 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signature: 'stable decision _hash folded into proposal _hash; accepted proposals require a fresh scope freeze check',
     producerCommand: 'scope_extension_decide',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+  },
+  decision_doc_proposal: {
+    name: 'decision-doc-proposals.json',
+    path: 'decision-doc-proposals.json',
+    signed: false,
+    producerCommand: 'decision_doc_proposal',
+    consumerGate: 'decision_doc_save proposal freshness and target render gate',
+  },
+  decision_doc_save: {
+    name: 'process-events.jsonl',
+    path: 'process-events.jsonl',
+    signed: false,
+    producerCommand: 'decision_doc_save',
+    consumerGate: 'decision_doc_save audit evidence and existing decision-doc quorum DONE gate through changed docs/requirements/decisions/*.md',
   },
   delivery_check_set: {
     name: 'delivery-check.json',
@@ -547,6 +565,7 @@ function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSem
   if (artifact.path === 'scope-freeze-check.json') semantics.push('validation-result', 'schema-contract');
   if (artifact.path === 'scope-extension-proposals.json') semantics.push('blocker-state', 'schema-contract');
   if (artifact.path === 'scope-discard-digest.json') semantics.push('supersession-policy');
+  if (artifact.path === 'decision-doc-proposals.json') semantics.push('schema-contract', 'execution-evidence');
   return semantics;
 }
 
@@ -679,6 +698,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_extension_proposal,
     rationale: 'Pending reviewer scope expansion proposals block INIT_CHECK until explicitly decided.',
+  },
+  {
+    name: 'artifact:decision-doc-proposals.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'gate-evidence', 'schema-contract', 'execution-evidence'],
+    level: 'L4',
+    producer: 'handlers/decision-doc-promotion',
+    consumerGate: 'decision_doc_save proposal freshness and target render gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.decision_doc_proposal,
+    rationale: 'Story-local decision-doc proposals bind drafted policy content, source decision digest, target path, and save records before durable decision docs are materialized.',
   },
   {
     name: 'artifact:scope-discard-digest.json',

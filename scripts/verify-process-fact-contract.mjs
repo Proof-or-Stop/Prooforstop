@@ -122,6 +122,8 @@ const requiredProcessFactSemantics = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  decision_doc_proposal: ['schema-contract', 'gate-evidence'],
+  decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   authority_receipt_verify: ['gate-evidence'],
 };
 const requiredReviewerLanes = [
@@ -157,6 +159,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
   { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
+  { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
   { name: 'artifact:authority-receipt-refs.json', path: 'authority-receipt-refs.json', signed: false },
 ];
 const requiredReviewLoopL4Commands = [
@@ -173,6 +176,11 @@ const requiredDoneClosureReadOnlyCommands = [
 ];
 const requiredDecisionDocQuorumReadOnlyCommands = [
   'decision_doc_quorum_check',
+];
+const requiredDecisionDocPromotionCommands = [
+  'decision_doc_proposal',
+  'decision_doc_preview',
+  'decision_doc_save',
 ];
 const legacyCommandPolicyGuidance = {
   test_auto: {
@@ -2000,6 +2008,128 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
   }
 }
 
+function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  for (const commandName of requiredDecisionDocPromotionCommands) {
+    assert(cliToolNameSet.has(commandName), `CLI schema: required decision-doc promotion command missing from MAIN_TOOLS: ${commandName}`);
+    const policy = policyByName.get(commandName);
+    assert(policy, `${commandPolicyPath}: required decision-doc promotion command missing lifecycle policy: ${commandName}`);
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: required decision-doc promotion command missing level entry: ${commandName}`);
+    const registryEntry = registry.get(commandName);
+    assert(registryEntry, `${processFactRegistryPath}: required decision-doc promotion command missing registry entry: ${commandName}`);
+  }
+
+  const proposalPolicy = policyByName.get('decision_doc_proposal');
+  if (proposalPolicy) {
+    assert(proposalPolicy.gateEvidence, `${commandPolicyPath}: decision_doc_proposal must stay gateEvidence`);
+    assert(sameStringArray(proposalPolicy.allowedPhases, ['PLAN', 'DEV']), `${commandPolicyPath}: decision_doc_proposal must stay PLAN/DEV only`);
+    assert(proposalPolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: decision_doc_proposal destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(proposalPolicy, 'storyScopedMutating'), `${commandPolicyPath}: decision_doc_proposal must stay storyScopedMutating`);
+    assert(/digest-bound|proposal/i.test(proposalPolicy.reason), `${commandPolicyPath}: decision_doc_proposal policy must name the digest-bound proposal boundary`);
+    assert(/Authority|receipt|productionDone/i.test(proposalPolicy.reason), `${commandPolicyPath}: decision_doc_proposal policy must preserve the Authority/no-overclaim boundary`);
+  }
+  const proposalLevel = levelRegistry.get('decision_doc_proposal');
+  if (proposalLevel) {
+    assert(proposalLevel.level === 'L4', `${processFactLevelRegistryPath}: decision_doc_proposal must stay L4`);
+    assert(proposalLevel.category === 'decision-doc-promotion', `${processFactLevelRegistryPath}: decision_doc_proposal category must stay decision-doc-promotion`);
+    assert(proposalLevel.owner === 'handlers/decision-doc-promotion', `${processFactLevelRegistryPath}: decision_doc_proposal owner drifted`);
+    assert(/decision_doc_save|freshness|render/i.test(proposalLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: decision_doc_proposal gateConsumer must name save freshness/render consumption`);
+  }
+  const proposalRegistry = registry.get('decision_doc_proposal');
+  if (proposalRegistry) {
+    assert(proposalRegistry.level === 'L4', `${processFactRegistryPath}: decision_doc_proposal registry level must stay L4`);
+    assert(proposalRegistry.kind === 'gate-evidence', `${processFactRegistryPath}: decision_doc_proposal registry kind must stay gate-evidence`);
+    assert(proposalRegistry.gateEvidence === true, `${processFactRegistryPath}: decision_doc_proposal registry gateEvidence must stay true`);
+    assert(proposalRegistry.artifact?.path === 'decision-doc-proposals.json', `${processFactRegistryPath}: decision_doc_proposal must record decision-doc-proposals.json`);
+    assert(/decision_doc_save|freshness|render/i.test(proposalRegistry.consumerGate), `${processFactRegistryPath}: decision_doc_proposal consumerGate drifted (${proposalRegistry.consumerGate})`);
+    for (const semantic of ['schema-contract', 'gate-evidence']) {
+      assert(proposalRegistry.semantics.includes(semantic), `${processFactRegistryPath}: decision_doc_proposal missing ${semantic} semantic`);
+    }
+  }
+
+  const previewPolicy = policyByName.get('decision_doc_preview');
+  if (previewPolicy) {
+    assert(!previewPolicy.gateEvidence, `${commandPolicyPath}: decision_doc_preview must not be gateEvidence`);
+    assert(previewPolicy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: decision_doc_preview must be allowed in all phases`);
+    assert(previewPolicy.destructiveRisk === 'none', `${commandPolicyPath}: decision_doc_preview destructiveRisk must stay none`);
+    assert(policyBlockHasOwnershipClass(previewPolicy, 'readOnly'), `${commandPolicyPath}: decision_doc_preview must stay readOnly`);
+    assert(/read-only|writes no files|metadata|process events/i.test(previewPolicy.reason), `${commandPolicyPath}: decision_doc_preview policy must state the read-only/no-mutation boundary`);
+    assert(/Authority|authorityDone|fullAuthorityDone|productionDone/i.test(previewPolicy.reason), `${commandPolicyPath}: decision_doc_preview policy must preserve the Authority/no-overclaim boundary`);
+  }
+  const previewLevel = levelRegistry.get('decision_doc_preview');
+  if (previewLevel) {
+    assert(previewLevel.level === 'L0', `${processFactLevelRegistryPath}: decision_doc_preview must stay L0`);
+    assert(previewLevel.category === 'decision-doc-promotion-read', `${processFactLevelRegistryPath}: decision_doc_preview category must stay decision-doc-promotion-read`);
+    assert(previewLevel.owner === 'handlers/decision-doc-promotion', `${processFactLevelRegistryPath}: decision_doc_preview owner drifted`);
+    assert(!previewLevel.gateConsumer, `${processFactLevelRegistryPath}: decision_doc_preview must not declare a gateConsumer`);
+  }
+  const previewRegistry = registry.get('decision_doc_preview');
+  if (previewRegistry) {
+    assert(previewRegistry.level === 'L0', `${processFactRegistryPath}: decision_doc_preview registry level must stay L0`);
+    assert(previewRegistry.kind === 'command', `${processFactRegistryPath}: decision_doc_preview registry kind must stay command`);
+    assert(previewRegistry.gateEvidence === false, `${processFactRegistryPath}: decision_doc_preview registry gateEvidence must stay false`);
+    assert(!previewRegistry.artifact, `${processFactRegistryPath}: decision_doc_preview must not produce a process artifact`);
+    assert(!previewRegistry.consumerGate, `${processFactRegistryPath}: decision_doc_preview must not be consumed by a lifecycle gate`);
+    assert(previewRegistry.semantics.includes('command'), `${processFactRegistryPath}: decision_doc_preview must remain a command projection semantic`);
+    assert(!previewRegistry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: decision_doc_preview must not gain gate-evidence semantic`);
+  }
+
+  const savePolicy = policyByName.get('decision_doc_save');
+  if (savePolicy) {
+    assert(savePolicy.gateEvidence, `${commandPolicyPath}: decision_doc_save must stay gateEvidence`);
+    assert(sameStringArray(savePolicy.allowedPhases, ['DEV']), `${commandPolicyPath}: decision_doc_save must stay DEV-only`);
+    assert(savePolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: decision_doc_save destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(savePolicy, 'storyScopedMutating'), `${commandPolicyPath}: decision_doc_save must stay storyScopedMutating`);
+    assert(/docs\/requirements\/decisions\/<slug>\.md|decision-doc quorum DONE gate|fresh proposal/i.test(savePolicy.reason), `${commandPolicyPath}: decision_doc_save policy must name canonical path, freshness, and quorum gate`);
+    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(savePolicy.reason), `${commandPolicyPath}: decision_doc_save policy must preserve the Authority/no-overclaim boundary`);
+  }
+  const saveLevel = levelRegistry.get('decision_doc_save');
+  if (saveLevel) {
+    assert(saveLevel.level === 'L4', `${processFactLevelRegistryPath}: decision_doc_save must stay L4`);
+    assert(saveLevel.category === 'decision-doc-promotion', `${processFactLevelRegistryPath}: decision_doc_save category must stay decision-doc-promotion`);
+    assert(saveLevel.owner === 'handlers/decision-doc-promotion', `${processFactLevelRegistryPath}: decision_doc_save owner drifted`);
+    assert(/decision-doc quorum DONE gate|docs\/requirements\/decisions/i.test(saveLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: decision_doc_save gateConsumer must name changed decision-doc quorum consumption`);
+  }
+  const saveRegistry = registry.get('decision_doc_save');
+  if (saveRegistry) {
+    assert(saveRegistry.level === 'L4', `${processFactRegistryPath}: decision_doc_save registry level must stay L4`);
+    assert(saveRegistry.kind === 'gate-evidence', `${processFactRegistryPath}: decision_doc_save registry kind must stay gate-evidence`);
+    assert(saveRegistry.gateEvidence === true, `${processFactRegistryPath}: decision_doc_save registry gateEvidence must stay true`);
+    assert(saveRegistry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: decision_doc_save must record process-events.jsonl evidence`);
+    assert(/decision-doc quorum DONE gate|docs\/requirements\/decisions/i.test(saveRegistry.consumerGate), `${processFactRegistryPath}: decision_doc_save consumerGate drifted (${saveRegistry.consumerGate})`);
+    for (const semantic of ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence']) {
+      assert(saveRegistry.semantics.includes(semantic), `${processFactRegistryPath}: decision_doc_save missing ${semantic} semantic`);
+    }
+  }
+
+  const proposalArtifact = registry.get('artifact:decision-doc-proposals.json');
+  assert(proposalArtifact, `${processFactRegistryPath}: decision doc proposal artifact missing from PROCESS_FACT_REGISTRY`);
+  if (proposalArtifact) {
+    assert(proposalArtifact.level === 'L4', `${processFactRegistryPath}: decision-doc-proposals.json artifact must stay L4`);
+    assert(proposalArtifact.kind === 'artifact', `${processFactRegistryPath}: decision-doc-proposals.json artifact kind must stay artifact`);
+    assert(proposalArtifact.artifact?.path === 'decision-doc-proposals.json', `${processFactRegistryPath}: decision-doc-proposals.json artifact path drifted`);
+    assert(proposalArtifact.artifact?.signed === false, `${processFactRegistryPath}: decision-doc-proposals.json artifact must remain digest-bound, not signed`);
+    assert(/decision_doc_save|freshness|render/i.test(proposalArtifact.consumerGate), `${processFactRegistryPath}: decision-doc-proposals.json artifact consumerGate drifted (${proposalArtifact.consumerGate})`);
+    for (const semantic of ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence']) {
+      assert(proposalArtifact.semantics.includes(semantic), `${processFactRegistryPath}: decision-doc-proposals.json artifact missing ${semantic} semantic`);
+    }
+  }
+
+  const handlerText = read('packages/main/src/handlers/decision-doc-promotion.ts');
+  for (const token of [
+    'assertTargetInScope',
+    'expectedProposalDigest',
+    'expectedSourceDecisionDigest',
+    'renderDecisionDocMarkdown',
+    'writeFileSync(targetAbs',
+    'authorityBoundary',
+    'not Authority Server receipt completion',
+    'does not set authorityDone, fullAuthorityDone, or productionDone',
+  ]) {
+    assert(handlerText.includes(token), `packages/main/src/handlers/decision-doc-promotion.ts: missing decision-doc promotion contract token ${token}`);
+  }
+}
+
 function assertActiveLifecycleDocGuidance() {
   for (const relPath of activeLifecycleDocPaths) {
     const text = read(relPath);
@@ -2715,6 +2845,7 @@ async function assertLifecycleArtifactScopePolicy() {
     '.lattice/story/actives/B-scope/execution-boundary.json',
     '.lattice/story/actives/B-scope/scope-freeze-check.json',
     '.lattice/story/actives/B-scope/scope-extension-proposals.json',
+    '.lattice/story/actives/B-scope/decision-doc-proposals.json',
     '.lattice/story/actives/B-scope/scope-discard-digest.json',
     '.lattice/story/actives/B-scope/process-events.jsonl',
     transcriptOnlyFile,
@@ -2841,6 +2972,7 @@ function assertProcessFactCommandInventory() {
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {
