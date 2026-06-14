@@ -213,12 +213,12 @@
           "kind": "docs_check",
           "verdict": "success",
           "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-          "command": "rg -n \"Proposed Artifacts|Proposed CLI Surface|File-Level Execution Plan|Rollout Plan|Acceptance Criteria\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q '^## Proposed Artifacts$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## Proposed CLI Surface$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## File-Level Execution Plan$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## Rollout Plan$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## Acceptance Criteria$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
-          "note": "Addresses F-001 by explicitly checking artifacts, commands, code touchpoints, rollout, and acceptance criteria sections.",
-          "headHash": "c02721203cd9c094e21ff85ccde8a183f9dab973",
+          "note": "Strict evidence for F-001: every required execution-plan section is checked with a separate anchored rg -q clause, so the command fails if artifacts, CLI surface, file-level touchpoints, rollout, or acceptance criteria are removed individually.",
+          "headHash": "a3ebfb814e2c1bad236293d62b6b7e9c9af9a69f",
           "materialHash": "5c5ee6e04432d12b3311aa155fba10d2b3362db940908ca756f8f5e0741fb6d0",
-          "timestamp": "2026-06-14T23:04:33.912Z"
+          "timestamp": "2026-06-14T23:13:23.473Z"
         },
         {
           "intentRef": "B-1550:F-002",
@@ -243,6 +243,18 @@
           "headHash": "c02721203cd9c094e21ff85ccde8a183f9dab973",
           "materialHash": "5c5ee6e04432d12b3311aa155fba10d2b3362db940908ca756f8f5e0741fb6d0",
           "timestamp": "2026-06-14T23:04:33.912Z"
+        },
+        {
+          "intentRef": "B-1550:F-004",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q '^## Proposed Artifacts$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## Proposed CLI Surface$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## File-Level Execution Plan$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## Rollout Plan$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q '^## Acceptance Criteria$' docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "Addresses F-004 by replacing the broad alternation-style evidence with a conjunctive command that must match each required section independently.",
+          "headHash": "a3ebfb814e2c1bad236293d62b6b7e9c9af9a69f",
+          "materialHash": "5c5ee6e04432d12b3311aa155fba10d2b3362db940908ca756f8f5e0741fb6d0",
+          "timestamp": "2026-06-14T23:13:23.473Z"
         }
       ]
     }
