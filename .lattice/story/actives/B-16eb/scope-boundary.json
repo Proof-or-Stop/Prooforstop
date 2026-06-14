@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-16eb",
+  "mode": "maintenance",
+  "allowed": [
+    "Audit and revise docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+    "Record local 3 round 2 host review evidence for the changed decision doc",
+    "Update docs/requirements/NAV.md to include the new execution plan"
+  ],
+  "excluded": [
+    "Change Authority Server receipt semantics",
+    "Claim productionDone or Authority completion",
+    "Implement configurable decision doc paths",
+    "Implement decision_doc_proposal command",
+    "Implement decision_doc_save command"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to continue and specifically asked whether Lattice 3 round 2 host was done for the document audit.",
+  "createdAt": "2026-06-14T18:28:14.542Z",
+  "updatedAt": "2026-06-14T18:28:14.542Z",
+  "_hash": "9557e37211a62e74c3d21f729f75580df59719bd5892dafdb3ec3c778fc05e63"
+}
