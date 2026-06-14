@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-14T22:58:14.585Z",
       "reviewRunId": "B-1550:RR-003",
       "_hash": "773970ff49b5b103f8a9389047176d89c06b1e1a5325011669e55cefc234af91"
+    },
+    {
+      "id": "B-1550:RP-002",
+      "agent": "koala-review-quality",
+      "note": "F-002 is resolved: the plan now states review_escalation_status is read-only, must not write review-escalation.json, and persisted diagnostics belong to DONE gate evaluation or a separate mutating review_escalation_snapshot-style command. I found no remaining clarity or internal-consistency blocker in the reviewed sections.",
+      "createdAt": "2026-06-14T23:08:30.973Z",
+      "reviewRound": "2026-06-14T23:04:58.714Z",
+      "reviewRunId": "B-1550:RR-008",
+      "_hash": "2a7468cbafd13fe4bfe1b7c916416721cc43dc0a4a423bbced28fc8f0da66c5d"
     }
   ]
 }
