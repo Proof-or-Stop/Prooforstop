@@ -1,0 +1,41 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Move the execution plan into a dedicated Lattice story worktree",
+      "context": "Apply the already drafted decision-doc promotion execution plan and NAV update inside the story worktree so review and DONE gates operate on the actual changed files.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "The document changes are tracked by a dedicated Lattice story rather than an ad hoc main edit.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Audit the plan for scope, freshness, and Authority boundaries",
+      "context": "Ensure the plan forbids DEV-time scope expansion, requires proposal/source-decision freshness, and keeps local quorum separate from Authority/production completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "userSees": "The execution plan explicitly protects scope and Authority boundaries.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run 3 round 2 host review evidence for the decision doc",
+      "context": "Because the story changes docs/requirements/decisions/*.md, record local host_verdict evidence for three distinct rounds and two distinct hosts per round, then verify the decision_doc_quorum_check diagnostic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "userSees": "The decision-doc quorum diagnostic reports pass for this story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
