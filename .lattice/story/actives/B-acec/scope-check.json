@@ -1,0 +1,129 @@
+{
+  "storyId": "B-acec",
+  "checkedAt": "2026-06-14T19:51:51.387Z",
+  "features": [
+    {
+      "feature": "Allowed: local CLI decision_doc_proposal, decision_doc_preview, and decision_doc_save workflow",
+      "covered_by": "CHK-001, CHK-002, CHK-003; B-16eb Proposed CLI Surface",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:B-acec; decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+    },
+    {
+      "feature": "Allowed: story-local decision-doc proposal metadata plus deterministic Markdown rendering primitives",
+      "covered_by": "CHK-001 files packages/main/src/core/store.ts, packages/main/src/core/types.ts, packages/main/src/handlers/decision-doc-promotion.ts; B-16eb Proposal Artifact Shape and Generated Markdown Template",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:B-acec CHK-001; decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+    },
+    {
+      "feature": "Allowed: canonical docs/requirements/decisions/*.md save with confirm, create/update, freshness, overwrite, and scope guards",
+      "covered_by": "CHK-002; understanding constraints; B-16eb Canonical Path and Validation Rules",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:B-acec CHK-002; understanding:B-acec; decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+    },
+    {
+      "feature": "Allowed: CLI schemas/help/registry aliases plus phase availability and command policy registration",
+      "covered_by": "CHK-003 declared files packages/main/src/registry.ts, packages/main/src/cli-engine.ts, packages/main/src/core/command-policy.ts, packages/main/src/core/config.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:B-acec CHK-003; source:declared-files"
+    },
+    {
+      "feature": "Allowed: process fact level/registry and verifier coverage for proposal/save semantics and Authority boundary text",
+      "covered_by": "CHK-003 declared files packages/main/src/core/process-fact-levels.ts, packages/main/src/core/process-fact-registry.ts, scripts/verify-process-fact-contract.mjs; B-16eb Process Fact Contract",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:B-acec CHK-003; source:declared-files; decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+    },
+    {
+      "feature": "Allowed: focused smoke tests for happy, edge, and adversarial local promotion paths",
+      "covered_by": "CHK-004 packages/main/src/tasks/decision-doc-promotion-smoke.ts and packages/main/package.json; B-16eb Test Plan narrowed to first-version local CLI workflow",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:B-acec CHK-004"
+    },
+    {
+      "feature": "Allowed: implementation-document clarification only if shipped command behavior needs alignment",
+      "covered_by": "CHK-005 docs/requirements/decisions/decision-doc-promotion-execution-plan.md and docs/requirements/NAV.md; adversarial intent forbids broad claims",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:B-acec CHK-005"
+    },
+    {
+      "feature": "Excluded: Authority Server receipts or native receipt verification work",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-16eb Non-Goals and Authority boundary; understanding constraints; CHK-003 and CHK-005 adversarial intents",
+      "source": "decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; understanding:B-acec; checklist:B-acec"
+    },
+    {
+      "feature": "Excluded: receiptVerified, authorityDone, fullAuthorityDone, or productionDone claims",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-16eb Non-Goals; understanding constraints; decision preMortem local promotion mistaken for Authority completion",
+      "source": "decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; decision:B-acec"
+    },
+    {
+      "feature": "Excluded: customerKeyRef or capability Layer4 / Production Safety changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-005 adversarial intent; understanding constraints; scope anti-expansion terms are not implementation scope for this story",
+      "source": "checklist:B-acec CHK-005; understanding:B-acec; source:packages/main/src/core/scope-anti-expansion.ts"
+    },
+    {
+      "feature": "Excluded: custom decision-doc paths, nested directories, or configurable target paths",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-16eb Canonical Path and Rollout Plan; CHK-002 canonical target guard; CHK-005 adversarial intent",
+      "source": "decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; checklist:B-acec"
+    },
+    {
+      "feature": "Excluded: automatic decision_set to decision-doc promotion",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-16eb Non-Goals; decision option C rejected; CHK-001 requires explicit proposal and preview",
+      "source": "decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; decision:B-acec; checklist:B-acec CHK-001"
+    },
+    {
+      "feature": "Excluded: INIT reviewer writes or INIT reviewer scope expansion through decision_doc_save",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-16eb Non-Goals and Validation Rules; command policy target in CHK-003 limits proposal PLAN/DEV and save DEV",
+      "source": "decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; checklist:B-acec CHK-003"
+    },
+    {
+      "feature": "Excluded: replacing or weakening the existing decision-doc quorum gate",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-16eb Lifecycle And Gate Interaction says no second quorum; checklist touches no decision-doc-quorum handler and only tests local promotion side effects",
+      "source": "decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; checklist:B-acec"
+    },
+    {
+      "feature": "Excluded: production DONE or Authority job control-plane implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding constraints and B-16eb Authority boundary; declared files exclude Authority runner, receipt, job, and production completion handlers",
+      "source": "understanding:B-acec; decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; source:declared-files"
+    },
+    {
+      "feature": "Excluded: prose-only decision-doc quorum evidence or gate weakening",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-16eb Non-Goals and Reviewer Checklist; CHK-003 process fact contract requires structured policy/registry assertions",
+      "source": "decisions:docs/requirements/decisions/decision-doc-promotion-execution-plan.md; checklist:B-acec CHK-003"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 7,
+    "excluded": 9,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "76bebf418e0a228e9d569adc476745046d7c4d4b7ef7335fe259f53d169e8d34",
+  "openQuestions": []
+}
