@@ -323,9 +323,9 @@
         "docs/requirements/NAV.md"
       ],
       "userSees": "The decision-doc promotion document matches the implemented first-version CLI contract.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-14T19:55:34.936Z",
-      "endTime": null,
+      "endTime": "2026-06-14T21:36:40.430Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
@@ -356,7 +356,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "command": "git diff --quiet -- docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md; echo docs_diff_exit:$?",
+          "result": "pass",
+          "note": "docs_diff_exit:0 confirmed no doc update was needed: B-16eb execution doc and NAV already matched the shipped first-version CLI contract.",
+          "headHash": "4aea9f96d6793e56204c50e01bc25594beb7619c",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:40.471Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "command": "git diff --quiet -- docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md; echo docs_diff_exit:$?",
+          "result": "pass",
+          "note": "Existing B-16eb document already describes proposal, preview, save, canonical docs/requirements/decisions/<slug>.md target, scope/freshness guards, and local-only Authority boundary; no implementation drift required doc edits.",
+          "headHash": "4aea9f96d6793e56204c50e01bc25594beb7619c",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:40.509Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Authority|authorityDone|fullAuthorityDone|productionDone|customerKeyRef|Layer4|custom|automatic\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "Search hits in the execution doc are boundary/non-goal statements: no automatic promotion, no custom paths in first version, no Authority receipt completion, no authorityDone/fullAuthorityDone/productionDone claims.",
+          "headHash": "4aea9f96d6793e56204c50e01bc25594beb7619c",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T21:36:40.541Z"
+        }
+      ]
     }
   ]
 }
