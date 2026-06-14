@@ -147,10 +147,10 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "Smoke verifies checklist-only files.create cannot authorize decision_doc_save without scope-contract allowedCreate, accepted scope extension still authorizes a target outside the contract, and stale proposal/source digests fail closed before writes.",
-          "headHash": "f63d4f5ec29ad9784ac5b025acde88019b8763f8",
+          "note": "Smoke proves decision_doc_save rejects a forged accepted scope extension carrying dummy proposal/decision _hash values, then accepts the same outside-contract target only after a helper-built scope extension with fresh proposal and decision hashes is installed; stale proposal/source digests still fail closed.",
+          "headHash": "477f4906b8e50abe3206bffeeea8dfeaa745beb6",
           "materialHash": "722a7a7dcae572e19816aaf434b2e4233f135f70e3dab97cb75c0fda9adec15c",
-          "timestamp": "2026-06-14T22:24:51.723Z"
+          "timestamp": "2026-06-14T22:35:52.704Z"
         }
       ]
     },
@@ -305,12 +305,12 @@
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke && npm --prefix packages/main run test:scope-contract-smoke && npm --prefix packages/main run test:scope-contract-plan-scope-smoke",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
           "result": "pass",
-          "note": "Focused smoke proves checklist-only scope backdoor and non-canonical target path are blocked, preview has no proposal/process-event/doc write side effects, and scope-contract regressions still pass.",
-          "headHash": "f63d4f5ec29ad9784ac5b025acde88019b8763f8",
+          "note": "Focused smoke now covers the forged accepted scope-extension regression, mechanically valid accepted scope-extension positive path, checklist-only out-of-scope rejection, non-canonical target rejection, and read-only preview side effects.",
+          "headHash": "477f4906b8e50abe3206bffeeea8dfeaa745beb6",
           "materialHash": "722a7a7dcae572e19816aaf434b2e4233f135f70e3dab97cb75c0fda9adec15c",
-          "timestamp": "2026-06-14T22:24:51.723Z"
+          "timestamp": "2026-06-14T22:35:52.704Z"
         }
       ]
     },
@@ -361,12 +361,12 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "docs_check",
-          "command": "git diff --quiet -- docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md; echo docs_diff_exit:$?",
+          "command": "! rg \"PLAN scope|declared scope|declared in PLAN|outside PLAN scope|scope-extension path|scope coverage\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
           "result": "pass",
-          "note": "docs_diff_exit:0 confirmed no doc update was needed: B-16eb execution doc and NAV already matched the shipped first-version CLI contract.",
-          "headHash": "f63d4f5ec29ad9784ac5b025acde88019b8763f8",
+          "note": "Decision-doc promotion plan no longer uses stale PLAN-scope or scope-extension-path wording; save authorization is documented as scope contract allowedCreate/allowedModify or a mechanically valid accepted/approved scope extension.",
+          "headHash": "477f4906b8e50abe3206bffeeea8dfeaa745beb6",
           "materialHash": "722a7a7dcae572e19816aaf434b2e4233f135f70e3dab97cb75c0fda9adec15c",
-          "timestamp": "2026-06-14T22:24:51.723Z"
+          "timestamp": "2026-06-14T22:35:52.704Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
