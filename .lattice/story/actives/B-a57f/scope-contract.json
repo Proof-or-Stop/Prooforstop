@@ -1,0 +1,26 @@
+{
+  "storyId": "B-a57f",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+    "packages/main/src/cli-engine.ts",
+    "README.md",
+    "docs/guide.md",
+    "docs/guide-hooks.md",
+    "docs/requirements/decisions"
+  ],
+  "allowedCreate": [
+    "scripts/extract-cli-engine-english-manifest.mjs",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-14T21:09:54.012Z",
+  "updatedAt": "2026-06-14T21:09:54.012Z"
+}
