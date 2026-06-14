@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Phase 0: add the manifest extract script and freeze the manifest against current source",
       "context": "Add scripts/extract-cli-engine-english-manifest.mjs (per the plan's required command shape) that scans packages/main/src/cli-engine.ts and emits the line-level manifest (columns: translationId, sourceLine, surface, chineseSource, proposedEnglish, reviewStatus). Regenerate against the CURRENT source (767 Chinese lines), re-anchor sourceLine, add the 5 rows missing since the 762-row snapshot, carry over the approved English from the plan doc, and keep M668/M669/M750 marked behavior-sensitive (out of scope here). Implementation may not start until every Chinese line maps to an approved row. relatedDocs: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-14T21:09:51.084Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
