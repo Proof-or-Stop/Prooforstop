@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a57f",
+  "checkedAt": "2026-06-14T16:27:49.042Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "119e973d077ce9e80c8c641304731c78c25b0d8ef6733bca464e94daca473bec",
+  "executionBoundaryHash": "5909d002f216fb3f840029003c762c687a893317e40226d9f0550946136014ea",
+  "freshnessHash": "6d3b0b629c01d5583a9fb6cde92b888097aaa25bbca37496076e8083af053a4a",
+  "effectiveExcludedKeywords": [
+    "Changing CLI logic or behavior beyond translating text strings",
+    "Retranslating the plan doc itself or generated manifests (allowlisted)",
+    "The 3 behavior-sensitive rows M668/M669/M750 (regex/.includes matchers over Chinese) — deferred to a follow-up story",
+    "Translating inactive/legacy archive content (moved, not translated)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing CLI logic or behavior beyond translating text strings",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing CLI logic or behavior beyond translating text strings",
+      "excluded": true
+    },
+    {
+      "keyword": "Retranslating the plan doc itself or generated manifests (allowlisted)",
+      "source": "scopeBoundary.excluded",
+      "text": "Retranslating the plan doc itself or generated manifests (allowlisted)",
+      "excluded": true
+    },
+    {
+      "keyword": "The 3 behavior-sensitive rows M668/M669/M750 (regex/.includes matchers over Chinese) — deferred to a follow-up story",
+      "source": "scopeBoundary.excluded",
+      "text": "The 3 behavior-sensitive rows M668/M669/M750 (regex/.includes matchers over Chinese) — deferred to a follow-up story",
+      "excluded": true
+    },
+    {
+      "keyword": "Translating inactive/legacy archive content (moved, not translated)",
+      "source": "scopeBoundary.excluded",
+      "text": "Translating inactive/legacy archive content (moved, not translated)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7e58795ddf51bc7009e54d712c2d01754ae6d0d13e2711e8d3607357462700b5"
+}
