@@ -1,0 +1,37 @@
+{
+  "storyId": "B-acec",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/decision-doc-promotion.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/package.json",
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/decision-doc-promotion.ts",
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/tests/fixtures/**",
+    "docs/requirements/decisions/authority-*.md"
+  ],
+  "scopeChangeReason": "Initialize enforce scope contract from B-acec PLAN file declarations before implementing decision-doc promotion commands.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-14T19:53:03.494Z",
+  "updatedAt": "2026-06-14T19:53:03.494Z"
+}
