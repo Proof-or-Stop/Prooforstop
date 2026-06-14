@@ -9,9 +9,9 @@
         "docs/requirements/NAV.md"
       ],
       "userSees": "The document changes are tracked by a dedicated Lattice story rather than an ad hoc main edit.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-14T18:36:07.534Z",
-      "endTime": null,
+      "endTime": "2026-06-14T18:38:12.946Z",
       "files": {
         "modify": [
           "docs/requirements/NAV.md"
@@ -43,7 +43,43 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "command": "test -f docs/requirements/decisions/decision-doc-promotion-execution-plan.md && rg -n \"Decision Doc Promotion Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The decision document exists in the B-16eb worktree and NAV links it at docs/requirements/NAV.md:15.",
+          "headHash": "e502ae7670190db0fd2bef6fa80c5e12180a1c96",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:13.012Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git show --name-only --format=%H%n%s 38439074b50be1da5c3a4541a57bb819fe4d2490 && git diff --check HEAD~1 HEAD",
+          "result": "pass",
+          "note": "Material commit 38439074 changed only docs/requirements/NAV.md and docs/requirements/decisions/decision-doc-promotion-execution-plan.md, and whitespace check passed.",
+          "headHash": "e502ae7670190db0fd2bef6fa80c5e12180a1c96",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:13.046Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git branch --show-current && git log -1 --oneline",
+          "result": "pass",
+          "note": "The work is on local story branch story/B-16eb and committed through the Lattice story lifecycle, not kept as an ad hoc main edit.",
+          "headHash": "e502ae7670190db0fd2bef6fa80c5e12180a1c96",
+          "materialHash": "69bc5e73ca1e1526658748892fceaf37e72b708ab93c38628dfa24c58f531898",
+          "timestamp": "2026-06-14T18:38:13.080Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -126,6 +162,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-14T18:38:12.946Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Document material commit and scope contract exist for the dedicated story worktree."
     }
   ]
 }
