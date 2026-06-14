@@ -183,9 +183,10 @@ Expected behavior:
 - Requires an existing story.
 - Requires an existing `decision.json` unless `sourceDecision` is explicitly
   set to `"manual"`.
-- Requires the intended decision-doc target to be in the story's allowed PLAN
-  scope or file declarations. If the target doc is a new scope item, the story
-  must use the existing scope-extension path before save.
+- Requires the intended decision-doc target to be covered by the story scope
+  contract: `allowedCreate` for new docs or `allowedModify` for updates. If the
+  target doc is not covered, the story must use the existing accepted/approved
+  scope-extension path before save.
 - Validates `slug`, title, decision, context, scope, non-goals, chosen approach,
   alternatives, operational rules, verification requirements, and risks.
 - Writes a story-local artifact, for example:
@@ -263,9 +264,10 @@ docs/requirements/decisions/<slug>.md
   at save time. If `decision.json` or the proposal changed after preview/review,
   the command must fail closed and ask for a refreshed proposal or explicit
   reviewer re-approval.
-- Verifies that the target path is covered by the story scope contract, allowed
-  file declarations, or an accepted scope extension. The save command must not
-  become a back door for expanding story scope during DEV.
+- Verifies that the target path is covered by the story scope contract
+  (`allowedCreate` for creates or `allowedModify` for updates), or by an
+  accepted/approved scope extension. The save command must not become a back
+  door for expanding story scope during DEV.
 
 The write itself does not complete the story. It changes a decision doc, so the
 existing decision-doc quorum gate becomes applicable before DONE.
@@ -395,8 +397,8 @@ decision-doc 3x2 host verdict quorum.
 - source decision digest no longer matches the decision used to create the
   proposal, unless the proposal is refreshed and reviewed again;
 - target path is outside `docs/requirements/decisions/*.md`;
-- target path is not covered by PLAN scope, checklist file declarations, or an
-  accepted scope extension;
+- target path is not covered by the scope contract's `allowedCreate` or
+  `allowedModify`, or by an accepted/approved scope extension;
 - target file exists and `mode !== "update"`;
 - target file does not exist and `mode !== "create"`;
 - story phase is INIT reviewer context attempting to expand scope;
@@ -414,12 +416,15 @@ Expected lifecycle:
 PLAN:
   - story records decision_set
   - story records decision_doc_proposal when needed
-  - story declares the intended decision-doc path in scope or file declarations
+  - story scope contract covers the intended decision-doc path in
+    `allowedCreate` or `allowedModify`, or accepted/approved scope extension is
+    in place
 
 DEV:
   - implementation may call decision_doc_save
   - target decision doc is created or updated
-  - save refuses paths not covered by PLAN scope or accepted scope extension
+  - save refuses paths not covered by the scope contract or accepted/approved
+    scope extension
 
 REVIEW:
   - reviewers inspect the generated doc
