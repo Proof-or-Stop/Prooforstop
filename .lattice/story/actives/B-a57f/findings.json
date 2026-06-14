@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-a57f:F-001",
+      "desc": "quality-cleanup: packages/main/src/cli-engine.ts:1855 — optional non-boolean param rendering changed from [--k=value] (brackets signal optional) to --k=value (no brackets). The [...] convention for optional arguments was present on main. This is a help-text behavioral change, not a pure string translation: optional non-boolean params now look required in the Usage line. The story scope is text-only / no-logic-change.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-14T21:19:23.984Z",
+      "reviewRound": "2026-06-14T21:11:06.045Z",
+      "reviewRunId": "B-a57f:RR-006",
+      "_hash": "4262b7bec3232311b00aa714b183fe703b7b6a3658a4146cce163c110473ff0c",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ]
+    }
+  ]
+}
