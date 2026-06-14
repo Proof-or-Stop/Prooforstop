@@ -1,0 +1,55 @@
+{
+  "storyId": "B-a57f",
+  "changes": "Executed the cli-engine English translation plan (Phases 0-4). Phase 0: added scripts/extract-cli-engine-english-manifest.mjs + froze the manifest. Phase 1/2: translated all Chinese in packages/main/src/cli-engine.ts to English (public surface + comments) and updated compat tests. Translated packages/utils/src (the aux_/truth_/gap_ CLI surface) for English help. Phase 3: added the english-open-source-surface-smoke no-new-Chinese gate (scans both packages + active docs, explicit allowlists). Phase 4: translated README.md, docs/guide.md, docs/guide-hooks.md, and 18 active docs/requirements/decisions/ files. Text-only; no CLI logic changed (proven by code-skeleton equality vs main).",
+  "usage": "Run `node bin/lattice.js help` and `lattice <cmd> --help` to see the fully-English CLI; the no-new-Chinese gate runs via `npm run test:english-surface` and fails on new Chinese in active source/docs.",
+  "expectedOutcome": "lattice help and every <cmd> --help emit 0 Chinese; cli-engine.ts has only the 3 deferred behavior-sensitive matchers; active docs are English; the gate passes and is non-vacuous.",
+  "actualTranscript": "node bin/lattice.js help -> 0 Chinese chars. Sampled story_create/story_advance/validate/aux_doc_list/truth_scan/gap_analyze/convergence_check --help -> 0 Chinese each. Unknown command -> Unknown command: xyzzy_nonexistent. cli-engine.ts CJK lines = 3 (M668/M669/M750). Gate: PASS (480 files). Verifier: 65/65 PASS. build + npm test green.",
+  "outcomeDiff": "Expected == actual. The 65-intent committed verifier passes 65/65; CHK-003:edge:0 proves only string/comment content changed via code-skeleton equality.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Deferred to follow-up stories (still Chinese, explicitly gate-allowlisted): the 3 cli-engine runtime matchers M668/M669/M750, the utils aux-diagnose Chinese-in/Chinese-out rootCause subsystem, and 15 non-cli-engine packages/main/src files (~470 lines of internal comments, outside the cli-engine plan/manifest, do not affect the CLI surface). The plan doc + generated manifest retain Chinese in their chineseSource columns by design (allowlisted). No purely-historical Chinese-only docs were found, so nothing was archived.",
+  "pitfalls": "Behavior-sensitive matchers (M668/M669/M750, utils aux-diagnose) match Chinese at runtime; never translate them as prose. M107 story_reconcile description is worded (default dry run) specifically so M669 regex still fires the dry-run-default rendering. The manifest sourceLine is point-in-time and drifts as cli-engine.ts changes; regenerate before further edits.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 189368
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23835
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 456639
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 17418182
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1926749
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 2548153
+    }
+  },
+  "totalDurationMs": 22562941,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-14T22:40:48.932Z",
+  "updatedAt": "2026-06-14T22:40:48.932Z"
+}

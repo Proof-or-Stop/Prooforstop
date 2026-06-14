@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Phase 0 before any source edit: an approved manifest covering the current 767-line source is the prerequisite",
+    "Text-only translation: never change CLI control flow or logic while translating strings/comments",
+    "Behavior-sensitive matchers are not prose: defer M668/M669/M750 and re-scan for any other Chinese-matching runtime site before translating",
+    "Preserve all identifiers, enum values, JSON keys, filenames, legacy aliases, and template tokens",
+    "Lock the work with a no-new-Chinese gate so the migration cannot silently regress"
+  ],
+  "drivers": [
+    "Open-source readiness requires an all-English CLI surface and active docs",
+    "cli-engine.ts is the core 4031-line entrypoint; a mistranslated runtime matcher would break behavior",
+    "The user chose a single-story execution and accepted the larger diff"
+  ],
+  "options": [
+    {
+      "name": "Single story, manifest-driven, with re-scan + gate + test updates",
+      "pros": [
+        "Matches the user's directive",
+        "Manifest provides pre-approved English",
+        "Phase 0 re-scan catches matcher rows; Phase 3 gate prevents regression"
+      ],
+      "cons": [
+        "Very large diff across cli-engine.ts + tests + docs",
+        "Heavy review/test load in one story"
+      ]
+    },
+    {
+      "name": "Phase-by-phase stories",
+      "pros": [
+        "Smaller, more reviewable diffs",
+        "Earlier user-visible progress per phase"
+      ],
+      "cons": [
+        "More koala ceremony overhead",
+        "User explicitly declined this"
+      ]
+    }
+  ],
+  "chosen": "Single story, manifest-driven, with re-scan + gate + test updates",
+  "rationale": "Per the user's directive. Phase 0 regenerates the manifest from the current 767-line source (re-anchoring sourceLine, adding the 5 drifted lines, carrying over approved English) and re-scans for runtime Chinese matchers; only then are strings replaced. Tests asserting old Chinese are updated in Phase 1; a no-new-Chinese gate (Phase 3) locks the result; M668/M669/M750 stay untouched (follow-up story).",
+  "preMortem": [
+    {
+      "scenario": "A Chinese string that is matched at runtime (a matcher not in the known 3) gets translated as prose",
+      "trigger": "An undiscovered regex/.test/.match/.includes over Chinese beyond M668/M669/M750",
+      "consequence": "Runtime detection silently breaks (e.g. a dry-run or guard branch never fires)",
+      "mitigation": "Phase 0 re-scans cli-engine.ts for ALL Chinese-matching runtime sites; any new one is flagged behavior-sensitive and deferred, never translated in this story"
+    },
+    {
+      "scenario": "Tests that assert old Chinese CLI output fail after translation",
+      "trigger": "Existing smoke/e2e tests hard-coding Chinese strings",
+      "consequence": "Red test suite blocks TEST",
+      "mitigation": "Phase 1 enumerates (grep) and updates those tests in the same change; full validate run before advancing"
+    },
+    {
+      "scenario": "The 5 drifted lines (762->767) or shifted line numbers cause missed/duplicated translations",
+      "trigger": "Applying the stale 762-row snapshot directly to current source",
+      "consequence": "Residual Chinese or wrong-line edits",
+      "mitigation": "Phase 0 regenerates the manifest from current source; the Phase 3 no-new-Chinese gate catches any residual Chinese in active source"
+    },
+    {
+      "scenario": "An identifier, enum value, or JSON key gets translated",
+      "trigger": "Bulk string replacement not respecting code tokens",
+      "consequence": "CLI parsing/commands break",
+      "mitigation": "Manifest preserves identifiers; replacements are scoped to chineseSource snippets; build + e2e + review catch breakage"
+    },
+    {
+      "scenario": "The large diff conflicts with concurrent main changes on merge",
+      "trigger": "Other active stories editing cli-engine.ts or docs while this runs",
+      "consequence": "Merge conflicts or regressions at DONE",
+      "mitigation": "Keep the story moving, rebuild + full validate after merging main, and rely on the no-new-Chinese gate + e2e to catch regressions"
+    }
+  ],
+  "timestamp": "2026-06-14T16:29:45.158Z"
+}

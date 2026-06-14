@@ -1,9 +1,9 @@
 /**
- * tool_status — 统计 koala 工具的实际使用情况
+ * tool_status — report actual koala tool usage
  *
- * 数据源是双源 activity.jsonl（新路径 .koala/activity.jsonl + 旧路径 docs/story/activity.jsonl）。
- * CLI 调用 + Claude hook 都会落盘到新路径；旧路径只读兼容。
- * 不写任何状态，纯只读分析。
+ * The data source is the dual-source activity.jsonl (new path .koala/activity.jsonl + legacy path docs/story/activity.jsonl).
+ * Both CLI calls and the Claude hook write to the new path; the legacy path is read-only for compatibility.
+ * Writes no state; pure read-only analysis.
  */
 import type { HandlerContext } from '../../../main/dist/handlers/context.js';
 import { existsSync, readFileSync } from 'fs';
@@ -56,8 +56,8 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
       if (logPaths.length === 0) {
         return format === 'json'
-          ? { error: 'activity.jsonl 不存在', logPaths: [runtimeLogPath, legacyLogPath] }
-          : `(no data) activity.jsonl 不存在（已查找 ${runtimeLogPath} 和 ${legacyLogPath}）`;
+          ? { error: 'activity.jsonl not found', logPaths: [runtimeLogPath, legacyLogPath] }
+          : `(no data) activity.jsonl not found (looked in ${runtimeLogPath} and ${legacyLogPath})`;
       }
 
       const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
@@ -82,7 +82,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
         if (source !== 'all' && entry.source !== source) { filteredOut++; continue; }
         if (role && entry.role !== role) { filteredOut++; continue; }
 
-        // 时间过滤：endTime 优先，没有就用 startTime
+        // Time filter: prefer endTime, fall back to startTime
         const ts = entry.endTime || entry.startTime;
         if (ts) {
           const t = Date.parse(ts);
@@ -143,16 +143,16 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
         return { summary, top };
       }
 
-      // text 格式：dashboard
+      // text format: dashboard
       const lines: string[] = [];
-      lines.push(`=== koala 工具使用统计（最近 ${days} 天，source=${source}, role=${role ?? 'all'}） ===`);
-      lines.push(`日志文件: ${logPaths.join(' + ')}`);
-      lines.push(`总记录: ${totalLines} (解析 ${parsedLines}, 过滤 ${filteredOut})`);
-      lines.push(`工具数: ${sorted.length}`);
-      lines.push(`总调用: ${grandTotal} (cli ${grandCli}, claude ${grandClaude}, codex ${grandCodex})`);
-      lines.push(`成功率: ${grandOk}/${grandTotal} (${successPct}%) — fail ${grandFail}`);
+      lines.push(`=== koala tool usage (last ${days} days, source=${source}, role=${role ?? 'all'}) ===`);
+      lines.push(`Log files: ${logPaths.join(' + ')}`);
+      lines.push(`Total records: ${totalLines} (parsed ${parsedLines}, filtered ${filteredOut})`);
+      lines.push(`Tools: ${sorted.length}`);
+      lines.push(`Total calls: ${grandTotal} (cli ${grandCli}, claude ${grandClaude}, codex ${grandCodex})`);
+      lines.push(`Success rate: ${grandOk}/${grandTotal} (${successPct}%) — fail ${grandFail}`);
       lines.push('');
-      lines.push(`Top ${Math.min(limit, sorted.length)} 工具:`);
+      lines.push(`Top ${Math.min(limit, sorted.length)} tools:`);
       const maxNameLen = Math.max(...top.map(s => s.tool.length), 4);
       for (const s of top) {
         const last = s.lastUsed ? s.lastUsed.slice(0, 16).replace('T', ' ') : '-';
@@ -166,7 +166,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
         );
       }
       if (sorted.length > limit) {
-        lines.push(`  ... 还有 ${sorted.length - limit} 个工具未列出`);
+        lines.push(`  ... ${sorted.length - limit} more tools not listed`);
       }
 
       return lines.join('\n');

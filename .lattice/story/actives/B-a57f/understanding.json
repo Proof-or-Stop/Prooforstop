@@ -1,0 +1,33 @@
+{
+  "task": "Execute the cli-engine English translation plan (Phases 0-4): add the manifest extract script and freeze the manifest against the current 767-line source, translate the public CLI surface and internal comments of packages/main/src/cli-engine.ts to English per the approved manifest, update tests asserting old Chinese output, add a no-new-Chinese gate, and translate active docs. The 3 behavior-sensitive rows (M668/M669/M750) are deferred to a follow-up story.",
+  "outcome": "Running `node bin/lattice.js help` prints an all-English command list and group headers (no Chinese). `lattice <cmd> --help` shows English description/usage/argument labels (e.g. 'Arguments:', 'Usage: lattice <command> --key=value', '(* = required)'). Validation errors read 'Argument validation failed:' and unknown-command output says 'Did you mean:'. story/worktree next-step hints read in English with the 'Next:' style (e.g. 'Next: Change to the worktree directory above, then run lattice story_advance phase=PLAN'). README.md and docs/guide*.md open in English. A new `english-open-source-surface-smoke` test PASSES and FAILS if Chinese is added to active source/docs. `grep -cP CJK packages/main/src/cli-engine.ts` returns only the 3 deferred behavior-sensitive lines (M668/M669/M750); every other Chinese surface is English.",
+  "facts": [
+    "packages/main/src/cli-engine.ts is 4031 lines with 767 Chinese-bearing lines; the plan's manifest is a 762-row point-in-time snapshot (drift of 5, plus shifted line numbers, from B-4e06)",
+    "scripts/extract-cli-engine-english-manifest.mjs does not yet exist; Phase 0 must add it and regenerate the manifest before any source edit",
+    "The approved English for the 762 snapshot rows lives in docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+    "M668 (regex), M669 (regex), M750 (.includes) match Chinese at runtime and are deferred to a follow-up story",
+    "Phase 1 must update tests that assert the old Chinese CLI output"
+  ],
+  "constraints": [
+    "Phase 0 first: do not edit source strings until every Chinese line maps to an approved manifest row covering the current 767-line source",
+    "Text only: do not change CLI logic/control flow while translating",
+    "Never touch M668/M669/M750 in this story",
+    "Preserve command names, enum values, JSON keys, identifiers, filenames, legacy aliases, and template tokens like ${e.message}",
+    "The plan doc and generated manifests are allowlisted (not retranslated); historical Chinese is archived, not mixed into active docs"
+  ],
+  "unknowns": [
+    "The exact set of tests that assert old Chinese CLI output (to be enumerated by grepping the test suite)",
+    "How many active docs under docs/requirements/decisions/ still contain Chinese (Phase 4 size)",
+    "Whether any Chinese-matching runtime sites exist beyond M668/M669/M750 (Phase 0 must re-scan and defer/flag any new ones rather than translate them)"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "scripts/extract-cli-engine-english-manifest.mjs",
+    "packages/main/src/tasks",
+    "README.md",
+    "docs/guide.md",
+    "docs/guide-hooks.md",
+    "docs/requirements/decisions"
+  ],
+  "timestamp": "2026-06-14T16:29:44.405Z"
+}

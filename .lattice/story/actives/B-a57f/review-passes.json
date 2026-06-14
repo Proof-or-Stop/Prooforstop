@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-a57f:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Translation-only change confirmed. All code symbols (command names, enum values, function names, exported identifiers, Zod field names) are preserved verbatim across both packages/main/src/cli-engine.ts and packages/utils/src/**. Only .describe() string arguments, description: string literals in command registry entries, comments, and user-visible help/error text were translated from Chinese to English. No concept was deleted, renamed, or replaced. No orphaned residue. Two new files added (english-open-source-surface-smoke.ts, scripts/extract-cli-engine-english-manifest.mjs) are purely additive. Key identifiers confirmed present: verificationIntent, finding_add, story_advance, checklist_update, scope_check, delivery_check (53 hits).",
+      "createdAt": "2026-06-14T21:13:34.718Z",
+      "reviewRound": "2026-06-14T21:11:06.045Z",
+      "reviewRunId": "B-a57f:RR-001",
+      "_hash": "3246b442e5cb2dfda1740ab32b2287bda44e0e5ac87501c032eba77df2e11eda"
+    },
+    {
+      "id": "B-a57f:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 0 exported symbols changed (pure-docs translation diff). Step 2: paragraphs compared across README.md, docs/guide.md, docs/guide-hooks.md, role-separation.md, cc-learnings.md, test-fixture-spec.md, truth-source.md, stack-layering.md, project-vision.md, story-lifecycle.md, framework.md (11 files sampled). Step 3: no inconsistencies found. Chinese-free check: README.md=0, docs/guide.md=0, docs/guide-hooks.md=0, all 51 decisions docs excluding the 2 allowlisted=0. Allowlisted files confirmed still contain Chinese (cli-engine-english-open-source-execution-plan.md=938, cli-engine-english-translation-manifest.md=3). Code blocks, commands, identifiers, env vars, file paths, and markdown anchors preserved throughout. Translation reads as fluent natural English with correct glossary usage (source of truth, Story, Git, iteration, blocked/excluded). No garbled, incomplete, or broken passages found.",
+      "createdAt": "2026-06-14T21:14:08.483Z",
+      "reviewRound": "2026-06-14T21:11:06.045Z",
+      "reviewRunId": "B-a57f:RR-005",
+      "_hash": "667097d1fc43e8034cb1c429ef5447c76fd885689f8757a0505c381de7d1fe4a"
+    },
+    {
+      "id": "B-a57f:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality audit complete. Reviewed: packages/main/src/cli-engine.ts (1620 diff lines), packages/utils/src handlers (aux-doc, aux-sync, aux-trace, auxiliary, tool-status, truth), packages/utils/src/{index,register,tool-defs}.ts, packages/main/src/tasks/english-open-source-surface-smoke.ts (new gate), packages/main/src/tasks/{lattice-cli-migration-smoke,validation-protocol-smoke}.ts, packages/main/tests/fixtures/cleanup-legacy.json, scripts/extract-cli-engine-english-manifest.mjs. Both builds exit 0. Verify 65/65. english-open-source-surface smoke PASS (479 files, 3 deferred CJK lines only). No dead imports, no empty catch swallowed, no shell importing fn.ts. One low finding registered (F-001): optional non-boolean params lost [...] brackets in Usage line — help-text behavioral change, not pure translation.",
+      "createdAt": "2026-06-14T21:21:03.587Z",
+      "reviewRound": "2026-06-14T21:11:06.045Z",
+      "reviewRunId": "B-a57f:RR-006",
+      "_hash": "902abd085f28548b8a7dfafaf1455a05cae40a6f22bad5e60ccb68459d34f85e"
+    },
+    {
+      "id": "B-a57f:RP-004",
+      "agent": "koala-review-quality",
+      "note": "F-001 fix confirmed: line 2412 restores [--k=value] brackets for optional non-boolean params; required params at 2408 remain unbracketed. story_advance --help renders Usage correctly. Build green. No new Chinese chars. No new issues introduced.",
+      "createdAt": "2026-06-14T21:42:21.460Z",
+      "reviewRound": "2026-06-14T21:38:20.605Z",
+      "reviewRunId": "B-a57f:RR-010",
+      "_hash": "0784e3c01859aad8be61728142a2d7b919dc6d46e8f08f5e73081dbacde4559f"
+    },
+    {
+      "id": "B-a57f:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 65/65 PASS. CHK-003:edge:0 skeleton is 117892 chars and non-vacuous: code-position token mutations (return->throw, !==->===, null->undefined) all break equality; only comment/string content differences (764 lines of CJK->English translation) collapse to identical skeletons as intended.",
+      "createdAt": "2026-06-14T21:44:09.510Z",
+      "reviewRound": "2026-06-14T21:38:20.605Z",
+      "reviewRunId": "B-a57f:RR-008",
+      "_hash": "5f55b346e5bad7ea34496ba00db493b1d4aacc1686fc628852c39c1bac93490e"
+    }
+  ]
+}

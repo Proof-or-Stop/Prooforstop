@@ -896,7 +896,7 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(invalidVerificationIntent.status, 0, 'invalid nested verificationIntent enum should fail');
-  assert.match(invalidVerificationIntent.stderr, /parameter validation failed|参数校验失败/);
+  assert.match(invalidVerificationIntent.stderr, /Argument validation failed/);
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
