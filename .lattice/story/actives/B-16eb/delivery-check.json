@@ -1,0 +1,65 @@
+{
+  "storyId": "B-16eb",
+  "checkedAt": "2026-06-14T18:53:52.999Z",
+  "reviewRound": "2026-06-14T18:46:16.427Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "promise": "A dedicated decision-doc promotion execution plan exists and is limited to documentation/future implementation planning for this story.",
+      "status": "verified",
+      "verifiedBy": "git diff plus rg",
+      "evidence": "git diff main...HEAD adds docs/requirements/decisions/decision-doc-promotion-execution-plan.md; doc states this is a planning artifact only and future implementation requires its own story scope, review, and validation evidence."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "The new decision-doc promotion execution plan is linked from NAV.",
+      "status": "verified",
+      "verifiedBy": "git diff plus rg",
+      "evidence": "docs/requirements/NAV.md now links Decision Doc Promotion Execution Plan to decisions/decision-doc-promotion-execution-plan.md and updates the file count from 49 to 50."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "promise": "The plan includes scope anti-expansion, freshness, and verificationRequirements requirements.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "Document includes accepted scope-extension and PLAN scope checks, sourceDecisionDigest/proposal digest/materialDigest freshness, and verificationRequirements validation and examples."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "promise": "The plan separates local decision-doc quorum from Authority receipts and productionDone semantics.",
+      "status": "verified",
+      "verifiedBy": "rg and quorum diagnostic",
+      "evidence": "Document says local workflow evidence does not create Authority Server receipts and does not set authorityDone, fullAuthorityDone, or productionDone; decision_doc_quorum_check reports only local 3x2 quorum."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "git status --porcelain=v1 returned clean before final checks; git diff --name-status main...HEAD shows only Lattice story metadata plus docs/requirements/NAV.md and docs/requirements/decisions/decision-doc-promotion-execution-plan.md as material docs changes."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "rg over the plan, NAV, and transcript found the promised planning-only, scope-extension, freshness, verificationRequirements, Authority, productionDone, and quorum language. rg for TODO/FIXME/XXX/TBD/unresolved/blocker returned no matches."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice decision_doc_quorum_check --storyId=B-16eb --json returned ok:true with materialDigest 09be0c89b95133c9cb7527ff38f3efcc87014e75d24f4ec10fddc6a418d8e588 and 3 valid rounds, each with 2 passing hosts: round-1 C/D, round-2 A/B, round-3 A/B."
+    },
+    {
+      "featureId": "B-16eb-build",
+      "transcript": "npm --prefix packages/main run build exited 0 and ran tsc, refreshing ignored packages/main/dist output."
+    },
+    {
+      "featureId": "B-16eb-validate",
+      "transcript": "lattice validate --story=B-16eb exited 0: npm test fallback passed and verification intent coverage was 9/9 covered with 0 required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are satisfied: docs and NAV are present, the story remains documentation-only with future-implementation boundaries, quorum is ok:true with 3 rounds x 2 hosts, build and validate pass, coverage is 9/9, and no unresolved TODO/blocker text was found in the inspected delivery surface."
+  },
+  "_hash": "b2a43e1f8f1e0fbeb22aeabc83b8e599abf834dfb95ed7bfa6fd8676185df9c3"
+}
