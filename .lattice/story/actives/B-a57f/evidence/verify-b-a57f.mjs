@@ -21,6 +21,28 @@ function walkCjk(dir, ext) { // repo-rel files under dir with given ext that con
   const rec = (d) => { for (const e of (fs.existsSync(d) ? fs.readdirSync(d) : [])) { const a = path.join(d, e); let st; try { st = fs.statSync(a); } catch { continue; } if (st.isDirectory()) { if (/node_modules|dist|\.git/.test(a)) continue; rec(a); } else if (a.endsWith(ext) && CJK.test(read(a))) out.push(a); } };
   rec(dir); return out;
 }
+// Strip comments + blank string/template-literal CONTENT (keep delimiters and ${} code).
+// Two files with the same skeleton differ only in string/comment content (no logic change).
+function codeSkeleton(src) {
+  let out = ''; let i = 0; const n = src.length; let st = 'code';
+  while (i < n) {
+    const c = src[i], c2 = src[i + 1];
+    if (st === 'code') {
+      if (c === '/' && c2 === '/') { st = 'line'; i += 2; continue; }
+      if (c === '/' && c2 === '*') { st = 'block'; i += 2; continue; }
+      if (c === "'") { st = 'sq'; out += "'"; i++; continue; }
+      if (c === '"') { st = 'dq'; out += '"'; i++; continue; }
+      if (c === '`') { st = 'tpl'; out += '`'; i++; continue; }
+      out += c; i++; continue;
+    }
+    if (st === 'line') { if (c === '\n') { st = 'code'; out += '\n'; } i++; continue; }
+    if (st === 'block') { if (c === '*' && c2 === '/') { st = 'code'; i += 2; } else i++; continue; }
+    if (st === 'sq' || st === 'dq') { const q = st === 'sq' ? "'" : '"'; if (c === '\\') { i += 2; continue; } if (c === q) { st = 'code'; out += q; } i++; continue; }
+    if (st === 'tpl') { if (c === '\\') { i += 2; continue; } if (c === '`') { st = 'code'; out += '`'; i++; continue; } if (c === '$' && c2 === '{') { out += '${'; i += 2; st = 'expr'; continue; } i++; continue; }
+    if (st === 'expr') { if (c === '}') { out += '}'; st = 'tpl'; } else out += c; i++; continue; }
+  }
+  return out.replace(/\s+/g, ' ').trim();
+}
 const R = {};
 const ok = (ref, cond, note) => { R[ref] = { pass: !!cond, note: String(note).slice(0, 200) }; };
 
@@ -68,7 +90,7 @@ ok('CHK-003:happy:0', ceCJK === 3, `cli-engine.ts CJK = ${ceCJK}`);
 { const c = read(CE).split('\n').filter((l) => /^\s*\/\//.test(l) && CJK.test(l)).length; ok('CHK-003:happy:1', c === 0, `Chinese comment lines = ${c}`); }
 ok('CHK-003:happy:2', shCode('npm --prefix packages/main run build') === 0, 'build green');
 ok('CHK-003:happy:3', shCode('node bin/koala.js validate --story=B-a57f') === 0, 'validate green');
-ok('CHK-003:edge:0', true, 'Phase 2 comment-only (build + behavior-sensitive integrity cover it)');
+{ const skMain = codeSkeleton(tryStr(`git show main:${CE} 2>/dev/null`)); const skCur = codeSkeleton(read(CE)); ok('CHK-003:edge:0', skMain.length > 0 && skMain === skCur, `cli-engine.ts code skeleton (strings+comments blanked, ${} preserved) identical to main => only string/comment content changed, no logic (${skMain.length} chars)`); }
 ok('CHK-003:edge:1', true, 'comment meaning preserved (docs reviewer lane)');
 ok('CHK-003:edge:2', ceCJK === 3, 'comment translation scoped to cli-engine.ts');
 { const c = read(CE).split('\n').filter((l) => /待办|修复|临时/.test(l)).length; ok('CHK-003:adversarial:0', c === 0, `Chinese TODO/FIXME/HACK markers = ${c}`); }

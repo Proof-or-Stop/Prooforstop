@@ -2409,7 +2409,7 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   const optParts = optional.map(([k]) => {
     const inner = (entries.find(([n]) => n === k)?.[1] as any);
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
-    return base instanceof ZodBoolean ? `[--${k}]` : `--${k}=value`;
+    return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
   });
   out(`\n  Usage: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
   out(`  Compatible: ${brand.legacyAlias} ${tool.name} ...`);
