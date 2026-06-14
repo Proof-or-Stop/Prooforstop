@@ -175,6 +175,50 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] packages/main/src/cli-engine.ts -> exactly 3 (only M668/M669/M750 lines); WHY: all Chinese comments have been translated, leaving only the 3 deferred runtime matchers",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -nP ^\\s*//.*[\\x{4e00}-\\x{9fff}] packages/main/src/cli-engine.ts -> 0 lines; WHY: no Chinese remains in any comment line",
+            "type": "cli"
+          },
+          {
+            "desc": "npm --prefix packages/main run build -> exits 0; WHY: comment translation introduced no syntax errors",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/koala.js validate -> exits 0; WHY: validation still passes after comment-only changes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git diff packages/main/src/cli-engine.ts (Phase 2 vs Phase 1) shows only comment-line changes: every changed line starts with // or is inside a /* */ block; WHY: no logic was altered during comment translation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify technical terms in translated comments preserve meaning: spot-check at least 5 translated comments against the T-table entries (T001-T004, T057) for semantic accuracy; WHY: translation must preserve technical meaning per the plan",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --stat for Phase 2 shows only cli-engine.ts modified, no other files; WHY: comment translation is scoped to a single file",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run a full text search for common Chinese comment markers (TODO/FIXME/HACK in Chinese: 待办/修复/临时) across cli-engine.ts -> 0 hits; WHY: even informal Chinese dev annotations must be translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no Chinese was introduced into string literals during comment editing: diff the non-comment lines between Phase 1 end and Phase 2 end -> zero non-comment changes; WHY: guards against accidental code changes while editing nearby comments",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
