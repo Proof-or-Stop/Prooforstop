@@ -63,6 +63,25 @@
       ],
       "resolvedReason": "Fixed evidence path by adding phase-independent command-specific help smoke for decision_doc_proposal --help, decision_doc_preview --help, and decision_doc_save --help instead of relying on phase-filtered global help. Verified by decision-doc-promotion smoke and process fact contract.",
       "resolvedAt": "2026-06-14T22:07:11.768Z"
+    },
+    {
+      "id": "B-acec:F-004",
+      "desc": "Runtime F-001 is fixed, but the durable requirements plan still describes checklist/file declarations as a valid decision_doc_save authorization source. docs/requirements/decisions/decision-doc-promotion-execution-plan.md lines 266-268 say the save target may be covered by scope contract, allowed file declarations, or an accepted scope extension, and lines 397-399 say PLAN scope, checklist file declarations, or accepted scope extension. The handler now correctly has no checklist fallback and authorizes only scope-contract allowedCreate/allowedModify or accepted/approved scope extension, so the doc should be updated to avoid re-teaching the DEV scope backdoor.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-14T22:13:29.243Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-006",
+      "_hash": "e8b951b5f213f133cca1a47d860a85065535a4177d1f04ec8aab435addbc775d",
+      "files": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:266",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:398",
+        "packages/main/src/handlers/decision-doc-promotion.ts:301",
+        "packages/main/src/handlers/decision-doc-promotion.ts:306"
+      ]
     }
   ]
 }
