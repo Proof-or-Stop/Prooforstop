@@ -10,7 +10,40 @@
       "userSees": "`lattice decision_doc_proposal ...` records a proposal and `decision_doc_preview ...` prints the target Markdown without writing a file.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/decision-doc-promotion.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_doc_proposal validates a complete proposal, assigns DDP-001, stores story-local proposal metadata, and decision_doc_preview renders deterministic Markdown without writing docs/requirements/decisions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Invalid slug, missing required fields, missing alternatives pros/cons, or missing verificationRequirements are rejected with clear errors before metadata is written.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Preview is read-only: invoking decision_doc_preview does not modify story metadata, process events, or project decision docs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
