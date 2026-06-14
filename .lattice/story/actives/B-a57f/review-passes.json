@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a57f:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Translation-only change confirmed. All code symbols (command names, enum values, function names, exported identifiers, Zod field names) are preserved verbatim across both packages/main/src/cli-engine.ts and packages/utils/src/**. Only .describe() string arguments, description: string literals in command registry entries, comments, and user-visible help/error text were translated from Chinese to English. No concept was deleted, renamed, or replaced. No orphaned residue. Two new files added (english-open-source-surface-smoke.ts, scripts/extract-cli-engine-english-manifest.mjs) are purely additive. Key identifiers confirmed present: verificationIntent, finding_add, story_advance, checklist_update, scope_check, delivery_check (53 hits).",
+      "createdAt": "2026-06-14T21:13:34.718Z",
+      "reviewRound": "2026-06-14T21:11:06.045Z",
+      "reviewRunId": "B-a57f:RR-001",
+      "_hash": "3246b442e5cb2dfda1740ab32b2287bda44e0e5ac87501c032eba77df2e11eda"
+    }
+  ]
+}
