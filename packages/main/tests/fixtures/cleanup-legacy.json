@@ -126,7 +126,7 @@
       "run_type": "cli",
       "fn": "story_get",
       "file": "mcp/handlers/story",
-      "execute": "const {execSync}=await import('child_process');try{execSync('node '+$root.split('\\\\').join('/')+'/packages/main/dist/cli.js flow_trace --name=test',{encoding:'utf-8'});return 'should have failed'}catch(e){return e.stderr&&e.stderr.includes('未知命令')?'unknown command error':'other error'}",
+      "execute": "const {execSync}=await import('child_process');try{execSync('node '+$root.split('\\\\').join('/')+'/packages/main/dist/cli.js flow_trace --name=test',{encoding:'utf-8'});return 'should have failed'}catch(e){return e.stderr&&e.stderr.includes('Unknown command')?'unknown command error':'other error'}",
       "expect": "unknown command error",
       "intentRef": "CHK-003:happy:0",
       "sandbox": false

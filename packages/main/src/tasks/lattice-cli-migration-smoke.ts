@@ -129,7 +129,7 @@ assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_
 
 const storyReconcileHelp = runCli(['story_reconcile', '--help']);
 assert.match(storyReconcileHelp, /Dry-run: default-on via --dryRun=true\./);
-assert.match(storyReconcileHelp, /true=只报告；false=执行修复（默认 true）/);
+assert.match(storyReconcileHelp, /true=report only; false=perform repair \(default true\)\./);
 
 const testAutoHelp = runCli(['test_auto', '--help']);
 assert.match(testAutoHelp, /Dry-run: optional via --dryRun\./);
