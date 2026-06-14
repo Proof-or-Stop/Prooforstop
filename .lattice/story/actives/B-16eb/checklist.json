@@ -97,7 +97,35 @@
       "userSees": "The decision-doc quorum diagnostic reports pass for this story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_doc_quorum_check reports pass for B-16eb after three rounds with two distinct hosts per round record fresh host_verdict evidence for the current decision-doc digest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The diagnostic rejects stale, duplicate-host, prose-only, or insufficient-round evidence instead of silently passing the doc change.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE cannot rely on the author narrative alone; it must consume structured fresh host_verdict evidence for this decision document.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
