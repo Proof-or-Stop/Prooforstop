@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1550",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status --porcelain",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice dispatch",
+    "lattice execution_boundary_set",
+    "lattice init_check_set",
+    "lattice scope_boundary_set",
+    "lattice scope_freeze_check",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1.spawn_agent",
+    "multi_agent_v1.wait_agent"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions/",
+    "docs/requirements/NAV.md",
+    "packages/main/src/core/decision-doc-quorum.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git push --force",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/",
+    "docs/story/",
+    "tests/fixtures/"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Documentation-only execution-plan story. Source files are read references and future touchpoints, not implementation write scope.",
+  "createdAt": "2026-06-14T22:44:17.777Z",
+  "updatedAt": "2026-06-14T22:44:17.777Z",
+  "_hash": "45eea29a2639a179b4bdc1be5a13b79cba29043f9efa7291e3de2d2a0de68baf"
+}

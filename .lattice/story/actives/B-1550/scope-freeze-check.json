@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1550",
+  "checkedAt": "2026-06-14T22:44:23.598Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "8426f609d7d1a68c714c8c602a1ce3e444ccb5cdcb3b0fa7cdbcbcfd68a7a0f0",
+  "executionBoundaryHash": "45eea29a2639a179b4bdc1be5a13b79cba29043f9efa7291e3de2d2a0de68baf",
+  "freshnessHash": "85985c4e67b84d91fe2ba148e179514c756ce5ef96185f598b458444ea0f5965",
+  "effectiveExcludedKeywords": [
+    "Do not change existing CLI behavior, lifecycle gates, reviewer commands, or host verdict schemas in this story.",
+    "Do not edit docs/story or tests/fixtures directly.",
+    "Do not implement source-code changes for the 3x2 gate in this story.",
+    "Do not use omx or any .omx directory."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change existing CLI behavior, lifecycle gates, reviewer commands, or host verdict schemas in this story.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change existing CLI behavior, lifecycle gates, reviewer commands, or host verdict schemas in this story.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not edit docs/story or tests/fixtures directly.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not edit docs/story or tests/fixtures directly.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement source-code changes for the 3x2 gate in this story.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement source-code changes for the 3x2 gate in this story.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not use omx or any .omx directory.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not use omx or any .omx directory.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "fd5b093b1d8612a3b6f65f7e560e084e7ab86f6f2e0c631f7fb58c2f96682450"
+}
