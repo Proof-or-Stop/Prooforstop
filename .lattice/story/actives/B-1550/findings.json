@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-1550:F-001",
+      "desc": ".lattice/story/actives/B-1550/plan.md:25 Required plan content includes artifacts/commands, code touchpoints, tests/negative controls, rollout/acceptance, but CHK-001 verificationIntent/evidence only check trigger/default, decision-doc always-on, independence/staleness, negative controls, and registry. The docs_check evidence would still pass if the artifact/CLI surface, file-level plan, rollout, or acceptance sections were absent. severity high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T23:01:29.038Z",
+      "reviewRound": "2026-06-14T22:58:14.585Z",
+      "reviewRunId": "B-1550:RR-004",
+      "_hash": "63c5a12b678e312f1d807075732212259bf13905d83e91b2b718f4648b05f078",
+      "files": [
+        ".lattice/story/actives/B-1550/plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ]
+    }
+  ]
+}
