@@ -11,7 +11,39 @@
       "userSees": "The document changes are tracked by a dedicated Lattice story rather than an ad hoc main edit.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The drafted execution plan and NAV entry exist in the B-16eb story worktree and are tracked as story-scoped changes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Only the allowed document files and Lattice story metadata are changed; no implementation files are pulled into this doc-audit story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The plan changes are not accepted as an ad hoc main edit or unstaged historical patch; they must pass this story worktree lifecycle.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

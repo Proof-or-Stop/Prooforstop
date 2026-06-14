@@ -4,7 +4,7 @@
   "title": "Audit decision-doc promotion execution plan with 3x2 host quorum",
   "description": "Audit and harden the decision-doc promotion execution plan so future Lattice stories have a controlled path from story-local decision_set to durable docs/requirements/decisions/*.md policy documents, without scope expansion or Authority overclaim.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "decision-doc",
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-06-14T18:29:50.094Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-14T18:29:58.515Z",
+      "branch": "story/B-16eb",
       "user": "Harmonygo",
       "agent": "main"
     }

@@ -1,0 +1,23 @@
+{
+  "task": "Audit the decision-doc promotion execution plan through a dedicated Lattice story and require real 3x2 host review evidence.",
+  "outcome": "User sees: B-16eb completed with decision_doc_quorum_check reporting pass for docs/requirements/decisions/decision-doc-promotion-execution-plan.md after 3 rounds and 2 hosts per round.",
+  "facts": [
+    "The draft plan proposes decision_doc_proposal and decision_doc_save as a controlled promotion path from story-local decision.json to docs/requirements/decisions/*.md.",
+    "B-2c0c added the existing decision-doc quorum DONE gate for direct docs/requirements/decisions/*.md changes.",
+    "The user explicitly asked whether the document had gone through the 3 round 2 host mechanism and then said continue.",
+    "Current scope is documentation audit only; CLI command implementation is excluded."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Do not directly edit docs/story or tests/fixtures.",
+    "Do not implement decision_doc_proposal or decision_doc_save in this story.",
+    "Do not claim Authority Server receipt completion or productionDone.",
+    "Changed decision docs must satisfy the existing local 3x2 host_verdict quorum before DONE."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-14T18:30:30.598Z"
+}
