@@ -236,6 +236,66 @@
         "test": [
           "packages/main/src/tasks/english-open-source-surface-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "File packages/main/src/tasks/english-open-source-surface-smoke.ts exists and compiles: npm --prefix packages/main run build -> exits 0; WHY: gate test file was created and is valid TypeScript",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the smoke test in its normal (clean) state -> passes (exit 0); WHY: after Phases 1-3 the active source and docs should be Chinese-free except allowlisted paths",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the smoke test is wired into the test/verify surface: grep -r english-open-source-surface-smoke in package.json or test config -> referenced; WHY: gate must actually run in CI/validate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm allowlist includes the plan doc (cli-engine-english-open-source-execution-plan.md): the smoke test does not flag Chinese in that file -> passes; WHY: the plan doc contains Chinese source snippets by design",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm allowlist includes generated manifest files (cli-engine-english-translation-manifest.md): smoke test ignores them -> passes; WHY: manifests contain chineseSource column",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm allowlist includes legacy/archive docs: place a Chinese-bearing file under an archive path -> smoke test ignores it -> passes; WHY: historical Chinese is archived not deleted",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm allowlist includes migration-compatibility test files that assert old Chinese output -> smoke test ignores them -> passes; WHY: compat tests may legitimately contain Chinese assertions",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the smoke test scans both active source (packages/) and active docs (README.md, docs/guide.md, docs/guide-hooks.md, docs/requirements/decisions/) -> these paths are all covered; WHY: gate must cover the full active surface",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plant a single Chinese character (e.g. append // 测试 to a clean active source file like packages/main/src/cli-engine.ts line 1), run the smoke test -> FAILS with a clear error message identifying the file and line; revert the planted char; WHY: gate must detect and reject even a single new Chinese character",
+            "type": "cli"
+          },
+          {
+            "desc": "Plant Chinese text in an active doc (e.g. append 测试 to README.md), run smoke test -> FAILS naming README.md; revert; WHY: gate covers docs not just source",
+            "type": "cli"
+          },
+          {
+            "desc": "Plant Chinese in an allowlisted file (e.g. the plan doc), run smoke test -> still PASSES; WHY: allowlist must actually suppress false positives",
+            "type": "cli"
+          },
+          {
+            "desc": "Create a new file outside allowlisted paths with Chinese content (e.g. packages/main/src/new-file-test.ts containing 中文), run smoke test -> FAILS; remove the file; WHY: gate is not limited to known files, it scans all active paths",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the 3 deferred M668/M669/M750 lines in cli-engine.ts do not cause the gate to fail -> passes; WHY: the allowlist or line-level exception must handle the known deferred rows without breaking the gate",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
