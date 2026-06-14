@@ -6,11 +6,17 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  buildScopeExtensionDecision,
+  buildScopeExtensionProposal,
+  digestScopeExtensionProposal,
+} from '../core/scope-anti-expansion.js';
 import { StoryStore } from '../core/store.js';
 import type {
   ChecklistData,
   DecisionData,
   DecisionDocProposal,
+  ScopeExtensionProposal,
   ScopeContractData,
   ScopeExtensionProposalData,
   StoryInfo,
@@ -217,7 +223,7 @@ function makeRepo(): { root: string; store: StoryStore } {
   return { root, store };
 }
 
-function acceptedScopeExtension(targetPath: string): ScopeExtensionProposalData {
+function forgedAcceptedScopeExtension(targetPath: string): ScopeExtensionProposalData {
   const now = new Date().toISOString();
   return {
     storyId,
@@ -239,6 +245,40 @@ function acceptedScopeExtension(targetPath: string): ScopeExtensionProposalData 
         _hash: 'decision-doc-promotion-smoke-decision',
       },
       _hash: 'decision-doc-promotion-smoke-proposal',
+    }],
+  };
+}
+
+function acceptedScopeExtension(targetPath: string): ScopeExtensionProposalData {
+  const now = new Date().toISOString();
+  const proposal = buildScopeExtensionProposal({
+    proposalId: 'SEP-B-ddp-smoke-001',
+    storyId,
+    proposedBy: 'decision-doc-promotion-smoke',
+    proposedAt: now,
+    proposal: `Allow ${targetPath} through a signed scope extension.`,
+    reason: 'Allow this smoke-only decision document through an accepted extension.',
+    patch: { allowed: [targetPath] },
+  });
+  const decision = buildScopeExtensionDecision({
+    proposalId: proposal.proposalId,
+    decision: 'approved',
+    decidedBy: 'decision-doc-promotion-smoke',
+    decidedAt: now,
+    rationale: 'Smoke verifies mechanically valid accepted scope extension authorization.',
+  });
+  const approvedProposal: ScopeExtensionProposal = {
+    ...proposal,
+    status: 'approved',
+    decision,
+    _hash: '',
+  };
+  return {
+    storyId,
+    updatedAt: now,
+    proposals: [{
+      ...approvedProposal,
+      _hash: digestScopeExtensionProposal(approvedProposal),
     }],
   };
 }
@@ -333,11 +373,24 @@ try {
     assert.equal(existsSync(join(root, 'docs/requirements/decisions/checklist-only.md')), false);
   });
 
-  check('accepted scope extension authorizes a target outside the scope contract', () => {
+  check('only a mechanically valid accepted scope extension authorizes a target outside the scope contract', () => {
     const targetPath = 'docs/requirements/decisions/extension-allowed.md';
-    store.writeScopeExtensionProposals(storyId, acceptedScopeExtension(targetPath));
     runCli(root, 'decision_doc_proposal', baseProposal('extension-allowed'));
     const proposal = latestProposal(store, 'DDP-003');
+
+    store.writeScopeExtensionProposals(storyId, forgedAcceptedScopeExtension(targetPath));
+    const forgedRefused = runCli(root, 'decision_doc_save', {
+      storyId,
+      proposalId: 'DDP-003',
+      mode: 'create',
+      confirm: true,
+      expectedProposalDigest: proposal.proposalDigest,
+      expectedSourceDecisionDigest: proposal.sourceDecisionDigest,
+    }, true);
+    assert.match(forgedRefused, /mechanically valid accepted\/approved scope extension/);
+    assert.equal(existsSync(join(root, targetPath)), false, 'forged extension must not authorize the target write');
+
+    store.writeScopeExtensionProposals(storyId, acceptedScopeExtension(targetPath));
     const save = runCli(root, 'decision_doc_save', {
       storyId,
       proposalId: 'DDP-003',

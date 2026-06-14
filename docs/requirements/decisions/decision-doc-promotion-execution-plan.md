@@ -91,8 +91,9 @@ The future implementation must not:
 - automatically save every `decision_set` result as a decision doc;
 - promote temporary implementation choices into durable policy without an
   explicit proposal;
-- let `decision_doc_save` expand the story scope during DEV without prior PLAN
-  scope coverage or an explicit scope-extension path;
+- let `decision_doc_save` expand the story scope during DEV without scope
+  contract `allowedCreate`/`allowedModify` coverage or a mechanically valid
+  accepted/approved scope extension;
 - create or update decision docs outside `docs/requirements/decisions/*.md`;
 - bypass the existing decision-doc quorum DONE gate;
 - weaken `story_review`, REVIEW, TEST, delivery-check, or DONE gates;
@@ -185,8 +186,8 @@ Expected behavior:
   set to `"manual"`.
 - Requires the intended decision-doc target to be covered by the story scope
   contract: `allowedCreate` for new docs or `allowedModify` for updates. If the
-  target doc is not covered, the story must use the existing accepted/approved
-  scope-extension path before save.
+  target doc is not covered, the story must use a mechanically valid
+  accepted/approved scope extension before save.
 - Validates `slug`, title, decision, context, scope, non-goals, chosen approach,
   alternatives, operational rules, verification requirements, and risks.
 - Writes a story-local artifact, for example:
@@ -266,8 +267,8 @@ docs/requirements/decisions/<slug>.md
   reviewer re-approval.
 - Verifies that the target path is covered by the story scope contract
   (`allowedCreate` for creates or `allowedModify` for updates), or by an
-  accepted/approved scope extension. The save command must not become a back
-  door for expanding story scope during DEV.
+  mechanically valid accepted/approved scope extension. The save command must
+  not become a back door for expanding story scope during DEV.
 
 The write itself does not complete the story. It changes a decision doc, so the
 existing decision-doc quorum gate becomes applicable before DONE.
@@ -398,7 +399,8 @@ decision-doc 3x2 host verdict quorum.
   proposal, unless the proposal is refreshed and reviewed again;
 - target path is outside `docs/requirements/decisions/*.md`;
 - target path is not covered by the scope contract's `allowedCreate` or
-  `allowedModify`, or by an accepted/approved scope extension;
+  `allowedModify`, or by a mechanically valid accepted/approved scope
+  extension;
 - target file exists and `mode !== "update"`;
 - target file does not exist and `mode !== "create"`;
 - story phase is INIT reviewer context attempting to expand scope;
@@ -417,14 +419,14 @@ PLAN:
   - story records decision_set
   - story records decision_doc_proposal when needed
   - story scope contract covers the intended decision-doc path in
-    `allowedCreate` or `allowedModify`, or accepted/approved scope extension is
-    in place
+    `allowedCreate` or `allowedModify`, or a mechanically valid
+    accepted/approved scope extension is in place
 
 DEV:
   - implementation may call decision_doc_save
   - target decision doc is created or updated
-  - save refuses paths not covered by the scope contract or accepted/approved
-    scope extension
+  - save refuses paths not covered by the scope contract or a mechanically valid
+    accepted/approved scope extension
 
 REVIEW:
   - reviewers inspect the generated doc
@@ -481,8 +483,9 @@ Reviewers should verify:
 - The proposed decision is actually long-lived project policy.
 - The proposal is not just implementation detail.
 - Scope and non-goals are explicit.
-- The target decision-doc path was declared in PLAN scope or accepted through a
-  scope-extension path before save.
+- The target decision-doc path is covered by the scope contract's
+  `allowedCreate`/`allowedModify` or a mechanically valid accepted/approved
+  scope extension before save.
 - The proposal digest and source decision digest are fresh at save time.
 - Alternatives include real cons, not ceremonial alternatives.
 - Operational rules are executable by future developers.
@@ -549,7 +552,8 @@ Tests:
 - refuse overwrite without `mode: "update"`;
 - refuse path traversal;
 - refuse non-canonical directory;
-- refuse a target path outside PLAN scope or accepted scope extension;
+- refuse a target path outside scope contract `allowedCreate`/`allowedModify`
+  and without a mechanically valid accepted/approved scope extension;
 - refuse stale proposal/source-decision digests;
 - save marks proposal saved.
 
@@ -613,7 +617,9 @@ Minimum tests for the implementation story:
   refused until refreshed.
 - Adversarial: slug with `../` -> refused.
 - Adversarial: path outside `docs/requirements/decisions/*.md` -> refused.
-- Adversarial: target path not declared in PLAN scope -> refused.
+- Adversarial: target path not covered by scope contract `allowedCreate` /
+  `allowedModify` or a mechanically valid accepted/approved scope extension ->
+  refused.
 - Adversarial: proposal with empty non-goals -> refused.
 - Adversarial: proposal with empty verification requirements -> refused.
 - Adversarial: only one alternative with no cons -> refused.
@@ -658,7 +664,8 @@ The future implementation is complete when:
 - developers can save the proposal only into
   `docs/requirements/decisions/*.md`;
 - invalid paths and accidental overwrites are refused;
-- target paths outside PLAN scope or accepted scope extension are refused;
+- target paths outside scope contract `allowedCreate`/`allowedModify` and
+  without a mechanically valid accepted/approved scope extension are refused;
 - stale proposal/source-decision digests are refused;
 - saved decision docs trigger the existing decision-doc quorum DONE gate;
 - process fact registry and contract verifier cover the new commands;

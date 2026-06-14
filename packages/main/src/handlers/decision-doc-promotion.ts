@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { digestScopeExtensionDecision, digestScopeExtensionProposal } from '../core/scope-anti-expansion.js';
 import type {
   DecisionData,
   DecisionDocProposal,
@@ -9,6 +10,7 @@ import type {
   DecisionDocProposalFile,
   DecisionDocProposalSourceDecision,
   ScopeContractData,
+  ScopeExtensionProposal,
   ScopeExtensionProposalData,
 } from '../core/types.js';
 import type { HandlerContext } from './context.js';
@@ -291,9 +293,26 @@ function contractCoversTarget(contract: ScopeContractData | null, targetPath: st
     : listMatches(targetPath, contract.allowedModify);
 }
 
-function acceptedExtensionCoversTarget(data: ScopeExtensionProposalData, targetPath: string): boolean {
+function isAcceptedScopeExtensionDecision(value: unknown): boolean {
+  return value === 'accepted' || value === 'approved';
+}
+
+function hasFreshAcceptedScopeExtensionSignature(proposal: ScopeExtensionProposal, storyId: string): boolean {
+  try {
+    if (proposal.storyId !== storyId) return false;
+    if (!isAcceptedScopeExtensionDecision(proposal.status)) return false;
+    if (!proposal.decision || !isAcceptedScopeExtensionDecision(proposal.decision.decision)) return false;
+    if (proposal.decision._hash !== digestScopeExtensionDecision(proposal.proposalId, proposal.decision)) return false;
+    return proposal._hash === digestScopeExtensionProposal(proposal);
+  } catch {
+    return false;
+  }
+}
+
+function acceptedExtensionCoversTarget(data: ScopeExtensionProposalData, storyId: string, targetPath: string): boolean {
+  if (data.storyId !== storyId) return false;
   return data.proposals.some((proposal) => {
-    if (proposal.status !== 'accepted' && proposal.status !== 'approved') return false;
+    if (!hasFreshAcceptedScopeExtensionSignature(proposal, storyId)) return false;
     return listMatches(targetPath, proposal.patch.allowed ?? []);
   });
 }
@@ -302,10 +321,10 @@ function assertTargetInScope(ctx: HandlerContext, storyId: string, targetPath: s
   const contract = ctx.store.readScopeContract(storyId);
   if (contractCoversTarget(contract, targetPath, mode)) return;
   const extensions = ctx.store.readScopeExtensionProposals(storyId);
-  if (acceptedExtensionCoversTarget(extensions, targetPath)) return;
+  if (acceptedExtensionCoversTarget(extensions, storyId, targetPath)) return;
   const expectedField = mode === 'create' ? 'scope contract allowedCreate' : 'scope contract allowedModify';
   throw new Error(
-    `decision_doc_save target ${targetPath} is outside story scope; declare it in ${expectedField} or an accepted/approved scope extension before saving`,
+    `decision_doc_save target ${targetPath} is outside story scope; declare it in ${expectedField} or a mechanically valid accepted/approved scope extension before saving`,
   );
 }
 
