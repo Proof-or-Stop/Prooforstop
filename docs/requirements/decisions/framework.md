@@ -1,43 +1,43 @@
-应该把注释提出来，代码和注释相互校验，格式是否匹配，比如参数，函数是否存在注释，注释是否有对应的函数，函数改了注释是否更新都应该有校验，flow也是，程序应该是一个图，而不是一个树
+Comments should be extracted so that code and comments validate each other: whether the format matches, for example parameters; whether a function has a comment; whether a comment has a corresponding function; whether the comment is updated when the function changes — all of these should be validated. The same goes for flow. The program should be a graph, not a tree.
 
-Flow的每一步都应该有说明，代码改了flow也需要强制更新
+Every step of a flow should have a description, and when the code changes the flow must be force-updated too.
 
-整个代码仓库应该是原生高效适配ai 并且可解释 可追述的
+The entire code repository should be natively efficient for AI, and also explainable and traceable.
 
-人是通过ai 这个接口来访问代码，理清逻辑，就像接口模式那样
-更准确的说法是代码应该是被一个自动化的接口所管理的，人和ai都是通过这个接口来操作代码
-那么可以规定ai 以某种特定的结构来构造代码，配以严格的代码自动化检查
-让ai通过接口来访问业务逻辑比它自己用原生工具来访问还要更高效，更简洁我们就成功了
-终极目标：让ai自动的把 build 建成 loop，让loop更高效
+Humans access code through the interface that is AI, untangling the logic — much like the interface pattern. More precisely, code should be managed by an automated interface, and both humans and AI operate on the code through that interface. We can then require the AI to construct code in a particular structure, paired with strict automated code checks.
+
+When making the AI access business logic through the interface is more efficient and more concise than it accessing the code with its own native tools, we have succeeded.
+
+Ultimate goal: have the AI automatically turn the build into a loop, and make the loop more efficient.
 
 ---
 
-## 现状分析（2026-04-02）(Calude 的分析)
+## Status Analysis (2026-04-02) (Claude's analysis)
 
-### 已实现
+### Implemented
 
-| 愿景 | 现状 |
+| Vision | Current status |
 |------|------|
-| 代码被自动化接口管理 | Story/fixture/注释都通过 MCP 工具管理，禁止手写 |
-| 人和 AI 通过接口操作代码 | task_annotate（注释）、fixture_update（测试）、story_create（计划） |
-| 严格的代码自动化检查 | task_scan（注释校验）、test_auto（白盒+e2e+drift）、validateFixtureCase（格式校验） |
+| Code managed by an automated interface | Story/fixture/comments are all managed through MCP tools; handwriting is prohibited |
+| Humans and AI operate on code through the interface | task_annotate (comments), fixture_update (tests), story_create (plans) |
+| Strict automated code checks | task_scan (comment validation), test_auto (white-box + e2e + drift), validateFixtureCase (format validation) |
 
-### 部分实现
+### Partially Implemented
 
-| 愿景 | 差距 |
+| Vision | Gap |
 |------|------|
-| 注释提出来，代码和注释相互校验 | drift check 检测"代码改了注释没跟"，但没做反向——"注释有了函数没了"（如函数被删除但注释残留） |
-| 参数/函数校验 | task_scan 检查函数是否有注释，但不校验 @input/@output 和实际函数签名是否匹配 |
-| flow 强制更新 | flow 函数改了不会强制要求更新 @flow 注释 |
+| Comments extracted, code and comments cross-validated | The drift check detects "the code changed but the comment did not follow," but does not do the reverse — "the comment exists but the function is gone" (e.g., the function was deleted but the comment remains) |
+| Parameter/function validation | task_scan checks whether a function has a comment, but does not validate whether @input/@output matches the actual function signature |
+| flow force-update | Changing a flow function does not force an update to the @flow comment |
 
-### 未实现
+### Not Implemented
 
-| 愿景 | 说明 |
+| Vision | Notes |
 |------|------|
-| 程序是图不是树 | @flow 只是线性链路（step 1→2→3），不支持分支/合并/并行。但 flow 可能只是暂时的形态，不一定要做成 DAG |
-| AI 通过接口访问比原生还高效 | task_scan 返回注释元数据，AI 要理解业务逻辑还是得读源码。真正高效应该是：AI 问"这个函数做什么"，接口直接返回职责、依赖、调用链、测试覆盖 |
-| build → loop 自动闭环 | 现在是人驱动的线性流程（create→dev→test→done），没有自动检测"该做什么"并自主推进的能力 |
+| The program is a graph, not a tree | @flow is only a linear chain (step 1→2→3); it does not support branching/merging/parallelism. But flow may just be a temporary form, and need not necessarily become a DAG |
+| AI accessing through the interface is more efficient than native | task_scan returns comment metadata, but the AI still has to read the source to understand the business logic. True efficiency would be: the AI asks "what does this function do," and the interface directly returns the responsibility, dependencies, call chain, and test coverage |
+| build → loop automatic closed loop | Today it is a human-driven linear flow (create→dev→test→done); there is no ability to automatically detect "what should be done" and advance autonomously |
 
-### 核心判断
+### Core Judgment
 
-当前阶段的重点是**打地基**——注释管理、fixture 管理、校验闭环。这些是上层能力（语义理解、自动闭环）的必要前提。地基没打牢，上层建不起来。
+The focus of the current stage is **laying the foundation** — comment management, fixture management, and the validation loop. These are necessary prerequisites for the higher-level capabilities (semantic understanding, automatic closed loop). If the foundation is not solid, nothing can be built on top of it.

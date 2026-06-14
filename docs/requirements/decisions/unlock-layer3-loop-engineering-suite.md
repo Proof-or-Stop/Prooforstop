@@ -31,10 +31,11 @@ Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
 artifacts in the tested task classes.
 ```
 
-Chinese wording:
+Plain wording:
 
 ```text
-Lattice 已验证：formal Loop Engineering claim path 可以消费 fresh UDM proof artifacts，并仅解锁对应的 Layer 3 claim。
+Lattice has validated that the formal Loop Engineering claim path can consume
+fresh UDM proof artifacts, and unlocks only the corresponding Layer 3 claim.
 ```
 
 The unlock does not allow these claims:
@@ -607,10 +608,11 @@ Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
 artifacts in the tested task classes.
 ```
 
-Chinese wording:
+Plain wording:
 
 ```text
-Lattice 已验证：formal Loop Engineering claim path 可以消费 fresh UDM proof artifacts，并仅解锁对应的 Layer 3 claim。
+Lattice has validated that the formal Loop Engineering claim path can consume
+fresh UDM proof artifacts, and unlocks only the corresponding Layer 3 claim.
 ```
 
 Forbidden wording:

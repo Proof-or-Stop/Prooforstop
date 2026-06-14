@@ -49,10 +49,12 @@ Lattice has validated real Lattice lifecycle execution for the tested
 correctness-protected Loop Engineering scenarios.
 ```
 
-Chinese wording:
+Plain wording:
 
 ```text
-Lattice 已验证：在已测试的 Loop Engineering 场景中，真实 Lattice Story 生命周期可以执行、修复、审查、阻断、交接并防止 false DONE。
+Lattice has validated that, in the tested Loop Engineering scenarios, the real
+Lattice Story lifecycle can execute, repair, review, block, hand off, and prevent
+false DONE.
 ```
 
 Still forbidden:
