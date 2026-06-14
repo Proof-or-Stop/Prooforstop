@@ -168,8 +168,8 @@
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ],
       "userSees": "The decision-doc quorum diagnostic reports pass for this story.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-14T18:38:43.987Z",
       "endTime": null,
       "files": {
         "modify": [],
@@ -219,6 +219,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Content audit confirms the execution plan protects scope, freshness, and Authority boundaries without implementing future CLI behavior."
+    },
+    {
+      "timestamp": "2026-06-14T18:38:43.987Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start recording real 3 round 2 host decision-doc quorum evidence."
     }
   ]
 }
