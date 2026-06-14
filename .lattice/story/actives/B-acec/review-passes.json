@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-14T22:06:32.674Z",
       "reviewRunId": "B-acec:RR-007",
       "_hash": "76952a9964aae8e1f993e1d73087a5300a3c0e82b72c7d8991537e9ecd072247"
+    },
+    {
+      "id": "B-acec:RP-006",
+      "agent": "koala-review-docs",
+      "note": "PASS second docs review. Checked docs/requirements/decisions/decision-doc-promotion-execution-plan.md and docs/requirements/NAV.md: no doc diff from main, first-version contract remains canonical direct docs/requirements/decisions/*.md only, nested/custom paths out of scope, no automatic promotion, no Authority receipt/authorityDone/fullAuthorityDone/productionDone claim. F-001 fix is reflected in behavior: decision_doc_save authorizes only scope contract allowedCreate/allowedModify or accepted/approved scope extension; checklist-only target is rejected by smoke. F-002 preview read-only coverage now snapshots proposal metadata, raw process-events.jsonl, store.readProcessEvents, and target doc. F-003 evidence uses local dist command-specific --help rather than phase-filtered global help. Verified npm --prefix packages/main run test:decision-doc-promotion-smoke and node scripts/verify-process-fact-contract.mjs pass.",
+      "createdAt": "2026-06-14T22:19:10.536Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-008",
+      "_hash": "0cba252a1282f5efb5036c9a3578478ce7d64fdc9f051e0edd399495e9cc4aa0"
     }
   ]
 }
