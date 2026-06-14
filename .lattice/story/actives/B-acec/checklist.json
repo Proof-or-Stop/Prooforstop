@@ -150,7 +150,41 @@
       "userSees": "`npm --prefix packages/main run build` and focused regression commands pass for the new workflow.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke test creates a temp project, records decision_set, creates proposal, previews Markdown, saves a canonical decision doc, and confirms target content matches preview.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused smoke test covers stale source/proposal digest, missing verificationRequirements, mode mismatch, and overwrite guards.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Focused smoke test proves out-of-scope or non-canonical paths are blocked and preview has no write side effects.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
