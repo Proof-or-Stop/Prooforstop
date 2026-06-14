@@ -313,6 +313,74 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] README.md -> 0; WHY: README is fully translated to English",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] docs/guide.md -> 0; WHY: guide is fully translated",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] docs/guide-hooks.md -> 0; WHY: hooks guide is fully translated",
+            "type": "cli"
+          },
+          {
+            "desc": "For each active file under docs/requirements/decisions/ (excluding cli-engine-english-open-source-execution-plan.md and generated manifests): grep -cP CJK -> 0; WHY: all active decision docs are English",
+            "type": "cli"
+          },
+          {
+            "desc": "Historical Chinese material exists in explicit legacy/archive locations (e.g. docs/archive/ or docs/legacy/): ls confirms the archive directory exists and contains the moved files; WHY: historical content is archived, not deleted",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the english-open-source-surface-smoke gate after Phase 4 -> passes; WHY: the gate from CHK-004 validates the final state end-to-end",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify the plan doc itself (cli-engine-english-open-source-execution-plan.md) is NOT retranslated: it still contains its original Chinese source snippets in the T-table and manifest; WHY: plan doc is allowlisted per scope",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify generated manifests are NOT retranslated: cli-engine-english-translation-manifest.md still contains chineseSource column with Chinese; WHY: manifests are allowlisted",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify archived files are intact (not truncated or corrupted): wc -l on archived files > 0 and content is readable; WHY: archival must preserve content",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no dead links: grep for internal markdown links in translated docs -> all link targets exist; WHY: translation and archival must not break cross-references",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify docs/requirements/decisions/ active files that were originally English-only are unchanged: git diff shows no modifications to files that had no Chinese; WHY: translation scope should not touch already-English files",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify identifiers and code references in translated docs are preserved exactly: grep for backtick-quoted terms (lattice, koala, runCli, etc.) in translated README.md and guides -> same terms as before translation; WHY: technical identifiers must not be reworded",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify koala is documented as a legacy alias only, not as primary product name: grep -i koala README.md shows it appears only in legacy/compatibility context, not as the primary name; WHY: plan requires koala stays documented as legacy alias",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no mixed Chinese/English paragraphs remain in active docs: for each active doc, if any line has CJK, flag it -> 0 flagged lines across all non-allowlisted active docs; WHY: partial translation is worse than no translation",
+            "type": "cli"
+          },
+          {
+            "desc": "Run npm --prefix packages/main run build and node bin/koala.js validate after Phase 4 -> both exit 0; WHY: doc changes must not accidentally break source or build artifacts",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
