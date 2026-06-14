@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-14T23:04:58.714Z",
       "reviewRunId": "B-1550:RR-009",
       "_hash": "08e64773c3152d7436a11f73879e68bd8c28a84d35ce1f2e4ba71559741f616b"
+    },
+    {
+      "id": "B-1550:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass after F-003 fixes: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md now requires every counted local host_verdict to carry a canonical payload signature verified before counting, includes head/material/validation/prompt/artifact binding in the signed payload, rejects missing/invalid/mismatched or material-weak signatures, keeps local verdicts separate from Authority completion flags, and routes gate-consumed facts through shared predicates plus process-fact registry/contract verification. No new concept or governance blocker found.",
+      "createdAt": "2026-06-14T23:11:14.316Z",
+      "reviewRound": "2026-06-14T23:04:58.714Z",
+      "reviewRunId": "B-1550:RR-006",
+      "_hash": "8cda63b6179fc063a4bd5d7a7bbf39e75a2c89228bf7650d9088138aeef4b7d3"
     }
   ]
 }
