@@ -113,6 +113,32 @@ const ALLOWLIST_TEST_GLOBS: readonly RegExp[] = [
   /^packages\/main\/src\/tasks\/cli-engine-branding-smoke\.ts$/,
 ];
 
+// 3b) Source files NOT covered by the cli-engine English plan / manifest.
+//     The execution plan (cli-engine-english-open-source-execution-plan.md) and
+//     its line-level manifest are scoped to packages/main/src/cli-engine.ts only.
+//     These other source files still carry PRE-EXISTING Chinese and are tracked
+//     for a follow-up source-translation story. They are allowlisted (not gated)
+//     so this gate locks the COMPLETED surface (cli-engine.ts + active docs)
+//     without silently expanding scope into ~470 unreviewed lines. Remove an
+//     entry here as each file is migrated to English.
+const ALLOWLIST_PENDING_SOURCE_MIGRATION: readonly string[] = [
+  'packages/main/src/cli-init.ts',
+  'packages/main/src/init-assets.ts',
+  'packages/main/src/registry.ts',
+  'packages/main/src/core/config.ts',
+  'packages/main/src/core/hooks.ts',
+  'packages/main/src/core/machine.ts',
+  'packages/main/src/core/managed-assets.ts',
+  'packages/main/src/core/command-policy.ts',
+  'packages/main/src/handlers/done-effects.ts',
+  'packages/main/src/handlers/test-auto.ts',
+  'packages/main/src/handlers/hints.ts',
+  'packages/main/src/handlers/phase-gates.ts',
+  'packages/main/src/handlers/evaluate.ts',
+  'packages/main/src/handlers/verifier.ts',
+  'packages/main/src/tasks/extract.ts',
+];
+
 // 4) Deferred behavior-sensitive lines in cli-engine.ts (M668 / M669 / M750).
 //    These three runtime matchers parse Chinese substrings of user/config text;
 //    changing them risks behavior, so they are deferred to a follow-up story.
@@ -141,6 +167,7 @@ function toRepoRel(absPath: string): string {
 
 function isFileAllowlisted(repoRel: string): boolean {
   if (ALLOWLIST_FILES.includes(repoRel)) return true;
+  if (ALLOWLIST_PENDING_SOURCE_MIGRATION.includes(repoRel)) return true;
   for (const sub of ALLOWLIST_PATH_SUBSTRINGS) {
     // Compare against a leading-slash-normalized form so "/legacy" matches a
     // top-level "legacy/" segment as well as a nested one.
