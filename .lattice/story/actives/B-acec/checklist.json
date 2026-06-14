@@ -56,7 +56,39 @@
       "userSees": "`lattice decision_doc_save ...` writes the decision doc only when scope and digest checks pass; stale or out-of-scope saves are blocked.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/decision-doc-promotion.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_doc_save with confirm:true and mode=create writes exactly docs/requirements/decisions/<slug>.md for an in-scope fresh proposal and marks/link-records the saved proposal metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing target requires mode=update, missing target requires mode=create, and overwrite or mode mismatch fails closed without writing the target file.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "decision_doc_save rejects stale proposal/source decision digests and rejects targets outside PLAN file declarations, scope contract, or accepted scope extension.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
