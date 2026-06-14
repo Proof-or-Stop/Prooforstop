@@ -90,7 +90,7 @@
       "desc": "The durable execution plan still contains stale authorization wording at several locations: prior PLAN scope coverage, declared PLAN scope, target paths outside PLAN scope, and accepted scope extension only. That conflicts with the required contract that decision_doc_save authorization comes only from scope contract allowedCreate/allowedModify or an accepted/approved scope extension, with no checklist/file declaration fallback.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-14T22:30:19.530Z",
@@ -99,7 +99,9 @@
       "_hash": "84b19655b10aba07bb392217ac9dfceb68cac901df984829825ca17424237e87",
       "files": [
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Docs updated across the durable execution plan: save authorization now consistently requires scope contract allowedCreate/allowedModify coverage or a mechanically valid accepted/approved scope extension. Targeted search found no stale PLAN scope, declared scope, checklist/file declaration fallback, or plain accepted-extension authorization wording in the save path.",
+      "resolvedAt": "2026-06-14T22:44:21.784Z"
     },
     {
       "id": "B-acec:F-006",
