@@ -4,7 +4,7 @@
   "title": "Execute the cli-engine English translation plan (Phases 0-4, excluding behavior-sensitive rows)",
   "description": "Implement docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md. Phase 0: add scripts/extract-cli-engine-english-manifest.mjs and regenerate/freeze the line-level manifest against the CURRENT packages/main/src/cli-engine.ts (now 767 Chinese lines vs the doc's 762-row snapshot), re-anchoring sourceLine and adding the 5 new rows, then mark rows approved. Phase 1: translate the public CLI surface in cli-engine.ts (command descriptions, Zod .describe() values, printHelp labels/examples, validation error text, unknown-command suggestions, story/worktree next-step hints) to English per the approved manifest, updating tests that assert old Chinese output. Phase 2: translate internal comments in cli-engine.ts (preserve technical meaning, no logic changes). Phase 3: add a no-new-Chinese gate smoke test (english-open-source-surface-smoke) that fails on new Chinese in active source/docs, with allowlists for this review doc, generated manifests, legacy archives, and migration compatibility tests. Phase 4: translate related active docs (README.md, docs/guide.md, docs/guide-hooks.md, active docs/requirements/decisions/) and move historical Chinese material to explicit legacy/archive locations. The 3 behavior-sensitive rows (M668/M669/M750 — regex/.includes matchers over Chinese) are explicitly OUT OF SCOPE and deferred to a dedicated follow-up story with coordinated code+test changes.",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "english",
@@ -56,11 +56,20 @@
       "branch": "story/B-a57f",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-14T21:11:06.045Z",
+      "branch": "story/B-a57f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-a57f",
     "branch": "story/B-a57f",
     "createdAt": "2026-06-14T16:27:55.575Z"
-  }
+  },
+  "currentReviewRound": "2026-06-14T21:11:06.045Z"
 }

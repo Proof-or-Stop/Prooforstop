@@ -20,7 +20,28 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Documented scope expansion: lattice help/<cmd> --help span packages/utils (aux_/truth_/gap_ commands), required for CHK-002 English-help acceptance; gate wired into package.json; Phase-1 test fixture update; story acceptance verifier under evidence/.",
+      "timestamp": "2026-06-14T21:11:05.379Z",
+      "paths": [
+        ".lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+        ".lattice/story/actives/B-a57f/evidence/verify-result.json",
+        "package.json",
+        "packages/main/tests/fixtures/cleanup-legacy.json",
+        "packages/utils/src/handlers/aux-doc.ts",
+        "packages/utils/src/handlers/aux-sync.ts",
+        "packages/utils/src/handlers/aux-trace.ts",
+        "packages/utils/src/handlers/auxiliary.ts",
+        "packages/utils/src/handlers/tool-status.ts",
+        "packages/utils/src/handlers/truth.ts",
+        "packages/utils/src/index.ts",
+        "packages/utils/src/register.ts",
+        "packages/utils/src/tool-defs.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-14T21:09:54.012Z",
-  "updatedAt": "2026-06-14T21:09:54.012Z"
+  "updatedAt": "2026-06-14T21:11:05.379Z"
 }
