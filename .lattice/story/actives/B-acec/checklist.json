@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add proposal storage and Markdown rendering primitives",
+      "context": "Create a narrow core/handler layer for validating proposal payloads, assigning proposal IDs, rendering deterministic Markdown, and storing story-local decision-doc proposals without writing project docs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "userSees": "`lattice decision_doc_proposal ...` records a proposal and `decision_doc_preview ...` prints the target Markdown without writing a file.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement save with scope, freshness, and overwrite guards",
+      "context": "decision_doc_save must require confirm:true, canonical docs/requirements/decisions/*.md target, accepted PLAN scope or scope extension, fresh proposal/source decision digest, and safe create/update semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "`lattice decision_doc_save ...` writes the decision doc only when scope and digest checks pass; stale or out-of-scope saves are blocked.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register commands in CLI, policy, and process fact contracts",
+      "context": "Add schemas/help/aliases plus COMMAND_POLICIES and process fact registry/level updates so the commands have hard runtime ownership, allowed phase, artifact, and Authority-boundary semantics.",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "userSees": "`lattice help` lists decision_doc_proposal, decision_doc_preview, and decision_doc_save with correct policy behavior.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression tests for happy, edge, and adversarial paths",
+      "context": "Cover proposal/preview/save happy path, stale digest rejection, out-of-scope target rejection, overwrite guard, missing verificationRequirements, read-only preview, and process fact contract checks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "userSees": "`npm --prefix packages/main run build` and focused regression commands pass for the new workflow.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Update documentation only for implemented contract differences",
+      "context": "If implementation requires precise wording beyond B-16eb, update the execution doc to reflect actual command behavior without expanding into Authority or configurable path claims.",
+      "relatedDocs": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "The decision-doc promotion document matches the implemented first-version CLI contract.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

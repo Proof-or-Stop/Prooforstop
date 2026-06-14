@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-acec",
+  "mode": "feature",
+  "allowed": [
+    "Add focused automated regression tests and update the B-16eb execution doc only if the implementation contract needs clarification",
+    "Implement decision_doc_preview as a read-only Markdown renderer for a proposal",
+    "Implement decision_doc_proposal for story-local durable decision-doc proposal metadata",
+    "Implement decision_doc_save to write confirmed proposals to docs/requirements/decisions/*.md only when scope and freshness checks pass",
+    "Register the new commands in CLI schema, command policy, process fact registry, and help aliases"
+  ],
+  "excluded": [
+    "Authority Server receipt completion or receiptVerified semantics",
+    "authorityDone, fullAuthorityDone, productionDone, customerKeyRef, or Layer4 changes",
+    "Automatic promotion of every decision_set artifact",
+    "Bypassing existing decision-doc quorum DONE gate",
+    "Custom configurable decision-doc paths outside docs/requirements/decisions/*.md",
+    "INIT reviewer ability to add scope or write decision docs"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved moving from B-16eb audited execution plan into implementation; current scope is local CLI workflow only.",
+  "createdAt": "2026-06-14T19:45:26.379Z",
+  "updatedAt": "2026-06-14T19:45:26.379Z",
+  "_hash": "c3f83ed7a35865dde1e2d2af5511e9a24afd6e6a3c5508d42bc06c219867a563"
+}
