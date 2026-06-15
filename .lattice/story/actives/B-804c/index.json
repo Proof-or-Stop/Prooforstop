@@ -4,7 +4,7 @@
   "title": "Make story_advance INIT_CHECK atomic with worktree bootstrap, or add a recovery path",
   "description": "Bug 2 from the 2026-06-15 ClawCreek bug report (Lattice 0.3.5), verified in source. story_advance to INIT_CHECK persists phase=INIT_CHECK to disk (cli-engine.ts:4003) BEFORE the worktree bootstrap (dev_start) runs (cli-engine.ts:4010). If bootstrap fails (e.g. storyDir-outside-gitRoot), the phase has already advanced with NO rollback (cli-engine.ts:4022-4024), and core/machine.ts:503-508 has no INIT_CHECK->INIT backward transition. Result: the story is stuck — phase reports advanced / requiresWorktree=true, but no worktree exists on disk and there is no supported way to re-bootstrap or roll back. Outcome: a failed worktree bootstrap must NOT leave a partially-advanced unrecoverable story — either the transition is atomic (defer phase write until bootstrap succeeds, or roll back on failure) or a supported re-bootstrap/recovery command exists. Scope: transactional ordering + recoverability only; do not change gitRoot resolution (that is B-2856) or the .lattice track/ignore model (separate Bug 3 story).",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "story_advance",
@@ -111,6 +111,15 @@
       "user": "Harmonygo",
       "sessionId": "lattice-bug2",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:59:07.976Z",
+      "branch": "story/B-804c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug2",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -118,5 +127,5 @@
     "branch": "story/B-804c",
     "createdAt": "2026-06-15T22:03:09.799Z"
   },
-  "currentReviewRound": "2026-06-15T22:53:23.221Z"
+  "currentReviewRound": "2026-06-15T22:59:07.976Z"
 }
