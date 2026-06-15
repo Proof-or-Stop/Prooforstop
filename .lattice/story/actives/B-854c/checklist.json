@@ -62,7 +62,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: bootstrap non-ignoring .gitignore -> tracked leaf, no warning",
+          "headHash": "10d173097a4ae9817ee920c81b0ba9c8fe813bda",
+          "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
+          "timestamp": "2026-06-15T22:31:01.398Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
