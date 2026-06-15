@@ -1,0 +1,34 @@
+{
+  "task": "Safely reduce Lattice agent prompt token overhead by removing repeated full guide snapshots from managed agent prompts and adding opt-in slim read outputs.",
+  "outcome": "After completion, running node packages/main/dist/tasks/prompt-token-cost-smoke.js prints PASS with before/after template bytes, confirms load-bearing fresh-context and flow-fact text is still present, confirms default story_get/checklist_get output remains compatible, and shows slim output is smaller. lattice validate --story=B-bfb5 --json then reports allPass true with full verification coverage.",
+  "facts": [
+    "docs/audits/lattice-token-cost-and-takeover-audit.md identifies repeated full koala/start prompt snapshots as the main token-cost source.",
+    "Current package and project agent templates contain multiple 53KB-56KB koala:start/end snapshots; thin templates such as koala-review-test-coverage are already much smaller.",
+    "prompt-registry.ts and managed-assets.ts already provide package-owned prompt registry and global-thin/full asset projection mechanisms.",
+    "init-check, scope-check, and delivery-check signatures are over story/gate data, not template bytes.",
+    "story_get currently embeds checklist data and checklist_get returns the checklist again, creating repeated read payloads in agent workflows.",
+    "INIT reviewers recorded two non-blocking requirements: include measurable before/after token evidence and explicitly keep handoff/Authority boundary changes out of scope."
+  ],
+  "constraints": [
+    "Do not change Authority Server receipt semantics or claim Authority completion.",
+    "Do not weaken review_run_start, review_pass_set, finding_add, init/scope/delivery signatures, or lifecycle gates.",
+    "Do not remove fresh-context fence or process-fact/flow-fact semantics from any reviewer or implementer prompt.",
+    "Do not change handoff authority boundaries, ownership transfer, merge authority, or DONE authority semantics.",
+    "Slim story_get/checklist_get output must be opt-in and default output must remain backward compatible.",
+    "Implementation must include before/after measurement evidence with prompt-cache billing caveat."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "packages/main/templates/agents/*.md",
+    ".claude/agents/*.md",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+  ],
+  "timestamp": "2026-06-15T10:38:26.140Z"
+}

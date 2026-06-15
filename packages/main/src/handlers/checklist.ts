@@ -21,6 +21,77 @@ const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
 
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
+type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[] };
+
+function pickTopLevelFields<T extends Record<string, unknown>>(value: T, fields?: string[]): Partial<T> {
+  const requested = (fields || []).map(field => field.trim()).filter(Boolean);
+  if (requested.length === 0) return value;
+  const selected: Partial<T> = {};
+  for (const field of requested) {
+    if (Object.prototype.hasOwnProperty.call(value, field)) {
+      selected[field as keyof T] = value[field as keyof T];
+    }
+  }
+  return selected;
+}
+
+function verificationIntentCounts(intent: VerificationIntent | undefined): Record<VerificationLane, number> & { total: number; must: number } {
+  let total = 0;
+  let must = 0;
+  const counts = {
+    happy: intent?.happy?.length ?? 0,
+    edge: intent?.edge?.length ?? 0,
+    adversarial: intent?.adversarial?.length ?? 0,
+  };
+  for (const lane of VERIFICATION_LANES) {
+    total += counts[lane];
+    must += (intent?.[lane] || []).filter(item => item.priority === 'must').length;
+  }
+  return { ...counts, total, must };
+}
+
+function verificationEvidenceCounts(evidence: VerificationEvidence[] | undefined): {
+  total: number;
+  passing: number;
+  failing: number;
+  waivers: number;
+} {
+  const list = evidence || [];
+  return {
+    total: list.length,
+    passing: list.filter(item => item.kind !== 'waiver' && item.result !== 'fail').length,
+    failing: list.filter(item => item.result === 'fail').length,
+    waivers: list.filter(item => item.kind === 'waiver').length,
+  };
+}
+
+export function summarizeChecklist(cl: ChecklistData): {
+  total: number;
+  done: number;
+  inProgress: number;
+  pending: number;
+} {
+  return {
+    total: cl.items.length,
+    done: cl.items.filter(item => item.status === 'done').length,
+    inProgress: cl.items.filter(item => item.status === 'in_progress').length,
+    pending: cl.items.filter(item => item.status === 'pending').length,
+  };
+}
+
+export function renderSlimChecklist(storyId: string, cl: ChecklistData): Record<string, unknown> {
+  return {
+    storyId,
+    counts: summarizeChecklist(cl),
+    items: cl.items.map(item => ({
+      id: item.id,
+      title: item.title,
+      status: item.status,
+      verificationIntent: verificationIntentCounts(item.verificationIntent),
+      verificationEvidence: verificationEvidenceCounts(item.verificationEvidence),
+    })),
+  };
+}
 
 /**
  * B-6812 CHK-001: delegates to the shared `withMkdirLock` primitive. Lock path
@@ -225,8 +296,11 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
 export function createChecklistHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
   return {
-    checklist_get(args: { storyId: string }) {
-      return store.readChecklist(args.storyId);
+    checklist_get(args: ChecklistGetArgs) {
+      const full = store.readChecklist(args.storyId);
+      if (!args.slim && !args.fields) return full;
+      const result = args.slim ? renderSlimChecklist(args.storyId, full) : full as unknown as Record<string, unknown>;
+      return pickTopLevelFields(result, args.fields);
     },
 
     checklist_add(args: {

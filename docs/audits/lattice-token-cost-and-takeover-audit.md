@@ -21,6 +21,26 @@
 
 **裁决：文档事实可靠，方案可确认。**
 
+### B-bfb5 DEV 落地核验（local Non-authority evidence，2026-06-15）
+
+本 story 已把 package agent templates 与 tracked `.claude/agents` / `.Codex/agents` mirrors 中的重复全量 guide snapshot 替换为 `prompt-registry.ts` 中的 load-bearing prompt slice，并新增可执行 smoke：
+
+```bash
+npm --prefix packages/main run build
+node packages/main/dist/tasks/prompt-token-cost-smoke.js
+node packages/main/dist/tasks/prompt-registry-smoke.js
+node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json
+```
+
+实测（char/4 近似 token，仅代表灌入 prompt/context 的字节量，不代表已确认账单）：
+
+| 范围 | baseline | after | delta |
+|---|---:|---:|---:|
+| 10 个 package snapshot-bearing templates | 632,687 B（~158,172 tok） | 115,317 B（~28,830 tok） | -517,370 B（~-129,343 tok） |
+| package + `.claude` + `.Codex` tracked mirrors 总量 | 1,987,273 B | 437,445 B | -1,549,828 B |
+
+最大 caveat 不变：当前 smoke 证明的是本地 prompt 字节与近似 token 降幅，以及 safety phrases / mirror consistency / slim output invariants；**不能证明 provider prompt-cache billing 是否命中，也不构成 Authority Server receipt-backed completion / productionDone / receiptVerified / authorityDone / fullAuthorityDone。**
+
 ---
 
 ## 0. 结论速览
@@ -28,7 +48,7 @@
 | 问题 | 结论 |
 |---|---|
 | **Q1 接管能力** | **能，但分两层、有刻意收窄的边界。** 同仓库跨 session 可 `--takeover`/`--forceTakeover` 抢占 lease；跨 host 走 handoff pack（有界 overflow，authority/merge/DONE 不转移）。**不支持跨机器自动 adopt 半成品 story**——这是按设计的安全收窄，不是缺陷。 |
-| **Q2 Token 成本** | **确实偏高，有确切证据。** 根因是 **11 份 agent 模板各内嵌一整份 ~56KB 的 CLAUDE.md 副本**，占每个 subagent system prompt 的 **85–90%**。普通通道 story 的脚手架 token ≈ **12–19.5 万**，其中 **~11–13.5 万是这份快照的重复**。 |
+| **Q2 Token 成本** | **确实偏高，有确切证据。** 根因是 **10 份 package agent 模板各内嵌一整份 ~54–58KB 的 CLAUDE.md 副本**，占这些 subagent system prompt 的 **85–90%**。B-bfb5 后这 10 份 package templates 从 632,687 B 降到 115,317 B，减少 ~129K 近似 tokens；prompt-cache billing 仍是不确定项。 |
 | **优化是否安全** | **是。** 已核验 gate 签名只签 story 数据、**从不读模板字节**，裁剪快照不会让任何已签 artifact 失效。唯一 load-bearing 的是快照里的 fresh-context fence 原文 + flow-fact 段，逐字保留即可。 |
 
 ---
@@ -102,25 +122,26 @@ lattice handoff_resume  --file=accept.json --output=resume.json
 
 ## 2. Q2 — Token 成本的确切证据
 
-### 2.1 证据①：模板 85–90% 是重复的 CLAUDE.md
+### 2.1 证据①：模板 85–90% 曾是重复的 CLAUDE.md
 
-每份模板的 `<!-- koala:start -->` 到 `<!-- koala:end -->`（第 12–909 行）之间，是**一整份 CLAUDE.md 副本**。
+落地前，每份大模板的 `<!-- koala:start -->` 到 `<!-- koala:end -->` 之间，是**一整份 CLAUDE.md 副本**。B-bfb5 后，该区段被替换为同一份 ~4.3KB load-bearing prompt slice，保留 fresh-context / process fact / reviewer run / Authority boundary 等安全文本。
 
-| 模板 | 总大小 | 内嵌快照 | 真正独有的角色指令 |
-|---|---|---|---|
-| koala-implementer.md | 63,281 B | **53,946 B** | 9,335 B |
-| koala-review-delivery.md | 64,349 B | **56,607 B** | 7,742 B |
-| koala-review-story-init.md | 69,595 B | **57,257 B** | 12,338 B |
-| koala-review-behavior.md | 63,329 B | **56,520 B** | 6,809 B |
-| koala-review-docs.md | 63,433 B | **56,576 B** | 6,857 B |
-| koala-review-scope-plan.md | 63,188 B | **56,575 B** | 6,613 B |
-| koala-review-concept.md | 60,921 B | **56,503 B** | 4,418 B |
-| koala-review-quality.md | 60,642 B | **56,507 B** | 4,135 B |
-| **koala-review-test-coverage.md** | **4,381 B** | **0（无快照）** | 4,381 B |
-| **product-reviewer.md** | **3,249 B** | **0（无快照）** | 3,249 B |
+| 模板 | baseline 总大小 | after 总大小 | delta | after koala block |
+|---|---:|---:|---:|---:|
+| koala-evaluator.md | 57,931 B | 8,258 B | -49,673 B | 4,376 B |
+| koala-implementer.md | 63,463 B | 13,973 B | -49,490 B | 4,376 B |
+| koala-review-behavior.md | 63,499 B | 11,362 B | -52,137 B | 4,376 B |
+| koala-review-channel.md | 63,587 B | 11,450 B | -52,137 B | 4,376 B |
+| koala-review-concept.md | 61,085 B | 8,948 B | -52,137 B | 4,376 B |
+| koala-review-delivery.md | 64,505 B | 12,368 B | -52,137 B | 4,376 B |
+| koala-review-docs.md | 63,591 B | 11,454 B | -52,137 B | 4,376 B |
+| koala-review-quality.md | 60,804 B | 8,667 B | -52,137 B | 4,376 B |
+| koala-review-scope-plan.md | 63,354 B | 11,217 B | -52,137 B | 4,376 B |
+| koala-review-story-init.md | 70,868 B | 17,620 B | -53,248 B | 4,376 B |
+| **合计** | **632,687 B（~158,172 tok）** | **115,317 B（~28,830 tok）** | **-517,370 B（~-129,343 tok）** | — |
 
-- **11 份模板各嵌一份**全量快照，磁盘上 ~620KB 重复。
-- 每次 spawn 都把这份快照重新灌进该 subagent 的 context。
+- **10 份 package 模板曾各嵌一份**全量快照，package 层 ~517KB 重复已移除；同步 `.claude` / `.Codex` mirrors 后，tracked 三份合计减少 ~1.55MB。
+- 每次 spawn 不再把整份全量 guide 快照灌进该 subagent context；只保留 compact load-bearing slice + role-specific prompt。
 - **test-coverage.md（4.4KB，无快照）能正常工作 → "瘦模板可行"已被框架自己证明。**
 
 ### 2.2 证据②：每个 story 的 token 账（char/4 ≈ token）
@@ -177,13 +198,13 @@ lattice handoff_resume  --file=accept.json --output=resume.json
 
 其余 ~50KB（Core/Shell 架构、worktree 生命周期、audit 配置、pre-push hook、目录结构）reviewer / implementer 根本用不到。
 
-### 3.1 Lever 1（主菜）：全量快照 → 瘦切片　**预计省 ~120K/story**
+### 3.1 Lever 1（主菜）：全量快照 → 瘦切片　**实测 package 层省 ~129K 近似 tokens**
 
-把 11 份模板里的 64KB 全量 CLAUDE.md，换成 **~3–4K 的 load-bearing 切片**（只留 fence 原文 + flow-fact 段 + 该角色真正用到的段）。
+把大模板里的 57–71KB 全量 CLAUDE.md，换成 **~4.3KB 的 load-bearing 切片**（只留 fresh-context fence / flow-fact / reviewer run / delivery / Authority boundary / debugging contract 等该角色真正需要的段）。
 
 - 量级参照：test-coverage.md（4.4KB）已证明可跑。
-- **从单一真相源再生成**：用已有的 [`prompt-registry.ts`](../../packages/main/src/core/prompt-registry.ts) / [`managed-assets.ts`](../../packages/main/src/core/managed-assets.ts) / `global-thin` 机制（managed-assets.ts:474 已有 `global-thin` 检测），**不手工维护**——顺便根治快照漂移。
-- 效果：每次 spawn ~16K → ~4K，11 次 spawn/story 省 ~120K。
+- **从单一真相源再生成**：load-bearing slice 登记在 [`prompt-registry.ts`](../../packages/main/src/core/prompt-registry.ts)，mirrors 继续由 [`managed-assets.ts`](../../packages/main/src/core/managed-assets.ts) / package registry render 机制校验；`prompt-registry-smoke` 现在检查 package ↔ `.claude` ↔ `.Codex` mirror consistency。
+- 实测效果：10 个 package templates 合计 ~158K tok → ~28.8K tok，减少 ~129.3K 近似 tokens。该数字仍是 prompt/context 字节近似，不是账单确认。
 
 ### 3.2 Lever 2：story_get / checklist_get 输出去重　**省 ~1.2–2.7K/查询轮，零风险**
 
@@ -205,7 +226,7 @@ docs reviewer 见任何 `.md` touchpoint 即挂载。**安全边界**：不要�
 
 ## 4. 审计要点 / 待确认项
 
-1. **置信度**：方案大头（Lever 1 省 ~120K）的前提是"快照按 spawn 重复计入成本"；若证实 harness 命中 prompt cache，节省的**计费金额**会小于 token 数所示，但**死重量去除**这一架构收益不变。建议确认 harness 缓存行为后再定收益口径。
+1. **置信度**：方案大头（Lever 1 实测 package 层减少 ~129K 近似 tokens）的前提是"快照按 spawn 重复计入成本"；若证实 harness 命中 prompt cache，节省的**计费金额**会小于 token 数所示，但**死重量去除**这一架构收益不变。建议确认 harness 缓存行为后再定收益口径。
 2. **load-bearing 边界**：Lever 1 的安全性完全取决于"fence 原文 + flow-fact 段逐字保留"。落地时需逐模板核对保留清单，并跑 `npm run test:process-fact-contract` 确认 process fact 未漂移。
 3. **落地建议**：Lever 1 值得起一个正式 story（understanding + decision + checklist + plan.md），并合并收掉 memory 中那条 snapshot-drift 待建项；Lever 2 是顺手小补丁；Lever 3 是过程纪律，不需代码改动。
 

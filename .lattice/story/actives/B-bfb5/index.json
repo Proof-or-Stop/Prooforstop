@@ -4,7 +4,7 @@
   "title": "Reduce Lattice agent prompt token cost safely",
   "description": "Implement the actionable parts of docs/audits/lattice-token-cost-and-takeover-audit.md as an independent optimization story: reduce repeated full CLAUDE/Lattice prompt snapshots in agent templates and add low-risk slim read output where appropriate, while preserving fresh-context and process-fact safety semantics.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "token-cost",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-15T10:28:55.990Z",
   "startedAt": "2026-06-15T10:28:55.990Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T11:13:08.970Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,11 +38,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:37:11.278Z",
+      "branch": "story/B-bfb5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:47:03.143Z",
+      "branch": "story/B-bfb5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:01:40.387Z",
+      "branch": "story/B-bfb5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:11:40.502Z",
+      "branch": "story/B-bfb5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:13:08.970Z",
+      "branch": "story/B-bfb5",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-bfb5",
-    "branch": "story/B-bfb5",
-    "createdAt": "2026-06-15T10:36:59.791Z"
-  }
+  "currentReviewRound": "2026-06-15T11:01:40.387Z"
 }

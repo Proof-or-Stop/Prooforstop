@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Only fix measurable token overhead; do not optimize arbitrary prompt prose.",
+    "Preserve Lattice lifecycle correctness, reviewer independence, and signed evidence semantics before reducing prompt size.",
+    "Keep changes host-neutral: local CLI behavior and managed assets may change, Authority Server receipt semantics may not.",
+    "Make reductions measurable through before/after byte or approximate token evidence.",
+    "Default command outputs must remain backward compatible; slim behavior must be explicit opt-in."
+  ],
+  "drivers": [
+    "Large repeated agent prompt snapshots are the dominant documented token-cost source.",
+    "Fresh-context fence and flow-fact/process-gate text are load-bearing and must survive any slimming.",
+    "Users need a visible measurable reduction, not just internal cleanup.",
+    "B-bfb5 is high-risk because it touches prompt and lifecycle-adjacent surfaces."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal measured prompt slimming plus opt-in slim read outputs",
+      "pros": [
+        "Directly targets the documented repeated snapshot cost.",
+        "Preserves default command behavior and signed artifact semantics.",
+        "Can be verified with mechanical size and prompt-safety smoke tests.",
+        "Keeps Authority/handoff semantics out of scope."
+      ],
+      "cons": [
+        "Requires careful template editing and safety assertions for every affected prompt.",
+        "Billing savings remain an estimate if provider prompt cache behavior is unknown."
+      ]
+    },
+    {
+      "name": "B: Only add slim story_get/checklist_get output",
+      "pros": [
+        "Very low implementation risk.",
+        "Default compatibility is easy to preserve."
+      ],
+      "cons": [
+        "Leaves the dominant repeated prompt snapshot cost unresolved.",
+        "Would not satisfy the audit document main finding or user expectation."
+      ]
+    },
+    {
+      "name": "C: Global prompt architecture rewrite",
+      "pros": [
+        "Could create a cleaner long-term generated prompt system.",
+        "May eliminate more drift classes later."
+      ],
+      "cons": [
+        "Too broad for the current correctness-focused story.",
+        "Higher risk of changing reviewer behavior or lifecycle gate expectations.",
+        "Could mix token optimization with unrelated architecture churn."
+      ]
+    }
+  ],
+  "chosen": "A: Minimal measured prompt slimming plus opt-in slim read outputs",
+  "rationale": "Option A is the narrowest approach that fixes the real documented token overhead while preserving lifecycle correctness, default compatibility, and Authority boundaries.",
+  "preMortem": [
+    {
+      "scenario": "Slimmed prompts remove a load-bearing fresh-context or flow-fact instruction.",
+      "trigger": "Template snapshot is replaced without checking required phrases and gate semantics.",
+      "consequence": "Reviewers may self-absolve or miss lifecycle evidence requirements, reducing correctness despite lower token use.",
+      "mitigation": "Add prompt-token-cost smoke assertions that required fresh-context, process-fact, review-run, finding/pass, and Authority boundary phrases remain present in every affected prompt."
+    },
+    {
+      "scenario": "Slim output breaks existing story_get/checklist_get callers.",
+      "trigger": "Slim behavior changes default output or removes fields unconditionally.",
+      "consequence": "Existing automation, reviewers, or tests fail or silently lose required context.",
+      "mitigation": "Make slim/fields opt-in only; add default-output compatibility checks before asserting token reduction."
+    },
+    {
+      "scenario": "Measured token savings are overstated.",
+      "trigger": "Prompt cache behavior reduces billed savings or char/4 conversion is treated as exact billing.",
+      "consequence": "User receives an overclaim rather than a defensible optimization result.",
+      "mitigation": "Report byte and approximate token deltas as context-load reduction, explicitly retaining prompt-cache billing caveat."
+    },
+    {
+      "scenario": "Handoff or Authority material from the audit leaks into implementation scope.",
+      "trigger": "Developer treats Q1 takeover/handoff audit sections as code-change targets.",
+      "consequence": "Story changes authority boundaries, receipt semantics, or merge ownership unrelated to token cost.",
+      "mitigation": "Scope contract excludes handoff authority boundary changes, receipt verification, ownership transfer, merge authority, DONE authority, and Authority Server behavior."
+    }
+  ],
+  "timestamp": "2026-06-15T10:38:42.837Z"
+}

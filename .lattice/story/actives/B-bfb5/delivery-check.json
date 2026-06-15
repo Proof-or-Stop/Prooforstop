@@ -1,0 +1,65 @@
+{
+  "storyId": "B-bfb5",
+  "checkedAt": "2026-06-15T11:10:04.610Z",
+  "reviewRound": "2026-06-15T11:01:40.387Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+      "promise": "Prompt template byte reduction is measured by node packages/main/dist/tasks/prompt-token-cost-smoke.js and reported as approximate prompt/context tokens, not billable prompt-cache savings.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/tasks/prompt-token-cost-smoke.js; rg audit caveat lines",
+      "evidence": "Smoke passed and reported package templates 632687 B (~158172 tok) to 115317 B (~28830 tok), delta 517370 B (~129343 tok); audit line scan keeps prompt-cache billing as a caveat."
+    },
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+      "promise": "Prompt registry and prompt mirror safety are measured by node packages/main/dist/tasks/prompt-registry-smoke.js and verify_codex.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/tasks/prompt-registry-smoke.js; node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json",
+      "evidence": "Registry smoke passed: 16 agents rendered for claude and codex. verify_codex passed 7/7 including prompt registry hash 4d735570c43f, hooks, exclusions, wrapper, heartbeat, and aux availability."
+    },
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+      "promise": "Delivery closure stays local Non-authority only and does not claim Authority Server, receiptVerified, productionDone, authorityDone, or fullAuthorityDone completion.",
+      "status": "verified",
+      "verifiedBy": "rg authority boundary terms in audit doc, prompt registry, templates, and mirrored agents",
+      "evidence": "Search found boundary text only: local Lattice evidence is Non-authority unless an Authority Server receipt is verified, and prompts say not to claim receiptVerified, productionDone, authorityDone, or fullAuthorityDone from local tests, prompt text, or story metadata alone."
+    },
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+      "promise": "Known flow-stability-smoke failure is unrelated baseline debt, not B-bfb5 delivered work.",
+      "status": "verified",
+      "verifiedBy": "lattice session_brief; rg flow-stability-smoke in Lattice review metadata",
+      "evidence": "test-coverage review pass records flow-stability-smoke failing identically on clean main at assertProductionHelperPassesProjectRootToClassifier, so it is unrelated existing baseline debt and not a B-bfb5 correctness blocker."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-002/CHK-004",
+      "transcript": "node packages/main/dist/tasks/prompt-token-cost-smoke.js -> pass; reported 10 package prompt templates baseline 632687 B (~158172 tok), current 115317 B (~28830 tok), delta 517370 B (~129343 tok), with prompt-cache billing caveat."
+    },
+    {
+      "featureId": "CHK-002/CHK-004",
+      "transcript": "node packages/main/dist/tasks/prompt-registry-smoke.js -> pass; 16 agents rendered for claude and codex, covering prompt registry and mirror safety."
+    },
+    {
+      "featureId": "CHK-004/CHK-005",
+      "transcript": "node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json -> ok true; 7/7 pass for manifest, prompt registry, runtime exclusions, native hooks, local wrapper policy, global fallback heartbeat, and aux availability."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "lattice session_brief -> REVIEW with concept, quality, test-coverage, and docs passes; lattice finding_list --storyId=B-bfb5 --json -> no findings; rg authority terms -> only local Non-authority boundary language and explicit no-claim wording. flow-stability-smoke baseline failure noted by test-coverage review as clean-main debt outside this diff."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "git diff --check main...HEAD -> pass; changed-file TODO/FIXME scan found only prompt/schema descriptions of TODO checks, not introduced unresolved implementation TODOs."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passed for local Non-authority evidence only. It verifies docs promises, real machine tests, reviewer pass status, and Authority boundary wording. It makes no Authority Server, receiptVerified, productionDone, authorityDone, or fullAuthorityDone claim. The known flow-stability-smoke failure remains unrelated clean-main baseline debt, not delivered work."
+  },
+  "_hash": "b9d0e8334c6222f15519988d09dbdf3639ff678d3cf93370bdac7757609816a2"
+}
