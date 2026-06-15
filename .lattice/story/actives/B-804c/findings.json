@@ -51,6 +51,22 @@
       "files": [
         "packages/main/src/cli-engine.ts"
       ]
+    },
+    {
+      "id": "B-804c:F-004",
+      "desc": "CHK-001:happy:0 verificationEvidence headHash is stale and note references the wrong assertion: the evidence recorded at headHash 9efde4255 (pre-fix commit) names assertDevStartRecoversStuckInitCheckStory as the CHK-001:happy:0 witness, but the actual fix (assertCleanInitCheckAdvanceSucceeds, added in 8a9c44b86) was committed afterward and the evidence was never re-recorded at the current HEAD (cf4a0fc6d). validate reports all 9 intent entries as stale/uncovered (0/9 covered). The main agent must re-run verification_evidence_add for CHK-001:happy:0 (and any other stale entries) citing assertCleanInitCheckAdvanceSucceeds and at the current HEAD hash to clear the stale gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T22:55:58.960Z",
+      "reviewRound": "2026-06-15T22:53:23.221Z",
+      "reviewRunId": "B-804c:RR-006",
+      "_hash": "eed2e5ff673c994c4d585ed93efe1f6fd0b2ca6f06d75c1027e55f6323e84825",
+      "files": [
+        "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+      ]
     }
   ]
 }
