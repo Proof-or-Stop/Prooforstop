@@ -264,6 +264,17 @@
           "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
           "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
           "timestamp": "2026-06-15T15:54:37.216Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs && node packages/main/dist/cli.js help | rg 'lattice-(implementer|review|evaluator)'",
+          "result": "pass",
+          "note": "Process fact contract passed and local CLI help exposes canonical lattice role lanes without koala role guidance.",
+          "headHash": "bf27939f73aabb5c05f58887eac97e3b998d3dab",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:21:10.752Z"
         }
       ]
     },
