@@ -1,6 +1,6 @@
 # Lattice Hooks Guide
 
-Lattice exposes 4 event points in every command's lifecycle and lets you configure shell hook commands in `lattice.config.json`; `koala.config.json` remains supported only as a legacy fallback. The design is inspired by Claude Code's PreToolUse / PostToolUse / SessionStart / Stop mechanism, and its goal is to decouple "things the agent wants to do after a command finishes" from the Lattice framework core.
+Lattice exposes 4 event points in every command's lifecycle and lets you configure shell hook commands in `lattice.config.json`. The design is inspired by Claude Code's PreToolUse / PostToolUse / SessionStart / Stop mechanism, and its goal is to decouple "things the agent wants to do after a command finishes" from the Lattice framework core.
 
 ## Claude Code Prompt Reminder
 
@@ -27,7 +27,7 @@ Lattice initialization merges a Claude Code `UserPromptSubmit` hook into `.claud
 This hook is only a soft reminder: it locates the repository from the hook JSON's `cwd`, `CLAUDE_PROJECT_DIR`, or the current cwd, reads the legacy `.koala/activity.jsonl` mirror, `docs/story/activity.jsonl`, and the story-scoped `docs/story/actives/*/activity.jsonl`, and looks for the most recent `session_brief` heartbeat. By default, anything within 60 minutes is treated as fresh and the hook stays silent; when the most recent heartbeat is older than 60 minutes or there is no fresh record, it prints:
 
 ```text
-Run lattice session_brief first to restore context (koala is still a legacy alias)
+Run lattice session_brief first to restore context
 ```
 
 The threshold can be adjusted with `KOALA_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Lattice init does not create `.Codex/hooks` or `.Codex/settings.json`.
@@ -42,7 +42,7 @@ The threshold can be adjusted with `KOALA_SESSION_BRIEF_FRESH_MINUTES`. Malforme
 
 ## Schema
 
-Add a `hooks` field to `lattice.config.json`; a `koala.config.json` in older projects is still read as a legacy fallback:
+Add a `hooks` field to `lattice.config.json`:
 
 ```json
 {

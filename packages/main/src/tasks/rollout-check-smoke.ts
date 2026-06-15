@@ -68,7 +68,7 @@ function assertRolloutShape(result: RolloutCheckResult, label: string): void {
   assert.equal(result.readOnly, true, `${label} is read-only`);
   assert.equal(result.macAppRequired, false, `${label} does not require Mac App`);
   assert.equal(result.product.primaryBin, 'lattice', `${label} primary bin`);
-  assert.equal(result.product.legacyAlias, 'koala', `${label} legacy alias preserved`);
+  assert.equal('legacyAlias' in result.product, false, `${label} does not expose a legacy alias`);
   assert.equal(result.summary.total, result.projects.length, `${label} summary total matches projects`);
   assert.ok(result.projects.length >= 1, `${label} returns at least one project`);
   assert.ok(result.projects.every(project => project.nextAction.length > 0), `${label} has next actions`);
@@ -103,12 +103,12 @@ assert.equal(
 // CLI help and nested alias semantics.
 const help = runCli(['help']);
 assert.match(help, /rollout_check/, 'help exposes rollout_check');
-assert.match(help, /Primary entrypoint:\s+lattice/, 'help names lattice as primary entrypoint');
-assert.match(help, /Legacy alias:\s+koala/, 'help preserves koala as legacy alias');
+assert.match(help, /Entrypoint:\s+lattice/, 'help names lattice as entrypoint');
+assert.doesNotMatch(help, /Legacy alias:\s+koala/, 'help does not advertise koala alias');
 const storyCreateHelp = runCli(['story_create', '--help']);
 assert.match(storyCreateHelp, /lattice story_create/, 'story_create help uses lattice examples');
 assert.match(storyCreateHelp, /lattice session_brief/, 'story_create help next step uses lattice');
-assert.match(storyCreateHelp, /legacy alias: koala/, 'tool help still documents legacy alias');
+assert.doesNotMatch(storyCreateHelp, /legacy alias: koala|Compatible: koala/, 'tool help does not document koala alias');
 
 const flat = runJson(['rollout_check', `--projects=${repoRoot}`, '--format=json']);
 assertRolloutShape(flat, 'flat command');

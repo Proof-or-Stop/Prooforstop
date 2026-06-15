@@ -1024,7 +1024,7 @@ function assertStoryAdvanceTestGateFailClosedContracts(): void {
   );
   assert.match(
     phaseGatesSource,
-    /Cannot enter TEST: koala validate execution error/,
+    /Cannot enter TEST: lattice validate execution error/,
     'validate execution errors must be fail-closed before entering TEST',
   );
   for (const src of [source, phaseGatesSource]) {
@@ -1513,7 +1513,7 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       ],
     });
 
-    // Live story_advance guard path (machine.ts) — what `koala story_advance
+    // Live story_advance guard path (machine.ts) — what `lattice story_advance
     // --phase=TEST` actually calls — must let the transition through.
     assert.equal(
       getGuardFailureReason(storyId, store, 'TEST', root),
@@ -1703,7 +1703,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     const evidence: TestEvidenceData = {
-      command: 'koala validate --json',
+      command: 'lattice validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-04-27T12:20:00.000Z',
@@ -2163,7 +2163,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
       ],
     });
     const evidence: TestEvidenceData = {
-      command: 'koala validate --json',
+      command: 'lattice validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-04-27T12:25:00.000Z',
@@ -2229,7 +2229,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     store.writeTestEvidence(storyId, {
-      command: 'koala validate --json',
+      command: 'lattice validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-05-15T12:25:00.000Z',
@@ -3186,7 +3186,7 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
  *     (no circular import); story-advance.ts is only the public command shell,
  *     and transition-orchestrator.ts owns the transition sequence.
  *  2. Fail-closed gate behavior (preMortem #1): runValidateGate still blocks
- *     TEST when koala validate fails (allPass=false) AND when validate output
+ *     TEST when lattice validate fails (allPass=false) AND when validate output
  *     is non-JSON (JSON-parse failure); runReviewToTestPreflightGate still
  *     blocks TEST when a CLI gate fails.
  *  3. Effect snapshot byte-identical (preMortem #3): buildNextSteps and
@@ -3252,7 +3252,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   assert.doesNotMatch(
     storyAdvanceSrc,
     /const verifierHandlers = createVerifierHandlers\(ctx\)/,
-    'the koala validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
+    'the lattice validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
   );
   // Fail-closed wording for the validate-throw / JSON-parse-failure catch must
   // live in phase-gates.ts and be the fail-closed branch (preMortem #1). The
@@ -3308,8 +3308,8 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      /Cannot enter TEST: koala validate did not pass/,
-      'runValidateGate must block TEST when koala validate fails',
+      /Cannot enter TEST: lattice validate did not pass/,
+      'runValidateGate must block TEST when lattice validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     // The fail-closed path still persists a FAIL test-evidence record (the
@@ -3509,7 +3509,7 @@ function assertDoneOracleSameSource(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     const evidence: TestEvidenceData = {
-      command: 'koala validate --json',
+      command: 'lattice validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-05-15T12:25:00.000Z',

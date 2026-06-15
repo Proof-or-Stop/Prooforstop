@@ -17,14 +17,14 @@ be named so the boundary is cold-readable?
 
 | Role | Subsystem | L2+ evidence authority? |
 |------|-----------|------------------------|
-| **Ordinary Lattice/koala** | Workflow thin client (`@lattice-agent/core`, this repo; legacy package fallback `@koala-agent/core`) | **No** — transport / local only |
+| **Ordinary Lattice CLI** | Workflow thin client (`@lattice-agent/core`, this repo) | **No** — transport / local only |
 | **`koala authority enforce`** | Future isolated opt-in headless runner path (this repo, future CLI command) | **Only after M2+ gates cleared** — see Milestone Routing below |
 | **Python authority** | Receipt authority (separate Python repo) | **Yes** — signed `AuthorityReceipt` |
 | **Mac Runner / Koala Runner CLI** | Execution plane (separate Mac/Swift + forthcoming Runner CLI repo) | **Yes** — actor key, heartbeat, signed envelope |
 
 Key constraints recorded by this milestone:
 
-- Ordinary koala workflow commands (`koala story_advance`, `koala verification_evidence_add`, etc.)
+- Ordinary koala workflow commands (`lattice story_advance`, `lattice verification_evidence_add`, etc.)
   **must never** become or be treated as authority evidence submissions, regardless of future
   enforce subsystem wording in docs.
 - `koala authority enforce` **does not exist yet** as a command. Milestone 0 reserves the
@@ -249,7 +249,7 @@ product approval lands).
 
 Three roles, named so the boundary is cold-readable without prior context:
 
-1. **Lattice CLI / legacy koala — workflow client** (`@lattice-agent/core`, this repo; legacy package fallback `@koala-agent/core`). Drives the
+1. **Lattice CLI — workflow client** (`@lattice-agent/core`, this repo). Drives the
    Story lifecycle, runs local validations, and may POST observational evidence
    in `shadow` mode or transport-only evidence in `enforce` mode. **The CLI
    never produces production-grade authority evidence.**

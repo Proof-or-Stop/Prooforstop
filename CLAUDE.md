@@ -3,16 +3,16 @@
 
 ## 行为准则
 
-0. **每次新 session 或恢复中断工作时，第一条命令先 `koala session_brief`**
+0. **每次新 session 或恢复中断工作时，第一条命令先 `lattice session_brief`**
 1. 任何需求先走完整 Story 流程，除非用户明确说"立刻改"
-2. 行动前先 `koala session_brief`（项目状态 + 下一步提示），再酌情 Read 关键文件
+2. 行动前先 `lattice session_brief`（项目状态 + 下一步提示），再酌情 Read 关键文件
 3. 输出要简洁，但推理要彻底
 4. 优先编辑而不是重写整个文件
-5. 在宣布完成前测试你的代码：`koala validate`
+5. 在宣布完成前测试你的代码：`lattice validate`
 6. 保持解决方案简单直接
 7. 用户指令始终覆盖此文件
-8. **禁止直接读写 `docs/story/` 目录下的文件**。所有 story 操作走 `koala story_create` 等/`koala checklist_*`/`koala bug_*` 命令
-9. **代码验证统一用 `koala validate`**
+8. **禁止直接读写 `docs/story/` 目录下的文件**。所有 story 操作走 `lattice story_create` 等/`lattice checklist_*`/`lattice bug_*` 命令
+9. **代码验证统一用 `lattice validate`**
 
 ## Story 阶段流转
 
@@ -33,7 +33,7 @@
 | **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
 | **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`koala-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
-| **TEST** | `koala validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
+| **TEST** | `lattice validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
 | **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.koala/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
 
 ### 如何选通道
@@ -41,34 +41,34 @@
 - **小改动**（bug fix、文案修改、配置调整）：创建 story 时只写 1-2 条 checklist，worktree 创建后直接 `story_advance DEV`，主 agent 自己做
 - **正常改动**（新功能、重构、多文件改动）：走完整 PLAN（understanding_set + decision_set + checklist + plan.md + story_review），拆给 subagent
 
-## koala CLI 速查
+## Lattice CLI 速查
 
 ```bash
-koala story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
-koala story_review '{"storyId":"B-xxx"}'
-koala story_advance '{"storyId":"B-xxx","phase":"DEV"}'
-koala checklist_get '{"storyId":"B-xxx"}'
-koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
+lattice story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
+lattice story_review '{"storyId":"B-xxx"}'
+lattice story_advance '{"storyId":"B-xxx","phase":"DEV"}'
+lattice checklist_get '{"storyId":"B-xxx"}'
+lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
 
 # 验证
-koala validate              # 静态 + 逻辑 + 集成测试
-koala validate --full       # 含真机测试
-koala validate --json       # 结构化输出
-koala status                # 工作中快速状态一屏看
-koala serve                 # HTTP API 调试
-koala serve --dev="..."     # 带浏览器代理
+lattice validate              # 静态 + 逻辑 + 集成测试
+lattice validate --full       # 含真机测试
+lattice validate --json       # 结构化输出
+lattice status                # 工作中快速状态一屏看
+lattice serve                 # HTTP API 调试
+lattice serve --dev="..."     # 带浏览器代理
 
 # PLAN 阶段产物
-koala understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[],"constraints":[],"unknowns":[],"touchpoints":[]}'
-koala decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":[],"chosen":"A","rationale":"..."}'
+lattice understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[],"constraints":[],"unknowns":[],"touchpoints":[]}'
+lattice decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":[],"chosen":"A","rationale":"..."}'
 ```
 
 ## Claude Prompt Hook
 
-`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.koala/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `koala session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
+`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.koala/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `lattice session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
 
 ```text
-建议先运行 koala session_brief 恢复现场
+建议先运行 lattice session_brief 恢复现场
 ```
 
 阈值可用 `KOALA_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。Claude hook/settings 只放在 `.claude/`，不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。
@@ -109,7 +109,7 @@ B-9bd9 引入了「跨 story 框架自省 audit」机制（定期扫 CLAUDE.md �
 - `mode` 字段非法值 → warn + fallback `"semi-auto"`
 - 其他字段类型错误 → 静默忽略该字段
 
-**为何不提供 `koala audit_config_set` CLI**：改动频率极低（多数项目一辈子改 0～1 次），专门造命令反而增加记忆负担；直接手编 JSON 即可，schema 在 `packages/main/src/core/audit-config.ts` 里一眼看完。
+**为何不提供 `lattice audit_config_set` CLI**：改动频率极低（多数项目一辈子改 0～1 次），专门造命令反而增加记忆负担；直接手编 JSON 即可，schema 在 `packages/main/src/core/audit-config.ts` 里一眼看完。
 
 ## 代码范式（Data / Machine / Fn）
 
@@ -152,8 +152,8 @@ src/
 | **machines/** | 状态机 + 纯函数 + bridge 接口 | 不做 I/O |
 | **io/** | 外部 I/O（LLM API 调用等） | 不做状态管理 |
 | **shells/** | 渲染 + 用户输入采集 | 不 import fn.ts，不持有业务状态，不调 I/O |
-| **WS server** | **框架**：`koala-dev` 自动启动 WS bridge + proxy | 项目不需要写 WS server |
-| **调试 API** | **框架**：`koala serve` 自动从 machine.ts 生成端点 | 项目不需要写 HTTP server |
+| **WS server** | **框架**：`lattice serve` 自动启动 WS bridge + proxy | 项目不需要写 WS server |
+| **调试 API** | **框架**：`lattice serve` 自动从 machine.ts 生成端点 | 项目不需要写 HTTP server |
 
 **关键：项目只写 LocalBridge（同进程直连）。WS 通道和调试 API 由框架统一提供。**
 
@@ -186,7 +186,7 @@ export async function createApp() {
 
 ```typescript
 // core/debug.ts
-import { devHost } from '@koala-agent/core/dev-host';
+import { devHost } from '@lattice-agent/core/dev-host';
 import { createApp } from './app.js';
 import { GameMachine } from './machines/game/machine.js';
 
@@ -213,7 +213,7 @@ interface GameBridge {
 }
 
 // createLocalBridge：在 bridge.ts 中实现，import machine.ts + fn.ts
-// createWSBridge：浏览器端使用，连接 koala-dev 提供的 WS server
+// createWSBridge：浏览器端使用，连接 lattice serve 提供的 WS server
 // createBridge：自动选择（检测 window.__KOALA_WS_URL）
 ```
 
@@ -221,7 +221,7 @@ interface GameBridge {
 
 ```
 正式运行：   npm start / vite           → app.ts 里 LocalBridge 直连
-开发调试：   npm run serve / koala-dev   → core 进程 + WS bridge + Dashboard
+开发调试：   npm run serve / lattice serve   → core 进程 + WS bridge + Dashboard
              CLI/浏览器同时连同一个逻辑实例
 纯浏览器：   vite build                 → LocalBridge 打包进浏览器
 ```
@@ -230,9 +230,9 @@ interface GameBridge {
 
 ```bash
 npm start          # vite（Web 壳 + app.ts 浏览器内直连）
-npm run serve      # koala-dev（core + Dashboard）
-npm run serve:web  # koala-dev --web（core + vite + Dashboard）
-npm run serve:cli  # koala-dev --cli（core + CLI 壳 + Dashboard）
+npm run serve      # lattice serve（core + Dashboard）
+npm run serve:web  # lattice serve --web（core + vite + Dashboard）
+npm run serve:cli  # lattice serve --cli（core + CLI 壳 + Dashboard）
 ```
 
 ### 端口发现（多 worktree 安全）
@@ -284,9 +284,9 @@ npm run serve:cli  # koala-dev --cli（core + CLI 壳 + Dashboard）
 - 可以有纯 UI 状态（tooltip 显隐、动画帧），不允许管理业务状态
 - validate 检查：shell 文件不 import fn.ts
 
-### 调试 API（koala serve 自动生成）
+### 调试 API（lattice serve 自动生成）
 
-`koala serve` 读取项目的 machine.ts，自动生成以下端点，**零配置**：
+`lattice serve` 读取项目的 machine.ts，自动生成以下端点，**零配置**：
 
 ```
 POST /bridge/event    { event: "move", input: { x: 1 } }   → sendEvent
@@ -302,7 +302,7 @@ POST /bridge/reset                                          → 重置到初始�
 
 ```bash
 # 启动（端口自动分配，写入 .koala-serve.json）
-koala serve --dev="npx vite"
+lattice serve --dev="npx vite"
 
 # 另一个终端，从发现文件读端口
 API=$(node -e "console.log(JSON.parse(require('fs').readFileSync('.koala-serve.json','utf-8')).api)")
@@ -386,11 +386,11 @@ project/
 
 **远端写入纪律**：Lattice/Koala 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `lattice release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
-**依赖准备（INIT_CHECK 后，F-003）**：git worktree **不**继承主仓 gitignored 的 `node_modules`，新 worktree 默认缺依赖，直接跑 tsc / `koala validate` 会因解析不到模块而失败。worktree 创建时若缺依赖会输出告警：
+**依赖准备（INIT_CHECK 后，F-003）**：git worktree **不**继承主仓 gitignored 的 `node_modules`，新 worktree 默认缺依赖，直接跑 tsc / `lattice validate` 会因解析不到模块而失败。worktree 创建时若缺依赖会输出告警：
 
 ```text
 ⚠ worktree 缺 node_modules: worktree 根
-  缺依赖会导致 tsc / koala validate 解析不到模块而失败。
+  缺依赖会导致 tsc / lattice validate 解析不到模块而失败。
   → 补救（推荐）：cd <worktree> && npm install
   → 高级可选：手动 symlink 主仓 node_modules 到此 worktree
 ```
@@ -400,11 +400,11 @@ project/
 
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。DONE 必须在期望的 `story/<storyId>` 分支对应 worktree 中执行；若 linked worktree 当前分支不匹配或不是 story 分支，CLI 会在写入 DONE 状态、merge、删除分支或清理 worktree 前拒绝。有冲突在 worktree 里 `git merge main` 解决。
 
-**Sub agent 工作目录约定**：sub agent（koala-implementer 等）在主 agent 的 worktree 中工作，通过 `koala validate` 验证后提交。
+**Sub agent 工作目录约定**：sub agent（koala-implementer 等）在主 agent 的 worktree 中工作，通过 `lattice validate` 验证后提交。
 
 ### 多 session 写协调（设计真相源）
 
-Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.koala/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。**story owner lease（rollout step 2）已实现（B-c55d）**：`core/story-owner-lease.ts` 的 per-story owner lease + `cli-engine.ts` 的单一 choke-point gate `enforceStoryOwnerLeaseGate`（按 `CommandPolicy.ownershipClass` 分类，非 owner 的 story-scoped / dangerous 变更命令被拒绝）、stale-lease 检测 + `--takeover` / `--forceTakeover`、ownership-aware 拒绝错误、`session_brief` ownership 渲染（`renderOwnershipBlock`），以及 `koala doctor` 的 stale story-owner-lease 检查。rollout step 1-6 已全部完成（B-8596 / B-f60c / B-c55d），其中 step 5（stuck-lock + stale story-owner-lease 检查）与 step 6（多 session 收敛 / 回归 smoke）由 B-c55d 收口。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准。
+Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.koala/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。**story owner lease（rollout step 2）已实现（B-c55d）**：`core/story-owner-lease.ts` 的 per-story owner lease + `cli-engine.ts` 的单一 choke-point gate `enforceStoryOwnerLeaseGate`（按 `CommandPolicy.ownershipClass` 分类，非 owner 的 story-scoped / dangerous 变更命令被拒绝）、stale-lease 检测 + `--takeover` / `--forceTakeover`、ownership-aware 拒绝错误、`session_brief` ownership 渲染（`renderOwnershipBlock`），以及 `lattice doctor` 的 stale story-owner-lease 检查。rollout step 1-6 已全部完成（B-8596 / B-f60c / B-c55d），其中 step 5（stuck-lock + stale story-owner-lease 检查）与 step 6（多 session 收敛 / 回归 smoke）由 B-c55d 收口。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准。
 
 ## Checklist 写法
 
@@ -481,7 +481,7 @@ Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分�
 - Test: tests/foo.test.ts
 
 **Verify**:
-- `koala validate` 全绿
+- `lattice validate` 全绿
 - `npx tsx src/main.ts` 输出含 "xxx"
 
 **DoneWhen**:
@@ -513,7 +513,7 @@ Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分�
 
 **触发**：所有 INIT → INIT_CHECK 转换（`story_advance INIT_CHECK`）。其他来源（IDEA→INIT_CHECK 等）不门禁。
 
-**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "koala-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `koala init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
+**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "koala-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `lattice init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
 
 **签名域**（[init-check.ts](packages/koala/packages/main/src/handlers/init-check.ts) `signInitCheck`）：
 
@@ -536,7 +536,7 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 
 ```bash
 # reviewer 调
-koala init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[{"severity":"medium","desc":"..."}]}'
+lattice init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[{"severity":"medium","desc":"..."}]}'
 
 # 失配后强制重跑：reviewer 没有 itemId/findingId/clusterId，主 agent 直接 spawn
 # Agent({ subagent_type: "koala-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
@@ -544,10 +544,10 @@ koala init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[
 
 **无 subagent 环境的受控 fallback（B-95d8 CHK-001）**：
 
-某些环境（CI sandbox、无 subagent 能力的 runner）根本无法 spawn INIT reviewer，此前没有合法出口、story 永久卡在 `[missing_init_check]`。`koala init_check_repair` 提供一条**显式、可审计、不削弱签名**的 fallback：
+某些环境（CI sandbox、无 subagent 能力的 runner）根本无法 spawn INIT reviewer，此前没有合法出口、story 永久卡在 `[missing_init_check]`。`lattice init_check_repair` 提供一条**显式、可审计、不削弱签名**的 fallback：
 
 ```bash
-koala init_check_repair '{
+lattice init_check_repair '{
   "storyId":"B-xxx",
   "acknowledge":true,
   "fallbackReason":"为何 INIT reviewer 无法运行 + 你人工核查了什么（≥30 字符，作为 durable 审计 attestation）",
@@ -563,7 +563,7 @@ koala init_check_repair '{
 - **不绕过签名**：复用同一 `signInitCheck`，签名域不变（background/title/description/checklist）。事后改任一签名内容仍触发 `[init_check_tampered]`。
 - **不放宽 gate**：必需 reviewer 覆盖靠把 agentResults 记成 `<required>@fallback`（`initCheckAgentMatches` 认 `<required>@` 前缀），既满足校验又与独立 reviewer **机械可区分**；人工 attest 的 high/critical issue 仍走 `blockingInitCheckIssues` 自我阻塞。
 - **不引入 agentId 校验**：EXP-001 已证伪调用方机械可区分性。
-- **可审计**：写 `init-check.json.fallback` 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event。`koala story_get` 返回 `initCheckAttestation: "fallback" | "independent"` 与 `initCheckFallback` 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开。
+- **可审计**：写 `init-check.json.fallback` 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event。`lattice story_get` 返回 `initCheckAttestation: "fallback" | "independent"` 与 `initCheckFallback` 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开。
 
 `[missing_init_check]` / `[missing_init_check_agent]` 诊断信息会同时列出缺失的必需 reviewer、fallback 是否可用、以及 `init_check_repair` 的精确命令形态。
 
@@ -620,7 +620,7 @@ scope-plan reviewer 读 `<requirementsDir>/decisions/` 全目录时，若发现 
 **主 agent 必须用 `scope_question_resolve` 书面消解**（reviewer 不会自己写 resolution——这是防自我赦免的刻意设计）：
 
 ```bash
-koala scope_question_resolve '{
+lattice scope_question_resolve '{
   "storyId":"B-xxx",
   "oqId":"OQ-1",
   "resolution":"以 decisions/foo.md §2 为准，原因：<引原文>",
@@ -664,7 +664,7 @@ Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` han
 
 **回炉流程**: gate fail → `story_advance DEV` 回炉 → 补齐承诺/测试 → REVIEW → TEST → 重 spawn delivery reviewer → 重签名 → DONE。
 
-**Waiver**: `koala delivery_waiver_add '{"storyId":"B-xxx","promiseId":"...","waiverReason":"≥30字符理由"}'`。waiverReason 入 `_hash` 重签名。
+**Waiver**: `lattice delivery_waiver_add '{"storyId":"B-xxx","promiseId":"...","waiverReason":"≥30字符理由"}'`。waiverReason 入 `_hash` 重签名。
 
 ### 高风险关键词自动检测
 
@@ -676,14 +676,14 @@ auth / password / token / migration / destructive / state machine / guard / gate
 **mention-vs-modify 限制与误报回退（B-30b2）**：检测是纯关键词扫描，**无法区分"提及"与"修改"该领域**（设计如此，不做语义分析）。所以一个只是在 description / checklist 里**提及**风险领域、并不实际改动它的 story 也会被 elevate——这是已知误报。命中时 `story_create`（stderr riskHint）和 `story_review`（`risk_signals` advisory）都会显式输出消解引导：若为误报，用
 
 ```bash
-koala story_review_dismiss '{"storyId":"B-xxx","category":"<命中的分类>","reason":"为何是误报（≥5 字符）"}'
+lattice story_review_dismiss '{"storyId":"B-xxx","category":"<命中的分类>","reason":"为何是误报（≥5 字符）"}'
 ```
 
 驳回。**当全部 auto-elevated 的 riskSignal 都被 dismiss 后**，`priority` 自动回退到 `priorityElevatedFrom`、高风险 gate（missing_decision / ≥3 preMortem）解除（CHK-001 行为）；仅 dismiss 部分分类则保持 elevated。用户显式设置的 high/critical **不受 dismiss 影响**（不写 `priorityElevatedFrom` 标记，不会被误降）。未命中 riskSignal 时不输出该引导（不制造噪音）。
 
 ### story_create 重复 / 并发警告走 stderr（B-6812）
 
-`story_create` 的全部 advisory 文本——keyword 重叠 `dupWarning`、高风险 `riskHint`、最近并发 story 提示——走 `process.stderr.write`，**不**拼进 stdout 返回值。stdout 只保留创建结论（`Story B-xxxx created ...`）+ 非 advisory 引导（INIT reviewer 提示等）。原因：`koala story_create | tail` 这类管道只消费 stdout，advisory 拼进 stdout 会被静默吃掉；走 stderr 后即使被管道也仍可见。
+`story_create` 的全部 advisory 文本——keyword 重叠 `dupWarning`、高风险 `riskHint`、最近并发 story 提示——走 `process.stderr.write`，**不**拼进 stdout 返回值。stdout 只保留创建结论（`Story B-xxxx created ...`）+ 非 advisory 引导（INIT reviewer 提示等）。原因：`lattice story_create | tail` 这类管道只消费 stdout，advisory 拼进 stdout 会被静默吃掉；走 stderr 后即使被管道也仍可见。
 
 `story_create` 成功后还会扫 `listStoryIds()`，筛 `createdAt` 在过去 30 分钟内且 phase ∉ DONE/DISCARDED 的其它 story，写 stderr：`⚠ 最近 30 分钟内还创建了 N 个 story：B-xxxx [phase] title`，让操作者及时发现并行 agent 在跑同一 backlog。无并发 story 时不输出（不误报）；终态 story、`createdAt` 缺失或非法的 story 都被跳过。30 分钟窗口为硬编码常量（YAGNI，不做配置项）。
 
@@ -709,7 +709,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 **约定**：凡 Zod schema 有 `min` / `max` / `enum` / 正则 约束，handler 入口和所有消费该字段的 gate / fn 必须在 runtime 再校验一次（不是只靠 Zod）。
 
-**为什么**：Zod 只保证调用路径经过 schema 解析时成立——但 koala CLI 里同一字段常有多个读取点（handler 入口 / gate 决策 / 统计计数 / 持久化读出），任一绕开 schema 的路径都会放行非法值。B-ed3e F-005/F-006/F-019 的三连翻车证明此路径未来会被意外添加：
+**为什么**：Zod 只保证调用路径经过 schema 解析时成立——但 Lattice CLI 里同一字段常有多个读取点（handler 入口 / gate 决策 / 统计计数 / 持久化读出），任一绕开 schema 的路径都会放行非法值。B-ed3e F-005/F-006/F-019 的三连翻车证明此路径未来会被意外添加：
 
 - **反面示例**（B-ed3e F-005/F-006/F-019 旧版 scope-question-resolve）：Zod 定义 `resolution: z.string().min(20)`；但 handler 里仅 `if (!args.resolution) throw` 兜底；`trim().length === 0` 的空白串通过 Zod 后被 gate 统计为 resolved，放行 PLAN→DEV。修补路径：handler 加 `trimmedLen < 20 → throw`，但 gate 侧（story-review 的 resolvedCount 判定）仍仅查字段存在而不复核长度，留下第二个漏斗。F-019 最终一次补齐 handler + gate + Zod 三处同步。
 - **正面示例**（修复后的 scope-question-resolve.ts）：
@@ -754,7 +754,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 - **正常通道必须分配**：用 `Agent({ subagent_type: "koala-implementer", prompt: "..." })` 分配
 - **fresh worker per item**：每个 CHK-xxx 派一个新的 koala-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
-- **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `koala dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
+- **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `lattice dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
 - **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条 resolve 或回 DEV 修复，不允许跳过 medium finding 留给下一个 story
 - **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
@@ -782,11 +782,11 @@ fast / normal channel 的 zero intent 只能显示普通缺失文案，不能显
 常用命令：
 
 ```bash
-koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationIntent":{"happy":[{"desc":"正常输入返回成功","type":"cli","priority":"must"}],"edge":[{"desc":"空输入给出清晰错误","type":"cli","priority":"must"}],"adversarial":[{"desc":"非法状态不会写坏数据","type":"logic","priority":"must"}]}}'
-koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","kind":"integration_test","file":"validate.ts","command":"koala validate --story=B-xxx","result":"pass","note":"integration test 直接覆盖正常输入路径"}'
+lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationIntent":{"happy":[{"desc":"正常输入返回成功","type":"cli","priority":"must"}],"edge":[{"desc":"空输入给出清晰错误","type":"cli","priority":"must"}],"adversarial":[{"desc":"非法状态不会写坏数据","type":"logic","priority":"must"}]}}'
+lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","kind":"integration_test","file":"validate.ts","command":"lattice validate --story=B-xxx","result":"pass","note":"integration test 直接覆盖正常输入路径"}'
 ```
 
-`DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`koala validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
+`DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`lattice validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
 
 ### CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
 
@@ -794,13 +794,13 @@ koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRe
 
 | gate | 命令 | 职责 | 失败处理 |
 |---|---|---|---|
-| channel | `koala validate --channel --story=B-xxx` | 正常通道必须有 dispatch/subagent_result 结构化证据；commit author 仅作 legacy fallback | fail → block REVIEW→TEST |
-| concept | `koala validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
-| lint | `koala validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
+| channel | `lattice validate --channel --story=B-xxx` | 正常通道必须有 dispatch/subagent_result 结构化证据；commit author 仅作 legacy fallback | fail → block REVIEW→TEST |
+| concept | `lattice validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
+| lint | `lattice validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 koala 命令与 registry 对齐 | fail → block REVIEW→TEST |
-| codex-adapter | `node bin/koala-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
+| codex-adapter | `node bin/lattice-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
 
-`koala-review-channel` LLM agent 已退役（S1），由 `koala validate --channel --story=<id>` CLI gate 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
+`koala-review-channel` LLM agent 已退役（S1），由 `lattice validate --channel --story=<id>` CLI gate 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
 
 ### Reviewer opt-in 路由（按 riskSignals 挂载）
 
@@ -817,9 +817,9 @@ koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRe
 **查看当前 story 的 reviewer 名单**：
 
 ```bash
-koala reviewer_list '{"storyId":"B-xxx"}'               # 文本: Active reviewers: concept, quality, test-coverage, behavior (riskSignal: state machine)
-koala reviewer_list '{"storyId":"B-xxx","json":true}'   # 结构化: {reviewers:[{name,reason}]}
-koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手动加挂（写 story.events）
+lattice reviewer_list '{"storyId":"B-xxx"}'               # 文本: Active reviewers: concept, quality, test-coverage, behavior (riskSignal: state machine)
+lattice reviewer_list '{"storyId":"B-xxx","json":true}'   # 结构化: {reviewers:[{name,reason}]}
+lattice reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手动加挂（写 story.events）
 ```
 
 `story_advance REVIEW` 会 echo 当前 reviewer 名单。gate（`canPassReview`）按 opt-in 实际名单校验，不再硬编码 5。
@@ -836,19 +836,19 @@ koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手�
 
 **自动聚簇依据**：files 交集 ≥50% + severity 完全一致（severity 不同绝不合并，防时序 bug 被并入文件名同簇）。
 
-> B-9d95 CHK-004 起，派发统一走 `koala dispatch`（itemId / findingId / clusterId 互斥参数）。`story_dispatch` / `finding_dispatch` 降为 deprecated alias（仍可用但 stderr 告警），新代码一律用 `koala dispatch`。
+> B-9d95 CHK-004 起，派发统一走 `lattice dispatch`（itemId / findingId / clusterId 互斥参数）。`story_dispatch` / `finding_dispatch` 降为 deprecated alias（仍可用但 stderr 告警），新代码一律用 `lattice dispatch`。
 
 ```bash
-koala finding_cluster '{"storyId":"B-xxx"}'                        # 自动聚簇（按 files ∩ severity）
-koala finding_cluster '{"storyId":"B-xxx","merge":["F-001","F-002"]}'  # 手动合并
-koala finding_cluster '{"storyId":"B-xxx","split":"CL-001"}'           # 拆分
-koala finding_list '{"storyId":"B-xxx","cluster":true}'            # 按 cluster 列表视图
-koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer prompt（复制给 Agent）
+lattice finding_cluster '{"storyId":"B-xxx"}'                        # 自动聚簇（按 files ∩ severity）
+lattice finding_cluster '{"storyId":"B-xxx","merge":["F-001","F-002"]}'  # 手动合并
+lattice finding_cluster '{"storyId":"B-xxx","split":"CL-001"}'           # 拆分
+lattice finding_list '{"storyId":"B-xxx","cluster":true}'            # 按 cluster 列表视图
+lattice dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer prompt（复制给 Agent）
 ```
 
-**commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `koala validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`koala validate --noSync` 跳过扫描。
+**commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `lattice validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`lattice validate --noSync` 跳过扫描。
 
-**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
+**finding_add 传 files**：`lattice finding_add '{"storyId":"B-xxx","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
 
 #### finding_list 返回值结构（F-014 文档化）
 
@@ -913,7 +913,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 
 ## Debugging Contract
 
-遇到 `koala validate` / reviewer finding / bug 反馈报红时，**禁止直接猜修**，必须先走 Systematic Debugging：
+遇到 `lattice validate` / reviewer finding / bug 反馈报红时，**禁止直接猜修**，必须先走 Systematic Debugging：
 
 1. **观察（Observe）**
    - 先读完整报错、失败测试名、退出码、最近改动
@@ -943,7 +943,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 **证据投影**：修 bug 标 fixed 时，用 `bug_update` 的 `evidence` 字段记录调试结论，不要只留在对话里：
 
 ```bash
-koala bug_update '{"storyId":"B-xxx","id":"BUG-001","status":"fixed","evidence":{"symptom":"validate 报 TypeError: x is not a function","reproSteps":["跑 koala validate","fn.ts:42 的 guard 返回 undefined"],"rootCause":"guard 函数缺少 default return","fixEvidence":"加 return false 兜底，logicTest guard_missing_default 覆盖","reproTest":"tests/logic.ts#guard_missing_default"}}'
+lattice bug_update '{"storyId":"B-xxx","id":"BUG-001","status":"fixed","evidence":{"symptom":"validate 报 TypeError: x is not a function","reproSteps":["跑 lattice validate","fn.ts:42 的 guard 返回 undefined"],"rootCause":"guard 函数缺少 default return","fixEvidence":"加 return false 兜底，logicTest guard_missing_default 覆盖","reproTest":"tests/logic.ts#guard_missing_default"}}'
 ```
 
 **嵌入流程**：
@@ -953,7 +953,7 @@ koala bug_update '{"storyId":"B-xxx","id":"BUG-001","status":"fixed","evidence":
 
 ## pre-push hook + 递归 tsc gate
 
-B-5a28 针对「koala 自举开发」场景引入两条防线：(1) `koala validate --lint` 递归扫 monorepo 所有子包 tsconfig，(2) `.githooks/pre-push` 作为独立于 koala 自身的外部 gate。B-eab3 补齐了第二条（hook 之前只配了 `core.hooksPath` 却没创建文件，全部 git hook 静默失效）。本段记录 hook 的完整行为与启用方式。
+B-5a28 针对「koala 自举开发」场景引入两条防线：(1) `lattice validate --lint` 递归扫 monorepo 所有子包 tsconfig，(2) `.githooks/pre-push` 作为独立于 koala 自身的外部 gate。B-eab3 补齐了第二条（hook 之前只配了 `core.hooksPath` 却没创建文件，全部 git hook 静默失效）。本段记录 hook 的完整行为与启用方式。
 
 **启用方式**（本地配置，不入库）：
 
@@ -974,10 +974,10 @@ pre-push hook 的核心设计约束：**不调用 `koala` 命令**。原因：ho
 - 临时文件用 `mktemp -d` 创建唯一临时目录，`trap '... cleanup' EXIT` 在 hook 退出时清理（避免并发 push 同名互覆盖、`/tmp` 累积）。`mktemp` 失败 → push 被拒
 - 先 `git rev-parse --show-toplevel` 拿 REPO_ROOT
 - **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非 `.lattice/tmp/remote-push-approval.json` 的 schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。Lattice 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
-- **koala 自举仓检测**：
-  1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 koala 仓，立即 `exit 0`（对非 koala 仓零摩擦）
-  2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 koala 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
-  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@koala-agent/core` 才继续；否则非 koala 自身，立即 `exit 0`
+- **Lattice 自举仓检测**：
+  1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Lattice 仓，立即 `exit 0`（对非 Lattice 仓零摩擦）
+  2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Lattice 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
+  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@lattice-agent/core` 才继续；否则非 Lattice 自身，立即 `exit 0`
   注意本仓是扁平布局 `packages/main`，不是嵌套布局
 - **先构建 `packages/main`**：`npm --prefix packages/main run build`。原因是 `packages/utils` 的源码 import `packages/main/dist` 的编译产物，若 `dist` 不存在，递归 tsc 跑到 `packages/utils` 会因找不到模块而 FAIL。`npm run build` 即 tsc（非 koala 命令，符合约束）。构建失败 → push 被拒
 - **递归 tsc**：`find` REPO_ROOT 下所有 `tsconfig.json`（排除黑名单目录 `node_modules / dist / build / .worktrees / .git`），对每个所在目录跑 `npx tsc --noEmit -p <dir>`。覆盖面与 `validate --lint` 递归扫子包对齐，消除 B-9bd9 的单根 tsconfig 子包盲区
@@ -1015,14 +1015,14 @@ type CommandRunner = (cmd: string, args: string[], cwd: string) => {
 
 ### 与 CLI gate 的关系
 
-`koala validate --lint` 是 REVIEW→TEST preflight 的 CLI gate 之一（见上文「CLI gate」段）。B-5a28 前：lint gate 只扫根 tsconfig → monorepo 子包漏检。B-5a28 后：lint gate 递归扫所有子包 → 子包编译错误直接 block REVIEW→TEST。pre-push hook 是「即使 lint gate 被跳过也兜住」的最后一道防线。
+`lattice validate --lint` 是 REVIEW→TEST preflight 的 CLI gate 之一（见上文「CLI gate」段）。B-5a28 前：lint gate 只扫根 tsconfig → monorepo 子包漏检。B-5a28 后：lint gate 递归扫所有子包 → 子包编译错误直接 block REVIEW→TEST。pre-push hook 是「即使 lint gate 被跳过也兜住」的最后一道防线。
 
 see story/B-5a28
 
 ## 规则
 
-- 所有 Story 操作通过 `koala` CLI 完成
-- 测试统一通过 `koala validate` 执行
-- `koala validate` 全绿 = 可以提交
-- 调用出错时先 `koala <command> --help`，不要靠记忆猜参数
+- 所有 Story 操作通过 `lattice` CLI 完成
+- 测试统一通过 `lattice validate` 执行
+- `lattice validate` 全绿 = 可以提交
+- 调用出错时先 `lattice <command> --help`，不要靠记忆猜参数
 <!-- koala:end -->

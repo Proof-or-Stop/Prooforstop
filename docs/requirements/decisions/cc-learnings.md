@@ -170,7 +170,7 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
 5. **title**: Change the MUTATION class silent catches to throw KoalaError
    **context**: For example, the worktree-creation call, the git-merge call, the fs.writeFileSync call. A failure must be perceivable by the upper layer.
 
-6. **title**: Add a new koala doctor command
+6. **title**: Add a new lattice doctor command
    **context**: Scan `~/.koala/health.jsonl`, output the health issues from the last 24 hours, grouped by category. Let the user periodically run doctor to see whether koala itself has hidden problems.
 
 7. **title**: fixture verifies the health issue is actually written
@@ -189,7 +189,7 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
 
 - the grep count of `catch.*{.*ignore` is reduced from the baseline by at least half
 - deliberately trigger a worktree-creation failure and observe whether it throws rather than swallows
-- run `koala doctor` and the output format is correct
+- run `lattice doctor` and the output format is correct
 
 ### Touchpoints
 
@@ -206,7 +206,7 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
 
 CC has conversation memory + system_reminder that let the agent remember earlier things across sessions. koala does something similar through story files, but **has no "opening statement" interface** — when a new session's agent launches, it is not told "where you stopped last time, and what just happened".
 
-A new agent coming in either queries with `koala story_list` + `koala story_get` (multiple round-trips), or starts working directly (with a high probability of being wrong).
+A new agent coming in either queries with `lattice story_list` + `lattice story_get` (multiple round-trips), or starts working directly (with a high probability of being wrong).
 
 Fix goal: give the agent a single-shot command that outputs a complete brief of "what you should be doing right now". CLAUDE.md requires that the first thing a new session does is run this command.
 
@@ -216,7 +216,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
    **context**: Add `{ name: 'session_brief', description: 'Generate this session's opening brief: current active story + recent activity + what to do', schema: {} }` to the MAIN_TOOLS array in cli-engine.ts. No parameters.
 
 2. **title**: Implement the session_brief handler skeleton
-   **context**: Create `packages/main/src/handlers/session.ts`, exporting `createSessionHandlers(ctx)` containing `session_brief()`. Get the active story via detectActiveStory; when there is no active story, return "No active story. To start: koala story_create ..."
+   **context**: Create `packages/main/src/handlers/session.ts`, exporting `createSessionHandlers(ctx)` containing `session_brief()`. Get the active story via detectActiveStory; when there is no active story, return "No active story. To start: lattice story_create ..."
 
 3. **title**: Assemble the brief content
    **context**: When an active story exists, assemble markdown output containing:
@@ -240,7 +240,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
    **context**: Run `git status --short`, `git log -3 --oneline`, and put the results into the brief together
 
 7. **title**: Write a CLAUDE.md section that forces running session_brief at the start of a session
-   **context**: Add to the koala project's CLAUDE.md: "Every time a session starts or resumes interrupted work, the first command must be `koala session_brief`; understand the state before continuing to work"
+   **context**: Add to the koala project's CLAUDE.md: "Every time a session starts or resumes interrupted work, the first command must be `lattice session_brief`; understand the state before continuing to work"
 
 8. **title**: fixture verifies the brief output for different states
    **context**: Construct mock stories for 5 states (IDEA / PLAN / DEV / TEST / DONE) and assert that the brief output for each state contains the correct nextStep hint
@@ -253,7 +253,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
 
 ### Acceptance
 
-- Run manually: `koala session_brief` can output a meaningful brief in your current project
+- Run manually: `lattice session_brief` can output a meaningful brief in your current project
 - Have a new Claude session run this command to open, and observe whether it can go directly to the correct next step
 
 ### Touchpoints
@@ -284,12 +284,12 @@ Seeing one sentence, the agent only knows "what it can do", not "when it should 
 - directly Editing the fixture json file instead of using `fixture_batch_add` (bypassing schema validation)
 - entering DEV directly instead of using `story_review` for adversarial review (blocked by the signed guard, but retried repeatedly)
 
-Note: koala's tool descriptions appear in the `koala help` and `koala <cmd> --help` output, and **do not enter the agent's LLM context** (because koala is a CLI). So the goal of "PROMPT-ification" is not to save tokens, but to make **the output of `koala <cmd> --help` able to teach the agent how to use it**. The agent runs `--help` before calling, and that is when we educate it.
+Note: koala's tool descriptions appear in the `lattice help` and `lattice <cmd> --help` output, and **do not enter the agent's LLM context** (because koala is a CLI). So the goal of "PROMPT-ification" is not to save tokens, but to make **the output of `lattice <cmd> --help` able to teach the agent how to use it**. The agent runs `--help` before calling, and that is when we educate it.
 
 ### Checklist
 
 1. **title**: Change the ToolDef.description field from string to string | { short: string, long: string }
-   **context**: short is used for the one-line display in `koala help`; long is used for the detailed display in `koala <cmd> --help`. The printToolHelp function prints long when it detects one, otherwise prints short. Maintain backward compatibility.
+   **context**: short is used for the one-line display in `lattice help`; long is used for the detailed display in `lattice <cmd> --help`. The printToolHelp function prints long when it detects one, otherwise prints short. Maintain backward compatibility.
 
 2. **title**: Write a full PROMPT for story_create
    **context**: The long field contains:
@@ -325,7 +325,7 @@ Note: koala's tool descriptions appear in the `koala help` and `koala <cmd> --he
 6. **title**: Include scenario-based step-by-step guidance in the PROMPT
    **context**: Add a passage at the end of each PROMPT: "If you are not sure how to use this, follow these steps:". Give the agent a fallback when it is uncertain.
 
-7. **title**: printToolHelp appends "→ use koala session_brief to see what to do now" at the end of the output
+7. **title**: printToolHelp appends "→ use lattice session_brief to see what to do now" at the end of the output
    **context**: Every --help output guides the agent back to session_brief at the end (in case it looked up --help precisely because it did not know what to do)
 
 8. **title**: fixture verifies the long PROMPT contains the necessary keywords
@@ -335,12 +335,12 @@ Note: koala's tool descriptions appear in the `koala help` and `koala <cmd> --he
 
 - happy: all 4 PROMPTs contain the 5-part structure (when-to-use / when-not / examples / step-by-step / counterexample)
 - edge: each PROMPT is a reasonable length (200-500 lines), neither too short nor too long
-- adversarial: take a new Claude session and run `koala story_create --help`, observe whether it actually learned the usage
+- adversarial: take a new Claude session and run `lattice story_create --help`, observe whether it actually learned the usage
 
 ### Acceptance
 
 - the 4 long PROMPTs are written
-- take a clean session, run koala help → koala story_create --help → have Claude create a story, and observe whether it uses it correctly on the first try
+- take a clean session, run lattice help → lattice story_create --help → have Claude create a story, and observe whether it uses it correctly on the first try
 
 ### Touchpoints
 
@@ -378,7 +378,7 @@ Fix goal: before each koala command runs, first print a warning to stderr (non-b
    **context**: Scan bug.json for status === 'open' and createdAt more than 24h ago, warn `Bug BUG-xxx has been open for over 24h; consider fixing it first`
 
 6. **title**: runCli calls detectStaleState before dispatching the command
-   **context**: Output each warning to stderr. Note: only detect when there is an active story, to avoid commands like koala help being bothered.
+   **context**: Output each warning to stderr. Note: only detect when there is an active story, to avoid commands like lattice help being bothered.
 
 7. **title**: thresholds are configurable via koala.config.json
    **context**: config adds `staleThresholds: { phaseStale: 30, itemStale: 30, idleKoala: 60, bugStale: 1440 }` (unit: minutes)
@@ -539,9 +539,9 @@ Dangerous commands (story_discard, dev_merge, fixture_migrate, fixture_batch_add
 
 ### Acceptance
 
-- `koala help` output is grouped by stability
-- `koala story_discard B-xxx` refuses to execute by default, prompting to add --confirm
-- `koala story_discard B-xxx --dry-run` outputs the plan and does not change the store
+- `lattice help` output is grouped by stability
+- `lattice story_discard B-xxx` refuses to execute by default, prompting to add --confirm
+- `lattice story_discard B-xxx --dry-run` outputs the plan and does not change the store
 
 ### Touchpoints
 

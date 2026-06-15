@@ -139,8 +139,7 @@ export function validateEntry(raw: unknown): { ok: true; entry: DevMemoryEntry }
 
 /**
  * Resolve the project-scoped experience file path.
- * Uses LATTICE_PROJECT_ROOT env or walks upward to find lattice.config.json
- * (canonical) / koala.config.json (legacy fallback).
+ * Uses LATTICE_PROJECT_ROOT env or walks upward to find lattice.config.json.
  * Deterministic — no Koala daemon required.
  */
 export function resolveProjectMemoryPath(projectRoot?: string): string {

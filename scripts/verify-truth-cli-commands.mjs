@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'koala-codex.js');
+const cli = join(root, 'bin', 'lattice-codex.js');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -40,9 +40,9 @@ function extractJsonValue(text) {
 }
 
 const help = run('help');
-assert(help.includes('Truth:'), 'koala help missing Truth group');
+assert(help.includes('Truth:'), 'lattice help missing Truth group');
 for (const command of ['truth_scan', 'truth_nav', 'truth_analyze', 'truth_to_story', 'truth_extract']) {
-  assert(help.includes(command), `koala help missing ${command}`);
+  assert(help.includes(command), `lattice help missing ${command}`);
 }
 
 const temp = mkdtempSync(join(tmpdir(), 'koala-truth-cli-'));

@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-f0a6:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: deleting packages/game is correct for B-f0a6. Evidence: root package.json build/test scripts route through packages/main; packages/main/package.json exposes the Lattice CLI only; lattice.config.json scanRoot/testsDir target packages/main; README/project-vision define the product as CLI-first Lattice core, utils, and bin entrypoints, not the old browser game demo; rg found no remaining packages/game, game-browser, or koala-game references outside the updated generic browser fixture example; git diff summary shows only packages/game deletion plus docs/requirements/decisions/test-fixture-spec.md example cleanup outside review metadata. No unrelated package deletion observed.",
+      "createdAt": "2026-06-15T03:03:40.415Z",
+      "reviewRound": "2026-06-15T03:01:34.039Z",
+      "reviewRunId": "B-f0a6:RR-001",
+      "_hash": "6a675d8792d28a3172143961cfa8ffc43bbf2c027300ae5df3b440197b3d0a93"
+    },
+    {
+      "id": "B-f0a6:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: docs/requirements/decisions/test-fixture-spec.md replaces browser_test projectRoot/fixture examples with generic /path/to/browser-app and browser-case; targeted searches found no packages/game, game-browser, or deleted game fixture promises outside the removed package files.",
+      "createdAt": "2026-06-15T03:03:42.869Z",
+      "reviewRound": "2026-06-15T03:01:34.039Z",
+      "reviewRunId": "B-f0a6:RR-004",
+      "_hash": "c3b968d3dad917e1793514373e15b517a8e49152e1c2a4c39c7be15ef27bb863"
+    },
+    {
+      "id": "B-f0a6:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality/scope review passed: package deletion is limited to packages/game, docs example now uses neutral /path/to/browser-app and browser-case fixture wording, scans found no packages/game or @lattice/game references outside excluded metadata/fixture paths, no unrelated worktree/package paths surfaced, and checklist items are done with matching evidence.",
+      "createdAt": "2026-06-15T03:03:52.076Z",
+      "reviewRound": "2026-06-15T03:01:34.039Z",
+      "reviewRunId": "B-f0a6:RR-002",
+      "_hash": "548a348348149065d5bfd613dcdb06bfea5853b8bd595b2d103979640ca78b33"
+    },
+    {
+      "id": "B-f0a6:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: packages/game directory is absent; scoped rg scan excluding docs/story, fixtures, .omx, .lattice, node_modules, git and worktrees found no packages/game or @lattice/game hits; docs/requirements/decisions/test-fixture-spec.md now uses /path/to/browser-app browser_test examples; checklist evidence records npm test pass at materialHash 172fe9bd0dbb2baa4a56903bc1ce15e5566d5dbfd6d1bd725eb2a9e70c7f2c84 and session_brief reports review hash freshness fresh.",
+      "createdAt": "2026-06-15T03:04:00.995Z",
+      "reviewRound": "2026-06-15T03:01:34.039Z",
+      "reviewRunId": "B-f0a6:RR-003",
+      "_hash": "e63ca075ed78b58c52e2ecfd4cfd273405753b9d3a078fe394a976f7088be6ee"
+    }
+  ]
+}

@@ -133,7 +133,7 @@ Lattice init supports two compatible prompt asset shapes:
 
 | Layer | Examples | Ownership |
 | --- | --- | --- |
-| project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim/legacy (compatibility or explicit `--asset-mode=full`/`--asset-mode=thin` opt-in): `LATTICE.md`, `KOALA.md`, `.Codex/lattice.json`, `.Codex/koala.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `bin/koala.js`, `bin/koala-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
+| project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `LATTICE.md`, `.Codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
 | package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `koala.prompt-registry.v1` | Versioned Koala/Lattice package assets. These are the canonical prompt bodies. |
 | generated or materialized prompt caches | `.Codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
 
@@ -142,19 +142,19 @@ package prompt registry instead of treating every rendered agent prompt as a
 project-local required file. In global-thin mode (the default for new projects),
 `.lattice/lattice.json` carries the project config and asset mode declaration,
 and Codex adapter verification resolves the `.lattice/` manifest rather than
-requiring `.Codex/` entries or local bin wrappers. In full/thin modes, the legacy
-`.Codex/lattice.json` path carries the prompt registry version and material hash.
-Existing repositories that already committed `.Codex/koala.json` remain valid
-legacy inputs.
+requiring `.Codex/` entries or local bin wrappers. In full/thin modes,
+`.Codex/lattice.json` carries the prompt registry version and material hash.
+Legacy `.Codex/koala.json` files may remain archived or user-owned, but they are
+not active adapter inputs.
 
 The Lattice naming migration is a managed-asset naming contract only. It does
-not promote ordinary CLI output to receipt-backed authority, does not change
-Story lifecycle gates, and does not remove the `koala` command alias. Fresh init
-must not generate `KOALA.md`, `.Codex/koala.json`, `bin/koala.js`, or
-`bin/koala-codex.js`; compatibility checks may still read those paths when a
-project has not yet adopted the Lattice primary files. Cleanup may remove a
-legacy Koala-named asset only when its content exactly matches a generated
-template or manifest; user-owned legacy files are preserved.
+not promote ordinary CLI output to receipt-backed authority and does not change
+Story lifecycle gates. `lattice` is the only active runtime/product command.
+Fresh init must not generate `KOALA.md`, `.Codex/koala.json`, `bin/koala.js`, or
+`bin/koala-codex.js`; compatibility checks do not treat those paths as active
+adapter or runtime inputs. Cleanup may remove a legacy Koala-named asset only
+when its content exactly matches a generated template or manifest; user-owned
+legacy files are preserved.
 
 This is a **legacy mirror compatibility** change, not a host behavior removal.
 Legacy full-mode repositories may keep `.Codex/agents` and `.claude/agents`.

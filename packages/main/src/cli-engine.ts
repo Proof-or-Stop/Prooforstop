@@ -2394,7 +2394,7 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   const dryRunLine = dryRunHelpLine(tool, policy);
 
   out(`\n  ${brand.primaryBin} ${tool.name} — ${tool.description}\n`);
-  out(`  ${formatLatticeProductLine(brand)}; legacy alias: ${brand.legacyAlias}\n`);
+  out(`  ${formatLatticeProductLine(brand)}\n`);
 
   // If longHelp exists for a core command, print the full prompt first.
   if (tool.longHelp) {
@@ -2434,7 +2434,6 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
   });
   out(`\n  Usage: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
-  out(`  Compatible: ${brand.legacyAlias} ${tool.name} ...`);
   out('  (* = required)');
   if (dryRunLine) out(dryRunLine);
   const ownerBlock = ownerLeaseHelpBlock(tool.name);
@@ -2459,8 +2458,7 @@ function printValidationFailure(tool: ToolDef, issues: z.ZodIssue[]) {
 function printHelp(activeStory?: ActiveStory | null) {
   const brand = detectLatticeBrand();
   console.log(`\n  ${formatLatticeProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
-  console.log(`  Primary entrypoint: ${brand.primaryBin}`);
-  console.log(`  Legacy alias:       ${brand.legacyAlias}\n`);
+  console.log(`  Entrypoint: ${brand.primaryBin}\n`);
   console.log(`  Usage: ${brand.primaryBin} <command> --key=value         Run command`);
   console.log(`        ${brand.primaryBin} <command> --help              View arguments`);
   console.log(`        ${brand.primaryBin} help                          Show this help`);
@@ -2678,7 +2676,7 @@ function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
-  // Walk upward to find project config (prefer lattice.config.json, fallback koala.config.json) and determine project root.
+  // Walk upward to find lattice.config.json and determine the project root.
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
     if (hasProjectConfigFile(dir)) return dir;
@@ -2812,7 +2810,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
 function inferCodexEntrypoint(): string {
   if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
   const invoked = process.argv[1] || '';
-  if (invoked.includes('lattice-codex') || invoked.includes('koala-codex')) return 'local-wrapper';
+  if (invoked.includes('lattice-codex')) return 'local-wrapper';
   if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
   return 'cli';
 }
@@ -3474,8 +3472,7 @@ export async function runCli(opts?: {
   }
 
   // Normalize nested space aliases into the flat underscore commands used by
-  // the registry. Supports both primary invocations (`lattice host list`) and
-  // legacy-prefixed invocations (`koala lattice host list`).
+  // the registry.
   const aliasStart = cmd === 'lattice' ? 1 : 0;
   const aliasMap: Record<string, string> = {
   'host list': 'host_list',
@@ -3586,7 +3583,7 @@ export async function runCli(opts?: {
     console.error(`Unknown command: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
     if (m.length) { console.error('Did you mean:'); for (const t of m) console.error(`  lattice ${t.name}`); }
-    console.error('Use lattice help to view all commands (legacy alias: koala).');
+    console.error('Use lattice help to view all commands.');
     process.exit(1);
   }
 
@@ -3725,8 +3722,7 @@ export async function runCli(opts?: {
       // path, we re-create dirs and leave a dangling audit log that
       // masquerades as an active worktree.
       //
-      // Detect this by checking if `root` still has a project config file
-      // (lattice.config.json canonical, koala.config.json legacy fallback).
+      // Detect this by checking if `root` still has lattice.config.json.
       // If not (the worktree was removed), prefer the durable main-root
       // fallback captured at command start — it was computed while root/.git
       // still existed, so it points at the real main project even after the

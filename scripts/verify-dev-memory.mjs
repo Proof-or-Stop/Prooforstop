@@ -222,10 +222,10 @@ check('appendEntry + readEntries roundtrip', () => {
   const entry = dm.createEntry({
     category: 'debugging',
     scope: 'project',
-    summary: 'Use koala doctor to check stuck locks',
-    trigger: 'koala validate hanging',
-    lesson: 'koala doctor reveals stuck-lock state and suggests resolution',
-    reusePrompt: 'Is there a stuck lock? Run koala doctor first.',
+    summary: 'Use lattice doctor to check stuck locks',
+    trigger: 'lattice validate hanging',
+    lesson: 'lattice doctor reveals stuck-lock state and suggests resolution',
+    reusePrompt: 'Is there a stuck lock? Run lattice doctor first.',
     sourceAgent: 'verify-script',
   });
   dm.appendEntry(testFile, entry);
@@ -474,10 +474,10 @@ check('dev_memory_finish writes candidate file', () => {
   runKoala([
     'dev_memory_capture',
     '--category=debugging',
-    '--summary=Use koala doctor to diagnose stuck locks',
-    '--trigger=koala validate hanging indefinitely',
-    '--lesson=koala doctor reveals stuck-lock state and suggests fix path',
-    '--reusePrompt=Is there a stuck lock? Run koala doctor',
+    '--summary=Use lattice doctor to diagnose stuck locks',
+    '--trigger=lattice validate hanging indefinitely',
+    '--lesson=lattice doctor reveals stuck-lock state and suggests fix path',
+    '--reusePrompt=Is there a stuck lock? Run lattice doctor',
   ]);
   // Now finish with a fake storyId (no story dir required in non-Koala mode)
   const r = runKoala(['dev_memory_finish', '--storyId=B-test123']);

@@ -4,11 +4,11 @@
   "title": "Remove unused packages/game demo package",
   "description": "Remove the legacy packages/game demo because it is not part of the current Lattice CLI direction, is not referenced by root build/test/workspace configuration, and only remains as a fixture documentation example. Update the fixture specification so it no longer points to a real in-repo demo package that should not be maintained as core product surface.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-06-15T02:50:56.610Z",
   "startedAt": "2026-06-15T02:50:56.610Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T03:10:46.186Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:54:02.243Z",
+      "branch": "story/B-f0a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:56:40.455Z",
+      "branch": "story/B-f0a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:01:34.039Z",
+      "branch": "story/B-f0a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:05:43.457Z",
+      "branch": "story/B-f0a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:10:46.186Z",
+      "branch": "story/B-f0a6",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f0a6",
-    "branch": "story/B-f0a6",
-    "createdAt": "2026-06-15T02:53:17.498Z"
-  }
+  "currentReviewRound": "2026-06-15T03:01:34.039Z"
 }

@@ -1,0 +1,134 @@
+{
+  "findings": [
+    {
+      "id": "B-6351:F-001",
+      "desc": "Active docs/prompts still advertise koala CLI commands after the lattice-only alias-removal story. Examples: CLAUDE.md:6 says first command is `koala session_brief`, CLAUDE.md:44-63 keeps a `koala` CLI cheatsheet, .Codex/agents/koala-review-docs.md:12-21 and :50-69 tell reviewers to run `koala session_brief`, `koala validate`, and other `koala` commands, .Codex/agents/koala-review-story-init.md:8-10 and :18-27 require `koala init_check_set` / `koala session_brief`, and .claude/agents/koala-review-test-coverage.md:16 and :27-45 use `koala review_run_start`, `koala story_get`, `koala validate`, and `koala finding_add`. These are active guidance/prompt assets, not historical notes, so CHK-001/CHK-002 docs acceptance is not met until the active command examples are migrated to `lattice` or explicitly marked non-active history.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T02:57:22.603Z",
+      "reviewRound": "2026-06-15T02:55:28.853Z",
+      "reviewRunId": "B-6351:RR-002",
+      "_hash": "a71a7e16723161f3a8317e5564af37bded707bacf9d15ec18e5004b721f21b4f",
+      "files": [
+        "CLAUDE.md",
+        ".Codex/agents/koala-review-docs.md",
+        ".Codex/agents/koala-review-story-init.md",
+        ".claude/agents/koala-review-test-coverage.md"
+      ],
+      "resolvedReason": "Active command guidance in CLAUDE.md, .claude/agents, .Codex/agents, lower-case .codex agent surfaces, and packages/main/templates/agents now uses lattice commands. Targeted rg scan found no koala session_brief, koala validate, koala story/checklist/finding/review/init/scope/config guidance.",
+      "resolvedAt": "2026-06-15T03:07:10.451Z"
+    },
+    {
+      "id": "B-6351:F-002",
+      "desc": "CHK-002:edge:1 has no verificationEvidence entry. The intent asks to prove existing user-owned legacy files are not overwritten; scripts/verify-entrypoints.mjs and thin-init-assets-smoke exercise that behavior, and I reran both successfully, but no evidence is bound to CHK-002:edge:1, so TEST coverage has no exact intentRef for this accepted edge case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-15T02:58:11.391Z",
+      "reviewRound": "2026-06-15T02:55:28.853Z",
+      "reviewRunId": "B-6351:RR-001",
+      "_hash": "05114d2af751cff43a5c09eb24db1d501d2953856b2575df843c486f4267f37d",
+      "files": [
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/src/tasks/thin-init-assets-smoke.ts"
+      ],
+      "resolvedReason": "Recorded fresh CHK-002:edge:1 verificationEvidence with command node scripts/verify-entrypoints.mjs; node packages/main/dist/tasks/thin-init-assets-smoke.js. Both commands passed at current HEAD, and CHK-002 evidence was batch refreshed before REVIEW.",
+      "resolvedAt": "2026-06-15T03:07:16.554Z"
+    },
+    {
+      "id": "B-6351:F-003",
+      "desc": "Active Claude/Codex reviewer guidance still tells agents to use the removed koala CLI alias. CLAUDE.md:6-15 requires `koala session_brief`, `koala validate`, and story commands; .claude/agents/koala-review-concept.md:12-21 and .Codex/agents/koala-review-concept.md:12-21 mirror the same active instructions; packages/main/templates/agents/koala-review-concept.md:12-21 would regenerate them for new assets. This is not preserved historical/process evidence: these files are live entry/prompt assets, so removing bin/koala.js and package bin aliases while leaving them to run `koala` makes fresh reviewers/Claude users follow an inactive compatibility path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-15T02:58:29.448Z",
+      "reviewRound": "2026-06-15T02:55:28.853Z",
+      "reviewRunId": "B-6351:RR-004",
+      "_hash": "2af201fef7b92ff2f3748378b77ac23030ff7960a6dcc3a5da36020cbd16e74b",
+      "files": [
+        "CLAUDE.md",
+        ".claude/agents/koala-review-concept.md",
+        ".Codex/agents/koala-review-concept.md",
+        "packages/main/templates/agents/koala-review-concept.md"
+      ],
+      "resolvedReason": "Updated CLAUDE.md, .claude/agents/koala-review-concept.md, .Codex/agents/koala-review-concept.md, packages/main/templates/agents/koala-review-concept.md, and the broader active agent prompt set so executable command guidance uses lattice while preserving koala-review-* and koala-implementer agent identities.",
+      "resolvedAt": "2026-06-15T03:07:23.367Z"
+    },
+    {
+      "id": "B-6351:F-004",
+      "desc": "Active docs/prompts still instruct Koala-era usage after legacy koala entrypoint deletion. Examples: CLAUDE.md:1024 says all Story operations use the `koala` CLI; .Codex/agents/koala-review-channel.md:914, .claude/agents/koala-review-channel.md:914, and packages/main/templates/agents/koala-review-channel.md:914 repeat that generated prompt instruction; CLAUDE.md:233-235 and the generated channel prompts still document koala-dev commands; .claude/skills/koala/skill.md:1-3 exposes /koala as the project-management entrypoint; README.md:571, docs/guide-hooks.md:3, packages/main/src/handlers/doctor.ts:390, and packages/main/src/core/runtime-fact-registry.ts:114 still tell users that koala.config.json remains readable as a legacy fallback. These are active docs/prompts/help surfaces, not historical story evidence, and conflict with B-6351 removing the koala alias and compatibility paths.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T03:21:14.813Z",
+      "reviewRound": "2026-06-15T03:18:38.436Z",
+      "reviewRunId": "B-6351:RR-006",
+      "_hash": "7b775c1edb6c4bf2581f0ecfce2487837c4f27a91c7c7614b4091375a849d7d1",
+      "files": [
+        "CLAUDE.md",
+        "README.md",
+        "docs/guide-hooks.md",
+        ".Codex/agents/koala-review-channel.md",
+        ".claude/agents/koala-review-channel.md",
+        ".claude/skills/koala/skill.md",
+        "packages/main/templates/agents/koala-review-channel.md",
+        "packages/main/src/handlers/doctor.ts",
+        "packages/main/src/core/runtime-fact-registry.ts"
+      ],
+      "resolvedReason": "Removed active Koala-era docs/prompts: story operations now say lattice, koala-dev examples were replaced with lattice serve, .claude/skills/koala was deleted, and koala.config.json fallback text was removed from README, docs/guide-hooks, doctor, runtime fact registry, hooks, dashboard, and generated prompt templates. Verification passed: build, session-brief command-center, runtime fact contract, entrypoints, codex assets, and lattice-only absence smoke.",
+      "resolvedAt": "2026-06-15T10:16:34.509Z"
+    },
+    {
+      "id": "B-6351:F-005",
+      "desc": "Active Koala compatibility remains outside the allowed historical/negative-test/subagent-name contexts. Evidence: node bin/lattice.js doctor still prints active runtime guidance that koala.config.json is still read as a legacy fallback; CLAUDE.md:1024 still says all Story operations go through the koala CLI; README.md:571-573 and docs/guide-hooks.md:3,45 document koala.config.json as a supported fallback; runtime/config code still actively checks koala.config.json in packages/main/src/core/config.ts, packages/main/src/core/runtime-fact-registry.ts, and .codex/hooks/lattice-scope-pretool.cjs. This contradicts B-6351 stated outcome that Lattice is the only active runtime/documentation name and the review focus to delete Koala compatibility rather than preserve it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-15T03:21:45.900Z",
+      "reviewRound": "2026-06-15T03:18:38.436Z",
+      "reviewRunId": "B-6351:RR-008",
+      "_hash": "b4ce33a70d4a2894d9de6f1646fbaa559e9672c88628f5a8f110a81da711f51e",
+      "files": [
+        "CLAUDE.md",
+        "README.md",
+        "docs/guide-hooks.md",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/runtime-fact-registry.ts",
+        ".codex/hooks/lattice-scope-pretool.cjs"
+      ],
+      "resolvedReason": "Removed runtime config compatibility: loadConfig/project-root detection now uses lattice.config.json only; doctor and runtime fact registry no longer advertise koala.config.json or koala binary/package fallbacks; .codex/.claude pretool hooks and dashboard no longer accept koala.config.json as active root evidence. Verification passed: node bin/lattice.js doctor residue check, verify-runtime-fact-contract, verify-entrypoints, and lattice-only absence smoke.",
+      "resolvedAt": "2026-06-15T10:16:42.586Z"
+    },
+    {
+      "id": "B-6351:F-006",
+      "desc": "Test-coverage cannot pass because B-6351 verification evidence is incomplete and one touched verifier is failing. CHK-001:edge:1 (lattice.config.json behavior continues to work) has no verificationEvidence intentRef at all. Also `node scripts/verify-session-brief-command-center.mjs` fails with `Error: session_brief missing reviewer role` at scripts/verify-session-brief-command-center.mjs:33, even though session-brief prompt sync is a changed test surface called out for this story. I reran runtime-fact contract, entrypoints, Codex assets, lattice-only absence smoke, CLI product/help absence, and package/bin absence; those passed, so this finding is scoped to missing edge evidence and the red session-brief verifier.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-15T03:22:42.851Z",
+      "reviewRound": "2026-06-15T03:18:38.436Z",
+      "reviewRunId": "B-6351:RR-005",
+      "_hash": "7b16078384c349d712699b0e6f9736bc7f4453b0d37c4513f4f8394d5d770aa8",
+      "files": [
+        "scripts/verify-session-brief-command-center.mjs",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+        "packages/main/package.json"
+      ],
+      "resolvedReason": "Restored complete CHK-001 verificationEvidence including CHK-001:edge:1, reran node scripts/verify-session-brief-command-center.mjs successfully, and confirmed evidence_inspect freshness has zero stale refs at current story material hash.",
+      "resolvedAt": "2026-06-15T10:16:47.780Z"
+    }
+  ]
+}

@@ -504,8 +504,8 @@ function assertDocsDriftAllowsBootstrapAndLegacyCommands(): void {
   const result = runDocsDriftGate([
     [
       '```bash',
-      'koala aux_scan',
-      'koala testintent_resume \'{"storyId":"B-001","itemId":"CHK-001"}\'',
+      'lattice aux_scan',
+      'lattice testintent_resume \'{"storyId":"B-001","itemId":"CHK-001"}\'',
       '```',
     ].join('\n'),
   ], new Set(['story_create']));

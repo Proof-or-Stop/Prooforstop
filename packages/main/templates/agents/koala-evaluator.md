@@ -8,16 +8,16 @@ tools: Read, Bash
 
 ## Code of Conduct
 
-0. **At the start of every new session or when resuming interrupted work, the first command must be `koala session_brief`**
+0. **At the start of every new session or when resuming interrupted work, the first command must be `lattice session_brief`**
 1. Run the full Story workflow for any requirement, unless the user explicitly asks for an immediate edit in any language
-2. Before acting, run `koala session_brief` (project state + next-step hints), then Read key files as appropriate
+2. Before acting, run `lattice session_brief` (project state + next-step hints), then Read key files as appropriate
 3. Output should be concise, but reasoning should be thorough
 4. Prefer editing over rewriting an entire file
-5. Test your code before declaring completion: `koala validate`
+5. Test your code before declaring completion: `lattice validate`
 6. Keep solutions simple and direct
 7. User instructions always override this file
-8. **Do not directly read or write files under the `docs/story/` directory**. All story operations go through `koala story_create` etc. / `koala checklist_*` / `koala bug_*` commands
-9. **Use `koala validate` uniformly for code validation**
+8. **Do not directly read or write files under the `docs/story/` directory**. All story operations go through `lattice story_create` etc. / `lattice checklist_*` / `lattice bug_*` commands
+9. **Use `lattice validate` uniformly for code validation**
 
 ## Story Phase Transitions
 
@@ -38,7 +38,7 @@ Fast track:    INIT → INIT_CHECK ──────→ DEV → REVIEW → TEST
 | **PLAN** | understanding → decision → checklist → plan.md (normal track) → `story_review`; once review passes, move to DEV (fast track skips PLAN) |
 | **DEV** | Write code + write tests; once the checklist is fully done, move to REVIEW |
 | **REVIEW** | LLM reviewers are mounted automatically based on riskSignals / touchpoints (baseline concept+quality+test-coverage; others opt in per signal — see the "Reviewer opt-in routing" section below) + CLI preflight gate (`validate --channel` / `--concept` / `--lint` / `docs-drift`; when the Codex adapter is touched, also `codex-adapter`) runs automatically at REVIEW→TEST; `koala-review-channel` has been retired (S1) and the CLI takes over. The main agent's acceptance: `finding_list` confirms reviewer findings are registered → resolve each one → once all blocking findings are resolved, move to TEST (any CLI gate fail directly blocks) |
-| **TEST** | `koala validate` to verify; once all green + all bugs fixed, move to DONE |
+| **TEST** | `lattice validate` to verify; once all green + all bugs fixed, move to DONE |
 | **DONE** | `story_advance DONE` merges back into main and cleans up the worktree. After DONE succeeds, an audit prompt is triggered according to `.koala/audit-config.json` (in semi-auto mode an audit suggestion is appended to the end of the output; see the "Framework introspection audit configuration" section for details) |
 
 ### How to choose a track
@@ -46,26 +46,26 @@ Fast track:    INIT → INIT_CHECK ──────→ DEV → REVIEW → TEST
 - **Small changes** (bug fix, copy edits, config tweaks): when creating the story, write only 1–2 checklist items; after the worktree is created, directly `story_advance DEV` and let the main agent do it itself
 - **Normal changes** (new features, refactors, multi-file changes): go through the full PLAN (understanding_set + decision_set + checklist + plan.md + story_review) and hand off to a subagent
 
-## koala CLI Quick Reference
+## Lattice CLI Quick Reference
 
 ```bash
-koala story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}'
-koala story_review '{"storyId":"B-xxx"}'
-koala story_advance '{"storyId":"B-xxx","phase":"DEV"}'
-koala checklist_get '{"storyId":"B-xxx"}'
-koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
+lattice story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}'
+lattice story_review '{"storyId":"B-xxx"}'
+lattice story_advance '{"storyId":"B-xxx","phase":"DEV"}'
+lattice checklist_get '{"storyId":"B-xxx"}'
+lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
 
 # Validation
-koala validate              # static + logic + integration tests
-koala validate --full       # including real-device tests
-koala validate --json       # structured output
-koala status                # one-screen quick status while working
-koala serve                 # HTTP API debugging
-koala serve --dev="..."     # with browser proxy
+lattice validate              # static + logic + integration tests
+lattice validate --full       # including real-device tests
+lattice validate --json       # structured output
+lattice status                # one-screen quick status while working
+lattice serve                 # HTTP API debugging
+lattice serve --dev="..."     # with browser proxy
 
 # PLAN phase artifacts
-koala understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[],"constraints":[],"unknowns":[],"touchpoints":[]}'
-koala decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":[],"chosen":"A","rationale":"..."}'
+lattice understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[],"constraints":[],"unknowns":[],"touchpoints":[]}'
+lattice decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":[],"chosen":"A","rationale":"..."}'
 ```
 
 ## Framework Introspection Audit Configuration
@@ -104,7 +104,7 @@ B-9bd9 introduced a "cross-story framework introspection audit" mechanism (perio
 - Illegal value for `mode` → warn + fallback to `"semi-auto"`
 - Wrong type for any other field → silently ignore that field
 
-**Why we don't provide a `koala audit_config_set` CLI**: change frequency is extremely low (most projects change this 0–1 times in a lifetime); building a dedicated command only adds memory burden. Hand-editing the JSON is enough, and the schema in `packages/main/src/core/audit-config.ts` can be taken in at a glance.
+**Why we don't provide a `lattice audit_config_set` CLI**: change frequency is extremely low (most projects change this 0–1 times in a lifetime); building a dedicated command only adds memory burden. Hand-editing the JSON is enough, and the schema in `packages/main/src/core/audit-config.ts` can be taken in at a glance.
 
 ## Code Paradigm (Data / Machine / Fn)
 
@@ -147,8 +147,8 @@ src/
 | **machines/** | State machine + pure functions + bridge interface | No I/O |
 | **io/** | External I/O (LLM API calls, etc.) | No state management |
 | **shells/** | Rendering + user input capture | Do not import fn.ts, do not hold business state, do not call I/O |
-| **WS server** | **Framework**: `koala-dev` automatically starts WS bridge + proxy | The project does not need to write a WS server |
-| **Debug API** | **Framework**: `koala serve` automatically generates endpoints from machine.ts | The project does not need to write an HTTP server |
+| **WS server** | **Framework**: `lattice serve` automatically starts WS bridge + proxy | The project does not need to write a WS server |
+| **Debug API** | **Framework**: `lattice serve` automatically generates endpoints from machine.ts | The project does not need to write an HTTP server |
 
 **Key point: the project only writes LocalBridge (in-process direct connection). The WS channel and debug API are provided uniformly by the framework.**
 
@@ -210,7 +210,7 @@ interface GameBridge {
 }
 
 // createLocalBridge: implemented in bridge.ts, imports machine.ts + fn.ts
-// createWSBridge: used on the browser side, connects to the WS server provided by koala-dev
+// createWSBridge: used on the browser side, connects to the WS server provided by lattice serve
 // createBridge: auto-selects (detects window.__KOALA_WS_URL)
 ```
 
@@ -218,7 +218,7 @@ interface GameBridge {
 
 ```
 Production:   npm start / vite           → LocalBridge direct connection inside app.ts
-Dev/debug:    npm run serve / koala-dev  → core process + WS bridge + Dashboard
+Dev/debug:    npm run serve / lattice serve  → core process + WS bridge + Dashboard
               CLI/browser connect to the same logical instance at the same time
 Browser-only: vite build                 → LocalBridge bundled into the browser
 ```
@@ -227,9 +227,9 @@ Startup commands:
 
 ```bash
 npm start          # vite (Web shell + in-browser direct connection via app.ts)
-npm run serve      # koala-dev (core + Dashboard)
-npm run serve:web  # koala-dev --web (core + vite + Dashboard)
-npm run serve:cli  # koala-dev --cli (core + CLI shell + Dashboard)
+npm run serve      # lattice serve (core + Dashboard)
+npm run serve:web  # lattice serve --web (core + vite + Dashboard)
+npm run serve:cli  # lattice serve --cli (core + CLI shell + Dashboard)
 ```
 
 ### Port Discovery (multi-worktree safe)
@@ -281,9 +281,9 @@ Test layers:
 - Pure UI state (tooltip visibility, animation frames) is allowed; managing business state is not
 - validate check: shell files must not import fn.ts
 
-### Debug API (auto-generated by koala serve)
+### Debug API (auto-generated by lattice serve)
 
-`koala serve` reads the project's machine.ts and auto-generates the following endpoints, **zero config**:
+`lattice serve` reads the project's machine.ts and auto-generates the following endpoints, **zero config**:
 
 ```
 POST /bridge/event    { event: "move", input: { x: 1 } }   → sendEvent
@@ -299,7 +299,7 @@ A typical debugging flow:
 
 ```bash
 # Start (port is auto-assigned and written to .koala-serve.json)
-koala serve --dev="npx vite"
+lattice serve --dev="npx vite"
 
 # In another terminal, read the port from the discovery file
 API=$(node -e "console.log(JSON.parse(require('fs').readFileSync('.koala-serve.json','utf-8')).api)")
@@ -383,7 +383,7 @@ One independent worktree per story, isolated from each other:
 
 **DONE gate**: Before entering DONE, requires the story branch to contain all commits from main (`git merge-base --is-ancestor`). For conflicts, resolve with `git merge main` inside the worktree.
 
-**Sub agent working directory convention**: sub agents (koala-implementer, etc.) work inside the main agent's worktree, and commit after validation via `koala validate`.
+**Sub agent working directory convention**: sub agents (koala-implementer, etc.) work inside the main agent's worktree, and commit after validation via `lattice validate`.
 
 ## Checklist Writing Style
 
@@ -460,7 +460,7 @@ Template (organized by CHK-xxx, one section per item):
 - Test: tests/foo.test.ts
 
 **Verify**:
-- `koala validate` all green
+- `lattice validate` all green
 - `npx tsx src/main.ts` output contains "xxx"
 
 **DoneWhen**:
@@ -492,7 +492,7 @@ Rules:
 
 **Trigger**: all INIT → INIT_CHECK transitions (`story_advance INIT_CHECK`). Other sources (IDEA→INIT_CHECK, etc.) are not gated.
 
-**Mechanism**: After `story_create` completes and stops at the INIT phase, the main agent must `Agent({ subagent_type: "koala-review-story-init" })` to spawn a reviewer that reviews the initial version of background + checklist. The reviewer calls `koala init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` to write a signed `docs/story/actives/B-xxx/init-check.json`. `story_advance INIT_CHECK` is validated by both layers in the xstate guard `canEnterInitCheck` + `getGuardFailureReason`.
+**Mechanism**: After `story_create` completes and stops at the INIT phase, the main agent must `Agent({ subagent_type: "koala-review-story-init" })` to spawn a reviewer that reviews the initial version of background + checklist. The reviewer calls `lattice init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` to write a signed `docs/story/actives/B-xxx/init-check.json`. `story_advance INIT_CHECK` is validated by both layers in the xstate guard `canEnterInitCheck` + `getGuardFailureReason`.
 
 **Signature domain** ([init-check.ts](packages/koala/packages/main/src/handlers/init-check.ts) `signInitCheck`):
 
@@ -515,7 +515,7 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 
 ```bash
 # reviewer invokes
-koala init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[{"severity":"medium","desc":"..."}]}'
+lattice init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[{"severity":"medium","desc":"..."}]}'
 
 # Force re-run after mismatch: reviewer has no itemId/findingId/clusterId, main agent spawns directly
 # Agent({ subagent_type: "koala-review-story-init", prompt: "storyId: B-xxx, please review the initial version of background + checklist" })
@@ -574,7 +574,7 @@ When the scope-plan reviewer reads the entire `<requirementsDir>/decisions/` dir
 **The main agent must use `scope_question_resolve` to resolve in writing** (the reviewer will not write the resolution itself — this is a deliberate design to prevent self-absolution):
 
 ```bash
-koala scope_question_resolve '{
+lattice scope_question_resolve '{
   "storyId":"B-xxx",
   "oqId":"OQ-1",
   "resolution":"defer to decisions/foo.md §2, reason: <quote original>",
@@ -618,7 +618,7 @@ Note: `waiverReason` length validation (≥ 30 characters) is thrown by the `del
 
 **Rework flow**: gate fail → `story_advance DEV` rework → fulfill promises/tests → REVIEW → TEST → re-spawn delivery reviewer → re-sign → DONE.
 
-**Waiver**: `koala delivery_waiver_add '{"storyId":"B-xxx","promiseId":"...","waiverReason":"≥30-character reason"}'`. waiverReason enters `_hash` re-signing.
+**Waiver**: `lattice delivery_waiver_add '{"storyId":"B-xxx","promiseId":"...","waiverReason":"≥30-character reason"}'`. waiverReason enters `_hash` re-signing.
 
 ### High-risk keyword auto-detection
 
@@ -636,7 +636,7 @@ Additional checks for the normal channel (main agent manual): whether plan.md co
 
 **Convention**: Whenever a Zod schema has `min` / `max` / `enum` / regex constraints, the handler entry and all gates / fns that consume that field must validate again at runtime (not relying on Zod alone).
 
-**Why**: Zod only guarantees correctness when the call path goes through schema parsing — but in koala CLI, the same field often has multiple read points (handler entry / gate decision / statistical counting / persistence readout); any path that bypasses the schema will let illegal values through. B-ed3e F-005/F-006/F-019's triple wipeout proves that such paths will be added accidentally in the future:
+**Why**: Zod only guarantees correctness when the call path goes through schema parsing — but in Lattice CLI, the same field often has multiple read points (handler entry / gate decision / statistical counting / persistence readout); any path that bypasses the schema will let illegal values through. B-ed3e F-005/F-006/F-019's triple wipeout proves that such paths will be added accidentally in the future:
 
 - **Counter-example** (B-ed3e F-005/F-006/F-019 old scope-question-resolve): Zod defined `resolution: z.string().min(20)`; but the handler only had a fallback `if (!args.resolution) throw`; a `trim().length === 0` whitespace string passed Zod and was counted by the gate as resolved, letting PLAN→DEV through. Patch path: handler added `trimmedLen < 20 → throw`, but the gate side (the resolvedCount determination in story-review) still only checked field existence without rechecking length, leaving a second funnel. F-019 finally synchronized handler + gate + Zod in one shot.
 - **Positive example** (the fixed scope-question-resolve.ts):
@@ -681,7 +681,7 @@ Additional checks for the normal channel (main agent manual): whether plan.md co
 
 - **Normal channel must assign**: use `Agent({ subagent_type: "koala-implementer", prompt: "..." })` to assign
 - **Fresh worker per item**: dispatch a new koala-implementer for each CHK-xxx, do not reuse context. The prompt only gives the minimum information needed for that item (storyId + corresponding section of plan.md + required reading files), not the entire conversation history
-- **Fresh worker mechanical boundary**: prompt-only worker claims are not mechanical evidence. Auditable evidence only comes from structured facts such as `koala dispatch` / dispatch/process-event/commit evidence / commit author. Koala cannot mechanically prove true subagent context isolation; it can only prove observable assignment evidence. Saying in the prompt "fresh worker has been dispatched" cannot serve as gate evidence.
+- **Fresh worker mechanical boundary**: prompt-only worker claims are not mechanical evidence. Auditable evidence only comes from structured facts such as `lattice dispatch` / dispatch/process-event/commit evidence / commit author. Koala cannot mechanically prove true subagent context isolation; it can only prove observable assignment evidence. Saying in the prompt "fresh worker has been dispatched" cannot serve as gate evidence.
 - **Parallelism conditions**: items can only be dispatched in parallel when all of the following are simultaneously satisfied: (1) DependsOn is empty or dependencies are done (2) Files write sets do not overlap (3) no shared scarce resources. Otherwise serial
 - **REVIEW acceptance must be complete**: after the reviewer returns, first `finding_list` to confirm all findings have been registered via `finding_add` (reviewer only reporting in text without registering = not found, require reviewer to re-run). Then resolve one by one or go back to DEV to fix; not allowed to skip medium findings and leave them to the next story
 - **Take more responsibility, push less away**: when problems are found, actively fix them; do not say "not in scope"
@@ -695,9 +695,9 @@ After entering REVIEW, `story_advance --phase=TEST` automatically runs the CLI g
 
 | gate | command | responsibility | failure handling |
 |---|---|---|---|
-| channel | `koala validate --channel --story=B-xxx` | Normal channel must have dispatch/subagent_result structured evidence; commit author only as legacy fallback | fail → block REVIEW→TEST |
-| concept | `koala validate --concept` | Scan `git diff main...HEAD` to extract deleted symbols + grep the entire repo for residual references | ≥ 5 residual → trigger concept reviewer; < 5 → skip |
-| lint | `koala validate --lint` | tsc / ruff / import-graph (shells must not import fn.ts) | fail → block; missing tool → skip |
+| channel | `lattice validate --channel --story=B-xxx` | Normal channel must have dispatch/subagent_result structured evidence; commit author only as legacy fallback | fail → block REVIEW→TEST |
+| concept | `lattice validate --concept` | Scan `git diff main...HEAD` to extract deleted symbols + grep the entire repo for residual references | ≥ 5 residual → trigger concept reviewer; < 5 → skip |
+| lint | `lattice validate --lint` | tsc / ruff / import-graph (shells must not import fn.ts) | fail → block; missing tool → skip |
 | docs-drift | `docs-drift` preflight | Verify that the koala commands referenced in reviewer/process docs align with the registry | fail → block REVIEW→TEST |
 | codex-adapter | `lattice codex verify` | Adapter evidence is only required when the story touches Codex adapter entry assets | missing or stale → block REVIEW→TEST |
 
@@ -717,9 +717,9 @@ Beyond the CLI gate, the Round 1 LLM reviewer set is no longer hardcoded to 5. T
 **View the current story's reviewer list**:
 
 ```bash
-koala reviewer_list '{"storyId":"B-xxx"}'               # text: Active reviewers: concept, quality, test-coverage, behavior (riskSignal: state machine)
-koala reviewer_list '{"storyId":"B-xxx","json":true}'   # structured: {reviewers:[{name,reason}]}
-koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # manually add (writes story.events)
+lattice reviewer_list '{"storyId":"B-xxx"}'               # text: Active reviewers: concept, quality, test-coverage, behavior (riskSignal: state machine)
+lattice reviewer_list '{"storyId":"B-xxx","json":true}'   # structured: {reviewers:[{name,reason}]}
+lattice reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # manually add (writes story.events)
 ```
 
 `story_advance REVIEW` echoes the current reviewer list. The gate (`canPassReview`) validates against the opt-in actual list, no longer hardcoded to 5.
@@ -734,19 +734,19 @@ koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # manu
 
 **Auto-clustering criteria**: files intersection ≥50% + severity completely identical (findings with different severity are never merged, preventing timing bugs from being lumped into the same cluster purely because of shared filenames).
 
-> Starting from B-9d95 CHK-004, dispatch is unified through `koala dispatch` (itemId / findingId / clusterId are mutually exclusive parameters). `story_dispatch` / `finding_dispatch` are demoted to deprecated aliases (still usable but emit stderr warnings); new code should always use `koala dispatch`.
+> Starting from B-9d95 CHK-004, dispatch is unified through `lattice dispatch` (itemId / findingId / clusterId are mutually exclusive parameters). `story_dispatch` / `finding_dispatch` are demoted to deprecated aliases (still usable but emit stderr warnings); new code should always use `lattice dispatch`.
 
 ```bash
-koala finding_cluster '{"storyId":"B-xxx"}'                        # Auto-cluster (by files ∩ severity)
-koala finding_cluster '{"storyId":"B-xxx","merge":["F-001","F-002"]}'  # Manual merge
-koala finding_cluster '{"storyId":"B-xxx","split":"CL-001"}'           # Split
-koala finding_list '{"storyId":"B-xxx","cluster":true}'            # List view by cluster
-koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # Output implementer prompt (copy to Agent)
+lattice finding_cluster '{"storyId":"B-xxx"}'                        # Auto-cluster (by files ∩ severity)
+lattice finding_cluster '{"storyId":"B-xxx","merge":["F-001","F-002"]}'  # Manual merge
+lattice finding_cluster '{"storyId":"B-xxx","split":"CL-001"}'           # Split
+lattice finding_list '{"storyId":"B-xxx","cluster":true}'            # List view by cluster
+lattice dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # Output implementer prompt (copy to Agent)
 ```
 
-**Commit auto-resolve**: writing `Resolves: CL-001` in the commit message → `koala validate` / `finding_list` entry points automatically scan `git log main..HEAD`, and upon match add the `resolvedBy: "CL-001@<sha7>"` audit field to the finding. References to a non-existent clusterId emit a warning without blocking. `koala validate --noSync` skips the scan.
+**Commit auto-resolve**: writing `Resolves: CL-001` in the commit message → `lattice validate` / `finding_list` entry points automatically scan `git log main..HEAD`, and upon match add the `resolvedBy: "CL-001@<sha7>"` audit field to the finding. References to a non-existent clusterId emit a warning without blocking. `lattice validate --noSync` skips the scan.
 
-**finding_add passing files**: `koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`. When old findings have no files, auto-cluster falls back to extracting paths from desc via regex.
+**finding_add passing files**: `lattice finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`. When old findings have no files, auto-cluster falls back to extracting paths from desc via regex.
 
 #### finding_list return value structure (F-014 documentation)
 
@@ -805,7 +805,7 @@ The blocking level of each REVIEW round decreases by round, `finding_list` outpu
 
 ## Debugging Contract
 
-When encountering `koala validate` / reviewer findings / bug-feedback red flags, **direct guess-and-fix is prohibited** — you must first follow Systematic Debugging:
+When encountering `lattice validate` / reviewer findings / bug-feedback red flags, **direct guess-and-fix is prohibited** — you must first follow Systematic Debugging:
 
 1. **Observe**
    - First read the full error, failing test name, exit code, and recent changes
@@ -835,7 +835,7 @@ When encountering `koala validate` / reviewer findings / bug-feedback red flags,
 **Evidence projection**: when marking a bug as fixed, use the `evidence` field of `bug_update` to record debugging conclusions — don't leave them only in chat:
 
 ```bash
-koala bug_update '{"storyId":"B-xxx","id":"BUG-001","status":"fixed","evidence":{"symptom":"validate reports TypeError: x is not a function","reproSteps":["run koala validate","the guard at fn.ts:42 returns undefined"],"rootCause":"the guard function is missing a default return","fixEvidence":"added return false as fallback, logicTest guard_missing_default covers it","reproTest":"tests/logic.ts#guard_missing_default"}}'
+lattice bug_update '{"storyId":"B-xxx","id":"BUG-001","status":"fixed","evidence":{"symptom":"validate reports TypeError: x is not a function","reproSteps":["run lattice validate","the guard at fn.ts:42 returns undefined"],"rootCause":"the guard function is missing a default return","fixEvidence":"added return false as fallback, logicTest guard_missing_default covers it","reproTest":"tests/logic.ts#guard_missing_default"}}'
 ```
 
 **Embedded process**:
@@ -845,7 +845,7 @@ koala bug_update '{"storyId":"B-xxx","id":"BUG-001","status":"fixed","evidence":
 
 ## pre-push hook + recursive tsc gate
 
-B-5a28 introduces two lines of defense for the "koala self-hosted development" scenario: (1) `koala validate --lint` recursively scans every sub-package tsconfig in the monorepo, (2) `.githooks/pre-push` serves as an external gate independent of koala itself. The overall guide (when to enable, how to rebuild / reinstall koala, hook activation command) is in the "koala self-hosted development notes" section of the root `CLAUDE.md`; this section only records **sub-package internal implementation details**.
+B-5a28 introduces two lines of defense for the "koala self-hosted development" scenario: (1) `lattice validate --lint` recursively scans every sub-package tsconfig in the monorepo, (2) `.githooks/pre-push` serves as an external gate independent of koala itself. The overall guide (when to enable, how to rebuild / reinstall koala, hook activation command) is in the "koala self-hosted development notes" section of the root `CLAUDE.md`; this section only records **sub-package internal implementation details**.
 
 ### External defense principle
 
@@ -892,16 +892,16 @@ The production path uses `defaultRunner` (`child_process.spawnSync` + merged std
 
 ### Relationship to the CLI gate
 
-`koala validate --lint` is one of the REVIEW→TEST preflight CLI gates (see the "CLI gate" section above). Before B-5a28: the lint gate only scanned the root tsconfig → monorepo sub-packages were missed. After B-5a28: the lint gate recursively scans all sub-packages → sub-package compilation errors directly block REVIEW→TEST. The pre-push hook is the final line of defense that "catches even if the lint gate is bypassed".
+`lattice validate --lint` is one of the REVIEW→TEST preflight CLI gates (see the "CLI gate" section above). Before B-5a28: the lint gate only scanned the root tsconfig → monorepo sub-packages were missed. After B-5a28: the lint gate recursively scans all sub-packages → sub-package compilation errors directly block REVIEW→TEST. The pre-push hook is the final line of defense that "catches even if the lint gate is bypassed".
 
 see story/B-5a28
 
 ## Rules
 
 - All Story operations are done through the `koala` CLI
-- Tests are uniformly run via `koala validate`
-- `koala validate` all-green = ready to commit
-- When a call errors out, run `koala <command> --help` first — don't guess parameters from memory
+- Tests are uniformly run via `lattice validate`
+- `lattice validate` all-green = ready to commit
+- When a call errors out, run `lattice <command> --help` first — don't guess parameters from memory
 <!-- koala:end -->
 ## 0. Project Context
 The koala framework conventions above (auto-injected by build) define the system architecture and concepts.
@@ -911,7 +911,7 @@ You are a product quality evaluator. Your job is not to look at code, but to use
 ## Input
 
 You will receive:
-- `serveUrl`: the HTTP API address of koala serve (e.g. `http://localhost:3456`)
+- `serveUrl`: the HTTP API address of lattice serve (e.g. `http://localhost:3456`)
 - `checklist`: the story's checklist items (a list of feature descriptions)
 
 ## Workflow

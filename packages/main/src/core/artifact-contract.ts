@@ -142,7 +142,7 @@ function isChecklistAllDone(store: StoryStore, storyId: string): boolean {
  * Returns the artifact contract for a story at a given phase.
  *
  * Each entry describes whether an artifact is required, whether it is present,
- * and a human-readable detail. Callers (e.g. `koala status`) can render this
+ * and a human-readable detail. Callers (e.g. `lattice status`) can render this
  * as a checklist to show the agent what's missing.
  *
  * @param store   - StoryStore instance
@@ -247,7 +247,7 @@ export function getArtifactContractStatus(
       name: 'test-evidence',
       required: inPhaseSet(phase, TEST_AND_AFTER),
       present: hasTestEvidencePass(store, storyId),
-      detail: 'Latest koala validate result is PASS',
+      detail: 'Latest lattice validate result is PASS',
     },
 
     // delivery-check: required at DONE

@@ -3,11 +3,9 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import {
-  CODEX_ADAPTER_MANIFEST,
   LATTICE_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   listAgentPromptFiles,
-  renderCodexAdapterManifest,
   renderCodexAgentContent,
   renderLatticeCodexAdapterManifest,
   type CodexPromptMode,
@@ -48,24 +46,19 @@ export interface CodexAdapterMaterialSnapshot {
 
 export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/lattice-codex.js verify_codex';
 export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
-export const LEGACY_LOCAL_CODEX_VERIFY_COMMAND = 'node bin/koala-codex.js verify_codex';
-export const LEGACY_LOCAL_MAIN_VERIFY_COMMAND = 'node bin/koala.js verify_codex';
 export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'lattice codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
 export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
 
 /**
  * Resolve the preferred verify_codex command from available local wrappers.
- * Priority: bin/lattice-codex.js > bin/koala-codex.js > bin/lattice.js > bin/koala.js
  * Falls back to the documented global-thin command when local wrappers are intentionally absent.
  */
 export function resolveLocalCodexVerifyCommand(root: string): string {
   if (isGlobalThinProject(root)) return GLOBAL_THIN_CODEX_VERIFY_COMMAND;
   const candidates: Array<[string, string]> = [
     ['bin/lattice-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
-    ['bin/koala-codex.js',   LEGACY_LOCAL_CODEX_VERIFY_COMMAND],
     ['bin/lattice.js',       LOCAL_MAIN_VERIFY_COMMAND],
-    ['bin/koala.js',         LEGACY_LOCAL_MAIN_VERIFY_COMMAND],
   ];
   for (const [rel, cmd] of candidates) {
     if (existsSync(join(root, rel))) return cmd;
@@ -77,9 +70,7 @@ export function resolveCodexSessionBriefCommand(root: string): string {
   if (isGlobalThinProject(root)) return `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
   const candidates: Array<[string, string]> = [
     ['bin/lattice-codex.js', 'node bin/lattice-codex.js session_brief'],
-    ['bin/koala-codex.js',   'node bin/koala-codex.js session_brief'],
     ['bin/lattice.js',       'node bin/lattice.js session_brief'],
-    ['bin/koala.js',         'node bin/koala.js session_brief'],
   ];
   for (const [rel, cmd] of candidates) {
     if (existsSync(join(root, rel))) return cmd;
@@ -90,7 +81,6 @@ export function resolveCodexSessionBriefCommand(root: string): string {
 const CODEX_MATERIAL_PATHS = [
   '.Codex/README.md',
   '.Codex/lattice.json',
-  '.Codex/koala.json',
   '.Codex/agents',
   '.codex/hooks.json',
   '.codex/hooks',
@@ -99,8 +89,6 @@ const CODEX_MATERIAL_PATHS = [
   'README.md',
   'bin/lattice-codex.js',
   'bin/lattice.js',
-  'bin/koala-codex.js',
-  'bin/koala.js',
   'bin/bootstrap-runner.js',
   'packages/main/templates/agents',
   'packages/main/src/init-assets.ts',
@@ -196,11 +184,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
-type CodexManifestBrand = 'lattice' | 'koala';
-
 interface CodexManifestSelection {
-  relPath: '.Codex/lattice.json' | '.Codex/koala.json';
-  brand: CodexManifestBrand;
+  relPath: '.Codex/lattice.json';
+  brand: 'lattice';
 }
 
 function isGlobalThinProject(root: string): boolean {
@@ -222,20 +208,7 @@ function resolveCodexManifest(root: string): CodexManifestSelection | null {
   if (existsSync(join(root, '.Codex', 'lattice.json'))) {
     return { relPath: '.Codex/lattice.json', brand: 'lattice' };
   }
-  if (existsSync(join(root, '.Codex', 'koala.json'))) {
-    return { relPath: '.Codex/koala.json', brand: 'koala' };
-  }
   return null;
-}
-
-function expectedManifestIdentity(brand: CodexManifestBrand): typeof CODEX_ADAPTER_MANIFEST {
-  return brand === 'koala' ? CODEX_ADAPTER_MANIFEST : LATTICE_CODEX_ADAPTER_MANIFEST;
-}
-
-function renderExpectedManifest(brand: CodexManifestBrand, options: { promptMode?: CodexPromptMode } = {}): string {
-  return brand === 'koala'
-    ? renderCodexAdapterManifest(options)
-    : renderLatticeCodexAdapterManifest(options);
 }
 
 function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMode | null {
@@ -247,13 +220,13 @@ function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMo
   }
   const selection = resolveCodexManifest(root);
   if (!selection) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/lattice.json (legacy .Codex/koala.json is also accepted)', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
   const manifestPath = join(root, selection.relPath);
   const actual = readText(manifestPath);
-  const expected = renderExpectedManifest(selection.brand);
-  const expectedIdentity = expectedManifestIdentity(selection.brand);
+  const expected = renderLatticeCodexAdapterManifest();
+  const expectedIdentity = LATTICE_CODEX_ADAPTER_MANIFEST;
   let parsed: unknown;
   try {
     parsed = JSON.parse(actual);
@@ -294,9 +267,9 @@ function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMo
       );
       return 'registry';
     }
-    const expectedRegistryManifest = renderExpectedManifest(selection.brand, { promptMode: 'registry' });
+    const expectedRegistryManifest = renderLatticeCodexAdapterManifest({ promptMode: 'registry' });
     if (actual !== expectedRegistryManifest) {
-      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from ${selection.brand === 'lattice' ? 'Lattice' : 'Koala'} registry template`, LOCAL_INIT_VERIFY_COMMAND);
+      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Lattice registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
     push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} uses registry prompt mode (${expectedRegistry.agentCount} prompt(s), hash=${expectedRegistry.materialHash.slice(0, 12)})`);
@@ -307,10 +280,10 @@ function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMo
     return null;
   }
   if (actual !== expected) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from ${selection.brand === 'lattice' ? 'Lattice' : 'Koala'} legacy template`, LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Lattice template`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
-  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches ${selection.brand === 'lattice' ? 'Lattice' : 'Koala'} legacy template`);
+  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Lattice template`);
   return 'legacy-mirror';
 }
 
@@ -367,7 +340,7 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 }
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
-  const offenders = CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
+  const offenders = LATTICE_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
   const upperHooks = join(root, '.Codex', 'hooks');
   const lowerHooks = join(root, '.codex', 'hooks');
   if (existsSync(upperHooks)) {
@@ -522,9 +495,9 @@ function pathContains(parent: string, child: string): boolean {
   return rel === '' || (!!rel && !rel.startsWith('..') && !rel.startsWith('/'));
 }
 
-function resolveKoalaCommandPath(root: string): string | null {
+function resolveLatticeCommandPath(root: string): string | null {
   const command = process.platform === 'win32' ? 'where' : 'sh';
-  const args = process.platform === 'win32' ? ['lattice'] : ['-lc', 'command -v lattice || command -v koala'];
+  const args = process.platform === 'win32' ? ['lattice'] : ['-lc', 'command -v lattice'];
   try {
     const out = execFileSync(command, args, {
       cwd: root,
@@ -535,7 +508,7 @@ function resolveKoalaCommandPath(root: string): string | null {
     }).trim();
     return out.split(/\r?\n/).find(Boolean) || null;
   } catch {
-    // probe: PATH may not expose a global koala; heartbeat execution reports the real failure.
+    // probe: PATH may not expose a global lattice; heartbeat execution reports the real failure.
     return null;
   }
 }
@@ -547,13 +520,12 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global lattice codex verify / lattice codex doctor');
     return;
   }
-  const hasLatticeWrapper = existsSync(join(root, 'bin', 'lattice-codex.js'));
-  const wrapperRelPath = hasLatticeWrapper ? 'bin/lattice-codex.js' : 'bin/koala-codex.js';
-  const bootstrapRelPath = hasLatticeWrapper ? 'bin/lattice.js' : 'bin/koala.js';
+  const wrapperRelPath = 'bin/lattice-codex.js';
+  const bootstrapRelPath = 'bin/lattice.js';
   const wrapper = join(root, wrapperRelPath);
   const localBootstrap = join(root, bootstrapRelPath);
   if (!existsSync(wrapper)) {
-    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing bin/lattice-codex.js (legacy bin/koala-codex.js is also accepted)', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing bin/lattice-codex.js', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const text = readText(wrapper);
@@ -578,7 +550,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
         'Local wrapper heartbeat',
         'pass',
         true,
-        'packaged runtime uses embedded Koala CLI; wrapper env contract verified without external Node',
+        'packaged runtime uses embedded Lattice CLI; wrapper env contract verified without external Node',
       );
       return;
     }
@@ -612,7 +584,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
       'Global fallback heartbeat',
       'warn',
       false,
-      'skipped in packaged desktop runtime; standalone binaries do not require a global koala command',
+      'skipped in packaged desktop runtime; standalone binaries do not require a global lattice command',
       `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`,
     );
     return;
@@ -626,24 +598,23 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
       timeout: 2_000,
     }).trim();
     const globalCoreCandidates = [
-      { path: join(globalRoot, '@lattice-agent', 'core'), label: '@lattice-agent/core', legacy: false },
-      { path: join(globalRoot, '@koala-agent', 'core'), label: '@koala-agent/core', legacy: true },
+      { path: join(globalRoot, '@lattice-agent', 'core'), label: '@lattice-agent/core' },
     ];
     const globalCore = globalCoreCandidates.find(candidate => existsSync(candidate.path));
     if (existsSync(currentCore) && globalCore) {
       const currentReal = realpathSync(currentCore);
       const globalReal = realpathSync(globalCore.path);
-      const koalaCommand = resolveKoalaCommandPath(root);
-      const koalaReal = koalaCommand && existsSync(koalaCommand) ? realpathSync(koalaCommand) : '';
-      const actualKoalaUsesGlobalCore = !!koalaReal && pathContains(globalReal, koalaReal);
-      if (actualKoalaUsesGlobalCore && currentReal !== globalReal) {
+      const latticeCommand = resolveLatticeCommandPath(root);
+      const latticeReal = latticeCommand && existsSync(latticeCommand) ? realpathSync(latticeCommand) : '';
+      const actualLatticeUsesGlobalCore = !!latticeReal && pathContains(globalReal, latticeReal);
+      if (actualLatticeUsesGlobalCore && currentReal !== globalReal) {
         push(
           checks,
           'global-fallback-heartbeat',
           'Global fallback heartbeat',
           'warn',
           false,
-          `global ${globalCore.legacy ? `${globalCore.label} legacy fallback` : globalCore.label} resolves to ${globalReal}, not current worktree ${currentReal}; treat global koala as heartbeat-only, not current-worktree gate/status evidence`,
+          `global ${globalCore.label} resolves to ${globalReal}, not current worktree ${currentReal}; treat global lattice as heartbeat-only, not current-worktree gate/status evidence`,
           resolveCodexSessionBriefCommand(root),
         );
         return;
@@ -657,7 +628,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     checks,
     'global-fallback-heartbeat',
     'Global fallback heartbeat',
-    resolveKoalaCommandPath(root) ?? 'lattice',
+    resolveLatticeCommandPath(root) ?? 'lattice',
     ['session_brief'],
     `codex-check-global-${Date.now()}`,
     'global-fallback',
@@ -667,7 +638,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
 
 function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<string>): void {
   if (!registryNames) {
-    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through koala doctor for live command inventory');
+    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through lattice doctor for live command inventory');
     return;
   }
   if (!registryNames.has('aux_doc_list')) {
@@ -727,7 +698,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /\bCodex\b|\.Codex|lattice-codex|koala-codex|codex adapter|verify_codex/i.test(haystack);
+    return /\bCodex\b|\.Codex|lattice-codex|codex adapter|verify_codex/i.test(haystack);
   } catch {
     return false;
   }

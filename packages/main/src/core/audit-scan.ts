@@ -2,8 +2,8 @@
  * audit-scan — mechanically scan for drift between CLAUDE.md promises and actual CLI behavior (B-9bd9 CHK-001).
  *
  * Three pure scanner functions:
- *   - scanCommandDrift: extract `koala <cmd>` command name → run `koala <cmd> --help`, exit≠0 → drift
- *   - scanFlagDrift:    extract `koala <cmd> ... --<flag>` → `koala <cmd> --help` doesn't contain → drift
+ *   - scanCommandDrift: extract `lattice <cmd>` command name → run `lattice <cmd> --help`, exit≠0 → drift
+ *   - scanFlagDrift:    extract `lattice <cmd> ... --<flag>` → `lattice <cmd> --help` doesn't contain → drift
  *   - scanPathDrift:    extract path assertions from docs → grep whole repo → not found → drift
  *
  * All scanners are pure functions (input md text + repo root); the top-level `runMechanicalAudit`
@@ -21,7 +21,7 @@ import {
 
 export interface DriftCandidate {
   sectionPath: string; // e.g., "CLAUDE.md#koala CLI quick reference"
-  symbol: string;      // e.g., "koala finding_cluster" / "--channel" / "foo/bar.json"
+  symbol: string;      // e.g., "lattice finding_cluster" / "--channel" / "foo/bar.json"
   driftType: 'missing-command' | 'missing-flag' | 'missing-path';
   severity: 'medium' | 'low';
   desc: string;        // one-line readable description (used for finding desc)
@@ -78,8 +78,8 @@ const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
 ]);
 
 /**
- * scanCommandDrift: extract command names of the form `koala <cmd>` from md;
- * for each one not in the ignore list, run `koala <cmd> --help`, exit≠0 → drift.
+ * scanCommandDrift: extract command names of the form `lattice <cmd>` from md;
+ * for each one not in the ignore list, run `lattice <cmd> --help`, exit≠0 → drift.
  *
  * Regex: \bkoala\s+([a-z][a-z0-9_]*)\b
  * Bare koala (without arguments) is not extracted; expressions like $(koala) are also not falsely extracted (the prefix is not $ directly followed by a letter).
@@ -135,8 +135,8 @@ export function scanCommandDrift(
 }
 
 /**
- * scanFlagDrift: extract flag assertions of the form `koala <cmd> [^\n]*--<flag>`;
- * for each pair <cmd, flag>, run `koala <cmd> --help`; output not containing `--<flag>` → drift.
+ * scanFlagDrift: extract flag assertions of the form `lattice <cmd> [^\n]*--<flag>`;
+ * for each pair <cmd, flag>, run `lattice <cmd> --help`; output not containing `--<flag>` → drift.
  *
  * Note: only scan flags inside code fences / inline code, to avoid falsely extracting prose like "with --json option".
  * Simplification: scan the full text directly with regex (doc flags are generally in bash snippets).
@@ -154,7 +154,7 @@ export function scanFlagDrift(
   const skipped: SkippedEntry[] = [];
   const helpCache = new Map<string, { ok: boolean; reason?: string; output?: string }>();
 
-  // Multiple flags may appear on a single line: `koala validate --full --json`
+  // Multiple flags may appear on a single line: `lattice validate --full --json`
   const cmdRe = /\bkoala\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b([^\n`]*)/g;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -343,7 +343,7 @@ export function runMechanicalAudit(
   return { drifts, skipped };
 }
 
-/** Default runHelp: invokes `koala <cmd> --help` with a 2-second timeout. */
+/** Default runHelp: invokes `lattice <cmd> --help` with a 2-second timeout. */
 function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: string } {
   try {
     const out = execFileSync('koala', [cmd, '--help'], {

@@ -2,7 +2,7 @@
  * validate-docs-drift — pure function: scan koala command references in CLAUDE.md vs registry command name alignment.
  *
  * Two directions:
- *   - missing: md references `koala <cmd>` but it's not registered in registry → docs promise a non-existent command
+ *   - missing: md references `lattice <cmd>` but it's not registered in registry → docs promise a non-existent command
  *   - stale:   registry has it but md never mentions it → advisory (docs lag, non-blocking)
  *
  * Only parses lines starting with koala inside fenced bash code blocks (within ```bash / ```).
@@ -19,7 +19,7 @@ export interface DocsDriftResult {
 }
 
 /**
- * Extracts all `koala <cmd>` command names from fenced bash code blocks in markdown text.
+ * Extracts all `lattice <cmd>` command names from fenced bash code blocks in markdown text.
  *
  * Only matches lines inside code blocks fenced with ``` or ```bash.
  */
@@ -46,7 +46,7 @@ export function extractKoalaCommands(mdContent: string): Set<string> {
 
     if (!inFencedBlock) continue;
 
-    // Inside fenced block, match koala <cmd> pattern
+    // Inside fenced block, match lattice <cmd> pattern
     // Support optional $ / # prefix and whitespace at line start
     const match = trimmed.match(/(?:^[$#]\s+)?koala\s+([a-z][a-z0-9_]*)/);
     if (match) {

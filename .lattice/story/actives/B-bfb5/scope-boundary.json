@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bfb5",
+  "mode": "custom",
+  "allowed": [
+    "Add opt-in slim/fields output for story_get and checklist_get",
+    "Add tests/smokes/process-fact checks needed to prove prompt safety and backward compatibility",
+    "Implement token-cost reduction for Lattice agent prompt templates using registry/managed-assets patterns",
+    "Use docs/audits/lattice-token-cost-and-takeover-audit.md as the audit source"
+  ],
+  "excluded": [
+    "Do not change Authority Server receipt semantics",
+    "Do not change handoff authority boundaries",
+    "Do not make slim output the default unless explicitly proven backward compatible",
+    "Do not remove fresh-context fence or process-fact semantics",
+    "Do not weaken review_run_start/review_pass/finding gates"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested an independent optimization story for the Lattice token-cost audit document and asked to verify the document is executable.",
+  "createdAt": "2026-06-15T10:28:55.990Z",
+  "updatedAt": "2026-06-15T10:28:55.990Z",
+  "_hash": "e37e4a66719cf33f624d5ca0647e5f05a28e7b6c4a644452514862a0411a4202"
+}

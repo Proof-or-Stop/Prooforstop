@@ -380,7 +380,7 @@ When `test_auto` runs, it creates a temporary store to isolate the test data, an
 
 ### Configuration
 
-Add a `browser` config to `koala.config.json` (`koala init` will auto-detect a browser project):
+Add a `browser` config to `koala.config.json` (`lattice init` will auto-detect a browser project):
 
 ```json
 {
@@ -425,10 +425,10 @@ A case with `browser: true` in the fixture is executed by the `browser_test` MCP
 
 ```
 # MCP tool call
-browser_test({ projectRoot: "packages/game" })
+browser_test({ projectRoot: "/path/to/browser-app" })
 
 # Specify a fixture
-browser_test({ projectRoot: "packages/game", fixture: "game-browser" })
+browser_test({ projectRoot: "/path/to/browser-app", fixture: "browser-case" })
 ```
 
 ### How It Works

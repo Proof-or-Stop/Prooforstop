@@ -597,10 +597,10 @@ export function getGuardFailureReason(
       return `Cannot enter INIT_CHECK: init-check.json is missing. [missing_init_check]\n` +
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
-        `   Agent({ subagent_type: "koala-review-story-init", prompt: \`koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })\n` +
+        `   Agent({ subagent_type: "koala-review-story-init", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })\n` +
         `   and have product-reviewer call init_check_set as well; if the reviewer produces no output for 4 minutes, re-dispatch and restart the reviewer.\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
-        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
+        `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
@@ -609,9 +609,9 @@ export function getGuardFailureReason(
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
       return `Cannot enter INIT_CHECK: init-check.json is missing required reviewer records: ${missingAgents.join(', ')}. [missing_init_check_agent]\n` +
-        `→ Preferred: separately run koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' and product-reviewer; every reviewer must call init_check_set regardless of pass/fail.\n` +
+        `→ Preferred: separately run lattice dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' and product-reviewer; every reviewer must call init_check_set regardless of pass/fail.\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
-        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
+        `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
     const blockers = blockingInitCheckIssues(initCheck);
     if (blockers.length > 0) {
@@ -750,7 +750,7 @@ export function getGuardFailureReason(
         const findings = store.readFindings(storyId);
         const reviewPasses = store.readReviewPasses(storyId);
         if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) {
-          return `Cannot enter TEST: reviewer not run (no findings or review pass)\n→ Start reviewers per opt-in results (see koala reviewer_list); when no issues, use review_pass_set to record pass`;
+          return `Cannot enter TEST: reviewer not run (no findings or review pass)\n→ Start reviewers per opt-in results (see lattice reviewer_list); when no issues, use review_pass_set to record pass`;
         }
         const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot ?? process.cwd());
         if (evidenceState.invalid.length > 0) {
@@ -809,7 +809,7 @@ export function getGuardFailureReason(
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing, finding_resolve, or to confirm not fixing use finding_dismiss (reason ≥10 characters required)`;
         }
       } catch {
-        return `Cannot enter TEST: reviewer not run (no findings.json)\n→ Start reviewers per opt-in results (see koala reviewer_list)`;
+        return `Cannot enter TEST: reviewer not run (no findings.json)\n→ Start reviewers per opt-in results (see lattice reviewer_list)`;
       }
     }
   }
@@ -817,7 +817,7 @@ export function getGuardFailureReason(
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
-      return 'Cannot enter DONE: no test evidence (run koala validate first)';
+      return 'Cannot enter DONE: no test evidence (run lattice validate first)';
     }
     if (evidence.result !== 'PASS') {
       return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;

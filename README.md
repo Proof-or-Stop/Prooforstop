@@ -1,6 +1,6 @@
 # Lattice CLI
 
-Lattice CLI 0.3.5 is the CLI-first product entry point for the Koala Story workflow. `lattice` is the primary entry point, pointing at the same set of project state, phase, gate, review, evidence, and handoff semantics.
+Lattice CLI 0.3.5 is the CLI-first product entry point for the Koala Story workflow. `lattice` is the only active product command, pointing at the same set of project state, phase, gate, review, evidence, and handoff semantics.
 
 This repository currently contains:
 
@@ -568,9 +568,9 @@ In a story worktree, `lattice` is only suitable as a source-tagged heartbeat fal
 
 The `commands[]` in `validate --json` is a validation receipt: structured commands are recorded in argv form by default; string configurations that contain shell semantics such as `cd`, `&&`, pipes, or redirects are recorded with `shell=true`, indicating a deliberate shell receipt. A required command failing causes validate to fail; an `optional:true` failure only warns. `doctor`'s Validation scan is advisory only: it shows the validate file, configured commands, fallback discovery, and the no-validator warning, to help you decide whether to add an explicit `validate.command(s)`.
 
-The canonical project config file is `lattice.config.json`; a legacy `koala.config.json` is still read as a fallback; when both coexist, `lattice.config.json` wins and a conflict diagnostic is printed. `lattice validate`'s automatic fallback set contains only `npm test` / `pytest` / `go test` / `cargo test` / `mvn test` / `gradle test`; Swift / Mac Native App is retired and is **not** in the automatic fallback list, so `validate.commands` must be configured explicitly for `swift test` to run.
+The canonical and only active project config file is `lattice.config.json`. `lattice validate`'s automatic fallback set contains only `npm test` / `pytest` / `go test` / `cargo test` / `mvn test` / `gradle test`; Swift / Mac Native App is retired and is **not** in the automatic fallback list, so `validate.commands` must be configured explicitly for `swift test` to run.
 
-`doctor` also outputs `Runtime scan:`, which is not process gate evidence but a runtime-environment drift check. Runtime facts are defined in `packages/main/src/core/runtime-fact-registry.ts` and protected by `scripts/verify-runtime-fact-contract.mjs`, covering the CLI entrypoint, the global `@lattice-agent/core` realpath (legacy fallback: `@koala-agent/core`), the project-local `node_modules/.bin/lattice` / legacy `node_modules/.bin/koala`, the Node/package version, the validate source, and `external-reference-policy`. External projects receive only warn/advisory and are never hard-failed because of the Orchestrate repo's own symlink expectations. `external-reference-policy` scans only `lattice.config.json` (canonical) / `koala.config.json` (legacy fallback), `AGENTS.md`, `CLAUDE.md`, `README.md`, and `docs/requirements/**/*.md`, excluding story/fixture/build/source-comment noise; it reports only a policy warning and does not assert a connectivity pass.
+`doctor` also outputs `Runtime scan:`, which is not process gate evidence but a runtime-environment drift check. Runtime facts are defined in `packages/main/src/core/runtime-fact-registry.ts` and protected by `scripts/verify-runtime-fact-contract.mjs`, covering the CLI entrypoint, the global `@lattice-agent/core` realpath, the project-local `node_modules/.bin/lattice`, the Node/package version, the validate source, and `external-reference-policy`. External projects receive only warn/advisory and are never hard-failed because of the Orchestrate repo's own symlink expectations. `external-reference-policy` scans only `lattice.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, and `docs/requirements/**/*.md`, excluding story/fixture/build/source-comment noise; it reports only a policy warning and does not assert a connectivity pass.
 
 Koala runtime artifacts are a separate table: `packages/main/src/core/runtime-artifact-registry.ts` defines the ignore, materialHash, and repair semantics for runtime files such as `.koala/activity.jsonl`, legacy `docs/story/activity.jsonl`, `.koala/runtime/`, `.koala/traces/`, `.koala-serve.json`, and debug/browser logs. `lattice init` merges missing runtime ignore rules into the existing `.gitignore`; `lattice doctor` reports runtime artifacts already tracked by git, and on `--repair` runs `git rm --cached` only for paths the registry marks as repairable. These files do not make materialHash-backed verification evidence stale; `.koala/story/` is still process evidence and is not treated as a runtime artifact.
 
@@ -627,7 +627,7 @@ This checks:
 
 - in legacy/full prompt mode, whether `.Codex/agents/*.md` still equals the controlled transform result of `.claude/agents/*.md`
 - in legacy/full prompt mode, whether `.Codex/agents` is missing any prompt newly added to `.claude/agents`
-- in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.Codex/lattice.json` matches the package registry and Codex prompt renderability is fine; legacy `.Codex/koala.json` is still recognized for compatibility
+- in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.Codex/lattice.json` matches the package registry and Codex prompt renderability is fine
 - whether `.Codex/lattice.json` declares the Lattice-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
 - whether `.Codex/README.md` retains the correct Codex fallback entry point
 - whether `README.md` / `AGENTS.md` still contain the key Codex integration notes
@@ -643,7 +643,7 @@ node bin/lattice-codex.js doctor
 When initializing a new project, you can also run directly:
 
 ```bash
-npx koala-init --verify-codex
+lattice init --verify-codex
 ```
 
 ## When There Is No Local Wrapper
@@ -656,9 +656,9 @@ KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPO
 
 This ensures the activity is still accounted for under `source=codex` / `entrypoint=global-fallback` and that read-only entry points such as `session_brief` still leave a heartbeat; but without a bootstrap entry point, the `aux_*` commands may be unavailable. **Global CLI is heartbeat-only, not current-worktree gate/status evidence**; do not use its `status` / `validate` output as gate authority for the active story worktree.
 
-Note: when developing the Lattice/Koala repository itself, the global CLI may come from an old install, the main repo, or another worktree. Do not use the `status` / `next` / `validate` output of an old global `lattice` to judge whether the current story can advance; build the local wrapper first, or use `node packages/main/dist/cli.js <command>` to read the current worktree's code and state.
+Note: when developing the Lattice repository itself, the global CLI may come from an old install, the main repo, or another worktree. Do not use the `status` / `next` / `validate` output of an old global `lattice` to judge whether the current story can advance; build the local wrapper first, or use `node packages/main/dist/cli.js <command>` to read the current worktree's code and state.
 
-If the global core entry point reports `unknown command: aux_doc_list`, use the full bootstrap inside the Koala repository:
+If the global core entry point reports `unknown command: aux_doc_list`, use the full bootstrap inside the repository:
 
 ```bash
 node bin/lattice.js aux_doc_list --format=json
@@ -678,7 +678,7 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-A globally installed `lattice` (canonical package: `@lattice-agent/core`; legacy package fallback: `@koala-agent/core`) also automatically enables `lattice lab ...` when `@lattice-agent/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `lattice lab ...` prompts to install/build lab.
+A globally installed `lattice` (canonical package: `@lattice-agent/core`) also automatically enables `lattice lab ...` when `@lattice-agent/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `lattice lab ...` prompts to install/build lab.
 
 Before releasing `0.3.5`, it is recommended to run:
 
@@ -736,11 +736,11 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.Codex/settings.json`. What Lattice generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.Codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.Codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.Codex/hooks` alias. `.Codex/lattice.json` also records the Lattice-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets; the old `.Codex/koala.json` is still recognized as a legacy manifest. The Codex-side notes live in:
+The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.Codex/settings.json`. What Lattice generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.Codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.Codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.Codex/hooks` alias. `.Codex/lattice.json` also records the Lattice-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- `.lattice/lattice.json` (global-thin default init primary; full/thin mode projects may use `.Codex/lattice.json` instead; legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) is still recognized as a compatibility input)
+- `.lattice/lattice.json` (global-thin default init primary; full/thin mode projects may use `.Codex/lattice.json` instead)
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1) (full mode materialization; can be omitted in thin mode)
 
 In a full-mode repository, `.Codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/lattice-codex.js verify_codex` validates the registry manifest/hash/renderability.

@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Fix only the observed correctness issue",
+    "Preserve strict pre-DONE freshness gates",
+    "Keep DONE historical evidence read-only and non-authority",
+    "Make regression mechanical"
+  ],
+  "drivers": [
+    "Already-DONE stories should not be retroactively marked stale because main moved later",
+    "TEST stories must still detect stale evidence",
+    "done_closure is a projection, not a repair command"
+  ],
+  "options": [
+    {
+      "name": "A: For phase DONE, compare evidence materialHash against evidence.headHash material tree",
+      "pros": [
+        "Matches historical DONE snapshot semantics",
+        "Does not weaken active gates",
+        "Small localized change"
+      ],
+      "cons": [
+        "Requires a targeted code path for DONE stories"
+      ]
+    },
+    {
+      "name": "B: Exclude all story metadata from currentMaterialHash only",
+      "pros": [
+        "Helps metadata-only drift"
+      ],
+      "cons": [
+        "Does not solve later unrelated material commits after DONE"
+      ]
+    },
+    {
+      "name": "C: Treat evidence-freshness as warning for all stories",
+      "pros": [
+        "Simple output change"
+      ],
+      "cons": [
+        "Weakens active TEST/DONE gates and risks stale evidence entering DONE"
+      ]
+    }
+  ],
+  "chosen": "A: For phase DONE, compare evidence materialHash against evidence.headHash material tree",
+  "rationale": "Choose A because the bug is historical DONE projection only; active stories must continue to compare against current material state. A fixes the real inconsistency without arbitrary gate weakening.",
+  "preMortem": [
+    {
+      "scenario": "Active TEST stories stop blocking stale material changes",
+      "trigger": "DONE-specific code path accidentally applies to non-DONE phases",
+      "consequence": "Stale evidence can enter DONE",
+      "mitigation": "Branch on story.phase === DONE only and add regression that active TEST still fails after material change"
+    },
+    {
+      "scenario": "Evidence head ref is unavailable",
+      "trigger": "Old commit pruned or shallow clone",
+      "consequence": "DONE projection cannot verify historical snapshot",
+      "mitigation": "Fail closed or fall back to existing check when recorded ref material hash cannot be computed"
+    },
+    {
+      "scenario": "Authority semantics get overclaimed",
+      "trigger": "DONE projection pass is misread as Authority proof",
+      "consequence": "Local DONE is confused with receipt-backed completion",
+      "mitigation": "Do not touch Authority path; preserve done_closure authorityServerPath receiptVerified=false unless receipts exist"
+    }
+  ],
+  "timestamp": "2026-06-15T02:52:51.906Z"
+}

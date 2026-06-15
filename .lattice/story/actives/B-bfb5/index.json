@@ -1,0 +1,48 @@
+{
+  "storyId": "B-bfb5",
+  "name": "lattice-token-cost-prompt-slimming",
+  "title": "Reduce Lattice agent prompt token cost safely",
+  "description": "Implement the actionable parts of docs/audits/lattice-token-cost-and-takeover-audit.md as an independent optimization story: reduce repeated full CLAUDE/Lattice prompt snapshots in agent templates and add low-risk slim read output where appropriate, while preserving fresh-context and process-fact safety semantics.",
+  "type": "refactor",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "token-cost",
+    "agent-prompts",
+    "prompt-registry",
+    "managed-assets",
+    "story-get-slim"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-15T10:28:55.990Z",
+  "startedAt": "2026-06-15T10:28:55.990Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T10:28:56.053Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:36:59.694Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-bfb5",
+    "branch": "story/B-bfb5",
+    "createdAt": "2026-06-15T10:36:59.791Z"
+  }
+}

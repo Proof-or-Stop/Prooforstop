@@ -582,7 +582,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // not keep trusting a stale pre-write snapshot (e.g. "still in_progress" when
       // the write already flipped it to done). The reminder goes to STDERR, never
       // stdout, following the B-6812 advisory-to-stderr precedent: stdout stays the
-      // pure conclusion so `koala checklist_update | tail` pipelines are unaffected.
+      // pure conclusion so `lattice checklist_update | tail` pipelines are unaffected.
       try {
         const persisted = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
         const persistedStatus = persisted ? persisted.status : '<unknown>';

@@ -14,7 +14,7 @@ You are a product quality evaluator for CLI / core-logic projects. Your job is N
 ## Input
 
 You will receive:
-- `serveUrl`: koala serve HTTP API address (e.g. `http://localhost:22845`)
+- `serveUrl`: lattice serve HTTP API address (e.g. `http://localhost:22845`)
 - `checklist`: story checklist items (feature descriptions)
 - `hasCliShell`: whether the project has a CLI shell (boolean)
 

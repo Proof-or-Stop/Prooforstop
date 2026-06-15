@@ -886,7 +886,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           : '  status     : confirm will run git merge main');
         lines.push('  metadata conflicts under the protected path will be resolved with --ours');
         lines.push('  source/other conflicts will remain unresolved and stop the command');
-        lines.push(`→ Confirm sync: koala story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
+        lines.push(`→ Confirm sync: lattice story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
         return lines.join('\n');
       }
 

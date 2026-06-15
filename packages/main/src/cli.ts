@@ -3,7 +3,7 @@
  * koala bin entry (main standalone mode)
  *
  * This script only loads tools bundled with main (process category). If you also want to enable @lattice-agent/utils
- * helper tools, use the packages/koala/bin/koala.js bootstrap script.
+ * helper tools, use the generated bin/lattice.js bootstrap script.
  *
  * When a dynamic import carries a ?t= cache buster, import.meta.url contains a query string, so skip runCli.
  */

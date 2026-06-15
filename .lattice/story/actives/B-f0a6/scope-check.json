@@ -1,0 +1,45 @@
+{
+  "storyId": "B-f0a6",
+  "checkedAt": "2026-06-15T02:56:06.457Z",
+  "features": [
+    {
+      "feature": "Remove packages/game package tree",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001 plus find packages/game confirms this is a real standalone package tree"
+    },
+    {
+      "feature": "Update direct packages/game references in docs/requirements/decisions/test-fixture-spec.md only",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002 plus rg found direct browser_test references at docs/requirements/decisions/test-fixture-spec.md:428 and :431"
+    },
+    {
+      "feature": "Verify no residual current product references to packages/game or @lattice/game after deletion",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-003; verification is limited to scans and validation, not extra material edits"
+    },
+    {
+      "feature": "Modify unrelated packages, active story worktrees, protected story metadata, or tests/fixtures files directly",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints; CHK-001 adversarial verification; CHK-002 adversarial verification",
+      "source": "understanding_get constraints limit scope to packages/game and the fixture spec direct references"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9cd597a0a276301049576ec51e52d910593dfc4a5c40d1abbb302ac7327fc7a3",
+  "openQuestions": []
+}

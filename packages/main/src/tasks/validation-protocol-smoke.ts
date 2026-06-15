@@ -20,7 +20,7 @@ import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../c
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
-import { renderCodexWrapperScript, renderKoalaBootstrapScript } from '../init-assets.js';
+import { renderLatticeBootstrapScript, renderLatticeCodexWrapperScript } from '../init-assets.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -919,10 +919,10 @@ try {
   assert.equal(existsSync(join(malformedJsonCwd, '.lattice')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
-  const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-local-'));
+  const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-local-'));
   try {
     mkdirSync(join(projectLocalRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
     writeFileSync(localBin, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
       commandResolver: () => localBin,
@@ -985,33 +985,34 @@ try {
     rmSync(latticeConflictRuntimeRoot, { recursive: true, force: true });
   }
 
-  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-conflict-'));
+  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-legacy-koala-local-'));
   try {
     mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
     const otherCli = join(conflictRuntimeRoot, 'other-koala');
-    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(otherCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(conflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(conflictRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
+      corePackageRoot: join(conflictRuntimeRoot, 'runtime-core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
     assert.equal(report.runtimeMode.source, 'unknown');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
-    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must keep legacy koala fallback coverage');
-    assert.equal((report.projectLocalBin.actual as any).shadowsEntrypoint, true);
+    assert.equal(
+      (report.projectLocalBin.actual as any).path,
+      join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice'),
+      'project-local-bin must ignore stale koala local bins',
+    );
+    assert.equal((report.projectLocalBin.actual as any).present, false);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
     assert.ok(runtimeSummary.startsWith('Runtime footprint:\nRuntime mode: diagnostic-only'));
     assert.match(runtimeSummary, /Runtime source: unknown/);
     assert.match(runtimeSummary, /Project-local JavaScript runtime required: no/);
     assert.match(runtimeSummary, /Authority: local-runtime-diagnostic-only/);
-    assert.match(
-      runtimeSummary,
-      /Next action: project-local CLI bin .*node_modules\/\.bin\/koala resolves to .* but the active CLI resolves to .*/,
-    );
+    assert.doesNotMatch(runtimeSummary, /node_modules\/\.bin\/koala/);
   } finally {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
@@ -1021,9 +1022,9 @@ try {
   const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-conflict-'));
   try {
     mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
     const packagedCli = join(packagedConflictRoot, 'packaged-koala');
-    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(packagedConflictRoot, {
       commandResolver: () => packagedCli,
@@ -1031,9 +1032,10 @@ try {
       corePackageRoot: join(packagedConflictRoot, 'packaged-runtime'),
     });
     assertRuntimeModeShape(report.runtimeMode);
-    assert.equal(report.runtimeMode.mode, 'diagnostic-only');
-    assert.equal(report.runtimeMode.source, 'unknown');
+    assert.equal(report.runtimeMode.mode, 'packaged-runtime');
+    assert.equal(report.runtimeMode.source, 'packaged-runtime');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+    assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale koala local bins');
   } finally {
     rmSync(packagedConflictRoot, { recursive: true, force: true });
     if (previousPackagedRuntime === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
@@ -1096,8 +1098,8 @@ try {
 
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'KOALA.md'), '<!-- koala:start -->\n# Local Koala Notes\ncustom text\n<!-- koala:end -->\n');
-    const before = readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8');
+    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- koala:start -->\n# Local Lattice Notes\ncustom text\n<!-- koala:end -->\n');
+    const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
       scanRoot: staleLocalAssetRoot,
@@ -1117,16 +1119,16 @@ try {
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
     assert.match(staleLocalCheckText, /Lattice managed asset check: DRIFT/);
-    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT KOALA\.md|STALE_LOCAL_EDIT[\s\S]*KOALA\.md/);
+    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT LATTICE\.md|STALE_LOCAL_EDIT[\s\S]*LATTICE\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
     assert.equal(item?.status, 'STALE_LOCAL_EDIT');
     assert.equal(item?.applied, undefined);
-    assert.equal(readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
-    assert.equal(result.applied.includes('KOALA.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
+    assert.equal(readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
+    assert.equal(result.applied.includes('LATTICE.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
     assert.equal(managedAssetNextAction(result), 'review unsafe managed assets manually');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /STALE_LOCAL_EDIT KOALA\.md/);
+    assert.match(rendered, /STALE_LOCAL_EDIT LATTICE\.md/);
     assert.match(rendered, /action: review local edits before overwriting|action: review local doc edits before replacing the section/);
   } finally {
     rmSync(staleLocalAssetRoot, { recursive: true, force: true });
@@ -1134,14 +1136,14 @@ try {
 
   const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-case-mismatch-'));
   try {
-    writeFileSync(join(caseMismatchAssetRoot, 'koala.md'), 'case mismatch\n');
+    writeFileSync(join(caseMismatchAssetRoot, 'lattice.md'), 'case mismatch\n');
     const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
     assert.equal(item?.status, 'CASE_MISMATCH');
     assert.equal(item?.applied, undefined);
-    assert.equal(result.applied.includes('KOALA.md'), false, 'CASE_MISMATCH must not be counted as applied');
+    assert.equal(result.applied.includes('LATTICE.md'), false, 'CASE_MISMATCH must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /CASE_MISMATCH KOALA\.md/);
+    assert.match(rendered, /CASE_MISMATCH LATTICE\.md/);
     assert.match(rendered, /action: rename the path with exact casing/);
   } finally {
     rmSync(caseMismatchAssetRoot, { recursive: true, force: true });
@@ -1162,24 +1164,24 @@ try {
     rmSync(incompatibleAssetRoot, { recursive: true, force: true });
   }
 
-  const wrapperRoot = mkdtempSync(join(tmpdir(), 'koala-wrapper-cjs-'));
+  const wrapperRoot = mkdtempSync(join(tmpdir(), 'lattice-wrapper-cjs-'));
   try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
-    const koalaWrapperPath = join(wrapperRoot, 'bin', 'koala.js');
-    const codexWrapperPath = join(wrapperRoot, 'bin', 'koala-codex.js');
-    writeFileSync(koalaWrapperPath, renderKoalaBootstrapScript(packageRoot));
-    writeFileSync(codexWrapperPath, renderCodexWrapperScript());
-    const koalaWrapper = readFileSync(koalaWrapperPath, 'utf-8');
+    const latticeWrapperPath = join(wrapperRoot, 'bin', 'lattice.js');
+    const codexWrapperPath = join(wrapperRoot, 'bin', 'lattice-codex.js');
+    writeFileSync(latticeWrapperPath, renderLatticeBootstrapScript(packageRoot));
+    writeFileSync(codexWrapperPath, renderLatticeCodexWrapperScript());
+    const latticeWrapper = readFileSync(latticeWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
-    assert.match(koalaWrapper, /require\('node:fs'\)/, 'Koala wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.match(latticeWrapper, /require\('node:fs'\)/, 'Lattice wrapper should be CommonJS so non-JS repos do not need package.json type=module');
     assert.match(codexWrapper, /import\('node:fs'\)/, 'Codex wrapper should use dynamic import so it runs in both CommonJS and type=module projects');
     assert.doesNotMatch(codexWrapper, /require\(/, 'Codex wrapper must not use require because type=module projects execute .js files as ESM');
-    assert.doesNotMatch(koalaWrapper, /^import\s/m, 'Koala wrapper must not use static ESM import syntax');
+    assert.doesNotMatch(latticeWrapper, /^import\s/m, 'Lattice wrapper must not use static ESM import syntax');
     assert.doesNotMatch(codexWrapper, /^import\s/m, 'Codex wrapper must not use static ESM import syntax');
 
-    const koalaHelp = spawnSync(process.execPath, [koalaWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
-    assert.equal(koalaHelp.status, 0, koalaHelp.stderr || koalaHelp.stdout);
-    assert.doesNotMatch(koalaHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Koala wrapper help must not emit Node module-type warnings');
+    const latticeHelp = spawnSync(process.execPath, [latticeWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
+    assert.equal(latticeHelp.status, 0, latticeHelp.stderr || latticeHelp.stdout);
+    assert.doesNotMatch(latticeHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Lattice wrapper help must not emit Node module-type warnings');
 
     const codexHelp = spawnSync(process.execPath, [codexWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
     assert.equal(codexHelp.status, 0, codexHelp.stderr || codexHelp.stdout);
@@ -1329,7 +1331,7 @@ try {
   }
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
-  // The DEV->TEST koala validate gate was extracted into handlers/phase-gates.ts
+  // The DEV->TEST lattice validate gate was extracted into handlers/phase-gates.ts
   // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
   // transition-orchestrator.ts. The gate must still fail-closed: a failing
   // validate run must throw "Cannot enter TEST" and persist a FAIL
@@ -1360,8 +1362,8 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: koala validate did not pass/,
-      'runValidateGate must block TEST when koala validate fails',
+      /Cannot enter TEST: lattice validate did not pass/,
+      'runValidateGate must block TEST when lattice validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');

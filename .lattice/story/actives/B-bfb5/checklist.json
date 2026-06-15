@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Validate the token-cost audit document as an executable implementation source",
+      "context": "Confirm current code still matches the document claims before coding: agent template snapshot sizes, signature domains, prompt registry/global-thin support, and story_get/checklist_get duplication. Treat prompt-cache billing uncertainty as a measurement caveat, not a blocker.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Replace repeated full agent prompt snapshots with registry-generated load-bearing prompt slices",
+      "context": "Use prompt-registry/managed-assets patterns instead of hand-maintained prompt copies. Preserve fresh-context fence text and flow-fact/process-gate semantics required by init/scope/review/delivery gates. Do not weaken reviewer independence or signed artifact validation.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add additive slim read output for high-frequency story inspection commands",
+      "context": "Add default-preserving slim/fields behavior for story_get and checklist_get only if it does not alter existing callers. This is a low-risk token reduction and must remain opt-in.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression checks for prompt-safety and token-reduction invariants",
+      "context": "Tests must prove load-bearing prompt sections remain present, default command output remains backward compatible, slim output reduces repeated payload, and managed assets/process facts do not drift.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Run full Lattice review and delivery closure without Authority overclaim",
+      "context": "Validate through Lattice lifecycle with concept/quality/test-coverage/docs/delivery reviewers as required. This story may produce local Non-authority evidence only; Authority Server receipt-backed claims remain out of scope.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
