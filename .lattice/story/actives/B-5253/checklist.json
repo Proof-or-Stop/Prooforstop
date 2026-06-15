@@ -168,9 +168,9 @@
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
       "userSees": "prompt-token-cost-smoke fails if compact query guidance or the evidence-sensitive full-output fallback is missing from load-bearing templates or mirrors.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T15:23:12.686Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/prompt-token-cost-smoke.ts",
@@ -203,7 +203,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Prompt token cost smoke passed after adding assertions that compact-query guidance exists in every load-bearing package template.",
+          "headHash": "afe935dfd00846d655e96dee3fab4d4c83ca70d0",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:12.763Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Prompt token cost smoke passed after adding assertions that the evidence-sensitive full-output fallback remains present.",
+          "headHash": "afe935dfd00846d655e96dee3fab4d4c83ca70d0",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:12.923Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Prompt token cost smoke still verifies default story_get/checklist_get compatibility and slim output remains smaller than default output.",
+          "headHash": "afe935dfd00846d655e96dee3fab4d4c83ca70d0",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:13.000Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
