@@ -306,6 +306,17 @@
           "headHash": "83c487e1544dd129bf1c3c1068f17e8bb6cb3cd4",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:31:58.086Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test ! -f du.exe.stackdump && test ! -f claude-session.mjs",
+          "result": "pass",
+          "note": "Neither file exists on disk.",
+          "headHash": "2bebe77f75a4d6bcd5e1f517a3f0e4b9d908eb40",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:58.701Z"
         }
       ]
     }
