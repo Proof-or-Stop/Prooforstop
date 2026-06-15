@@ -1,0 +1,80 @@
+{
+  "storyId": "B-bfb5",
+  "checkedAt": "2026-06-15T10:43:21.932Z",
+  "features": [
+    {
+      "feature": "Executable token-cost audit baseline, prompt-size measurement, and prompt-cache billing caveat",
+      "covered_by": "CHK-001, CHK-004, CHK-005; understanding.outcome; plan CHK-001/CHK-004/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/audits/lattice-token-cost-and-takeover-audit.md §2.4, §3; checklist"
+    },
+    {
+      "feature": "Package and Claude project agent template slimming through prompt registry / managed-assets while preserving load-bearing prompt guidance",
+      "covered_by": "CHK-002 and CHK-004; plan CHK-002; touchpoints packages/main/templates/agents/*.md, .claude/agents/*.md, prompt-registry.ts, managed-assets.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002/CHK-004; managed-assets.ts:681-751; prompt-registry.ts:1-130"
+    },
+    {
+      "feature": "Opt-in slim story_get/checklist_get output with unchanged default behavior",
+      "covered_by": "CHK-003 and CHK-004; plan CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003; handlers/story-query.ts:401-434; handlers/checklist.ts:228-232; cli-engine.ts:349,414"
+    },
+    {
+      "feature": "Regression smokes for prompt-safety phrases, token reduction, managed asset/process-fact stability, and default-output compatibility",
+      "covered_by": "CHK-004 plus CHK-001/CHK-003 verificationIntent",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001/CHK-003/CHK-004; plan CHK-004"
+    },
+    {
+      "feature": "Audit document final measurement update and local Non-authority delivery summary",
+      "covered_by": "CHK-001 and CHK-005; plan scope boundaries and CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001/CHK-005; plan Scope Boundaries"
+    },
+    {
+      "feature": "Authority Server receipt semantics, receiptVerified/fullAuthorityDone/productionDone claims",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Understanding constraints, decision principles, plan Scope Boundaries, and CHK-005 adversarial intent explicitly keep Authority Server receipt-backed claims out of scope",
+      "source": "understanding.constraints; decision.principles; plan Scope Boundaries; checklist CHK-005"
+    },
+    {
+      "feature": "Handoff authority boundaries, ownership transfer, merge authority, and DONE authority behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "INIT reviewer issue was incorporated into PLAN/decision constraints; this story is local token-cost work only",
+      "source": "story_get.initCheck; understanding.constraints; decision.preMortem[3]; plan Scope Boundaries"
+    },
+    {
+      "feature": "Reviewer/finding gate weakening or removal of fresh-context fence / process-fact semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 and CHK-004 require preserving fresh-context, review-run/finding/pass, signed artifact, and process-fact semantics; implementation must not weaken them",
+      "source": "checklist CHK-002/CHK-004; decision.preMortem[0]; plan Scope Boundaries"
+    },
+    {
+      "feature": "Tracked Codex project prompt mirrors and mandatory Codex adapter verification when agent prompts change",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "AGENTS.md:123; .Codex/README.md:29,37; .Codex/lattice.json notes; managed-assets.ts:721-728; git ls-files .Codex/agents"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "57e68220bc888c032c29d2829175c5ae6ec3d58fd9138803f95929c0a266a776",
+  "openQuestions": []
+}
