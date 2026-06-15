@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-15T22:40:12.696Z",
       "reviewRunId": "B-854c:RR-005",
       "_hash": "b832e762edc7a953c09c5719713481a79a8ed962d38f9272617afbad966fed85"
+    },
+    {
+      "id": "B-854c:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "All three OptAB-combination model behaviors verified correct at HEAD 07cb5dd (post-CL-001 cleanup).\n\n1. worktree.ts bootstrap: `git add -f -- <storyRel>` (line 328) never hard-fails on ignored paths. check-ignore guard probes `${storyRel}/index.json` (line 868) — the ACTUAL metadata leaf — NOT the `.lattice` prefix. Probe is inside `storyMetadataProtectionWarning` which catches all errors and returns empty string (fails OPEN). Verified: broad `.lattice/` → warning; negation allowlist (leaf re-included → check-ignore exits 1 → `ignored=false`) → NO warning; non-ignoring → NO warning.\n\n2. story-metadata-protection.ts predicate: `unsafe = ignored && !tracked` (line 117); tracked=true always yields safe; empty leaf path throws at line 100-103 (runtime re-validation). All predicate units green in smoke.\n\n3. doctor --repair: `neutralizeConflictingLatticeDirIgnore` comments out bare `.lattice/` and `.lattice` lines only (preserves unrelated lines); `mergeRuntimeGitignore` appends idempotent BLOCK_START/END allowlist; `repairStoryMetadataAllowlist` no-ops if `!neutralized.changed && merged === existing` (line 916). Re-scan after repair shows unsafe=false; second repair is a confirmed no-op per smoke check 9/10.\n\nSmoke test (`npm --prefix packages/main run test:story-metadata-protection-smoke`) ran all 10 checks green. Build clean. No correctness bugs found. The CL-001 cosmetic commit (1166a47) only dropped a dead `export` and fixed a garbled string in doctor.ts — zero logic changes. All behavior from Round 1 evidence is reproduced identically at current HEAD.",
+      "createdAt": "2026-06-15T22:42:38.067Z",
+      "reviewRound": "2026-06-15T22:40:12.696Z",
+      "reviewRunId": "B-854c:RR-007",
+      "_hash": "b7ad91b6acd35135a1d0d781b9f4c0195906e8f7ad8a6965afe721146efd377f"
     }
   ]
 }
