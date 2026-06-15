@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d959",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "grep *",
+    "lattice autopilot_review_submit *",
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice decision_doc_quorum_check *",
+    "lattice session_brief",
+    "lattice story_advance *",
+    "lattice story_review *",
+    "lattice understanding_*",
+    "lattice validate *",
+    "lattice verification_evidence_*",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "claude-cli-readonly",
+    "exec_command",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-d959",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "packages/main"
+  ],
+  "excludedCommands": [
+    "omx",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "packages/main/src"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "Documentation-only optimization: define an honest degraded 3-round x 1-host fallback for second-host unavailable or credit-exhausted conditions; do not implement runtime code in this story.",
+  "createdAt": "2026-06-15T01:59:15.359Z",
+  "updatedAt": "2026-06-15T01:59:15.359Z",
+  "_hash": "33451cd5f4b7a64559727519af4f2ca53eb7570a7fcf641d08615137266695eb"
+}
