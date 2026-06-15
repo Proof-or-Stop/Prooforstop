@@ -17,6 +17,10 @@
         ],
         "create": [],
         "test": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/cli-engine.ts",
           "packages/main/src/tasks/prompt-token-cost-smoke.ts",
           "packages/main/src/tasks/prompt-registry-smoke.ts"
         ]
@@ -43,7 +47,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "User sees B-f495 audit evidence confirming the slim / fields CLI surfaces and smoke coverage either match the plan or list exact corrections."
     },
     {
       "id": "CHK-002",
