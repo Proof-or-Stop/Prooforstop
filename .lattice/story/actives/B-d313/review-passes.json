@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d313:RP-001",
+      "agent": "koala-review-quality",
+      "note": "2-line brand rename: assert.match/doesNotMatch regexes updated from /koala stale state warnings/ to /Lattice stale state warnings/, matching exactly the string emitted by cli-engine.ts:3657. No dead code, no type-safety regressions, no fn.ts I/O isolation violations. Assertions remain brand-specific (not relaxed to wildcards). No quality blockers.",
+      "createdAt": "2026-06-15T00:40:30.641Z",
+      "reviewRound": "2026-06-15T00:39:19.494Z",
+      "reviewRunId": "B-d313:RR-002",
+      "_hash": "43c500a2a727664398b4b3655d5a44ed085288bc84f8635d0bcdc1f51c09a7a2"
+    }
+  ]
+}
