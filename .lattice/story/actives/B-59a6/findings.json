@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-59a6:F-001",
+      "desc": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:44,56,169,173,436,619,629 still says manual/saved decision-doc edits trigger or are enforced by the existing decision-doc 3x2 quorum DONE gate. WHY: the implemented and newly documented policy makes direct decision-doc edits classification/diagnostic only; escalation is threshold-triggered via review_escalation_status. This stale operator-facing wording fails the docs acceptance criterion that no decision-doc edit is described as always requiring 3x2.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T10:24:07.237Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-005",
+      "_hash": "6bb11c0d95ce7180d7094db649c52e399a258d3e0365c30eadcc4ac65599195c",
+      "files": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ]
+    }
+  ]
+}
