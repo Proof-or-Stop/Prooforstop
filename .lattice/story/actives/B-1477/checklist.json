@@ -56,12 +56,14 @@
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
-          "command": "rg -n \"true provider-reported usage|approximate prompt-size estimates|unavailable|provider-reported|prompt-size-estimate|usage.source=unavailable\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "command": "rg -n \"ledgerCallId|attemptId|sequence|supersedesRecordIds|provider\\.requestIdHash|double count|\\.lattice/usage/llm-usage\\.jsonl|runtime-artifact-registry|materialHash|volatile|repairableTrackedArtifact|not process evidence|story evidence\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
           "result": "pass",
-          "note": "Document mechanically distinguishes provider-reported true usage, prompt-size estimates, and unavailable usage.",
-          "headHash": "88828480290ed8329632fad12eb009febbfa8511",
-          "materialHash": "34e38be6acd984ec5039c087b1fd994f99ffa39237b570c40f97e85c8dabe2c3",
-          "timestamp": "2026-06-15T14:27:13.761Z"
+          "note": "REVIEW findings F-001/F-002/F-003 addressed: document now defines stable local call/attempt correlation and runtime artifact path/classification semantics for the future usage ledger.",
+          "headHash": "4d8be64967dda4faf275bcb34faa583bc3d104a1",
+          "materialHash": "becc2aa82f8b731b4575a05ff078bbb653ebe3383a1ce0a23840a40b03c87c44",
+          "timestamp": "2026-06-15T14:57:22.727Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
