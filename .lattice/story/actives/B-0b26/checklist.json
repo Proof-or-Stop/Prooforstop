@@ -161,6 +161,17 @@
           "headHash": "b47cc62f3b57c82907183acec7c6484806436bca",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:31:53.985Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/main/package.json && test -f packages/utils/package.json",
+          "result": "pass",
+          "note": "packages/main and packages/utils survive — no over-deletion.",
+          "headHash": "971f0bede1b5448707c258774302087138da7a74",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:54.507Z"
         }
       ]
     },
