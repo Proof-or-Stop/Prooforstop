@@ -225,6 +225,38 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc contains a section (or subsection) about single writer choke-point requiring all provider dispatch to flow through one ledger-writing path -> grep for choke-point or single writer; WHY: ensures completeness by construction",
+            "type": "cli"
+          },
+          {
+            "desc": "doc contains a reconciliation section/paragraph describing periodic check of dispatch events vs ledger records -> grep for reconciliation or reconcil; WHY: catch completeness gaps where dispatch bypasses the writer",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "reconciliation references ledgerCallId+attemptId as the correlation key -> grep reconciliation context for ledgerCallId; WHY: reconciliation without the right key is unimplementable",
+            "type": "cli"
+          },
+          {
+            "desc": "doc addresses the failure mode of a bypassed writer (silent under-count) -> grep for bypass or under-count or silent; WHY: motivates why the choke-point exists",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep Implementation Touchpoints for any new implementation slice that could bypass the choke-point (e.g., a second writer path) -> must not introduce contradictory multi-writer guidance; WHY: adversarial check for internal doc contradiction",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Validation/Smoke Plan for reconciliation or completeness assertion -> must be present; WHY: catch stale Validation that omits completeness testing",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
