@@ -6,6 +6,7 @@
     "packages/main/src/handlers/worktree.ts",
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
     "packages/main/package.json",
     "package.json"
   ],
@@ -17,8 +18,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "CHK-002 adds a command-policy entry for dev_start. The lifecycle-registry-contract gate enforces a mandatory 1:1 companion entry in core/process-fact-levels.ts for every command-policy command; without it the contract (a CI/pre-push gate) fails. Adding process-fact-levels.ts is the mechanically-required completion of CHK-002, not new functionality.",
   "acknowledgements": [],
   "createdAt": "2026-06-15T22:14:19.505Z",
-  "updatedAt": "2026-06-15T22:14:19.505Z"
+  "updatedAt": "2026-06-15T22:36:44.147Z"
 }
