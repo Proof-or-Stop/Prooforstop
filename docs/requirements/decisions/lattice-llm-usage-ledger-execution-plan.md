@@ -312,6 +312,29 @@ Required record constraints:
 - Hashes are for correlation and tamper evidence; they do not make a local
   record authoritative.
 
+## Derived Totals
+
+Totals are not stored on the append-only record. A stored total drifts the moment
+the cache-token fields exist (a writer that only summed `inputTokens +
+outputTokens` would silently undercount cache traffic), so totals are computed in
+the ledger summary layer from the first-class token fields instead.
+
+The summary layer derives total processed volume using the identity:
+
+```text
+total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens
+```
+
+Rules:
+
+- No record may store `totalTokens` (or any equivalent pre-summed field). Totals
+  are summary-derived only.
+- The summary layer applies the identity above per accounting record, then
+  aggregates across the latest non-superseded records per
+  `ledgerCallId` + `attemptId`.
+- Because the total is derived, it always reflects the current set of token
+  fields and cannot fall out of sync with the cache-token accounting.
+
 ## Local Non-authority Boundary
 
 The local ledger belongs to ordinary Lattice workflow. It is a diagnostic and
