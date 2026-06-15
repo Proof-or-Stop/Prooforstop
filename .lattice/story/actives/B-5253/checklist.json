@@ -7,10 +7,45 @@
       "relatedDocs": [
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Agent prompts recommend slim / fields for routine status checks and full output for evidence-sensitive work.",
+      "userSees": "The shared prompt guidance includes: \"For routine status refreshes, prefer compact read-only queries\" and includes full-output fallback commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents",
+          ".claude/agents",
+          ".Codex/agents"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Load-bearing agent prompt templates include compact story_get/checklist_get examples for routine status refreshes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same guidance also states full output must be reloaded before evidence-sensitive conclusions or mutations.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Claude and Codex mirrors match package templates and do not drift from the prompt registry render output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
