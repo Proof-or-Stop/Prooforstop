@@ -11,8 +11,8 @@
         "CLAUDE.md",
         "README.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T15:42:19.618Z",
       "endTime": null,
       "userSees": "The user can open docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md and see the inventory, rename map, boundary, rollout steps, and verification commands for the Koala-to-Lattice role migration.",
       "files": {
@@ -251,6 +251,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T15:42:19.618Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start execution document implementation."
     }
   ]
 }
