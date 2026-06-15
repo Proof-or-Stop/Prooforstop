@@ -191,7 +191,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     process.chdir(root);
     assert.throws(
       () => assertCwdInWorktree(store, storyId),
-      /must execute koala commands inside the worktree/,
+      /must execute lattice commands inside the worktree/,
     );
     process.chdir(worktreePath);
     assert.doesNotThrow(() => assertCwdInWorktree(store, storyId));
@@ -235,7 +235,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
     });
-    assert.match(output, /must execute koala commands inside the worktree/);
+    assert.match(output, /must execute lattice commands inside the worktree/);
     assert.equal(new StoryStore(root).readChecklist(storyId).items.length, 1);
   } finally {
     process.chdir(previousCwd);
@@ -1091,7 +1091,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // Step1 (metadata commit) — the DONE commit landed on the merged branch.
     const mergedLog = git(root, ['log', '--oneline', 'main']);
-    assert.match(mergedLog, new RegExp(`koala: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
+    assert.match(mergedLog, new RegExp(`lattice: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
     assert.match(mergedLog, new RegExp(`merge: ${storyId}`), 'Step3 --no-ff merge commit must be present on main');
 
     // Terminal state: story DONE, worktree + branch gone.

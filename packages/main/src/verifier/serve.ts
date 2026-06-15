@@ -153,7 +153,7 @@ function createValidateRunner(projectRoot: string) {
       const usingConfigured = configuredCommands.length > 0;
       if (commands.length === 0) {
         cache.result = JSON.stringify({
-          provider: 'koala-serve-validator',
+          provider: 'lattice-serve-validator',
           status: 'warn',
           allPass: true,
           summary: 'No project validator configured; skipped project-specific validation',
@@ -172,8 +172,8 @@ function createValidateRunner(projectRoot: string) {
 
       const result = await executeValidationPlan({
         provider: usingConfigured
-          ? 'koala-serve-validator-configured-commands'
-          : 'koala-serve-validator-fallback-commands',
+          ? 'lattice-serve-validator-configured-commands'
+          : 'lattice-serve-validator-fallback-commands',
         commands,
         warnings: [],
       }, projectRoot);

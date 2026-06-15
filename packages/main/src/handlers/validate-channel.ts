@@ -6,11 +6,11 @@
  * - Normal channel: first require each checklist item with non-main-agent Owner to have dispatch or
  *   subagent_result process-event evidence. commit author is only a legacy fallback:
  *   only when process-event is missing and all implementation commits have author == "lattice-implementer"
- *   or are metadata-only koala commits can it pass.
+ *   or are metadata-only lattice commits can it pass.
  *
  * Output structure:
  *   {
- *     provider: "koala-channel",
+ *     provider: "lattice-channel",
  *     status: "pass" | "fail" | "skipped",
  *     summary: string,
  *     details: string[],
@@ -38,7 +38,7 @@ export interface ChannelOffender {
 }
 
 export interface ChannelCheckResult {
-  provider: 'koala-channel';
+  provider: 'lattice-channel';
   status: 'pass' | 'fail' | 'skipped';
   summary: string;
   details: string[];
@@ -168,7 +168,7 @@ export function isStoryMetadataPath(file: string): boolean {
   return isSharedStoryMetadataPath(file);
 }
 
-export function isMetadataOnlyKoalaCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
+export function isMetadataOnlyLatticeCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
   return /^\s*lattice:/.test(c.subject)
     && Array.isArray(c.files)
     && c.files.length > 0
@@ -177,7 +177,7 @@ export function isMetadataOnlyKoalaCommit(c: Pick<ChannelOffender, 'subject' | '
 
 export function isAcceptableCommit(c: ChannelOffender): boolean {
   if (c.author === 'lattice-implementer') return true;
-  if (isMetadataOnlyKoalaCommit(c)) return true;
+  if (isMetadataOnlyLatticeCommit(c)) return true;
   return false;
 }
 
@@ -378,7 +378,7 @@ export function checkCommitAuthor(
   // story existence check
   if (!store.storyExists(storyId)) {
     return {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'fail',
       summary: `story not found: ${storyId}`,
       details: [`${store.storyDirRel()}/${storyId}/index.json does not exist`],
@@ -390,7 +390,7 @@ export function checkCommitAuthor(
     story = store.readStory(storyId);
   } catch (e: any) {
     return {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'fail',
       summary: `failed to read story: ${storyId}`,
       details: [String(e?.message ?? e)],
@@ -402,7 +402,7 @@ export function checkCommitAuthor(
     checklist = store.readChecklist(storyId);
   } catch (e: any) {
     return {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'fail',
       summary: `failed to read checklist: ${storyId}`,
       details: [String(e?.message ?? e)],
@@ -420,7 +420,7 @@ export function checkCommitAuthor(
 
   if (!normal) {
     return {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'skipped',
       summary: 'Non-normal channel does not check normal-channel dispatch/subagent evidence',
       details: [
@@ -437,7 +437,7 @@ export function checkCommitAuthor(
     raw = gitLogReader({ base, branch, projectRoot });
   } catch (e: any) {
     return {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'fail',
       summary: `git log failed for ${base}..${branch}`,
       details: [String(e?.message ?? e)],
@@ -476,7 +476,7 @@ export function checkCommitAuthor(
   // but for back-compat (legacy test "no commits → pass"), skip the evidence check too when commits is 0.
   if (commits.length === 0) {
     return {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'pass',
       summary: `no commits between ${base} and ${branch}`,
       details: [`Normal channel story=${storyId}, but no new commits in ${base}..${branch}`],
@@ -519,12 +519,12 @@ export function checkCommitAuthor(
     const summary = allItemsOwnedByMain && offenders.length > 0
       ? `Normal channel: ${commits.length} commits explicitly exempted by plan.md Owner=main-agent; dispatch/subagent_result evidence coverage complete`
       : authorEvidenceCoversMissing
-        ? `Normal channel: ${commits.length} commits all produced by lattice-implementer or metadata-only koala CLI; commit author as direct-dispatch execution evidence`
+        ? `Normal channel: ${commits.length} commits all produced by lattice-implementer or metadata-only lattice CLI; commit author as direct-dispatch execution evidence`
         : offenders.length > 0
           ? `Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal`
-          : `Normal channel: ${commits.length} commits all produced by lattice-implementer or metadata-only koala CLI; dispatch/subagent_result evidence coverage complete`;
+          : `Normal channel: ${commits.length} commits all produced by lattice-implementer or metadata-only lattice CLI; dispatch/subagent_result evidence coverage complete`;
     return {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'pass',
       summary,
       details: [
@@ -565,7 +565,7 @@ export function checkCommitAuthor(
   }
 
   return {
-    provider: 'koala-channel',
+    provider: 'lattice-channel',
     status: 'fail',
     summary: `Normal channel gate failure: ${summaryParts.join('; ')}`,
     details: failDetails,
@@ -596,7 +596,7 @@ export function runChannelGateCli(
 ): ChannelCliResult {
   if (!storyId || storyId.trim().length === 0) {
     const fail: ChannelCheckResult = {
-      provider: 'koala-channel',
+      provider: 'lattice-channel',
       status: 'fail',
       summary: 'validate --channel requires the --story=B-xxx argument',
       details: ['Missing storyId: please use --story=<id> or --channel=<id>'],

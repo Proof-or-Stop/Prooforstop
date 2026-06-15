@@ -418,7 +418,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
     });
     store.writeChecklist(storyId, { items: [] });
     git(root, ['add', '.lattice/story/actives']);
-    git(root, ['commit', '-m', `koala: story ${storyId} init`]);
+    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
     git(root, ['branch', `story/${storyId}`]);
     const worktreePath = join(root, '.worktrees', storyId);
     git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
@@ -488,7 +488,7 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
     const storyId = 'B-purge';
     writeReviewStory(root, storyId);
     git(root, ['add', '.lattice/story/actives/B-purge']);
-    git(root, ['commit', '-m', `koala: story ${storyId} init`]);
+    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
@@ -514,7 +514,7 @@ function assertDocsDriftAllowsBootstrapAndLegacyCommands(): void {
 }
 
 function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
-  const root = initRepo('koala-channel-main-owner-');
+  const root = initRepo('lattice-channel-main-owner-');
   try {
     const storyId = 'B-channel';
     const store = new StoryStore(root);

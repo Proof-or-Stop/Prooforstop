@@ -1950,7 +1950,7 @@ function assertBugUpdateTestHintUsesDonePrecheck(): void {
   }
 }
 
-function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
+function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-author-'));
   try {
     const { store, storyId } = createReviewStore(root);
@@ -1967,14 +1967,14 @@ function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
       '-c', 'user.name=main-agent',
       '-c', 'user.email=main@example.test',
       'commit',
-      '-m', 'koala: implement real code',
+      '-m', 'lattice: implement real code',
     ]);
 
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'fail');
     assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
     assert.match(result.summary, /cannot be used as author fallback/);
-    assert.match(result.details.join('\n'), /koala: implement real code/);
+    assert.match(result.details.join('\n'), /lattice: implement real code/);
     assert.match(result.details.join('\n'), /normal channel primary evidence must be dispatch\/subagent_result/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -3815,7 +3815,7 @@ assertDevGuidanceUsesReviewPhase();
 assertValidateHintsFollowStoryPhase();
 assertRealCliValidateHintFollowsActiveStoryPhase();
 assertBugUpdateTestHintUsesDonePrecheck();
-assertChannelGateRejectsKoalaSubjectForRealFiles();
+assertChannelGateRejectsLatticeSubjectForRealFiles();
 assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor();
 assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();

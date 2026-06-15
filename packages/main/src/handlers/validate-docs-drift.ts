@@ -1,11 +1,11 @@
 /**
- * validate-docs-drift — pure function: scan koala command references in CLAUDE.md vs registry command name alignment.
+ * validate-docs-drift — pure function: scan lattice command references in CLAUDE.md vs registry command name alignment.
  *
  * Two directions:
  *   - missing: md references `lattice <cmd>` but it's not registered in registry → docs promise a non-existent command
  *   - stale:   registry has it but md never mentions it → advisory (docs lag, non-blocking)
  *
- * Only parses lines starting with koala inside fenced bash code blocks (within ```bash / ```).
+ * Only parses lines starting with lattice inside fenced bash code blocks (within ```bash / ```).
  * allowlist excludes known exceptions (e.g. YAGNI commands).
  *
  * B-805f CHK-001
@@ -23,7 +23,7 @@ export interface DocsDriftResult {
  *
  * Only matches lines inside code blocks fenced with ``` or ```bash.
  */
-export function extractKoalaCommands(mdContent: string): Set<string> {
+export function extractLatticeCommands(mdContent: string): Set<string> {
   const commands = new Set<string>();
   const lines = mdContent.split('\n');
   let inFencedBlock = false;
@@ -48,7 +48,7 @@ export function extractKoalaCommands(mdContent: string): Set<string> {
 
     // Inside fenced block, match lattice <cmd> pattern
     // Support optional $ / # prefix and whitespace at line start
-    const match = trimmed.match(/(?:^[$#]\s+)?koala\s+([a-z][a-z0-9_]*)/);
+    const match = trimmed.match(/(?:^[$#]\s+)?lattice\s+([a-z][a-z0-9_]*)/);
     if (match) {
       commands.add(match[1]);
     }
@@ -58,7 +58,7 @@ export function extractKoalaCommands(mdContent: string): Set<string> {
 }
 
 /**
- * Core pure function: compare koala commands referenced in markdown vs commands actually registered in registry.
+ * Core pure function: compare lattice commands referenced in markdown vs commands actually registered in registry.
  *
  * @param mdContent   - CLAUDE.md text content (can be multiple md files concatenated)
  * @param registryNames - set of command names returned by registry.list()
@@ -69,7 +69,7 @@ export function checkDocsDrift(
   registryNames: Set<string>,
   allowlist: Set<string> = new Set(),
 ): DocsDriftResult {
-  const mdCommands = extractKoalaCommands(mdContent);
+  const mdCommands = extractLatticeCommands(mdContent);
 
   // Internal commands (starting with _) are not included in stale check
   const INTERNAL_PREFIX = '_';
@@ -106,7 +106,7 @@ export function checkDocsDrift(
 // ── Gate result type (for preflight integration) ──
 
 export interface DocsDriftGateResult {
-  provider: 'koala-docs-drift';
+  provider: 'lattice-docs-drift';
   status: 'pass' | 'fail' | 'skipped';
   summary: string;
   missing: string[];
@@ -137,7 +137,7 @@ export function runDocsDriftGate(
 ): DocsDriftGateResult {
   if (mdContents.length === 0) {
     return {
-      provider: 'koala-docs-drift',
+      provider: 'lattice-docs-drift',
       status: 'skipped',
       summary: 'CLAUDE.md file not found',
       missing: [],
@@ -150,7 +150,7 @@ export function runDocsDriftGate(
 
   if (result.missing.length > 0) {
     return {
-      provider: 'koala-docs-drift',
+      provider: 'lattice-docs-drift',
       status: 'fail',
       summary: `CLAUDE.md references ${result.missing.length} unregistered commands: ${result.missing.join(', ')}`,
       missing: result.missing,
@@ -162,7 +162,7 @@ export function runDocsDriftGate(
     ? ` (${result.stale.length} stale advisory)`
     : '';
   return {
-    provider: 'koala-docs-drift',
+    provider: 'lattice-docs-drift',
     status: 'pass',
     summary: `CLAUDE.md command references aligned with registry${staleNote}`,
     missing: [],

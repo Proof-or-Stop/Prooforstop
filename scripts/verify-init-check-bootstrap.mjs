@@ -269,8 +269,8 @@ function verifyMainBranchNotPolluted() {
       'main may only advance by the INIT_CHECK metadata mirror commit, never the bootstrap',
     );
     assert(storyBranchHead !== mainHeadBefore, 'story branch should receive a dedicated bootstrap commit');
-    assert(!mainLog.includes(`koala: story ${storyId} init`), 'main should not receive bootstrap init commit');
-    assert(branchLog.includes(`koala: story ${storyId} init`), 'story branch should keep the bootstrap init commit');
+    assert(!mainLog.includes(`lattice: story ${storyId} init`), 'main should not receive bootstrap init commit');
+    assert(branchLog.includes(`lattice: story ${storyId} init`), 'story branch should keep the bootstrap init commit');
     assert(existsSync(join(worktreePath, 'docs', 'story', 'actives', storyId, 'index.json')), 'story file should exist inside worktree');
   } finally {
     rmSync(temp, { recursive: true, force: true });

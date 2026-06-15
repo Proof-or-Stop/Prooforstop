@@ -3257,7 +3257,7 @@ function commitFromDraftMetadataOnMain(root: string, store: StoryStore, storyId:
     );
   }
 
-  const commitMessage = `koala: from-draft metadata ${storyId}`;
+  const commitMessage = `lattice: from-draft metadata ${storyId}`;
   gitCli(root, [
     '-c', 'commit.gpgsign=false',
     'commit',
@@ -3386,7 +3386,7 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
     );
   }
 
-  const commitMessage = `koala: INIT_CHECK metadata ${storyId}`;
+  const commitMessage = `lattice: INIT_CHECK metadata ${storyId}`;
   gitCli(gitMainRoot, [
     '-c', 'commit.gpgsign=false',
     'commit',

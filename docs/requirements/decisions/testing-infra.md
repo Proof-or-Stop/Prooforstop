@@ -38,7 +38,7 @@ User-value acceptance can only be approximated, not disguised as a fully automat
 1. When the project root has `validate.ts` / `validate.js` / `validate.mts`, execute via the original D/M/F verifier path.
 2. Otherwise, read the **project config**: canonical `lattice.config.json` is the only active config file. Legacy `koala.config.json` is ignored by the active loader, so its `validate.command` or `validate.commands` are not executed.
 3. Otherwise, auto-discover the standard command by project type: `npm test`, `python -m pytest`, `go test ./...`, `cargo test`, `mvn test`, `gradle test`.
-   - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `lattice.config.json` (or the legacy `koala.config.json`).
+   - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `lattice.config.json`.
 4. When no validation entry is still found, return `warn/skip`, and do not misjudge a non-TS project such as Python/Go/C++ as a failure; a project that needs a hard gate must explicitly configure a validation command.
 
 The success prompt of `lattice validate` must use the current story phase and the gate oracle, rather than hardcoding DONE:
@@ -93,12 +93,12 @@ Configuration example:
 ```
 
 The JSON receipt of `validate.command` / `validate.commands` is audit evidence: each command should record
-`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Koala will execute it
+`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Lattice will execute it
 as a deliberate shell receipt; a structured command object does not go through the shell by default, unless `"shell": true` is written explicitly. When a required command fails, `lattice validate` hard-fails; when an `optional:true`
 command fails, it only returns a warn.
 
 The Validation scan of `lattice doctor` is a project-level advisory and does not replace `lattice validate`:
-it states whether `validate.ts/js/mts` exists, whether the project config (`lattice.config.json` takes priority, the legacy `koala.config.json` is still readable) has a validation command configured,
+it states whether `validate.ts/js/mts` exists, whether canonical `lattice.config.json` has a validation command configured,
 the labels of the auto-discovered fallback commands, whether it is in a no-validator warning, and whether the shell-style config
 will leave a `shell=true` receipt. It must not write a project-specific test count or an assumption such as PVSC here;
 when a hard gate is needed, an explicit validate command should be configured. Swift / Package.swift is not in the auto-fallback (the Mac Native App is retired), and the doctor output will explicitly note that an explicit `validate.commands` is needed before `swift test` will run.
@@ -107,7 +107,7 @@ The `Runtime scan:` of `lattice doctor` is another kind of advisory / warn outpu
 does not write validation evidence, and does not enter the `process-fact-registry`. The runtime facts are declared by
 `packages/main/src/core/runtime-fact-registry.ts`, and `scripts/verify-runtime-fact-contract.mjs` validates the registry ID, output key, checker wiring,
 the doctor JSON `runtime` section, and text source coverage. `external-reference-policy` only does a bounded
-truth/config scan: `koala.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`,
+truth/config scan: `lattice.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`,
 `docs/requirements/**/*.md`; it excludes `.koala/story`, `docs/story`, `tests/fixtures`,
 `node_modules`, `dist/build`, and ordinary source-code comments. When it scans an external URL / host:port with no health-command
 semantics, it can only output a reference-only / health-check-required warning, and cannot claim a connectivity pass. The bounded scan recognizes `lattice.config.json` as the canonical project-config marker.

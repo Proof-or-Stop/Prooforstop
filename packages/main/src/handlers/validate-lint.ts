@@ -12,7 +12,7 @@
  *
  * Output structure:
  *   {
- *     provider: "koala-lint",
+ *     provider: "lattice-lint",
  *     status: "pass" | "fail" | "skipped",
  *     summary: string,
  *     details: string[],
@@ -79,7 +79,7 @@ interface LintChecks {
 }
 
 export interface LintResult {
-  provider: 'koala-lint';
+  provider: 'lattice-lint';
   status: LintSubStatus;
   summary: string;
   details: string[];
@@ -583,7 +583,7 @@ export function checkLint(deps: CheckLintDeps): LintResult {
   }
 
   return {
-    provider: 'koala-lint',
+    provider: 'lattice-lint',
     status,
     summary,
     details,

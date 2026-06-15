@@ -32,8 +32,6 @@ const NEUTRAL_TOKEN_PATTERNS: RegExp[] = [
   /\bKOALA_[A-Z0-9_]+\b/g,
   // koala-codex / lattice-review-* / lattice-implementer / etc. are process lanes.
   /\bkoala-(?:codex|review[a-z-]*|implementer|reviewer|eval[a-z-]*|delivery|init|agent|story[a-z-]*)\b/gi,
-  // Git commit message process tokens.
-  /\bkoala: (?:from-draft|INIT_CHECK|record)\b/gi,
   // Legacy internal constants and type names.
   /\bLEGACY_KOALA[A-Z0-9_]*\b/g,
   /\bKoalaConfig\b/g,

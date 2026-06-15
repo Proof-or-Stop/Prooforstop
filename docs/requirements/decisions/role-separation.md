@@ -191,7 +191,7 @@ Wave 3: (conditional on S-12 outcome) S-13
 Create `.claude/agents/lattice-implementer.md`, defining a CC sub-agent dedicated to the "implementation" role. This agent is invoked by the main agent via `Agent(subagent_type: "lattice-implementer", ...)`, and is responsible for the concrete coding work of the DEV and TEST_CASE phases.
 
 Key design:
-- Tightened permissions: only a subset of Read / Edit / Write / Glob / Grep / Bash. Bash allowlist: `koala:*`, `node:*`, `npm:*`, `pnpm:*`, `git:(status|diff|log|add|commit)`. Blocklist: `rm`, `git reset --hard`, `git push`, `curl | sh`
+- Tightened permissions: only a subset of Read / Edit / Write / Glob / Grep / Bash. Bash allowlist: `lattice:*`, `node:*`, `npm:*`, `pnpm:*`, `git:(status|diff|log|add|commit)`. Blocklist: `rm`, `git reset --hard`, `git push`, `curl | sh`
 - `permissionMode: acceptEdits` (no confirmation prompt)
 - `isolation: worktree` (automatically reuses koala's worktree-per-story)
 - The system prompt's mental mode is locked to "get it done", explicitly blocking it from advancing the phase / writing bug.json / modifying checklist metadata
@@ -201,8 +201,8 @@ The agent's input prompt is constructed by the main agent and must contain:
 1. The current story id + phase
 2. The list of checklist items with status != done (including title + context)
 3. A short index of files already read (to avoid the sub-agent re-Reading)
-4. The koala commands it is allowed to call (`checklist_update`, `update_task_state`, `fixture_batch_add`)
-5. The list of koala commands it is blocked from calling
+4. The Lattice commands it is allowed to call (`checklist_update`, `update_task_state`, `fixture_batch_add`)
+5. The list of Lattice commands it is blocked from calling
 
 **Checklist**
 
