@@ -111,6 +111,24 @@
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/cc-learnings.md"
       ]
+    },
+    {
+      "id": "B-ffa2:F-007",
+      "desc": "Active test/config surfaces still depend on koala.config.json: test:gap-coverage-smoke locates only koala.config.json and fails in a lattice.config.json-only repo, and test-flow-e2e still documents/creates koala.config.json as normal sandbox config. These are active tests, not legacy docs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-15T17:03:36.921Z",
+      "reviewRound": "2026-06-15T16:57:36.607Z",
+      "reviewRunId": "B-ffa2:RR-009",
+      "_hash": "7fed0e9c93eb134de6b2d084861a812a07d5d38465e6a5049e050054fcac8b65",
+      "files": [
+        "packages/main/src/tasks/gap-coverage-smoke.ts",
+        "packages/main/src/tasks/test-flow-e2e.ts",
+        "packages/main/package.json"
+      ]
     }
   ]
 }
