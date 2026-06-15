@@ -39,7 +39,30 @@
       "userSees": "lattice validate GREEN with the new test asserting the no-story gitCwd resolves to the gitRoot on a wrapper-root fixture.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test: wrapper-root fixture no-story gitCwd resolves to the gitRoot",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test: plain repo no-story gitCwd resolves to projectRoot",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "test: null gitRootAbs falls back to projectRoot",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
