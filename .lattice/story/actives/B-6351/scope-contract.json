@@ -93,8 +93,16 @@
         "remove_koala_runtime_alias",
         "absence_assertions"
       ]
+    },
+    {
+      "actor": "implementer-worker",
+      "reason": "Review findings F-001 and F-003 require updating active generated agent prompt templates so new assets regenerate lattice command guidance instead of executable koala commands.",
+      "timestamp": "2026-06-15T03:06:43.746Z",
+      "paths": [
+        "packages/main/templates/agents"
+      ]
     }
   ],
   "createdAt": "2026-06-15T02:13:25.562Z",
-  "updatedAt": "2026-06-15T02:51:47.969Z"
+  "updatedAt": "2026-06-15T03:06:43.746Z"
 }
