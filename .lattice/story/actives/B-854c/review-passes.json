@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-15T22:31:56.255Z",
       "reviewRunId": "B-854c:RR-003",
       "_hash": "548fec00eac752f949be5aa7f86fd6dc7a1fd3bdfaf8caa8b5069baec2759890"
+    },
+    {
+      "id": "B-854c:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review complete. Story is purely additive (1995 insertions, 14 deletions — all deletions are story metadata JSON). The single symbol visibility change in commit 1166a47: `export interface StoryMetadataProtectionScan` → `interface StoryMetadataProtectionScan` (doctor.ts:743). Grep across entire repo (all .ts/.md/.json, excluding node_modules/dist/.git/@deprecated) confirms zero external consumers of that interface — it appears only within doctor.ts itself (definition at line 743, parameter types at lines 797 and 932). No other concept deletions or replacements found. The two managed-assets.ts promotions (mergeRuntimeGitignore, runtimeIgnoreMissing) went from file-private to exported, with all consumers properly importing from the export site. New story-metadata-protection.ts exports (StoryMetadataProbe, StoryMetadataProtectionResult, MetadataProbeRunner, evaluateStoryMetadataProtection, renderStoryMetadataProtectionWarning) are consistently imported in worktree.ts, doctor.ts, and the smoke test — no orphaned references. All new doctor.ts internal helpers are self-contained. Concept residue check complete: no blocker.",
+      "createdAt": "2026-06-15T22:41:49.145Z",
+      "reviewRound": "2026-06-15T22:40:12.696Z",
+      "reviewRunId": "B-854c:RR-005",
+      "_hash": "b832e762edc7a953c09c5719713481a79a8ed962d38f9272617afbad966fed85"
     }
   ]
 }
