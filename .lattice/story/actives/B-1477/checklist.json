@@ -11,8 +11,8 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T14:23:43.715Z",
       "endTime": null,
       "userSees": "User sees \"Created docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md\" and the final response says \"Execution document created for Lattice LLM usage ledger; no CLI code or Authority proof was claimed.\"",
       "files": {
@@ -42,6 +42,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T14:23:43.715Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV work for the LLM usage ledger execution document."
     }
   ]
 }
