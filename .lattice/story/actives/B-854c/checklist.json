@@ -71,7 +71,30 @@
       "userSees": "`lattice doctor` reports a clear warning (and offers a repair) when story metadata is untracked-and-unignored, instead of the silent data-loss trap; a freshly-initialized project has metadata protected by default.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice doctor on a broad-ignore-untracked project prints a clear warning that story metadata is neither git-tracked nor protected, with a repair pointer; --json marks the invariant unsafe",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice doctor --repair writes the managed ignore-volatile/track-metadata allowlist (idempotent BLOCK markers) so a re-scan reports the invariant safe; second --repair run is a no-op",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "On a safe project (tracked metadata OR negation allowlist like Orchestrate) doctor reports the invariant OK and does NOT false-positive the data-loss warning",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
