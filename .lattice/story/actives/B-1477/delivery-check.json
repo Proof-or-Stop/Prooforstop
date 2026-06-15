@@ -1,0 +1,57 @@
+{
+  "storyId": "B-1477",
+  "checkedAt": "2026-06-15T15:22:38.530Z",
+  "reviewRound": "2026-06-15T14:57:46.136Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "promise": "Document-only execution plan scope is preserved; the story does not claim source-code, provider, runtime-registry, Authority Server, or gate implementation.",
+      "status": "verified",
+      "verifiedBy": "manual document review",
+      "evidence": "Reviewed the plan header and Non-Goals: scope is future execution plan only, with no source code or Authority receipt contract change claimed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "promise": "Usage semantics distinguish provider-reported usage, prompt-size estimates, and unavailable usage without treating estimates as billing truth, final usage, or Authority evidence.",
+      "status": "verified",
+      "verifiedBy": "manual review plus rg",
+      "evidence": "Usage Source Semantics and Required record constraints define usage.source values provider-reported, prompt-size-estimate, and unavailable; estimates require estimator metadata and may not satisfy final usage or Authority."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "promise": "Local Non-authority ledger records remain diagnostic and separate from receipt-backed Authority Server proof.",
+      "status": "verified",
+      "verifiedBy": "manual document review plus escalation status",
+      "evidence": "Local Non-authority Boundary keeps local receiptVerified=false and forbids Authority completion flags; Authority path requires signed receipt verification and subject binding. review_escalation_status reports authorityDone=false, fullAuthorityDone=false, productionDone=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "promise": "Plan includes runtime artifact path, stable call and attempt correlation, supersession rules, fail-closed budget behavior, privacy constraints, validation coverage, and narrow rollout without arbitrary optimization.",
+      "status": "verified",
+      "verifiedBy": "manual review plus rg",
+      "evidence": "Reviewed Ledger Path, Call and Attempt Correlation, Fail-Closed Budget Behavior, Privacy Constraints, Validation / Smoke Plan, Rollout Phases, and Acceptance Criteria. rg for TODO/FIXME/TBD and local Authority overclaim patterns returned no matches."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reran lattice validate --story=B-1477 in TEST. Result PASS: npm test -> npm run test:e2e -> node packages/main/dist/tasks/cli-e2e.js; story-lifecycle 5 steps PASS; gap-convergence 4 steps PASS; verification intent coverage 3/3 covered for happy, edge, and adversarial docs checks."
+    },
+    {
+      "featureId": "B-1477-review-escalation",
+      "transcript": "Ran lattice review_escalation_status --storyId=B-1477 --json. Result ok=true, assuranceLevel=full-3x2, requiredRounds=3, requiredPassingHostsPerRound=2. Rounds r1, r2, r3 each have passingHostIds claude-cli and codex-cli; invalidRounds=[], ignoredVerdicts=[]. First-round trigger had 3 countable problems against required 2."
+    },
+    {
+      "featureId": "B-1477-git-state",
+      "transcript": "Ran git status --short --branch before delivery check. Output only ## story/B-1477, confirming no uncommitted author changes before writing the delivery-check artifact."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independent delivery review accepted: document promises match the delivered execution plan, validation is green, 3x2 escalation quorum is satisfied, git was clean before signoff, and no local Authority overclaim or unresolved marker was found."
+  },
+  "_hash": "fac7dc44c83e1447fbfef524ae985b1c192e1231a0076ff08ff4095ea956f097"
+}

@@ -11,9 +11,91 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T14:23:43.715Z",
+      "endTime": "2026-06-15T14:27:17.471Z",
+      "userSees": "User sees \"Created docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md\" and the final response says \"Execution document created for Lattice LLM usage ledger; no CLI code or Authority proof was claimed.\"",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution document exists at docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and contains the agreed implementation plan for a per-story LLM usage ledger.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document explicitly distinguishes provider-reported true usage, approximate prompt-size estimates, and unavailable provider usage so estimates cannot be mistaken for billing evidence.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim Authority Server receipt-backed completion, productionDone, receiptVerified, authorityDone, or fullAuthorityDone from local ledger records alone.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Problem Statement|## Goals|## Non-Goals|Usage Source Semantics|JSONL Ledger Record Shape|Local Non-authority Boundary|Authority Server Receipt-Backed Path|Implementation Touchpoints|Fail-Closed Budget Behavior|Privacy Constraints|Validation / Smoke Plan|Rollout Phases|Acceptance Criteria\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "result": "pass",
+          "note": "Document exists and contains the expected execution-plan sections for the LLM usage ledger.",
+          "headHash": "199915a2ce089a3c12961c9975e4c3ac5b61e855",
+          "materialHash": "0273136f3f706653788396f5ee7da9f7d8c121efbe5d149d8edf6140c989c95d",
+          "timestamp": "2026-06-15T15:44:20.833Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "command": "rg -n \"provider-reported|prompt-size-estimate|unavailable|not billing truth|not billing|not final usage|May satisfy Authority|A local estimate is not Authority proof|Local prompt-size estimates must never become\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "result": "pass",
+          "note": "Direct edge evidence for CHK-001:edge:0: the document distinguishes provider-reported true usage, prompt-size-estimate records, and unavailable usage, and explicitly states estimates are not billing truth, not final usage, and not Authority proof.",
+          "headHash": "199915a2ce089a3c12961c9975e4c3ac5b61e855",
+          "materialHash": "0273136f3f706653788396f5ee7da9f7d8c121efbe5d149d8edf6140c989c95d",
+          "timestamp": "2026-06-15T15:44:20.833Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "if rg -n '\"receiptVerified\": true|\"productionDone\": true|\"authorityChanged\": true|receiptVerified=true|productionDone=true|authorityChanged=true|fullAuthorityDone=true|authorityDone=true' docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md; then exit 1; else echo PASS; fi",
+          "result": "pass",
+          "note": "Negative control passed: document does not claim local ledger records set Authority completion or receipt verification true.",
+          "headHash": "199915a2ce089a3c12961c9975e4c3ac5b61e855",
+          "materialHash": "0273136f3f706653788396f5ee7da9f7d8c121efbe5d149d8edf6140c989c95d",
+          "timestamp": "2026-06-15T15:44:20.834Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T14:23:43.715Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV work for the LLM usage ledger execution document."
+    },
+    {
+      "timestamp": "2026-06-15T14:27:17.471Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Execution plan document committed and docs verification evidence recorded."
     }
   ]
 }
