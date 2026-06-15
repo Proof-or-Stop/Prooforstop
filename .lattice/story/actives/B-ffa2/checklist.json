@@ -11,9 +11,9 @@
         "CLAUDE.md",
         "README.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T15:42:19.618Z",
-      "endTime": null,
+      "endTime": "2026-06-15T15:45:44.433Z",
       "userSees": "The user can open docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md and see the inventory, rename map, boundary, rollout steps, and verification commands for the Koala-to-Lattice role migration.",
       "files": {
         "modify": [],
@@ -51,9 +51,9 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "CLAUDE.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T15:42:26.628Z",
-      "endTime": null,
+      "endTime": "2026-06-15T15:48:55.414Z",
       "userSees": "Terminal search prints no active Koala agent filenames: `find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg koala-` exits with no matches.",
       "files": {
         "modify": [
@@ -99,7 +99,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg koala-",
+          "result": "pass",
+          "note": "Command exited 1 with no output, so active agent filenames no longer use koala-* in the template or mirrored host asset directories.",
+          "headHash": "5d37802f4a5a1f823fb041b8f281c847eb83ed87",
+          "materialHash": "24240d2f6940c224629ec08dcf6346883f5a914c7aaffc986cc717ac33fb1ee2",
+          "timestamp": "2026-06-15T15:48:55.555Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg \"/(product-reviewer|implementation-reviewer|test-intent|test-case-reviewer)\\.md$\"",
+          "result": "pass",
+          "note": "All 12 unrelated agent asset filenames remain present across packages/main/templates/agents, .claude/agents, and .Codex/agents.",
+          "headHash": "5d37802f4a5a1f823fb041b8f281c847eb83ed87",
+          "materialHash": "24240d2f6940c224629ec08dcf6346883f5a914c7aaffc986cc717ac33fb1ee2",
+          "timestamp": "2026-06-15T15:48:55.622Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg \"\\bkoala-(implementer|review|evaluator)\" packages/main/templates/agents .claude/agents .Codex/agents",
+          "result": "pass",
+          "note": "Command exited 1 with no output, so active koala implementer/review/evaluator role IDs are absent from active agent prompt directories.",
+          "headHash": "5d37802f4a5a1f823fb041b8f281c847eb83ed87",
+          "materialHash": "24240d2f6940c224629ec08dcf6346883f5a914c7aaffc986cc717ac33fb1ee2",
+          "timestamp": "2026-06-15T15:48:55.707Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
