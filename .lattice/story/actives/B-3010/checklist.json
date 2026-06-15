@@ -102,7 +102,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Stale project-local .claude/agents or .Codex/agents files are reported as stale/override, with no automatic repair or deletion performed.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Project-local prompt files matching runtime registry renderings are classified as matches-runtime.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing prompt asset directories are classified as absent and accepted for runtime-owned default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A changed/stale prompt file is detected as stale or override and remains on disk after the diagnostic smoke completes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
