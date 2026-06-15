@@ -46,6 +46,7 @@
     "test:flow-stability-smoke": "npm --prefix packages/main run test:flow-stability-smoke",
     "test:field-regression-cli-smoke": "npm --prefix packages/main run test:field-regression-cli-smoke",
     "test:auxiliary-worktree-cleanup-smoke": "npm --prefix packages/main run test:auxiliary-worktree-cleanup-smoke",
+    "test:validate-lint-change-scope-smoke": "npm --prefix packages/main run test:validate-lint-change-scope-smoke",
     "test:lab-foundation": "node scripts/verify-lab-foundation.mjs",
     "test:lab-scoring-core": "node scripts/verify-lab-scoring-core.mjs",
     "test:lab-reviewer-mvp": "node scripts/verify-lab-reviewer-mvp.mjs",

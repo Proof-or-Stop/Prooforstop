@@ -38,7 +38,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
-import { runLintGateCli } from './validate-lint.js';
+import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
@@ -613,7 +613,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         if (args.lint) {
           tasks.push(async () => {
-            const r = runLintGateCli({ projectRoot });
+            // B-a749: when run as a story-scoped gate (--lint --story=B-xxx),
+            // resolve the change-scope (changed files vs main) so out-of-scope
+            // packages whose deps are absent are skipped-with-warning instead of
+            // hard-failing on missing deps. Plain `--lint` (no story) passes no
+            // scope → full recursive tsc (unchanged). On resolution failure the
+            // resolver returns undefined → full recursive tsc (never skip-all).
+            const changedFiles = args.story
+              ? resolveChangedFiles({ projectRoot })
+              : undefined;
+            const r = runLintGateCli({ projectRoot, changedFiles });
             return { name: 'lint', ok: r.ok, rendered: r.rendered, result: r.result };
           });
         }
