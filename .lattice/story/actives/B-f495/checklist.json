@@ -67,6 +67,7 @@
         ],
         "create": [],
         "test": [
+          "docs/requirements/decisions/story-lifecycle.md",
           "packages/main/src/tasks/prompt-token-cost-smoke.ts"
         ]
       },
@@ -92,7 +93,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "User sees B-f495 audit evidence confirming the plan preserves full-output fallback, local-only evidence boundaries, and no Authority or billing overclaim."
     },
     {
       "id": "CHK-003",
