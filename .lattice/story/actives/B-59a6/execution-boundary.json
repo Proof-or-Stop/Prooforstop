@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-59a6",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git merge*",
+    "git status*",
+    "lattice autopilot_review_submit*",
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice convergence_check",
+    "lattice decision_*",
+    "lattice decision_doc_quorum_check*",
+    "lattice delivery_*",
+    "lattice finding_*",
+    "lattice plan_*",
+    "lattice review_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice summary_*",
+    "lattice understanding_*",
+    "lattice validate*",
+    "lattice verification_*",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm test",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-59a6",
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "packages/main/tsconfig.json",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git push*",
+    "git reset --hard*",
+    "omx*",
+    "rm -rf .omx*"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Runtime implementation and verification only; no OMX, no remote push, no fixture direct edits.",
+  "createdAt": "2026-06-15T03:05:53.530Z",
+  "updatedAt": "2026-06-15T03:05:53.530Z",
+  "_hash": "2b42b8cb27a0933eee863497421c760a4f195f4598af098f79c0ecda9fc96afd"
+}

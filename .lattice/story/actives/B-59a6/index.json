@@ -1,0 +1,45 @@
+{
+  "storyId": "B-59a6",
+  "name": "implement-documentation-audit-auto-escalation-runtime",
+  "title": "Implement documentation audit automatic 3x2/3x1 runtime gate",
+  "description": "Implement the runtime behavior described by the 3x2 review escalation execution plan: documentation and decision-doc audit changes should follow the ordinary REVIEW default, escalate to full 3x2 only when the first REVIEW round records at least two countable problems, and preserve explicit degraded 3x1 lower-assurance fallback semantics. Remove the direct decision-doc file-change always-on 3x2 trigger from the target DONE policy while keeping diagnostics honest.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "createdAt": "2026-06-15T03:02:07.367Z",
+  "startedAt": "2026-06-15T03:02:07.367Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T03:02:07.368Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:06:10.365Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-59a6",
+    "branch": "story/B-59a6",
+    "createdAt": "2026-06-15T03:06:10.496Z"
+  }
+}
