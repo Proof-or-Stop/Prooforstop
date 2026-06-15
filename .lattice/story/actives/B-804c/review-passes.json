@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-15T22:40:11.984Z",
       "reviewRunId": "B-804c:RR-001",
       "_hash": "ebcc5a6b36a104a2d4b192831b98ebfa39c379722cc4af9a0bf947038621666c"
+    },
+    {
+      "id": "B-804c:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "All CHK-001/002/003 userSees match actual code behavior. CHK-001: failed bootstrap (dev_start throws) re-throws instead of returning exit-0 string, story stays at INIT, confirmed by smoke assertFailedBootstrapLeavesPhaseAtInit. CHK-001 adversarial (B-5246 retry): when phase is already INIT_CHECK, story_advance is never called and phase cannot double-advance — assertDevStartRecoversStuckInitCheckStory confirms no INIT_CHECK->INIT_CHECK error. Commit order is correct: dev_start -> story_advance -> commitInitCheckMetadataAndMergeMain (line 4118->4138->4149). Scope-anti-expansion freeze gate fires for INIT phase in worktree.ts handler: condition is now (INIT_CHECK || INIT) && !story.worktree. dev_start refused in REVIEW/TEST/DONE via allowedPhases gate in both handler and command-policy.ts. The phaseDetectionFailed fallback path (story_get throws) can leave a worktree on disk if dev_start succeeds but story_advance then fails — this is explicitly documented in the code comment as preserving historical behavior, and the state is recoverable (dev_start is idempotent, retry succeeds after fixing the gate cause). No unrecoverable partial-advance paths found.",
+      "createdAt": "2026-06-15T22:44:22.389Z",
+      "reviewRound": "2026-06-15T22:40:11.984Z",
+      "reviewRunId": "B-804c:RR-004",
+      "_hash": "40e3d59d923c92e0084cf1f4bf8778c5bf2422ea391daf7d1fa0b21e64da995a"
     }
   ]
 }
