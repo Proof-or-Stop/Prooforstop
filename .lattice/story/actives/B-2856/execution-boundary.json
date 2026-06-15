@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2856",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "node *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm run *",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-2856",
+    "packages/main/src"
+  ],
+  "excludedCommands": [
+    "git push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "cwd-only git re-routing bug fix; no command text/gate/bootstrap changes. Reuse existing resolver.",
+  "createdAt": "2026-06-15T21:34:53.720Z",
+  "updatedAt": "2026-06-15T21:34:53.720Z",
+  "_hash": "5a1b0d5fa6c70a77100f49b1989508e4b3a4ff893a9e40869938590c6172b0e4"
+}

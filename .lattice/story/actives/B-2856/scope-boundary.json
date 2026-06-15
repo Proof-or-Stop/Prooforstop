@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2856",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a null/unresolved-gitRoot fallback to the current projectRoot so non-wrapper-root repos stay byte-identical",
+    "Add wrapper-root vs plain-repo regression tests for the rerouted git operations",
+    "Re-route the ~14 git child-process sites (validate-channel, validate-concept, cluster-sync, worktree story_discard/merge/helpers) to use resolveStorySignedWorkspace() authoritativeCwd instead of metadataRoot/projectRoot"
+  ],
+  "excluded": [
+    "Adding a new resolver (reuse the existing resolveStorySignedWorkspace)",
+    "Any change to git command text, gate semantics, or bootstrap",
+    "Bugs 2/3/4 from the ClawCreek report (atomic bootstrap; .lattice track/ignore data-loss; lint change-scope) — separate stories"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directed driving B-2856 via the Lattice flow on 2026-06-15. Scope = Bug 1 (git cwd/gitRoot resolution) only; Bugs 2/3/4 from the ClawCreek report are separate stories.",
+  "createdAt": "2026-06-15T21:34:53.365Z",
+  "updatedAt": "2026-06-15T21:34:53.365Z",
+  "_hash": "a4679efecb30726ed35a61321027b940f35cb8279a67e857f8becf2dbe5d3482"
+}

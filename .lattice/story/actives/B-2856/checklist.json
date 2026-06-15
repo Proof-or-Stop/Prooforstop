@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Route validate-channel git operations through the resolved gitRoot",
+      "context": "validate-channel.ts:75-98 defaultGitLogReader and defaultGitChangedFilesReader run git rev-parse/merge-base/log/show with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd via resolveStorySignedWorkspace() before checkCommitAuthor and pass it instead of projectRoot. Keep command text and pass/fail/skipped semantics unchanged.",
+      "userSees": "With gitRoot configured to a subdirectory, `lattice validate --channel --story=B-xxx` runs the channel gate from the gitRoot and returns its normal pass/fail/skipped result instead of failing with 'fatal: not a git repository'.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Route validate-concept git diff and grep scan through the resolved gitRoot",
+      "context": "validate-concept.ts:78-91 defaultGitDiffReader (git diff base...HEAD) and defaultGrepReader (grep -rnF .) run with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd and pass it so both the diff and the repo-wide grep run from the gitRoot. Keep IGNORED_DIRS / residual threshold logic unchanged.",
+      "userSees": "With gitRoot configured to a subdirectory, `lattice validate --concept` computes deleted symbols and residual references against the gitRoot and reports residuals normally instead of failing with 'fatal: not a git repository'.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Route cluster-sync commit scan through the resolved gitRoot",
+      "context": "cluster-sync.ts:137-150 readCommitsSinceMain(projectRoot) runs git log main..HEAD with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd and pass it instead so Resolves: CL-xxx commit scanning works under wrapper-root. Preserve the existing error-surfaced-as-warning behavior (F-023 path).",
+      "userSees": "With gitRoot configured to a subdirectory, `lattice validate` auto-resolves Resolves: CL-xxx clusters from main..HEAD commits (or prints the git error as a warning) instead of silently finding no commits because git ran from the wrong root.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Route worktree story_discard and story_advance merge git invocations through the resolved gitRoot",
+      "context": "worktree.ts git()/gitFile() default cwd to root (metadataRoot); story_discard (:1049 status --porcelain, :1164 branch -D), story_advance merge (:958 rev-parse --abbrev-ref HEAD, :969 merge --no-ff), worktreeRemoveWithRetry (:258-259) and branchExists (:373-376) inherit it. Resolve authoritativeCwd and pass the resolved root explicitly to these git calls. Keep merge/discard control flow and Windows remove-retry unchanged. NOTE: worktree.ts:316 git add is NOT in scope (it already uses repoRoot; its missing -f flag is Bug 3).",
+      "userSees": "With gitRoot configured to a subdirectory, `lattice story_discard` and `lattice story_advance --phase=DONE` (merge + branch cleanup) run git from the gitRoot and complete normally instead of aborting with 'fatal: not a git repository'.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Define and test the unresolved-gitRoot fallback for the rerouted git operations",
+      "context": "resolveStorySignedWorkspace() can return resolved=false with authoritativeCwd=null (metadataRoot not git-backed, no worktree/gitRoot configured). Each rerouted site must fall back to the current projectRoot/root so non-wrapper-root repos stay byte-identical. Add tests via the readers' existing dependency-injection seams (do not spawn real git where injection exists): a wrapper-root fixture (metadataRoot != gitRoot) proving each site runs from gitRoot, and a plain-repo fixture proving unchanged behavior.",
+      "userSees": "`lattice validate --story=B-xxx --json` on a plain (non-wrapper-root) repo produces the same channel/concept/cluster results as before this change, and the new wrapper-root test fixture passes, proving git ran from the gitRoot.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
