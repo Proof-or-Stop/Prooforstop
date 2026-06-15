@@ -5,9 +5,9 @@
       "title": "Add an optional change-scope filter to validate --lint",
       "context": "validate-lint.ts findTsconfigs/runTsc currently tsc every tsconfig with no change-scope. Add an optional changedFiles/change-scope input so that, when available (e.g. validate --lint --story=B-xxx), only tsconfigs whose package contains a changed file (vs main) are hard-required; resolve the changed-file set via the existing signed-workspace/git resolution. Preserve full recursive tsc when no change-scope is provided.",
       "userSees": "`lattice validate --lint --story=B-xxx` for a backend-only change runs tsc on the backend package and reports the frontend tsconfig as skipped (out of change scope), instead of failing on frontend TS2307 errors.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:30:56.889Z",
       "verificationIntent": {
         "happy": [
           {
