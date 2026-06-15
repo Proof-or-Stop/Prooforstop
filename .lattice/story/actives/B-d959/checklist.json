@@ -69,9 +69,9 @@
           "command": "rg -q --fixed-strings \"Full 3x2 remains the default and preferred quorum\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"3 quorum rounds x 1 PASS host\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"assuranceLevel = degraded-single-host\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
           "note": "The document preserves full 3x2 as default and introduces 3x1 only as degraded single-host review.",
-          "headHash": "eb01eba9aa67fa65d14700f7bcac8894b732aae4",
-          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
-          "timestamp": "2026-06-15T02:12:40.824Z"
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
         },
         {
           "intentRef": "fallback-reasons",
@@ -81,9 +81,9 @@
           "command": "rg -q --fixed-strings \"second-host-credit-exhausted\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-auth-missing\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-runtime-unavailable\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-provider-outage\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-rate-limited\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"user-approved-single-host-local-mode\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
           "note": "The document lists concrete allowed fallback reason codes for unavailable or credit-limited second hosts.",
-          "headHash": "eb01eba9aa67fa65d14700f7bcac8894b732aae4",
-          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
-          "timestamp": "2026-06-15T02:12:40.824Z"
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
         },
         {
           "intentRef": "degraded-not-equivalent",
@@ -93,9 +93,9 @@
           "command": "rg -q --fixed-strings \"not full-3x2\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"two-host independence\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"lower assurance\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
           "note": "The document says degraded review is lower assurance and must not be treated as full independent two-host review.",
-          "headHash": "eb01eba9aa67fa65d14700f7bcac8894b732aae4",
-          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
-          "timestamp": "2026-06-15T02:12:40.824Z"
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
         },
         {
           "intentRef": "high-risk-limits",
@@ -105,9 +105,9 @@
           "command": "rg -q --fixed-strings \"High-risk changes may require stricter project policy\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"explicit user approval for the degraded\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
           "note": "The document sets stricter policy or explicit approval expectations for high-risk and decision-doc degraded fallback use.",
-          "headHash": "eb01eba9aa67fa65d14700f7bcac8894b732aae4",
-          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
-          "timestamp": "2026-06-15T02:12:40.824Z"
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
         },
         {
           "intentRef": "no-silent-downgrade",
@@ -117,9 +117,9 @@
           "command": "rg -q --fixed-strings \"silently downgrade full 3x2 to 3x1\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"Fabricated unavailability, silent downgrade, and Authority overclaim all\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"must not be inferred from a missing verdict\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
           "note": "The document includes negative controls against silent downgrade, fabricated unavailability, and missing-verdict fallback.",
-          "headHash": "eb01eba9aa67fa65d14700f7bcac8894b732aae4",
-          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
-          "timestamp": "2026-06-15T02:12:40.824Z"
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
         },
         {
           "intentRef": "no-authority-overclaim",
@@ -129,9 +129,9 @@
           "command": "rg -q --fixed-strings \"set `authorityDone`, `fullAuthorityDone`, `receiptVerified`, or\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"not Authority receipt completion\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
           "result": "pass",
           "note": "The document keeps degraded local review separate from Authority receipt completion and full Authority/DONE claims.",
-          "headHash": "eb01eba9aa67fa65d14700f7bcac8894b732aae4",
-          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
-          "timestamp": "2026-06-15T02:12:40.824Z"
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
         }
       ]
     }
