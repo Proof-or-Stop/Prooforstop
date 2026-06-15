@@ -93,6 +93,24 @@
         ".lattice/story/actives/B-59a6/checklist.json"
       ],
       "resolvedAt": "2026-06-15T10:50:24.317Z"
+    },
+    {
+      "id": "B-59a6:F-006",
+      "desc": "packages/main/src/cli-engine.ts:846 and packages/main/src/handlers/review-escalation.ts:61 still tell operators the degraded fallback reason explains why full 3x2 hosts are unavailable. That conflicts with docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:104-111, where explicit-human-approval is a valid eligibility that explicitly does not prove second-host unavailability. This risks conflating human approval with unavailable-host evidence; change the help/error text to say the reason explains the selected degraded fallback eligibility and why lower-assurance 3x1 is being used, without asserting unavailability for approval mode.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T11:19:33.991Z",
+      "reviewRound": "2026-06-15T11:17:14.149Z",
+      "reviewRunId": "B-59a6:RR-018",
+      "_hash": "5cad4a623bc63f389c7b287e27325c47d3b6f27b3f247f440af7602038aacbfe",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ]
     }
   ]
 }
