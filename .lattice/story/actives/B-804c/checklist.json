@@ -39,7 +39,30 @@
       "userSees": "For a story stuck in INIT_CHECK with no worktree, a documented recovery command recreates the worktree and prints its path, instead of 'Cannot transition from PLAN to INIT_CHECK' with no way forward.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice dev_start {storyId} on a story stuck in INIT_CHECK with no worktree on disk recreates the worktree and prints its path",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice dev_start is idempotent: running it when the worktree already exists returns the existing path without error",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice dev_start is refused in REVIEW/TEST/DONE phases and refused for an INIT story that has not passed the scope-anti-expansion freeze gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
