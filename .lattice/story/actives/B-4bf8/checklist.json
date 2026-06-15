@@ -370,6 +370,42 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc adds pricingRef or pricingVersion field for cost derivation -> grep for pricingRef or pricingVersion; WHY: cost must be derived from a pinned price table, not hardcoded",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies snapshot mechanism or price table (per-model per-MTok + cache multipliers, which change over time) -> grep for snapshot or price table or multiplier; WHY: prices change, so records must reference a versioned table",
+            "type": "cli"
+          },
+          {
+            "desc": "doc explicitly prohibits absolute prices baked into append-only records -> grep for absolute price or hardcoded or baked; WHY: prevents per-record cost fields that become stale when prices change",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "JSON example record does NOT contain a cost or price field with a dollar amount -> grep JSON example for cost or price with numeric values; WHY: catch example contradicting the no-absolute-prices rule",
+            "type": "cli"
+          },
+          {
+            "desc": "doc addresses cache multipliers (cache reads cost less, cache writes cost more than base input) in pricing context -> grep for cache and multiplier or cost; WHY: cache tokens have different per-token costs, pricing must handle this",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep entire doc for any hardcoded dollar amount -> must be absent from record-level prose; WHY: adversarial check for accidentally baked-in prices",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Acceptance Criteria for pricing or pricingRef -> must be mentioned; WHY: catch stale Acceptance Criteria that omits the pricing constraint",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
