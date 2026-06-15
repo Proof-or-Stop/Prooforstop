@@ -59,8 +59,8 @@
       "id": "CHK-002",
       "title": "Remove derived totalTokens as a stored field; define the identity in the summary layer",
       "context": "Delete totalTokens from the append record (derived fields drift and are ambiguous once cache tokens exist). State the identity total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens, and require totals to be computed in the ledger summary layer, not stored per-record.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T23:51:14.645Z",
       "endTime": null,
       "files": {
         "modify": [
