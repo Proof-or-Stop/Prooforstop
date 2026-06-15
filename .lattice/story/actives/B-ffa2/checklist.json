@@ -13,7 +13,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user can open docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md and see the inventory, rename map, boundary, rollout steps, and verification commands for the Koala-to-Lattice role migration.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execution document lists every canonical active koala-* role ID and its lattice-* replacement.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document distinguishes active role IDs from legacy runtime/archive compatibility strings such as KOALA_* or .koala references.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document does not claim all Koala tokens are gone when intentionally preserved historical/runtime compatibility references remain.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
