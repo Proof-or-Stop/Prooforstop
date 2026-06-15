@@ -1,0 +1,56 @@
+{
+  "storyId": "B-b663",
+  "checkedAt": "2026-06-15T02:54:23.364Z",
+  "reviewRound": "2026-06-15T02:49:36.048Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Unified doc-audit default: documentation and decision-doc audits start in ordinary REVIEW like other development work.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg line checks, checklist evidence, and TEST evidence",
+      "evidence": "Diff replaces the old always-on decision-doc rule with Documentation audit default REVIEW language; current file lines 17-19 and 84-93 state documentation and decision-doc audit use the default REVIEW path and do not trigger 3x2 by themselves."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Threshold trigger: documentation and decision-doc audits escalate to 3x2 only when the first REVIEW round records at least two countable problems.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg line checks, checklist evidence, and TEST evidence",
+      "evidence": "Current file lines 68-80 and 262-272 define the target requires3x2 formula as firstReviewRoundCountableProblems >= 2, with decision-doc/documentation changes not standalone triggers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Legacy runtime transition note: the document preserves that current runtime may still enforce the legacy direct decision-doc 3x2 gate until a follow-up implementation story migrates it.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg line checks, checklist evidence, and TEST evidence",
+      "evidence": "Current file lines 23-24, 50, 95-98, and 268-272 explicitly describe legacy current runtime behavior and mark it as transitional rather than target policy."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Degraded 3x1 lower assurance: escalated documentation audit may use approved degraded 3x1 only when allowed, and it must remain visibly lower assurance.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg line checks, checklist evidence, and TEST evidence",
+      "evidence": "Current file lines 102-142 and 282-295 require policy or approval, evidence, current material, and assuranceLevel=degraded-single-host; they forbid reporting degraded review as full 3x2."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "No always-on decision-doc target policy: the plan no longer treats direct decision-doc edits as a permanent 3x2 target policy.",
+      "status": "verified",
+      "verifiedBy": "git diff, rg line checks, checklist evidence, and TEST evidence",
+      "evidence": "Diff removes the old Always-on direct decision-doc rule; current file lines 719-724 and 962-963 say zero-finding decision-doc changes do not require 3x2 under target policy and the plan does not keep documentation or decision-doc changes as permanent always-on 3x2 policy."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Formal TEST validation evidence recorded at 2026-06-15T02:52:45Z: lattice validate --story=B-b663 --json / koala validate --story=B-b663 --json returned status=pass, allPass=true, verification intent coverage 6/6 covered and 0 required missing. The validation output ran the package.json test script via npm test, which ran npm run test:e2e and node packages/main/dist/tasks/cli-e2e.js, exited code 0, and ended with story-lifecycle PASS, gap-convergence PASS, and ALL PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery scope is satisfied: product/doc diff is limited to the requested decision doc; the policy promises are present; runtime migration is clearly framed as follow-up legacy-transition work; degraded 3x1 is lower assurance only; validation and npm test passed."
+  },
+  "_hash": "86f6c5218df660c41935b1c2257dca78593488fabc6e65b366f712aa0b687590"
+}
