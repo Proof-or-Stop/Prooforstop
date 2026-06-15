@@ -53,9 +53,9 @@
           "command": "rg -n \"For routine status refreshes|lattice story_get .+slim.+fields|lattice checklist_get .+slim.+fields\" packages/main/src/core/prompt-registry.ts packages/main/templates/agents .claude/agents .Codex/agents",
           "result": "pass",
           "note": "Focused text check found the advisory compact story_get/checklist_get examples in the canonical prompt registry, package templates, and Claude/Codex mirrors.",
-          "headHash": "ee1d6e5bdcda9637aacdbc71b3d3502565f4020f",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:22:24.178Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "rg -n \"Before evidence-sensitive conclusions|lattice story_get .+B-xxxx|lattice checklist_get .+B-xxxx\" packages/main/src/core/prompt-registry.ts packages/main/templates/agents .claude/agents .Codex/agents",
           "result": "pass",
           "note": "Focused text check found the evidence-sensitive full-output fallback guidance alongside the compact examples.",
-          "headHash": "ee1d6e5bdcda9637aacdbc71b3d3502565f4020f",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:22:24.232Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "npm --prefix packages/main run test:prompt-registry-smoke",
           "result": "pass",
           "note": "Prompt registry smoke passed and verified package templates render consistently for Claude and Codex mirrors.",
-          "headHash": "ee1d6e5bdcda9637aacdbc71b3d3502565f4020f",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:22:24.285Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         }
       ]
     },
@@ -134,9 +134,9 @@
           "command": "rg -n \"routine read-only status|routine story/checklist status|slim.*true\" AGENTS.md CLAUDE.md",
           "result": "pass",
           "note": "AGENTS.md and CLAUDE.md quick-reference examples now show slim/fields forms for routine read-only story/checklist status.",
-          "headHash": "7a2bd983845b13e336c1c35361c3b355156e70d5",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:04.279Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,9 +144,9 @@
           "command": "rg -n \"full output before evidence/mutations|evidence-sensitive conclusions / mutations|lattice story_get.*B-xxx|lattice checklist_get.*B-xxx\" AGENTS.md CLAUDE.md",
           "result": "pass",
           "note": "Full story_get/checklist_get examples remain adjacent to evidence-sensitive and mutation commands.",
-          "headHash": "7a2bd983845b13e336c1c35361c3b355156e70d5",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:04.357Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,9 +154,9 @@
           "command": "git show --format= --unified=8 ee1d6e5bd -- AGENTS.md CLAUDE.md",
           "result": "pass",
           "note": "Manual diff review showed only orientation examples changed; no provider billing, Authority completion, DONE semantic, or default-output behavior claims were added.",
-          "headHash": "7a2bd983845b13e336c1c35361c3b355156e70d5",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:04.542Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         }
       ]
     },
@@ -211,9 +211,9 @@
           "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
           "result": "pass",
           "note": "Prompt token cost smoke passed after adding assertions that compact-query guidance exists in every load-bearing package template.",
-          "headHash": "afe935dfd00846d655e96dee3fab4d4c83ca70d0",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:12.763Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -221,9 +221,9 @@
           "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
           "result": "pass",
           "note": "Prompt token cost smoke passed after adding assertions that the evidence-sensitive full-output fallback remains present.",
-          "headHash": "afe935dfd00846d655e96dee3fab4d4c83ca70d0",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:12.923Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -231,9 +231,9 @@
           "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
           "result": "pass",
           "note": "Prompt token cost smoke still verifies default story_get/checklist_get compatibility and slim output remains smaller than default output.",
-          "headHash": "afe935dfd00846d655e96dee3fab4d4c83ca70d0",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:13.000Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         }
       ]
     },
@@ -292,9 +292,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed before running built dist smoke tasks.",
-          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:25.818Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-004:happy:0",
@@ -312,9 +312,9 @@
           "command": "npm --prefix packages/main run test:prompt-registry-smoke",
           "result": "pass",
           "note": "Prompt registry smoke passed, proving package templates render consistently for Claude and Codex mirrors.",
-          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:25.998Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -322,9 +322,9 @@
           "command": "node ../../bin/lattice.js verify_codex --json",
           "result": "pass",
           "note": "Codex adapter verification returned ok=true and summary \"Codex adapter checks passed (7/8 pass)\"; the only warning was non-hard full-asset projection status.",
-          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
-          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
-          "timestamp": "2026-06-15T15:23:26.064Z"
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
         }
       ]
     }
