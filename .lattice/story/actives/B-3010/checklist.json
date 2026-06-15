@@ -382,15 +382,14 @@
         },
         {
           "intentRef": "CHK-005:edge:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "command": "summary_set after REVIEW/TEST",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js; node packages/main/dist/cli.js verify_codex --storyId=B-3010 --json",
           "result": "pass",
-          "note": "Deferred gate evidence: final summary separation of localNonAuthorityAudit and authorityServerPath is produced after REVIEW/TEST. Must be replaced before DONE.",
-          "headHash": "fe43d16dfa211f4b8af10bf91c6024c59a9dab6e",
+          "note": "Actual local evidence separates authority paths: smoke output says providerBillingTokens=unavailable; verify_codex check detail says authorityBoundary=localNonAuthorityAudit and receipt-backed Authority Server completion is outside this read-only result.",
+          "headHash": "3b0e676088b129afeac47271ab7b90fc7715e49e",
           "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
-          "timestamp": "2026-06-15T12:05:10.276Z"
+          "timestamp": "2026-06-15T12:08:27.638Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
