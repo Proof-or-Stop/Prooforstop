@@ -39,7 +39,30 @@
       "userSees": "On a project whose .gitignore would ignore story metadata, worktree bootstrap either succeeds (metadata tracked) or prints a clear remediation message, instead of 'The following paths are ignored by one of your .gitignore files: .lattice'.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a non-ignoring .gitignore, INIT_CHECK bootstrap force-adds metadata and the scoped commit contains .lattice/story/actives/<id>/index.json (story branch tree non-empty)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a project whose .gitignore ignores .lattice (broad ignore), bootstrap still succeeds via git add -f (no paths-are-ignored error) AND emits a loud warning pointing at lattice doctor --repair because check-ignore shows the leaf would be cleaned",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "On a project with the negation allowlist (like Orchestrate .gitignore), bootstrap force-add succeeds and the check-ignore guard does NOT warn (leaf re-included, safe) - no false positive",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
