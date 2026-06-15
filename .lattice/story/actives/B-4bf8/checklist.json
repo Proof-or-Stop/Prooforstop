@@ -68,6 +68,42 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep entire JSON example block for totalTokens -> absent; WHY: totalTokens is a derived field and must not be stored per-record",
+            "type": "cli"
+          },
+          {
+            "desc": "doc contains the identity formula total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens (or equivalent) -> grep for the identity; WHY: the summary layer must define how totals are computed",
+            "type": "cli"
+          },
+          {
+            "desc": "prose explicitly states totals are computed in the summary layer, not stored per-record -> grep for summary layer or summary-derived; WHY: prevents implementers from re-adding totalTokens",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep Required record constraints for totalTokens -> absent; WHY: catch constraints section still listing totalTokens as required even after example removal",
+            "type": "cli"
+          },
+          {
+            "desc": "grep billableUnits entries for a total-type entry -> absent; WHY: catch totalTokens smuggled back via billableUnits",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "count all occurrences of totalTokens in the entire doc -> each occurrence must be in a context that says derived/summary/not-stored; WHY: adversarial full-text scan to catch any stale reference that still treats totalTokens as a stored field",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Validation/Smoke Plan for totalTokens -> must reference its removal or absence, not assert its presence; WHY: catch stale validation assertion that still tests for stored totalTokens",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
