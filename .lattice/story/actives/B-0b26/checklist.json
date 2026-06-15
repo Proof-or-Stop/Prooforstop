@@ -5,9 +5,9 @@
       "title": "Delete the three unused sample/dogfood packages (cli-guess-number, python-demo, python-rps) and scrub residual references",
       "context": "Remove packages/cli-guess-number, packages/python-demo, packages/python-rps entirely (git rm -r). Verify nothing else references them: grep for each name across the repo (excluding node_modules/.git/.worktrees/.lattice/dist) returns only matches inside the deleted dirs (zero after deletion); confirm no tsconfig references[] / path mapping and no root package.json entry. After deletion `npm run build` and `npm run test:e2e` must still pass.",
       "userSees": "packages/ contains only lab, main, utils; `npm run build` and `npm run test:e2e` still pass with the sample packages gone.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T22:30:14.560Z",
-      "endTime": null,
+      "endTime": "2026-06-15T22:32:18.581Z",
       "files": {
         "modify": [
           "packages/cli-guess-number",
