@@ -51,9 +51,9 @@
       "title": "Add a supported recovery path for stories already stuck without a worktree",
       "context": "core/machine.ts:503-508 has no INIT_CHECK->INIT backward transition, so a story stuck with requiresWorktree=true and no worktree on disk cannot be re-bootstrapped or rolled back today. Add an idempotent re-bootstrap (or guarded re-entry) command/path that recreates the worktree for such a story.",
       "userSees": "For a story stuck in INIT_CHECK with no worktree, a documented recovery command recreates the worktree and prints its path, instead of 'Cannot transition from PLAN to INIT_CHECK' with no way forward.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:34:57.216Z",
       "verificationIntent": {
         "happy": [
           {
