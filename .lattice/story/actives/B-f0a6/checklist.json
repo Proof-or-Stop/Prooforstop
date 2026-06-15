@@ -157,9 +157,9 @@
       "id": "CHK-003",
       "title": "Verify no tracked references to packages/game remain",
       "context": "Run repository scans for packages/game and @lattice/game after removal, and run a suitable validation command to ensure the CLI product path is unaffected.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T02:59:44.268Z",
-      "endTime": null,
+      "endTime": "2026-06-15T02:59:48.068Z",
       "userSees": "Verification reports no tracked packages/game or @lattice/game references remain outside historical story metadata, and the Lattice CLI validation path still passes.",
       "files": {
         "modify": [],
