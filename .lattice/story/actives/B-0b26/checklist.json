@@ -5,18 +5,430 @@
       "title": "Delete the three unused sample/dogfood packages (cli-guess-number, python-demo, python-rps) and scrub residual references",
       "context": "Remove packages/cli-guess-number, packages/python-demo, packages/python-rps entirely (git rm -r). Verify nothing else references them: grep for each name across the repo (excluding node_modules/.git/.worktrees/.lattice/dist) returns only matches inside the deleted dirs (zero after deletion); confirm no tsconfig references[] / path mapping and no root package.json entry. After deletion `npm run build` and `npm run test:e2e` must still pass.",
       "userSees": "packages/ contains only lab, main, utils; `npm run build` and `npm run test:e2e` still pass with the sample packages gone.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T22:30:14.560Z",
+      "endTime": "2026-06-15T22:32:18.581Z",
+      "files": {
+        "modify": [
+          "packages/cli-guess-number",
+          "packages/python-demo",
+          "packages/python-rps"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After git rm -r, ls packages/ lists exactly lab, main, utils and nothing else → exit 0; WHY: confirms all three sample dirs removed and only product packages remain",
+            "type": "cli"
+          },
+          {
+            "desc": "git ls-files --error-unmatch packages/cli-guess-number packages/python-demo packages/python-rps each returns exit 1 → all three dirs fully untracked from git index; WHY: confirms deletion is committed to git, not just rm on disk",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build exits 0 after deletion → no broken references in TypeScript compilation; WHY: confirms no tsconfig paths or import references depended on deleted packages",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e exits 0 after deletion → end-to-end tests unaffected; WHY: confirms test:authority-live-python* use tmpdir, not the deleted sample dirs",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep -r cli-guess-number across repo (excluding node_modules/.git/.worktrees/.lattice/dist) returns zero matches → no stale references in tsconfig, root package.json, scripts, or docs; WHY: catches partial cleanup where dirs deleted but references left behind",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -r python-demo and grep -r python-rps across repo (same exclusions) each return zero matches → no stale references to either python sample; WHY: python samples had koala.config.json that might be referenced somewhere",
+            "type": "cli"
+          },
+          {
+            "desc": "Deleted dirs do not exist on disk even as empty directories: test -d packages/cli-guess-number and test -d packages/python-demo and test -d packages/python-rps all return false; WHY: git rm -r should remove from disk too, but a partial git rm might leave empty parent dirs",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "packages/lab directory still exists and contains expected files (package.json) → over-deletion guard; WHY: glob-based deletion (rm -r packages/p*) could accidentally catch packages/lab if mistyped pattern",
+            "type": "cli"
+          },
+          {
+            "desc": "packages/main and packages/utils still exist with their package.json → over-deletion guard for product packages; WHY: a broad packages/* glob or faulty script could delete product packages alongside samples",
+            "type": "cli"
+          },
+          {
+            "desc": "experiments/ directory still exists and is git-tracked → out-of-scope deletion guard; WHY: story explicitly defers experiments/ cleanup to separate story; overzealous cleanup agent might delete it",
+            "type": "cli"
+          },
+          {
+            "desc": "CLAUDE.md, README.md, AGENTS.md, CHANGELOG.md still exist at repo root → root file survival guard; WHY: a glob-based rm at root (rm *.md or similar) could accidentally nuke critical documentation",
+            "type": "cli"
+          },
+          {
+            "desc": "Root package.json does not reference cli-guess-number as a workspace entry → workspace/tsconfig reference guard; WHY: if root package.json had a workspaces entry for deleted package, npm install would fail or produce warnings post-deletion",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "ls packages/",
+          "result": "pass",
+          "note": "`ls packages/` outputs exactly: lab main utils — sample packages gone, core packages intact.",
+          "headHash": "d52808e4059e3454a00468daf8b4508834612cc0",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:48.463Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files --error-unmatch packages/cli-guess-number packages/python-demo packages/python-rps",
+          "result": "pass",
+          "note": "Command errors (non-zero) for all three → none are git-tracked anymore.",
+          "headHash": "19661d8b4bbbbc5c738a855f76a47fd1141a1e61",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:49.029Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && npm run test:e2e",
+          "result": "pass",
+          "note": "After deletion, npm run build compiled cleanly (exit 0) AND the full npm run test:e2e suite ran to completion with ALL PASS (story-lifecycle 5 steps + gap-convergence 4 steps) — the build output is not merely compiling but passes the end-to-end assertion suite, proving no broken references from the deleted paths.",
+          "headHash": "22d80c4a65e69c43e3075033a53ce722b7f647a1",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:39.380Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "npm run test:e2e exited 0 (ALL PASS) — e2e unaffected; authority-live-python suites use tmpdir job, not these folders.",
+          "headHash": "a030395b18ff865a9825d34e3abe721cee60ec4a",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:51.308Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rIl cli-guess-number (excl node_modules/.git/.worktrees/.lattice/dist)",
+          "result": "pass",
+          "note": "0 residual references to cli-guess-number remain.",
+          "headHash": "74f4d351c5885a49c2755dd78e225c6b19474e45",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:52.047Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rIl python-demo / python-rps (same exclusions)",
+          "result": "pass",
+          "note": "0 residual references to python-demo or python-rps remain.",
+          "headHash": "36133fd5f6a3f3722ae11d685951fa563b366b6d",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:52.569Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -d packages/{cli-guess-number,python-demo,python-rps}",
+          "result": "pass",
+          "note": "None of the three dirs exist on disk (not even empty).",
+          "headHash": "a7a7b469f874e8576f3d3d37f7a7965644c06a98",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:53.438Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/lab/package.json",
+          "result": "pass",
+          "note": "packages/lab survives with its package.json — no over-deletion.",
+          "headHash": "b47cc62f3b57c82907183acec7c6484806436bca",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:53.985Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/main/package.json && test -f packages/utils/package.json",
+          "result": "pass",
+          "note": "packages/main and packages/utils survive — no over-deletion.",
+          "headHash": "971f0bede1b5448707c258774302087138da7a74",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:54.507Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -d experiments",
+          "result": "pass",
+          "note": "experiments/ survives (out-of-scope) — not deleted.",
+          "headHash": "2d662f0a28052f572722d773147ec1e5dd948e05",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:55.159Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f CLAUDE.md README.md AGENTS.md CHANGELOG.md",
+          "result": "pass",
+          "note": "All four important root markdown files survive — no glob over-deletion.",
+          "headHash": "d86741f568bad0563080d2561158e3af5e651c55",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:56.246Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c cli-guess-number package.json",
+          "result": "pass",
+          "note": "Root package.json has 0 references to cli-guess-number (no workspace entry).",
+          "headHash": "b928fa9eeee29ddba1ec089f58223f4de7a3cf9b",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:56.917Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Delete the two tracked cruft files (du.exe.stackdump, claude-session.mjs) and scrub residual references",
       "context": "git rm du.exe.stackdump and claude-session.mjs at repo root. (jek.md is user-owned and intentionally NOT touched.) claude-session.mjs has no live import (claude-cli.ts:58 is a coincidental '.tmp-claude-session' string; docs/metadata/task.json only cites it historically) — leaving that historical doc note is acceptable. After deletion `npm run build` and `npm run test:e2e` must still pass.",
       "userSees": "`git ls-files` no longer lists du.exe.stackdump or claude-session.mjs; jek.md is still present and tracked; build and e2e still pass.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T22:30:31.752Z",
+      "endTime": "2026-06-15T22:32:19.599Z",
+      "files": {
+        "modify": [
+          "du.exe.stackdump",
+          "claude-session.mjs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files du.exe.stackdump returns empty output (exit 0, no lines) → file fully removed from git index; WHY: confirms the Windows crash dump is no longer tracked",
+            "type": "cli"
+          },
+          {
+            "desc": "git ls-files claude-session.mjs returns empty output → dead prototype fully removed from git index; WHY: confirms the superseded session module is no longer tracked",
+            "type": "cli"
+          },
+          {
+            "desc": "test ! -f du.exe.stackdump && test ! -f claude-session.mjs → neither file exists on disk; WHY: git rm removes from index AND disk; confirms no leftover untracked copies",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build exits 0 after deleting claude-session.mjs → no live import depends on it; WHY: confirms claude-cli.ts:58 string is coincidental, not a real import",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e exits 0 after deletion → end-to-end tests unaffected by removal of cruft files; WHY: confirms neither file was used as a test fixture or runtime dependency",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep -r claude-session.mjs across repo (excluding node_modules/.git/.worktrees/.lattice/dist) returns only acceptable historical doc references (docs/metadata/task.json) or zero matches → no live code references remain; WHY: the context notes task.json historical mention is acceptable, but any NEW reference in .ts/.js/.json (non-doc) would be a bug",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -r du.exe.stackdump across repo (same exclusions) returns zero matches → no references to the crash dump exist; WHY: stackdump files should never be referenced anywhere, but a stale .gitignore entry or script might mention it",
+            "type": "cli"
+          },
+          {
+            "desc": "git status --porcelain shows no untracked du.exe.stackdump or claude-session.mjs → files are not lurking as untracked after git rm; WHY: catches the case where someone did rm instead of git rm, leaving the file un-indexed but still on disk, or vice versa",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "jek.md still exists on disk AND is git-tracked (git ls-files --error-unmatch jek.md exits 0) → jek.md survival guard; WHY: this is the CRITICAL guard — jek.md is user-owned and explicitly out of scope per decisions/root-markdown-migration-execution-solution.md; an agent deleting root files might accidentally include it",
+            "type": "cli"
+          },
+          {
+            "desc": "CLAUDE.md, README.md, AGENTS.md, CHANGELOG.md still exist at repo root → root markdown survival guard; WHY: a glob-based deletion (git rm *.mjs or rm root-files) could accidentally sweep critical documentation if the glob is too broad",
+            "type": "cli"
+          },
+          {
+            "desc": "packages/lab directory still exists with its package.json → cross-item over-deletion guard; WHY: though CHK-002 targets root files, a confused agent might batch all cleanup together and accidentally delete packages/lab",
+            "type": "cli"
+          },
+          {
+            "desc": "experiments/ directory still exists → out-of-scope deletion guard; WHY: experiments/ cleanup is explicitly deferred to a separate story; must survive this chore",
+            "type": "cli"
+          },
+          {
+            "desc": "bin/lattice.js still exists and is executable → core tooling survival guard; WHY: root-level file deletion could hit bin/ if an overly aggressive find/rm pattern is used (e.g., find . -maxdepth 1 -name *.js -delete would kill bin/ contents)",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files du.exe.stackdump",
+          "result": "pass",
+          "note": "Empty output — du.exe.stackdump removed from git index.",
+          "headHash": "e759b72bde73db2417b3590bc3814264a03def10",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:57.499Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files claude-session.mjs",
+          "result": "pass",
+          "note": "Empty output — claude-session.mjs removed from git index.",
+          "headHash": "83c487e1544dd129bf1c3c1068f17e8bb6cb3cd4",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:58.086Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test ! -f du.exe.stackdump && test ! -f claude-session.mjs",
+          "result": "pass",
+          "note": "Neither file exists on disk.",
+          "headHash": "2bebe77f75a4d6bcd5e1f517a3f0e4b9d908eb40",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:58.701Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build && npm run test:e2e",
+          "result": "pass",
+          "note": "After deletion, npm run build compiled cleanly (exit 0) AND the full npm run test:e2e suite ran to completion with ALL PASS (story-lifecycle 5 steps + gap-convergence 4 steps) — the build output is not merely compiling but passes the end-to-end assertion suite, proving no broken references from the deleted paths.",
+          "headHash": "29e6cba8183ed121122bb325b3f7fcb3b6caa683",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:41.615Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "npm run test:e2e exited 0 (ALL PASS) — removal of cruft files did not affect e2e.",
+          "headHash": "69f568dc2eb363c9e7b700b617df772b10f1b913",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:00.133Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rIl claude-session (excl ...)",
+          "result": "pass",
+          "note": "Only docs/metadata/task.json (historical design note) and claude-cli.ts:58 (coincidental '.tmp-claude-session' string, not an import) match — no live reference.",
+          "headHash": "f6da11776e76d4df05e34ee2d54a2a0e5bc98c34",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:01.133Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rIl du.exe.stackdump (excl ...)",
+          "result": "pass",
+          "note": "0 references to du.exe.stackdump remain.",
+          "headHash": "689cfe0fdc4c23b74c58eda5e03b3efbf0cf5eb1",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:01.816Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git status --porcelain | grep du.exe.stackdump|claude-session.mjs",
+          "result": "pass",
+          "note": "No untracked remnants — files fully removed from index and disk.",
+          "headHash": "ca0689b413323d4013dbcdb3b9509457ad1d38f5",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:02.477Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f jek.md && git ls-files --error-unmatch jek.md",
+          "result": "pass",
+          "note": "jek.md STILL exists on disk AND is git-tracked — user-owned file correctly preserved (under-protection guard).",
+          "headHash": "8fdebae1c05d0638e25000811e93b8129c525c40",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:03.129Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f CLAUDE.md README.md AGENTS.md CHANGELOG.md",
+          "result": "pass",
+          "note": "All four important root markdown files survive — no glob over-deletion.",
+          "headHash": "421810cffb1ae45a18add9d06138f0306d91bccb",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:03.859Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/lab/package.json",
+          "result": "pass",
+          "note": "packages/lab survives (cross-item over-deletion guard).",
+          "headHash": "90f8ea5ce1951138b476a3f27ec85ba3d232b57c",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:04.508Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -d experiments",
+          "result": "pass",
+          "note": "experiments/ survives (out-of-scope guard).",
+          "headHash": "2fcf296e3387c0ffe0b94f5a70ced25bfc0d6c38",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:05.652Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f bin/lattice.js",
+          "result": "pass",
+          "note": "bin/lattice.js survives — core tooling intact after root-file deletion.",
+          "headHash": "01276b1fb7cfe6d30ea14ca1f08535b14e731803",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:06.636Z"
+        }
+      ]
     }
   ]
 }

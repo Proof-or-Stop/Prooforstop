@@ -1,0 +1,115 @@
+{
+  "storyId": "B-0b26",
+  "checkedAt": "2026-06-15T22:29:40.778Z",
+  "features": [
+    {
+      "feature": "Delete packages/cli-guess-number",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete packages/python-demo",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete packages/python-rps",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Scrub residual references after deleting the three sample packages",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build (npm run build) still passes after CHK-001 deletions",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "E2E tests (npm run test:e2e) still pass after CHK-001 deletions",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete du.exe.stackdump",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete claude-session.mjs",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Scrub residual references after deleting the two cruft files",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build (npm run build) still passes after CHK-002 deletions",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "E2E tests (npm run test:e2e) still pass after CHK-002 deletions",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "jek.md must be kept at root (user-owned, agents must not delete it)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/root-markdown-migration-execution-solution.md"
+    },
+    {
+      "feature": "packages/lab must not be deleted (kept, out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: packages/lab (kept); CHK-001 adversarial guard: packages/lab still exists",
+      "source": "description"
+    },
+    {
+      "feature": "experiments/ must not be deleted (deferred to separate story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded: experiments/ data-drop deferred; CHK-001 and CHK-002 adversarial guards: experiments/ still exists",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 12,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a8ecbc4edda0efe56097c0fb23e8a607ed29d36e1677d2d72bbc17e6fc7d4a3b",
+  "openQuestions": []
+}
