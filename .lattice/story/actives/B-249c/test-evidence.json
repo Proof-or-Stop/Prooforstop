@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-249c --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 9 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-XarayZ; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-Yxg0nw; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/9 covered (9 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — A focused regression fixture creates a DONE story whose test evidence matches its recorded evidence head, then adds a later unrelated material commit; done_closure reports evidence-freshness pass for that DONE story.\",\"  ✗ CHK-001:edge:0 [edge/must/cli] missing — The reproduction does not mutate completed production stories like B-a57f or B-22b0; it uses an isolated temp repo fixture.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] missing — The regression fails before the fix when DONE story freshness is compared against current HEAD materialHash.\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — For story.phase=DONE, the DONE oracle compares test-evidence materialHash with the material tree at evidence.headHash and returns pass when they match.\",\"  ✗ CHK-002:edge:0 [edge/must/cli] missing — For story.phase not DONE, the DONE oracle still uses current HEAD/materialHash freshness and blocks stale active evidence.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] missing — If the recorded evidence head cannot be resolved or its material tree does not match evidence.materialHash, DONE story freshness fails closed rather than silently passing.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — node packages/main/dist/tasks/done-preflight-smoke.js passes and includes a post-DONE main movement regression.\",\"  ✗ CHK-003:edge:0 [edge/must/cli] missing — Regression coverage also proves active TEST evidence still fails freshness after material changes.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] missing — Smoke output and assertions do not claim Authority Server receipt completion or weaken Authority receipt paths.\"],\"warnings\":[],\"timestamp\":\"2026-06-15T03:01:50.854Z\",\"headSha\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-XarayZ; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-Yxg0nw; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1363}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":0,\"missingRequired\":9,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A focused regression fixture creates a DONE story whose test evidence matches its recorded evidence head, then adds a later unrelated material commit; done_closure reports evidence-freshness pass for that DONE story.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The reproduction does not mutate completed production stories like B-a57f or B-22b0; it uses an isolated temp repo fixture.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The regression fails before the fix when DONE story freshness is compared against current HEAD materialHash.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"For story.phase=DONE, the DONE oracle compares test-evidence materialHash with the material tree at evidence.headHash and returns pass when they match.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"For story.phase not DONE, the DONE oracle still uses current HEAD/materialHash freshness and blocks stale active evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"If the recorded evidence head cannot be resolved or its material tree does not match evidence.materialHash, DONE story freshness fails closed rather than silently passing.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"node packages/main/dist/tasks/done-preflight-smoke.js passes and includes a post-DONE main movement regression.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Regression coverage also proves active TEST evidence still fails freshness after material changes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Smoke output and assertions do not claim Authority Server receipt completion or weaken Authority receipt paths.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-15T03:01:50.909Z",
-  "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-N5selL; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-tUWk6j; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — A focused regression fixture creates a DONE story whose test evidence matches its recorded evidence head, then adds a later unrelated material commit; done_closure reports evidence-freshness pass for that DONE story.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — The reproduction does not mutate completed production stories like B-a57f or B-22b0; it uses an isolated temp repo fixture.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — The regression fails before the fix when DONE story freshness is compared against current HEAD materialHash.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test verdict=success (packages/main/src/core/done-oracle.ts) — For story.phase=DONE, the DONE oracle compares test-evidence materialHash with the material tree at evidence.headHash and returns pass when they match.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — For story.phase not DONE, the DONE oracle still uses current HEAD/materialHash freshness and blocks stale active evidence.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — If the recorded evidence head cannot be resolved or its material tree does not match evidence.materialHash, DONE story freshness fails closed rather than silently passing.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — node packages/main/dist/tasks/done-preflight-smoke.js passes and includes a post-DONE main movement regression.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — Regression coverage also proves active TEST evidence still fails freshness after material changes.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test verdict=success (packages/main/src/tasks/done-preflight-smoke.ts) — Smoke output and assertions do not claim Authority Server receipt completion or weaken Authority receipt paths.\"],\"warnings\":[],\"timestamp\":\"2026-06-15T03:02:20.738Z\",\"headSha\":\"99e8b294af1f89b232004a198a9ae3ff0a0d9cf5\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-N5selL; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-tUWk6j; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1277}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A focused regression fixture creates a DONE story whose test evidence matches its recorded evidence head, then adds a later unrelated material commit; done_closure reports evidence-freshness pass for that DONE story.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"npm --prefix packages/main run build; node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"done-preflight-smoke now creates an isolated DONE story snapshot, commits a later unrelated material change, and asserts evidence-freshness remains pass for the completed story.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The reproduction does not mutate completed production stories like B-a57f or B-22b0; it uses an isolated temp repo fixture.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"The regression uses temporary git fixture roots; it does not mutate completed production stories B-a57f or B-22b0.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The regression fails before the fix when DONE story freshness is compared against current HEAD materialHash.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"The new regression specifically protects against the previous current-HEAD materialHash comparison; under that old behavior the post-DONE later material commit would make the DONE evidence-freshness row fail.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"For story.phase=DONE, the DONE oracle compares test-evidence materialHash with the material tree at evidence.headHash and returns pass when they match.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/done-oracle.ts\",\"command\":\"npm --prefix packages/main run build; node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"done-oracle checks story.phase === DONE and compares evidence.materialHash to currentMaterialHash(root, evidence.headHash), producing pass when the recorded snapshot matches.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"For story.phase not DONE, the DONE oracle still uses current HEAD/materialHash freshness and blocks stale active evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke output includes active TEST evidence freshness coverage: a later material commit still makes active TEST evidence-freshness fail.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"If the recorded evidence head cannot be resolved or its material tree does not match evidence.materialHash, DONE story freshness fails closed rather than silently passing.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke includes fail-closed DONE snapshot cases for uninspectable or mismatched recorded evidence snapshots.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"node packages/main/dist/tasks/done-preflight-smoke.js passes and includes a post-DONE main movement regression.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"done-preflight-smoke passed and prints the completed-story regression line: DONE evidence freshness PASS after later material commit.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Regression coverage also proves active TEST evidence still fails freshness after material changes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"done-preflight-smoke also asserts active TEST evidence freshness still fails after material changes, so pre-DONE strictness is preserved.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Smoke output and assertions do not claim Authority Server receipt completion or weaken Authority receipt paths.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/done-preflight-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-preflight-smoke.js\",\"result\":\"pass\",\"note\":\"The fix and smoke only affect local DONE projection freshness; no Authority receipt, productionDone, fullAuthorityDone, or receiptVerified semantics are changed or claimed.\",\"headHash\":\"3483eae34d7346d601a81595ad761dde1cb670ba\",\"materialHash\":\"a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e\",\"timestamp\":\"2026-06-15T03:02:13.831Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-15T03:02:21.046Z",
+  "headHash": "99e8b294af1f89b232004a198a9ae3ff0a0d9cf5",
   "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
   "verificationCoverage": {
     "total": 9,
     "required": 9,
-    "covered": 0,
-    "missingRequired": 9,
+    "covered": 9,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,19 @@
         "desc": "A focused regression fixture creates a DONE story whose test evidence matches its recorded evidence head, then adds a later unrelated material commit; done_closure reports evidence-freshness pass for that DONE story.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "done-preflight-smoke now creates an isolated DONE story snapshot, commits a later unrelated material change, and asserts evidence-freshness remains pass for the completed story.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-001:edge:0",
@@ -27,7 +39,19 @@
         "desc": "The reproduction does not mutate completed production stories like B-a57f or B-22b0; it uses an isolated temp repo fixture.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "The regression uses temporary git fixture roots; it does not mutate completed production stories B-a57f or B-22b0.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-001:adversarial:0",
@@ -36,7 +60,19 @@
         "desc": "The regression fails before the fix when DONE story freshness is compared against current HEAD materialHash.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "The new regression specifically protects against the previous current-HEAD materialHash comparison; under that old behavior the post-DONE later material commit would make the DONE evidence-freshness row fail.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-002:happy:0",
@@ -45,7 +81,19 @@
         "desc": "For story.phase=DONE, the DONE oracle compares test-evidence materialHash with the material tree at evidence.headHash and returns pass when they match.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/done-oracle.ts",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "done-oracle checks story.phase === DONE and compares evidence.materialHash to currentMaterialHash(root, evidence.headHash), producing pass when the recorded snapshot matches.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-002:edge:0",
@@ -54,7 +102,19 @@
         "desc": "For story.phase not DONE, the DONE oracle still uses current HEAD/materialHash freshness and blocks stale active evidence.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke output includes active TEST evidence freshness coverage: a later material commit still makes active TEST evidence-freshness fail.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-002:adversarial:0",
@@ -63,7 +123,19 @@
         "desc": "If the recorded evidence head cannot be resolved or its material tree does not match evidence.materialHash, DONE story freshness fails closed rather than silently passing.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes fail-closed DONE snapshot cases for uninspectable or mismatched recorded evidence snapshots.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-003:happy:0",
@@ -72,7 +144,19 @@
         "desc": "node packages/main/dist/tasks/done-preflight-smoke.js passes and includes a post-DONE main movement regression.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "done-preflight-smoke passed and prints the completed-story regression line: DONE evidence freshness PASS after later material commit.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-003:edge:0",
@@ -81,7 +165,19 @@
         "desc": "Regression coverage also proves active TEST evidence still fails freshness after material changes.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "done-preflight-smoke also asserts active TEST evidence freshness still fails after material changes, so pre-DONE strictness is preserved.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       },
       {
         "intentRef": "CHK-003:adversarial:0",
@@ -90,7 +186,19 @@
         "desc": "Smoke output and assertions do not claim Authority Server receipt completion or weaken Authority receipt paths.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-preflight-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
+          "result": "pass",
+          "note": "The fix and smoke only affect local DONE projection freshness; no Authority receipt, productionDone, fullAuthorityDone, or receiptVerified semantics are changed or claimed.",
+          "headHash": "3483eae34d7346d601a81595ad761dde1cb670ba",
+          "materialHash": "a26410a6898f602df6eed0cd734170857fe41b25a148dcad2a662308e89d416e",
+          "timestamp": "2026-06-15T03:02:13.831Z"
+        }
       }
     ]
   }

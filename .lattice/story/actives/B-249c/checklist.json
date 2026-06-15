@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T03:02:33.679Z",
       "userSees": "User sees a reproducible regression note: a DONE story with valid historical test evidence no longer fails freshness just because later main material commits exist.",
       "files": {
         "modify": [],
@@ -242,6 +242,17 @@
           "timestamp": "2026-06-15T03:02:13.831Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T03:02:33.679Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Regression fixture and evidence recorded: completed DONE story freshness uses isolated temp repo and does not mutate B-a57f/B-22b0."
     }
   ]
 }
