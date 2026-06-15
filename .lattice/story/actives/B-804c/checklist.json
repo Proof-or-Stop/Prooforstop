@@ -94,9 +94,9 @@
       "title": "Add regression tests for non-atomic advance and recovery",
       "context": "Cover: (a) a forced bootstrap failure leaves the phase unchanged (no partial advance); (b) the recovery command re-creates a missing worktree for an already-stuck story. Use the existing worktree/cli-engine test seams; do not require a real failing bootstrap if it can be injected.",
       "userSees": "`lattice validate` runs the new tests green, proving bootstrap-failure leaves phase unchanged and the recovery path re-bootstraps a stuck story.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:35:01.156Z",
       "verificationIntent": {
         "happy": [
           {
