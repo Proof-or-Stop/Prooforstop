@@ -1,0 +1,301 @@
+{
+  "command": "lattice validate --story=B-acec --json",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test — decision_doc_proposal validates a complete proposal, assigns DDP-001, stores story-local proposal metadata, and decision_doc_preview renders deterministic Markdown without writing docs/requirements/decisions.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — Invalid slug, missing required fields, missing alternatives pros/cons, or missing verificationRequirements are rejected with clear errors before metadata is written.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via integration_test — Preview is read-only: invoking decision_doc_preview does not modify story metadata, process events, or project decision docs.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test — decision_doc_save with confirm:true and mode=create writes exactly docs/requirements/decisions/<slug>.md for an in-scope fresh proposal and marks/link-records the saved proposal metadata.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test — Existing target requires mode=update, missing target requires mode=create, and overwrite or mode mismatch fails closed without writing the target file.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test — decision_doc_save rejects stale proposal/source decision digests and rejects targets outside PLAN file declarations, scope contract, or accepted scope extension.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test — lattice help exposes decision_doc_proposal, decision_doc_preview, and decision_doc_save, and each command routes to the registered handler with expected aliases and schemas.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — COMMAND_POLICIES phase/ownership/destructiveRisk settings match the execution plan: proposal PLAN/DEV story-scoped metadata, preview read-only all phases, save DEV story-scoped gateEvidence.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test — Process fact registry and verification script assert proposal/save L4 semantics and explicit non-Authority/non-productionDone boundary text.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via integration_test — Focused smoke test creates a temp project, records decision_set, creates proposal, previews Markdown, saves a canonical decision doc, and confirms target content matches preview.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via integration_test — Focused smoke test covers stale source/proposal digest, missing verificationRequirements, mode mismatch, and overwrite guards.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via integration_test — Focused smoke test proves out-of-scope or non-canonical paths are blocked and preview has no write side effects.\",\"  ✓ CHK-005:happy:0 [happy/should/docs] covered via docs_check — If implementation details differ from the plan, the decision-doc promotion execution doc is updated to match the shipped first-version CLI contract and NAV remains aligned.\",\"  ✓ CHK-005:edge:0 [edge/should/docs] covered via docs_check — If no documentation change is needed, evidence explains why the existing B-16eb document already matches the implementation.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/docs] covered via docs_check — Documentation does not claim custom paths, automatic promotion, Authority receipt completion, authorityDone, fullAuthorityDone, productionDone, customerKeyRef, or Layer4 support.\"],\"warnings\":[],\"timestamp\":\"2026-06-15T21:31:19.713Z\",\"headSha\":\"77fd61a6642bbb42b0d50712b41bacf38284ad5a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":924}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":13,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decision_doc_proposal validates a complete proposal, assigns DDP-001, stores story-local proposal metadata, and decision_doc_preview renders deterministic Markdown without writing docs/requirements/decisions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"decision-doc-promotion smoke passed 8 checks, including proposal creation DDP-001, story-local proposal metadata, deterministic preview Markdown, and no target doc before save.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Invalid slug, missing required fields, missing alternatives pros/cons, or missing verificationRequirements are rejected with clear errors before metadata is written.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Smoke invalid payload check rejects bad slug, missing verificationRequirements, invalid alternatives, and custom nested target path before proposal metadata count changes.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Preview is read-only: invoking decision_doc_preview does not modify story metadata, process events, or project decision docs.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Smoke snapshots decision-doc-proposals.json, raw process-events.jsonl, and store.readProcessEvents before preview, then confirms all are unchanged and no docs/requirements/decisions target is written.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"decision_doc_save with confirm:true and mode=create writes exactly docs/requirements/decisions/<slug>.md for an in-scope fresh proposal and marks/link-records the saved proposal metadata.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Smoke save(create) writes exactly docs/requirements/decisions/promotion-smoke.md for a scope-contract-authorized fresh proposal, marks proposal status saved, records save metadata, and stores decision_doc_save process event.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Existing target requires mode=update, missing target requires mode=create, and overwrite or mode mismatch fails closed without writing the target file.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies existing target with mode=create reports target already exists, missing target with mode=update reports target does not exist, and neither path writes the missing-update target.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"decision_doc_save rejects stale proposal/source decision digests and rejects targets outside PLAN file declarations, scope contract, or accepted scope extension.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Smoke passed 9 checks including missing expectedProposalDigest, blank expectedProposalDigest, missing expectedSourceDecisionDigest for decision.json proposals, stale expectedSourceDecisionDigest, stale proposal digest, stale source decision digest, and scope guarded save paths.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"lattice help exposes decision_doc_proposal, decision_doc_preview, and decision_doc_save, and each command routes to the registered handler with expected aliases and schemas.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Smoke help check verifies decision_doc_save --help exposes expectedProposalDigest as a required reviewed digest and documents expectedSourceDecisionDigest as required when sourceDecision is decision.json.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"COMMAND_POLICIES phase/ownership/destructiveRisk settings match the execution plan: proposal PLAN/DEV story-scoped metadata, preview read-only all phases, save DEV story-scoped gateEvidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process fact contract verified command policy phase/ownership/destructiveRisk alignment: proposal PLAN/DEV storyScopedMutating metadata-write, preview readOnly all phases none, save DEV storyScopedMutating gateEvidence metadata-write.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Process fact registry and verification script assert proposal/save L4 semantics and explicit non-Authority/non-productionDone boundary text.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process fact contract verified after the anchor change; decision_doc_save remains L4 gate evidence and the proposal/save artifact relationship stays registered.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Focused smoke test creates a temp project, records decision_set, creates proposal, previews Markdown, saves a canonical decision doc, and confirms target content matches preview.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Focused smoke creates a temp project, verifies command-specific help, seeds decision.json, creates proposal, previews Markdown, saves canonical doc, and confirms saved Markdown is included in preview output.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Focused smoke test covers stale source/proposal digest, missing verificationRequirements, mode mismatch, and overwrite guards.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Focused smoke now covers missing, blank, and stale reviewed digest anchors while keeping create, scope-extension, stale source, and mode guard happy and negative paths supplied with both digests when required.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Focused smoke test proves out-of-scope or non-canonical paths are blocked and preview has no write side effects.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:decision-doc-promotion-smoke\",\"result\":\"pass\",\"note\":\"Focused smoke now covers the forged accepted scope-extension regression, mechanically valid accepted scope-extension positive path, checklist-only out-of-scope rejection, non-canonical target rejection, and read-only preview side effects.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"If implementation details differ from the plan, the decision-doc promotion execution doc is updated to match the shipped first-version CLI contract and NAV remains aligned.\",\"type\":\"docs\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"Open Questions|Optional reviewed proposal digest|Optional reviewed source decision digest|stale proposal/source-decision digests|preview mandatory|PLAN only|L3 signed\\\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md\",\"result\":\"pass\",\"note\":\"Doc scan returned no matches, and the former Open Questions section is now shipped decisions describing PLAN/DEV proposal timing, save acknowledgements and anchors, L4 proposal facts, and optional preview.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"If no documentation change is needed, evidence explains why the existing B-16eb document already matches the implementation.\",\"type\":\"docs\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"docs_check\",\"command\":\"git diff --quiet -- docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md; echo docs_diff_exit:$?\",\"result\":\"pass\",\"note\":\"Existing B-16eb document already describes proposal, preview, save, canonical docs/requirements/decisions/<slug>.md target, scope/freshness guards, and local-only Authority boundary; no implementation drift required doc edits.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Documentation does not claim custom paths, automatic promotion, Authority receipt completion, authorityDone, fullAuthorityDone, productionDone, customerKeyRef, or Layer4 support.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"Authority|authorityDone|fullAuthorityDone|productionDone|customerKeyRef|Layer4|custom|automatic\\\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"Search hits in the execution doc are boundary/non-goal statements: no automatic promotion, no custom paths in first version, no Authority receipt completion, no authorityDone/fullAuthorityDone/productionDone claims.\",\"headHash\":\"f04a9b3289c8797151de9c7a7c243c88b3546abf\",\"materialHash\":\"5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b\",\"timestamp\":\"2026-06-15T21:31:18.248Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-15T21:31:20.165Z",
+  "headHash": "77fd61a6642bbb42b0d50712b41bacf38284ad5a",
+  "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 13,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "decision_doc_proposal validates a complete proposal, assigns DDP-001, stores story-local proposal metadata, and decision_doc_preview renders deterministic Markdown without writing docs/requirements/decisions.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "decision-doc-promotion smoke passed 8 checks, including proposal creation DDP-001, story-local proposal metadata, deterministic preview Markdown, and no target doc before save.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Invalid slug, missing required fields, missing alternatives pros/cons, or missing verificationRequirements are rejected with clear errors before metadata is written.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke invalid payload check rejects bad slug, missing verificationRequirements, invalid alternatives, and custom nested target path before proposal metadata count changes.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Preview is read-only: invoking decision_doc_preview does not modify story metadata, process events, or project decision docs.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke snapshots decision-doc-proposals.json, raw process-events.jsonl, and store.readProcessEvents before preview, then confirms all are unchanged and no docs/requirements/decisions target is written.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "decision_doc_save with confirm:true and mode=create writes exactly docs/requirements/decisions/<slug>.md for an in-scope fresh proposal and marks/link-records the saved proposal metadata.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke save(create) writes exactly docs/requirements/decisions/promotion-smoke.md for a scope-contract-authorized fresh proposal, marks proposal status saved, records save metadata, and stores decision_doc_save process event.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Existing target requires mode=update, missing target requires mode=create, and overwrite or mode mismatch fails closed without writing the target file.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke verifies existing target with mode=create reports target already exists, missing target with mode=update reports target does not exist, and neither path writes the missing-update target.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "decision_doc_save rejects stale proposal/source decision digests and rejects targets outside PLAN file declarations, scope contract, or accepted scope extension.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke passed 9 checks including missing expectedProposalDigest, blank expectedProposalDigest, missing expectedSourceDecisionDigest for decision.json proposals, stale expectedSourceDecisionDigest, stale proposal digest, stale source decision digest, and scope guarded save paths.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "lattice help exposes decision_doc_proposal, decision_doc_preview, and decision_doc_save, and each command routes to the registered handler with expected aliases and schemas.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Smoke help check verifies decision_doc_save --help exposes expectedProposalDigest as a required reviewed digest and documents expectedSourceDecisionDigest as required when sourceDecision is decision.json.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "COMMAND_POLICIES phase/ownership/destructiveRisk settings match the execution plan: proposal PLAN/DEV story-scoped metadata, preview read-only all phases, save DEV story-scoped gateEvidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified command policy phase/ownership/destructiveRisk alignment: proposal PLAN/DEV storyScopedMutating metadata-write, preview readOnly all phases none, save DEV storyScopedMutating gateEvidence metadata-write.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Process fact registry and verification script assert proposal/save L4 semantics and explicit non-Authority/non-productionDone boundary text.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified after the anchor change; decision_doc_save remains L4 gate evidence and the proposal/save artifact relationship stays registered.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Focused smoke test creates a temp project, records decision_set, creates proposal, previews Markdown, saves a canonical decision doc, and confirms target content matches preview.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Focused smoke creates a temp project, verifies command-specific help, seeds decision.json, creates proposal, previews Markdown, saves canonical doc, and confirms saved Markdown is included in preview output.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Focused smoke test covers stale source/proposal digest, missing verificationRequirements, mode mismatch, and overwrite guards.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Focused smoke now covers missing, blank, and stale reviewed digest anchors while keeping create, scope-extension, stale source, and mode guard happy and negative paths supplied with both digests when required.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Focused smoke test proves out-of-scope or non-canonical paths are blocked and preview has no write side effects.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:decision-doc-promotion-smoke",
+          "result": "pass",
+          "note": "Focused smoke now covers the forged accepted scope-extension regression, mechanically valid accepted scope-extension positive path, checklist-only out-of-scope rejection, non-canonical target rejection, and read-only preview side effects.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "If implementation details differ from the plan, the decision-doc promotion execution doc is updated to match the shipped first-version CLI contract and NAV remains aligned.",
+        "type": "docs",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Open Questions|Optional reviewed proposal digest|Optional reviewed source decision digest|stale proposal/source-decision digests|preview mandatory|PLAN only|L3 signed\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "result": "pass",
+          "note": "Doc scan returned no matches, and the former Open Questions section is now shipped decisions describing PLAN/DEV proposal timing, save acknowledgements and anchors, L4 proposal facts, and optional preview.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "If no documentation change is needed, evidence explains why the existing B-16eb document already matches the implementation.",
+        "type": "docs",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "command": "git diff --quiet -- docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md; echo docs_diff_exit:$?",
+          "result": "pass",
+          "note": "Existing B-16eb document already describes proposal, preview, save, canonical docs/requirements/decisions/<slug>.md target, scope/freshness guards, and local-only Authority boundary; no implementation drift required doc edits.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Documentation does not claim custom paths, automatic promotion, Authority receipt completion, authorityDone, fullAuthorityDone, productionDone, customerKeyRef, or Layer4 support.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Authority|authorityDone|fullAuthorityDone|productionDone|customerKeyRef|Layer4|custom|automatic\" docs/requirements/decisions/decision-doc-promotion-execution-plan.md docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "Search hits in the execution doc are boundary/non-goal statements: no automatic promotion, no custom paths in first version, no Authority receipt completion, no authorityDone/fullAuthorityDone/productionDone claims.",
+          "headHash": "f04a9b3289c8797151de9c7a7c243c88b3546abf",
+          "materialHash": "5aeb0b58a5e1be5c26319ada6396e8f9b6869128b3894273d16da8506af62c6b",
+          "timestamp": "2026-06-15T21:31:18.248Z"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-acec",
+  "changes": "Implemented decision-document promotion commands: proposal storage + Markdown rendering primitives; decision_doc_proposal / decision_doc_preview (read-only render) / decision_doc_save (with scope, freshness, and overwrite guards); registered in CLI, command policy, and process-fact contracts; added happy/edge/adversarial regression tests; doc updates for the implemented contract.",
+  "usage": "Use `lattice decision_doc_proposal` to stage a decision-doc proposal, `lattice decision_doc_preview` to render it read-only (no writes), and `lattice decision_doc_save` to promote it (refused on out-of-scope paths, stale digests, or unguarded overwrite).",
+  "expectedOutcome": "The three decision_doc_* commands appear in lattice help and enforce scope/freshness/overwrite guards; saved decision docs are governance/diagnostic material; validate passes with regression tests covering happy/edge/adversarial paths.",
+  "actualTranscript": "lattice help lists decision_doc_preview / decision_doc_quorum_check / decision_doc_proposal / decision_doc_save; validate PASS @ 2026-06-15T21:25 (15/15 verification intents covered); merged 699 commits of main (6 conflicts in registration files resolved as additive union; build green).",
+  "outcomeDiff": "Expected == actual after merging main: commands register and pass validation; the plan-doc wording was reconciled to the current review-escalation model (decision-doc edits are classification-only unless the first-round threshold triggers escalation).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Review escalation not required (clean first review round). Merged a 699-commit main divergence; conflict resolution kept both the decision-doc-promotion and review-escalation registrations (union).",
+  "pitfalls": "decision_doc_save guards (scope/freshness/overwrite) must not be bypassed; saved decision docs are diagnostic/governance material, not an automatic DONE-gate trigger unless the review-escalation threshold fires.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 121341
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17321
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 300003
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 8884163
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 2764545
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 80377362
+    }
+  },
+  "totalDurationMs": 92464749,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T21:26:31.129Z",
+  "updatedAt": "2026-06-15T21:26:31.129Z"
+}

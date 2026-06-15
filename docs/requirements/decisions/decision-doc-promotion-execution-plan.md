@@ -94,8 +94,9 @@ The future implementation must not:
 - automatically save every `decision_set` result as a decision doc;
 - promote temporary implementation choices into durable policy without an
   explicit proposal;
-- let `decision_doc_save` expand the story scope during DEV without prior PLAN
-  scope coverage or an explicit scope-extension path;
+- let `decision_doc_save` expand the story scope during DEV without scope
+  contract `allowedCreate`/`allowedModify` coverage or a mechanically valid
+  accepted/approved scope extension;
 - create or update decision docs outside `docs/requirements/decisions/*.md`;
 - bypass the review escalation DONE gate when the first-round problem threshold
   actually fires;
@@ -187,9 +188,10 @@ Expected behavior:
 - Requires an existing story.
 - Requires an existing `decision.json` unless `sourceDecision` is explicitly
   set to `"manual"`.
-- Requires the intended decision-doc target to be in the story's allowed PLAN
-  scope or file declarations. If the target doc is a new scope item, the story
-  must use the existing scope-extension path before save.
+- Requires the intended decision-doc target to be covered by the story scope
+  contract: `allowedCreate` for new docs or `allowedModify` for updates. If the
+  target doc is not covered, the story must use a mechanically valid
+  accepted/approved scope extension before save.
 - Validates `slug`, title, decision, context, scope, non-goals, chosen approach,
   alternatives, operational rules, verification requirements, and risks.
 - Writes a story-local artifact, for example:
@@ -238,7 +240,9 @@ lattice decision_doc_save '{
   "storyId": "B-xxxx",
   "proposalId": "DDP-001",
   "mode": "create",
-  "confirm": true
+  "confirm": true,
+  "expectedProposalDigest": "<reviewed proposalDigest>",
+  "expectedSourceDecisionDigest": "<reviewed sourceDecisionDigest>"
 }'
 ```
 
@@ -246,6 +250,14 @@ Expected behavior:
 
 - Requires `confirm: true`.
 - Requires a valid proposal.
+- Requires non-blank `expectedProposalDigest` from the reviewed proposal and
+  refuses save when it differs from the current proposal digest.
+- For proposals sourced from `decision.json`, requires non-blank
+  `expectedSourceDecisionDigest` from the reviewed source decision and refuses
+  save when it differs from the current source decision digest.
+- For manual-source proposals, refuses any supplied
+  `expectedSourceDecisionDigest` because there is no `decision.json` anchor to
+  review.
 - Requires `mode: "create"` when the target file does not exist.
 - Requires `mode: "update"` when the target file already exists.
 - Refuses overwrite unless `mode: "update"` is explicit.
@@ -263,13 +275,14 @@ docs/requirements/decisions/<slug>.md
   - proposal digest;
   - rendered doc digest;
   - current HEAD and material hash.
-- Verifies that the proposal digest and source decision digest are still fresh
-  at save time. If `decision.json` or the proposal changed after preview/review,
-  the command must fail closed and ask for a refreshed proposal or explicit
-  reviewer re-approval.
-- Verifies that the target path is covered by the story scope contract, allowed
-  file declarations, or an accepted scope extension. The save command must not
-  become a back door for expanding story scope during DEV.
+- Verifies that the reviewed proposal digest and, when applicable, reviewed
+  source decision digest are still fresh at save time. If `decision.json` or
+  the proposal changed after review, the command must fail closed and ask for a
+  refreshed proposal or explicit reviewer re-approval.
+- Verifies that the target path is covered by the story scope contract
+  (`allowedCreate` for creates or `allowedModify` for updates), or by an
+  mechanically valid accepted/approved scope extension. The save command must
+  not become a back door for expanding story scope during DEV.
 
 The write itself does not complete the story. It changes a decision doc, so the
 change is governance and diagnostic material for reviewers and status commands.
@@ -400,12 +413,17 @@ problems.
 - `confirm !== true`;
 - proposal id is missing or unknown;
 - proposal status is `rejected` or `superseded`;
-- proposal digest no longer matches the reviewed proposal;
-- source decision digest no longer matches the decision used to create the
-  proposal, unless the proposal is refreshed and reviewed again;
+- `expectedProposalDigest` is missing, blank, or no longer matches the reviewed
+  proposal;
+- `sourceDecision === "decision.json"` and `expectedSourceDecisionDigest` is
+  missing, blank, or no longer matches the reviewed source decision;
+- `sourceDecision === "manual"` and `expectedSourceDecisionDigest` is supplied;
+- source decision digest no longer matches the current `decision.json`, unless
+  the proposal is refreshed and reviewed again;
 - target path is outside `docs/requirements/decisions/*.md`;
-- target path is not covered by PLAN scope, checklist file declarations, or an
-  accepted scope extension;
+- target path is not covered by the scope contract's `allowedCreate` or
+  `allowedModify`, or by a mechanically valid accepted/approved scope
+  extension;
 - target file exists and `mode !== "update"`;
 - target file does not exist and `mode !== "create"`;
 - story phase is INIT reviewer context attempting to expand scope;
@@ -423,12 +441,15 @@ Expected lifecycle:
 PLAN:
   - story records decision_set
   - story records decision_doc_proposal when needed
-  - story declares the intended decision-doc path in scope or file declarations
+  - story scope contract covers the intended decision-doc path in
+    `allowedCreate` or `allowedModify`, or a mechanically valid
+    accepted/approved scope extension is in place
 
 DEV:
   - implementation may call decision_doc_save
   - target decision doc is created or updated
-  - save refuses paths not covered by PLAN scope or accepted scope extension
+  - save refuses paths not covered by the scope contract or a mechanically valid
+    accepted/approved scope extension
 
 REVIEW:
   - reviewers inspect the generated doc
@@ -486,8 +507,9 @@ Reviewers should verify:
 - The proposed decision is actually long-lived project policy.
 - The proposal is not just implementation detail.
 - Scope and non-goals are explicit.
-- The target decision-doc path was declared in PLAN scope or accepted through a
-  scope-extension path before save.
+- The target decision-doc path is covered by the scope contract's
+  `allowedCreate`/`allowedModify` or a mechanically valid accepted/approved
+  scope extension before save.
 - The proposal digest and source decision digest are fresh at save time.
 - Alternatives include real cons, not ceremonial alternatives.
 - Operational rules are executable by future developers.
@@ -555,8 +577,10 @@ Tests:
 - refuse overwrite without `mode: "update"`;
 - refuse path traversal;
 - refuse non-canonical directory;
-- refuse a target path outside PLAN scope or accepted scope extension;
-- refuse stale proposal/source-decision digests;
+- refuse a target path outside scope contract `allowedCreate`/`allowedModify`
+  and without a mechanically valid accepted/approved scope extension;
+- refuse missing, blank, or stale reviewed proposal/source-decision digest
+  anchors;
 - save marks proposal saved.
 
 ### Phase 4. Wire CLI, Policy, And Registry
@@ -621,9 +645,14 @@ Minimum tests for the implementation story:
 - Edge: target missing with `mode: "update"` -> refused.
 - Edge: proposal was reviewed but `decision.json` changed before save ->
   refused until refreshed.
+- Edge: `decision_doc_save` omits or blanks `expectedProposalDigest` -> refused.
+- Edge: `decision_doc_save` omits `expectedSourceDecisionDigest` for a
+  `decision.json` proposal -> refused.
 - Adversarial: slug with `../` -> refused.
 - Adversarial: path outside `docs/requirements/decisions/*.md` -> refused.
-- Adversarial: target path not declared in PLAN scope -> refused.
+- Adversarial: target path not covered by scope contract `allowedCreate` /
+  `allowedModify` or a mechanically valid accepted/approved scope extension ->
+  refused.
 - Adversarial: proposal with empty non-goals -> refused.
 - Adversarial: proposal with empty verification requirements -> refused.
 - Adversarial: only one alternative with no cons -> refused.
@@ -645,16 +674,22 @@ Minimum tests for the implementation story:
 5. After usage stabilizes, consider a separate story for configurable
    decision-doc directories.
 
-## Open Questions
+## Shipped Decisions
 
-- Should `decision_doc_proposal` be allowed in PLAN only, or PLAN and DEV?
-- Should `decision_doc_save` require a scope-plan reviewer acknowledgement
-  before writing the doc?
-- Should updates to an existing decision doc require a `supersession` field?
-- Should proposal artifacts be part of the process fact registry as L3 signed
-  artifacts, or remain story metadata until saved?
-- Should `decision_doc_preview` be mandatory before save, or just a convenience
-  command?
+- `decision_doc_proposal` is allowed in PLAN and DEV because proposal refreshes
+  may be needed after implementation discoveries.
+- `decision_doc_save` requires `confirm:true`, a reviewed
+  `expectedProposalDigest`, and, for `decision.json` proposals, a reviewed
+  `expectedSourceDecisionDigest`. It does not require a separate scope-plan
+  reviewer acknowledgement; scope is enforced through the scope contract or a
+  mechanically valid accepted/approved scope extension.
+- Updates to an existing decision doc are guarded by explicit `mode:"update"`;
+  the first shipped version does not require a separate `supersession` field.
+- Proposal artifacts are L4 digest-bound process facts registered for
+  `decision_doc_save` consumption. They are not cryptographically signed.
+- `decision_doc_preview` is an optional read-only convenience command. Save
+  freshness is anchored by the reviewed proposal/source digests, not by a
+  mandatory preview event.
 
 These are implementation choices. The core requirement is stable: durable
 project decisions need an explicit promotion path, and saved decision docs must

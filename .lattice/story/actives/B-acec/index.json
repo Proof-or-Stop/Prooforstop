@@ -4,7 +4,7 @@
   "title": "Implement decision document promotion commands",
   "description": "Implement the first version of the controlled decision-doc promotion workflow described by B-16eb: create story-local decision_doc_proposal artifacts, render read-only previews, and save accepted proposals into docs/requirements/decisions/*.md with scope and freshness checks. This story should turn the execution plan into local Lattice CLI behavior without changing Authority receipt semantics or productionDone semantics.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-approved follow-up after B-16eb",
   "keywords": [
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-06-14T19:45:26.379Z",
   "startedAt": "2026-06-14T19:45:26.379Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T21:31:31.258Z",
   "events": [
     {
       "phase": "INIT",
@@ -34,11 +34,119 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-14T19:47:45.055Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-14T19:52:45.058Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-14T21:39:21.758Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-14T21:49:38.372Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-14T22:06:32.675Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-14T22:20:23.065Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-14T22:23:31.913Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-14T22:30:35.739Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-14T22:40:28.174Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-14T22:46:54.587Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-14T22:57:33.225Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-14T23:09:05.102Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-14T23:17:32.404Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T21:31:31.258Z",
+      "branch": "story/B-acec",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-acec",
-    "branch": "story/B-acec",
-    "createdAt": "2026-06-14T19:47:27.841Z"
-  }
+  "currentReviewRound": "2026-06-14T23:09:05.102Z"
 }

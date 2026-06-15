@@ -123,6 +123,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
     'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
     'decision_doc_quorum_check', // B-2c0c: read-only decision-doc quorum diagnostic; DONE uses review_escalation_status
+    'decision_doc_preview', // read-only decision-doc proposal render; writes no files or metadata
     'review_escalation_status', // B-59a6: read-only view of actual DONE review escalation requirement
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
@@ -201,6 +202,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verification_intent_repair', // B-4e06: audited legacy intent backfill (refused in INIT/INIT_CHECK/terminal)
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
+    'decision_doc_proposal',
     'grill_start', 'grill_record', 'grill_close',
     'plan_set',
     'testintent_handoff',
@@ -212,6 +214,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   DEV: [
     'checklist_add', 'checklist_update', 'checklist_remove',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
+    'decision_doc_proposal', 'decision_doc_save',
     'light_review',
     'finding_add',
     'validate', 'status', 'serve',

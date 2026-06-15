@@ -1,0 +1,148 @@
+{
+  "passes": [
+    {
+      "id": "B-acec:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Docs lane PASS: decision-doc-promotion execution doc and NAV are unchanged versus main, and that is reasonable because the existing B-16eb document already matches the implemented first-version CLI contract. Reviewed docs/requirements/decisions/decision-doc-promotion-execution-plan.md, docs/requirements/NAV.md, handler/policy/registry/schema surfaces, and process-fact verifier. No drift found: no automatic promotion, no custom or nested path support, no Authority receipt completion, no authorityDone/fullAuthorityDone/productionDone/customerKeyRef claims, and Layer4 references are limited to required process fact contract semantics.",
+      "createdAt": "2026-06-14T21:42:27.890Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-003",
+      "_hash": "eb30e9aee104136eec0c10a90c210ae0b02c864b8824f1321f12bb3ad00d9591"
+    },
+    {
+      "id": "B-acec:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review PASS. Reviewed decision-doc promotion handler, CLI/policy/registry/store/type wiring, lifecycle/process-fact registry entries, and focused smoke coverage. Path traversal is blocked by slug and canonical target checks; preview is read-only at handler and policy level; save requires confirm/mode/scope/fresh source/proposal digests and records local-only process events with explicit non-Authority boundary. Verified build, process fact contract, decision-doc-promotion smoke, and scope-contract regressions.",
+      "createdAt": "2026-06-14T21:46:14.593Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-002",
+      "_hash": "46377819ec31e3fff6159f9b2a5b3727ca5f190f583ec86ed6c300913bc7c8a7"
+    },
+    {
+      "id": "B-acec:RP-003",
+      "agent": "koala-review-concept",
+      "note": "PASS: F-001 runtime backdoor is closed. decision_doc_save no longer reads checklist/files and authorizes only scope contract allowedCreate/allowedModify or accepted/approved scope extension; smoke test blocks checklist-only target and process fact contract passes. Concept boundary remains no automatic save, no custom/nested target path support, and no Authority/production completion claims. Non-blocking F-004 records stale requirements wording that still mentions checklist/file declarations.",
+      "createdAt": "2026-06-14T22:13:44.603Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-006",
+      "_hash": "bba2196fde5bab02b0f194ddb7ed31992cd91e62a840707b9b885494e8f466bc"
+    },
+    {
+      "id": "B-acec:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Second-round test-coverage review PASS. F-002 fixed: decision-doc smoke snapshots decision-doc-proposals.json, raw process-events.jsonl, and store.readProcessEvents before decision_doc_preview, then asserts all unchanged plus no target doc write. F-003 fixed: CHK-003 happy evidence uses command-specific decision_doc_* --help, while edge/adversarial evidence is covered by node scripts/verify-process-fact-contract.mjs for policy and process fact semantics instead of phase-filtered global help. Rechecked CHK-001..005 coverage with lattice validate --story=B-acec: 15/15 covered, 0 required missing. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:decision-doc-promotion-smoke; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:scope-contract-smoke; npm --prefix packages/main run test:scope-contract-plan-scope-smoke; lattice validate --story=B-acec.",
+      "createdAt": "2026-06-14T22:13:59.301Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-009",
+      "_hash": "9241865cf355b18720f79793319cff65010f9af6cce03dcd82ed573182e72c13"
+    },
+    {
+      "id": "B-acec:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Second-round quality review PASS: inspected latest non-metadata commit 13553d176 and current handler/policy/registry/smoke code. decision_doc_save no longer accepts checklist files as scope authorization; save is limited to scope-contract allowedCreate/allowedModify or accepted/approved scope extension. decision_doc_preview remains read-only in handler and smoke snapshots proposal metadata, raw process-events.jsonl, store.readProcessEvents, and target doc. Per-command help smoke is phase-independent and direct --help output exposes proposal/preview/save schemas. Verification run: npm --prefix packages/main run build; npm --prefix packages/main run test:decision-doc-promotion-smoke; npm --prefix packages/main run test:scope-contract-smoke; npm --prefix packages/main run test:scope-contract-plan-scope-smoke; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-14T22:17:16.419Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-007",
+      "_hash": "76952a9964aae8e1f993e1d73087a5300a3c0e82b72c7d8991537e9ecd072247"
+    },
+    {
+      "id": "B-acec:RP-006",
+      "agent": "koala-review-docs",
+      "note": "PASS second docs review. Checked docs/requirements/decisions/decision-doc-promotion-execution-plan.md and docs/requirements/NAV.md: no doc diff from main, first-version contract remains canonical direct docs/requirements/decisions/*.md only, nested/custom paths out of scope, no automatic promotion, no Authority receipt/authorityDone/fullAuthorityDone/productionDone claim. F-001 fix is reflected in behavior: decision_doc_save authorizes only scope contract allowedCreate/allowedModify or accepted/approved scope extension; checklist-only target is rejected by smoke. F-002 preview read-only coverage now snapshots proposal metadata, raw process-events.jsonl, store.readProcessEvents, and target doc. F-003 evidence uses local dist command-specific --help rather than phase-filtered global help. Verified npm --prefix packages/main run test:decision-doc-promotion-smoke and node scripts/verify-process-fact-contract.mjs pass.",
+      "createdAt": "2026-06-14T22:19:10.536Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-008",
+      "_hash": "0cba252a1282f5efb5036c9a3578478ce7d64fdc9f051e0edd399495e9cc4aa0"
+    },
+    {
+      "id": "B-acec:RP-007",
+      "agent": "koala-review-concept",
+      "note": "decision_doc_save is bounded to canonical docs/requirements/decisions/<slug>.md targets, confirm:true, create/update mode guards, proposal/source freshness, and authorization only through scope-contract allowedCreate/allowedModify or accepted/approved scope extension; preview remains read-only; no future capability leak found.",
+      "createdAt": "2026-06-14T22:30:06.877Z",
+      "reviewRound": "2026-06-14T22:23:31.913Z",
+      "reviewRunId": "B-acec:RR-011",
+      "_hash": "3d256c810e1659e1d9f4705f5acd0155d1603041a34c2a1fdc9b2652914ed0c5"
+    },
+    {
+      "id": "B-acec:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "Verification coverage is sufficient: decision-doc promotion smoke covers command-specific help/schema exposure, proposal/preview/save happy path, read-only preview process-event checks, checklist-only scope backdoor block, scope extension authorization, invalid payload rejection, stale proposal/source digest rejection, and create/update mode guards; process-fact contract and build passed.",
+      "createdAt": "2026-06-14T22:30:12.382Z",
+      "reviewRound": "2026-06-14T22:23:31.913Z",
+      "reviewRunId": "B-acec:RR-012",
+      "_hash": "f9195374342c0dc7811ce0df9d76208cea4048e292222541e34e4d0de987324d"
+    },
+    {
+      "id": "B-acec:RP-009",
+      "agent": "koala-review-concept",
+      "note": "F-006 conceptually closed: decision_doc_save no longer trusts extension status/path alone; outside-contract target authorization requires mechanically valid accepted/approved proposal and decision hashes from scope anti-expansion helpers before matching patch.allowed. No future capability leak found.",
+      "createdAt": "2026-06-14T22:45:02.085Z",
+      "reviewRound": "2026-06-14T22:40:28.174Z",
+      "reviewRunId": "B-acec:RR-016",
+      "_hash": "21e21db557d1f607e9e9eadd8e8bc47b437e95ee3a2fef3eadda727d81ecab8b"
+    },
+    {
+      "id": "B-acec:RP-010",
+      "agent": "koala-review-quality",
+      "note": "F-006 quality resolved: promotion handler delegates accepted/approved scope-extension validation to existing digestScopeExtensionDecision and digestScopeExtensionProposal domains before path match authorizes save; helper boundaries are maintainable and smoke proves forged extensions fail closed.",
+      "createdAt": "2026-06-14T22:45:16.756Z",
+      "reviewRound": "2026-06-14T22:40:28.174Z",
+      "reviewRunId": "B-acec:RR-014",
+      "_hash": "a019ad7a4ec2c066e4f7c01be5e6f42ecf6a974a34219db0a4f4dc44c16326c0"
+    },
+    {
+      "id": "B-acec:RP-011",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage adequate: promotion smoke covers forged dummy accepted-extension failure, mechanically valid approved-extension success, existing proposal/help, preview read-only, save, checklist-only backdoor block, invalid payloads, stale proposal/source digests, and create/update guards; process-fact contract and build passed.",
+      "createdAt": "2026-06-14T22:45:35.904Z",
+      "reviewRound": "2026-06-14T22:40:28.174Z",
+      "reviewRunId": "B-acec:RR-015",
+      "_hash": "56eb6c16ea2825a8acf5f5461c320e8592834007c8d245cf4edf2b1036814fef"
+    },
+    {
+      "id": "B-acec:RP-012",
+      "agent": "koala-review-docs",
+      "note": "F-005 closed: decision-doc-promotion execution plan now consistently says decision_doc_save authorization comes only from scope contract allowedCreate/allowedModify coverage or a mechanically valid accepted/approved scope extension; targeted stale wording search found no remaining PLAN scope or checklist/file fallback in the save authorization path.",
+      "createdAt": "2026-06-14T22:46:07.116Z",
+      "reviewRound": "2026-06-14T22:40:28.174Z",
+      "reviewRunId": "B-acec:RR-017",
+      "_hash": "f9a934b1221671b5b5fba0166e881bb5c65003e205f31473ad9f4b0658368b40"
+    },
+    {
+      "id": "B-acec:RP-013",
+      "agent": "koala-review-concept",
+      "note": "Latest digest-anchor fix passes concept review: decision_doc_save requires reviewed expectedProposalDigest, requires expectedSourceDecisionDigest for decision.json proposals, rejects source digest for manual proposals, and performs missing/stale anchor checks before write; no new Authority/future-capability leak found.",
+      "createdAt": "2026-06-14T23:15:59.545Z",
+      "reviewRound": "2026-06-14T23:09:05.102Z",
+      "reviewRunId": "B-acec:RR-018",
+      "_hash": "38c4f41e4c6fec77447d13623e4953a9b4884453de84eb0820b32e1dc26b7cf9"
+    },
+    {
+      "id": "B-acec:RP-014",
+      "agent": "koala-review-quality",
+      "note": "Latest digest-anchor fix passes quality review: CLI schema requires expectedProposalDigest, runtime revalidates it, sourceDecision=decision.json requires expectedSourceDecisionDigest, manual source rejects that anchor, and all digest/source/scope/mode/git-head errors happen before target writes and metadata/process-event writes.",
+      "createdAt": "2026-06-14T23:16:13.447Z",
+      "reviewRound": "2026-06-14T23:09:05.102Z",
+      "reviewRunId": "B-acec:RR-019",
+      "_hash": "1ce7b3424720775d68e00933d76b92fb8bd355a986299605428e8a678f988361"
+    },
+    {
+      "id": "B-acec:RP-015",
+      "agent": "koala-review-test-coverage",
+      "note": "Latest digest-anchor coverage passes: smoke now has 9 checks covering missing expectedProposalDigest, missing expectedSourceDecisionDigest for decision.json, stale expected source/proposal digests, source decision drift, and the prior forged scope-extension regression; smoke, build, and process-fact contract passed.",
+      "createdAt": "2026-06-14T23:16:40.256Z",
+      "reviewRound": "2026-06-14T23:09:05.102Z",
+      "reviewRunId": "B-acec:RR-020",
+      "_hash": "2ea99e7f50394dc3db5735c4d2cec4d315b92174db09d0711910a6e209da9eeb"
+    },
+    {
+      "id": "B-acec:RP-016",
+      "agent": "koala-review-docs",
+      "note": "Latest docs pass: execution plan now documents required reviewed expectedProposalDigest, required expectedSourceDecisionDigest for decision.json, manual-source rejection of supplied source digest, and stale Open Questions have been replaced with shipped decisions.",
+      "createdAt": "2026-06-14T23:16:55.767Z",
+      "reviewRound": "2026-06-14T23:09:05.102Z",
+      "reviewRunId": "B-acec:RR-021",
+      "_hash": "6c9b18821838fa28c0f17cd395409fdda55702f613db97dfe5c4703d5b9087a8"
+    }
+  ]
+}

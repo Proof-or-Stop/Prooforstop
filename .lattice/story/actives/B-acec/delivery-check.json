@@ -1,0 +1,73 @@
+{
+  "storyId": "B-acec",
+  "checkedAt": "2026-06-15T21:30:00.629Z",
+  "reviewRound": "2026-06-14T23:09:05.102Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md#decision_doc_proposal",
+      "promise": "decision_doc_proposal command creates/updates a story-local proposal for promoting a decision into docs/requirements/decisions/<slug>.md, validates slug, required fields, alternatives, verificationRequirements, and binds source decision digest",
+      "verifiedBy": "diff/grep + live --help + smoke test",
+      "evidence": "Handler decision_doc_proposal in packages/main/src/handlers/decision-doc-promotion.ts:375, Zod schema in cli-engine.ts, registered in registry.ts:214. --help renders correct description. Smoke test ok: proposal assigns DDP-001, stores metadata, records sourceDecisionDigest."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md#decision_doc_preview",
+      "promise": "decision_doc_preview is read-only: renders proposal as Markdown without writing files, metadata, process events, or receipts; available in all phases",
+      "verifiedBy": "diff/grep + live --help + smoke test",
+      "evidence": "Handler decision_doc_preview in packages/main/src/handlers/decision-doc-promotion.ts:428. COMMAND_POLICIES ownershipClass=readOnly, allowedPhases=all, destructiveRisk=none. Smoke test asserts proposal metadata file unchanged, process-events.jsonl unchanged, target doc not created after preview."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md#decision_doc_save",
+      "promise": "decision_doc_save materializes a proposal into docs/requirements/decisions/<slug>.md with confirm, freshness (expectedProposalDigest + expectedSourceDecisionDigest), scope/overwrite guards, and does not claim authorityDone/productionDone",
+      "verifiedBy": "diff/grep + live --help + smoke test",
+      "evidence": "Handler decision_doc_save in packages/main/src/handlers/decision-doc-promotion.ts:444. Smoke test covers: create mode happy path, stale proposal digest fails closed, stale source decision digest fails closed, create/update mode guards, out-of-scope target blocked. authorityBoundary emitted in output. Process-fact registry marks non-Authority, non-productionDone."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md#registration",
+      "promise": "All three commands registered in CLI (registry.ts), command policy (command-policy.ts), process-fact registry (process-fact-registry.ts) with correct phase/ownership/destructiveRisk settings",
+      "verifiedBy": "diff/grep",
+      "evidence": "registry.ts: createDecisionDocPromotionHandlers imported and registered. cli-engine.ts: Zod schemas + space-alias aliases for all three. command-policy.ts: decision_doc_proposal (PLAN/DEV, storyScopedMutating), decision_doc_preview (all, readOnly), decision_doc_save (DEV, storyScopedMutating). process-fact-registry.ts: proposal/save both gate-evidence with artifact records."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md#scope-guard",
+      "promise": "decision_doc_save rejects targets outside scope contract allowedCreate/allowedModify and rejects non-canonical paths; only mechanically valid accepted/approved scope extensions can authorize out-of-scope targets",
+      "verifiedBy": "diff/grep + smoke test",
+      "evidence": "Handler assertTargetInScope at packages/main/src/handlers/decision-doc-promotion.ts:334. Smoke test checks: checklist-only scope backdoor blocked, forged scope extension blocked, only mechanically valid accepted scope extension authorizes out-of-scope target."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md#docs-update",
+      "promise": "Execution plan doc updated to match shipped CLI contract: expectedProposalDigest and expectedSourceDecisionDigest required in save, scope contract language clarified from PLAN-scope/checklist to allowedCreate/allowedModify",
+      "verifiedBy": "diff",
+      "evidence": "decision-doc-promotion-execution-plan.md diff shows: save example updated with expectedProposalDigest/expectedSourceDecisionDigest fields; scope language changed from PLAN scope / checklist file declarations to scope contract allowedCreate/allowedModify; failure modes updated to match implementation. No forbidden authority claims in updated doc."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Smoke test 9/9 passed. Covers: command-specific help exposes registered schemas phase-independently (happy); proposal->preview(read-only)->save(create) happy path; invalid proposal payloads fail before metadata is written (edge: invalid slug, missing required fields, missing alternatives pros/cons, missing verificationRequirements); preview is read-only: proposal metadata file unchanged, process-events.jsonl unchanged, target doc not created (adversarial)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke test 9/9 passed. Covers: save(create) writes exactly docs/requirements/decisions/promotion-smoke.md for a scope-authorized fresh proposal, marks proposal status=saved, records save metadata (happy); existing target requires mode=update, missing target requires mode=create, overwrite and mode mismatch fails closed (edge); stale proposal digest fails closed, stale source decision digest fails closed, out-of-scope target blocked (adversarial)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke test 9/9 passed. Covers: lattice help exposes all three commands with correct aliases and schemas (happy); COMMAND_POLICIES phase/ownership/destructiveRisk match execution plan: proposal PLAN/DEV storyScopedMutating, preview readOnly all phases, save DEV storyScopedMutating (edge/logic); process-fact registry and verify-process-fact-contract.mjs assert proposal/save L4 gate-evidence semantics and non-Authority/non-productionDone boundary text (adversarial)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "decision-doc-promotion-smoke.js 9/9 checks passed: creates temp project, records decision_set, creates proposal, previews Markdown, saves canonical decision doc, confirms saved content matches preview render. Edge: stale source/proposal digest, missing verificationRequirements, mode mismatch, overwrite guards all fail closed. Adversarial: out-of-scope and non-canonical paths blocked, checklist-only backdoor blocked, forged scope extension blocked, preview has no write side effects."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Docs check: decision-doc-promotion-execution-plan.md updated — expectedProposalDigest/expectedSourceDecisionDigest added to save example and failure modes; scope language updated from PLAN-scope/checklist to scope contract allowedCreate/allowedModify. No forbidden claims (authorityDone, fullAuthorityDone, productionDone, Authority Server receipt completion) found in updated doc. verify-process-fact-contract.mjs passes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified by direct diff inspection and live CLI checks. Smoke test ran 9 checks covering happy path, edge (invalid payloads, mode guards, missing fields), and adversarial (stale digests, scope backdoor, forged extension, preview read-only). validate --story=B-acec reports 15/15 intent coverage. No TODO/FIXME/HACK in delivered diff. Authority boundary correctly claimed as local-only throughout."
+  },
+  "_hash": "10787c077db2aa270e132df5041cc3d2e335f1a6944b033f7e9613fbf69c87e0"
+}

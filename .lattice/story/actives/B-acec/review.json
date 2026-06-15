@@ -1,0 +1,23 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-14T19:52:09.737Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Add proposal storage and Markdown rendering primitives + Implement save with scope, freshness, and overwrite guards are performed simultaneously?)"
+        }
+      ],
+      "_hash": "83ca8ece55140a49b0aa9cdc90d051d521d118cf3a97484642f694bf2aebf1dc"
+    }
+  ]
+}

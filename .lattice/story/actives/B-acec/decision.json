@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Keep decision-doc promotion explicit rather than automatic.",
+    "Trust only structured proposal digests and source decision digests for save-time freshness.",
+    "Preserve local workflow evidence as separate from Authority receipt completion.",
+    "Use existing Lattice scope and process fact surfaces instead of inventing parallel gates."
+  ],
+  "drivers": [
+    "The user approved implementing the B-16eb audited execution plan.",
+    "The command writes durable project policy docs, so accidental scope expansion is high impact.",
+    "The first version must be testable through local CLI and existing DONE quorum behavior."
+  ],
+  "options": [
+    {
+      "name": "A: Narrow CLI promotion workflow",
+      "pros": [
+        "Directly implements the audited plan",
+        "Keeps target path and phase permissions tight",
+        "Can be covered by focused smoke tests and process fact contract checks"
+      ],
+      "cons": [
+        "Requires touching several CLI registration and registry files"
+      ]
+    },
+    {
+      "name": "B: Manual docs plus reviewer convention",
+      "pros": [
+        "Very small code change",
+        "Avoids new command surface"
+      ],
+      "cons": [
+        "Does not solve discoverable promotion workflow",
+        "Leaves scope and freshness discipline to prose"
+      ]
+    },
+    {
+      "name": "C: Automatic decision_set to docs sync",
+      "pros": [
+        "Requires fewer operator steps after decision_set"
+      ],
+      "cons": [
+        "Pollutes durable docs with temporary decisions",
+        "Bypasses explicit promotion intent and increases scope expansion risk"
+      ]
+    }
+  ],
+  "chosen": "A: Narrow CLI promotion workflow",
+  "rationale": "Choose the narrow CLI promotion workflow because it implements the audited B-16eb contract while preserving explicit operator intent, local scope checks, digest freshness, and non-Authority semantics.",
+  "preMortem": [
+    {
+      "scenario": "decision_doc_save becomes a back door for writing any decision doc during DEV.",
+      "trigger": "The save handler checks only slug validity and confirm:true, but ignores PLAN file declarations, scope contract, or accepted scope extension state.",
+      "consequence": "Agents can expand durable project policy scope after PLAN and bypass the anti-expansion gate.",
+      "mitigation": "Make target path scope coverage a save-time requirement and cover out-of-scope target rejection in smoke tests."
+    },
+    {
+      "scenario": "Preview/review evidence goes stale but save still succeeds.",
+      "trigger": "A proposal or source decision changes after preview or reviewer inspection and the save command does not compare stored digests.",
+      "consequence": "Reviewers may approve one policy while a different policy is saved.",
+      "mitigation": "Store proposal and source decision digests, require caller-supplied expectedProposalDigest or saved fresh digest validation, and test stale proposal/source decision rejection."
+    },
+    {
+      "scenario": "Local promotion is mistaken for Authority completion.",
+      "trigger": "Policy text, process fact registry, or command output uses Authority or productionDone language loosely.",
+      "consequence": "Future gates or users may treat local docs workflow evidence as receipt-backed production completion.",
+      "mitigation": "Register explicit non-Authority wording in COMMAND_POLICIES/process fact contract and test no Authority fields are emitted."
+    },
+    {
+      "scenario": "The implementation becomes too broad for one story.",
+      "trigger": "Custom paths, auto-promotion, INIT reviewer save behavior, or Layer4 fields are added because they appear in nearby docs.",
+      "consequence": "The story grows beyond the audited first-version boundary and risks regressions in unrelated lifecycle gates.",
+      "mitigation": "Keep checklist scope to canonical path commands, tests, registry, and docs clarification only; use scope extension only if the user explicitly approves a new capability."
+    }
+  ],
+  "timestamp": "2026-06-14T19:48:41.407Z"
+}

@@ -318,6 +318,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'execution-boundary.json',
   'scope-freeze-check.json',
   'scope-extension-proposals.json',
+  'decision-doc-proposals.json',
   'scope-discard-digest.json',
   'scope-check.json',
   'delivery-check.json',
@@ -376,11 +377,11 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['init-check.json', 'scope-boundary.json', 'execution-boundary.json', 'scope-freeze-check.json', 'scope-extension-proposals.json', 'scope-discard-digest.json'],
   },
   PLAN: {
-    produces: ['review.json', 'scope-check.json', 'checklist.json'],
+    produces: ['review.json', 'scope-check.json', 'checklist.json', 'decision-doc-proposals.json'],
     consumes: ['init-check.json', 'review.json', 'scope-check.json'],
   },
   DEV: {
-    produces: ['checklist.json'],
+    produces: ['checklist.json', 'decision-doc-proposals.json'],
     consumes: ['review.json', 'scope-check.json', 'checklist.json'],
   },
   REVIEW: {

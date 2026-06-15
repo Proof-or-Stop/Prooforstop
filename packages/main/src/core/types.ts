@@ -737,6 +737,59 @@ export interface DecisionData {
   timestamp: string;
 }
 
+export type DecisionDocProposalStatus = 'proposed' | 'saved' | 'superseded' | 'rejected';
+export type DecisionDocProposalSourceDecision = 'decision.json' | 'manual';
+
+export interface DecisionDocProposalAlternative {
+  name: string;
+  pros: string[];
+  cons: string[];
+}
+
+export interface DecisionDocProposalSavedRecord {
+  savedAt: string;
+  savedCommit: string;
+  targetPath: string;
+  sourceDecisionDigest?: string;
+  proposalDigest: string;
+  renderedDocDigest: string;
+  headHash: string;
+  materialHash: string;
+  mode: 'create' | 'update';
+}
+
+export interface DecisionDocProposal {
+  id: string;
+  slug: string;
+  targetPath: string;
+  title: string;
+  status: DecisionDocProposalStatus;
+  sourceDecision: DecisionDocProposalSourceDecision;
+  sourceDecisionDigest?: string;
+  decision: string;
+  context: string;
+  scope: string;
+  nonGoals: string[];
+  chosenApproach: string;
+  alternatives: DecisionDocProposalAlternative[];
+  operationalRules: string[];
+  verificationRequirements: string[];
+  risks: string[];
+  createdAt: string;
+  updatedAt: string;
+  proposalDigest: string;
+  savedAt?: string;
+  savedCommit?: string;
+  saves?: DecisionDocProposalSavedRecord[];
+}
+
+export interface DecisionDocProposalFile {
+  schemaVersion: 'lattice.decision_doc_proposals.v1';
+  storyId: string;
+  updatedAt: string;
+  proposals: DecisionDocProposal[];
+}
+
 /**
  * Pre-context Intake snapshot (OMX style).
  * Before breaking down the checklist in the PLAN phase, the main agent should first record a structured understanding of the task.
@@ -900,6 +953,8 @@ export type ProcessEventType =
   | 'host_verdict'
   | 'review_escalation_fallback'
   | 'authority_receipt'
+  | 'decision_doc_proposal'
+  | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'
   // B-6bfd CHK-004: Koala-managed guard session projection lifecycle events.
   | 'guard_session_start'

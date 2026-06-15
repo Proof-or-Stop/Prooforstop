@@ -1,0 +1,36 @@
+{
+  "task": "Implement local CLI commands that promote selected story decisions into durable decision docs with scope and freshness gates.",
+  "outcome": "User runs `lattice decision_doc_proposal ...`, sees `Decision doc proposal DDP-001 saved`; runs `lattice decision_doc_preview ...`, sees the Markdown and target path; runs `lattice decision_doc_save ... --confirm`, sees `Decision doc saved to docs/requirements/decisions/<slug>.md`; stale or out-of-scope saves print BLOCKED-style errors.",
+  "facts": [
+    "B-16eb added and quorum-reviewed docs/requirements/decisions/decision-doc-promotion-execution-plan.md as the implementation contract.",
+    "Existing decision_set writes .lattice story-local decision.json through packages/main/src/handlers/decision.ts and StoryStore read/write helpers.",
+    "Existing decision-doc quorum gate detects docs/requirements/decisions/*.md changes and requires local host_verdict quorum at DONE.",
+    "Command policies and process fact registry are hard runtime surfaces for lifecycle facts; new gate-relevant commands must be registered there and in scripts/verify-process-fact-contract.mjs.",
+    "Scope contract and checklist file declarations already provide path-level scope enforcement for lifecycle gates."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Do not directly read or write docs/story or packages/main/tests/fixtures.",
+    "First version supports only docs/requirements/decisions/*.md target paths.",
+    "decision_doc_save must not imply Authority receipt completion, authorityDone, fullAuthorityDone, productionDone, customerKeyRef, or Layer4 support.",
+    "decision_doc_preview must be read-only and not mutate story metadata.",
+    "decision_doc_save must require confirm:true, explicit create/update mode, fresh proposal/source decision digest, and in-scope target path."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/decision-doc-promotion.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+    "packages/main/package.json",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+  ],
+  "timestamp": "2026-06-14T19:48:26.495Z"
+}

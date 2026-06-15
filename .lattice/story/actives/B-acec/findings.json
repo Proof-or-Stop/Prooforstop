@@ -1,0 +1,128 @@
+{
+  "findings": [
+    {
+      "id": "B-acec:F-001",
+      "desc": "decision_doc_save scope guard can be bypassed conceptually because it accepts current checklist file declarations after the scope contract fails. checklist_update permits files updates in DEV, while decision_doc_save is also DEV-only, so a DEV actor can add docs/requirements/decisions/<slug>.md to checklist files and then save without a PLAN-frozen scope contract or accepted scope extension. This violates the product boundary that save must not become a back door for expanding story scope during DEV.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-14T21:43:51.887Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-001",
+      "_hash": "41fcfc7c40a8cbc36d078d0dce470bf28b3b9852d605b00467b5d5217c8d5186",
+      "files": [
+        "packages/main/src/handlers/decision-doc-promotion.ts:307",
+        "packages/main/src/handlers/decision-doc-promotion.ts:310",
+        "packages/main/src/handlers/checklist.ts:413",
+        "packages/main/src/handlers/checklist.ts:422",
+        "packages/main/src/handlers/checklist.ts:511",
+        "packages/main/src/core/config.ts:216",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:94",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:266"
+      ],
+      "resolvedReason": "Fixed by removing checklist file declarations from decision_doc_save scope authorization; save now accepts only scope-contract allowedCreate/allowedModify or accepted/approved scope extension. Verified by decision-doc-promotion smoke checklist-only scope backdoor blocked and accepted scope extension authorizes outside-contract target.",
+      "resolvedAt": "2026-06-14T22:07:11.678Z"
+    },
+    {
+      "id": "B-acec:F-002",
+      "desc": "CHK-001 adversarial / CHK-004 adversarial require preview to be read-only for story metadata, process events, and project docs, but the smoke only snapshots decision-doc-proposals.json and the target doc around decision_doc_preview. It does not snapshot process-events.jsonl or store.readProcessEvents before/after preview, so a regression that appends a decision_doc_preview process event would still pass. Evidence: packages/main/src/tasks/decision-doc-promotion-smoke.ts:226-233 checks proposal metadata and target absence only; handler path under review is packages/main/src/handlers/decision-doc-promotion.ts:410-423.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T21:44:10.832Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-005",
+      "_hash": "c5dfeb7b4f6b6cb7c9bdec2bcc050210f774aaa95829ddc114b0832729da55fb",
+      "files": [
+        "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+        "packages/main/src/handlers/decision-doc-promotion.ts"
+      ],
+      "resolvedReason": "Fixed by adding preview read-only assertions for raw process-events.jsonl and store.readProcessEvents before/after decision_doc_preview, in addition to proposal metadata and target doc checks. Verified by npm --prefix packages/main run test:decision-doc-promotion-smoke.",
+      "resolvedAt": "2026-06-14T22:07:11.690Z"
+    },
+    {
+      "id": "B-acec:F-003",
+      "desc": "CHK-003 happy evidence says `node packages/main/dist/cli.js help | rg \"decision_doc_(proposal|preview|save)|decision doc (proposal|preview|save)\"` lists decision_doc_proposal, decision_doc_preview, and decision_doc_save, but in the B-acec REVIEW worktree that exact check only lists decision_doc_preview because printHelp filters active-story commands by current phase. Command-specific --help and the process fact contract do cover schema/registry, but the recorded help-list evidence is not reproducible for this story context. Evidence: packages/main/src/cli-engine.ts:2515-2517 filters help by phase; observed output in this review matched only decision_doc_preview.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T21:44:19.035Z",
+      "reviewRound": "2026-06-14T21:39:21.758Z",
+      "reviewRunId": "B-acec:RR-005",
+      "_hash": "c079d213bc1fc6687ac0d7515736c22aea1a29f2d016c866783af86d1142161f",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "resolvedReason": "Fixed evidence path by adding phase-independent command-specific help smoke for decision_doc_proposal --help, decision_doc_preview --help, and decision_doc_save --help instead of relying on phase-filtered global help. Verified by decision-doc-promotion smoke and process fact contract.",
+      "resolvedAt": "2026-06-14T22:07:11.768Z"
+    },
+    {
+      "id": "B-acec:F-004",
+      "desc": "Runtime F-001 is fixed, but the durable requirements plan still describes checklist/file declarations as a valid decision_doc_save authorization source. docs/requirements/decisions/decision-doc-promotion-execution-plan.md lines 266-268 say the save target may be covered by scope contract, allowed file declarations, or an accepted scope extension, and lines 397-399 say PLAN scope, checklist file declarations, or accepted scope extension. The handler now correctly has no checklist fallback and authorizes only scope-contract allowedCreate/allowedModify or accepted/approved scope extension, so the doc should be updated to avoid re-teaching the DEV scope backdoor.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-14T22:13:29.243Z",
+      "reviewRound": "2026-06-14T22:06:32.674Z",
+      "reviewRunId": "B-acec:RR-006",
+      "_hash": "e8b951b5f213f133cca1a47d860a85065535a4177d1f04ec8aab435addbc775d",
+      "files": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:266",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:398",
+        "packages/main/src/handlers/decision-doc-promotion.ts:301",
+        "packages/main/src/handlers/decision-doc-promotion.ts:306"
+      ],
+      "resolvedReason": "Docs updated to remove the checklist/file-declaration authorization fallback. decision_doc_save is now documented as authorized only by story scope contract allowedCreate/allowedModify or an accepted/approved scope extension, matching the runtime gate.",
+      "resolvedAt": "2026-06-14T22:25:01.421Z"
+    },
+    {
+      "id": "B-acec:F-005",
+      "desc": "The durable execution plan still contains stale authorization wording at several locations: prior PLAN scope coverage, declared PLAN scope, target paths outside PLAN scope, and accepted scope extension only. That conflicts with the required contract that decision_doc_save authorization comes only from scope contract allowedCreate/allowedModify or an accepted/approved scope extension, with no checklist/file declaration fallback.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-14T22:30:19.530Z",
+      "reviewRound": "2026-06-14T22:23:31.913Z",
+      "reviewRunId": "B-acec:RR-013",
+      "_hash": "84b19655b10aba07bb392217ac9dfceb68cac901df984829825ca17424237e87",
+      "files": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "resolvedReason": "Docs updated across the durable execution plan: save authorization now consistently requires scope contract allowedCreate/allowedModify coverage or a mechanically valid accepted/approved scope extension. Targeted search found no stale PLAN scope, declared scope, checklist/file declaration fallback, or plain accepted-extension authorization wording in the save path.",
+      "resolvedAt": "2026-06-14T22:44:21.784Z"
+    },
+    {
+      "id": "B-acec:F-006",
+      "desc": "decision_doc_save accepts accepted/approved scope-extension proposals by status and patch.allowed only, without validating the scope-extension proposal/decision hashes. The smoke currently constructs an accepted extension with dummy _hash values and save succeeds, so a tampered scope-extension-proposals.json can authorize a decision-doc write outside the scope contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-14T22:30:28.418Z",
+      "reviewRound": "2026-06-14T22:23:31.913Z",
+      "reviewRunId": "B-acec:RR-010",
+      "_hash": "df4b0930afd732a9b67c8ac8fae711aa6ab0a3f4146dc213a231f386214e7129",
+      "files": [
+        "packages/main/src/handlers/decision-doc-promotion.ts",
+        "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "resolvedReason": "decision_doc_save now validates accepted/approved scope-extension proposals with existing scope anti-expansion digest helpers before path matching can authorize an outside-contract target: story id, proposal status, decision status, decision _hash, and proposal _hash must all be fresh. Smoke now refuses forged dummy _hash extensions and accepts a helper-built signed extension.",
+      "resolvedAt": "2026-06-14T22:44:29.431Z"
+    }
+  ]
+}
