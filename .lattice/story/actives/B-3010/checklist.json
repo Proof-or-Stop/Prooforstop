@@ -197,7 +197,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Final summary states localNonAuthorityAudit completed, Authority Server receipt-backed proof not claimed, and DONE closure includes review/validate/delivery evidence.",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-3010"
+        ],
+        "create": [],
+        "test": [
+          "Lattice REVIEW/TEST/DONE commands"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "REVIEW and TEST gates pass with evidence covering runtime-owned asset projection, stale detection, and token accounting.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Summary separates localNonAuthorityAudit from authorityServerPath and does not claim receipt-backed Authority completion.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE is not attempted while delivery-check, summary, stale evidence, or review escalation requirements are missing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
