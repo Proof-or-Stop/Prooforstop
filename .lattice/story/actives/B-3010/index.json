@@ -4,7 +4,7 @@
   "title": "Runtime-owned agent asset inventory and doctor projection",
   "description": "Implement the first phase of the runtime-owned agent assets plan: add mechanical inventory/doctor projection for prompt asset resolution, detect stale project-local agent assets without deleting or migrating them, and record measurable token accounting for the task. This must keep Lattice CLI local Non-authority evidence separate from Authority Server receipt-backed completion.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -52,11 +52,21 @@
       "user": "Harmonygo",
       "sessionId": "codex-b3010",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T12:05:16.529Z",
+      "branch": "story/B-3010",
+      "user": "Harmonygo",
+      "sessionId": "codex-b3010",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-3010",
     "branch": "story/B-3010",
     "createdAt": "2026-06-15T11:50:32.921Z"
-  }
+  },
+  "currentReviewRound": "2026-06-15T12:05:16.529Z"
 }
