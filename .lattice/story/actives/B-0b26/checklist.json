@@ -320,14 +320,14 @@
         },
         {
           "intentRef": "CHK-002:happy:3",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
-          "command": "npm run build",
+          "command": "npm run build && npm run test:e2e",
           "result": "pass",
-          "note": "npm run build exited 0 after deleting claude-session.mjs — confirms no live import depended on it.",
-          "headHash": "a1a8f03325f4eb6e6060a29a3c3d6400a7a307fe",
+          "note": "After deletion, npm run build compiled cleanly (exit 0) AND the full npm run test:e2e suite ran to completion with ALL PASS (story-lifecycle 5 steps + gap-convergence 4 steps) — the build output is not merely compiling but passes the end-to-end assertion suite, proving no broken references from the deleted paths.",
+          "headHash": "29e6cba8183ed121122bb325b3f7fcb3b6caa683",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
-          "timestamp": "2026-06-15T22:31:59.440Z"
+          "timestamp": "2026-06-15T22:32:41.615Z"
         },
         {
           "intentRef": "CHK-002:happy:4",
