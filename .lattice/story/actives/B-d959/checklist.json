@@ -11,8 +11,8 @@
         "packages/main/src/core/decision-doc-quorum.ts",
         "packages/main/src/handlers/verdict.ts"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T02:08:29.067Z",
       "endTime": null,
       "userSees": "User sees: The execution plan now says 3x2 remains the default, but when a second host is unavailable or out of credits, Lattice may use a clearly marked 3-round x 1-host degraded fallback with reason codes and stronger evidence.",
       "files": {
@@ -60,6 +60,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T02:08:29.067Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin documentation update for degraded one-host fallback."
     }
   ]
 }
