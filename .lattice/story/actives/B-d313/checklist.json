@@ -127,6 +127,17 @@
           "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
           "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
           "timestamp": "2026-06-15T00:37:47.984Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node -e regex-probe (Lattice vs koala/lowercase/no-emoji)",
+          "result": "pass",
+          "note": "/Lattice stale state warnings/.test('lattice stale state warnings') === false and .test('Lattice stale state warnings') === true — assertion is brand-exact and case-sensitive, not relaxed.",
+          "headHash": "fda4f758babea83ca3c2c85d76783cabb035bb03",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:39:06.903Z"
         }
       ]
     }
