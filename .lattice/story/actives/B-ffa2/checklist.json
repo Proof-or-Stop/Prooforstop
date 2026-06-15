@@ -51,8 +51,8 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "CLAUDE.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T15:42:26.628Z",
       "endTime": null,
       "userSees": "Terminal search prints no active Koala agent filenames: `find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg koala-` exits with no matches.",
       "files": {
@@ -262,6 +262,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start execution document implementation."
+    },
+    {
+      "timestamp": "2026-06-15T15:42:26.628Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start agent template and mirrored asset rename."
     }
   ]
 }
