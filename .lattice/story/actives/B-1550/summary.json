@@ -1,0 +1,55 @@
+{
+  "storyId": "B-1550",
+  "changes": "Added the execution-plan decision document docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md (~701 lines). It specifies the default REVIEW path, the automatic 3x2 escalation trigger (firstReviewRound.countableProblems >= 2), the always-on decision-doc 3x2 rule, true host/session/key/signature/material independence, stale-digest rejection, the read-only vs mutating artifact split, the process-fact registry wiring, rollout, a test matrix with adversarial negative controls, and acceptance criteria. Documentation-only; no code change.",
+  "usage": "Read docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md as the authoritative plan before implementing the 3x2 review-escalation gate; the File-Level Execution Plan and Acceptance Criteria sections drive the follow-up implementation story.",
+  "expectedOutcome": "A reviewer/implementer finds a complete, standalone execution plan at the documented path covering escalation trigger, independence requirements, artifacts, CLI surface, rollout, tests, and acceptance criteria.",
+  "actualTranscript": "Doc present and readable at the promised path (701 lines); delivery reviewer verified 7/7 documented promises via grep against the file; validate allPass=true with 6/6 intent items covered; cli-e2e story-lifecycle + gap-convergence passed. See evidence/transcript-diff.md.",
+  "outcomeDiff": "No diff — the delivered document matches the planned scope and the checklist promise.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Planning artifact only — it documents the 3x2 escalation gate design but does not implement it; the implementation lands in a separate follow-up story.",
+  "pitfalls": "When implementing from this plan, do NOT count reviewer independence by hostId alone — the plan requires hostId + sessionId + keyId/identityDigest + payload signature + material binding, and rejects stale head/material/validation digests.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 130755
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13318
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 547577
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 451351
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1065457
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 3641779
+    }
+  },
+  "totalDurationMs": 5850238,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T00:19:49.657Z",
+  "updatedAt": "2026-06-15T00:19:49.657Z"
+}
