@@ -53,7 +53,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees done_closure preserve completed-story evidence freshness against the recorded DONE-time snapshot, while non-DONE stories still require fresh current evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For story.phase=DONE, the DONE oracle compares test-evidence materialHash with the material tree at evidence.headHash and returns pass when they match.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For story.phase not DONE, the DONE oracle still uses current HEAD/materialHash freshness and blocks stale active evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the recorded evidence head cannot be resolved or its material tree does not match evidence.materialHash, DONE story freshness fails closed rather than silently passing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
