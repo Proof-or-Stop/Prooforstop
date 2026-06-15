@@ -124,6 +124,42 @@
         "test": [
           "packages/main/src/tasks"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: call readCommitsSinceMain with projectRoot=resolved gitRoot (/repo/gitRoot) -> execSync git log runs with cwd=/repo/gitRoot and returns parsed commits; WHY: proves the reroute threads the resolved gitRoot into the git log call site",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: call readCommitsSinceMain with projectRoot=metadataRoot (resolver unresolved) -> cwd=projectRoot, commits returned byte-identical to pre-change behavior; WHY: proves null-fallback preserves existing behavior for non-wrapper-root repos",
+            "type": "cli"
+          },
+          {
+            "desc": "end-to-end syncClusterResolves with wrapper-root: commits contain Resolves: CL-001 -> cluster is resolved; WHY: proves the full pipeline from git log through commit parsing to cluster resolution works with the rerouted cwd",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "F-023 error path: readCommitsSinceMain from gitRoot where git log fails (no main branch) -> returns {commits:[], error: stderr_message} and syncClusterResolves surfaces the error as a warning, not a crash; WHY: preserves the F-023 error-surfaced-as-warning behavior after reroute",
+            "type": "cli"
+          },
+          {
+            "desc": "empty commit history: gitRoot has no commits on branch (main..HEAD is empty) -> returns {commits:[]} with no error; WHY: edge case where branch was just created with no divergence from main",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS: readCommitsSinceMain called with metadataRoot (wrong tree) finds 0 commits because metadataRoot has no git history, while gitRoot has real commits with Resolves: CL-xxx -> assert syncClusterResolves must not silently report 0 resolved clusters when the real tree has matching commits; WHY: running git log from wrong cwd silently drops all cluster resolutions",
+            "type": "cli"
+          },
+          {
+            "desc": "commit message with malicious NUL/RS bytes: git log output contains extra \\x00 and \\x1e delimiters embedded in commit messages -> parser does not produce phantom commits or skip real ones; WHY: commit messages from the correct gitRoot could contain delimiter bytes that break the parser",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
