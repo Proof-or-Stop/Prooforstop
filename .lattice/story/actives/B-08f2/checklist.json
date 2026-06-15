@@ -217,6 +217,54 @@
           "packages/main/src/tasks/unattended-dispatch-smoke.ts",
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:e2e exits 0 after all 30 test/smoke files updated to LATTICE_*; WHY: e2e suite is the primary gate proving no test broke from the rename",
+            "type": "cli"
+          },
+          {
+            "desc": "grep KOALA_[A-Z] across all 30 test files in packages/main/src/tasks/ returns zero matches; WHY: proves every KOALA_ env assertion in tests was updated to LATTICE_",
+            "type": "cli"
+          },
+          {
+            "desc": "Spot-check key smoke files: runtime-environment-checks codex-adapter hook-contract health story-owner-lease now assert LATTICE_ env names (grep LATTICE_ in each -> >= 1 hit); WHY: these are the core env-contract smokes most likely to catch regression",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical fixtures or snapshot data files containing KOALA_ as past data are left untouched (out of scope); verify no test file imports or reads from a fixture that still sets process.env.KOALA_ at runtime; WHY: a fixture that sets KOALA_ at runtime would cause a silent test pass masking a broken rename",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify affected test suites individually pass (not just e2e): npm run test passes for the smoke files that were modified; WHY: e2e might skip certain suites; individual suite runs catch failures e2e might miss",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no test file has a commented-out KOALA_ assertion that was disabled instead of properly renamed; pattern: grep for // or /* followed by KOALA_ in test files -> zero; WHY: commenting out instead of renaming hides the problem",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No test file retains a KOALA_ fallback shim (LATTICE_.*||.*KOALA_ or LATTICE_.*??.*KOALA_ pattern) -> zero; WHY: a dual-read in tests would mask failures in production code that dropped the fallback",
+            "type": "cli"
+          },
+          {
+            "desc": "No test sets both KOALA_ and LATTICE_ versions of the same var (env double-write); grep for lines setting process.env.KOALA_ anywhere in tasks/ -> zero; WHY: double-write in tests hides that production only reads LATTICE_ now",
+            "type": "cli"
+          },
+          {
+            "desc": "Run a cross-check: the set of env var names asserted in test files is a subset of the env var names used in production source; no test asserts a LATTICE_ var that does not exist in packages/main/src/; WHY: a typo in rename (e.g. LATTICE_COMMMAND) would pass grep but fail at runtime",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no test file was accidentally deleted instead of updated (all 30 files in CHK-002 file list still exist on disk); WHY: deletion masks the rename by removing failing tests entirely",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
