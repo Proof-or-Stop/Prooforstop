@@ -71,7 +71,30 @@
       "userSees": "`lattice validate` runs the new tests green, proving bootstrap-failure leaves phase unchanged and the recovery path re-bootstraps a stuck story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New smoke test runs green under lattice validate, asserting bootstrap-failure leaves phase unchanged and the recovery path re-bootstraps a stuck story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The injected bootstrap-failure path does not require a real failing git operation (uses an injectable seam) yet still exercises the cli-engine ordering",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Test guards against regression: if phase were advanced before bootstrap, the partial-advance assertion fails loudly",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
