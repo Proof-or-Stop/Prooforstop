@@ -407,9 +407,9 @@
         "packages/main/src/tasks/review-escalation-smoke.ts"
       ],
       "userSees": "User sees degraded 3x1 accepted only as degraded-single-host and never as full 3x2.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T03:32:58.559Z",
       "files": {
         "modify": [
           "packages/main/src/core/review-escalation.ts",
@@ -447,7 +447,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "approved-degraded-3x1-passes",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke check passed: explicit degraded 3x1 fallback with allowed eligibility, reason, evidence ref, fresh material, and three single-host rounds returns ok=true and assuranceLevel=degraded-single-host.",
+          "headHash": "625a43800e5f115130afd2708558fab5ef465924",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:58.624Z"
+        },
+        {
+          "intentRef": "missing-degraded-approval-blocks",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke check passed: stale fallback material plus missing evidence/approval keeps the escalated story blocked.",
+          "headHash": "625a43800e5f115130afd2708558fab5ef465924",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:58.661Z"
+        },
+        {
+          "intentRef": "degraded-never-full-3x2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke check passed: degraded fallback has fullQuorum.ok=false, degradedFallback.ok=true, and authorityDone/fullAuthorityDone/productionDone all false.",
+          "headHash": "625a43800e5f115130afd2708558fab5ef465924",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:58.696Z"
+        }
+      ]
     }
   ]
 }
