@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-15T23:36:08.742Z",
       "reviewRunId": "B-3990:RR-001",
       "_hash": "bc5f1a491461421f7a3a262cfba3be52249b5d28743317ff85c10fad25202530"
+    },
+    {
+      "id": "B-3990:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, no type-safety issues, no shell/fn.ts isolation violations. Checked: (1) evaluateStoryDirConfigInsideGitRoot is total (wraps all throwing paths in try/catch, returns gitRootAbs:null on any internal error) so the no-story branch in verifier.ts cannot crash. (2) The ?? projectRoot fallback keeps plain-repo behavior byte-identical. (3) Only gitCwd assignment changed; gate semantics, command text, and story-signed-workspace-resolution.ts are untouched. (4) The property accessed is exactly .gitRootAbs, matching the StoryDirInsideGitRootResult interface. (5) For the outside-gitroot violation case (gitRootAbs non-null but storyDir outside it), the expression still returns the non-null gitRootAbs, which is the correct behavior: the bare gate should run from the configured gitRoot even if storyDir is outside it — symmetric with the --story branch resolveGitCwd behavior. (6) The smoke test covers all three scenarios (wrapper-root, plain-repo, null-gitRootAbs) with real git fixtures and asserts the resolver is a real git worktree after resolution. No findings.",
+      "createdAt": "2026-06-15T23:37:32.485Z",
+      "reviewRound": "2026-06-15T23:36:08.742Z",
+      "reviewRunId": "B-3990:RR-002",
+      "_hash": "08a74b9cf1f39a2a18c3c15fc67ec8681bac9cb365675aa44806a912c283e248"
     }
   ]
 }
