@@ -1,0 +1,27 @@
+{
+  "task": "story_advance INIT_CHECK persists phase=INIT_CHECK before worktree bootstrap (dev_start) runs; on bootstrap failure no rollback and no INIT_CHECK->INIT back-edge leaves the story stuck (phase advanced, requiresWorktree=true, no worktree, unrecoverable).",
+  "outcome": "When worktree bootstrap fails, the user sees `⚠ INIT_CHECK aborted: <reason>. Story B-804c stays at INIT.` and `lattice story_get` still shows phase INIT (not INIT_CHECK). For a story already stuck in INIT_CHECK with no worktree, running `lattice dev_start {storyId}` prints `Story B-xxx development environment is ready / Path: .../.worktrees/B-xxx` recreating the worktree, instead of being unrecoverable.",
+  "facts": [
+    "cli-engine.ts INIT_CHECK block: advanceResult=await handlers.story_advance(v.data) writes phase to disk (~line 4040) BEFORE handlers.dev_start({storyId}) bootstraps the worktree (~line 4047).",
+    "The catch at ~line 4059-4061 only emits a warning string; it does NOT roll the phase back.",
+    "core/machine.ts:503-508 INIT_CHECK state has only PLAN and START(guard canSkipPlan) edges; no INIT_CHECK->INIT back-edge.",
+    "handlers/worktree.ts dev_start is ALREADY idempotent: if story.worktree exists+dir exists it returns early; if record stale it clears+recreates; accepts phase INIT_CHECK/PLAN/DEV; on its own internal failures rolls back story.worktree=undefined.",
+    "The B-5246 retry path already detects currentPhase===INIT_CHECK and skips re-advancing, calling dev_start again — partial recovery that only works because phase was already (wrongly) advanced.",
+    "Smoke tests live in packages/main/src/tasks/*-smoke.ts as self-contained node scripts (assert+execFileSync of dist/cli.js), registered as npm test:<name> scripts in packages/main/package.json; worktree-repair-smoke.ts is the closest pattern."
+  ],
+  "constraints": [
+    "Scope only: cli-engine.ts, core/machine.ts, handlers/worktree.ts, tasks/, tests/. Do NOT change gitRoot cwd resolution (B-2856) or .lattice track/ignore model (B-854c).",
+    "High-risk: touches xstate machine + phase persistence; needs decision + >=3 preMortem + regression tests.",
+    "Handler convention: any Zod min/max/enum must be re-validated at runtime in handler + every consuming gate/fn.",
+    "Forward-only phase machine; must not introduce illegal backward transitions that break other gates."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-15T22:07:52.686Z"
+}

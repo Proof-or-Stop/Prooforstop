@@ -7,7 +7,30 @@
       "userSees": "When worktree bootstrap fails, `lattice story_advance --phase=INIT_CHECK` reports failure and the story stays at its prior phase (story_get shows the original phase, not INIT_CHECK) instead of 'advanced to INIT_CHECK' followed by a worktree-failed warning.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a clean repo, story_advance --phase=INIT_CHECK with a succeeding bootstrap advances phase to INIT_CHECK and creates the worktree (unchanged success behavior)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When dev_start bootstrap throws, story_get still shows the prior phase (INIT), not INIT_CHECK; output reports failure not advancement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A victim already at INIT_CHECK with no worktree re-runs story_advance --phase=INIT_CHECK: does not throw INIT_CHECK->INIT_CHECK, re-runs dev_start, no double-advance",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
