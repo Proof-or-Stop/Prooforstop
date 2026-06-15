@@ -267,6 +267,101 @@ export function evaluateStoryDirInsideGitRoot(
   return { ok: true, storyDirAbs, gitRootAbs, rel };
 }
 
+/**
+ * B-198c CHK-002: id-independent project-level variant of
+ * {@link evaluateStoryDirInsideGitRoot}.
+ *
+ * The storyDir-outside-gitRoot violation is determined by the configured
+ * storyDir BASE vs the resolved gitRoot — it is the SAME for every story in the
+ * project and does not depend on any specific story id. Project-level callers
+ * (the `doctor` check in CHK-002, the early advisory in CHK-003) have no story
+ * id in hand, so they call this wrapper instead of synthesizing a representative
+ * id.
+ *
+ * It mirrors the id-dependent helper's escape condition EXACTLY:
+ *   storyDirBase = realpath(join(metadataRoot, config.storyDir))
+ *   gitRoot      = configured gitRoot (when valid) else the metadata git root
+ *   rel          = relative(realpath(gitRoot), storyDirBase)
+ *   violation when rel is empty / absolute / contains a `..` segment
+ *
+ * The story-worktree / linked-story-branch-worktree resolution branches in
+ * {@link resolveStorySignedWorkspace} are intentionally NOT consulted here:
+ * those are per-story and irrelevant to "can story metadata be committed inside
+ * the gitRoot at all". This caller only needs the project-level gitRoot.
+ *
+ * realpath BOTH sides so a /var → /private/var symlink does not produce a false
+ * violation; fall back to the raw path when it does not exist on disk.
+ *
+ * When no gitRoot can be resolved (no configured gitRoot and metadataRoot is not
+ * git-backed), returns a DISTINCT non-violation result
+ * (`ok: true`, `reason: 'gitroot-unresolved'`) so callers can report the
+ * unresolvable condition separately. PURE: never throws, no console output.
+ */
+export interface EvaluateStoryDirConfigInsideGitRootOptions {
+  metadataRoot: string;
+  config?: KoalaConfig;
+  cwd?: string;
+}
+
+export function evaluateStoryDirConfigInsideGitRoot(
+  opts: EvaluateStoryDirConfigInsideGitRootOptions,
+): StoryDirInsideGitRootResult {
+  const metadataRoot = canonicalPath(opts.metadataRoot);
+  const config = opts.config ?? loadConfig(metadataRoot);
+  // storyDir BASE (no story id appended): the directory that holds every
+  // story's metadata. mirrors StoryStore: join(projectRoot, config.storyDir).
+  const storyDirBase = join(metadataRoot, config.storyDir.replace(/\/$/, ''));
+  const storyDirAbs = canonicalPath(storyDirBase);
+
+  const gitRootAbs = resolveProjectGitRoot(metadataRoot, config.gitRoot);
+
+  // Unresolved gitRoot → distinct non-violation result; never throw.
+  if (!gitRootAbs) {
+    return {
+      ok: true,
+      storyDirAbs,
+      gitRootAbs: null,
+      rel: null,
+      reason: 'gitroot-unresolved',
+    };
+  }
+
+  const rel = relative(gitRootAbs, storyDirAbs).replace(/\\/g, '/');
+
+  // EXACT escape condition mirrored from worktree.ts:754 / the id-dependent helper.
+  const violation = !rel || isAbsolute(rel) || rel.split('/').includes('..');
+  if (violation) {
+    return {
+      ok: false,
+      storyDirAbs,
+      gitRootAbs,
+      rel,
+      reason: 'outside-gitroot',
+    };
+  }
+
+  return { ok: true, storyDirAbs, gitRootAbs, rel };
+}
+
+/**
+ * Id-independent project-level gitRoot resolution: a configured (valid) gitRoot
+ * wins, otherwise the metadata root's own git toplevel. Returns null when
+ * neither resolves. Reuses the same configured-gitRoot validation + git probe
+ * the id-dependent resolver uses, so both helpers agree on what "the gitRoot"
+ * is for this project.
+ */
+function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: string | undefined): string | null {
+  const configured = resolveConfiguredGitRoot(metadataRoot, configuredGitRoot);
+  if (configured) {
+    // A configured gitRoot that fails validation is a hard signal: treat it as
+    // unresolved rather than silently falling back to the metadata git root.
+    return configured.ok ? configured.path : null;
+  }
+  const metadataGitRoot = probeGitRoot(metadataRoot);
+  if (metadataGitRoot.ok && metadataGitRoot.topLevel) return metadataGitRoot.topLevel;
+  return null;
+}
+
 function resolved(
   story: StoryInfo,
   metadataRoot: string,
