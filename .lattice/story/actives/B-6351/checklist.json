@@ -265,6 +265,16 @@
           "headHash": "3a41714bf32b536cdaacbcb71d6738414226ce2c",
           "materialHash": "fa86b5c9f5dfde13eca03a4c2b3eda8f064a5b67984886bcdf15c12573846d35",
           "timestamp": "2026-06-15T02:54:14.497Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "command": "rg -n 'koala-codex|\\.Codex/koala\\.json' .Codex .codex README.md docs/guide-hooks.md",
+          "result": "pass",
+          "note": "The active Codex/generated asset docs scan produced no koala-codex or .Codex/koala.json guidance; remaining references are limited to negative tests or historical/process contexts outside this active doc scan.",
+          "headHash": "6473ca3c55efa2c575b47ee7a044f07e8ad82888",
+          "materialHash": "fa86b5c9f5dfde13eca03a4c2b3eda8f064a5b67984886bcdf15c12573846d35",
+          "timestamp": "2026-06-15T02:55:11.808Z"
         }
       ]
     },
