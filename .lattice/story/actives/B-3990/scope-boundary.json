@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3990",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Change the verifier.ts no-story gitCwd fallback to the project-level evaluateStoryDirConfigInsideGitRoot resolver",
+    "Test: bare CLI gate resolves gitRoot on wrapper-root; plain repo unchanged"
+  ],
+  "excluded": [
+    "Changing gate pass/fail semantics or git command text",
+    "Modifying evaluateStoryDirConfigInsideGitRoot itself",
+    "Modifying the --story / resolveGitCwd path (B-2856, already works)",
+    "Repo-wide git invocation rework"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked me to fix the residual bare-CLI-gate gitRoot gap left by B-2856 (rebuild surfaced it).",
+  "createdAt": "2026-06-15T23:22:28.022Z",
+  "updatedAt": "2026-06-15T23:22:28.022Z",
+  "_hash": "94c4683c63bb2ebcfcecb6e310c66a3a3bf355cec46e276d48897175fb28097a"
+}
