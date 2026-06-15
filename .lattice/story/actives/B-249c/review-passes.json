@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-15T03:02:57.136Z",
       "reviewRunId": "B-249c:RR-001",
       "_hash": "82c9eca77b0c05582419537a31bdb099fe24a873a5d6cc75a4d3f83f1c3bc30f"
+    },
+    {
+      "id": "B-249c:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review PASS: scoped changes in packages/main/src/core/done-oracle.ts and packages/main/src/tasks/done-preflight-smoke.ts preserve strict non-DONE freshness, make DONE projections validate against the recorded evidence snapshot, and fail closed for missing/uninspectable evidence heads or materialHash mismatch. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/done-preflight-smoke.js.",
+      "createdAt": "2026-06-15T03:06:41.989Z",
+      "reviewRound": "2026-06-15T03:02:57.136Z",
+      "reviewRunId": "B-249c:RR-002",
+      "_hash": "4f8656d57d90dcea655227e3270e5835d6aebdbb52a134b144177d43b0286be8"
     }
   ]
 }
