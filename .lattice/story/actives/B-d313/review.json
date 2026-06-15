@@ -22,6 +22,42 @@
         }
       ],
       "_hash": "3d5722ece9521d2390d062e6cc0a7a150a2d4ddaca6a832d1230cabb374da8fd"
+    },
+    {
+      "timestamp": "2026-06-15T00:34:09.778Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None remaining: scope confirmed to exactly two assertion lines (:1894, :1906)."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/field-regression-cli-smoke.ts:1894 is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/field-regression-cli-smoke.ts:1906 is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "1c42158fa5b7f2cca7883b994729173cc86e84b79772a3a9547e7e1a414fce74"
+    },
+    {
+      "timestamp": "2026-06-15T00:34:46.164Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "review_advisory",
+          "severity": "advisory",
+          "message": "The review found no blockers, but it is recommended to manually verify checklist completeness against the source-of-truth documents in _reviewPrompt"
+        }
+      ],
+      "_hash": "345956f8b2a7eeced0fe4bdd98aa29e4d19e3e7ac63dc4f2ebacd7636e6c5b09"
     }
   ]
 }
