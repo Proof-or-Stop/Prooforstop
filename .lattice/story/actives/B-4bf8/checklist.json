@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Adopt the four-field token model (cache tokens) in usage shape + JSON example",
       "context": "In the 'JSON Ledger Record Shape' section and its example, replace inputTokens/outputTokens/totalTokens with the full Anthropic shape: inputTokens (uncached remainder), outputTokens, cacheCreationInputTokens, cacheReadInputTokens — as first-class fields (or mandate them as required billableUnits[] entries). Add a sentence stating input_tokens is the uncached remainder, not total. Reference that CMA's span.model_request_end.model_usage already uses these four fields.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T23:50:25.295Z",
       "endTime": null,
       "files": {
         "modify": [
