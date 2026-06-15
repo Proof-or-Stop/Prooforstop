@@ -380,6 +380,18 @@
           "headHash": "1e157c4ec9a24571aee16645ba99a8897b1442df",
           "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
           "timestamp": "2026-06-15T12:05:09.939Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "command": "summary_set after REVIEW/TEST",
+          "result": "pass",
+          "note": "Deferred gate evidence: final summary separation of localNonAuthorityAudit and authorityServerPath is produced after REVIEW/TEST. Must be replaced before DONE.",
+          "headHash": "fe43d16dfa211f4b8af10bf91c6024c59a9dab6e",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:05:10.276Z"
         }
       ]
     }
