@@ -13,6 +13,46 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep the JSON example block -> contains cacheCreationInputTokens AND cacheReadInputTokens AND inputTokens AND outputTokens as four distinct fields; WHY: the example is the de-facto spec, must show all four cache-aware token fields",
+            "type": "cli"
+          },
+          {
+            "desc": "prose states that inputTokens (or input_tokens) is the uncached remainder, not the total input -> grep for uncached remainder; WHY: prevents implementer misreading inputTokens as gross input",
+            "type": "cli"
+          },
+          {
+            "desc": "doc references CMA span.model_request_end.model_usage (or Managed Agents model_usage) as prior art -> grep for model_usage or model_request_end; WHY: establishes provenance for the four-field shape",
+            "type": "cli"
+          },
+          {
+            "desc": "Required record constraints section mentions all four token fields as required (or specifies when-required semantics) -> grep constraints section for cacheCreation and cacheRead; WHY: folds in product-reviewer advisory about constraints clarity",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "JSON example does NOT contain a totalTokens field (CHK-002 removes it but CHK-001 example should already omit or CHK-002 will) -> grep for totalTokens inside JSON block -> expect absent OR expect CHK-002 removes it; WHY: catch inconsistency if CHK-001 adds four fields but leaves stale totalTokens",
+            "type": "cli"
+          },
+          {
+            "desc": "billableUnits array in the example, if still present, includes cache-type entries (cache_creation, cache_read) or the example omits billableUnits entirely -> grep billableUnits; WHY: catch stale billableUnits that only lists input/output without cache",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "search entire doc for the string totalTokens -> must appear ONLY in derived/summary context (CHK-002), never as a stored field in the record shape or example; WHY: adversarial check that old two-field model is fully purged from record-level prose",
+            "type": "cli"
+          },
+          {
+            "desc": "verify no source-code files (.ts, .js, .json schema files) are modified in the git diff for this story -> git diff --name-only vs main; WHY: scope creep guard -- this is doc-only",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
