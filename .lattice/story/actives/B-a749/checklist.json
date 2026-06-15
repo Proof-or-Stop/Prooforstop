@@ -233,6 +233,17 @@
           "headHash": "32fe28e42a64f02417e534f6c4c4513f5c3f4ee4",
           "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
           "timestamp": "2026-06-15T22:30:51.757Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke uses injected CommandRunner + injected changed-files reader + injected FileExists only; never spawns real tsc (deterministic, sub-second).",
+          "headHash": "bb84518b8d0e256097dc781657ff3e12386cbb2b",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:52.166Z"
         }
       ]
     }
