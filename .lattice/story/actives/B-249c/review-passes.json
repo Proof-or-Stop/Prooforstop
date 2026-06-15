@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-249c:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review passed. Inspected done-oracle DONE/non-DONE freshness split and done-preflight-smoke assertions. Fresh build plus node packages/main/dist/tasks/done-preflight-smoke.js mechanically exercises DONE story remains fresh after later material commit, active TEST story still fails stale after later material commit, and DONE snapshot failures fail closed for missing recorded head and mismatched materialHash.",
+      "createdAt": "2026-06-15T03:06:28.651Z",
+      "reviewRound": "2026-06-15T03:02:57.136Z",
+      "reviewRunId": "B-249c:RR-001",
+      "_hash": "82c9eca77b0c05582419537a31bdb099fe24a873a5d6cc75a4d3f83f1c3bc30f"
+    }
+  ]
+}
