@@ -890,8 +890,9 @@ Implementation is complete only when all are true:
     gate-consumed fact.
 16. Documentation states clearly that local host verdict quorum is not Authority
     Server receipt completion.
-17. Documentation states clearly that any current direct decision-doc 3x2 gate
-    is legacy transitional behavior until the implementation story migrates it.
+17. Documentation states clearly that direct decision-doc edits are
+    diagnostic/classification-only, and review escalation is triggered only by
+    the first REVIEW round countable reviewer problem threshold.
 
 ## Operator Transcript
 
