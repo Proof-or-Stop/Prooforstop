@@ -1,0 +1,88 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Migrate decision-doc quorum trigger to unified review escalation policy",
+      "context": "Migrate the hard DONE policy from direct decision-doc file-change quorum to a unified review-escalation predicate. Keep decision-doc change detection for diagnostics, add first-review countable-problem evaluation, and make machine DONE consume the new policy rather than blocking every documentation edit. Include host verdict identity/binding fields needed by the quorum predicate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/core/host-independence.ts",
+        "packages/main/src/core/verdicts.ts",
+        "packages/main/src/handlers/verdict.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add or update smoke coverage for documentation audit trigger cases",
+      "context": "Prove zero-finding decision-doc changes do not require 3x2 after migration, first-review threshold findings still require quorum, degraded 3x1 behaves as lower assurance, and old hostId-only verdict handling does not regress existing quorum diagnostics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+        "packages/main/src/tasks/review-escalation-smoke.ts",
+        "packages/main/src/tasks/command-ownership-contract-smoke.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update operator-facing diagnostics and docs to avoid false always-on claims",
+      "context": "Ensure decision_doc_quorum_check, review_escalation_status, and DONE gate messages describe documentation-audit classification, first-review escalation triggers, degraded-single-host assurance, and current Authority boundaries without claiming every decision-doc edit still requires 3x2.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/handlers/decision-doc-quorum.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Register review-escalation quorum facts in the process-fact contract",
+      "context": "Because this story changes DONE-gate consumed facts, update process-fact registry, process-fact levels, command policy, CLI surface checks, and the process-fact contract verifier so docs, handlers, and gates cannot drift silently.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/cli-engine.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "userSees": "User sees process-fact verification pass for the new review-escalation quorum commands and gate facts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement explicit degraded 3x1 review-escalation fallback",
+      "context": "Add runtime support for approved degraded single-host review only when fallback eligibility, allowed reason, evidence or approval, fresh material binding, and lower-assurance reporting are present. It must never be reported as full 3x2 or Authority receipt completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/decision-doc-quorum.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/tasks/review-escalation-smoke.ts"
+      ],
+      "userSees": "User sees degraded 3x1 reported as degraded-single-host, not full 3x2, when policy permits it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

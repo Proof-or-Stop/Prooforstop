@@ -10,9 +10,123 @@
         "packages/main/src/core/decision-doc-quorum.ts",
         "packages/main/src/core/machine.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T02:49:26.168Z",
+      "userSees": "User sees: The plan now says documentation and decision-doc audit follow normal REVIEW first, then automatic full 3x2 or degraded 3x1 only when the same escalation rules trigger.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "doc-audit-unified-default",
+            "desc": "The document says documentation and decision-doc audit use the same ordinary REVIEW default as other development work.",
+            "type": "docs"
+          },
+          {
+            "id": "doc-audit-threshold",
+            "desc": "The document says documentation and decision-doc audit escalate to 3x2 only when the first REVIEW round records at least two countable problems.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "legacy-gate-transition",
+            "desc": "The document states current code may still enforce legacy decision-doc 3x2 until the implementation story updates the gate.",
+            "type": "docs"
+          },
+          {
+            "id": "doc-audit-degraded-3x1",
+            "desc": "The document says documentation audit can use the same explicit degraded 3x1 fallback when allowed by policy or approval.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-doc-special-case",
+            "desc": "The document no longer preserves always-on decision-doc 3x2 as the desired target policy.",
+            "type": "docs"
+          },
+          {
+            "id": "no-false-runtime-claim",
+            "desc": "The document does not claim the automatic document-audit policy is already implemented in runtime code.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "doc-audit-unified-default",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "node -e policy-and-English-only assertions",
+          "result": "pass",
+          "note": "The document purpose and Documentation Audit Unified Rule state that documentation and decision-doc audit use the same default REVIEW path as ordinary development. The assertion command printed: doc policy and English-only checks passed.",
+          "headHash": "af2037bd35ca4588a72622fbbc4bd77771097542",
+          "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+          "timestamp": "2026-06-15T02:49:50.776Z"
+        },
+        {
+          "intentRef": "doc-audit-threshold",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "node -e policy-and-English-only assertions",
+          "result": "pass",
+          "note": "The DONE Gate section now defines the target formula as requires3x2 = firstReviewRoundCountableProblems >= 2, and the test matrix says zero or one countable first-round finding does not require 3x2.",
+          "headHash": "af2037bd35ca4588a72622fbbc4bd77771097542",
+          "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+          "timestamp": "2026-06-15T02:49:50.776Z"
+        },
+        {
+          "intentRef": "legacy-gate-transition",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "node -e policy-and-English-only assertions",
+          "result": "pass",
+          "note": "The purpose, current-state table, documentation audit rule, and DONE Gate transition note explicitly say current runtime may still enforce legacy direct decision-doc 3x2 until a follow-up implementation story migrates the gate.",
+          "headHash": "af2037bd35ca4588a72622fbbc4bd77771097542",
+          "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+          "timestamp": "2026-06-15T02:49:50.776Z"
+        },
+        {
+          "intentRef": "doc-audit-degraded-3x1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "node -e policy-and-English-only assertions",
+          "result": "pass",
+          "note": "The degraded fallback rule and decision-doc tests state that escalated documentation audit may use approved degraded 3x1 only with assuranceLevel=degraded-single-host and without claiming full 3x2.",
+          "headHash": "af2037bd35ca4588a72622fbbc4bd77771097542",
+          "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+          "timestamp": "2026-06-15T02:49:50.776Z"
+        },
+        {
+          "intentRef": "no-doc-special-case",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "node -e policy-and-English-only assertions",
+          "result": "pass",
+          "note": "The old purpose line Always-on: direct decision-doc changes still require 3 quorum rounds x 2 independent PASS hosts is absent. Decision-doc changes with zero countable first-round findings are now expected to require3x2=false under the target policy.",
+          "headHash": "af2037bd35ca4588a72622fbbc4bd77771097542",
+          "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+          "timestamp": "2026-06-15T02:49:50.776Z"
+        },
+        {
+          "intentRef": "no-false-runtime-claim",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "node -e policy-and-English-only assertions",
+          "result": "pass",
+          "note": "The document labels automatic document-audit behavior as the target policy and repeatedly says current implementation may still be legacy until the implementation story changes the runtime gate; it does not claim runtime implementation is already complete.",
+          "headHash": "af2037bd35ca4588a72622fbbc4bd77771097542",
+          "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+          "timestamp": "2026-06-15T02:49:50.776Z"
+        }
+      ]
     }
   ]
 }
