@@ -169,6 +169,7 @@
       "files": {
         "modify": [
           "packages/main/package.json",
+          "packages/main/src/tasks",
           "packages/main/src/tasks/rollout-check-smoke.ts",
           "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
@@ -179,10 +180,14 @@
           "packages/main/src/tasks/validation-protocol-smoke.ts",
           "scripts/verify-runtime-fact-contract.mjs",
           "scripts/verify-entrypoints.mjs",
-          "scripts/verify-codex-assets.mjs"
+          "scripts/verify-codex-assets.mjs",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/stack-layering.md",
+          "docs/requirements/decisions/testing-infra.md"
         ],
         "create": [],
         "test": [
+          "packages/main/src/tasks",
           "packages/main/src/tasks/rollout-check-smoke.ts",
           "packages/main/src/tasks/cli-engine-branding-smoke.ts",
           "scripts/verify-runtime-fact-contract.mjs",
