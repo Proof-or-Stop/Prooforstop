@@ -1,0 +1,42 @@
+{
+  "storyId": "B-47a9",
+  "name": "gitroot-aware-read-commands",
+  "title": "Route main-relative git read commands through the resolved gitRoot (wrapper-root fix)",
+  "description": "On wrapper-root projects (configured gitRoot points at a subdir; metadataRoot is not a git repo), several read-side commands run git from cwd/metadataRoot instead of the resolved gitRoot and fail with Not a git repository. Confirmed reproductions (2026-06-15 re-validation): lattice validate --concept runs git diff main...HEAD and warns Not a git repository (concept reviewer skipped); the finding cluster-sync runs git log main..HEAD and skips with not a git repository; story_discard goes through the same metadataRoot git path (Bug 1a). This is the same root-cause class as B-4e06, which fixed worktree bootstrap to honor the configured gitRoot but never routed these read-side commands through it. Fix: resolve the configured gitRoot (reuse the existing resolveProjectGitRoot in core/story-signed-workspace-resolution.ts) and run these git invocations there, falling back to metadataRoot for plain repos (byte-identical). Scope to the reported commands; do NOT do a repo-wide git refactor.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-15T22:03:32.712Z",
+  "startedAt": "2026-06-15T22:03:32.712Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T22:03:32.713Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:09:52.751Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-47a9",
+    "branch": "story/B-47a9",
+    "createdAt": "2026-06-15T22:09:52.912Z"
+  }
+}

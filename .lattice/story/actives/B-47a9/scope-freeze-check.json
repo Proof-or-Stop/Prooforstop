@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-47a9",
+  "checkedAt": "2026-06-15T22:09:52.358Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "cf28a73afc0c016c03298bc492818763a922d16e8d8fb661480abe1698133374",
+  "executionBoundaryHash": "b17b3ce8e78eebe49980518fee662c20ec62ca09fa04284ce4e5f6c3dce4988d",
+  "freshnessHash": "0bdeba3f7cb42437f8015a3133a1d4a7dd1dc66610fd282a09a26f8dd079a291",
+  "effectiveExcludedKeywords": [
+    "A repo-wide refactor of all git invocations (only the reported commands are in scope)",
+    "Authority",
+    "Changing .gitignore track-vs-ignore behavior (that is B-854c / Bug 3)",
+    "customerKeyRef",
+    "INIT_CHECK bootstrap atomicity (that is B-804c / Bug 2)",
+    "Layer4",
+    "Modifying resolveProjectGitRoot / story-signed-workspace-resolution.ts core logic (reuse only — overlaps B-854c)",
+    "repair UX",
+    "session.ts git log and test-story.ts git diff (same pattern, deferred unless trivial)",
+    "validate --lint scoping (that is B-a749 / Bug 4)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "A repo-wide refactor of all git invocations (only the reported commands are in scope)",
+      "source": "scopeBoundary.excluded",
+      "text": "A repo-wide refactor of all git invocations (only the reported commands are in scope)",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing .gitignore track-vs-ignore behavior (that is B-854c / Bug 3)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing .gitignore track-vs-ignore behavior (that is B-854c / Bug 3)",
+      "excluded": true
+    },
+    {
+      "keyword": "INIT_CHECK bootstrap atomicity (that is B-804c / Bug 2)",
+      "source": "scopeBoundary.excluded",
+      "text": "INIT_CHECK bootstrap atomicity (that is B-804c / Bug 2)",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying resolveProjectGitRoot / story-signed-workspace-resolution.ts core logic (reuse only — overlaps B-854c)",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying resolveProjectGitRoot / story-signed-workspace-resolution.ts core logic (reuse only — overlaps B-854c)",
+      "excluded": true
+    },
+    {
+      "keyword": "session.ts git log and test-story.ts git diff (same pattern, deferred unless trivial)",
+      "source": "scopeBoundary.excluded",
+      "text": "session.ts git log and test-story.ts git diff (same pattern, deferred unless trivial)",
+      "excluded": true
+    },
+    {
+      "keyword": "validate --lint scoping (that is B-a749 / Bug 4)",
+      "source": "scopeBoundary.excluded",
+      "text": "validate --lint scoping (that is B-a749 / Bug 4)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "88780ecb95310ad708bea5c34e4b029f87ce604808e8a6b6fa7da5b3998b67c4"
+}
