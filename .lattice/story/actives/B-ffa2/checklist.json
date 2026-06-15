@@ -286,6 +286,16 @@
           "headHash": "7ecce4f4e6bed1961767562c1eb278dfbcde8b92",
           "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
           "timestamp": "2026-06-15T16:21:16.569Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js dispatch with agentType=koala-implementer",
+          "result": "pass",
+          "note": "Legacy koala role dispatch fails fast with a legacy-role rejection, so stale koala active role usage is not accepted as canonical evidence.",
+          "headHash": "4ce31b4ea244cd31bc5c6f79ab3f76e640d1ee4e",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:21:25.487Z"
         }
       ]
     },
