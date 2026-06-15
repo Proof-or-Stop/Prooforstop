@@ -139,6 +139,17 @@
           "headHash": "36133fd5f6a3f3722ae11d685951fa563b366b6d",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:31:52.569Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -d packages/{cli-guess-number,python-demo,python-rps}",
+          "result": "pass",
+          "note": "None of the three dirs exist on disk (not even empty).",
+          "headHash": "a7a7b469f874e8576f3d3d37f7a7965644c06a98",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:53.438Z"
         }
       ]
     },
