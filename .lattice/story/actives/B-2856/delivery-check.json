@@ -1,0 +1,85 @@
+{
+  "storyId": "B-2856",
+  "checkedAt": "2026-06-15T22:19:33.827Z",
+  "reviewRound": "2026-06-15T22:06:59.723Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-2856/plan.md#approach",
+      "promise": "resolveGitCwd helper added to story-signed-workspace-resolution.ts: wraps resolveStorySignedWorkspace, returns authoritativeCwd when resolved, falls back to projectRoot on null/unresolved or resolver throw",
+      "verifiedBy": "diff of packages/main/src/core/story-signed-workspace-resolution.ts",
+      "evidence": "resolveGitCwd() function + ResolveGitCwdOptions interface added; try/catch fallback pattern confirmed in diff; export verified"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2856/plan.md#CHK-001",
+      "promise": "validate-channel.ts git readers (gitLogReader, gitChangedFilesReader) rerouted through resolved gitRoot via gitCwd threaded into checkCommitAuthor",
+      "verifiedBy": "diff of packages/main/src/handlers/validate-channel.ts",
+      "evidence": "CheckCommitAuthorDeps.gitCwd added; const gitCwd = deps.gitCwd ?? projectRoot; both readers called with projectRoot: gitCwd"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2856/plan.md#CHK-002",
+      "promise": "validate-concept.ts gitDiffReader and grepReader rerouted through resolved gitRoot via gitCwd threaded into checkConcept",
+      "verifiedBy": "diff of packages/main/src/handlers/validate-concept.ts",
+      "evidence": "CheckConceptDeps.gitCwd added; const gitCwd = deps.gitCwd ?? projectRoot; gitDiffReader and grepResiduals called with projectRoot: gitCwd"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2856/plan.md#CHK-003",
+      "promise": "cluster-sync.ts readCommitsSinceMain git log rerouted: resolveGitCwd called in syncClusterResolves, gitCwd threaded as second arg, execSync cwd changed from projectRoot to gitCwd",
+      "verifiedBy": "diff of packages/main/src/core/cluster-sync.ts",
+      "evidence": "readCommitsSinceMain gains optional gitCwd param defaulting to projectRoot; syncClusterResolves resolves then passes gitCwd; execSync cwd updated"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2856/plan.md#CHK-004",
+      "promise": "handlers/worktree.ts story_discard and dev_merge rerouted: resolveStoryGitRoot helper uses repoRoot from signed workspace; branch -D, branchExists, worktreeRemoveWithRetry, pruneWorktreeRegistry, listWorktreeRegistry, findWorktreeResidue, removeStaleWorktreeAdminDirs, purgeSafeInitCommit, commitDiscardMetadata all updated",
+      "verifiedBy": "diff of packages/main/src/handlers/worktree.ts",
+      "evidence": "resolveStoryGitRoot() added using repoRoot; all functions gain optional cwd param; story_discard and dev_merge resolve gitRoot and thread through sub-calls"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2856/plan.md#verification",
+      "promise": "gitroot-cwd-routing-smoke wired as npm run test:gitroot-cwd-routing; covers resolveGitCwd helper, validate-channel, validate-concept, cluster-sync git log, worktree story_discard with real git in wrapper-root and plain-repo fixtures",
+      "verifiedBy": "diff of packages/main/src/tasks/gitroot-cwd-routing-smoke.ts; package.json scripts",
+      "evidence": "Smoke is 382-line file with 5 checkpoints and 29 assertions; npm run test:gitroot-cwd-routing confirmed passing in this review session"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2856/plan.md#out-of-scope",
+      "promise": "Bugs 2/3/4 NOT touched; change is cwd-only with no git command text altered",
+      "verifiedBy": "diff --name-only of packages/main/src/; grep for git command string changes in production additions",
+      "evidence": "Only 8 expected source files changed; git command strings unchanged in production code; verify-b-2856.mjs confirms cmdTextChanged=0"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2856/evidence/transcript-diff.md",
+      "promise": "review-preflight.ts and verifier.ts wired to resolve gitCwd at handler entry and thread into channel + concept gate calls",
+      "verifiedBy": "diff of packages/main/src/handlers/review-preflight.ts and packages/main/src/handlers/verifier.ts",
+      "evidence": "review-preflight calls resolveGitCwd before checkCommitAuthor and checkConcept; verifier resolves gitCwd when args.channel/concept and passes to runChannelGateCli/runConceptGateCli"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:gitroot-cwd-routing passed: validate-channel readers receive gitRoot cwd (wrapper) and projectRoot cwd (plain); gate semantics unchanged; cwd-capture assertions via injection confirm exact routing; 5 checkpoints green"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:gitroot-cwd-routing passed: validate-concept gitDiffReader and grepReader receive gitRoot cwd (wrapper) and projectRoot cwd (plain); deleted symbol detection semantics unchanged; cwd-capture assertions confirm exact routing"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run test:gitroot-cwd-routing passed: cluster-sync runs real git log main..HEAD in gitRoot subdir without fatal: not a git repository; resolveGitCwd cwd == gitRoot confirmed; plain-repo confirmed from projectRoot"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run test:gitroot-cwd-routing passed: worktree story_discard runs real git branch -D in gitRoot subdir; branch actually deleted confirmed via git branch --list; plain-repo confirmed; dev_merge repoRoot assertion == gitRoot"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm run test:gitroot-cwd-routing passed: resolveGitCwd direct assertions cover wrapper->gitRoot, plain->projectRoot, unresolved->fallback, resolver-throws->fallback; 29 assertions total, exits 0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified directly in the diff. Smoke runs real git processes in temp fixtures for the wrapper-root symptom case. Edge cases covered: unresolved-gitRoot fallback, resolver-throw fallback, plain-repo byte-identical path. cmdTextChanged=0 confirmed. Bugs 2/3/4 untouched. No TODOs or FIXMEs in production additions."
+  },
+  "_hash": "8b5ae814d2156bbf221151767b09825824a06e7a81aa2bff64ff2ad6fbc88987"
+}

@@ -351,6 +351,14 @@ export function checkDispatchEvidence(opts: {
 export interface CheckCommitAuthorDeps {
   store: StoryStore;
   projectRoot: string;
+  /**
+   * B-2856: cwd for the git child-process readers. In a wrapper-root layout the
+   * metadataRoot (projectRoot) is not a git repo, so the handler resolves the
+   * gitRoot via resolveGitCwd() and threads it here. Defaults to projectRoot so
+   * plain repos (and existing callers) are byte-identical. Only the git readers
+   * use this; plan.md and other metadata reads still use projectRoot.
+   */
+  gitCwd?: string;
   gitLogReader?: GitLogReader;
   gitChangedFilesReader?: GitChangedFilesReader;
   base?: string;
@@ -374,6 +382,9 @@ export function checkCommitAuthor(
     base = DEFAULT_BASE,
     planReader = defaultPlanReader,
   } = deps;
+  // B-2856: git readers run from the resolved gitRoot (wrapper-root) or fall
+  // back to projectRoot (plain repo). Default keeps existing behavior identical.
+  const gitCwd = deps.gitCwd ?? projectRoot;
 
   // story existence check
   if (!store.storyExists(storyId)) {
@@ -434,7 +445,7 @@ export function checkCommitAuthor(
   const branch = `story/${storyId}`;
   let raw: string;
   try {
-    raw = gitLogReader({ base, branch, projectRoot });
+    raw = gitLogReader({ base, branch, projectRoot: gitCwd });
   } catch (e: any) {
     return {
       provider: 'lattice-channel',
@@ -450,7 +461,7 @@ export function checkCommitAuthor(
     .filter((c): c is ChannelOffender => c !== null)
     .map((c) => {
       try {
-        return { ...c, files: gitChangedFilesReader({ sha: c.sha, projectRoot }) };
+        return { ...c, files: gitChangedFilesReader({ sha: c.sha, projectRoot: gitCwd }) };
       } catch {
         return c;
       }

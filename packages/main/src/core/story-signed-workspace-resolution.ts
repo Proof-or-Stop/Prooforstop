@@ -165,6 +165,52 @@ export function resolveStorySignedWorkspace(
 }
 
 /**
+ * B-2856 CHK-001..004: resolve the cwd that a story-scoped git child process
+ * must run from.
+ *
+ * ~14 git call sites historically defaulted their cwd to projectRoot (the
+ * metadataRoot). In a wrapper-root layout the metadataRoot is NOT a git repo and
+ * the real repo is a configured gitRoot subdir, so those calls fail with
+ * `fatal: not a git repository`. This helper reuses the SAME signed-workspace
+ * resolver (never a second resolver) and returns its authoritativeCwd (the
+ * resolved gitRoot) when resolution succeeds.
+ *
+ * Fallback contract (keeps plain non-wrapper-root repos byte-identical):
+ *  - resolution unresolved / no authoritativeCwd → return the passed projectRoot
+ *  - resolver throws (e.g. story metadata absent, or any internal error) →
+ *    return the passed projectRoot rather than crash the validate pipeline
+ *
+ * This is cwd-only: it never changes git command text or gate semantics.
+ */
+export interface ResolveGitCwdOptions {
+  store: StoryStore;
+  storyId: string;
+  metadataRoot: string;
+  /** Returned verbatim when no gitRoot resolves (plain-repo fallback). */
+  projectRoot: string;
+  cwd?: string;
+  config?: KoalaConfig;
+}
+
+export function resolveGitCwd(opts: ResolveGitCwdOptions): string {
+  try {
+    const resolution = resolveStorySignedWorkspace({
+      store: opts.store,
+      storyId: opts.storyId,
+      metadataRoot: opts.metadataRoot,
+      cwd: opts.cwd,
+      config: opts.config,
+    });
+    if (resolution.resolved && resolution.authoritativeCwd) {
+      return resolution.authoritativeCwd;
+    }
+  } catch {
+    // Resolver error (absent story metadata, etc.): fail safe to projectRoot.
+  }
+  return opts.projectRoot;
+}
+
+/**
  * B-198c CHK-001: pure detection helper.
  *
  * Early-detect the wrapper-root violation where story metadata does NOT resolve

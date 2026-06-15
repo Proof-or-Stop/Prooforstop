@@ -1,0 +1,55 @@
+{
+  "storyId": "B-2856",
+  "changes": "Routed the ~14 git child-process sites (validate-channel readers, validate-concept diff+repo-grep, cluster-sync git log, worktree story_discard/dev_merge/branchExists/remove helpers) through the existing resolveStorySignedWorkspace() via a new resolveGitCwd helper (authoritativeCwd when resolved, else projectRoot fallback, try/catch). Handler entries (verifier.ts, review-preflight.ts) resolve the gitRoot and thread it down. cwd-only: no git command text, gate semantics, or bootstrap change. Added gitroot-cwd-routing smoke (wrapper-root + plain-repo) wired into npm.",
+  "usage": "In a wrapper-root project (metadataRoot not a git repo, configured gitRoot=<subdir>), lattice story_discard / validate --channel / validate --concept now run git against the resolved gitRoot and succeed instead of failing with fatal: not a git repository. Plain repos are unchanged (fallback to projectRoot).",
+  "expectedOutcome": "Wrapper-root: each rerouted git op runs in the resolved gitRoot and succeeds. Plain repo: each op runs in projectRoot, byte-identical. No git command text changed.",
+  "actualTranscript": "gitroot-cwd-routing smoke: 5/5 pass (wrapper->gitRoot exact cwd, plain->projectRoot, resolver throw->fallback). verify-b-2856: 40/40. validate --story=B-2856 PASS (channel/concept/cluster-sync ran with no fatal). cwd-only diff confirmed (cmdTextChanged=0).",
+  "outcomeDiff": "Expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope = Bug 1 only (git cwd). Bugs 2/3/4 (atomic bootstrap; .lattice track/ignore data-loss; lint change-scope) are deferred to separate stories. The out-of-scope bootstrap git add in worktree.ts is left on root (Bug 3).",
+  "pitfalls": "This is cwd-only — do not change git command text when extending it. worktree TOP-OF-REPO ops use repoRoot (not authoritativeCwd) so they never run from inside the story worktree; worktree-scoped ops still use wtPath. resolveGitCwd must keep the null/throw fallback to projectRoot or plain repos regress.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2235753
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23068
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 426368
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1329699
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 418003
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 46120
+    }
+  },
+  "totalDurationMs": 4479021,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T22:14:43.847Z",
+  "updatedAt": "2026-06-15T22:14:43.847Z"
+}
