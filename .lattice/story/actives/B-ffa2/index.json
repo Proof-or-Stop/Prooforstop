@@ -1,0 +1,51 @@
+{
+  "storyId": "B-ffa2",
+  "name": "rename-koala-agent-role-ids-to-lattice",
+  "title": "Rename Koala agent role IDs to Lattice",
+  "description": "Clean up remaining Koala naming in Lattice CLI by migrating subagent/reviewer role IDs, template assets, CLI help text, generated Codex/Claude agent assets, runtime references, and user-facing docs from koala-* to lattice-*. This is not the removed binary alias path; it touches reviewer/dispatch attribution and agent asset contracts, so it must run as a normal story with an execution document and verification evidence.",
+  "type": "refactor",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "lattice",
+    "agent-role",
+    "template",
+    "codex",
+    "claude",
+    "reviewer",
+    "dispatch"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-06-15T15:28:34.904Z",
+  "startedAt": "2026-06-15T15:28:34.904Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T15:28:34.919Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:30:30.236Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ffa2",
+    "branch": "story/B-ffa2",
+    "createdAt": "2026-06-15T15:30:30.417Z"
+  }
+}
