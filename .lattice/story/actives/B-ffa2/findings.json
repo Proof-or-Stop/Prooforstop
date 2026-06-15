@@ -152,6 +152,24 @@
         "packages/main/src/cli-init.ts",
         "packages/main/src/core/managed-assets.ts"
       ]
+    },
+    {
+      "id": "B-ffa2:F-009",
+      "desc": "Active Lattice smoke tests still use koala.config.json as normal config outside the fixed F-007 files. lattice-evidence-smoke.ts and lattice-parallel-wave-smoke.ts write koala.config.json in normal active Lattice-named smokes that are exposed by package scripts, keeping current test surfaces teaching the legacy config name after lattice.config.json became canonical.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-15T17:14:47.415Z",
+      "reviewRound": "2026-06-15T17:10:27.015Z",
+      "reviewRunId": "B-ffa2:RR-011",
+      "_hash": "5526a9b4ec107ad050e83331f9309f4a68085b71c3451575144fe17e45f15417",
+      "files": [
+        "packages/main/src/tasks/lattice-evidence-smoke.ts",
+        "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+        "packages/main/package.json"
+      ]
     }
   ]
 }
