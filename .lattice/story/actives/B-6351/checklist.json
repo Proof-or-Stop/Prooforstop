@@ -134,9 +134,9 @@
         "docs/guide-hooks.md",
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T02:29:52.974Z",
-      "endTime": null,
+      "endTime": "2026-06-15T02:41:46.250Z",
       "userSees": "Codex-facing docs and verification output tell the user to run `node bin/lattice-codex.js ...`; legacy `bin/koala-codex.js`, `.Codex/koala.json`, and `.codex/koala.json` are not accepted as active compatibility assets.",
       "files": {
         "modify": [
@@ -204,7 +204,59 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js session_brief",
+          "result": "pass",
+          "note": "Local lattice-codex wrapper succeeds without bin/koala-codex.js and records codex local-wrapper activity.",
+          "headHash": "3060c784c549b08dd60ff5dea75d70256aa67db9",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:46.293Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js verify_codex",
+          "result": "pass",
+          "note": "Codex adapter verification passed 7/7 using lattice and lattice-codex active paths.",
+          "headHash": "3060c784c549b08dd60ff5dea75d70256aa67db9",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:46.331Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-codex-assets.mjs",
+          "result": "pass",
+          "note": "Codex README, manifest, wrapper resolver, and generated asset checks verify lattice-only active commands.",
+          "headHash": "3060c784c549b08dd60ff5dea75d70256aa67db9",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:46.367Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Entrypoint verification confirms full init does not generate bin/koala.js, bin/koala-codex.js, or .Codex/koala.json.",
+          "headHash": "3060c784c549b08dd60ff5dea75d70256aa67db9",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:46.402Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/codex-registry-mode-smoke.js",
+          "result": "pass",
+          "note": "Legacy-only .Codex/koala.json and bin/koala-codex.js fixture does not satisfy verify_codex; lattice mirror and registry modes pass.",
+          "headHash": "3060c784c549b08dd60ff5dea75d70256aa67db9",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:46.438Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
