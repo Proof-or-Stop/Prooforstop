@@ -72,6 +72,67 @@
         }
       ],
       "_hash": "29bbc1db95c402c132088cb8ab7f033ed7d9007cd3d2da6dc19e0a4d0ceadf43"
+    },
+    {
+      "timestamp": "2026-06-15T11:56:19.161Z",
+      "issueCount": 7,
+      "blockerCount": 5,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Map current agent asset resolution into a mechanical inventory + Expose runtime-owned asset status through existing doctor surfaces are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-3010\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/managed-assets.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/init-assets.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/cli-init.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/audits/lattice-token-cost-and-takeover-audit.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "abfa7d9e395390581b514f5040aeb4c15b8dce545c47009442877206d4ddbb63"
+    },
+    {
+      "timestamp": "2026-06-15T11:56:54.389Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Map current agent asset resolution into a mechanical inventory + Expose runtime-owned asset status through existing doctor surfaces are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-3010\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "2cab5e4c6c121b24ff99debd1c06d48b41af23ded9df541452238ba919522a8d"
     }
   ]
 }
