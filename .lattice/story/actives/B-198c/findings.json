@@ -34,6 +34,22 @@
         "packages/main/src/core/story-signed-workspace-resolution.ts",
         "packages/main/src/handlers/story-create.ts"
       ]
+    },
+    {
+      "id": "B-198c:F-003",
+      "desc": "type-safety: storydir-inside-gitroot-suite.ts:125 uses `as any` to cast json.storyDirGitRoot (typed unknown from Record<string,unknown>) instead of a specific type. A typed cast such as `as (StoryDirInsideGitRootResult & { violation: boolean; gitRootUnresolved: boolean; reason: string | null })` would preserve type-checking and make the shape explicit. This is in a test file but as any defeats the purpose of tsc validation in the suite.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T21:09:17.485Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-002",
+      "_hash": "da90def5edc1d07d188448b93d69dca25bfe586367875e5b1390627c9b6e2035",
+      "files": [
+        "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+      ]
     }
   ]
 }
