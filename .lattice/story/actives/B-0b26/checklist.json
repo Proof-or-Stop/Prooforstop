@@ -172,6 +172,17 @@
           "headHash": "971f0bede1b5448707c258774302087138da7a74",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:31:54.507Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -d experiments",
+          "result": "pass",
+          "note": "experiments/ survives (out-of-scope) — not deleted.",
+          "headHash": "2d662f0a28052f572722d773147ec1e5dd948e05",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:55.159Z"
         }
       ]
     },
