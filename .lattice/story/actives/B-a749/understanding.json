@@ -1,0 +1,29 @@
+{
+  "task": "validate --lint runs recursive tsc over every tsconfig with no change-scope filter, so a backend-only change hard-fails on unrelated frontend missing-dep errors (TS2307) in a fresh worktree",
+  "outcome": "lattice validate --lint --story=B-a749 for a backend-only change prints [lint] pass: tsc and reports the out-of-scope frontend tsconfig as skipped (out of change scope / deps absent) instead of [lint] fail: tsc ... Cannot find module; plain lattice validate --lint with no change-scope still type-checks every tsconfig recursively",
+  "facts": [
+    "validate-lint.ts findTsconfigs() BFS-scans all tsconfig.json (minus TSCONFIG_IGNORE_DIRS) and runTsc() runs npx tsc --noEmit -p on each with no change-scope filter",
+    "runSingleTsc correctly distinguishes ENOENT/npx-tool-not-found (skip) from non-zero tsc exit / missing deps (kind:fail)",
+    "both call sites (verifier.ts CLI gate + review-preflight.ts) call checkLint/runLintGateCli with projectRoot only; verifier has args.story available",
+    "validate-concept.ts already establishes the injectable git-diff-vs-main reader pattern (defaultGitDiffReader uses git diff main...HEAD)",
+    "smoke tests live in packages/main/src/tasks/*-smoke.ts, compiled to dist, registered as test:* scripts; worktree-node-modules-smoke.ts is the closest topical analog template (node:assert + tmp fixtures + pure-function calls)",
+    "CLAUDE.md F-003: fresh git worktree does not inherit gitignored node_modules; immediate operational fix is npm install, this story is the framework-side change-scoping improvement"
+  ],
+  "constraints": [
+    "preserve full recursive tsc when no change-scope is provided (plain --lint with no story)",
+    "do NOT touch gitRoot cwd resolution (B-2856), bootstrap atomicity (B-804c), or .lattice data-loss (B-854c)",
+    "scope limited to packages/main/src/handlers/validate-lint.ts + its tests",
+    "tests must use the existing CommandRunner dependency-injection seam; do NOT spawn real tsc",
+    "Handler 编码约定: any new constraint enforced at every consumption point, not just one path",
+    "TSCONFIG_IGNORE_DIRS blacklist stays a module constant; new params are DI/scope inputs, not blacklist options"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/validate-lint.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/tasks/ (new smoke test)",
+    "packages/main/package.json + root package.json (test:* registration)"
+  ],
+  "timestamp": "2026-06-15T22:09:18.052Z"
+}

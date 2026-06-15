@@ -7,7 +7,35 @@
       "userSees": "`lattice validate --lint --story=B-xxx` for a backend-only change runs tsc on the backend package and reports the frontend tsconfig as skipped (out of change scope), instead of failing on frontend TS2307 errors.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checkLint/runTsc accept an optional changedFiles set; when a backend-only changed-file set is passed, only tsconfigs whose package subtree contains a changed file are required, others scoped out",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "checkLint/runTsc called with NO changedFiles (plain --lint, no story) runs full recursive tsc over every tsconfig exactly as before (backward compatible)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "git diff reader throws (no merge-base/detached HEAD) => fall back to full recursive tsc, never skip-all",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a changed file not under any tsconfig subtree / ambiguous mapping is treated as in-scope (fail-closed), never silently skipped",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
