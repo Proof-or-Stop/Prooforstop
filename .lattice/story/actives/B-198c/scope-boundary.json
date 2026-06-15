@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-198c",
+  "mode": "feature",
+  "allowed": [
+    "Add a lattice doctor check that reports storyDir-outside-gitRoot early with remediation",
+    "Extract the storyDir-inside-gitRoot invariant check into one reusable core fn",
+    "Refactor the two existing late guards (worktree.ts:754, cli-engine.ts:3367) to call the shared fn with byte-identical behavior",
+    "Surface the violation as an early advisory at story_create / session_brief",
+    "Tests for the invariant fn + doctor + advisory, including a wrapper-root fixture"
+  ],
+  "excluded": [
+    "Auto-migrating or relocating any existing project storyDir",
+    "Changing the late guards fail-closed behavior or error message semantics",
+    "Supporting story metadata that lives outside the git repo (a different persistence model)",
+    "The separate verificationIntent retrofit gap from the ClawCreek issue report",
+    "The sourceManifestDigest ESM packaging import error"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User analyzed the ClawCreek storyDir-outside-gitRoot infra issue and chose to harden the framework (the \"both\" decision). This story is the framework half.",
+  "createdAt": "2026-06-15T18:21:45.805Z",
+  "updatedAt": "2026-06-15T18:21:45.805Z",
+  "_hash": "2c95e68efc971ce9dcf24124be4c52849d75042c0a3097d9092212bfc3858936"
+}

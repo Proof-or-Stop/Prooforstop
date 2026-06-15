@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-198c",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/story/actives/B-198c/",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Touches the shared storyDir-inside-gitRoot invariant fn (core), the two late guards (worktree.ts, cli-engine.ts), doctor/story_create/session advisory (handlers), and tests.",
+  "createdAt": "2026-06-15T18:22:04.107Z",
+  "updatedAt": "2026-06-15T18:22:04.107Z",
+  "_hash": "50c1bc6dbcde6c9f8d42940abd07b9e35f195f0d6e061fc82512d5840d52f5d9"
+}
