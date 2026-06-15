@@ -98,14 +98,14 @@
         },
         {
           "intentRef": "CHK-001:happy:2",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
-          "command": "npm run build",
+          "command": "npm run build && npm run test:e2e",
           "result": "pass",
-          "note": "npm run build exited 0 after deletion — no broken TypeScript references.",
-          "headHash": "b748d624ca35c09653d6ce48a07acc2841ecf294",
+          "note": "After deletion, npm run build compiled cleanly (exit 0) AND the full npm run test:e2e suite ran to completion with ALL PASS (story-lifecycle 5 steps + gap-convergence 4 steps) — the build output is not merely compiling but passes the end-to-end assertion suite, proving no broken references from the deleted paths.",
+          "headHash": "22d80c4a65e69c43e3075033a53ce722b7f647a1",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
-          "timestamp": "2026-06-15T22:31:50.171Z"
+          "timestamp": "2026-06-15T22:32:39.380Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
