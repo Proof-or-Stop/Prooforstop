@@ -158,7 +158,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Regression smoke prints PASS and token accounting showing measured prompt/template byte and approximate-token values, while explicitly saying provider billing tokens are unavailable.",
+      "userSees": "Terminal shows \"PASS runtime-owned-agent-assets-smoke; approximateTokens=<n>; providerBillingTokens=unavailable\".",
       "files": {
         "modify": [
           "packages/main/src/tasks/prompt-token-cost-smoke.ts",
