@@ -23,7 +23,7 @@
       "desc": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:84 defines the future ledger as append-only JSONL and lines 212-216 plan schema/writer APIs, but the execution plan never chooses a ledger path or classifies the file as a runtime artifact, process evidence, or another artifact class. Existing Lattice rules require runtime artifact paths to be registry-backed with gitignore/materialHash/repair semantics (AGENTS.md:67; docs/requirements/decisions/lifecycle-artifact-scope.md:45-48,65). Without that placement/registry decision, an implementer can create an unregistered/tracked JSONL ledger or accidentally make usage logs affect materialHash/gates. Add the intended path plus runtime-artifact-registry/gitignore/materialHash semantics, or explicitly state a different artifact class and why.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-15T14:30:13.878Z",
@@ -34,7 +34,9 @@
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
-      ]
+      ],
+      "resolvedReason": "Resolved in commit 4d8be6496: document now chooses .lattice/usage/llm-usage.jsonl and specifies runtime-artifact-registry semantics: gitignored .lattice/usage/, materialHash=exclude, volatile=true, repairableTrackedArtifact=true, and not process/story/gate evidence. Targeted rg check passed.",
+      "resolvedAt": "2026-06-15T14:58:01.546Z"
     },
     {
       "id": "B-1477:F-003",
