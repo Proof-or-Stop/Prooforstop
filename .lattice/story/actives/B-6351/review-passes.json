@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6351:RP-001",
+      "agent": "koala-review-quality",
+      "note": "Quality lane pass: inspected CLI branding, package bin metadata, runtime environment checks, Codex adapter checks, managed asset generation, and replacement smokes. npm --prefix packages/main run build plus verify-entrypoints, verify-codex-assets, verify-runtime-fact-contract, lattice-only absence smoke, codex registry smoke, rollout-check smoke, verify_codex, and lattice_config_doctor passed. No additional implementation/build blocker from quality lane; existing docs/test-coverage/concept findings remain.",
+      "createdAt": "2026-06-15T02:59:11.270Z",
+      "reviewRound": "2026-06-15T02:55:28.853Z",
+      "reviewRunId": "B-6351:RR-003",
+      "_hash": "829c6fc926b1838e46adbb2fd5fe5a551965093ea3a6b4a8d850c7e3995acc20"
+    }
+  ]
+}
