@@ -101,7 +101,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_get/checklist_get provide explicit opt-in slim output that removes repeated heavy payload while preserving enough status information for quick inspection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default story_get and checklist_get output remains byte-shape compatible for existing callers unless slim/fields is requested.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Slim output must not hide lifecycle-blocking facts such as phase, checklist status counts, init fallback, review status, or required reviewer evidence when those facts are requested.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
