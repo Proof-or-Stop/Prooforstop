@@ -523,9 +523,9 @@
       "title": "Define and test the unresolved-gitRoot fallback for the rerouted git operations",
       "context": "resolveStorySignedWorkspace() can return resolved=false with authoritativeCwd=null (metadataRoot not git-backed, no worktree/gitRoot configured). Each rerouted site must fall back to the current projectRoot/root so non-wrapper-root repos stay byte-identical. Add tests via the readers' existing dependency-injection seams (do not spawn real git where injection exists): a wrapper-root fixture (metadataRoot != gitRoot) proving each site runs from gitRoot, and a plain-repo fixture proving unchanged behavior.",
       "userSees": "`lattice validate --story=B-xxx --json` on a plain (non-wrapper-root) repo produces the same channel/concept/cluster results as before this change, and the new wrapper-root test fixture passes, proving git ran from the gitRoot.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:06:27.343Z",
       "files": {
         "modify": [
           "packages/main/src/core/story-signed-workspace-resolution.ts"
