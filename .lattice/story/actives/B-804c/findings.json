@@ -5,7 +5,7 @@
       "desc": "CHK-001:happy:0 lacks a test that drives `story_advance --phase=INIT_CHECK` on a clean INIT story through a SUCCEEDING bootstrap and asserts that phase becomes INIT_CHECK and the worktree is created on disk. The recorded evidence maps this intent to `assertDevStartRecoversStuckInitCheckStory`, which calls `dev_start` on a story already stuck at INIT_CHECK — it exercises the new recovery command, not the `story_advance` success path. The atomicity fix defers phase persistence until after bootstrap succeeds; the only `story_advance INIT_CHECK` path exercised is the FAILURE case (edge intent). A regression in the success-path sequencing (e.g. phase accidentally written twice, or worktree not recorded on the story index after advance) would not be caught.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-15T22:41:47.355Z",
@@ -14,7 +14,9 @@
       "_hash": "87921ab6b694d27302ef6e88bc04a44227847ba0bf0e2be127d23547f3cbfed9",
       "files": [
         "packages/main/src/tasks/init-check-atomicity-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit 8a9c44b86. Added assertCleanInitCheckAdvanceSucceeds() to init-check-atomicity-smoke.ts driving the REAL story_advance INIT_CHECK happy path (preferred route, not the recovery fallback): real story_create envelope -> freezeStory -> init_check_repair (signed init-check.json) -> commit metadata to main -> story_advance INIT_CHECK. Asserts exit 0, story_get detail phase===INIT_CHECK, existsSync(.worktrees/<id>)===true, and StoryStore.readStory().worktree?.path is set — directly guarding the success-path sequencing (phase advanced exactly once + worktree recorded on the index) that was previously untested. Smoke now has 4 assertions and exits 0. Two genuine bugs were found+fixed while wiring the real gate: freezeStory helper omitted background from its story projection (caused scope_freeze_check_stale freshnessHash divergence) and a metadata commit-ordering add/add conflict — both fixed.",
+      "resolvedAt": "2026-06-15T22:53:46.559Z"
     },
     {
       "id": "B-804c:F-002",
