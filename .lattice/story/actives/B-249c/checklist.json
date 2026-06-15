@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce post-DONE freshness drift without changing completed story semantics",
+      "context": "Use existing B-a57f/B-22b0 observations and a focused smoke fixture to show an already DONE story can be marked evidence-freshness fail after later main material commits even though the story was valid at DONE time.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make DONE story freshness use the recorded evidence snapshot",
+      "context": "Adjust the DONE oracle freshness row so phase=DONE stories compare test-evidence materialHash to the material tree at evidence.headHash, not current HEAD. Keep active non-DONE gates strict against current workspace HEAD/materialHash.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression coverage for post-DONE main movement",
+      "context": "Add/extend smoke coverage proving done_closure for a DONE story stays non-blocking after later unrelated material commits, while active TEST evidence still goes stale when material files change.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
