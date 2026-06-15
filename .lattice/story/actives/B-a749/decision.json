@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Backward-compatible default: no change-scope provided => identical behavior to today (full recursive tsc)",
+    "Reuse the established injectable git-diff-vs-main reader seam from validate-concept.ts rather than inventing a new resolution path",
+    "Change-scope is an additive optional input threaded through checkLint->runTsc, not a mutation of the TSCONFIG_IGNORE_DIRS module constant",
+    "Out-of-scope packages missing node_modules are skipped-with-warning; in-scope packages still hard-fail on real tsc errors",
+    "Tests exercise the CommandRunner DI seam only; never spawn real tsc"
+  ],
+  "drivers": [
+    "A backend-only change in a fresh worktree must not be blocked by unrelated frontend missing-dep TS2307 errors",
+    "REVIEW->TEST lint gate must still catch real type errors in the packages the story actually changed",
+    "Must not regress the B-5a28 recursive-tsc coverage that catches monorepo subpackage errors when no story scope is given"
+  ],
+  "options": [
+    {
+      "name": "scoped-skip-additive",
+      "pros": [
+        "Backward compatible (no scope => full recursive)",
+        "Targets the exact failure: out-of-scope package missing deps becomes skipped-with-warning",
+        "Reuses git-diff-vs-main reader; testable via CommandRunner + injectable diff reader",
+        "In-scope packages keep hard-failing on real errors (gate still bites)"
+      ],
+      "cons": [
+        "Adds a package-root resolution helper + changed-file diff reader",
+        "More branches in runTsc to test (in-scope fail, out-of-scope skip, no-scope full)"
+      ]
+    },
+    {
+      "name": "skip-any-deps-missing",
+      "pros": [
+        "Simplest; no git diff needed"
+      ],
+      "cons": [
+        "Silently stops type-checking any deps-missing package even when it IS the changed package => gate stops biting on real in-scope errors",
+        "Loses B-5a28 coverage guarantee"
+      ]
+    },
+    {
+      "name": "filter-to-changed-only",
+      "pros": [
+        "Smallest tsc surface; fast"
+      ],
+      "cons": [
+        "No-scope path must still run all (ok) or regresses to none",
+        "Installed out-of-scope packages no longer checked, reducing defense-in-depth vs B-5a28"
+      ]
+    }
+  ],
+  "chosen": "scoped-skip-additive",
+  "rationale": "scoped-skip-additive (optional changedFiles + package-root mapping + scoped skip for out-of-scope+deps-absent) is the only option that fixes the reported failure while preserving backward compatibility (no scope => full recursive tsc, B-5a28 intact) and keeping the gate biting on real type errors in the changed packages. skip-any-deps-missing over-skips (kills the in-scope gate); filter-to-changed-only risks under-checking installed out-of-scope packages and complicates the no-scope path. The chosen option reuses the proven git-diff-vs-main injectable reader from validate-concept.ts, testable through the existing CommandRunner DI seam with zero real tsc spawns.",
+  "preMortem": [
+    {
+      "scenario": "Out-of-scope skip is applied even when no change-scope was provided",
+      "trigger": "checkLint called with projectRoot only (plain --lint, no story)",
+      "consequence": "B-5a28 recursive coverage silently regresses; subpackage type errors stop being caught",
+      "mitigation": "Skip logic activates only when a non-empty changedFiles set is passed; absent/empty scope => full recursive tsc unchanged. Smoke test asserts the no-scope path still runs every tsconfig."
+    },
+    {
+      "scenario": "An in-scope package with genuinely missing deps gets skipped instead of failing",
+      "trigger": "changed package also lacks node_modules and code treats deps-absent as skip regardless of scope",
+      "consequence": "Real type errors in the changed code slip past the gate (false green)",
+      "mitigation": "Deps-absent skip-with-warning is gated on out-of-scope only; in-scope packages keep existing ENOENT(skip) vs non-zero-exit(fail) semantics. Smoke test: in-scope tsc fail still surfaces as kind:fail."
+    },
+    {
+      "scenario": "Package-root resolution misattributes a changed file to the wrong tsconfig",
+      "trigger": "nested tsconfigs or a changed file not under any package.json",
+      "consequence": "A changed package is wrongly treated as out-of-scope (under-check) or vice versa",
+      "mitigation": "A changed file is in-scope for a tsconfig if it lives under that tsconfig directory subtree. Ambiguous => treat as in-scope (fail-closed, never silently skip). Smoke test covers a changed file under backend tsconfig dir + one under frontend."
+    },
+    {
+      "scenario": "git diff reader throws (no main base / detached HEAD) and code crashes or defaults to skip-all",
+      "trigger": "missing merge-base, orphan branch",
+      "consequence": "Gate crashes or wrongly scopes everything out",
+      "mitigation": "Mirror validate-concept.ts: on diff failure fall back to full recursive tsc (scope unknown => check everything), never skip-all. Injectable reader lets the smoke test simulate failure."
+    }
+  ],
+  "timestamp": "2026-06-15T22:10:28.347Z"
+}

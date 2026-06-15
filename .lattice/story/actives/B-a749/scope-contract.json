@@ -1,0 +1,23 @@
+{
+  "storyId": "B-a749",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/validate-lint.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/package.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T22:20:19.681Z",
+  "updatedAt": "2026-06-15T22:20:19.681Z"
+}

@@ -1,171 +1,122 @@
 {
   "storyId": "B-a749",
-  "checkedAt": "2026-06-15T22:14:04.718Z",
+  "checkedAt": "2026-06-15T22:17:33.092Z",
   "features": [
     {
-      "feature": "Optional change-scope filter threaded through checkLint/runTsc via changedFiles parameter",
+      "feature": "checkLint/runTsc accept optional changedFiles; tsconfigs out of change scope are soft-skipped when changedFiles is provided",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Backward-compatible default: no change-scope provided => full recursive tsc unchanged, B-5a28 preserved",
+      "feature": "no changedFiles (plain --lint, no story) runs full recursive tsc unchanged (backward compatible)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "changedFiles resolved via injectable git diff --name-only main...HEAD reader mirroring validate-concept.ts pattern",
+      "feature": "diff reader throws (no merge-base/detached HEAD) falls back to full recursive tsc, never skip-all",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "verifier.ts passes resolved changedFiles to --lint task when --story present; plain --lint passes none",
+      "feature": "changed file under no tsconfig subtree or ambiguous mapping treated in-scope (fail-closed)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "diff reader failure fallback: on reader error fall back to full recursive tsc, never skip-all",
+      "feature": "verifier.ts call site: thread args.story -> changedFiles when --lint --story (validate --lint path)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Ambiguous or no-tsconfig-match changed file treated as in-scope, fail-closed",
+      "feature": "review-preflight.ts call site: REVIEW->TEST preflight checkLint also threads story changedFiles; falls back to full recursive tsc when scope unresolvable",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "TSCONFIG_IGNORE_DIRS constant untouched; change-scope is a DI input not a blacklist option",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Out-of-scope tsconfig with absent node_modules: skip-with-warning instead of hard fail on TS2307",
+      "feature": "out-of-scope tsconfig whose package has no node_modules is skipped-with-warning (out of scope, deps absent) instead of hard fail",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Skip-with-warning detail line format: [lint] skipped: <tsconfig> (out of scope, deps absent)",
+      "feature": "in-scope tsconfig with real tsc error still surfaces as kind:fail (gate bites)",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Out-of-scope tsconfig WITH node_modules present: still run tsc, defense-in-depth preserved",
+      "feature": "out-of-scope tsconfig WITH node_modules present is still type-checked (not skipped)",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "In-scope tsconfigs never deps-absent-skipped; keep ENOENT/npx-not-found skip vs non-zero-exit fail distinction",
+      "feature": "node_modules presence probe is injectable (FileExists DI) so smoke test needs no real fs install",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "node_modules presence probe injectable via FileExists so tests need no real filesystem install",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Skipped-with-warning does not flip overall lint status to fail",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Regression test case a: backend-only change scopes out the frontend tsconfig, reported skipped",
+      "feature": "regression tests: backend-only change scopes out frontend (skipped), in-scope error still kind:fail, no-scope full recursive, diff-throw fallback all-pass",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Regression test case b: in-scope frontend change still type-checks and fails on real injected tsc error",
+      "feature": "smoke test never spawns real tsc (uses injected CommandRunner + injected diff reader only)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Regression test case c: no-change-scope mode keeps full recursive tsc, every tsconfig invoked",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Regression test case d: diff-reader-throws fallback runs full recursive tsc, never skip-all",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Tests use CommandRunner DI seam, injected diff reader, injected FileExists; no real tsc spawned",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "gitRoot cwd resolution fix for B-2856",
+      "feature": "B-2856 gitRoot cwd fix",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly excluded in story description and understanding.json constraints: do NOT touch gitRoot cwd resolution, B-2856",
+      "excluded_by": "separate story B-2856; not in scope of B-a749",
       "source": "description"
     },
     {
-      "feature": "Bootstrap atomicity fix for B-804c",
+      "feature": "B-804c bootstrap atomicity",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly excluded in understanding.json constraints: do NOT touch bootstrap atomicity, B-804c",
+      "excluded_by": "separate story B-804c; not in scope of B-a749",
       "source": "description"
     },
     {
-      "feature": ".lattice data-loss fix for B-854c",
+      "feature": "B-854c .lattice data-loss fix",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly excluded in understanding.json constraints: do NOT touch .lattice data-loss, B-854c",
-      "source": "description"
-    },
-    {
-      "feature": "review-preflight.ts call site threading changedFiles when lint is invoked from REVIEW-to-TEST preflight",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "excluded_by": "separate story B-854c; not in scope of B-a749",
       "source": "description"
     }
   ],
   "summary": {
-    "total": 22,
-    "covered": 18,
+    "total": 15,
+    "covered": 12,
     "excluded": 3,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "5a488bb2b936114026bc4851ddd7c7769f0b77f08e8690cc365263e04239b68c",
+  "_hash": "9d08baed42f484d2e4ab4da121ae46932100f3b7f0de75d88658bbb8290ad4f7",
   "openQuestions": []
 }

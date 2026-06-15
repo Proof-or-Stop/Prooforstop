@@ -1,0 +1,50 @@
+{
+  "storyId": "B-a749",
+  "checkedAt": "2026-06-15T22:45:17.256Z",
+  "reviewRound": "2026-06-15T22:31:12.937Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#pre-push-hook-recursive-tsc-gate",
+      "promise": "validate-lint.ts implements recursive tsc gate scanning all subpackage tsconfigs; findTsconfigs BFS with TSCONFIG_IGNORE_DIRS blacklist; no-scope invocation type-checks every tsconfig (full recursive); lint gate still blocks on real tsc errors",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "validate-lint.ts exports resolveChangedFiles, computeOutOfScopeTsconfigs, isPathUnderDir, packageHasNodeModules (new in diff); no-changedFiles path preserved in checkLint: falls through to full recursive tsc as before; transcript-diff.md section 3 shows tsc: checked 2 tsconfigs for no-scope; TSCONFIG_IGNORE_DIRS constant unchanged"
+    },
+    {
+      "docPath": "CLAUDE.md#pre-push-hook-recursive-tsc-gate",
+      "promise": "TSCONFIG_IGNORE_DIRS ReadonlySet constant controls blacklist; extend requires modifying the constant itself, not a function parameter",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "validate-lint.ts line with TSCONFIG_IGNORE_DIRS: ReadonlySet<string> = new Set([node_modules, dist, build, .worktrees, .git]) is present in diff; findTsconfigs signature unchanged (no ignoreDirs param added)"
+    },
+    {
+      "docPath": "CLAUDE.md#pre-push-hook-recursive-tsc-gate",
+      "promise": "CommandRunner DI seam for tests: type CommandRunner with {code, output, spawnError}; production path uses child_process.spawnSync",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "CommandRunner type exported in validate-lint.ts diff; validate-lint-change-scope-smoke.ts uses stub CommandRunner to drive all assertions without spawning real tsc"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Smoke (node packages/main/dist/tasks/validate-lint-change-scope-smoke.js, exit=0): resolveChangedFiles, computeOutOfScopeTsconfigs, isPathUnderDir, packageHasNodeModules unit assertions pass. Live in-process test (transcript-diff.md §2): backend-only change with frontend node_modules absent => overall status: pass, tsc invoked on [backend/tsconfig.json] only, detail: [lint] pass: tsc (tsc: checked 1 of 2 tsconfigs (1 skipped out of scope))."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Live in-process test (transcript-diff.md §2): [lint] skipped: frontend/tsconfig.json (out of scope, deps absent) printed when changedFiles=[backend/src/api.ts] and frontend/node_modules absent. Out-of-scope package is skipped, not failed. Gate bites (transcript-diff.md §4): in-scope package with real tsc error => status=fail (expect fail = gate bites). Scoping never masks real errors in changed packages."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Backward compatibility (transcript-diff.md §3): no changedFiles (plain --lint) => tsc: checked 2 tsconfigs (both backend and frontend), legacy output string preserved exactly. Smoke test (exit=0) includes edge cases: resolveChangedFiles with absolute/relative paths, computeOutOfScopeTsconfigs with nested paths, packageHasNodeModules with symlink detection. validate --story=B-a749 PASS, verification coverage 10/10 (transcript-diff.md §Build/gate)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 docsPromises verified via diff+grep+transcript. Smoke test (exit=0) covers happy path, backward compatibility (no changedFiles), skip-with-warning (deps absent, out of scope), and gate-bites (in-scope real error). 10/10 verificationEvidence passing. CLAUDE.md was not modified by this story; the existing recursive-tsc promises are preserved by the additive implementation."
+  },
+  "_hash": "874e8e087549ef968fb37517e929a1de0945dd5358b0864a05272008a9f0d918"
+}

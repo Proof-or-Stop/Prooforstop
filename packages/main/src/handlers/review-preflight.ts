@@ -39,10 +39,12 @@ import {
 } from './validate-concept.js';
 import {
   checkLint,
+  resolveChangedFiles,
   type CommandRunner,
   type LintResult,
   type FileExists,
   type FileReader,
+  type ChangedFilesReader,
 } from './validate-lint.js';
 import type { Finding } from '../core/types.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -76,6 +78,12 @@ export interface PreflightDeps {
   readFile?: FileReader;
   readdir?: (p: string) => string[];
   stat?: (p: string) => { isDirectory(): boolean; isFile(): boolean };
+  /**
+   * B-a749 test injection — lint change-scope. Reader of changed files vs base
+   * (default `git diff --name-only main...HEAD`). When the reader throws, the
+   * lint gate falls back to full recursive tsc (never skip-all).
+   */
+  changedFilesReader?: ChangedFilesReader;
   /** test injection — docs-drift: registry command names */
   registryNames?: Set<string>;
   /** test injection — docs-drift: CLAUDE.md file reader */
@@ -319,6 +327,14 @@ export function runReviewCliGates(
   });
 
   // ── lint ──
+  // B-a749: resolve the story's change-scope so out-of-scope packages whose
+  // deps are absent are skipped-with-warning rather than hard-failing the
+  // REVIEW→TEST lint gate. On resolution failure (reader throws) this returns
+  // undefined → checkLint runs full recursive tsc (never skip-all).
+  const changedFiles = resolveChangedFiles({
+    projectRoot: deps.projectRoot,
+    changedFilesReader: deps.changedFilesReader,
+  });
   const lint = checkLint({
     projectRoot: deps.projectRoot,
     run: deps.run,
@@ -326,6 +342,7 @@ export function runReviewCliGates(
     readFile: deps.readFile,
     readdir: deps.readdir,
     stat: deps.stat,
+    changedFiles,
   });
   const lintOk = lint.status === 'pass' || lint.status === 'skipped';
   gates.push({
