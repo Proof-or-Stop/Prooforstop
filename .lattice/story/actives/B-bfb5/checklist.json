@@ -54,7 +54,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/templates/agents/*.md",
+          ".claude/agents/*.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Affected package and project agent prompts no longer carry repeated full 50KB+ guide snapshots and instead retain compact load-bearing guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Fresh-context fence, review-run/finding/pass flow facts, and lifecycle safety instructions remain present after slimming.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prompt slimming must not change Authority Server receipt claims, handoff authority boundaries, reviewer independence, or signed artifact validation semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
