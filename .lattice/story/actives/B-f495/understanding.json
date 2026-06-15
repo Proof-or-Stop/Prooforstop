@@ -1,0 +1,29 @@
+{
+  "task": "Formally audit the slim / fields token savings execution plan against current Lattice CLI behavior and evidence.",
+  "outcome": "User sees a concise audit result for B-f495 stating whether the slim / fields plan is accepted, what findings must be fixed, and which verification commands passed.",
+  "facts": [
+    "The target plan document was drafted in the main worktree before B-f495 worktree creation, so it must be brought into the story worktree before audit edits can be committed.",
+    "story_get and checklist_get already expose opt-in slim and fields parameters in current CLI code.",
+    "prompt-token-cost-smoke already verifies default full output compatibility and slim output reduction.",
+    "The audit must not change story_get/checklist_get default output semantics or Authority/DONE lifecycle semantics."
+  ],
+  "constraints": [
+    "Do not run omx and do not read or write .omx directories.",
+    "Do not directly read or write docs/story or tests/fixtures; use Lattice CLI for story metadata.",
+    "Keep B-f495 audit-only unless the user separately asks for implementation.",
+    "Use full output before evidence-sensitive conclusions even if slim output is preferred for routine orientation."
+  ],
+  "unknowns": [
+    "Whether the current document needs edits after formal audit findings are applied.",
+    "Whether REVIEW will require additional evidence beyond local smoke commands for this audit-only document story."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts"
+  ],
+  "timestamp": "2026-06-15T14:14:48.055Z"
+}

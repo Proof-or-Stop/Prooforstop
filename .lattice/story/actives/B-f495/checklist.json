@@ -10,7 +10,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document claims about story_get/checklist_get slim and fields support match current handler and CLI schema surfaces.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The audit identifies stale or risky verification-command ordering, especially dist smoke commands that require a fresh build after TS changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The audit does not accept provider billing, prompt-cache, or Authority completion claims unless backed by explicit receipts or executable evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
