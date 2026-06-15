@@ -81,6 +81,66 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After CHK-001 changes, run npm run build -> exits 0 with no compilation errors; WHY: proves the rename did not break TypeScript resolution or import paths",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rE KOALA_[A-Z] across packages/ bin/ scripts/ .Codex/ .claude/ docs/guide-hooks.md -> returns zero matches; WHY: proves every KOALA_ env read/setter was renamed or fallback-dropped",
+            "type": "cli"
+          },
+          {
+            "desc": "For each of the 17 dual-read twins, verify source files no longer contain || process.env.KOALA_ on same line -> zero hits; WHY: confirms fallback shims are fully removed not just renamed",
+            "type": "cli"
+          },
+          {
+            "desc": "For 38 KOALA-only vars spot-check LATTICE_ equivalents exist: grep LATTICE_AGENT LATTICE_ROLE LATTICE_PHASE LATTICE_STORY_ID LATTICE_COMMAND LATTICE_ACTIVITY_SOURCE in source -> each has >= 1 hit; WHY: confirms rename actually landed not just deletion",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "LEGACY_KOALA_* path constants in core/lattice-paths.ts still exist (grep LEGACY_KOALA_ -> at least 1 match); WHY: over-reach guard these belong to deferred .koala path story and must NOT be touched",
+            "type": "cli"
+          },
+          {
+            "desc": ".koala path tokens in core/lattice-paths.ts still exist; WHY: .koala runtime directory rename is out of scope",
+            "type": "cli"
+          },
+          {
+            "desc": "JSON config files (.Codex/lattice.json) have zero residual KOALA_ env references; WHY: JSON configs outside TypeScript compilation could silently retain stale vars",
+            "type": "cli"
+          },
+          {
+            "desc": ".claude/hooks/session-brief-reminder.cjs has zero residual KOALA_; WHY: CJS hook files outside TS compilation could silently retain stale env reads",
+            "type": "cli"
+          },
+          {
+            "desc": "bin/lattice-codex.js setters now use LATTICE_* (grep LATTICE_ACTIVITY_SOURCE -> >= 1); WHY: setters are write side; if only reads renamed the var would never be populated",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No LATTICE_X ?? KOALA_X or LATTICE_X || KOALA_X dual-read shim left behind anywhere (grep LATTICE_.*KOALA_ on same line -> zero); WHY: lingering shim defeats entire goal of eliminating KOALA_ layer",
+            "type": "cli"
+          },
+          {
+            "desc": "No half-rename: every file in CHK-001 list contains zero KOALA_[A-Z] env tokens (excluding lattice-paths.ts LEGACY_KOALA_*); WHY: file with both read and setter could have one renamed and one missed",
+            "type": "cli"
+          },
+          {
+            "desc": "No file outside CHK-001 file list in packages/ or bin/ introduces new KOALA_ reference (scope leak); WHY: merge conflicts or auto-generated files could reintroduce KOALA_ tokens",
+            "type": "cli"
+          },
+          {
+            "desc": "docs/guide-hooks.md now references LATTICE_COMMAND LATTICE_NEW_PHASE LATTICE_OLD_PHASE LATTICE_PHASE LATTICE_STAGE instead of KOALA_ equivalents -> each LATTICE_ present zero KOALA_; WHY: hook-contract docs are user-facing and stale KOALA_ names would confuse adopters",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
