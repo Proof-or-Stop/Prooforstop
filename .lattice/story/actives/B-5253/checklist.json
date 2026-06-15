@@ -246,9 +246,9 @@
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
       "userSees": "Verification output includes build success, prompt-token-cost-smoke pass, prompt-registry-smoke pass, and verify_codex adapter checks passed.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T15:23:25.700Z",
       "files": {
         "modify": [
           "packages/main/src/core/prompt-registry.ts",
@@ -284,7 +284,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed before running built dist smoke tasks.",
+          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:25.818Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Built prompt-token-cost-smoke passed after the prompt/template and smoke changes.",
+          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:25.914Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Prompt registry smoke passed, proving package templates render consistently for Claude and Codex mirrors.",
+          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:25.998Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "node ../../bin/lattice.js verify_codex --json",
+          "result": "pass",
+          "note": "Codex adapter verification returned ok=true and summary \"Codex adapter checks passed (7/8 pass)\"; the only warning was non-hard full-asset projection status.",
+          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:26.064Z"
+        }
+      ]
     }
   ]
 }
