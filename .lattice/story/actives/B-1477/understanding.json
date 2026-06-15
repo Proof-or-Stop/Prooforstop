@@ -1,0 +1,24 @@
+{
+  "task": "Write a formal execution plan for adding a Lattice LLM usage ledger.",
+  "outcome": "User can open docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and see a concrete, executable plan that explains what to build, what not to claim, how to validate provider-reported token usage, and how local Non-authority differs from Authority receipt-backed proof.",
+  "facts": [
+    "Current Lattice can estimate prompt/template size but does not expose exact provider billing tokens for all host/subagent work.",
+    "Existing provider execution records digests, bytes, duration, attempts, and model metadata, but not token usage.",
+    "Existing budget-meter can consume tokensUsed or costUnits when provider step summaries include them.",
+    "Host Overflow documentation requires execution hosts to remain non-authority and keep receiptVerified=false and productionDone=false unless Authority proof exists.",
+    "The requested task is document-only; CLI implementation is out of scope for this story."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix or plan for real correctness issues.",
+    "Follow consistency of logic across CLI local evidence and Authority Server proof boundaries.",
+    "Do not save raw prompts or raw transcripts in a usage ledger.",
+    "Do not claim true token usage where the provider did not report usage."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+  ],
+  "timestamp": "2026-06-15T14:20:45.823Z"
+}

@@ -47,7 +47,10 @@
 lattice story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
 lattice story_review '{"storyId":"B-xxx"}'
 lattice story_advance '{"storyId":"B-xxx","phase":"DEV"}'
-lattice checklist_get '{"storyId":"B-xxx"}'
+lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'       # routine read-only status
+lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'              # routine read-only status
+lattice story_get '{"storyId":"B-xxx"}'                                                           # full output before evidence/mutations
+lattice checklist_get '{"storyId":"B-xxx"}'                                                       # full output before evidence/mutations
 lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
 
 # 验证

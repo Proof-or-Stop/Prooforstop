@@ -1,0 +1,53 @@
+{
+  "storyId": "B-1477",
+  "checkedAt": "2026-06-15T14:22:48.274Z",
+  "features": [
+    {
+      "feature": "Expected deliverable is docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "covered_by": "story_get CHK-001 files.create contains only docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md; plan_get CHK-001 Deliverable names the same path.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Document-only execution-plan content for LLM usage ledger",
+      "covered_by": "plan_get Scope says the story produces one execution-plan document for a future implementation; CHK-001 specifies problem statement, record model/taxonomy, local CLI behavior, Authority boundary, future touchpoints, validation/smoke coverage, non-goals, and fail-closed behavior as document content.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "True usage vs estimate and local Non-authority vs Authority receipt boundaries are in scope for the document",
+      "covered_by": "story_get checklist context and verificationIntent require distinguishing provider-reported true usage, approximate prompt-size estimates, unavailable provider usage, local Non-authority records, and Authority Server receipt-backed proof.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Document validation is limited to docs checks",
+      "covered_by": "plan_get Validation requires rg checks for required positive terms and negative Authority-overclaim controls, then docs_check verification evidence for happy, edge, and adversarial intents.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Code implementation, CLI/provider parser/budget/runtime changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan_get Scope explicitly excludes CLI code, provider parsers, budget enforcement changes, runtime registry changes, and provider implementation work; story_get files.modify is empty and files.test is empty."
+    },
+    {
+      "feature": "Authority Server implementation or receipt-backed completion changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan_get Scope excludes Authority Server integration; checklist adversarial intent forbids claiming receiptVerified, productionDone, authorityDone, or fullAuthorityDone from local ledger records alone."
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9ddc12b3f62c07bcd18a070ba8ca93a2fc42594c1736ebb9ac70c1369469d0c9",
+  "openQuestions": []
+}

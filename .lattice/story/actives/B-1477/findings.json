@@ -1,0 +1,78 @@
+{
+  "findings": [
+    {
+      "id": "B-1477:F-001",
+      "desc": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:76 says provider-reported usage wins over estimates for the same completed call, and lines 223-225 require preflight estimate records to stay separate from final provider-reported records. But the JSONL shape at lines 86-107 only has per-line recordId plus provider.requestIdHash, which is unavailable for blocked preflight refusals or pre-provider estimates. That means ledger readers cannot mechanically correlate an estimate/refusal record with the later provider-reported record for the same call, so the preflight/postflight budget semantics are not implementable as written. Add a required stable call/attempt correlation id shared across estimate, blocked, and final provider records.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T14:30:12.990Z",
+      "reviewRound": "2026-06-15T14:27:41.310Z",
+      "reviewRunId": "B-1477:RR-005",
+      "_hash": "2f6ac03248159603930db877e1847aadd9ca93d4309b1061118f6357fce20e6a",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "resolvedReason": "Resolved in commit 4d8be6496: document now requires locally generated ledgerCallId, attemptId, sequence, and supersedesRecordIds before provider dispatch; provider.requestIdHash is optional metadata only. Targeted rg check passed.",
+      "resolvedAt": "2026-06-15T14:57:55.014Z"
+    },
+    {
+      "id": "B-1477:F-002",
+      "desc": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:84 defines the future ledger as append-only JSONL and lines 212-216 plan schema/writer APIs, but the execution plan never chooses a ledger path or classifies the file as a runtime artifact, process evidence, or another artifact class. Existing Lattice rules require runtime artifact paths to be registry-backed with gitignore/materialHash/repair semantics (AGENTS.md:67; docs/requirements/decisions/lifecycle-artifact-scope.md:45-48,65). Without that placement/registry decision, an implementer can create an unregistered/tracked JSONL ledger or accidentally make usage logs affect materialHash/gates. Add the intended path plus runtime-artifact-registry/gitignore/materialHash semantics, or explicitly state a different artifact class and why.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T14:30:13.878Z",
+      "reviewRound": "2026-06-15T14:27:41.310Z",
+      "reviewRunId": "B-1477:RR-004",
+      "_hash": "4366b93811eb7aec820db08e7d6440608b3c7b21ec8baf8a69071e5f5534c3eb",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "AGENTS.md"
+      ],
+      "resolvedReason": "Resolved in commit 4d8be6496: document now chooses .lattice/usage/llm-usage.jsonl and specifies runtime-artifact-registry semantics: gitignored .lattice/usage/, materialHash=exclude, volatile=true, repairableTrackedArtifact=true, and not process/story/gate evidence. Targeted rg check passed.",
+      "resolvedAt": "2026-06-15T14:58:01.546Z"
+    },
+    {
+      "id": "B-1477:F-003",
+      "desc": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:76 says provider-reported usage wins over estimates for the same completed call, and lines 223-225 require estimate records to stay separate from final provider-reported records, but the proposed JSONL shape at lines 90-145 only has a per-record recordId and provider.requestIdHash. There is no stable callAttemptId, parentRecordId, or supersedes link that exists across preflight estimate, blocked refusal, and postflight provider usage records. Because requestIdHash is unavailable before a provider call and absent for blocked refusals, ledger readers cannot mechanically identify the same call, so summaries can double count estimates or fail to replace an estimate with final provider usage. This breaks the plan’s own usage-source semantics and schema-freeze goal; define explicit attempt/correlation/link semantics before freezing the ledger record contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-15T14:31:07.191Z",
+      "reviewRound": "2026-06-15T14:27:41.310Z",
+      "reviewRunId": "B-1477:RR-007",
+      "_hash": "9322743c24d734a2ce1412f226d3e84bbbeb35cb3e003189aba9a309c2db8a25",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "resolvedReason": "Resolved in commit 4d8be6496: same root cause as F-001; document now defines explicit call/attempt correlation and supersession semantics so summaries select latest non-superseded records and do not double count estimates after provider-reported final usage exists. Targeted rg check passed.",
+      "resolvedAt": "2026-06-15T14:58:07.419Z"
+    },
+    {
+      "id": "B-1477:F-004",
+      "desc": "CHK-001:edge:0 asks verification evidence to prove the document distinguishes provider-reported true usage, approximate prompt-size estimates, and unavailable provider usage so estimates cannot be mistaken for billing evidence. The recorded edge verificationEvidence command instead searches for repair-specific call-correlation and runtime-artifact terms such as ledgerCallId, attemptId, provider.requestIdHash, double count, .lattice/usage/llm-usage.jsonl, runtime-artifact-registry, materialHash, and story evidence, and its note only says F-001/F-002/F-003 were addressed. A document could remove the Usage Source Semantics table or the provider-reported/prompt-size-estimate/unavailable distinction while this recorded edge evidence would still pass. I independently confirmed the repaired document currently contains the required source semantics with rg, but that check is not recorded as CHK-001:edge:0 verificationEvidence; refresh the edge evidence with a command/note that directly asserts provider-reported, prompt-size-estimate, unavailable, and estimate-not-billing/Authority semantics.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-15T15:00:55.666Z",
+      "reviewRound": "2026-06-15T14:57:46.136Z",
+      "reviewRunId": "B-1477:RR-010",
+      "_hash": "26f1a05479bf34946345784468ce5eb01c5604b17ec0d5b421893fcf925c54a6",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "resolvedReason": "Resolved by recording direct CHK-001:edge:0 docs_check evidence in commit 82f7478: rg now checks provider-reported, prompt-size-estimate, unavailable, not billing truth/final usage, and local estimate not Authority proof semantics. No document content change was required.",
+      "resolvedAt": "2026-06-15T15:01:54.948Z"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Record only provider-reported or receipt-backed usage as true usage.",
+    "Keep local Non-authority evidence separate from Authority Server receipt-backed proof.",
+    "Prefer minimal additive CLI surfaces over broad rewrites.",
+    "Avoid raw prompt or transcript storage in token accounting artifacts."
+  ],
+  "drivers": [
+    "Users need per-story LLM usage visibility after Lattice-driven work.",
+    "Budget controls are not defensible when provider spend is unavailable or silently estimated.",
+    "Authority boundaries must remain explicit across local CLI and server receipt paths."
+  ],
+  "options": [
+    {
+      "name": "A: Document-first execution plan for a future ledger implementation",
+      "pros": [
+        "Matches the current user request to create an executable plan.",
+        "Keeps code changes out of a high-risk planning story.",
+        "Lets reviewers check authority and usage semantics before implementation."
+      ],
+      "cons": [
+        "Does not immediately expose token usage in the CLI.",
+        "Requires a follow-up implementation story."
+      ]
+    },
+    {
+      "name": "B: Implement the ledger immediately in this story",
+      "pros": [
+        "Could produce a usable CLI command sooner.",
+        "Would directly address missing per-story token accounting."
+      ],
+      "cons": [
+        "Exceeds the user-approved document-only scope.",
+        "Risks mixing planning, provider parsing, runtime artifacts, and Authority semantics in one change.",
+        "Would be more likely to introduce arbitrary optimization or overclaiming."
+      ]
+    },
+    {
+      "name": "C: Continue using prompt-size estimates only",
+      "pros": [
+        "No code or documentation changes needed.",
+        "Existing prompt-token smoke already reports approximate template size."
+      ],
+      "cons": [
+        "Does not solve the correctness issue: actual provider usage remains unavailable.",
+        "Could mislead users if approximate tokens are confused with provider billing tokens."
+      ]
+    }
+  ],
+  "chosen": "A: Document-first execution plan for a future ledger implementation",
+  "rationale": "Choose the document-first plan because the immediate requested deliverable is an execution document, while the implementation touches high-risk provider, budget, runtime artifact, and Authority boundaries that need a reviewed plan before code changes.",
+  "preMortem": [
+    {
+      "scenario": "The document implies approximate prompt-size estimates are real provider token usage.",
+      "trigger": "Terminology such as tokens without usageSource or measurementStatus appears in the plan.",
+      "consequence": "Users may treat bytes/4 estimates as billing evidence and make incorrect budget decisions.",
+      "mitigation": "Require explicit provider_reported, authority_receipt, estimated, or unavailable classifications, and state that estimated values cannot satisfy true usage."
+    },
+    {
+      "scenario": "The plan allows local CLI ledger records to be treated as Authority completion proof.",
+      "trigger": "Fields such as receiptVerified, authorityDone, or productionDone are set from local JSONL records.",
+      "consequence": "Lattice violates host-neutral Authority boundaries and overclaims production proof.",
+      "mitigation": "Keep localNonAuthority=true by default and require a separately verified Authority Server receipt for any authority-backed usage claim."
+    },
+    {
+      "scenario": "The future implementation stores raw prompts or transcripts in usage records.",
+      "trigger": "Provider output parsing is implemented by saving full stdout or prompt payloads into ledger artifacts.",
+      "consequence": "Secrets or proprietary task content leak into runtime artifacts and evidence bundles.",
+      "mitigation": "Store only structured usage numbers, digests, request metadata, and unavailable reasons; raw transcript capture remains out of scope."
+    },
+    {
+      "scenario": "Budget enforcement silently passes when provider usage is unavailable.",
+      "trigger": "A budget cap is configured but the provider CLI does not emit usage.",
+      "consequence": "Lattice appears to enforce spend while not measuring spend.",
+      "mitigation": "Define fail-closed behavior for token/cost budget checks that require true usage but receive unavailable usage."
+    }
+  ],
+  "timestamp": "2026-06-15T14:21:03.328Z"
+}

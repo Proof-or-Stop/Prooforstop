@@ -7,10 +7,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Agent prompts recommend slim / fields for routine status checks and full output for evidence-sensitive work.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "The shared prompt guidance includes: \"For routine status refreshes, prefer compact read-only queries\" and includes full-output fallback commands.",
+      "status": "done",
+      "startTime": "2026-06-15T15:18:24.201Z",
+      "endTime": "2026-06-15T15:22:24.093Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents",
+          ".claude/agents",
+          ".Codex/agents"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Load-bearing agent prompt templates include compact story_get/checklist_get examples for routine status refreshes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same guidance also states full output must be reloaded before evidence-sensitive conclusions or mutations.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Claude and Codex mirrors match package templates and do not drift from the prompt registry render output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"For routine status refreshes|lattice story_get .+slim.+fields|lattice checklist_get .+slim.+fields\" packages/main/src/core/prompt-registry.ts packages/main/templates/agents .claude/agents .Codex/agents",
+          "result": "pass",
+          "note": "Focused text check found the advisory compact story_get/checklist_get examples in the canonical prompt registry, package templates, and Claude/Codex mirrors.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Before evidence-sensitive conclusions|lattice story_get .+B-xxxx|lattice checklist_get .+B-xxxx\" packages/main/src/core/prompt-registry.ts packages/main/templates/agents .claude/agents .Codex/agents",
+          "result": "pass",
+          "note": "Focused text check found the evidence-sensitive full-output fallback guidance alongside the compact examples.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Prompt registry smoke passed and verified package templates render consistently for Claude and Codex mirrors.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,10 +88,77 @@
         "CLAUDE.md",
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Project guidance shows compact status commands where they are safe.",
-      "status": "pending",
+      "userSees": "AGENTS.md and CLAUDE.md routine orientation examples show slim / fields commands, while evidence-sensitive examples still show full output.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T15:23:04.163Z",
+      "files": {
+        "modify": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "README.md",
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Routine orientation examples in project guidance use slim / fields forms for story_get/checklist_get where full data is not required.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full-output examples remain present where the surrounding text requires complete evidence, mutation decisions, or detailed history.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation does not claim provider billing savings, Authority completion, DONE semantic changes, or default output changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"routine read-only status|routine story/checklist status|slim.*true\" AGENTS.md CLAUDE.md",
+          "result": "pass",
+          "note": "AGENTS.md and CLAUDE.md quick-reference examples now show slim/fields forms for routine read-only story/checklist status.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"full output before evidence/mutations|evidence-sensitive conclusions / mutations|lattice story_get.*B-xxx|lattice checklist_get.*B-xxx\" AGENTS.md CLAUDE.md",
+          "result": "pass",
+          "note": "Full story_get/checklist_get examples remain adjacent to evidence-sensitive and mutation commands.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --format= --unified=8 ee1d6e5bd -- AGENTS.md CLAUDE.md",
+          "result": "pass",
+          "note": "Manual diff review showed only orientation examples changed; no provider billing, Authority completion, DONE semantic, or default-output behavior claims were added.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,10 +167,75 @@
       "relatedDocs": [
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Verification fails if compact guidance or full-output fallback drifts.",
-      "status": "pending",
+      "userSees": "prompt-token-cost-smoke fails if compact query guidance or the evidence-sensitive full-output fallback is missing from load-bearing templates or mirrors.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T15:23:12.686Z",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "prompt-token-cost-smoke asserts compact-query guidance exists in every load-bearing package template.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "prompt-token-cost-smoke asserts the full-output fallback exists with evidence-sensitive wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke still verifies default story_get/checklist_get compatibility and slim output remains smaller than full output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Prompt token cost smoke passed after adding assertions that compact-query guidance exists in every load-bearing package template.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Prompt token cost smoke passed after adding assertions that the evidence-sensitive full-output fallback remains present.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Prompt token cost smoke still verifies default story_get/checklist_get compatibility and slim output remains smaller than default output.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -46,10 +245,88 @@
         "README.md",
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Codex adapter verification and prompt registry checks pass after the template update.",
-      "status": "pending",
+      "userSees": "Verification output includes build success, prompt-token-cost-smoke pass, prompt-registry-smoke pass, and verify_codex adapter checks passed.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T15:23:25.700Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents",
+          ".claude/agents",
+          ".Codex/agents",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build passes before built dist smoke tasks are executed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "prompt-registry-smoke passes, proving package templates render consistently for Claude and Codex mirrors.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify_codex --json passes after Codex-facing prompt assets change and reports adapter checks passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed before running built dist smoke tasks.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Built prompt-token-cost-smoke passed after the prompt/template and smoke changes.",
+          "headHash": "c75eea3ba4edb81638631e77c7dedb66bbe98a9e",
+          "materialHash": "2c4ca7f023b000bb0db32054b4238331984e5f4d3a9f70371fb4abaf68792fa0",
+          "timestamp": "2026-06-15T15:23:25.914Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Prompt registry smoke passed, proving package templates render consistently for Claude and Codex mirrors.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "command": "node ../../bin/lattice.js verify_codex --json",
+          "result": "pass",
+          "note": "Codex adapter verification returned ok=true and summary \"Codex adapter checks passed (7/8 pass)\"; the only warning was non-hard full-asset projection status.",
+          "headHash": "154897461db77cb5dd1ebf38681604b518ce7831",
+          "materialHash": "9570b5d667666cc2a8bb59cfee002487934c0506d9c2103d859ab5404ab7da90",
+          "timestamp": "2026-06-15T15:28:35.765Z"
+        }
+      ]
     }
   ]
 }

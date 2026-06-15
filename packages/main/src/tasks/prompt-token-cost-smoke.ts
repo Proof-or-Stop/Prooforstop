@@ -61,6 +61,17 @@ const requiredPromptPhrases = [
   'fullAuthorityDone',
 ];
 
+const compactQueryGuidancePhrases = [
+  'For routine status refreshes, prefer compact read-only queries',
+  'These examples',
+  'are opt-in; default `story_get` and `checklist_get` output remains full',
+  `lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'`,
+  `lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'`,
+  'Before evidence-sensitive conclusions or mutations, reload the full output',
+  `lattice story_get '{"storyId":"B-xxxx"}'`,
+  `lattice checklist_get '{"storyId":"B-xxxx"}'`,
+];
+
 function bytes(text: string): number {
   return Buffer.byteLength(text, 'utf8');
 }
@@ -77,6 +88,12 @@ function extractLatticeBlock(content: string): string {
   const match = content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
   assert.ok(match, 'expected lattice managed block');
   return match[0];
+}
+
+function assertCompactQueryGuidance(content: string, label: string): void {
+  for (const phrase of compactQueryGuidancePhrases) {
+    assert.ok(content.includes(phrase), `${label} keeps compact query guidance phrase: ${phrase}`);
+  }
 }
 
 function assertAuditDocExecutable(): void {
@@ -109,6 +126,7 @@ function assertPromptReductions(): void {
     for (const phrase of requiredPromptPhrases) {
       assert.ok(content.includes(phrase), `${file} keeps prompt-safety phrase: ${phrase}`);
     }
+    assertCompactQueryGuidance(content, file);
     assert.ok(current < baseline, `${file} current bytes should be smaller than baseline`);
     rows.push(
       `  ${file}: baseline ${baseline} B (~${approxTokens(baseline)} tok), ` +
@@ -139,6 +157,9 @@ function assertMirrorsMatch(): void {
     const codexContent = readRepo(`.Codex/agents/${file}`);
     assert.equal(claudeContent, packageContent, `.claude mirror matches package template for ${file}`);
     assert.equal(codexContent, renderCodexPromptContent(packageContent), `.Codex mirror matches package render for ${file}`);
+    assertCompactQueryGuidance(packageContent, `package template ${file}`);
+    assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
+    assertCompactQueryGuidance(codexContent, `.Codex mirror ${file}`);
   }
 }
 

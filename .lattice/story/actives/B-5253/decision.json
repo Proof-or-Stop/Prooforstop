@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Prefer additive prompt and documentation guidance over behavior-changing CLI defaults.",
+    "Always pair compact status examples with a full-output fallback for evidence-sensitive work.",
+    "Keep package templates, Claude mirrors, and Codex mirrors mechanically consistent.",
+    "Verify with executable smokes rather than relying on prompt prose."
+  ],
+  "drivers": [
+    "B-f495 accepted the implementation plan.",
+    "Routine repeated story_get/checklist_get output can add avoidable context cost.",
+    "Reviewer and DONE behavior must not lose access to full evidence."
+  ],
+  "options": [
+    {
+      "name": "A: Shared prompt-registry guidance plus targeted docs/examples",
+      "pros": [
+        "Centralizes guidance inside the load-bearing prompt slice used by key Lattice agents.",
+        "Keeps command defaults and gate semantics unchanged.",
+        "Regression tests can check one canonical guidance phrase across templates and mirrors."
+      ],
+      "cons": [
+        "Adds a small amount of text to templates, so savings depend on agents actually using compact commands."
+      ]
+    },
+    {
+      "name": "B: Change story_get/checklist_get defaults to slim output",
+      "pros": [
+        "Would reduce output size automatically for all callers."
+      ],
+      "cons": [
+        "Breaks compatibility for existing scripts and agents that rely on full output.",
+        "Risks evidence-sensitive conclusions from incomplete data.",
+        "Contradicts the B-f495 non-goal to keep defaults unchanged."
+      ]
+    },
+    {
+      "name": "C: Only update documentation, leave agent prompts unchanged",
+      "pros": [
+        "Smallest code diff."
+      ],
+      "cons": [
+        "Does not affect the prompt surfaces most likely to repeat status commands.",
+        "Regression coverage would not protect agent behavior guidance from drifting."
+      ]
+    }
+  ],
+  "chosen": "A: Shared prompt-registry guidance plus targeted docs/examples",
+  "rationale": "Option A implements the accepted plan with the smallest behavior risk: compact queries become recommended for routine orientation, full output remains explicit for evidence-sensitive work, and existing CLI defaults stay stable.",
+  "preMortem": [
+    {
+      "scenario": "Agents overuse slim output and miss detailed evidence.",
+      "trigger": "Prompt wording says compact queries without the full-output fallback.",
+      "consequence": "A reviewer could make an evidence-sensitive conclusion from summarized data.",
+      "mitigation": "Keep the full-output fallback in the shared snippet and assert it in prompt-token-cost-smoke."
+    },
+    {
+      "scenario": "Claude/Codex mirrors drift from package templates.",
+      "trigger": "Only package templates are edited without synchronizing mirrors.",
+      "consequence": "Different hosts receive inconsistent guidance.",
+      "mitigation": "Update mirrors and run prompt-registry-smoke plus verify_codex."
+    },
+    {
+      "scenario": "Smoke tests run stale dist code.",
+      "trigger": "Running dist smoke before npm build after TypeScript edits.",
+      "consequence": "Verification reports a false pass.",
+      "mitigation": "Run npm --prefix packages/main run build before built smoke tasks."
+    }
+  ],
+  "timestamp": "2026-06-15T15:13:54.530Z"
+}
