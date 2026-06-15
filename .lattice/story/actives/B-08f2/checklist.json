@@ -292,6 +292,66 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/koala/legacy/ directory no longer exists on disk (ls docs/koala/legacy/ -> error or empty); WHY: the 12-file archive must be fully removed",
+            "type": "cli"
+          },
+          {
+            "desc": "Residual scan: git grep -E KOALA_[A-Z] across packages/ scripts/ bin/ .Codex/ .claude/ returns zero matches; WHY: this is the final gate proving the entire KOALA_ env layer is eliminated",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build exits 0; WHY: proves the deletion and all prior renames did not break compilation",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e exits 0; WHY: end-to-end suite is the final runtime correctness gate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs/koala/framework-audit/ directory still exists and contains files; WHY: over-reach guard - framework-audit is an ACTIVE path explicitly out of scope for deletion",
+            "type": "cli"
+          },
+          {
+            "desc": "docs/koala/ directory itself still exists (it contains framework-audit/); WHY: ensure we did not accidentally rm -rf the parent",
+            "type": "cli"
+          },
+          {
+            "desc": "All 12 specific files under docs/koala/legacy/root-markdown/ are gone (KOALA.md koala-project-overview.md and the 10 Lattice-*.md files); WHY: ensures complete removal not partial",
+            "type": "cli"
+          },
+          {
+            "desc": "Residual scan also covers docs/guide-hooks.md specifically -> zero KOALA_[A-Z] hits; WHY: this user-facing doc was modified in CHK-001 and is the most likely place for a stale reference to slip through",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify LEGACY_KOALA_* path constants in lattice-paths.ts survived the entire story (still present); WHY: the most dangerous over-reach would be a zealous final cleanup that removes the deferred-scope path constants",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify .koala directory references in lattice-paths.ts survived; WHY: same over-reach guard for the runtime directory path which is deferred to a later story",
+            "type": "cli"
+          },
+          {
+            "desc": "No KOALA_ token was smuggled into a new file created during this story (check git diff --name-only against base for any new files then grep them); WHY: a new helper or config file could reintroduce KOALA_ undetected by the rename scan",
+            "type": "cli"
+          },
+          {
+            "desc": "No LATTICE_X ?? KOALA_X or || KOALA_X dual-read pattern exists anywhere in the entire tracked tree (excluding lattice-paths.ts LEGACY_ constants); WHY: final comprehensive check that no fallback shim survived across all three checklist items",
+            "type": "cli"
+          },
+          {
+            "desc": "Experiments/ and CHANGELOG/history files are untouched (git diff --name-only shows no changes in experiments/ or CHANGELOG); WHY: these are documented exceptions and must not be modified",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
