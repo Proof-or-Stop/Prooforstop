@@ -49,9 +49,9 @@
           "command": "rg -n \"Problem Statement|## Goals|## Non-Goals|Usage Source Semantics|JSONL Ledger Record Shape|Local Non-authority Boundary|Authority Server Receipt-Backed Path|Implementation Touchpoints|Fail-Closed Budget Behavior|Privacy Constraints|Validation / Smoke Plan|Rollout Phases|Acceptance Criteria\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
           "result": "pass",
           "note": "Document exists and contains the expected execution-plan sections for the LLM usage ledger.",
-          "headHash": "88828480290ed8329632fad12eb009febbfa8511",
-          "materialHash": "34e38be6acd984ec5039c087b1fd994f99ffa39237b570c40f97e85c8dabe2c3",
-          "timestamp": "2026-06-15T14:27:13.729Z"
+          "headHash": "18919793247eb3e1efd5b3a21e7ad228d1493bb7",
+          "materialHash": "becc2aa82f8b731b4575a05ff078bbb653ebe3383a1ce0a23840a40b03c87c44",
+          "timestamp": "2026-06-15T14:58:14.819Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -71,9 +71,9 @@
           "command": "if rg -n '\"receiptVerified\": true|\"productionDone\": true|\"authorityChanged\": true|receiptVerified=true|productionDone=true|authorityChanged=true|fullAuthorityDone=true|authorityDone=true' docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md; then exit 1; else echo PASS; fi",
           "result": "pass",
           "note": "Negative control passed: document does not claim local ledger records set Authority completion or receipt verification true.",
-          "headHash": "88828480290ed8329632fad12eb009febbfa8511",
-          "materialHash": "34e38be6acd984ec5039c087b1fd994f99ffa39237b570c40f97e85c8dabe2c3",
-          "timestamp": "2026-06-15T14:27:13.792Z"
+          "headHash": "18919793247eb3e1efd5b3a21e7ad228d1493bb7",
+          "materialHash": "becc2aa82f8b731b4575a05ff078bbb653ebe3383a1ce0a23840a40b03c87c44",
+          "timestamp": "2026-06-15T14:58:14.819Z"
         }
       ]
     }
