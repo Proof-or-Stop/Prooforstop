@@ -57,7 +57,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Existing diagnostics show agentAssetResolution mode, promptRegistryHash, project prompt asset status, and a local Non-authority authorityBoundary note.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/rollout-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verify_codex/diagnostic output includes a runtime-owned asset status check with registry hash and local Non-authority boundary text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rollout diagnostics surface stale local prompt assets as warnings without suggesting automatic deletion or Authority completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diagnostics do not add a new mutating command path and do not call apply/upgrade/repair during read-only checks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
