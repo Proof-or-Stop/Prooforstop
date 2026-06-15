@@ -9,7 +9,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A mechanical audit check reports current template snapshot sizes and confirms the audit document remains executable against current source paths.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The audit evidence reports prompt-cache billing uncertainty as a caveat rather than an exact cost-saving claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a cited implementation path drifts, the verification must fail or report the drift instead of silently treating the audit as executable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
