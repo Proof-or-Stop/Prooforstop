@@ -70,6 +70,19 @@
         }
       ],
       "_hash": "64e1593950ef9351843d8a7693a020763f05d64498292eff493a19577b09a50f"
+    },
+    {
+      "timestamp": "2026-06-15T14:23:11.487Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Security/Credentials. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-1477\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "bfe818cd4e6fab23ba6b02be610aa91d46e5288ce1a03da0d488d4737a97fcad"
     }
   ]
 }
