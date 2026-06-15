@@ -4,7 +4,7 @@
   "title": "Remove dead sample packages and committed cruft for the open-source release",
   "description": "Pre-open-source cleanup. Three sample/dogfood projects under packages/ (cli-guess-number, python-demo, python-rps) and two tracked junk/dead files at the repo root (du.exe.stackdump, claude-session.mjs) are not part of the Lattice tool and have zero live references; delete them so the OSS repo ships only the actual product. jek.md is deliberately KEPT (user-owned per decisions/root-markdown-migration-execution-solution.md; the user confirmed keeping it). packages/lab and experiments/ are also out of scope (separate follow-up).",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "low",
   "keywords": [
     "open-source-cleanup",
@@ -54,6 +54,14 @@
       "branch": "story/B-0b26",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:32:44.745Z",
+      "branch": "story/B-0b26",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -67,5 +75,6 @@
     "path": ".worktrees/B-0b26",
     "branch": "story/B-0b26",
     "createdAt": "2026-06-15T22:24:32.151Z"
-  }
+  },
+  "currentReviewRound": "2026-06-15T22:32:44.744Z"
 }
