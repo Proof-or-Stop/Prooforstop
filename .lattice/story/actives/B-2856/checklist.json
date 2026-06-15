@@ -16,6 +16,42 @@
         "test": [
           "packages/main/src/tasks"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: inject gitLogReader + gitChangedFilesReader that capture cwd arg; call checkCommitAuthor with resolver returning authoritativeCwd=/repo/gitRoot -> both readers receive cwd=/repo/gitRoot, not /repo (metadataRoot); WHY: proves the reroute actually threads the resolved gitRoot into the git readers",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: inject readers capturing cwd; call checkCommitAuthor with resolver returning resolved=false, authoritativeCwd=null -> both readers receive cwd=projectRoot (the original metadataRoot); WHY: proves null-fallback preserves byte-identical behavior for non-wrapper-root repos",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root fixture: run runChannelGateCli end-to-end with injected readers and resolver returning gitRoot -> gate returns pass/fail/skipped status matching the injected reader output, proving gate semantics unchanged; WHY: proves command text and pass/fail logic are not altered by the cwd reroute",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolver throws an exception during resolution -> handler catches and falls back to projectRoot rather than crashing the validate pipeline; WHY: protects against resolver bugs in production without blocking validation",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root with gitRoot pointing to a path that exists but is not the metadataRoot -> cwd is set to exactly the gitRoot path, not metadataRoot; WHY: ensures the reroute is not silently ignored when both paths exist",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS guard: inject gitLogReader that returns data from the WRONG repo (metadataRoot commits instead of gitRoot commits) and assert the gate does NOT pass on stale/wrong data; WHY: a cwd mismatch could silently pass a gate by reading the wrong commit history",
+            "type": "cli"
+          },
+          {
+            "desc": "concurrent resolver: two validate-channel calls race with different storyIds returning different gitRoots -> each call uses its own resolved gitRoot, no cross-contamination; WHY: if resolver result is cached globally, a stale gitRoot from story A could bleed into story B validation",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
