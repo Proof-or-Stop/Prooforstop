@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-804c:F-001",
+      "desc": "CHK-001:happy:0 lacks a test that drives `story_advance --phase=INIT_CHECK` on a clean INIT story through a SUCCEEDING bootstrap and asserts that phase becomes INIT_CHECK and the worktree is created on disk. The recorded evidence maps this intent to `assertDevStartRecoversStuckInitCheckStory`, which calls `dev_start` on a story already stuck at INIT_CHECK — it exercises the new recovery command, not the `story_advance` success path. The atomicity fix defers phase persistence until after bootstrap succeeds; the only `story_advance INIT_CHECK` path exercised is the FAILURE case (edge intent). A regression in the success-path sequencing (e.g. phase accidentally written twice, or worktree not recorded on the story index after advance) would not be caught.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T22:41:47.355Z",
+      "reviewRound": "2026-06-15T22:40:11.984Z",
+      "reviewRunId": "B-804c:RR-003",
+      "_hash": "87921ab6b694d27302ef6e88bc04a44227847ba0bf0e2be127d23547f3cbfed9",
+      "files": [
+        "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+      ]
+    }
+  ]
+}
