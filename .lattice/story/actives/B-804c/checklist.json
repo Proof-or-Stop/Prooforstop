@@ -52,10 +52,10 @@
           "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
           "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
           "result": "pass",
-          "note": "assertDevStartRecoversStuckInitCheckStory drives the successful bootstrap path: dev_start creates the worktree on disk and prints a Path: line, exercising the same dev_start success that the clean INIT->INIT_CHECK happy advance now depends on (phase persisted only after this success).",
-          "headHash": "9efde4255a6780b4775a937bf92f1e67f7ac45d6",
-          "materialHash": "5afcf7a8b210e4c67c213546759192915c026632d2a369e55c828305446decea",
-          "timestamp": "2026-06-15T22:39:43.837Z"
+          "note": "assertCleanInitCheckAdvanceSucceeds drives the REAL story_advance --phase=INIT_CHECK happy path on a frozen story with a signed init-check.json: asserts exit 0, story_get detail phase===INIT_CHECK (advanced exactly once), worktree dir exists on disk, and story.worktree?.path recorded on the index.",
+          "headHash": "db8f1786bf2abcf6af09a77370ec2fd5dbf3b55a",
+          "materialHash": "36f4d06b1d12067796c83aeaae82d9c28990443cc8e251cbe2d8fdea6a076b6c",
+          "timestamp": "2026-06-15T22:58:46.842Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
