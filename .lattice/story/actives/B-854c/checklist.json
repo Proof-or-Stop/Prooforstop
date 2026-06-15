@@ -85,6 +85,17 @@
           "headHash": "0c15a5b4cd6579fea4d6352385e04c73016a15ef",
           "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
           "timestamp": "2026-06-15T22:31:01.793Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: negation allowlist -> bootstrap succeeds, no false-positive warning (guard probes the leaf not the .lattice prefix)",
+          "headHash": "9da4cb1d6bcc33d76d6cf27825647268762031c8",
+          "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
+          "timestamp": "2026-06-15T22:31:02.177Z"
         }
       ]
     },
