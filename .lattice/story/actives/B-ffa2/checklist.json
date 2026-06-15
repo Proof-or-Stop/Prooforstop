@@ -41,7 +41,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "command": "rg -n 'Active vs Legacy Boundary|Explicit Non-Goals|KOALA_\\*|\\.koala|hash salts|signed artifact' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan explicitly separates active role cleanup from legacy runtime/archive compatibility, .koala paths, KOALA_* envs, and signed salts.",
+          "headHash": "a2c0cc4b08793b5a11b9202c2280880ce68e785f",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:21:01.780Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
