@@ -25,7 +25,15 @@
       "userSees": "`git ls-files` no longer lists du.exe.stackdump or claude-session.mjs; jek.md is still present and tracked; build and e2e still pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "du.exe.stackdump",
+          "claude-session.mjs"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
