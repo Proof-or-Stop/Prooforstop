@@ -66,7 +66,14 @@
       "context": "Add a section requiring all provider dispatch to flow through a single ledger-writing choke-point, plus a periodic reconciliation check (count of provider dispatch events vs count of ledger final records per ledgerCallId+attemptId) that surfaces gaps. Accuracy = completeness, not just per-record correctness; a bypassed writer silently under-counts.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-006",
