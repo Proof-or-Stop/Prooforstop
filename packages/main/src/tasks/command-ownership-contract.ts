@@ -37,7 +37,7 @@
  *        finding mutation downgrades to `mainSharedMutating`; a diagnostic
  *        `validate` without `--story` downgrades to `readOnly` while
  *        `validate --story` is `storyScopedMutating`; `delivery_check_set` is
- *        `reviewerWrite` only for the `koala-review-delivery` actor.
+ *        `reviewerWrite` only for the `lattice-review-delivery` actor.
  *
  *     5. GATE BEHAVIOR — `enforceStoryOwnerLeaseGate` itself: a non-owner
  *        session running an owner-gated storyScopedMutating command on a story
@@ -191,9 +191,9 @@ try {
     const savedAgent = process.env.KOALA_AGENT;
     delete process.env.KOALA_AGENT;
     assert.equal(
-      isDeliveryReviewerActor({ agentId: 'koala-review-delivery' }),
+      isDeliveryReviewerActor({ agentId: 'lattice-review-delivery' }),
       true,
-      'agentId=koala-review-delivery is recognised as the delivery reviewer actor',
+      'agentId=lattice-review-delivery is recognised as the delivery reviewer actor',
     );
     assert.equal(
       isDeliveryReviewerActor({ agentId: 'main' }),
@@ -201,7 +201,7 @@ try {
       'a non-delivery agentId is not the delivery reviewer actor',
     );
     assert.equal(
-      resolveEffectiveOwnershipClass('delivery_check_set', { agentId: 'koala-review-delivery' }, 'B-c55d'),
+      resolveEffectiveOwnershipClass('delivery_check_set', { agentId: 'lattice-review-delivery' }, 'B-c55d'),
       'reviewerWrite',
       'delivery_check_set by the delivery reviewer is reviewerWrite (owner-lease exempt)',
     );
@@ -211,11 +211,11 @@ try {
       'delivery_check_set by a non-delivery actor is owner-gated storyScopedMutating — a main agent cannot borrow it to bypass the owner lease',
     );
     // KOALA_AGENT env fallback is honored when no explicit agentId is given.
-    process.env.KOALA_AGENT = 'koala-review-delivery';
+    process.env.KOALA_AGENT = 'lattice-review-delivery';
     assert.equal(
       isDeliveryReviewerActor({}),
       true,
-      'KOALA_AGENT=koala-review-delivery is honored as the delivery reviewer actor fallback',
+      'KOALA_AGENT=lattice-review-delivery is honored as the delivery reviewer actor fallback',
     );
     process.env.KOALA_AGENT = 'main';
     assert.equal(

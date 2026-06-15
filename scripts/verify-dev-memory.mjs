@@ -92,7 +92,7 @@ check('valid entry passes validation', () => {
     lesson: 'The tsc gate only runs if dist exists; always build first',
     reusePrompt: 'Did you run build before validate?',
     tags: ['build', 'lint'],
-    sourceAgent: 'koala-implementer',
+    sourceAgent: 'lattice-implementer',
   });
   const result = dm.validateEntry(entry);
   if (!result.ok) throw new Error(result.error);
@@ -952,7 +952,7 @@ check('dev_memory_finish in active story defaults to story candidate file', () =
   const capture = runKoala(['dev_memory_capture', JSON.stringify({
     category: 'workflow',
     summary: 'Active story default finish writes candidate evidence refs',
-    trigger: 'finishing an active Koala story session',
+    trigger: 'finishing an active Lattice story session',
     lesson: 'Bare dev_memory_finish should target the active story branch',
     reusePrompt: 'When in story branch, finish should write story candidates',
     evidenceRefs: ['evidence/transcript.md', 'command:node scripts/verify-dev-memory.mjs'],
@@ -1130,7 +1130,7 @@ check('token-aware search: "authority reviewer" finds reviewer entries (B-1148 R
       scope: 'project',
       summary: 'Reviewer calling finding_add with pass-only body is auto-normalized to review_pass_set',
       trigger: 'Reviewer reports PASS via finding_add and it becomes an open finding',
-      lesson: 'flow-policy:pass-only-normalization converts low-severity koala-review-* finding_add to review_pass_set',
+      lesson: 'flow-policy:pass-only-normalization converts low-severity lattice-review-* finding_add to review_pass_set',
       reusePrompt: 'reviewer pass-only finding_add normalized review_pass_set',
       tags: ['reviewer', 'finding-add', 'review-pass', 'normalization'],
       sourceStoryId: 'B-9b8f',

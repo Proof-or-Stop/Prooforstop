@@ -340,7 +340,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'global-cli',
       'global-cli',
-      'active Lattice/Koala CLI resolves to the global installation; project package.json/node_modules are not required',
+      'active Lattice CLI resolves to the global installation; project package.json/node_modules are not required',
     );
   }
 

@@ -64,8 +64,8 @@ const candidateCliPaths = cliCandidates();
 const cli = candidateCliPaths.find(isRunnableCli) || candidateCliPaths.find((candidate) => existsSync(candidate)) || candidateCliPaths[0];
 const staleStorySegment = `${sep}.worktrees${sep}B-8f6a${sep}`;
 
-assert(existsSync(localDistCli), `Missing built Koala CLI at ${localDistCli}. Run npm run build first.`);
-assert(isRunnableCli(cli), `Expected runnable built Koala CLI. Checked: ${candidateCliPaths.join(', ')}. Run npm run build first.`);
+assert(existsSync(localDistCli), `Missing built Lattice CLI at ${localDistCli}. Run npm run build first.`);
+assert(isRunnableCli(cli), `Expected runnable built Lattice CLI. Checked: ${candidateCliPaths.join(', ')}. Run npm run build first.`);
 assert(!cli.includes(staleStorySegment), `Runtime reviewer contract must not use stale story worktree CLI path: ${cli}`);
 
 function findHardcodedWorktreeCliIssues(source, label, options = {}) {
@@ -295,7 +295,7 @@ try {
   for (const reviewer of reviewerList.reviewers) {
     const name = String(reviewer.name || '');
     assert(name.length > 0, `reviewer_list returned reviewer without name\n--- reviewer ---\n${JSON.stringify(reviewer, null, 2)}`);
-    const agent = `koala-review-${name}`;
+    const agent = `lattice-review-${name}`;
     const runOutput = run(absLivePath, [
       cli,
       '--root',

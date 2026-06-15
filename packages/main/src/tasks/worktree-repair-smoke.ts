@@ -31,7 +31,7 @@ function initRepo(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -232,7 +232,7 @@ function buildPartialDone(root: string, storyId: string): string {
   const worktreeStore = new StoryStore(worktreePath);
   worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
   git(worktreePath, ['add', '.lattice/story/actives']);
-  git(worktreePath, ['commit', '-m', `koala: mark ${storyId} DONE + clear worktree`]);
+  git(worktreePath, ['commit', '-m', `lattice: mark ${storyId} DONE + clear worktree`]);
   return worktreePath;
 }
 
@@ -334,7 +334,7 @@ async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
     const worktreeStore = new StoryStore(worktreePath);
     worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['commit', '-m', `koala: mark ${storyId} DONE with conflict`]);
+    git(worktreePath, ['commit', '-m', `lattice: mark ${storyId} DONE with conflict`]);
 
     writeFileSync(join(root, 'conflict.txt'), 'main branch version\n');
     git(root, ['add', 'conflict.txt']);

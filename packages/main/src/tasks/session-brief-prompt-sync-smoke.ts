@@ -224,7 +224,7 @@ function tmpRoot(prefix: string): string {
 }
 
 const cliInit = read('packages/main/src/cli-init.ts');
-assert.match(cliInit, /getKoalaHooks/);
+assert.match(cliInit, /getClaudeHooks/);
 assert.match(cliInit, /session-brief-reminder\.cjs/);
 
 console.log('✓ session brief prompt sync smoke passed');

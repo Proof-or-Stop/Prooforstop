@@ -141,7 +141,7 @@ User / agent
   ↓
 Superpowers skills / workflow
   ↓ invokes
-Lattice CLI / Koala CLI / MCP / story machine
+Lattice CLI / MCP / story machine
   ↓ persists
 story / checklist / phase / gate / artifact / evidence
 ```

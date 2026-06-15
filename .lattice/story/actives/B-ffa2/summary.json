@@ -1,0 +1,55 @@
+{
+  "storyId": "B-ffa2",
+  "changes": "Renamed all Koala agent role IDs to Lattice across canonical agent templates + mirrored host assets (koala-* -> lattice-*), CLI runtime role dispatch/schemas/attribution/help text, and active docs/audits/tests. 206 files changed.",
+  "usage": "Agent role IDs are now lattice-* (e.g. lattice-review-quality, lattice-implementer); the CLI emits and dispatches Lattice role names. Koala remains only as the documented legacy alias where applicable.",
+  "expectedOutcome": "No active CLI/template/runtime surface emits Koala role IDs; lattice help, role dispatch, and generated agent prompts use lattice-* naming; validate passes.",
+  "actualTranscript": "validate PASS @ 2026-06-15T17:24 (15/15 verification intents covered); no active surface emits koala-* role IDs (verified by the 5th checklist item + reviewers); 9 high review findings (koala residue) all resolved across 3 rounds.",
+  "outcomeDiff": "Expected == actual: role IDs renamed to Lattice, koala residue removed from active surfaces; review escalation satisfied via operator-approved degraded single-host fallback (3x1).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Review-escalation quorum met via the operator-authorized degraded single-host (3x1) fallback rather than the full 3x2 independent-host quorum (no multi-host infra available); assurance level = degraded-single-host.",
+  "pitfalls": "Koala role IDs may persist in legacy/archived material by design; only active surfaces were renamed. The koala legacy alias is intentionally retained where documented.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 115317
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16630
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 664717
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 4961489
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1187736
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 14037329
+    }
+  },
+  "totalDurationMs": 20983233,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T21:18:18.138Z",
+  "updatedAt": "2026-06-15T21:18:18.138Z"
+}

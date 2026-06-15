@@ -328,7 +328,7 @@ export class StoryStore {
     this.writeJson(storyId, 'summary.json', data);
   }
 
-  // ── Findings (koala-reviewer findings) ──
+  // ── Findings (Lattice reviewer findings) ──
   // B-9bd9 CHK-002: Finding type extended with driftHash / lastSeenAt / firstSeenRound / resolvedReason / resolvedAt
   // The three new fields are only used by the audit meta-store (B-META-framework-audit); legacy findings without these fields are treated as legacy,
   // JSON passthrough does not affect serialization.
@@ -416,7 +416,7 @@ export class StoryStore {
     this.writeJson(storyId, 'test-runs.json', data);
   }
 
-  // ── Scope Check (B-d4d1: read scope-check.json written by koala-review-scope-plan agent) ──
+  // ── Scope Check (B-d4d1: read scope-check.json written by lattice-review-scope-plan agent) ──
 
   readScopeCheck(storyId: string): ScopeCheckData | null {
     try {
@@ -444,7 +444,7 @@ export class StoryStore {
     this.writeJson(storyId, 'scope-check.json', data);
   }
 
-  // ── Init Check (B-e71f: read/write init-check.json written by koala-review-story-init agent) ──
+  // ── Init Check (B-e71f: read/write init-check.json written by lattice-review-story-init agent) ──
 
   readInitCheck(storyId: string): InitCheckData | null {
     try {

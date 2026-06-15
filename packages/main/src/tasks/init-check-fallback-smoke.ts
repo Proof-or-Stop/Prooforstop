@@ -79,7 +79,7 @@ const root = mkdtempSync(join(tmpdir(), 'koala-init-fallback-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -95,7 +95,7 @@ try {
   const diagStory = createStory(root, 'fallback-diagnostic', 'Fallback diagnostic story');
   const missingDiag = run(root, 'story_advance', { storyId: diagStory, phase: 'INIT_CHECK' }, true);
   assert.match(missingDiag, /missing_init_check/, 'diagnostic should carry the missing_init_check tag');
-  assert.match(missingDiag, /koala-review-story-init/, 'diagnostic should name the required story-init reviewer');
+  assert.match(missingDiag, /lattice-review-story-init/, 'diagnostic should name the required story-init reviewer');
   assert.match(missingDiag, /product-reviewer/, 'diagnostic should name the required product-reviewer');
   assert.match(missingDiag, /init_check_repair/, 'diagnostic should mention the fallback command');
   assert.match(missingDiag, /acknowledge/, 'diagnostic should show the acknowledge flag in the command shape');
@@ -196,7 +196,7 @@ try {
 
   // independent reviewer path for contrast
   const indepStory = createStory(root, 'independent-review', 'Independent reviewer story');
-  run(root, 'init_check_set', { storyId: indepStory, issues: [], agentId: 'koala-review-story-init' });
+  run(root, 'init_check_set', { storyId: indepStory, issues: [], agentId: 'lattice-review-story-init' });
   run(root, 'init_check_set', { storyId: indepStory, issues: [], agent: 'product-reviewer' });
   const indepView = JSON.parse(run(root, 'story_get', { storyId: indepStory }));
   assert.equal(indepView.initCheckAttestation, 'independent', 'independent reviewer story_get must report attestation=independent');

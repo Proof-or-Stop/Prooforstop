@@ -1,0 +1,43 @@
+{
+  "task": "Migrate remaining active Koala agent role naming in Lattice CLI to Lattice role IDs and document the execution plan.",
+  "outcome": "User runs the rebuilt Lattice CLI and sees active role examples such as lattice-implementer and lattice-review-quality, while targeted searches of CLI help, agent templates, generated Codex/Claude assets, and active docs no longer expose koala-* role identifiers except explicitly marked legacy/archive/runtime-compatibility references.",
+  "facts": [
+    "The Koala binary alias has already been removed; this story targets role/subagent/reviewer identifiers that still use koala-* naming.",
+    "Current active templates include koala-implementer, koala-review-*, koala-evaluator, and koala-evaluator-cli under packages/main/templates/agents and mirrored .claude/.Codex assets.",
+    "Runtime code treats koala-review-* as reviewer lanes in review-run, process-fact registry, finding attribution, guard text, and story dispatch.",
+    "User explicitly does not need historical compatibility for active Koala naming because this is a private early Lattice system.",
+    "Direct edits to docs/story and tests/fixtures are forbidden; story and fixture operations must go through Lattice commands."
+  ],
+  "constraints": [
+    "Do not run omx or read/write .omx.",
+    "Do not change unrelated lifecycle behavior beyond role naming migration.",
+    "Preserve process-fact/gate semantics while renaming their canonical producer/lane IDs.",
+    "Write an execution document before implementation changes.",
+    "Run build/tests and Codex adapter verification because .Codex/.claude agent assets are affected."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+    "packages/main/templates/agents/*.md",
+    ".claude/agents/*.md",
+    ".Codex/agents/*.md",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/reviewer-quorum.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/flow-fact-policy.ts",
+    "packages/main/src/cli-engine.ts",
+    "CLAUDE.md",
+    "README.md",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/*smoke.ts"
+  ],
+  "timestamp": "2026-06-15T15:31:06.485Z"
+}

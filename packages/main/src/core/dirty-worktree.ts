@@ -5,7 +5,7 @@ import type { StoryStore } from './store.js';
 
 // Task B-6326: central ownership classifier for dirty git porcelain rows.
 export const DIRTY_WORKTREE_CATEGORIES = [
-  'koala_metadata_changes',
+  'lattice_metadata_changes',
   'runtime_artifact_changes',
   'declared_artifact_changes',
   'material_source_changes',
@@ -141,7 +141,7 @@ function isMaterialSourcePath(path: string, options: DirtyWorktreeClassifierOpti
 function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeClassifierOptions): DirtyWorktreeEntry {
   const paths = pathSet(row);
   if (paths.some((p) => isStoryMetadataPath(p, options.projectRoot))) {
-    return { ...row, category: 'koala_metadata_changes' };
+    return { ...row, category: 'lattice_metadata_changes' };
   }
 
   const runtimeArtifact = paths.map((path) => findRuntimeArtifactEntry(path)).find(Boolean);
@@ -186,7 +186,7 @@ function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeCl
  * layers share this module's matchers so they cannot disagree (preMortem #3).
  */
 export type NonDeclarableCategory =
-  | 'koala_metadata_changes'
+  | 'lattice_metadata_changes'
   | 'runtime_artifact_changes'
   | 'fixture_changes'
   | 'material_source_changes';
@@ -196,7 +196,7 @@ export function classifyDeclarablePath(
   options: DirtyWorktreeClassifierOptions,
 ): NonDeclarableCategory | null {
   const path = normalizePath(rawPath);
-  if (isStoryMetadataPath(path, options.projectRoot)) return 'koala_metadata_changes';
+  if (isStoryMetadataPath(path, options.projectRoot)) return 'lattice_metadata_changes';
   // B-8db9 F-002: a runtime artifact path (.koala/activity.jsonl, .koala-serve.json, …)
   // is already routed to runtime_artifact_changes by `classifyParsedRow`, so declaring
   // it as a product artifact is meaningless — reject it at declare time. Mirrors the

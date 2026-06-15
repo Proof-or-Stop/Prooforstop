@@ -17,12 +17,12 @@ import {
 export const REVIEW_RUN_SALT = 'koala-review-run-integrity-v1';
 
 export const REVIEW_RUN_LANES = [
-  'koala-review-concept',
-  'koala-review-quality',
-  'koala-review-test-coverage',
-  'koala-review-behavior',
-  'koala-review-docs',
-  'koala-review-channel',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-test-coverage',
+  'lattice-review-behavior',
+  'lattice-review-docs',
+  'lattice-review-channel',
 ] as const;
 
 export type ReviewRunLane = typeof REVIEW_RUN_LANES[number];
@@ -73,13 +73,13 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
 }
 
 // A finding / review pass counts as reviewer evidence (subject to reviewRunId
-// binding) only when its agent is a koala-review-* lane. main / main-agent /
-// koala-implementer / other non-reviewer actors create findings during DEV or
+// binding) only when its agent is a lattice-review-* lane. main / main-agent /
+// lattice-implementer / other non-reviewer actors create findings during DEV or
 // for meta-process notes and must NOT be treated as reviewer evidence by the
 // REVIEW→TEST gate. Mirrors the predicate used at finding_add time
 // (handlers/finding.ts) and elsewhere in the codebase.
 export function isReviewerAgent(agent: string | undefined | null): boolean {
-  return !!agent && agent.startsWith('koala-review-');
+  return !!agent && agent.startsWith('lattice-review-');
 }
 
 export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLane {
@@ -87,10 +87,10 @@ export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLa
   const resolvedLane = (lane || '').trim();
   const candidate = resolvedLane || resolvedAgent;
   if (!candidate) {
-    throw new Error(`review_run_start: agent/lane must provide a valid koala-review-* reviewer (supported: ${REVIEW_RUN_LANES.join(', ')})`);
+    throw new Error(`review_run_start: agent/lane must provide a valid lattice-review-* reviewer (supported: ${REVIEW_RUN_LANES.join(', ')})`);
   }
-  if (resolvedAgent && !resolvedAgent.startsWith('koala-review-')) {
-    throw new Error(`review_run_start: agent "${resolvedAgent}" is not a koala-review-* reviewer`);
+  if (resolvedAgent && !resolvedAgent.startsWith('lattice-review-')) {
+    throw new Error(`review_run_start: agent "${resolvedAgent}" is not a lattice-review-* reviewer`);
   }
   if (!isReviewRunLane(candidate)) {
     throw new Error(`review_run_start: lane "${candidate}" is not in the supported REVIEW reviewer lane list (supported: ${REVIEW_RUN_LANES.join(', ')})`);
@@ -819,8 +819,8 @@ export function collectReviewerEvidenceState(
   const findings = store.readFindings(storyId).findings || [];
   const passes = store.readReviewPasses(storyId).passes || [];
 
-  // Only true reviewer lanes (koala-review-*) require reviewRunId binding.
-  // main / main-agent / koala-implementer / other non-reviewer actors create
+  // Only true reviewer lanes (lattice-review-*) require reviewRunId binding.
+  // main / main-agent / lattice-implementer / other non-reviewer actors create
   // findings during DEV or capture meta-process notes that must not be treated
   // as reviewer evidence by the REVIEW→TEST gate.
   const reviewerFindings = findings

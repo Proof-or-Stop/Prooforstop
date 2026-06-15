@@ -30,7 +30,7 @@ function git(cwd: string, args: string[]): string {
 
 function commit(cwd: string, message: string): string {
   git(cwd, ['add', '.']);
-  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', message]);
+  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', message]);
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
@@ -136,7 +136,7 @@ const material = [
   'packages/main/tests/fixtures/story.json',
   'packages/main/package.json',
   'package-lock.json',
-  'koala.config.json',
+  'lattice.config.json',
   'docs/requirements/decisions/ADR-001.md',
 ];
 
@@ -347,7 +347,7 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
   const root = mkdtempRoot();
   try {
     git(root, ['init']);
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -418,8 +418,8 @@ function assertStaleEvidenceHintCrossSurface(): void {
   try {
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
-    write(root, 'koala.config.json', JSON.stringify({
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -521,7 +521,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
     //     Use a fake result that mimics `lattice validate --story=B-a2f1 --json` returning
     //     allPass=false + verificationCoverage with stale entries.
     const fakeValidateJson = JSON.stringify({
-      provider: 'koala-verifier',
+      provider: 'lattice-verifier',
       allPass: false,
       verificationCoverage: {
         total: 1,
@@ -609,7 +609,7 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     3,
     `RECOVER_EVIDENCE_ALLOWED_CATEGORIES must contain exactly 3 entries; found ${RECOVER_EVIDENCE_ALLOWED_CATEGORIES.size} — adding new DIRTY_WORKTREE_CATEGORIES must NOT silently pass through recover_evidence (preMortem #1).`,
   );
-  for (const expected of ['koala_metadata_changes', 'runtime_artifact_changes', 'declared_artifact_changes'] as const) {
+  for (const expected of ['lattice_metadata_changes', 'runtime_artifact_changes', 'declared_artifact_changes'] as const) {
     assert.ok(
       RECOVER_EVIDENCE_ALLOWED_CATEGORIES.has(expected),
       `RECOVER_EVIDENCE_ALLOWED_CATEGORIES must contain ${expected}`,
@@ -622,8 +622,8 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     try {
       git(root, ['init']);
       git(root, ['config', 'user.email', 'smoke@example.test']);
-      git(root, ['config', 'user.name', 'Koala Smoke']);
-      write(root, 'koala.config.json', JSON.stringify({
+      git(root, ['config', 'user.name', 'Lattice Smoke']);
+      write(root, 'lattice.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
         storyDir: '.lattice/story/actives',
@@ -811,8 +811,8 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     // ── 1. Build temp git fixture with a baseline materialHash ─────────────
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
-    write(root, 'koala.config.json', JSON.stringify({
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -998,7 +998,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
 
     // ── 6. Surface #3: lattice validate (via decorateResult hint) ──────────
     const fakeValidateJson = JSON.stringify({
-      provider: 'koala-verifier',
+      provider: 'lattice-verifier',
       allPass: false,
       verificationCoverage: {
         total: 1,
@@ -1090,8 +1090,8 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
   try {
     git(root2, ['init']);
     git(root2, ['config', 'user.email', 'smoke@example.test']);
-    git(root2, ['config', 'user.name', 'Koala Smoke']);
-    write(root2, 'koala.config.json', JSON.stringify({
+    git(root2, ['config', 'user.name', 'Lattice Smoke']);
+    write(root2, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -1207,14 +1207,14 @@ await assertSimulatedMainMergeRegression();
   assert.equal(materialFreshAfterChanging(path1), true, `${path1} should keep material-hash evidence fresh`);
 
   // (2) custom configured storyDir: workflow/stories/B-smoke/test-evidence.json
-  //     is metadata when koala.config.json sets storyDir to workflow/stories.
+  //     is metadata when lattice.config.json sets storyDir to workflow/stories.
   //     workflow/notes.md must NOT be excluded (parent dir is not storyDir).
   {
     const root = mkdtempRoot();
     try {
       git(root, ['init']);
       resetConfigCache();
-      write(root, 'koala.config.json', JSON.stringify({ storyDir: 'workflow/stories' }, null, 2));
+      write(root, 'lattice.config.json', JSON.stringify({ storyDir: 'workflow/stories' }, null, 2));
       write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
       const base = commit(root, 'base');
       const materialHash = currentMaterialHash(root);

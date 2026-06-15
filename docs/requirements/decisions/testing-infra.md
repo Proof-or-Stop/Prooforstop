@@ -6,7 +6,7 @@ The current test contract is centered on the story checklist:
 
 1. The PLAN phase records the happy/edge/adversarial `verificationIntent` for each checklist item.
 2. The DEV phase implements the code and records the `verificationEvidence` (command, summary, intentRef, hash, etc.) via `checklist_update`.
-3. The REVIEW phase has the reviewer agent/lane (including the `koala-review-test-coverage` coverage-review lane) check the implementation and evidence coverage.
+3. The REVIEW phase has the reviewer agent/lane (including the `lattice-review-test-coverage` coverage-review lane) check the implementation and evidence coverage.
 4. The TEST phase runs `lattice validate`, writing validation evidence, bugs, and stale/missing-evidence results.
 
 ### Project-Native Validation
@@ -21,7 +21,7 @@ Browser black-box validation can still serve as `verificationEvidence`:
 2. Execute the user-visible flow in a real browser
 3. Associate the transcript, screenshot/trace, command, and result with the corresponding `verificationIntent` via `checklist_update`
 
-User-value acceptance can only be approximated, not disguised as a fully automatic proof: transcript/delivery evidence is required; prompt-only user-value claims are not enough. The user's final approval is non-mechanical user approval, and the Koala gate can only consume a transcript, verificationEvidence, delivery-check / product-reviewer evidence, or a waiver.
+User-value acceptance can only be approximated, not disguised as a fully automatic proof: transcript/delivery evidence is required; prompt-only user-value claims are not enough. The user's final approval is non-mechanical user approval, and the Lattice gate can only consume a transcript, verificationEvidence, delivery-check / product-reviewer evidence, or a waiver.
 
 ### Grill Planning Artifact Boundary
 
@@ -36,9 +36,9 @@ User-value acceptance can only be approximated, not disguised as a fully automat
 `lattice validate` is the project-level validation entry point, and cannot assume every project has a TypeScript `validate.ts`. Execution priority:
 
 1. When the project root has `validate.ts` / `validate.js` / `validate.mts`, execute via the original D/M/F verifier path.
-2. Otherwise, read the **project config**: canonical `lattice.config.json` takes priority; the legacy `koala.config.json` is read as a fallback only when the canonical one is missing, printing a migration notice when used. When both exist, `lattice.config.json` wins and prints a conflict diagnostic, and the validate config of `koala.config.json` is ignored. The `validate.command` or `validate.commands` read is executed directly.
+2. Otherwise, read the **project config**: canonical `lattice.config.json` is the only active config file. Legacy `koala.config.json` is ignored by the active loader, so its `validate.command` or `validate.commands` are not executed.
 3. Otherwise, auto-discover the standard command by project type: `npm test`, `python -m pytest`, `go test ./...`, `cargo test`, `mvn test`, `gradle test`.
-   - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `lattice.config.json` (or the legacy `koala.config.json`).
+   - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `lattice.config.json`.
 4. When no validation entry is still found, return `warn/skip`, and do not misjudge a non-TS project such as Python/Go/C++ as a failure; a project that needs a hard gate must explicitly configure a validation command.
 
 The success prompt of `lattice validate` must use the current story phase and the gate oracle, rather than hardcoding DONE:
@@ -93,12 +93,12 @@ Configuration example:
 ```
 
 The JSON receipt of `validate.command` / `validate.commands` is audit evidence: each command should record
-`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Koala will execute it
+`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Lattice will execute it
 as a deliberate shell receipt; a structured command object does not go through the shell by default, unless `"shell": true` is written explicitly. When a required command fails, `lattice validate` hard-fails; when an `optional:true`
 command fails, it only returns a warn.
 
 The Validation scan of `lattice doctor` is a project-level advisory and does not replace `lattice validate`:
-it states whether `validate.ts/js/mts` exists, whether the project config (`lattice.config.json` takes priority, the legacy `koala.config.json` is still readable) has a validation command configured,
+it states whether `validate.ts/js/mts` exists, whether canonical `lattice.config.json` has a validation command configured,
 the labels of the auto-discovered fallback commands, whether it is in a no-validator warning, and whether the shell-style config
 will leave a `shell=true` receipt. It must not write a project-specific test count or an assumption such as PVSC here;
 when a hard gate is needed, an explicit validate command should be configured. Swift / Package.swift is not in the auto-fallback (the Mac Native App is retired), and the doctor output will explicitly note that an explicit `validate.commands` is needed before `swift test` will run.
@@ -107,10 +107,10 @@ The `Runtime scan:` of `lattice doctor` is another kind of advisory / warn outpu
 does not write validation evidence, and does not enter the `process-fact-registry`. The runtime facts are declared by
 `packages/main/src/core/runtime-fact-registry.ts`, and `scripts/verify-runtime-fact-contract.mjs` validates the registry ID, output key, checker wiring,
 the doctor JSON `runtime` section, and text source coverage. `external-reference-policy` only does a bounded
-truth/config scan: `koala.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`,
+truth/config scan: `lattice.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`,
 `docs/requirements/**/*.md`; it excludes `.koala/story`, `docs/story`, `tests/fixtures`,
 `node_modules`, `dist/build`, and ordinary source-code comments. When it scans an external URL / host:port with no health-command
-semantics, it can only output a reference-only / health-check-required warning, and cannot claim a connectivity pass. The bounded scan also recognizes `lattice.config.json` (canonical) and `koala.config.json` (legacy fallback) as project-config markers.
+semantics, it can only output a reference-only / health-check-required warning, and cannot claim a connectivity pass. The bounded scan recognizes `lattice.config.json` as the canonical project-config marker.
 
 Runtime artifacts are not the environment facts of the `Runtime scan`, but are runtime file facts registered separately by
 `packages/main/src/core/runtime-artifact-registry.ts`.
@@ -124,7 +124,7 @@ and is not handled as a runtime artifact.
 ### Phase Behavior Differences
 
 - **DEV phase**: validate with project-native commands, and write `verificationEvidence` via `checklist_update`; the legacy `test_auto` is available only when maintaining old fixtures, and must clearly warn that it may modify actual files
-- **REVIEW phase**: the reviewer lane (including `koala-review-test-coverage`) first does `review_run_start` to create the current round's signed reviewer run, then consumes `verificationIntent` / `verificationEvidence`; when there are no blockers it writes `review_pass_set` + `reviewRunId`
+- **REVIEW phase**: the reviewer lane (including `lattice-review-test-coverage`) first does `review_run_start` to create the current round's signed reviewer run, then consumes `verificationIntent` / `verificationEvidence`; when there are no blockers it writes `review_pass_set` + `reviewRunId`
 - **TEST phase**: `lattice validate` writes validation evidence; the legacy `test_auto`, if explicitly invoked in a maintenance scenario, will still execute `git restore . && git clean -fd`
 
 ## Flow Fact Policy
@@ -134,16 +134,16 @@ Process facts must be protected by two layers of code policy and gate, not only 
 - `reviewRound: string (ISO 8601 review round id)`, provided by `story.currentReviewRound`; signed facts consume the string, not a number round.
 - `reviewRunId: string`, generated by `review_run_start` and written into the signed `review-runs.json`; the `finding_add` / `review_pass_set` of the current REVIEW round must carry this field, and the gate validates lane/current round/latest run/freshness.
 - `story_review.planReviewRound: number (PLAN review round count)` is the numeric count of PLAN review output; `story_review.reviewRound` is only the legacy numeric PLAN review alias, and cannot be used as the signed-artifact schema of a finding / review pass / delivery check.
-- pass-only finding_add normalization: a pass-only finding with low severity and an agent of `koala-review-*` is converted to `review_pass_set`; one containing contradictory semantics such as failure / blocker / missing / failed, a non-reviewer, or a non-low severity must all be kept as a finding.
+- pass-only finding_add normalization: a pass-only finding with low severity and an agent of `lattice-review-*` is converted to `review_pass_set`; one containing contradictory semantics such as failure / blocker / missing / failed, a non-reviewer, or a non-low severity must all be kept as a finding.
 - review run freshness: `review_run_start` records `headHash/materialHash`. If a code or document material change makes the run stale, the old `reviewRunId` is no longer usable, and the reviewer must re-run `review_run_start` before submitting a finding/pass.
 - Express exemption: when the channel is express and there is zero `verificationIntent`, it outputs `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`; normal / fast with zero intent only displays the ordinary coverage-missing wording, not `express-exempt`.
-- Worker evidence boundary: prompt-only worker claims are not mechanical evidence. Auditable worker facts only come from structured records such as `lattice dispatch` / dispatch/process-event/commit evidence / commit author; Koala cannot mechanically prove true subagent context isolation, and can only prove observable assignment evidence.
+- Worker evidence boundary: prompt-only worker claims are not mechanical evidence. Auditable worker facts only come from structured records such as `lattice dispatch` / dispatch/process-event/commit evidence / commit author; Lattice cannot mechanically prove true subagent context isolation, and can only prove observable assignment evidence.
 
 ## Test Flow
 
 - PLAN: use `verificationIntent` to describe the happy/edge/adversarial acceptance of each checklist item.
 - DEV: after implementing, run project-native commands or the browser flow, and write the `verificationEvidence` with `checklist_update`.
-- REVIEW: the reviewer lane `koala-review-test-coverage` checks whether every `verificationIntent` has traceable evidence; it first does `review_run_start` to get the `reviewRunId`, and when there are no blockers it records a pass via `review_pass_set` + `reviewRunId`. The internal coverage validation consumes `verificationIntent` / `verificationEvidence`, and is not a separate CLI command.
+- REVIEW: the reviewer lane `lattice-review-test-coverage` checks whether every `verificationIntent` has traceable evidence; it first does `review_run_start` to get the `reviewRunId`, and when there are no blockers it records a pass via `review_pass_set` + `reviewRunId`. The internal coverage validation consumes `verificationIntent` / `verificationEvidence`, and is not a separate CLI command.
 - TEST: `lattice validate` runs the project-level validation and records validation evidence; when evidence is missing or stale, it returns `allPass:false`.
 - DONE: only accepts a result where PASS, bug fixed, evidence fresh, and the summary/delivery gate are all satisfied.
 

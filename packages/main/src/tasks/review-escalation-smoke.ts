@@ -67,7 +67,7 @@ function finding(id: string, overrides: Partial<Finding> = {}): Finding {
     severity: 'medium',
     category: 'missing',
     status: 'open',
-    agent: 'koala-review-quality',
+    agent: 'lattice-review-quality',
     createdAt: '2026-06-13T10:05:00.000Z',
     reviewRound: ROUND_1,
     ...overrides,
@@ -160,7 +160,7 @@ try {
     const report = evaluateReviewEscalation({
       projectRoot: root,
       story: story(),
-      findings: [finding('001'), finding('002', { agent: 'koala-review-concept', evidenceState: 'verified' })],
+      findings: [finding('001'), finding('002', { agent: 'lattice-review-concept', evidenceState: 'verified' })],
       processEvents: fullQuorum(fresh),
     });
     assert.equal(report.required, true);

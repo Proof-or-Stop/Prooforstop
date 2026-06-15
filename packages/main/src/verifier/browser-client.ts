@@ -14,7 +14,7 @@ function connect() {
   ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
-    console.log('[koala-verifier] connected to test server');
+    console.log('[lattice-verifier] connected to test server');
     if (reconnectTimer) {
       clearInterval(reconnectTimer);
       reconnectTimer = null;
@@ -65,7 +65,7 @@ function connect() {
 
   ws.onclose = () => {
     if ((window as any).__koala_kicked) return;
-    console.log('[koala-verifier] disconnected, reconnecting...');
+    console.log('[lattice-verifier] disconnected, reconnecting...');
     ws = null;
     if (!reconnectTimer) {
       reconnectTimer = window.setInterval(() => {
@@ -152,13 +152,13 @@ const _errors: string[] = [];
 window.addEventListener('error', (e) => {
   const msg = `[error] ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`;
   _errors.push(msg);
-  console.error('[koala-verifier]', msg);
+  console.error('[lattice-verifier]', msg);
 });
 
 window.addEventListener('unhandledrejection', (e) => {
   const msg = `[unhandledrejection] ${e.reason}`;
   _errors.push(msg);
-  console.error('[koala-verifier]', msg);
+  console.error('[lattice-verifier]', msg);
 });
 
 (window as any).__koala_errors = _errors;

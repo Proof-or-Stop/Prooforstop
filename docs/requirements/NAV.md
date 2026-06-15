@@ -9,7 +9,7 @@
 - [Authority Receipt Gate Integration Execution Plan](decisions/authority-receipt-gate-integration-execution-plan.md)
 - [Authority Runner Session and Evidence Envelope](decisions/authority-runner-session-evidence-envelope.md)
 - [Authority Receipt Gate End-to-End Plan](decisions/authority-session-receipt-gate-execution.md)
-- [Koala CLI Authority Client Role (PD-1 / PD-2 Decisions)](decisions/authority-client-role.md)
+- [Lattice CLI Authority Client Role (PD-1 / PD-2 Decisions)](decisions/authority-client-role.md)
 - [koala 向 Claude Code 学习的改造方案](decisions/cc-learnings.md)
 - [Dev Memory — Lightweight Experience Capture](decisions/dev-memory.md)
 - [Decision Doc Promotion Execution Plan](decisions/decision-doc-promotion-execution-plan.md)

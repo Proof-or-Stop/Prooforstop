@@ -19,22 +19,22 @@ const promptDirs = [
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
 const legacyCategories = new Set(['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary']);
 const reviewPassReviewerPrompts = new Set([
-  'koala-evaluator.md',
-  'koala-review-behavior.md',
-  'koala-review-channel.md',
-  'koala-review-concept.md',
-  'koala-review-delivery.md',
-  'koala-review-docs.md',
-  'koala-review-quality.md',
-  'koala-review-scope-plan.md',
-  'koala-review-story-init.md',
-  'koala-review-test-coverage.md',
+  'lattice-evaluator.md',
+  'lattice-review-behavior.md',
+  'lattice-review-channel.md',
+  'lattice-review-concept.md',
+  'lattice-review-delivery.md',
+  'lattice-review-docs.md',
+  'lattice-review-quality.md',
+  'lattice-review-scope-plan.md',
+  'lattice-review-story-init.md',
+  'lattice-review-test-coverage.md',
 ]);
 const requiredReviewerRunIdPromptFiles = new Set([
-  'koala-evaluator.md',
-  'koala-review-delivery.md',
-  'koala-review-scope-plan.md',
-  'koala-review-story-init.md',
+  'lattice-evaluator.md',
+  'lattice-review-delivery.md',
+  'lattice-review-scope-plan.md',
+  'lattice-review-story-init.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -66,12 +66,12 @@ const activeLifecycleDocCurrentTerms = [
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
 const legacyAliasDocContextPattern = /\blegacy\b|\balias\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|别名|destructive/i;
-const coverageReviewerLaneName = 'koala-review-test-coverage';
+const coverageReviewerLaneName = 'lattice-review-test-coverage';
 const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
 const coverageReviewerCliCommandPatterns = [
-  { label: 'CLI invocation', pattern: /\bkoala\s+koala-review-test-coverage\b/i },
-  { label: 'tool table row', pattern: /^\s*\|\s*`?koala-review-test-coverage`?\s*\|/ },
-  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?koala-review-test-coverage`?\s*(?:[:：-]|$)/ },
+  { label: 'CLI invocation', pattern: /\blattice\s+lattice-review-test-coverage\b/i },
+  { label: 'tool table row', pattern: /^\s*\|\s*`?lattice-review-test-coverage`?\s*\|/ },
+  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?lattice-review-test-coverage`?\s*(?:[:：-]|$)/ },
 ];
 const legacyTestAutoProcessFactClaimPatterns = [
   {
@@ -126,16 +126,16 @@ const requiredProcessFactSemantics = {
   authority_receipt_verify: ['gate-evidence'],
 };
 const requiredReviewerLanes = [
-  'koala-review-story-init',
+  'lattice-review-story-init',
   'product-reviewer',
-  'koala-review-scope-plan',
-  'koala-review-concept',
-  'koala-review-quality',
-  'koala-review-test-coverage',
-  'koala-review-behavior',
-  'koala-review-docs',
-  'koala-review-channel',
-  'koala-review-delivery',
+  'lattice-review-scope-plan',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-test-coverage',
+  'lattice-review-behavior',
+  'lattice-review-docs',
+  'lattice-review-channel',
+  'lattice-review-delivery',
 ];
 const requiredArtifactFacts = [
   { name: 'artifact:index.json', path: 'index.json', signed: false },
@@ -328,7 +328,7 @@ const evidenceBoundaryDocPaths = [
 const requiredEvidenceBoundaryPhrases = [
   'prompt-only worker claims are not mechanical evidence',
   'dispatch/process-event/commit evidence',
-  'Koala cannot mechanically prove true subagent context isolation',
+  'Lattice cannot mechanically prove true subagent context isolation',
   'transcript/delivery evidence is required; prompt-only user-value claims are not enough',
   'non-mechanical user approval',
 ];
@@ -433,7 +433,7 @@ function listMarkdown(dir) {
 
 function isReviewerPrompt(relPath, text) {
   const name = basename(relPath);
-  return name.startsWith('koala-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
+  return name.startsWith('lattice-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
 }
 
 function scanBraceState(line, state) {
@@ -504,7 +504,7 @@ function requiresReviewPassProtocol(label) {
 }
 
 function requiresNoFindingReviewPassProtocol(label) {
-  return basename(label) !== 'koala-evaluator.md' && requiresReviewPassProtocol(label);
+  return basename(label) !== 'lattice-evaluator.md' && requiresReviewPassProtocol(label);
 }
 
 function hasHardCodedReviewRunIdExample(block) {
@@ -780,10 +780,10 @@ function scanActiveLifecycleDocText(text, label) {
 
 function assertSyntheticAdversarialChecks() {
   const badPassOnlyLines = [
-    'lattice finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
-    'lattice finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
-    'lattice finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
-    'lattice finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
   ];
   for (const [index, line] of badPassOnlyLines.entries()) {
     assert(
@@ -797,7 +797,7 @@ function assertSyntheticAdversarialChecks() {
     '  desc:"PASS",',
     '  severity:"low",',
     '  category:"happy",',
-    '  agent:"koala-review-quality"',
+    '  agent:"lattice-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -814,7 +814,7 @@ function assertSyntheticAdversarialChecks() {
     'synthetic no-finding prompt without review_pass_set should fail',
   );
 
-  const activeLegacy = 'lattice finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"koala-review-quality"}\'';
+  const activeLegacy = 'lattice finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(activeLegacy, 'synthetic-active-legacy').some(issue => issue.includes('legacy category')),
     'synthetic active legacy category should fail',
@@ -825,7 +825,7 @@ function assertSyntheticAdversarialChecks() {
     '  desc:"real issue",',
     '  severity:"medium",',
     '  category:"cleanup",',
-    '  agent:"koala-review-quality"',
+    '  agent:"lattice-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -833,25 +833,25 @@ function assertSyntheticAdversarialChecks() {
     'synthetic multiline legacy category should fail',
   );
 
-  const unknownCategory = 'lattice finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"koala-review-quality"}\'';
+  const unknownCategory = 'lattice finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
   );
-  const literalReviewRunId = 'lattice finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  const literalReviewRunId = 'lattice finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
     'synthetic literal RR-001 reviewer command should fail',
   );
-  const missingFindingReviewRunId = 'lattice finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  const missingFindingReviewRunId = 'lattice finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
   assert(
-    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/koala-review-story-init.md')
+    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/lattice-review-story-init.md')
       .some(issue => issue.includes('finding_add example must include reviewRunId')),
     'synthetic reviewer finding_add JSON example without reviewRunId should fail',
   );
-  const missingPassReviewRunId = 'lattice review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
+  const missingPassReviewRunId = 'lattice review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
   assert(
-    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/koala-evaluator.md')
+    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/lattice-evaluator.md')
       .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
     'synthetic reviewer review_pass_set JSON example without reviewRunId should fail',
   );
@@ -880,7 +880,7 @@ function assertSyntheticAdversarialChecks() {
     '  desc:"real issue",',
     '  severity:"medium",',
     '  category:"docs",',
-    '  agent:"koala-review-quality"',
+    '  agent:"lattice-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -889,9 +889,9 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const goodPrompt = [
-    'lattice review_run_start \'{"storyId":"B-x","agent":"koala-review-quality"}\'',
-    'lattice finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
-    'lattice review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
+    'lattice review_run_start \'{"storyId":"B-x","agent":"lattice-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'',
+    'lattice review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
 
@@ -1030,19 +1030,19 @@ function assertSyntheticAdversarialChecks() {
     'synthetic active lifecycle doc may explicitly say test_auto does not write bug/test evidence',
   );
 
-  const badCoverageToolDoc = '| `koala-review-test-coverage` | 检查 verificationIntent 覆盖 |';
+  const badCoverageToolDoc = '| `lattice-review-test-coverage` | 检查 verificationIntent 覆盖 |';
   assert(
     scanActiveLifecycleDocText(badCoverageToolDoc, 'synthetic-coverage-tool-doc').some(issue => issue.includes('CLI/tool command')),
     'synthetic coverage reviewer documented as a tool table row should fail',
   );
 
-  const badCoverageBareDoc = '`koala-review-test-coverage` checks coverage.';
+  const badCoverageBareDoc = '`lattice-review-test-coverage` checks coverage.';
   assert(
     scanActiveLifecycleDocText(badCoverageBareDoc, 'synthetic-coverage-bare-doc').some(issue => issue.includes('reviewer agent/lane')),
     'synthetic bare coverage reviewer name without reviewer/lane context should fail',
   );
 
-  const goodCoverageLaneDoc = 'reviewer lane `koala-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
+  const goodCoverageLaneDoc = 'reviewer lane `lattice-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
   assert(
     scanActiveLifecycleDocText(goodCoverageLaneDoc, 'synthetic-coverage-good-doc').length === 0,
     'synthetic coverage reviewer lane wording should pass',
@@ -2560,7 +2560,7 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
     .map(relPath => basename(relPath, '.md'))
-    .filter(name => name.startsWith('koala-review-') || name === 'product-reviewer');
+    .filter(name => name.startsWith('lattice-review-') || name === 'product-reviewer');
   for (const lane of promptReviewerLanes) {
     assert(
       registry.has(`reviewer-lane:${lane}`),

@@ -87,7 +87,7 @@ try {
   })]);
   assert(dispatchRaw.includes('你是 product-reviewer'), 'product-reviewer dispatch should identify the reviewer role');
   assert(dispatchRaw.includes('"agentId":"product-reviewer"') || dispatchRaw.includes('\\"agentId\\":\\"product-reviewer\\"'), 'product-reviewer dispatch should include exact agentId command');
-  assert(dispatchRaw.includes('不要传 "koala-review-story-init"') || dispatchRaw.includes('不要传 \\"koala-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
+  assert(dispatchRaw.includes('不要传 "lattice-review-story-init"') || dispatchRaw.includes('不要传 \\"lattice-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,

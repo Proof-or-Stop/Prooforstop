@@ -186,7 +186,7 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
 }
 
 function createReviewStore(root: string): { store: StoryStore; storyId: string; reviewRound: string } {
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
@@ -251,9 +251,9 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
 }
 
 function assertDirtyWorktreeClassifierGroupsOwnership(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-dirty-classifier-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-dirty-classifier-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -274,14 +274,14 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
       ' M Docs/story/actives/B-smoke/test-evidence.json',
       '?? .lattice/activity.jsonl',
       ' M package.json',
-      ' D koala.config.json',
+      ' D lattice.config.json',
       'R  packages/main/src/old.ts -> ./packages/main/src/new.ts',
       '?? packages/main/tests/fixtures/dirty-owner.json',
       '?? packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json',
     ], dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)));
 
     assert.equal(classification.total, 8);
-    assert.equal(classification.groups.koala_metadata_changes.length, 2);
+    assert.equal(classification.groups.lattice_metadata_changes.length, 2);
     assert.equal(classification.groups.runtime_artifact_changes.length, 1);
     assert.equal(classification.groups.declared_artifact_changes.length, 0, 'undeclared artifact extension point should stay empty by default');
     assert.equal(classification.groups.material_source_changes.length, 3);
@@ -339,7 +339,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   assert.equal(DIRTY_GATE_POLICY.material_source_changes.blocking, true);
   assert.equal(DIRTY_GATE_POLICY.fixture_changes.blocking, true);
   assert.equal(DIRTY_GATE_POLICY.unexpected_dirty_files.blocking, true);
-  assert.equal(DIRTY_GATE_POLICY.koala_metadata_changes.blocking, false);
+  assert.equal(DIRTY_GATE_POLICY.lattice_metadata_changes.blocking, false);
   assert.equal(DIRTY_GATE_POLICY.runtime_artifact_changes.blocking, false);
   assert.equal(DIRTY_GATE_POLICY.declared_artifact_changes.blocking, false);
 
@@ -366,7 +366,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
 
   // (3) passing 3 categories coexist → allPass=true with 3 audit events.
   const passingFixture = buildClassification([
-    { category: 'koala_metadata_changes', path: '.lattice/story/actives/B-x/index.json' },
+    { category: 'lattice_metadata_changes', path: '.lattice/story/actives/B-x/index.json' },
     { category: 'runtime_artifact_changes', path: '.lattice/activity.jsonl' },
     { category: 'declared_artifact_changes', path: 'packages/main/tests/output/declared.json' },
   ]);
@@ -381,7 +381,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   assert.equal(passingResult.auditEvents.length, 3, '3 passing categories must emit 3 audit events');
   assert.equal(passingCapture.length, 3, 'writer must be invoked once per passing category');
   assert.match(passingResult.summary, /passed=3/);
-  assert.match(passingResult.summary, /koala_metadata_changes=1/);
+  assert.match(passingResult.summary, /lattice_metadata_changes=1/);
   assert.match(passingResult.summary, /runtime_artifact_changes=1/);
   assert.match(passingResult.summary, /declared_artifact_changes=1/);
 
@@ -486,7 +486,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   }
 
   // (8) defaultAuditWriter happy path — actually append to a tmp file.
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'koala-dirty-audit-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-dirty-audit-'));
   try {
     const storyDirRel = '.lattice/story/actives';
     mkdirSync(join(tmpRoot, storyDirRel, STORY), { recursive: true });
@@ -518,7 +518,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   // pathCount preserved.
   const manyPaths = Array.from({ length: 8 }, (_, i) => `.lattice/story/actives/B-x/file-${i}.json`);
   const manyFixture = buildClassification(
-    manyPaths.map((p) => ({ category: 'koala_metadata_changes', path: p })),
+    manyPaths.map((p) => ({ category: 'lattice_metadata_changes', path: p })),
   );
   const truncResult = evaluateDirtyGate(manyFixture, {
     storyId: STORY,
@@ -534,7 +534,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
 }
 
 function assertDispatchPromptsPinImplementerCommitAuthor(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-dispatch-author-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-dispatch-author-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const dispatch = createStoryDispatchHandlers({
@@ -542,14 +542,14 @@ function assertDispatchPromptsPinImplementerCommitAuthor(): void {
       root,
       scanRoot: join(root, 'packages/main'),
     });
-    const expectedAuthor = /git commit --author="koala-implementer <koala-implementer@noreply\.local>"/;
+    const expectedAuthor = /git commit --author="lattice-implementer <lattice-implementer@noreply\.local>"/;
 
     const itemPrompt = dispatch.dispatch({ storyId, itemId: 'CHK-001' }).prompt;
     assert.match(itemPrompt, expectedAuthor);
     assert.match(itemPrompt, /normal-channel author fallback/);
 
     store.writeFindings(storyId, {
-      findings: [makeFinding(storyId, 'koala-review-quality', reviewRound, '070', 'RR-smoke')],
+      findings: [makeFinding(storyId, 'lattice-review-quality', reviewRound, '070', 'RR-smoke')],
     });
     const findingPrompt = dispatch.dispatch({ storyId, findingId: 'F-070' }).prompt;
     assert.match(findingPrompt, expectedAuthor);
@@ -679,7 +679,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: 'PASS: docs consistency check PASSED.',
       severity: 'low',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
     }),
     true,
     'low-severity reviewer pass-only finding should normalize to review pass',
@@ -688,7 +688,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: 'PASS but README command failed.',
       severity: 'low',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
     }),
     false,
     'ambiguous pass plus failure text must remain a real finding',
@@ -697,7 +697,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: '\u5ba1\u67e5\u901a\u8fc7\uff1a\u5df2\u68c0\u67e5\u8303\u56f4\uff0c\u65e0\u963b\u585e\u95ee\u9898\u3002',
       severity: 'low',
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     }),
     true,
     'localized pass-only reviewer finding should normalize to review pass',
@@ -706,7 +706,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: '\u5ba1\u67e5\u901a\u8fc7\uff0c\u4f46\u4ecd\u7136\u6709\u95ee\u9898\u9700\u8981\u4fee\u590d\u3002',
       severity: 'low',
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     }),
     false,
     'localized pass text with an explicit problem must remain a real finding',
@@ -715,7 +715,7 @@ function assertFlowFactPolicyRegistry(): void {
     isPassOnlyReviewFindingRecord({
       desc: 'PASS: docs consistency check PASSED.',
       severity: 'medium',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
     }),
     false,
     'non-low pass-like finding must not normalize to review pass',
@@ -732,7 +732,7 @@ function assertFlowFactPolicyRegistry(): void {
 }
 
 function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<string, unknown> = {}): { root: string; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-command-policy-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-command-policy-'));
   const { store, storyId } = createReviewStore(root);
   const config = {
     scanRoot: 'packages/main',
@@ -742,10 +742,10 @@ function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<st
     workflow: { profile: 'balanced' },
     ...configPatch,
   };
-  write(root, 'koala.config.json', JSON.stringify(config));
+  write(root, 'lattice.config.json', JSON.stringify(config));
   git(root, ['init']);
-  git(root, ['config', 'user.email', 'koala@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.email', 'lattice@example.test']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'base']);
@@ -1041,7 +1041,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   const repoRoot = resolve(packageRoot, '..', '..');
   const current = runManagedAssetCheck(repoRoot, { profile: 'all' });
   const currentById = new Map(current.items.map(item => [item.id, item]));
-  const expandedLocalGuideIds = ['doc:.lattice/Lattice.md', 'doc:LATTICE.md', 'doc:KOALA.md', 'doc:CLAUDE.md']
+  const expandedLocalGuideIds = ['doc:.lattice/Lattice.md', 'doc:LATTICE.md', 'doc:CLAUDE.md']
     .filter(id => currentById.has(id));
   assert.ok(
     expandedLocalGuideIds.length > 0,
@@ -1059,9 +1059,9 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
     assetMode: 'full' | 'global-thin',
     docs: Array<{ id: string; relPath: string }>,
   ): void => {
-    const badRoot = mkdtempSync(join(tmpdir(), 'koala-managed-drift-'));
+    const badRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-drift-'));
     try {
-      const badSection = '<!-- koala:start -->\n# Locally edited guide\nThis is not a Koala-owned alternate contract.\n<!-- koala:end -->\n';
+      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Lattice-owned alternate contract.\n<!-- lattice:end -->\n';
       for (const doc of docs) write(badRoot, doc.relPath, badSection);
       const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
       const driftById = new Map(drift.items.map(item => [item.id, item]));
@@ -1087,46 +1087,41 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
     { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
     { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
   ]);
-  assertTrueLocalDrift('full', [
-    { id: 'doc:KOALA.md', relPath: 'KOALA.md' },
-    { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
-    { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
-  ]);
 }
 
 function assertReviewGateUsesOptIn(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-docs',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-docs',
+      'lattice-review-test-coverage',
     ]);
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '001', runIds.get('koala-review-concept')!),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '002', runIds.get('koala-review-quality')!),
-        makeFinding(storyId, 'koala-review-docs', reviewRound, '003', runIds.get('koala-review-docs')!),
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '001', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '002', runIds.get('lattice-review-quality')!),
+        makeFinding(storyId, 'lattice-review-docs', reviewRound, '003', runIds.get('lattice-review-docs')!),
       ],
     });
 
     const missing = getGuardFailureReason(storyId, store, 'TEST', root);
     assert.match(missing ?? '', /Expected 3 reviewers \(opt-in: concept,quality,test-coverage\)/);
     assert.match(missing ?? '', /Missing: test-coverage/);
-    assert.match(missing ?? '', /koala-review-docs/);
+    assert.match(missing ?? '', /lattice-review-docs/);
     assert.doesNotMatch(missing ?? '', /all 5 reviewers/);
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '004', runIds.get('koala-review-concept')!),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '005', runIds.get('koala-review-quality')!),
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '004', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '005', runIds.get('lattice-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '006', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '006', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const pass = getGuardFailureReason(storyId, store, 'TEST', root);
@@ -1142,23 +1137,23 @@ function assertReviewGateUsesOptIn(): void {
 }
 
 function assertReviewRunBindingRejectsInvalidEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-run-binding-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-run-binding-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const agents = [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ];
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
 
     const retrofittedLegacyFinding = {
-      ...makeLegacyFindingWithoutRun(storyId, 'koala-review-quality', reviewRound, '045'),
-      reviewRunId: runIds.get('koala-review-quality')!,
+      ...makeLegacyFindingWithoutRun(storyId, 'lattice-review-quality', reviewRound, '045'),
+      reviewRunId: runIds.get('lattice-review-quality')!,
     };
     const retrofittedLegacyPass = {
-      ...makeLegacyReviewPassWithoutRun(storyId, 'koala-review-quality', reviewRound, '046'),
-      reviewRunId: runIds.get('koala-review-quality')!,
+      ...makeLegacyReviewPassWithoutRun(storyId, 'lattice-review-quality', reviewRound, '046'),
+      reviewRunId: runIds.get('lattice-review-quality')!,
     };
     assert.equal(
       verifyFinding(storyId, retrofittedLegacyFinding),
@@ -1173,14 +1168,14 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
     store.writeFindings(storyId, { findings: [retrofittedLegacyFinding] });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '047', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '047', runIds.get('lattice-review-concept')!),
         retrofittedLegacyPass,
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '048', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '048', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const retrofitState = collectReviewerEvidenceState(store, storyId, root);
     assert.equal(
-      retrofitState.invalid.some(issue => issue.code === 'invalid_evidence_signature' && issue.agent === 'koala-review-quality'),
+      retrofitState.invalid.some(issue => issue.code === 'invalid_evidence_signature' && issue.agent === 'lattice-review-quality'),
       true,
       'review-run evidence collection must reject reviewRunId-retrofitted legacy signatures',
     );
@@ -1190,9 +1185,9 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
 
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '050', runIds.get('koala-review-concept')!),
-        makeLegacyReviewPassWithoutRun(storyId, 'koala-review-quality', reviewRound, '051'),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '052', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '050', runIds.get('lattice-review-concept')!),
+        makeLegacyReviewPassWithoutRun(storyId, 'lattice-review-quality', reviewRound, '051'),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '052', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const missingRun = getGuardFailureReason(storyId, store, 'TEST', root);
@@ -1209,22 +1204,22 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
 
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '053', runIds.get('koala-review-concept')!),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '054', runIds.get('koala-review-concept')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '055', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '053', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '054', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '055', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const wrongLane = getGuardFailureReason(storyId, store, 'TEST', root);
-    assert.match(wrongLane ?? '', /lane=koala-review-concept/, 'evidence bound to a different reviewer lane must be rejected');
+    assert.match(wrongLane ?? '', /lane=lattice-review-concept/, 'evidence bound to a different reviewer lane must be rejected');
 
     const runs = store.readReviewRuns(storyId);
     runs.runs[1]._hash = 'tampered-review-run-signature';
     store.writeReviewRuns(storyId, runs);
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '056', runIds.get('koala-review-concept')!),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '057', runIds.get('koala-review-quality')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '058', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '056', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '057', runIds.get('lattice-review-quality')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '058', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const tamperedRun = getGuardFailureReason(storyId, store, 'TEST', root);
@@ -1235,18 +1230,18 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
 }
 
 function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-pass-supersede-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-pass-supersede-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const agents = [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ];
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
 
     const runsData = store.readReviewRuns(storyId);
-    const previousTestCoverageRun = runsData.runs.find(run => run.lane === 'koala-review-test-coverage');
+    const previousTestCoverageRun = runsData.runs.find(run => run.lane === 'lattice-review-test-coverage');
     assert.ok(previousTestCoverageRun, 'test-coverage run fixture should exist');
     const latestTestCoverageRunId = `${storyId}:RR-004`;
     const latestStartedAt = '2026-04-27T11:03:00.000Z';
@@ -1270,14 +1265,14 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '061', runIds.get('koala-review-concept')!),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '062', runIds.get('koala-review-quality')!),
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '061', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '062', runIds.get('lattice-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '063', runIds.get('koala-review-test-coverage')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '064', latestTestCoverageRunId),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '063', runIds.get('lattice-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '064', latestTestCoverageRunId),
       ],
     });
 
@@ -1294,13 +1289,13 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     assert.equal(status.totalBlockers, 0);
 
     const staleFinding = {
-      ...makeFinding(storyId, 'koala-review-test-coverage', reviewRound, '065', runIds.get('koala-review-test-coverage')!),
+      ...makeFinding(storyId, 'lattice-review-test-coverage', reviewRound, '065', runIds.get('lattice-review-test-coverage')!),
       status: 'open' as const,
     };
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '066', runIds.get('koala-review-concept')!),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '067', runIds.get('koala-review-quality')!),
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '066', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '067', runIds.get('lattice-review-quality')!),
         staleFinding,
       ],
     });
@@ -1324,8 +1319,8 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     };
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '068', runIds.get('koala-review-concept')!),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '069', runIds.get('koala-review-quality')!),
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '068', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '069', runIds.get('lattice-review-quality')!),
         resolvedStaleFinding,
       ],
     });
@@ -1342,14 +1337,14 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
 }
 
 function assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-legacy-review-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-legacy-review-evidence-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const story = store.readStory(storyId);
     delete story.currentReviewRound;
     store.writeStory(storyId, story);
     store.writeReviewPasses(storyId, {
-      passes: [makeLegacyReviewPassWithoutRun(storyId, 'koala-review-quality', reviewRound, '060')],
+      passes: [makeLegacyReviewPassWithoutRun(storyId, 'lattice-review-quality', reviewRound, '060')],
     });
 
     const evidenceState = collectReviewerEvidenceState(store, storyId, root);
@@ -1361,21 +1356,21 @@ function assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable(): void {
 }
 
 // B-ad2c F-004 regression: collectReviewerEvidenceState must classify
-// reviewer evidence by the koala-review-* lane prefix, NOT by `agent != main`.
-// Otherwise main-agent / koala-implementer / other non-reviewer actors that
+// reviewer evidence by the lattice-review-* lane prefix, NOT by `agent != main`.
+// Otherwise main-agent / lattice-implementer / other non-reviewer actors that
 // recorded findings during DEV (e.g. plan-conflict notes) are incorrectly
 // treated as reviewer evidence and the missing reviewRunId blocks REVIEW→TEST.
 function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-non-reviewer-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-non-reviewer-evidence-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ]);
 
-    const nonReviewerAgents = ['main', 'main-agent', 'koala-implementer'];
+    const nonReviewerAgents = ['main', 'main-agent', 'lattice-implementer'];
     const nonReviewerFindings = nonReviewerAgents.map((agent, idx) => {
       const id = `${storyId}:F-${String(900 + idx).padStart(3, '0')}`;
       const createdAt = `2026-04-27T13:00:${String(idx).padStart(2, '0')}.000Z`;
@@ -1396,9 +1391,9 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
     store.writeFindings(storyId, { findings: nonReviewerFindings });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '901', runIds.get('koala-review-concept')!),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '902', runIds.get('koala-review-quality')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '903', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '901', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '902', runIds.get('lattice-review-quality')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '903', runIds.get('lattice-review-test-coverage')!),
       ],
     });
 
@@ -1426,12 +1421,12 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
       'REVIEW→TEST gate must pass when only reviewer passes are bound and non-reviewer findings exist',
     );
 
-    // Negative arm: a real koala-review-* finding without reviewRunId in the
+    // Negative arm: a real lattice-review-* finding without reviewRunId in the
     // current round must STILL be rejected — proves the fix narrowed the
     // classifier but did not weaken the reviewRunId requirement for real lanes.
     const reviewerFindingWithoutRun = makeLegacyFindingWithoutRun(
       storyId,
-      'koala-review-quality',
+      'lattice-review-quality',
       reviewRound,
       '910',
     );
@@ -1441,10 +1436,10 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
     const stateWithReviewerMiss = collectReviewerEvidenceState(store, storyId, root);
     assert.equal(
       stateWithReviewerMiss.invalid.some(issue =>
-        issue.agent === 'koala-review-quality' && issue.code === 'missing_review_run_id',
+        issue.agent === 'lattice-review-quality' && issue.code === 'missing_review_run_id',
       ),
       true,
-      'a real koala-review-* finding without reviewRunId must still raise missing_review_run_id',
+      'a real lattice-review-* finding without reviewRunId must still raise missing_review_run_id',
     );
     assert.equal(
       stateWithReviewerMiss.invalid.some(issue => issue.agent === 'main-agent'),
@@ -1463,19 +1458,19 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
 // story has a currentReviewRound) sits alongside complete reviewer-lane
 // evidence. F-004 narrowed collectReviewerEvidenceState; F-005 closes the
 // last hole: the legacy guard-utils.ts mirror path must classify reviewer
-// evidence by koala-review-* prefix too, not by `agent != main`.
+// evidence by lattice-review-* prefix too, not by `agent != main`.
 //
-// Negative arm: a real koala-review-* finding without reviewRunId in the
+// Negative arm: a real lattice-review-* finding without reviewRunId in the
 // current round must STILL block the live path — proves the narrowing did
 // not weaken the reviewRunId binding requirement for real reviewer lanes.
 function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-dev-finding-gate-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-dev-finding-gate-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ]);
 
     // Mirror live B-ad2c F-001 shape: main-agent authored, status=resolved,
@@ -1498,18 +1493,18 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
     // One bound reviewer finding per opt-in lane — covers the legacy
     // guard-utils.ts gate (which reads findings only, not review passes).
     const reviewerFindings: Finding[] = [
-      makeFinding(storyId, 'koala-review-concept', reviewRound, '821', runIds.get('koala-review-concept')!),
-      makeFinding(storyId, 'koala-review-quality', reviewRound, '822', runIds.get('koala-review-quality')!),
-      makeFinding(storyId, 'koala-review-test-coverage', reviewRound, '823', runIds.get('koala-review-test-coverage')!),
+      makeFinding(storyId, 'lattice-review-concept', reviewRound, '821', runIds.get('lattice-review-concept')!),
+      makeFinding(storyId, 'lattice-review-quality', reviewRound, '822', runIds.get('lattice-review-quality')!),
+      makeFinding(storyId, 'lattice-review-test-coverage', reviewRound, '823', runIds.get('lattice-review-test-coverage')!),
     ];
     store.writeFindings(storyId, { findings: [devFinding, ...reviewerFindings] });
     // Add review passes too — covers machine.ts canPassReview's quorum check
     // which reads valid evidence (findings ∪ passes) from collectReviewerEvidenceState.
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '801', runIds.get('koala-review-concept')!),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '802', runIds.get('koala-review-quality')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '803', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '801', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '802', runIds.get('lattice-review-quality')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '803', runIds.get('lattice-review-test-coverage')!),
       ],
     });
 
@@ -1532,13 +1527,13 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       'guard-utils.ts mirror must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
     );
 
-    // Negative arm: a real koala-review-* finding in the current round with
+    // Negative arm: a real lattice-review-* finding in the current round with
     // no reviewRunId must still block the live path — the narrowing only
     // changed agent classification, not the reviewRunId binding contract for
     // real reviewer lanes.
     const reviewerMiss = makeLegacyFindingWithoutRun(
       storyId,
-      'koala-review-quality',
+      'lattice-review-quality',
       reviewRound,
       '811',
     );
@@ -1546,7 +1541,7 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
     const liveBlocked = getGuardFailureReason(storyId, store, 'TEST', root);
     assert.ok(
       liveBlocked && /Cannot enter TEST/.test(liveBlocked),
-      `machine.ts guard must still block when a real koala-review-* finding lacks reviewRunId, got: ${liveBlocked}`,
+      `machine.ts guard must still block when a real lattice-review-* finding lacks reviewRunId, got: ${liveBlocked}`,
     );
     assert.ok(
       liveBlocked && /missing_review_run_id|reviewer evidence/.test(liveBlocked),
@@ -1558,13 +1553,13 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
 }
 
 async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-echo-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-echo-'));
   const oldCwd = process.cwd();
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -1572,6 +1567,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     const story = store.readStory(storyId);
     story.phase = 'DEV';
     story.currentReviewRound = undefined;
+    story.events = [{ phase: 'DEV', action: 'advance', timestamp: '2026-04-27T12:02:00.000Z' }];
     store.writeStory(storyId, story);
 
     process.chdir(root);
@@ -1582,7 +1578,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     }).story_advance({ storyId, phase: 'REVIEW' });
 
     assert.match(output, /Active reviewers: concept, quality, test-coverage/);
-    assert.doesNotMatch(output, /koala-review-channel/);
+    assert.doesNotMatch(output, /lattice-review-channel/);
     assert.doesNotMatch(output, /channel \(normal channel\)/);
   } finally {
     process.chdir(oldCwd);
@@ -1591,7 +1587,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
 }
 
 function assertReviewerStatusUsesMdFallback(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-doc-review-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-doc-review-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     store.writeUnderstanding(storyId, {
@@ -1603,8 +1599,8 @@ function assertReviewerStatusUsesMdFallback(): void {
       timestamp: '2026-04-27T12:00:00.000Z',
     } as any);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -1613,20 +1609,20 @@ function assertReviewerStatusUsesMdFallback(): void {
     git(root, ['add', 'docs/review-notes.md']);
     git(root, ['commit', '-m', 'docs change']);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ]);
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '010', runIds.get('koala-review-concept')!),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '011', runIds.get('koala-review-quality')!),
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '010', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '011', runIds.get('lattice-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '012', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '012', runIds.get('lattice-review-test-coverage')!),
       ],
     });
 
@@ -1655,20 +1651,20 @@ function assertReviewerStatusUsesMdFallback(): void {
 }
 
 function assertSessionBriefStatusHintsMatchGates(): void {
-  const reviewRoot = mkdtempSync(join(tmpdir(), 'koala-flow-session-review-'));
+  const reviewRoot = mkdtempSync(join(tmpdir(), 'lattice-flow-session-review-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(reviewRoot);
     git(reviewRoot, ['init']);
-    git(reviewRoot, ['config', 'user.email', 'koala@example.test']);
-    git(reviewRoot, ['config', 'user.name', 'Koala Smoke']);
+    git(reviewRoot, ['config', 'user.email', 'lattice@example.test']);
+    git(reviewRoot, ['config', 'user.name', 'Lattice Smoke']);
     git(reviewRoot, ['checkout', '-B', 'main']);
     git(reviewRoot, ['add', '.']);
     git(reviewRoot, ['commit', '-m', 'base']);
     git(reviewRoot, ['checkout', '-b', `story/${storyId}`]);
     const runIds = seedReviewRuns(reviewRoot, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ]);
     store.writeReview(storyId, {
       reviews: [{
@@ -1680,9 +1676,9 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '020', runIds.get('koala-review-concept')!),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '021', runIds.get('koala-review-quality')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '022', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '020', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '021', runIds.get('lattice-review-quality')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '022', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const reviewBrief = createSessionHandlers({
@@ -1722,20 +1718,20 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /\[FAIL\] delivery-check/);
     assert.match(testBrief, /\[FAIL\] Story summary/);
     assert.match(testBrief, /DONE pre-check still has/);
-    // B-4b22: koala_metadata_changes is a passing category, so the git-working-tree
-    // row now reports PASS with "pass: blocking=0 ...; passed=N (koala_metadata_changes=N)".
+    // B-4b22: lattice_metadata_changes is a passing category, so the git-working-tree
+    // row now reports PASS with "pass: blocking=0 ...; passed=N (lattice_metadata_changes=N)".
     // The KOALA_WRITE side-effect hint only appears when the row fails, so it is
     // no longer asserted here. session_brief still surfaces "Working tree dirty
     // (N files)" because dirt exists even when policy allows it.
     assert.match(testBrief, /\[PASS\] git working tree/);
     assert.match(testBrief, /pass: blocking=0/);
-    assert.match(testBrief, /koala_metadata_changes/);
+    assert.match(testBrief, /lattice_metadata_changes/);
     assert.match(testBrief, /Working tree dirty/);
     assert.match(testBrief, /delivery_check_set/);
-    assert.match(testBrief, /agentId=koala-review-delivery/);
+    assert.match(testBrief, /agentId=lattice-review-delivery/);
     assert.match(testBrief, /main agent must not self-sign/);
     assert.match(testBrief, /summary_set/);
-    // B-4b22: koala_metadata-only pollution passes via dirty-gate-policy, so
+    // B-4b22: lattice_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
     assert.match(nextStep, /delivery-check, story-summary/);
     assert.match(nextStep, /After all pass, run lattice story_advance --phase=DONE/);
@@ -1748,20 +1744,20 @@ function assertSessionBriefStatusHintsMatchGates(): void {
 }
 
 function assertReviewNextUsesReviewerGateState(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-next-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-review-next-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ]);
 
     const handlers = createSessionHandlers({
@@ -1797,17 +1793,17 @@ function assertReviewNextUsesReviewerGateState(): void {
         severity,
         category: 'happy',
         status: 'open',
-        agent: 'koala-review-concept',
+        agent: 'lattice-review-concept',
         createdAt,
         reviewRound,
-        reviewRunId: runIds.get('koala-review-concept')!,
-        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, runIds.get('koala-review-concept')!),
+        reviewRunId: runIds.get('lattice-review-concept')!,
+        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, runIds.get('lattice-review-concept')!),
       }],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '041', runIds.get('koala-review-quality')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '042', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '041', runIds.get('lattice-review-quality')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '042', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const blockerNext = handlers.next({ concise: true });
@@ -1819,12 +1815,12 @@ function assertReviewNextUsesReviewerGateState(): void {
 }
 
 function assertDevGuidanceUsesReviewPhase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-dev-guidance-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-dev-guidance-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -1846,10 +1842,10 @@ function assertDevGuidanceUsesReviewPhase(): void {
 }
 
 function assertValidateHintsFollowStoryPhase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-validate-hint-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-validate-hint-'));
   try {
     const { store, storyId } = createReviewStore(root);
-    const result = JSON.stringify({ provider: 'koala-verifier', allPass: true });
+    const result = JSON.stringify({ provider: 'lattice-verifier', allPass: true });
     const render = (phase: StoryInfo['phase']) => {
       const story = store.readStory(storyId);
       story.phase = phase;
@@ -1882,11 +1878,11 @@ function assertValidateHintsFollowStoryPhase(): void {
 }
 
 function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-real-cli-validate-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-real-cli-validate-'));
   try {
     const { store, storyId } = createReviewStore(root);
     write(root, 'validate-smoke.js', 'console.log(JSON.stringify({ provider: "smoke", status: "pass", allPass: true, summary: "ok", details: [] }));\n');
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -1896,8 +1892,8 @@ function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
     }));
     resetConfigCache();
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -1923,7 +1919,7 @@ function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
 }
 
 function assertBugUpdateTestHintUsesDonePrecheck(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-bug-hint-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-bug-hint-'));
   try {
     const { store, storyId } = createReviewStore(root);
     const story = store.readStory(storyId);
@@ -1955,13 +1951,13 @@ function assertBugUpdateTestHintUsesDonePrecheck(): void {
   }
 }
 
-function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-author-'));
+function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-author-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -1972,14 +1968,14 @@ function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
       '-c', 'user.name=main-agent',
       '-c', 'user.email=main@example.test',
       'commit',
-      '-m', 'koala: implement real code',
+      '-m', 'lattice: implement real code',
     ]);
 
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'fail');
     assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
     assert.match(result.summary, /cannot be used as author fallback/);
-    assert.match(result.details.join('\n'), /koala: implement real code/);
+    assert.match(result.details.join('\n'), /lattice: implement real code/);
     assert.match(result.details.join('\n'), /normal channel primary evidence must be dispatch\/subagent_result/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -1987,12 +1983,12 @@ function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
 }
 
 function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-shared-author-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-shared-author-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2024,12 +2020,12 @@ function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
 }
 
 function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-author-fallback-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-author-fallback-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2037,7 +2033,7 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
     write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
     git(root, ['add', 'packages/main/src/real-code.ts']);
     git(root, [
-      '-c', 'user.name=koala-implementer',
+      '-c', 'user.name=lattice-implementer',
       '-c', 'user.email=implementer@example.test',
       'commit',
       '-m', 'implement real code',
@@ -2053,12 +2049,12 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
 }
 
 function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-subagent-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-subagent-evidence-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2066,7 +2062,7 @@ function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
     write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
     git(root, ['add', 'packages/main/src/real-code.ts']);
     git(root, [
-      '-c', 'user.name=koala-implementer',
+      '-c', 'user.name=lattice-implementer',
       '-c', 'user.email=implementer@example.test',
       'commit',
       '-m', 'implement real code',
@@ -2089,12 +2085,12 @@ function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
 }
 
 function assertChannelGateAcceptsDispatchEvidence(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-dispatch-evidence-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-channel-dispatch-evidence-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2102,7 +2098,7 @@ function assertChannelGateAcceptsDispatchEvidence(): void {
     write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
     git(root, ['add', 'packages/main/src/real-code.ts']);
     git(root, [
-      '-c', 'user.name=koala-implementer',
+      '-c', 'user.name=lattice-implementer',
       '-c', 'user.email=implementer@example.test',
       'commit',
       '-m', 'implement real code',
@@ -2128,20 +2124,20 @@ function renderedDetails(result: { details: string[] }): string {
 }
 
 function assertDoneChecklistUsesStableOracleRows(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-oracle-row-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-oracle-row-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ]);
 
     const testStory = store.readStory(storyId);
@@ -2157,9 +2153,9 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '030', runIds.get('koala-review-concept')!),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '031', runIds.get('koala-review-quality')!),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '032', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'lattice-review-concept', reviewRound, '030', runIds.get('lattice-review-concept')!),
+        makeReviewPass(storyId, 'lattice-review-quality', reviewRound, '031', runIds.get('lattice-review-quality')!),
+        makeReviewPass(storyId, 'lattice-review-test-coverage', reviewRound, '032', runIds.get('lattice-review-test-coverage')!),
       ],
     });
     const evidence: TestEvidenceData = {
@@ -2189,20 +2185,20 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     //   "fail: blocking=N (...); passed=M (...)"
     assert.match(byId.get('git-working-tree')?.detail ?? '', /^fail: blocking=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /passed=/);
-    assert.match(byId.get('git-working-tree')?.detail ?? '', /koala_metadata_changes=/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /lattice_metadata_changes=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=1/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /fixture_changes=1/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /unexpected_dirty_files=1/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/src\/core\/dirty\.ts/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /material_source_changes/);
-    assert.match(byId.get('git-working-tree')?.hint ?? '', /koala_metadata_changes/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /lattice_metadata_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /runtime_artifact_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /fixture_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /unexpected_dirty_files/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|KOALA_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
-    assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=koala-review-delivery/);
+    assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=lattice-review-delivery/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /main agent must not self-sign/);
     assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
     assert.equal(byId.get('story-summary')?.status, 'fail');
@@ -2214,12 +2210,12 @@ function assertDoneChecklistUsesStableOracleRows(): void {
 }
 
 function assertDoneClosureProjectionSeparatesAuthority(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-closure-projection-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closure-projection-'));
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2270,7 +2266,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
 }
 
 function assertGlobalLinkRepair(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-flow-link-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-link-'));
   try {
     const mainRepo = join(root, 'repo');
     const worktree = join(root, 'repo', '.worktrees', 'B-smoke');
@@ -2367,14 +2363,14 @@ function gitStatusPorcelain(root: string): string {
 }
 
 function setupAutoCommitFixture(): { root: string; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'koala-auto-commit-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-auto-commit-'));
   // Init git repo + initial commit on main so branch checkout works
   execFileSync('git', ['init', '--initial-branch=main'], { cwd: root, stdio: 'ignore' });
-  gitConfig(root, 'user.email', 'smoke@koala.test');
+  gitConfig(root, 'user.email', 'smoke@lattice.test');
   gitConfig(root, 'user.name', 'smoke');
   gitConfig(root, 'commit.gpgsign', 'false');
-  // koala.config.json so loadConfig picks our story dir
-  write(root, 'koala.config.json', JSON.stringify({
+  // lattice.config.json so loadConfig picks our story dir
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
@@ -2441,7 +2437,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
         dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
       );
       assert.equal(classification.groups.material_source_changes.length, 1);
-      assert.equal(classification.groups.koala_metadata_changes.length, 0, 'metadata category must be empty after auto-commit');
+      assert.equal(classification.groups.lattice_metadata_changes.length, 0, 'metadata category must be empty after auto-commit');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -2502,7 +2498,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   // repos should return '' and should not create mutation:storyMetadataCommit
   // health noise.
   {
-    const root = mkdtempSync(join(tmpdir(), 'koala-auto-commit-nongit-'));
+    const root = mkdtempSync(join(tmpdir(), 'lattice-auto-commit-nongit-'));
     const previousHealthPath = process.env.KOALA_HEALTH_PATH;
     process.env.KOALA_HEALTH_PATH = join(root, 'health.jsonl');
     try {
@@ -2638,7 +2634,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       );
       assert.equal(after.groups.material_source_changes.length, materialBefore, 'material dirt count unchanged by auto-commit');
       assert.equal(after.groups.unexpected_dirty_files.length, unexpectedBefore, 'unexpected dirt count unchanged by auto-commit');
-      assert.equal(after.groups.koala_metadata_changes.length, 0, 'metadata category drains to zero after auto-commit');
+      assert.equal(after.groups.lattice_metadata_changes.length, 0, 'metadata category drains to zero after auto-commit');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -2661,9 +2657,9 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
  */
 function assertDeclaredArtifactsChannel(): void {
   const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
-  const root = mkdtempSync(join(tmpdir(), 'koala-declared-artifacts-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-declared-artifacts-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -2841,9 +2837,9 @@ function assertDeclaredArtifactsChannel(): void {
     // (d) promise:<docPath> ref resolves when delivery-check.docsPromises contains the docPath.
     //     Use a separate store rooted at a fresh temp dir so we don't trample
     //     the previous-scenario fixtures.
-    const promiseRoot = mkdtempSync(join(tmpdir(), 'koala-declared-artifacts-promise-'));
+    const promiseRoot = mkdtempSync(join(tmpdir(), 'lattice-declared-artifacts-promise-'));
     try {
-      write(promiseRoot, 'koala.config.json', JSON.stringify({
+      write(promiseRoot, 'lattice.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
         testsDir: 'packages/main/tests',
@@ -2868,7 +2864,7 @@ function assertDeclaredArtifactsChannel(): void {
         storyId,
         checkedAt: now,
         reviewRound: now,
-        agentId: 'koala-review-delivery',
+        agentId: 'lattice-review-delivery',
         docsPromises: [{ docPath: 'CLAUDE.md#section-foo', promise: 'doc promise', verifiedBy: 'grep', evidence: 'observed' }],
         realMachineTests: [],
         closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'ok summary text' },
@@ -2903,9 +2899,9 @@ function assertDeclaredArtifactGateHotfix(): void {
   const ATTACK_SOURCE = 'packages/main/src/core/store.ts';
   const FIXTURE_PATH = 'packages/main/tests/fixtures/sample-fixture.json';
   const GENERATED_OUTPUT = 'packages/main/tests/output/declared-generated.json';
-  const root = mkdtempSync(join(tmpdir(), 'koala-declared-gate-hotfix-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-declared-gate-hotfix-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -2962,7 +2958,7 @@ function assertDeclaredArtifactGateHotfix(): void {
       /classifies as fixture_changes and cannot be declared/,
       'artifact_declare must reject a fixture path',
     );
-    // === CHK-002: artifact_declare rejects config / koala-metadata paths ===
+    // === CHK-002: artifact_declare rejects config / lattice-metadata paths ===
     assert.throws(
       () => handlers.artifact_declare({
         storyId,
@@ -2980,8 +2976,8 @@ function assertDeclaredArtifactGateHotfix(): void {
         reason: 'attacker tries to declare koala metadata',
         relatedIntent: 'CHK-001:happy:0',
       }),
-      /classifies as koala_metadata_changes and cannot be declared/,
-      'artifact_declare must reject a koala-metadata path',
+      /classifies as lattice_metadata_changes and cannot be declared/,
+      'artifact_declare must reject a lattice-metadata path',
     );
     // === CHK-002 (B-8db9 F-002): artifact_declare rejects a runtime artifact path ===
     assert.throws(
@@ -3077,12 +3073,12 @@ function assertDeclaredArtifactGateHotfix(): void {
  */
 function assertDeclaredArtifactDoneCommittedRow(): void {
   const GENERATED_OUTPUT = 'packages/main/tests/output/declared-generated.json';
-  const root = mkdtempSync(join(tmpdir(), 'koala-declared-committed-row-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-declared-committed-row-'));
   try {
     git(root, ['init']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -3284,10 +3280,10 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   // 2a. runValidateGate: validate FAIL → block TEST. The verifier judges the
   //     configured validate command by exit code, so a non-zero exit is a real
   //     validate failure (allPass=false) → first throw "did not pass".
-  const failRoot = mkdtempSync(join(tmpdir(), 'koala-phase-gates-validate-fail-'));
+  const failRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-validate-fail-'));
   try {
     const store = new StoryStore(failRoot);
-    write(failRoot, 'koala.config.json', JSON.stringify({
+    write(failRoot, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -3325,7 +3321,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   //     detectFastChannel routes ≤5-item, no-risk stories to the fast channel,
   //     where all gates skip). A main-agent-authored commit with no implementer
   //     evidence then trips the channel gate → preflight.ok=false → block.
-  const preflightRoot = mkdtempSync(join(tmpdir(), 'koala-phase-gates-preflight-'));
+  const preflightRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-preflight-'));
   try {
     const { store, storyId } = createReviewStore(preflightRoot);
     // Promote to the normal channel so the CLI gates actually run.
@@ -3333,8 +3329,8 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     normalStory.riskSignals = [{ category: 'state machine', matched: 'gate' }];
     store.writeStory(storyId, normalStory);
     git(preflightRoot, ['init']);
-    git(preflightRoot, ['config', 'user.email', 'koala@example.test']);
-    git(preflightRoot, ['config', 'user.name', 'Koala Smoke']);
+    git(preflightRoot, ['config', 'user.email', 'lattice@example.test']);
+    git(preflightRoot, ['config', 'user.name', 'Lattice Smoke']);
     git(preflightRoot, ['checkout', '-B', 'main']);
     git(preflightRoot, ['add', '.']);
     git(preflightRoot, ['commit', '-m', 'base']);
@@ -3362,7 +3358,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   }
 
   // --- 3. Effect snapshot byte-identical ---
-  const effectRoot = mkdtempSync(join(tmpdir(), 'koala-phase-gates-effects-'));
+  const effectRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-effects-'));
   try {
     const { store, storyId } = createReviewStore(effectRoot);
 
@@ -3489,20 +3485,20 @@ function assertDoneOracleSameSource(): void {
   );
 
   // --- 1 & 3. Behavioral same-source + regression baseline ---
-  const root = mkdtempSync(join(tmpdir(), 'koala-done-oracle-same-source-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-same-source-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'koala@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
     seedReviewRuns(root, store, storyId, reviewRound, [
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
     ]);
 
     const testStory = store.readStory(storyId);
@@ -3603,7 +3599,7 @@ function assertDoneOracleSameSource(): void {
       storyId,
       checkedAt: '2026-05-15T12:30:00.000Z',
       reviewRound,
-      agentId: 'koala-review-delivery',
+      agentId: 'lattice-review-delivery',
       docsPromises: [],
       realMachineTests,
       closingSelfCheck,
@@ -3614,7 +3610,7 @@ function assertDoneOracleSameSource(): void {
     assert.equal(hashMismatchRow?.status, 'fail', 'delivery-check hash mismatch must fail');
     assert.equal(hashMismatchRow?.detail, 'delivery-check.json _hash mismatch');
     assert.equal(hashMismatchRow?.source, 'delivery-check.json._hash');
-    assert.match(hashMismatchRow?.hint ?? '', /Re-run the koala-review-delivery reviewer to generate a new delivery-check\.json/);
+    assert.match(hashMismatchRow?.hint ?? '', /Re-run the lattice-review-delivery reviewer to generate a new delivery-check\.json/);
 
     const docsPromises = [{
       docPath: 'docs/requirements/decisions/flow-stability-smoke.md',
@@ -3625,7 +3621,7 @@ function assertDoneOracleSameSource(): void {
       storyId,
       checkedAt: '2026-05-15T12:31:00.000Z',
       reviewRound,
-      agentId: 'koala-review-delivery',
+      agentId: 'lattice-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
@@ -3637,7 +3633,7 @@ function assertDoneOracleSameSource(): void {
     assert.equal(unverifiedDocsRow?.detail, '1 docsPromise entries are unverified and not waived');
     assert.equal(unverifiedDocsRow?.source, 'delivery-check.json.docsPromises');
     assert.match(unverifiedDocsRow?.hint ?? '', /Use delivery_waiver_add to write a waiver/);
-    assert.match(unverifiedDocsRow?.hint ?? '', /re-run the koala-review-delivery reviewer to add verification evidence/);
+    assert.match(unverifiedDocsRow?.hint ?? '', /re-run the lattice-review-delivery reviewer to add verification evidence/);
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
@@ -3650,12 +3646,12 @@ function assertDoneOracleSameSource(): void {
  * chains. Uses formatWorktreePollutionDetails (validation-executor) as the
  * representative production caller: if it forgets projectRoot the custom story
  * metadata path would land in unexpected_dirty_files (blocking) instead of
- * koala_metadata_changes (passing).
+ * lattice_metadata_changes (passing).
  */
 function assertProductionHelperPassesProjectRootToClassifier(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-prod-root-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-prod-root-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
@@ -3687,12 +3683,12 @@ function assertProductionHelperPassesProjectRootToClassifier(): void {
     const header = lines[0];
     assert.ok(
       header.startsWith('✓'),
-      `Production helper must classify custom storyDir path as koala_metadata (passing). ` +
+      `Production helper must classify custom storyDir path as lattice_metadata (passing). ` +
       `Got: ${header} — if this fails, the production helper is not passing projectRoot to dirtyWorktreeClassifierOptionsFromConfig.`,
     );
     assert.equal(
       worktreePollution.blocking, false,
-      'worktreePollution.blocking must be false when only koala_metadata paths are dirty',
+      'worktreePollution.blocking must be false when only lattice_metadata paths are dirty',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -3702,17 +3698,17 @@ function assertProductionHelperPassesProjectRootToClassifier(): void {
 
 /**
  * B-edca quality follow-up: dirty-worktree classification honours configured
- * storyDir via projectRoot so custom storyDir paths land in koala_metadata_changes,
+ * storyDir via projectRoot so custom storyDir paths land in lattice_metadata_changes,
  * not unexpected_dirty_files. Verifies three cases:
- *   1. Custom storyDir sub-path → koala_metadata_changes
+ *   1. Custom storyDir sub-path → lattice_metadata_changes
  *   2. Same-prefix-but-not-storyDir path → unexpected_dirty_files
  *   3. Default .lattice/story/ paths still work with projectRoot set
  * Also verifies that declared/fixture/material precedence rules are not weakened.
  */
 function assertCustomStoryDirDirtyWorktreeClassification(): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-custom-storydir-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-custom-storydir-'));
   try {
-    write(root, 'koala.config.json', JSON.stringify({
+    write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
@@ -3724,25 +3720,25 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
     const config = loadConfig(root);
     const opts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
 
-    // 1. Custom storyDir sub-path must be koala_metadata_changes.
+    // 1. Custom storyDir sub-path must be lattice_metadata_changes.
     const storyMeta = classifyGitStatusRows(
       [' M workflow/stories/B-smoke/test-evidence.json'],
       opts,
     );
     assert.equal(
-      storyMeta.groups.koala_metadata_changes.length, 1,
-      'workflow/stories/B-smoke/test-evidence.json must be koala_metadata_changes with custom storyDir',
+      storyMeta.groups.lattice_metadata_changes.length, 1,
+      'workflow/stories/B-smoke/test-evidence.json must be lattice_metadata_changes with custom storyDir',
     );
     assert.equal(storyMeta.groups.unexpected_dirty_files.length, 0);
 
-    // 2. Sibling path outside storyDir must not be classified as koala_metadata.
+    // 2. Sibling path outside storyDir must not be classified as lattice_metadata.
     const notMeta = classifyGitStatusRows(
       ['?? workflow/notes.md'],
       opts,
     );
     assert.equal(
-      notMeta.groups.koala_metadata_changes.length, 0,
-      'workflow/notes.md must not be koala_metadata_changes',
+      notMeta.groups.lattice_metadata_changes.length, 0,
+      'workflow/notes.md must not be lattice_metadata_changes',
     );
     assert.equal(
       notMeta.groups.unexpected_dirty_files.length, 1,
@@ -3755,11 +3751,11 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
       opts,
     );
     assert.equal(
-      defaultMeta.groups.koala_metadata_changes.length, 1,
-      '.lattice/story/ default prefix must still be koala_metadata_changes',
+      defaultMeta.groups.lattice_metadata_changes.length, 1,
+      '.lattice/story/ default prefix must still be lattice_metadata_changes',
     );
 
-    // 4. Material source path is NOT reclassified as koala_metadata even if
+    // 4. Material source path is NOT reclassified as lattice_metadata even if
     //    projectRoot is set (classifier checks metadata first, but src/ is not
     //    storyDir so it stays material).
     const materialOpts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
@@ -3771,7 +3767,7 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
       material.groups.material_source_changes.length, 1,
       'src/core/foo.ts must remain material_source_changes with projectRoot set',
     );
-    assert.equal(material.groups.koala_metadata_changes.length, 0);
+    assert.equal(material.groups.lattice_metadata_changes.length, 0);
 
     // 5. Fixture path is not reclassified.
     const fixtureOpts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
@@ -3783,7 +3779,7 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
       fixture.groups.fixture_changes.length, 1,
       'tests/fixtures/ path must remain fixture_changes',
     );
-    assert.equal(fixture.groups.koala_metadata_changes.length, 0);
+    assert.equal(fixture.groups.lattice_metadata_changes.length, 0);
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
@@ -3820,7 +3816,7 @@ assertDevGuidanceUsesReviewPhase();
 assertValidateHintsFollowStoryPhase();
 assertRealCliValidateHintFollowsActiveStoryPhase();
 assertBugUpdateTestHintUsesDonePrecheck();
-assertChannelGateRejectsKoalaSubjectForRealFiles();
+assertChannelGateRejectsLatticeSubjectForRealFiles();
 assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor();
 assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();

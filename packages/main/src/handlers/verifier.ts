@@ -534,7 +534,7 @@ function externalResult(args: {
   commands?: any[];
 }) {
   return {
-    provider: args.provider ?? 'koala-verifier',
+    provider: args.provider ?? 'lattice-verifier',
     status: args.status,
     allPass: args.status !== 'fail',
     summary: args.summary,
@@ -622,7 +622,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const allOk = results.every((r) => r.ok);
         if (args.json) {
           return JSON.stringify({
-            provider: 'koala-verifier-gates',
+            provider: 'lattice-verifier-gates',
             status: allOk ? 'pass' : 'fail',
             allPass: allOk,
             gates: results.map((r) => ({ name: r.name, ok: r.ok, result: r.result })),
@@ -650,7 +650,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
         if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
           const base = externalResult({
-            provider: 'koala-verifier-no-validation-entry',
+            provider: 'lattice-verifier-no-validation-entry',
             status: 'warn',
             summary: 'No project validator configured; skipped project-specific validation',
             details: [
@@ -677,7 +677,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           ? `running ${commands.length} configured validate.command(s)`
           : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
         const base = await executeValidationPlan({
-          provider: usingConfigured ? 'koala-verifier-configured-commands' : 'koala-verifier-fallback-commands',
+          provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
           commands,
           warnings: [],
         }, projectRoot, currentHead(projectRoot), args.story);
@@ -788,7 +788,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         } catch { /* not git */ }
 
         const wrapped = {
-          provider: 'koala-verifier',
+          provider: 'lattice-verifier',
           status: code === 0 ? 'pass' : 'fail',
           allPass: code === 0,
           summary: code === 0 ? 'All checks passed' : 'Validation failed',

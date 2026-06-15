@@ -174,7 +174,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     git(root, ['checkout', '-B', 'main']);
     write(root, 'README.md', 'authority smoke\n');
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
     const store = new StoryStore(root);
     const storyId = 'B-authority';
@@ -191,7 +191,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     process.chdir(root);
     assert.throws(
       () => assertCwdInWorktree(store, storyId),
-      /must execute koala commands inside the worktree/,
+      /must execute lattice commands inside the worktree/,
     );
     process.chdir(worktreePath);
     assert.doesNotThrow(() => assertCwdInWorktree(store, storyId));
@@ -215,7 +215,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
     git(root, ['checkout', '-B', 'main']);
     write(root, 'README.md', 'init check authority smoke\n');
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
     const store = new StoryStore(root);
     const storyId = 'B-init-authority';
@@ -235,7 +235,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
     });
-    assert.match(output, /must execute koala commands inside the worktree/);
+    assert.match(output, /must execute lattice commands inside the worktree/);
     assert.equal(new StoryStore(root).readChecklist(storyId).items.length, 1);
   } finally {
     process.chdir(previousCwd);
@@ -269,7 +269,7 @@ function assertTerminalStoriesDoNotRedirect(): void {
 }
 
 function recordPassingInitAndScopeGates(root: string, storyId: string): void {
-  runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
+  runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
   runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
   runKoala(root, 'scope_boundary_set', {
     storyId,
@@ -321,7 +321,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     runKoala(root, 'story_draft', {
@@ -339,7 +339,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     runKoala(root, 'draft_check_set', {
       draftName,
       issues: [],
-      agentId: 'koala-review-story-init',
+      agentId: 'lattice-review-story-init',
     });
     const output = runKoala(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
@@ -393,7 +393,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     runKoala(root, 'story_draft', {
@@ -411,10 +411,10 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     runKoala(root, 'draft_check_set', {
       draftName,
       issues: [],
-      agentId: 'koala-review-story-init',
+      agentId: 'lattice-review-story-init',
     });
     git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'draft metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'draft metadata']);
 
     write(root, 'unrelated-tracked.txt', 'tracked user edit that must remain dirty\n');
     write(root, 'unrelated-untracked.txt', 'untracked user edit that must remain dirty\n');
@@ -470,7 +470,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     runKoala(root, 'story_draft', {
@@ -488,10 +488,10 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     runKoala(root, 'draft_check_set', {
       draftName,
       issues: [],
-      agentId: 'koala-review-story-init',
+      agentId: 'lattice-review-story-init',
     });
     git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'draft metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'draft metadata']);
 
     write(root, 'unrelated-staged.txt', 'staged user edit that must remain staged\n');
     git(root, ['add', '--', 'unrelated-staged.txt']);
@@ -552,7 +552,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     storyId,
     checkedAt: now,
     reviewRound: '',
-    agentId: 'koala-review-delivery',
+    agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -588,7 +588,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     const storyId = 'B-nested-done';
@@ -600,7 +600,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
       createdAt: '2026-05-08T10:00:00.000Z',
     });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
 
@@ -608,7 +608,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence']);
 
     const nestedCwd = join(worktreePath, 'PVSC', 'child');
     mkdirSync(nestedCwd, { recursive: true });
@@ -644,7 +644,7 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     const storyId = 'B-expected';
@@ -657,19 +657,19 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
       createdAt: '2026-05-08T10:00:00.000Z',
     });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', wrongBranch]);
     git(root, ['worktree', 'add', worktreePath, wrongBranch]);
     write(root, 'main-only-after-wrong-story-branch.txt', 'main commit that must not auto-merge before wrong-branch rejection\n');
     git(root, ['add', 'main-only-after-wrong-story-branch.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after wrong story branch checkout']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'main moves after wrong story branch checkout']);
     const mainHeadAfterCheckout = git(root, ['rev-parse', 'main']);
 
     resetConfigCache();
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence on wrong branch']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence on wrong branch']);
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch story\/B-other but expected story\/B-expected/);
@@ -700,7 +700,7 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     const storyId = 'B-non-story';
@@ -713,19 +713,19 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
       createdAt: '2026-05-08T10:00:00.000Z',
     });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', wrongBranch]);
     git(root, ['worktree', 'add', worktreePath, wrongBranch]);
     write(root, 'main-only-after-non-story-branch.txt', 'main commit that must not auto-merge before non-story rejection\n');
     git(root, ['add', 'main-only-after-non-story-branch.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after non-story branch checkout']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'main moves after non-story branch checkout']);
     const mainHeadAfterCheckout = git(root, ['rev-parse', 'main']);
 
     resetConfigCache();
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence on non-story branch']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence on non-story branch']);
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch feature\/not-story but expected story\/B-non-story/);
@@ -786,7 +786,7 @@ function buildDoneReadyStory(
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const worktreePath = join(root, '.worktrees', storyId);
@@ -797,7 +797,7 @@ function buildDoneReadyStory(
     createdAt: '2026-05-08T10:00:00.000Z',
   });
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
   git(root, ['branch', `story/${storyId}`]);
   git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
 
@@ -809,7 +809,7 @@ function buildDoneReadyStory(
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence']);
   }
   return { worktreePath, store };
 }
@@ -901,7 +901,7 @@ function markStoryBranchPartialDone(worktreePath: string, storyId: string): void
   story.endedAt = story.endedAt || '2026-05-08T10:30:00.000Z';
   worktreeStore.writeStory(storyId, story);
   git(worktreePath, ['add', worktreeStore.storyDirRel()]);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'partial done state']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'partial done state']);
 }
 
 function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
@@ -912,11 +912,11 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
       beforeEvidence: (wt) => {
         write(wt, 'packages/main/src/recovered-runtime.ts', 'export const recoveredRuntime = true;\n');
         git(wt, ['add', 'packages/main/src/recovered-runtime.ts']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'runtime input change']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'runtime input change']);
       },
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
     git(root, ['add', '.gitignore']);
     git(root, ['commit', '-m', 'ignore recovery worktrees']);
@@ -953,11 +953,11 @@ function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
       beforeEvidence: (wt) => {
         write(wt, 'packages/main/src/recovered-runtime-fail.ts', 'export const recoveredRuntimeFail = true;\n');
         git(wt, ['add', 'packages/main/src/recovered-runtime-fail.ts']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'runtime input change']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'runtime input change']);
       },
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
     git(root, ['add', '.gitignore']);
     git(root, ['commit', '-m', 'ignore recovery worktrees']);
@@ -1010,11 +1010,11 @@ function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
       beforeEvidence: (wt) => {
         write(wt, 'docs/requirements/decisions/recover-skip.md', '# Recover skip smoke\n');
         git(wt, ['add', 'docs/requirements/decisions/recover-skip.md']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'docs only change']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'docs only change']);
       },
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
     git(root, ['add', '.gitignore']);
     git(root, ['commit', '-m', 'ignore recovery worktrees']);
@@ -1091,7 +1091,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // Step1 (metadata commit) — the DONE commit landed on the merged branch.
     const mergedLog = git(root, ['log', '--oneline', 'main']);
-    assert.match(mergedLog, new RegExp(`koala: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
+    assert.match(mergedLog, new RegExp(`lattice: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
     assert.match(mergedLog, new RegExp(`merge: ${storyId}`), 'Step3 --no-ff merge commit must be present on main');
 
     // Terminal state: story DONE, worktree + branch gone.
@@ -1305,7 +1305,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
       beforeEvidence: (wt) => {
         writeFileSync(join(wt, 'conflict.txt'), 'story branch version\n');
         git(wt, ['add', 'conflict.txt']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story edits conflict.txt']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story edits conflict.txt']);
       },
     });
 
@@ -1313,7 +1313,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
     // branched → the branch falls behind main and cannot cleanly merge.
     writeFileSync(join(root, 'conflict.txt'), 'main branch version\n');
     git(root, ['add', 'conflict.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main edits conflict.txt']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'main edits conflict.txt']);
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'a merge conflict must trip a DONE pre-merge gate');
@@ -1361,7 +1361,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
       beforeEvidence: (wt) => {
         writeFileSync(join(wt, 'shared.txt'), 'story branch content\n');
         git(wt, ['add', 'shared.txt']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story adds shared.txt']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story adds shared.txt']);
       },
     });
 
@@ -1468,7 +1468,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
     const { worktreePath } = buildDoneReadyStory(root, storyId);
     writeFileSync(join(root, 'main-only-after-story-branch.txt'), 'main commit that lock must not auto-sync\n');
     git(root, ['add', 'main-only-after-story-branch.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after story branch']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'main moves after story branch']);
     const mainHeadAfterBranch = git(root, ['rev-parse', 'main']);
     const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
@@ -1541,7 +1541,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.name', 'Lattice Smoke']);
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',

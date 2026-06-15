@@ -234,7 +234,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
-      const isReviewerAgent = agent.startsWith('koala-review-');
+      const isReviewerAgent = agent.startsWith('lattice-review-');
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
 
       const story = store.readStory(args.storyId);
@@ -283,7 +283,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
           type: 'reviewer_finding',
           storyId: args.storyId,
           command: 'finding_add',
-          role: agent.startsWith('koala-review-') ? 'reviewer' : 'main',
+          role: agent.startsWith('lattice-review-') ? 'reviewer' : 'main',
           agent,
           result: 'pass',
           findingId: id,
@@ -306,7 +306,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       const warning = missingAttribution
-        ? '\n⚠ finding_add is missing agent/KOALA_AGENT and has been recorded as main; reviewer must pass agent="koala-review-*", otherwise it will not count as reviewer evidence.'
+        ? '\n⚠ finding_add is missing agent/KOALA_AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.'
         : '';
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
       const advisoryHint = evidence.evidenceState === 'suspected'

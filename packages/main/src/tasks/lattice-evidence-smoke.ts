@@ -30,7 +30,7 @@ function git(cwd: string, args: string[]): string {
 
 function commitPaths(cwd: string, message: string, paths: string[]): string {
   git(cwd, ['add', ...paths]);
-  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', message]);
+  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', message]);
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
@@ -41,7 +41,7 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -214,7 +214,7 @@ try {
   writeConfig(root);
   git(root, ['init']);
   write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
-  const headHash = commitPaths(root, 'base', ['koala.config.json', 'packages/main/src/base.ts']);
+  const headHash = commitPaths(root, 'base', ['lattice.config.json', 'packages/main/src/base.ts']);
   const materialHash = currentMaterialHash(root);
   assert.ok(materialHash, 'material hash should be available in git repo');
 

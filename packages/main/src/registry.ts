@@ -1,5 +1,5 @@
 /**
- * Handler Registry — koala 的工具注册中心
+ * Handler Registry — Lattice 的工具注册中心
  *
  * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @lattice-agent/utils）
  * 可以把自己的 handler 通过 registry.register / registerBatch 注入进来，
@@ -230,14 +230,14 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // Never submits evidence, claims jobs, registers actor keys, or verifies receipts.
   registry.registerBatch(createAuthorityEnforceHandlers(ctx));
 
-  // B-ad2c: dev_memory_* — lightweight experience capture outside Koala story gates.
-  // Non-authoritative: entries cannot satisfy Koala DONE gate evidence.
+  // B-ad2c: dev_memory_* — lightweight experience capture outside Lattice story gates.
+  // Non-authoritative: entries cannot satisfy Lattice DONE gate evidence.
   registry.registerBatch(createDevMemoryHandlers(ctx));
 
   // B-d4dd/B-2a63: deterministic virtual benchmark + real-data export baseline harnesses.
   registry.registerBatch(createMemoryBenchmarkHandlers(ctx));
 
-  // Host-neutral capability discovery for Koala/Lattice adapters.
+  // Host-neutral capability discovery for Lattice adapters.
   registry.registerBatch(createCapabilityListHandlers());
 
   // Lattice productized export and cross-host handoff surfaces.
