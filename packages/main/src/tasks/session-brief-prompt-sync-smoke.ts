@@ -12,7 +12,12 @@ const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
 function findRepoRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
-    if (existsSync(join(dir, 'koala.config.json')) && existsSync(join(dir, 'packages', 'main'))) return dir;
+    if (
+      (existsSync(join(dir, 'lattice.config.json')) || existsSync(join(dir, 'koala.config.json'))) &&
+      existsSync(join(dir, 'packages', 'main', 'src'))
+    ) {
+      return dir;
+    }
     const parent = dirname(dir);
     if (parent === dir) throw new Error(`Could not find repo root from ${start}`);
     dir = parent;
@@ -77,7 +82,7 @@ assert.doesNotMatch(readme, /node bin\/koala\.js (?:tool_status|verify_codex|aux
 assert.match(guide, /`lattice` is the current command entry/i, 'guide states lattice as current command entry');
 assert.doesNotMatch(guide, /koala` is retained only as a legacy alias/, 'guide does not preserve koala as active alias');
 assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states lattice as active product entry');
-assert.match(projectVision, /`lattice rollout_check` read-only scan/, 'project vision keeps rollout_check read-only constraint');
+assert.match(projectVision, /`lattice rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
 assert.doesNotMatch(projectVision, /`lattice --version`[\s\S]{0,120}`koala --version`/, 'project vision does not require alias version verification');
 
 for (const file of targetDocs) {

@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DEFAULT_FRESH_MINUTES = 60;
-const REMINDER = '建议先运行 lattice session_brief 恢复现场（koala 仍是 legacy alias）';
+const REMINDER = 'Suggest running lattice session_brief first to restore context';
 
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -54,7 +54,9 @@ function findRepoRoot(start) {
   let dir = path.resolve(String(start || process.cwd()));
   while (true) {
     if (
-      fs.existsSync(path.join(dir, '.koala'))
+      fs.existsSync(path.join(dir, '.lattice'))
+      || fs.existsSync(path.join(dir, 'lattice.config.json'))
+      || fs.existsSync(path.join(dir, '.koala'))
       || fs.existsSync(path.join(dir, 'koala.config.json'))
       || fs.existsSync(path.join(dir, '.git'))
     ) {
@@ -77,6 +79,7 @@ function hasFreshSessionBrief(root, thresholdMs) {
 
 function activityFiles(root) {
   return [
+    path.join(root, '.lattice', 'activity.jsonl'),
     path.join(root, '.koala', 'activity.jsonl'),
     path.join(root, 'docs', 'story', 'activity.jsonl'),
     ...storyActivityFiles(root),

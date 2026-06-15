@@ -81,8 +81,20 @@
         "lattice_only_codex_wrapper",
         "absence_assertions"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The active Claude prompt hook printed the removed koala legacy alias in its stale session reminder, so it must be updated to lattice-only wording for this compatibility removal.",
+      "timestamp": "2026-06-15T02:51:47.969Z",
+      "paths": [
+        ".claude/hooks/session-brief-reminder.cjs"
+      ],
+      "anchors": [
+        "remove_koala_runtime_alias",
+        "absence_assertions"
+      ]
     }
   ],
   "createdAt": "2026-06-15T02:13:25.562Z",
-  "updatedAt": "2026-06-15T02:49:01.465Z"
+  "updatedAt": "2026-06-15T02:51:47.969Z"
 }
