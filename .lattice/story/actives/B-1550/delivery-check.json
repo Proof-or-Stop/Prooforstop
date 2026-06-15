@@ -1,0 +1,63 @@
+{
+  "storyId": "B-1550",
+  "checkedAt": "2026-06-15T00:15:18.756Z",
+  "reviewRound": "2026-06-14T23:13:48.422Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#purpose",
+      "promise": "Document states the default REVIEW path (ordinary stories use existing flow), the automatic 3x2 escalation trigger (firstReviewRound.countableProblems >= 2), and the always-on decision-doc 3x2 rule",
+      "verifiedBy": "rg grep",
+      "evidence": "Lines 13, 60, and 68 of the document confirm all three rules verbatim; independently verified with rg -n"
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#independence-predicate",
+      "promise": "Document identifies hostId-only counting as insufficient and requires durable host, provider, session, key/identityDigest, and material binding including payload signature verification for counted 3x2 verdicts",
+      "verifiedBy": "rg grep",
+      "evidence": "Lines 22, 40, 131-147, 275-295, 317-322 contain hostId, sessionId, keyId, identityDigest, verifyVerdictSignature; independently confirmed"
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#gate-placement",
+      "promise": "Document requires verdicts to become stale when HEAD, material digest, or validation digest changes; stale verdicts are ignored",
+      "verifiedBy": "rg grep",
+      "evidence": "Lines 163, 239, 315, 384, 397, 543-544 cover stale materialDigest, validationDigest, headHash; confirmed independently"
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#test-matrix",
+      "promise": "Document includes negative controls proving same-session, same-key, duplicate-host, stale-digest, FAIL, BLOCKED, suspected, and disproven evidence cannot satisfy 3x2",
+      "verifiedBy": "rg grep",
+      "evidence": "Lines 37, 105, 498, 513-514, 533-545 contain same-session, same-key, duplicate, FAIL, BLOCKED, suspected, disproven, fabricated keyId, invalid signature, stale controls; confirmed independently"
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#file-level-execution-plan",
+      "promise": "Document requires process-fact-registry, process-fact-levels, and verify-process-fact-contract coverage; separates local host verdicts from Authority Server receipts",
+      "verifiedBy": "rg grep",
+      "evidence": "Lines 298, 495-497 reference process-fact-registry.ts, process-fact-levels.ts, verify-process-fact-contract.mjs, and prohibit setting authorityDone/receiptVerified; confirmed independently"
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#proposed-artifacts",
+      "promise": "Document covers all required execution-plan sections: Proposed Artifacts, Proposed CLI Surface, File-Level Execution Plan, Rollout Plan, Acceptance Criteria",
+      "verifiedBy": "rg -q conjunctive section check",
+      "evidence": "Ran conjunctive rg -q checks for all five section headers; all returned exit 0 (ALL SECTIONS PRESENT)"
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#proposed-artifacts",
+      "promise": "review-escalation.json must not be written by read-only review_escalation_status; a separate mutating command review_escalation_snapshot is designated for persistence",
+      "verifiedBy": "rg grep",
+      "evidence": "Lines 197, 203, 206 state this restriction and the mutating snapshot alternative explicitly; confirmed independently"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Documentation-only chore. Real-machine evidence: (1) lattice validate --story=B-1550 passed with allPass=true and 6/6 verification intent items covered (confirmed in test-evidence.json). (2) npm test cli-e2e.js passed story-lifecycle and gap-convergence suites. (3) Document file exists and is readable at docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md (701 lines). For a pure-docs planning artifact this is the honest and sufficient real-machine test: file present, parseable, passes coverage checks, validate green."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises independently verified from source. The 701-line document substantively covers default REVIEW path, >=2 first-round threshold trigger, always-on decision-doc 3x2 rule, host/session/key/signature independence predicate, stale-material staleness rules, adversarial negative controls, process-fact registry requirements, read-only vs mutating artifact distinction, file-level implementation touchpoints, 6-phase rollout plan, and 12-point acceptance criteria. validate passed 6/6 intent items; no TODO/FIXME/HACK found in the diff; docs-only story as specified."
+  },
+  "_hash": "873dcdfb5cb379159a844227ac8e70e035dbe709867267260d405d3a50ef1231"
+}
