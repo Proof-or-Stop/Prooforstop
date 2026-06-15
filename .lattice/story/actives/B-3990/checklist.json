@@ -5,9 +5,9 @@
       "title": "Resolve no-story gitCwd via the project-level resolver in verifier.ts",
       "context": "At verifier.ts:604 the no---story branch falls back to projectRoot. Change it to evaluateStoryDirConfigInsideGitRoot({metadataRoot:projectRoot}).gitRootAbs ?? projectRoot (already exported in core/story-signed-workspace-resolution.ts, id-independent, never throws). Covers the bare concept/channel/lint CLI gates on wrapper-root. cwd-only; do not change gate semantics or git command text; plain repos byte-identical.",
       "userSees": "User runs lattice validate --concept (no --story) in a wrapper-root project and the concept gate runs git diff in the resolved gitRoot instead of printing warning: Not a git repository / git diff failed.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T23:35:20.257Z",
       "verificationIntent": {
         "happy": [
           {
