@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-15T22:31:56.255Z",
       "reviewRunId": "B-854c:RR-001",
       "_hash": "498ee13c5e5ed3e4bb9184139fc626b5ea410f40be18d8f91d57520331472023"
+    },
+    {
+      "id": "B-854c:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 4 CHK items verified correct against code and adversarial fixtures. Critical correctness points confirmed: (1) guard probes the LEAF (storyRel/index.json) not the .lattice prefix — verified in worktree.ts:868 and by real git check-ignore adversarial fixture showing prefix vs leaf diverge under negation allowlist; (2) negation allowlist (Orchestrate-style) → leaf NOT ignored → unsafe=false, no false positive — confirmed by smoke test + ADV-1 real git probe; (3) broad .lattice/ ignore + untracked → unsafe=true, loud warning + doctor --repair pointer — confirmed; (4) tracked-but-ignored leaf → safe (committed = clean-proof), wouldBeCleaned=false — ADV-2 confirmed; (5) fails OPEN (throwing runner caught by outer try/catch in storyMetadataProtectionWarning, returns empty string) — confirmed; (6) empty/whitespace leaf rejected by runtime re-validation (not only Zod) — confirmed in predicate unit + smoke; (7) doctor --repair neutralizes bare .lattice/ AND .lattice (no slash), preserves all unrelated user lines byte-for-byte, idempotent (second run is no-op verified by byte comparison) — ADV-7 + ADV-10; (8) re-scan after repair classifies leaf safe (git check-ignore freshly reflects new .gitignore) — ADV-9; (9) DONE/DISCARDED stories correctly skipped in doctor scan — ADV-12/ADV-14; (10) no-op logic in repairStoryMetadataAllowlist is correct (compares merged against existing, not neutralized.content); 10/10 smoke checks pass; 14 additional adversarial probes pass. No blockers found.",
+      "createdAt": "2026-06-15T22:36:58.665Z",
+      "reviewRound": "2026-06-15T22:31:56.255Z",
+      "reviewRunId": "B-854c:RR-003",
+      "_hash": "548fec00eac752f949be5aa7f86fd6dc7a1fd3bdfaf8caa8b5069baec2759890"
     }
   ]
 }
