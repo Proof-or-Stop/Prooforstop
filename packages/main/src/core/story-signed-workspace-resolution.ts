@@ -164,6 +164,109 @@ export function resolveStorySignedWorkspace(
   return unresolved(story, metadataRoot, storyDir, requiresWorktree, reason);
 }
 
+/**
+ * B-198c CHK-001: pure detection helper.
+ *
+ * Early-detect the wrapper-root violation where story metadata does NOT resolve
+ * inside the resolved git root. The git-backed lifecycle must git-commit story
+ * metadata (scoped story branch + DONE merge to main), which requires storyDir
+ * to live inside the resolved gitRoot. Today the only detectors are two LATE
+ * guards (worktree.ts:754 + cli-engine.ts reconcile) that fire at INIT_CHECK
+ * bootstrap — by then the user already invested INIT/PLAN effort. This helper
+ * lets the new doctor check (CHK-002) and early advisory (CHK-003) surface the
+ * dead end sooner WITHOUT touching those stable guards.
+ *
+ * Single source of truth for the escape condition: it mirrors the EXACT check
+ * at packages/main/src/handlers/worktree.ts:754 —
+ *   rel = relative(realpath(gitRoot), realpath(storyAbs))
+ *   violation when rel is empty / absolute / contains a `..` segment
+ * realpath BOTH sides so a /var → /private/var symlink between the metadata
+ * root and the git toplevel does not produce a false violation; fall back to
+ * the raw path when it does not exist on disk (mirrors the guards'
+ * `existsSync ? realpathSync : path` pattern).
+ *
+ * PURE: never throws, no console output. Callers own presentation.
+ *
+ * When signed-workspace resolution is unresolved (no/invalid gitRoot), returns
+ * a DISTINCT non-violation result (`ok: true`, `reason: 'gitroot-unresolved'`)
+ * so callers can report the unresolvable condition separately rather than
+ * mislabel it as an inside/outside violation.
+ */
+export interface StoryDirInsideGitRootResult {
+  /** false = violation (storyDir resolves OUTSIDE the resolved gitRoot). */
+  ok: boolean;
+  /** Canonicalized absolute story metadata dir (realpath when on disk). */
+  storyDirAbs: string;
+  /** Canonicalized absolute resolved git root, or null when unresolved. */
+  gitRootAbs: string | null;
+  /** relative(gitRootAbs, storyDirAbs), or null when gitRoot is unresolved. */
+  rel: string | null;
+  /**
+   * Present only for non-inside results:
+   *  - 'gitroot-unresolved' → signed workspace could not resolve a gitRoot
+   *  - 'outside-gitroot'     → storyDir resolves outside the resolved gitRoot
+   */
+  reason?: 'gitroot-unresolved' | 'outside-gitroot';
+}
+
+export interface EvaluateStoryDirInsideGitRootOptions {
+  store: StoryStore;
+  storyId: string;
+  metadataRoot: string;
+  cwd?: string;
+  config?: KoalaConfig;
+}
+
+export function evaluateStoryDirInsideGitRoot(
+  opts: EvaluateStoryDirInsideGitRootOptions,
+): StoryDirInsideGitRootResult {
+  const metadataRoot = canonicalPath(opts.metadataRoot);
+  // storyAbs mirrors worktree.ts: join(root, store.storyDirRel() minus trailing
+  // slash, storyId), then realpath both sides.
+  const storyAbs = join(
+    metadataRoot,
+    opts.store.storyDirRel().replace(/\/$/, ''),
+    opts.storyId,
+  );
+  const storyDirAbs = canonicalPath(storyAbs);
+
+  const resolution = resolveStorySignedWorkspace({
+    store: opts.store,
+    storyId: opts.storyId,
+    metadataRoot,
+    cwd: opts.cwd,
+    config: opts.config,
+  });
+
+  // Unresolved gitRoot → distinct non-violation result; never throw.
+  if (!resolution.resolved || !resolution.signedWorkspaceRoot) {
+    return {
+      ok: true,
+      storyDirAbs,
+      gitRootAbs: null,
+      rel: null,
+      reason: 'gitroot-unresolved',
+    };
+  }
+
+  const gitRootAbs = canonicalPath(resolution.signedWorkspaceRoot);
+  const rel = relative(gitRootAbs, storyDirAbs).replace(/\\/g, '/');
+
+  // EXACT escape condition mirrored from worktree.ts:754.
+  const violation = !rel || isAbsolute(rel) || rel.split('/').includes('..');
+  if (violation) {
+    return {
+      ok: false,
+      storyDirAbs,
+      gitRootAbs,
+      rel,
+      reason: 'outside-gitroot',
+    };
+  }
+
+  return { ok: true, storyDirAbs, gitRootAbs, rel };
+}
+
 function resolved(
   story: StoryInfo,
   metadataRoot: string,
