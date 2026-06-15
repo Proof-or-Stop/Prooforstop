@@ -4,7 +4,7 @@
   "title": "Early-validate storyDir resolves inside the resolved gitRoot",
   "description": "When a project configures gitRoot to a subdirectory (wrapper-root layout) and storyDir resolves OUTSIDE that gitRoot, the git-backed lifecycle only fails LATE: at INIT_CHECK worktree bootstrap (worktree.ts:754) and the metadata reconcile/merge (cli-engine.ts:3367), with the message: story metadata is not inside the resolved git root. By then the user has already invested INIT and PLAN work. A grep confirms the ONLY two detection sites are these late guards; there is no early detection at config load, story_create, doctor, or session_brief. Add early, clear detection of the storyDir-not-inside-gitRoot invariant so users learn immediately with the remediation. Reuse the exact relative-path escape logic the two guards already use (realpath both sides; violation when rel is empty, absolute, or contains a .. segment). Surface via lattice doctor and an early advisory; in PLAN weigh hard-fail vs warn at story_create because existing wrapper-root projects currently limp along.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "createdAt": "2026-06-15T17:44:39.011Z",
   "startedAt": "2026-06-15T17:44:39.011Z",
@@ -57,6 +57,14 @@
       "branch": "story/B-198c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T21:16:52.028Z",
+      "branch": "story/B-198c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -64,5 +72,5 @@
     "branch": "story/B-198c",
     "createdAt": "2026-06-15T18:22:15.727Z"
   },
-  "currentReviewRound": "2026-06-15T21:06:28.231Z"
+  "currentReviewRound": "2026-06-15T21:16:52.028Z"
 }
