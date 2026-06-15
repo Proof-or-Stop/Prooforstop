@@ -73,9 +73,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Smoke check passed: ordinary documentation audit changes do not require escalation by themselves; report required=false and assuranceLevel=ordinary-review.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "threshold-two-findings-requires-quorum",
@@ -83,9 +83,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Smoke check passed: two first-round verified reviewer problems trigger review escalation and full 3x2 quorum can satisfy it.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "suspected-disproven-low-not-counted",
@@ -93,9 +93,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Smoke check passed: suspected, disproven, low severity, non-reviewer, and later-round findings do not trigger escalation.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "stale-duplicate-hosts-do-not-count",
@@ -103,9 +103,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Smoke check passed: stale material, duplicate identity, and non-pass host verdicts fail closed and do not satisfy full quorum.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         }
       ]
     },
@@ -174,9 +174,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/decision-doc-quorum-smoke.js",
           "result": "pass",
           "note": "Review escalation smoke proves zero-finding decision-doc edits are not escalation blockers; decision-doc quorum smoke proves the old command is diagnostic only.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "smoke-threshold-doc-audit",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Review escalation smoke proves two countable first-round reviewer findings trigger full quorum requirement.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "smoke-degraded-fallback",
@@ -194,9 +194,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Review escalation smoke proves explicit degraded fallback passes only as assuranceLevel=degraded-single-host with fresh material and evidence/approval.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "smoke-no-silent-downgrade",
@@ -204,9 +204,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Review escalation smoke proves missing fallback evidence or stale material remains blocked and degraded is never reported as full 3x2.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         }
       ]
     },
@@ -278,9 +278,9 @@
           "command": "node bin/lattice.js review_escalation_status --storyId=B-59a6",
           "result": "pass",
           "note": "CLI output reports required:false, ok:true, assuranceLevel: ordinary-review, and authorityDone/fullAuthorityDone/productionDone all false for the current zero-finding documentation-audit story.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "decision-doc-check-classification",
@@ -288,9 +288,9 @@
           "command": "node bin/lattice.js decision_doc_quorum_check --storyId=B-59a6",
           "result": "pass",
           "note": "CLI output says changed decision docs do not by themselves require DONE quorum and points operators to review_escalation_status for the actual DONE requirement.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "no-authority-overclaim",
@@ -298,9 +298,9 @@
           "command": "authority-overclaim-docs-scan",
           "result": "pass",
           "note": "A narrow docs scan for authorityDone true, fullAuthorityDone true, productionDone true, and receiptVerified true returned no matches in the changed decision docs.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         }
       ]
     },
@@ -367,9 +367,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier passed and inventory includes review_escalation_status, review_escalation_fallback_set, autopilot_review_submit as review escalation gate evidence, and runtime:review_escalation_done_gate.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "read-write-policy-boundaries",
@@ -377,9 +377,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier asserts review_escalation_status is L0 read-only, review_escalation_fallback_set is L4 metadata-write gate evidence, and both preserve the no-Authority-overclaim boundary.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "contract-catches-drift",
@@ -387,9 +387,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier has hard assertions for CLI schema, command policy, level registry, artifact registry, gateConsumer strings, and host verdict semantics, so missing or drifted review escalation facts fail the script.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         }
       ]
     },
@@ -455,9 +455,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Smoke check passed: explicit degraded 3x1 fallback with allowed eligibility, reason, evidence ref, fresh material, and three single-host rounds returns ok=true and assuranceLevel=degraded-single-host.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "missing-degraded-approval-blocks",
@@ -465,9 +465,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Smoke check passed: stale fallback material plus missing evidence/approval keeps the escalated story blocked.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         },
         {
           "intentRef": "degraded-never-full-3x2",
@@ -475,9 +475,9 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Smoke check passed: degraded fallback has fullQuorum.ok=false, degradedFallback.ok=true, and authorityDone/fullAuthorityDone/productionDone all false.",
-          "headHash": "1b6cf264d03dd007308d4098603b846010e46250",
-          "materialHash": "773ba3271d41ce23f2d94ae6eabd129dd245e669a9d52ed94661c8e87e243579",
-          "timestamp": "2026-06-15T10:34:18.439Z"
+          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
+          "timestamp": "2026-06-15T10:42:29.265Z"
         }
       ]
     }
