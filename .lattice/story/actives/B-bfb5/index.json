@@ -4,7 +4,7 @@
   "title": "Reduce Lattice agent prompt token cost safely",
   "description": "Implement the actionable parts of docs/audits/lattice-token-cost-and-takeover-audit.md as an independent optimization story: reduce repeated full CLAUDE/Lattice prompt snapshots in agent templates and add low-risk slim read output where appropriate, while preserving fresh-context and process-fact safety semantics.",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "token-cost",
@@ -54,11 +54,20 @@
       "branch": "story/B-bfb5",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:01:40.387Z",
+      "branch": "story/B-bfb5",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-bfb5",
     "branch": "story/B-bfb5",
     "createdAt": "2026-06-15T10:36:59.791Z"
-  }
+  },
+  "currentReviewRound": "2026-06-15T11:01:40.387Z"
 }
