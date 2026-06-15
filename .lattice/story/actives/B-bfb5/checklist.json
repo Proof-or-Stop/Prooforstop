@@ -328,9 +328,9 @@
       "relatedDocs": [
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T11:01:31.840Z",
-      "endTime": null,
+      "endTime": "2026-06-15T11:01:32.227Z",
       "files": {
         "modify": [
           "docs/audits/lattice-token-cost-and-takeover-audit.md"
@@ -363,7 +363,39 @@
           }
         ]
       },
-      "userSees": "User sees Lattice REVIEW/TEST/DONE evidence pass locally, with summary explicitly stating local Non-authority optimization and no Authority Server claim."
+      "userSees": "User sees Lattice REVIEW/TEST/DONE evidence pass locally, with summary explicitly stating local Non-authority optimization and no Authority Server claim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until REVIEW/TEST/DONE: local Non-authority completion evidence cannot exist before entering those phases; this waiver must be replaced by real lifecycle evidence before final completion.",
+          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:01:32.275Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until delivery documentation is reviewed after REVIEW/TEST; audit doc already records measured vs estimated token savings and prompt-cache caveat, but final closure evidence is not claimed yet.",
+          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:01:32.307Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until delivery review can verify no Authority Server, receiptVerified, productionDone, authorityDone, or fullAuthorityDone overclaim; no Authority completion is claimed by this waiver.",
+          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:01:32.350Z"
+        }
+      ]
     }
   ]
 }
