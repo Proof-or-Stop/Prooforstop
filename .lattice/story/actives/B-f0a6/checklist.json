@@ -84,7 +84,36 @@
       "context": "Run repository scans for packages/game and @lattice/game after removal, and run a suitable validation command to ensure the CLI product path is unaffected.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Verification reports no tracked packages/game or @lattice/game references remain outside historical story metadata, and the Lattice CLI validation path still passes.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "package.json",
+          "docs/requirements/decisions/test-fixture-spec.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Repository scan for packages/game and @lattice/game has no current product/docs hits after deletion.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Root validation passes after package removal.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any remaining hits are either absent or explicitly classified as historical Lattice story metadata, not current product references.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
