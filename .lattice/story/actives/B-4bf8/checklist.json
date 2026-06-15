@@ -81,7 +81,14 @@
       "context": "Clarify that for streaming responses, final usage must be read from the terminal stream event (message_delta / final message), not assumed from a non-streaming shape; and a call that errors/times out mid-stream still records the partial output usage it consumed. usage.source=unavailable only when truly no count exists.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-007",
