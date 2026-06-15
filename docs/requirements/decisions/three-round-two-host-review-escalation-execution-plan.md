@@ -262,11 +262,9 @@ Before DONE, Lattice must evaluate:
 requires3x2 = firstReviewRoundCountableProblems >= 2
 ```
 
-Transition note: current runtime may still evaluate
-`changedDirectDecisionDocs || firstReviewRoundCountableProblems >= 2` until the
-implementation story migrates the existing decision-doc gate. That expression is
-legacy current behavior. The target policy in this plan is that a direct
-decision-doc or documentation change does not trigger 3x2 by itself.
+Current runtime has migrated to this predicate. Direct decision-doc edits are
+classification/diagnostic only, and review escalation is triggered by the first
+REVIEW round countable reviewer problem threshold.
 
 If `requires3x2` is true, DONE must fail closed unless current material has:
 
@@ -756,7 +754,7 @@ direct decision-doc edit requires DONE quorum. The hard DONE gate is
 | Escalated story has 3x2 over stale material | DONE blocks with stale-material reasons. |
 | Escalated story has valid 3x2 over current material | DONE gate passes this requirement. |
 | Clean non-decision story without trigger | DONE does not require 3x2. |
-| Decision-doc story with zero countable first-round findings | DONE does not require 3x2 after migration; before migration, current code may still report legacy decision-doc quorum. |
+| Decision-doc story with zero countable first-round findings | DONE does not require 3x2; direct decision-doc edits remain classification/diagnostic only unless the first REVIEW round countable reviewer problem threshold fires. |
 | Escalated decision-doc story has old hostId-only 3x2 but missing session/key | New-policy gate blocks after rollout. |
 | Escalated decision-doc story uses approved degraded 3x1 | DONE may pass only with `assuranceLevel=degraded-single-host`. |
 
@@ -835,7 +833,6 @@ if requires3x2 then require valid 3x2 quorum
 
 The failure reason must tell the operator whether the blocker came from:
 
-- legacy decision-doc change during the migration window;
 - first-round finding threshold;
 - missing quorum rounds;
 - missing independent hosts;
@@ -871,7 +868,7 @@ Implementation is complete only when all are true:
 2. A story with exactly one countable first-round finding does not require 3x2.
 3. A story with exactly two countable first-round findings requires 3x2.
 4. A story with direct decision-doc or documentation changes and zero countable
-   first-round findings does not require 3x2 after migration.
+   first-round findings does not require 3x2.
 5. Same-session or same-key host-verdict spoofing fails.
 6. Missing session/key identity fails for new-policy 3x2 evidence.
 7. Missing, invalid, mismatched, or material-weak local verdict signatures fail.
