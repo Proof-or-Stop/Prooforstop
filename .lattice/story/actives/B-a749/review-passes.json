@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-15T22:31:12.937Z",
       "reviewRunId": "B-a749:RR-003",
       "_hash": "1d78222b2d8e9d2fa8c422e92944a250aaf4a30ac6a1271658559f289e88ff67"
+    },
+    {
+      "id": "B-a749:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This is a purely additive change: five new exports (resolveChangedFiles, computeOutOfScopeTsconfigs, isPathUnderDir, packageHasNodeModules, ChangedFilesReader) added to validate-lint.ts; all original exports preserved with identical signatures. All callers (verifier.ts, review-preflight.ts, smoke test) import from their correct source. No exported symbol was removed or renamed. No dangling references to old concept words. No collision with existing GitChangedFilesReader in validate-channel.ts. No blocker found.",
+      "createdAt": "2026-06-15T22:32:44.986Z",
+      "reviewRound": "2026-06-15T22:31:12.937Z",
+      "reviewRunId": "B-a749:RR-001",
+      "_hash": "b99fe9ff114895a416da9d8a2c630db30c0451532b9cb6259f2b258f8d4d8e45"
     }
   ]
 }
