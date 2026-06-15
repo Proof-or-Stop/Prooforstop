@@ -425,10 +425,10 @@ A case with `browser: true` in the fixture is executed by the `browser_test` MCP
 
 ```
 # MCP tool call
-browser_test({ projectRoot: "packages/game" })
+browser_test({ projectRoot: "/path/to/browser-app" })
 
 # Specify a fixture
-browser_test({ projectRoot: "packages/game", fixture: "game-browser" })
+browser_test({ projectRoot: "/path/to/browser-app", fixture: "browser-case" })
 ```
 
 ### How It Works
