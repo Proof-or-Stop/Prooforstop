@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-59a6",
+  "mode": "feature",
+  "allowed": [
+    "English operator-facing docs for changed runtime behavior",
+    "Explicit degraded 3x1 lower-assurance fallback for local lifecycle only",
+    "First REVIEW round countable-problem evaluator and local quorum requirement",
+    "Host verdict identity/material/validation binding fields needed by the local quorum evaluator",
+    "Process-fact registry, levels, command policy, CLI schema, and contract verifier updates for new gate facts",
+    "Runtime DONE gate migration for documentation/decision-doc audit automatic review escalation",
+    "Smoke tests for zero-finding docs, threshold-triggered escalation, stale/duplicate/identity verdicts, degraded fallback, and diagnostics"
+  ],
+  "excluded": [
+    ".omx/** or any OMX runtime artifact",
+    "Authority Server receipt implementation or production Authority DONE claims",
+    "Custom decision-doc directories outside docs/requirements/decisions/*.md",
+    "Remote GitHub PR/push/release workflow",
+    "Retrofitting completed historical stories",
+    "Unrelated package renames or koala branding cleanup"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested executing the development after B-b663 documented the target policy; scope is limited to implementing that documented runtime gate behavior.",
+  "createdAt": "2026-06-15T03:05:43.886Z",
+  "updatedAt": "2026-06-15T03:05:43.886Z",
+  "_hash": "6436e99ea4434d40d02f94f9ce015a9a4d45616f21cbdd7c7b48132e6ab2c725"
+}

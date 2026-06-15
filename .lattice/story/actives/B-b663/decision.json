@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Use one consistent lifecycle policy for code and documentation audits.",
+    "Avoid special-case review friction unless risk evidence justifies it.",
+    "Keep degraded 3x1 honest and visibly lower assurance.",
+    "Separate documentation policy changes from runtime implementation."
+  ],
+  "drivers": [
+    "User explicitly wants document audit to follow ordinary automatic 3x2/3x1 rules.",
+    "The previous always-on decision-doc rule conflicts with that direction.",
+    "Implementation still needs a later code change, so the plan must state the transition honestly."
+  ],
+  "options": [
+    {
+      "name": "A: Keep decision-doc always-on 3x2",
+      "pros": [
+        "Maximum review strictness for governance docs",
+        "Matches current implemented DONE gate"
+      ],
+      "cons": [
+        "Contradicts latest user direction",
+        "Can block documentation audits even when review found no meaningful risk"
+      ]
+    },
+    {
+      "name": "B: Treat document audits like ordinary development automatic escalation",
+      "pros": [
+        "One consistent rule for code and docs",
+        "Escalates only when first review reveals two or more countable problems",
+        "Can use the same explicit degraded 3x1 fallback semantics"
+      ],
+      "cons": [
+        "Requires follow-up implementation to replace current decision-doc special case",
+        "Default documentation changes receive less mandatory quorum than the old policy"
+      ]
+    }
+  ],
+  "chosen": "B: Treat document audits like ordinary development automatic escalation",
+  "rationale": "Choose B because the user explicitly clarified that documentation audit should follow ordinary development automatic 3x2/3x1. The plan should stop preserving always-on decision-doc 3x2 as the desired future rule, while noting current code remains legacy until implementation changes it.",
+  "preMortem": [
+    {
+      "scenario": "The document implies the current runtime already changed.",
+      "trigger": "The plan removes always-on wording without a transition note.",
+      "consequence": "Operators expect DONE behavior that is not implemented yet.",
+      "mitigation": "Add explicit current-vs-target wording that current code may still enforce legacy decision-doc quorum until implementation lands."
+    },
+    {
+      "scenario": "Documentation changes become under-reviewed.",
+      "trigger": "The automatic trigger is vague or omitted for docs.",
+      "consequence": "Risky decision docs pass with ordinary review despite substantial first-round issues.",
+      "mitigation": "State docs use the same first REVIEW round countable-problem threshold and same degraded fallback restrictions."
+    },
+    {
+      "scenario": "3x1 fallback is treated as full documentation approval.",
+      "trigger": "Audit wording says document audit can use 3x1 without lower-assurance labels.",
+      "consequence": "Future implementation silently downgrades review quality.",
+      "mitigation": "Reuse degraded-single-host terminology and assurance fields from B-d959."
+    }
+  ],
+  "timestamp": "2026-06-15T02:44:59.012Z"
+}
