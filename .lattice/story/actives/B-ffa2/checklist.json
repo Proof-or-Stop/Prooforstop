@@ -54,12 +54,15 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The active agent template directories show lattice-implementer, lattice-review-*, lattice-evaluator, and lattice-evaluator-cli filenames/frontmatter instead of koala-* role IDs.",
+      "userSees": "Terminal search prints no active Koala agent filenames: `find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg koala-` exits with no matches.",
       "files": {
         "modify": [
+          "packages/main/templates/agents",
+          "packages/main/templates/agents/*.md",
           ".claude/agents",
+          ".claude/agents/*.md",
           ".Codex/agents",
-          "packages/main/templates/agents"
+          ".Codex/agents/*.md"
         ],
         "create": [
           "packages/main/templates/agents/lattice-implementer.md",
