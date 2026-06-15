@@ -1,0 +1,21 @@
+{
+  "storyId": "B-fec2",
+  "updatedAt": "2026-06-15T20:55:11.574Z",
+  "entries": [
+    {
+      "digest": "6b0f67fdfd0ab6d8fa31b386d179a753c2a857779a903b017a8579e65d5a40b0",
+      "terms": [
+        "## Conversational Texture This is a throwaway probe story that will be discarded immediately after confirming no advisory line is emitted on stdout or stderr in the normal repo.",
+        "## Key Insights The storyDir-outside-gitRoot advisory is warn-only and must stay silent when storyDir resolves inside the resolved gitRoot, as it does in this normal repo root.",
+        "## Solution Tradeoffs Option A warn-early without blocking was chosen over hard-failing; the late INIT_CHECK guards remain the hard backstop for the worktree and DONE lifecycle.",
+        "## Trigger Event On 2026-06-15 while verifying B-198c CHK-003 we need a successful story_create to exercise the create-surface advisory path and confirm it stays silent.",
+        "## Trigger Event On 2026-06-15 while verifying B-198c CHK-003 we need a successful story_create to exercise the create-surface advisory path and confirm it stays silent. ## Key Insights The storyDir-outside-gitRoot advisory is warn-only and must stay silent when storyDir resolves inside the resolved gitRoot, as it does in this normal repo root. ## Solution Tradeoffs Option A warn-early without blocking was chosen over hard-failing; the late INIT_CHECK guards remain the hard backstop for the worktree and DONE lifecycle. ## Conversational Texture This is a throwaway probe story that will be discarded immediately after confirming no advisory line is emitted on stdout or stderr in the normal repo.",
+        "B-198c CHK-003 probe3",
+        "throwaway probe with valid background to reach the create surface"
+      ],
+      "reason": "throwaway probe for B-198c CHK-003 behavioral verification; no longer needed",
+      "discardedAt": "2026-06-15T20:55:11.574Z",
+      "storyId": "B-fec2"
+    }
+  ]
+}

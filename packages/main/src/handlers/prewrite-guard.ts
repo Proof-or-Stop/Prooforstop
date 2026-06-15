@@ -1,5 +1,5 @@
 /**
- * prewrite-guard handler — koala prewrite_guard_check
+ * prewrite-guard handler — Lattice prewrite_guard_check
  *
  * Pre-write scope enforcement command for agent tool hooks.
  *

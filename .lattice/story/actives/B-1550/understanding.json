@@ -1,0 +1,26 @@
+{
+  "task": "Write an execution plan for a threshold-triggered 3x2 review escalation gate.",
+  "outcome": "User sees: Wrote docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md with the exact trigger rule, host-independence requirements, implementation touchpoints, tests, rollout, and acceptance criteria for the 3 round x 2 host gate.",
+  "facts": [
+    "Normal story REVIEW currently starts as a standard Lattice reviewer flow and can pass after one round when no blockers remain.",
+    "Decision-doc changes under docs/requirements/decisions/*.md already have a local DONE quorum gate requiring 3 rounds with 2 PASSing hosts per round.",
+    "Audit found the current decision-doc quorum only counts hostId strings and does not prove independent host/session/key identity.",
+    "finding_add defaults evidenceState to verified; suspected and disproven findings are advisory and should not trigger escalation.",
+    "review_run_start binds REVIEW evidence to a signed current review round with head/material hash freshness.",
+    "B-1550 decision_set selected threshold-triggered escalation plus a stronger shared host-independence predicate.",
+    "Implementation touchpoints to be listed in the document include packages/main/src/core/decision-doc-quorum.ts, packages/main/src/handlers/verdict.ts, packages/main/src/core/machine.ts, packages/main/src/core/process-fact-registry.ts, packages/main/src/core/process-fact-levels.ts, scripts/verify-process-fact-contract.mjs, and packages/main/src/tasks/decision-doc-quorum-smoke.ts, but they are reference-only in this story."
+  ],
+  "constraints": [
+    "Do not implement source-code changes in this story.",
+    "Write the execution plan in English for open-source readiness.",
+    "The plan must make 3x2 automatic for all development when first REVIEW round records two or more verified findings.",
+    "Decision-doc changes must remain always-on 3x2 regardless of findings count.",
+    "Gate-consumed facts must be mechanically enforced by CLI/handlers/gates and registered in process fact registry, not prompt-only.",
+    "Do not use omx or .omx."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-14T22:53:41.240Z"
+}

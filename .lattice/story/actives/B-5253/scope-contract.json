@@ -1,0 +1,25 @@
+{
+  "storyId": "B-5253",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/templates/agents",
+    ".claude/agents",
+    ".Codex/agents",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "README.md",
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T15:28:54.410Z",
+  "updatedAt": "2026-06-15T15:28:54.410Z"
+}

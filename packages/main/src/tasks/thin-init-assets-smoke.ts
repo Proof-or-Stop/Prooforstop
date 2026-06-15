@@ -7,13 +7,13 @@
  * @priority high
  * @description
  * Exercises the real init CLI with global-thin defaults (the new default) and
- * verifies legacy full/thin modes remain available as explicit opt-in.
+ * verifies full/thin local lattice asset modes remain available as explicit opt-in.
  * @changes
  * - [CHK-002] Assert fresh default init creates .lattice/ assets and not bin/lattice*.js or .Codex/.
  * - [CHK-003] Assert global codex verify/doctor passes in a global-thin project.
- * - [CHK-004] Assert legacy assets survive init (no deletion).
+ * - [CHK-004] Assert pre-existing user-owned legacy assets survive init (no deletion).
  * - [B-4ee0] Global-thin: .lattice/Lattice.md, .lattice/lattice.json, AGENTS.md are canonical defaults.
- * - [B-38d6] Fresh init writes lattice.config.json as canonical config; koala.config.json remains legacy fallback only.
+ * - [B-38d6] Fresh init writes lattice.config.json as canonical config; koala.config.json is no longer an active fallback.
  */
 
 import assert from 'node:assert/strict';
@@ -29,7 +29,7 @@ const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cliPath = join(packageRoot, 'dist', 'cli.js');
 
 function makeRoot(name: string): string {
-  return mkdtempSync(join(tmpdir(), `koala-${name}-`));
+  return mkdtempSync(join(tmpdir(), `lattice-${name}-`));
 }
 
 function runInit(root: string, args: string[]): string {
@@ -129,7 +129,7 @@ try {
   rmSync(globalThinCodexRoot, { recursive: true, force: true });
 }
 
-// ─── Test 3: Explicit full mode (opt-in legacy) ───────────────────────────────
+// ─── Test 3: Explicit full mode (opt-in local lattice assets) ────────────────
 // --asset-mode=full should create LATTICE.md, bin/lattice.js, .Codex/ as before.
 const fullRoot = makeRoot('explicit-full');
 try {
@@ -165,7 +165,7 @@ try {
   rmSync(thinRoot, { recursive: true, force: true });
 }
 
-// ─── Test 5: Legacy assets survive global-thin init (non-destructive) ────────
+// ─── Test 5: User-owned legacy files survive global-thin init ────────────────
 // Running init on a dir that already has KOALA.md, bin/koala.js, .Codex/koala.json
 // must not delete or overwrite those legacy files.
 const preserveRoot = makeRoot('preserve-legacy');

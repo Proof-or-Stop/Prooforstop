@@ -148,7 +148,7 @@ try {
   assertIncludes(brief, 'worktree phase: PLAN', 'session_brief should show linked worktree phase drift');
 
   const auxFail = koalaExpectFail('aux_doc_list');
-  assertIncludes(auxFail, 'node bin/koala.js aux_doc_list', 'core-only aux fallback should be visible');
+  assertIncludes(auxFail, 'node bin/lattice.js aux_doc_list', 'core-only aux fallback should be visible');
 
   const fixtureHelp = execFileSync('node', [cli, '--root', temp, 'fixture_batch_add', '--help'], { cwd: temp, encoding: 'utf8' });
   assertIncludes(fixtureHelp, 'Story is still in DEV', 'fixture_batch_add help should document DEV compatibility path');

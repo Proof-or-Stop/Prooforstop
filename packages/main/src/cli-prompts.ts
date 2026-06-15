@@ -293,4 +293,4 @@ STEP-BY-STEP
   4. git commit + lattice checklist_update --status=done
 `.trim();
 
-export const SESSION_BRIEF_FOOTER = '\n-> Not sure what to do next? Run lattice session_brief to recover the project context (koala remains a legacy alias).\n';
+export const SESSION_BRIEF_FOOTER = '\n-> Not sure what to do next? Run lattice session_brief to recover the project context.\n';

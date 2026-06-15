@@ -1,12 +1,12 @@
-# Story 生命周期
+# Story Lifecycle
 
-> 当前主流程使用第二版 Koala flow：
+> The current primary flow uses the second-generation Koala flow:
 >
-> `INIT -> INIT_CHECK -> PLAN/快速跳过 -> DEV -> REVIEW -> TEST -> DONE`
+> `INIT -> INIT_CHECK -> PLAN/express skip -> DEV -> REVIEW -> TEST -> DONE`
 >
-> 旧 `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` 只作为 legacy 兼容数据保留。当前活跃口径是 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 阶段记录的 `verificationEvidence`，REVIEW 阶段的 reviewer agent/lane（包含 `koala-review-test-coverage` 覆盖审查 lane），以及 TEST 阶段的 `lattice validate`（legacy alias: `koala validate`）。
+> The legacy `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` are retained only as legacy compatibility data. The currently active model is the `verificationIntent` on a checklist item, the `verificationEvidence` recorded during the DEV/REVIEW/TEST phases, the reviewer agent/lane in the REVIEW phase (including the `lattice-review-test-coverage` coverage-review lane), and `lattice validate` in the TEST phase.
 
-## 阶段流转
+## Phase Transitions
 
 ```text
 INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE
@@ -15,278 +15,280 @@ INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE
                               +------ DEV <-----+
 ```
 
-快速通道可以在 gate 允许时跳过部分计划材料，但不能跳过 worktree、review、validate、DONE evidence 等确定性状态。
+The express channel may skip some planning material when the gate allows it, but it must not skip deterministic states such as worktree, review, validate, or DONE evidence.
 
-## Phase 编号与健康检查
+## Phase Numbering and Health Checks
 
-Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展示进度：
+Koala assigns the executable primary-flow phases a stable number, used by `lattice status` to display progress:
 
-| 编号 | Phase | 说明 |
+| Number | Phase | Description |
 |---:|---|---|
-| 1/8 | IDEA | 需求还未形成 checklist，兼容旧数据和草稿入口 |
-| 2/8 | INIT | story 已创建，尚未 bootstrap worktree |
-| 3/8 | INIT_CHECK | worktree bootstrap 检查/创建阶段 |
-| 4/8 | PLAN | 理解快照、checklist、verificationIntent、必要 decision |
-| 5/8 | DEV | 实现代码并记录 verificationEvidence |
-| 6/8 | REVIEW | reviewer 审实现，coverage reviewer lane 审 verificationIntent 覆盖 |
-| 7/8 | TEST | `lattice validate` 写 validation evidence / bug（legacy alias: `koala validate`） |
-| 8/8 | DONE | 完成、合并、清理 worktree |
+| 1/8 | IDEA | Requirements have not yet formed a checklist; compatibility entry for legacy data and drafts |
+| 2/8 | INIT | Story created, worktree not yet bootstrapped |
+| 3/8 | INIT_CHECK | Worktree bootstrap check/creation phase |
+| 4/8 | PLAN | Understanding snapshot, checklist, verificationIntent, required decision |
+| 5/8 | DEV | Implement code and record verificationEvidence |
+| 6/8 | REVIEW | Reviewer audits the implementation; the coverage reviewer lane audits verificationIntent coverage |
+| 7/8 | TEST | `lattice validate` writes validation evidence / bug |
+| 8/8 | DONE | Complete, merge, clean up worktree |
 
-`DISCARDED` 是终止态，不参与主流程进度百分比。`TEST_CASE` 和 `TEST_CASE_REVIEW` 是 legacy phase，只为旧 story 可读和迁移保留；新的 story 不应主动进入它们。
+`DISCARDED` is a terminal state and does not participate in the primary-flow progress percentage. `TEST_CASE` and `TEST_CASE_REVIEW` are legacy phases, retained only so that old stories remain readable and migratable; new stories should not actively enter them.
 
-编号只用于可观察状态，不用于判断是否异常。Koala 的流程允许合法回退，因此不能用“当前编号必须等于上个编号 + 1”来判错。健康检查必须使用合法 transition graph：
+The numbering is used only for observable state, not to judge whether something is anomalous. Koala's flow permits legal rollbacks, so you cannot detect errors with "the current number must equal the previous number + 1." Health checks must use the legal transition graph:
 
-- 正向：`INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE`
-- 兼容正向：`IDEA -> INIT`、`IDEA -> PLAN`
-- 快速通道：`INIT_CHECK -> DEV` 可在策略允许时进入实现
-- 合法回退：`DEV -> PLAN`、`REVIEW -> DEV`、`TEST -> DEV`
-- Legacy 兼容：`TEST_CASE -> DEV`、`TEST_CASE_REVIEW -> DEV`、`TEST_CASE_REVIEW -> TEST_CASE`、`TEST_CASE_REVIEW -> TEST`
-- 终止：任何未完成 story 可通过 `story_discard` 进入 `DISCARDED`
+- Forward: `INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE`
+- Compatibility forward: `IDEA -> INIT`, `IDEA -> PLAN`
+- Express channel: `INIT_CHECK -> DEV` may enter implementation when policy allows
+- Legal rollback: `DEV -> PLAN`, `REVIEW -> DEV`, `TEST -> DEV`
+- Legacy compatibility: `TEST_CASE -> DEV`, `TEST_CASE_REVIEW -> DEV`, `TEST_CASE_REVIEW -> TEST_CASE`, `TEST_CASE_REVIEW -> TEST`
+- Terminal: any unfinished story may enter `DISCARDED` via `story_discard`
 
-`koala status` / `koala session_brief` 应展示当前编号、allowed next、allowed rollback，并在 main metadata 与 linked worktree phase 不一致时明确执行权威：
+`lattice status` / `lattice session_brief` should display the current number, allowed next, and allowed rollback, and explicitly state the execution authority when the main metadata and the linked worktree phase disagree:
 
-- 有 linked worktree 时，worktree 内 story metadata 是执行权威。
-- main metadata 只作为索引和恢复入口，可能滞后。
-- 输出必须给出下一步应该 `cd` 到哪个 worktree。
-- Dashboard / `session_brief` 的 DONE 展示必须区分 lifecycle 与 outcome：`Lifecycle DONE: N/M` 只说明 phase 已 DONE；`DONE-success/default`、`DONE-blocked`、`DONE-audit-only` 才说明终态性质。旧 summary 没有 `outcomeKind` 时进入 success/default 兼容桶。
+- When there is a linked worktree, the story metadata inside the worktree is the execution authority.
+- The main metadata is only an index and recovery entry point, and may lag.
+- The output must indicate which worktree to `cd` into next.
+- The DONE display in the Dashboard / `session_brief` must distinguish lifecycle from outcome: `Lifecycle DONE: N/M` only states that the phase has reached DONE; `DONE-success/default`, `DONE-blocked`, and `DONE-audit-only` state the nature of the terminal state. A legacy summary with no `outcomeKind` falls into the success/default compatibility bucket.
 
-## Phase 职责和门禁
+## Phase Responsibilities and Gates
 
-| Phase | 含义 | 进入门禁 | 产物 |
+| Phase | Meaning | Entry gate | Artifacts |
 |---|---|---|---|
-| INIT | story 已创建 | `story_create` 成功 | story metadata、background |
-| INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过（或受控 `init_check_repair` fallback），scope anti-expansion freeze 通过，git 可用 | `.worktrees/B-xxx`、`story/B-xxx` |
-| PLAN | 拆解和验收意图 | cwd 在 worktree；高风险 story 要 understanding + decision/preMortem | understanding、checklist、verificationIntent、decision |
-| DEV | 实现和记录证据 | PLAN/review gate 允许 | 代码、checklist status、verificationEvidence |
-| REVIEW | 独立审查 | DEV checklist 已完成、改动已提交 | reviewer findings、coverage reviewer result / review pass |
-| TEST | 自动验证 | REVIEW blocker 已解决，preflight gate 通过 | `lattice validate` evidence、bug/test runs（legacy alias: `koala validate`） |
-| DONE | 收束 | validate PASS、bug fixed、evidence fresh、summary/delivery gate 通过、branch 包含 main | merge main、清理 worktree、summary |
-| DISCARDED | 已废弃 | `story_discard` | discard event、清理结果 |
+| INIT | Story created | `story_create` succeeds | story metadata, background |
+| INIT_CHECK | Worktree bootstrap | init reviewers / draft gate pass (or controlled `init_check_repair` fallback), scope anti-expansion freeze passes, git available | `.worktrees/B-xxx`, `story/B-xxx` |
+| PLAN | Breakdown and acceptance intent | cwd is in the worktree; high-risk stories require understanding + decision/preMortem | understanding, checklist, verificationIntent, decision |
+| DEV | Implement and record evidence | PLAN/review gate allows it | code, checklist status, verificationEvidence |
+| REVIEW | Independent review | DEV checklist complete, changes committed | reviewer findings, coverage reviewer result / review pass |
+| TEST | Automatic validation | REVIEW blockers resolved, preflight gate passes | `lattice validate` evidence, bug/test runs |
+| DONE | Wrap-up | validate PASS, bug fixed, evidence fresh, summary/delivery gate passes, branch contains main | merge main, clean up worktree, summary |
+| DISCARDED | Discarded | `story_discard` | discard event, cleanup result |
 
-### INIT_CHECK 无 subagent 受控 fallback（B-95d8）
+### INIT_CHECK Controlled Fallback Without Subagent (B-95d8)
 
-正常路径下 `INIT → INIT_CHECK` 要求独立 INIT reviewer（`koala-review-story-init` + `product-reviewer`）通过 `init_check_set` 写签名 `init-check.json`。无法 spawn subagent 的环境（CI sandbox / 无 subagent runner）此前没有合法出口，story 永久卡在 `[missing_init_check]`。
+On the normal path, `INIT → INIT_CHECK` requires an independent INIT reviewer (`lattice-review-story-init` + `product-reviewer`) to write the signed `init-check.json` via `init_check_set`. Environments that cannot spawn a subagent (CI sandbox / no subagent runner) previously had no legal exit, so the story was permanently stuck at `[missing_init_check]`.
 
-`koala init_check_repair` 提供**显式、可审计、不削弱签名**的 fallback（INIT 阶段，`ownershipClass: storyScopedMutating`，owner-gated 的人工 override，不是 reviewer-lane write）：
+`lattice init_check_repair` provides an **explicit, auditable fallback that does not weaken the signature** (INIT phase, `ownershipClass: storyScopedMutating`, an owner-gated manual override, not a reviewer-lane write):
 
-- **默认禁用**：缺 `acknowledge:true` 或 `fallbackReason` < 30 字符即拒绝，不产出文件、不改 phase。
-- **复用 `signInitCheck`**：签名域不变；事后改 background/title/description/checklist 任一仍触发 `[init_check_tampered]`。
-- **不放宽 gate**：必需 reviewer 覆盖记成 `<required>@fallback`（`initCheckAgentMatches` 认前缀），既满足校验又与独立 reviewer 机械可区分；人工 attest 的 high/critical issue 仍走 `blockingInitCheckIssues` 自我阻塞。
-- **审计**：写 `init-check.json.fallback`（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event；`story_get` 暴露 `initCheckAttestation`（`fallback`/`independent`）+ `initCheckFallback` 块供 dashboard/report 区分。
-- 不引入 agentId 机械校验（EXP-001 已证伪调用方机械可区分性）。
+- **Disabled by default**: missing `acknowledge:true` or a `fallbackReason` shorter than 30 characters is rejected, producing no file and not changing the phase.
+- **Reuses `signInitCheck`**: the signature domain is unchanged; later modifying any of background/title/description/checklist still triggers `[init_check_tampered]`.
+- **Does not relax the gate**: the required reviewer coverage is recorded as `<required>@fallback` (`initCheckAgentMatches` recognizes the prefix), which both satisfies validation and is mechanically distinguishable from an independent reviewer; manually attested high/critical issues still self-block via `blockingInitCheckIssues`.
+- **Audit**: writes `init-check.json.fallback` (mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash) + an `init_check_fallback` process event; `story_get` exposes `initCheckAttestation` (`fallback`/`independent`) + the `initCheckFallback` block so the dashboard/report can distinguish them.
+- Does not introduce mechanical `agentId` validation (EXP-001 has falsified caller mechanical distinguishability).
 
-canonical 命令模板与设计约束详见 CLAUDE.md「INIT→INIT_CHECK 硬门槛」段。
+For the canonical command template and design constraints, see the "INIT→INIT_CHECK hard gate" section of CLAUDE.md.
 
-### INIT scope anti-expansion gate（B-85ba）
+### INIT Scope Anti-Expansion Gate (B-85ba)
 
-`INIT -> INIT_CHECK` 在 worktree 创建和 phase mutation 前消费结构化流程事实：`scope-boundary.json`、`execution-boundary.json`、`scope-freeze-check.json`、`scope-extension-proposals.json`、`scope-discard-digest.json`。这些 artifact 分别冻结用户确认的 allowed/excluded scope、执行边界、当前 story/checklist freshness、reviewer expansion proposal 状态和 discarded direction digest。`scope-boundary.json` / `execution-boundary.json` 可由 `story_create` 的可选 boundary 输入同步写入；未在创建时提供时，必须在 INIT 阶段用 `scope_boundary_set` / `execution_boundary_set` 显式补齐。
+`INIT -> INIT_CHECK` consumes structured process facts before worktree creation and phase mutation: `scope-boundary.json`, `execution-boundary.json`, `scope-freeze-check.json`, `scope-extension-proposals.json`, `scope-discard-digest.json`. These artifacts respectively freeze the user-confirmed allowed/excluded scope, the execution boundary, the current story/checklist freshness, the reviewer expansion-proposal state, and the discarded-direction digest. `scope-boundary.json` / `execution-boundary.json` may be written in sync via the optional boundary input of `story_create`; when not provided at creation time, they must be explicitly filled in during the INIT phase with `scope_boundary_set` / `execution_boundary_set`.
 
-典型 hard reason：`[missing_scope_boundary]`、`[missing_execution_boundary]`、`[missing_scope_freeze_check]`、`[scope_freeze_check_stale]`、`[scope_freeze_check_failed]`、`[scope_extension_proposal_pending]`、`[excluded_keyword]`、`[repeat_discarded_direction]`。
+Typical hard reasons: `[missing_scope_boundary]`, `[missing_execution_boundary]`, `[missing_scope_freeze_check]`, `[scope_freeze_check_stale]`, `[scope_freeze_check_failed]`, `[scope_extension_proposal_pending]`, `[excluded_keyword]`, `[repeat_discarded_direction]`.
 
-`correctness_fix` 默认 future denylist 只包含 `repair UX`、`Authority`、`Layer4`、`customerKeyRef`。其它排除项必须来自用户确认的 scope boundary 或 checklist `excludes`。INIT reviewer 发现需要扩展时只能写 `scope_extension_proposal`，不能直接改 checklist / scope boundary / execution boundary；接受或拒绝必须走 `scope_extension_decide`，accepted 后必须重新运行 `scope_freeze_check`。
+By default the `correctness_fix` future denylist contains only `repair UX`, `Authority`, `Layer4`, and `customerKeyRef`. Other exclusions must come from a user-confirmed scope boundary or the checklist `excludes`. When an INIT reviewer finds that an expansion is needed, it can only write a `scope_extension_proposal`; it cannot directly modify the checklist / scope boundary / execution boundary. Accepting or rejecting must go through `scope_extension_decide`, and after acceptance `scope_freeze_check` must be re-run.
 
-## 自动回退
+## Automatic Rollback
 
-- **REVIEW fail**：finding 或 coverage reviewer lane 发现问题时回 DEV。
-- **TEST fail**：`lattice validate` 失败后写 bug/evidence，修复路径回 DEV。
-- **DONE gate fail**：保留在 TEST，按 DONE checklist 的失败项补 evidence、summary、delivery check、main sync 或 git clean。
+- **REVIEW fail**: return to DEV when a finding or the coverage reviewer lane finds a problem.
+- **TEST fail**: after `lattice validate` fails, write a bug/evidence, and the fix path returns to DEV.
+- **DONE gate fail**: stay in TEST and, per the failed items in the DONE checklist, fill in evidence, summary, delivery check, main sync, or git clean.
 
-回退后主 agent 应先读失败证据，再决定改代码、补 evidence、补文档还是调整 checklist。不要用解释替代修复。
+After a rollback, the main agent should first read the failure evidence, then decide whether to change code, add evidence, add documentation, or adjust the checklist. Do not substitute explanation for a fix.
 
-## Scope evidence hygiene（B-4622）
+## Scope Evidence Hygiene (B-4622)
 
-这一节固定 scope 相关 evidence 命令的阶段归属，关闭 B-4622 记录的 evidence-hygiene gap：当 story 从 TEST 回退 DEV 并通过 `checklist_add` 改动 scope 时，PLAN 阶段的 scope 命令无法重写，但**这不是 gate 漏洞**——后续 phase 不再 re-consume `scope-check.json`。决定是不把 `scope_check_save` 放宽到 later phase，而是让 later-phase scope 改动走一条独立、可审计的 acknowledgement 路径。
+This section fixes the phase assignment of the scope-related evidence commands, closing the evidence-hygiene gap recorded in B-4622: when a story rolls back from TEST to DEV and changes scope via `checklist_add`, the PLAN-phase scope command cannot be rewritten — but **this is not a gate hole**, because later phases no longer re-consume `scope-check.json`. The decision is not to relax `scope_check_save` to later phases, but to route later-phase scope changes through an independent, auditable acknowledgement path.
 
-| 命令 | allowedPhases | 角色 | 含义 |
+| Command | allowedPhases | Role | Meaning |
 |---|---|---|---|
-| `scope_check_save` | PLAN（only） | reviewer-lane write（`reviewerWrite`） | 写带签名的 scope review evidence（`scope-check.json`），由 PLAN→DEV 的 `story_review` gate 消费。 |
-| `scope_contract_acknowledge` | DEV / REVIEW | story-scoped mutating | 记录对 later-phase 必要 out-of-scope 改动的显式 acknowledgement，对 reviewer 和 scope gate 可见。 |
+| `scope_check_save` | PLAN (only) | reviewer-lane write (`reviewerWrite`) | Writes signed scope review evidence (`scope-check.json`), consumed by the PLAN→DEV `story_review` gate. |
+| `scope_contract_acknowledge` | DEV / REVIEW | story-scoped mutating | Records an explicit acknowledgement of a necessary later-phase out-of-scope change, visible to the reviewer and the scope gate. |
 
-规则：
+Rules:
 
-- **scope_check_save remains PLAN-only signed scope review evidence**。它不会、也不应被放宽到 DEV/REVIEW；`scope-check.json` 只在 PLAN→DEV 由 `story_review` 验证一次。
-- **scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path**。TEST→DEV 回退后通过 `checklist_add` 改 scope 时，用它记录显式 acknowledgement，而不是去重写 PLAN 的签名 scope review evidence。
-- **later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass**（later-phase acknowledgement 不是 PLAN scope reviewer pass 的替代品）。`scope_contract_acknowledge` 只记录「这次 out-of-scope 改动被显式承认」，它既不重新生成签名的 `scope-check.json`，也不重新触发 scope-plan reviewer 的 PLAN gate。如果 later-phase scope 漂移大到需要重新做 scope review，正确动作是回到 PLAN 重跑 scope-plan reviewer + `scope_check_save`，而不是用 acknowledgement 顶替 reviewer pass。
+- **scope_check_save remains PLAN-only signed scope review evidence**. It is not, and should not be, relaxed to DEV/REVIEW; `scope-check.json` is verified only once at PLAN→DEV by `story_review`.
+- **scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path**. When changing scope via `checklist_add` after a TEST→DEV rollback, use it to record an explicit acknowledgement, rather than rewriting PLAN's signed scope review evidence.
+- **later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass**. `scope_contract_acknowledge` only records that "this out-of-scope change is explicitly acknowledged"; it neither regenerates the signed `scope-check.json` nor re-triggers the scope-plan reviewer's PLAN gate. If the later-phase scope drift is large enough to require redoing the scope review, the correct action is to return to PLAN, re-run the scope-plan reviewer + `scope_check_save`, rather than using acknowledgement to stand in for a reviewer pass.
 
-## 合并态组合审查（流程框架并行 story）
+## Merged-State Combination Review (Process-Framework Parallel Stories)
 
-> 本节是该规则的 **canonical 详细版**。`CLAUDE.md` 只保留短摘要并 see-also 指向这里；两份不是独立等价副本。
+> This section is the **canonical detailed version** of this rule. `CLAUDE.md` keeps only a short summary and a see-also pointing here; the two are not independent equivalent copies.
 
-这是一条 **advisory 流程纪律**，不是 CLI gate，不会被状态机自动强制。它补的是单 story REVIEW 结构性看不到的盲区。
+This is an **advisory process discipline**, not a CLI gate, and is not automatically enforced by the state machine. It covers a blind spot that single-story REVIEW structurally cannot see.
 
-### 为什么需要
+### Why It Is Needed
 
-单 story REVIEW 永远只看一个 story 自己的 diff，看不到「两个各自局部正确的 story 叠加后形成全局漏洞」这类跨 story 交互缺陷。
+Single-story REVIEW always looks only at one story's own diff, and cannot see the kind of cross-story interaction defect where "two locally correct stories stack up to form a global hole."
 
-**起源 incident**：2026-05-15 的 hotfix B-8db9 修复了一个 CRITICAL gate 绕过——B-cf60（declared artifact 声明）与 B-4b22（把 `declared_artifact_changes` 设为 non-blocking 的 dirty-gate-policy）各自 DONE 时单 story REVIEW 都独立通过，但合并到 main 后两者叠加形成 DONE dirty gate 绕过：agent 可以声明脏 source 文件绕过 gate。这个漏洞完全靠一次事后的合并态只读审查才被发现。
+**Origin incident**: the 2026-05-15 hotfix B-8db9 fixed a CRITICAL gate bypass — B-cf60 (declared-artifact declaration) and B-4b22 (the dirty-gate-policy that sets `declared_artifact_changes` to non-blocking) each passed single-story REVIEW independently when DONE, but after merging into main the two stacked up to form a DONE dirty gate bypass: an agent could declare a dirty source file to bypass the gate. This hole was discovered only by an after-the-fact read-only review of the merged state.
 
-### 触发范围
+### Trigger Scope
 
-当**多个「流程框架类」story 并行开发并合并到 main** 时触发。流程框架类 story 指触及以下任一资产的 story：
+Triggered when **multiple "process-framework" stories are developed in parallel and merged into main**. A process-framework story is one that touches any of the following assets:
 
-- dirty / 工作区状态 classifier（各类别如何被判定）
-- gate policy（某类改动是 blocking 还是 non-blocking）
-- 命令入口门禁（handler 入口的拒绝规则）
-- auto-commit（自动提交逻辑、与 dirty 状态的交互）
-- DONE merge 语义（合并回 main 时哪些东西会被带过去）
+- dirty / working-tree state classifier (how each category is judged)
+- gate policy (whether a class of change is blocking or non-blocking)
+- command entry-point gates (the rejection rules at a handler entry)
+- auto-commit (auto-commit logic, and its interaction with dirty state)
+- DONE merge semantics (what gets carried over when merging back into main)
 
-### 规则
+### Rule
 
-合并后必须对 main 的**合并态**（即并行 story 全部合并进 main 之后的实际状态）做一次只读 combination review。这是只读审查，不改代码，目的是发现叠加缺陷，发现问题再走正常 story 流程修。
+After merging, you must perform a read-only combination review of main's **merged state** (i.e. the actual state after all parallel stories have been merged into main). This is a read-only review; it does not change code. Its purpose is to discover stacking defects, and when a problem is found, fix it through the normal story flow.
 
-### 枚举检查清单
+### Enumerated Checklist
 
-combination review 必须逐项过下面这张清单——这是为了防止 combination review 退化成橡皮图章：
+A combination review must go through the following checklist item by item — this is to prevent the combination review from degenerating into a rubber stamp:
 
-1. **分类优先级顺序**：classifier 各类别的判定先后是否仍自洽？某个 story 新增的类别有没有把另一个 story 依赖的判定顺序顶掉？
-2. **gate policy 表**：把所有受影响类别的 blocking / non-blocking 取值列出来，确认叠加后没有出现「本该 blocking 的类别被某个并行 story 改成了 non-blocking」。
-3. **命令入口门禁**：各 handler 入口的拒绝规则叠加后是否仍然完整？有没有某个 story 放宽的入口正好是另一个 story 假设会被拦住的路径？
-4. **auto-commit / dirty 状态交互**：auto-commit 行为与 dirty 状态分类叠加后，会不会让本该被 dirty gate 拦住的改动被自动提交掉、或被归类成无害？
-5. **DONE merge 语义**：声明物 / 未提交文件在 DONE merge 时是否会被带进 main？某个 story 新增的「声明即放行」语义叠加另一个 story 的 merge 行为，会不会让脏文件静默进 main？
+1. **Classification priority order**: is the judgment order of the classifier's categories still self-consistent? Has a category added by one story displaced the judgment order that another story depends on?
+2. **gate policy table**: list out the blocking / non-blocking values of all affected categories, and confirm that after stacking there is no "category that should be blocking but was changed to non-blocking by some parallel story."
+3. **command entry-point gates**: are the rejection rules at each handler entry still complete after stacking? Is there an entry relaxed by one story that is exactly the path another story assumes will be blocked?
+4. **auto-commit / dirty state interaction**: after stacking the auto-commit behavior with the dirty-state classification, could a change that should have been blocked by the dirty gate end up being auto-committed, or be classified as harmless?
+5. **DONE merge semantics**: at DONE merge, will declared artifacts / uncommitted files be carried into main? If one story's "declaration means release" semantics stacks with another story's merge behavior, could a dirty file silently enter main?
 
-### Out of scope
+### Out of Scope
 
-普通业务 story **不触发** combination review。本规则只针对流程框架类 story（上述触发范围列举的资产）。对普通业务 story 强加合并审查只会制造 review 疲劳，反而让规则被整体忽略。
+Ordinary business stories **do not trigger** a combination review. This rule applies only to process-framework stories (the assets enumerated under Trigger Scope above). Forcing a merge review on ordinary business stories only creates review fatigue and instead causes the rule to be ignored entirely.
 
-## Worktree 隔离
+## Worktree Isolation
 
-每个 story 在独立 worktree 中开发，分支名 `story/{storyId}`。多并发 session 互不干扰。
+Each story is developed in its own worktree, with branch name `story/{storyId}`. Multiple concurrent sessions do not interfere with each other.
 
-- `story_advance -> INIT_CHECK`：自动创建 worktree + 切分支。
-- `story_advance -> DONE`：自动 merge 回主分支 + 清理 worktree + 删分支。失败返回错误提示由 agent 处理。
-- `story_advance -> DONE` 在触发任何 main-affecting preflight 前必须持有统一的 main write lock，canonical 路径 `.koala/locks/main-write.lock/`（B-f60c 起；旧 `.koala/runtime/done-main-merge.lock` 已退役、无 alias）。锁覆盖 main divergence check / autoSyncMain / DONE pre-merge gate / phase 写入 / main merge / worktree cleanup / branch delete；拿不到 live lock 时必须在写 `phase=DONE` 前失败并提示稍后重试。stale lock 可由锁原语回收。canonical 锁路径定义见 `session-ownership-and-write-leases.md` 的 Storage 节。
-- `story_advance -> DONE` 在 story branch 合并进本地 main 后会记录合并前后的 main SHA，并检查该 merge diff 是否触及 CLI runtime inputs：`packages/main/src/**`、`packages/main/package.json`、`packages/main/package-lock.json`、`packages/main/tsconfig.json`、根 `package.json`、`package-lock.json`。命中时运行 `npm --prefix packages/main run build` 刷新本地 `packages/main/dist`；未命中时输出可见 skip 行。若 post-merge build 失败，DONE 命令必须清楚提示 `packages/main/dist` 可能过期、给出恢复命令 `npm --prefix packages/main run build`，并附带捕获输出。
-- **story owner lease（B-c55d 起）**：单 story 的 authoring / lifecycle mutation 由 per-story owner lease 串行化，与 main write lock 正交——main write lock 管跨 session 的 main / B-META 共享写，owner lease 管「一个 story 一个 mutating owner」。lease 落盘 `.koala/story/actives/<storyId>/owner-lease.json`（运行时产物，DONE 前不留脏写）。第一条 story-scoped mutating 命令 acquire lease，owner 命令刷新 heartbeat，DONE/DISCARDED+cleanup 成功时 release。非 owner 的 storyScopedMutating / dangerousMutating 命令在单一 CLI choke-point gate（`enforceStoryOwnerLeaseGate`，按 `CommandPolicy.ownershipClass` 判定）fail-closed 拒绝，错误消息含被 own 的 storyId / owner sessionId / cwd / heartbeat age / stale 标志 / 下一步动作；read-only 命令永不被拦。heartbeat 超 30 分钟无刷新判为 stale，可 `--takeover` 转移；活跃 lease 需 `--forceTakeover`（人工批准），两种转移都记 `story-owner-lease-takeover` audit event。`session_brief` 渲染 `## Story ownership` 段（owner session/cwd/heartbeat age/stale|active/是否本 session/推荐动作）；B-META 容器单独渲染 `## Shared audit state (B-META)` 段且不建议 story_advance。完整规则见 `session-ownership-and-write-leases.md`。
-- 如果 post-merge 路径失败导致 story 分支已经写入 `phase=DONE`、但 `story/B-xxx` 尚未合并进 main，这叫 partial-DONE。`koala doctor` 必须在 `Partial-DONE scan` 中列出这类 story，并给出 `koala done_recover --storyId=B-xxx`。`done_recover` 自身也必须先拿同一把 `.koala/locks/main-write.lock/`，然后只在 main clean、story worktree clean、story branch 存在且 `merge-tree main story/B-xxx` 可干净应用时执行；它会完成 merge、worktree remove、worktree prune 和 branch delete。recovery merge 后同样记录 main 合并前后 SHA，并复用 DONE post-merge `packages/main` build 规则：只有触及 CLI runtime inputs 时才运行 `npm --prefix packages/main run build`，否则输出可见 skip；build 失败必须提示 `packages/main/dist` 可能过期、恢复命令和捕获输出。它不是通用冲突解决器，也不会删除带本地改动的 story worktree；冲突或脏 worktree 仍要求人工处理。
-- **post-DONE activity heartbeat 必须落到 main（B-da5b）**：`story_advance -> DONE` 在命令执行中途删除当前 story worktree，但 activity 日志（写 `.koala/activity.jsonl`）在命令之后才落盘。此时命令启动时捕获的 `root` 已指向被删的 ghost worktree。CLI 必须在命令开始、worktree 仍存在时就捕获一个 durable main-root fallback（从 `root/.git` 解析 main 仓库根），并在 `root` 不再有 `koala.config.json` 时优先用它写日志；不能退回到 `resolveRoot()` 的 cwd-walk —— 当 `KOALA_PROJECT_ROOT` 指向 worktree 时它会再次解析回 ghost 路径，导致最终成功的 `story_advance DONE` 心跳被静默丢弃，或把日志目录重建在已删除的 worktree 里。最终成功记录必须出现在 main 仓库 `.koala/activity.jsonl`，且不得重建被删的 worktree 目录。回归覆盖见 `tasks/worktree-authority-smoke.ts` 的 `assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval`。
+- `story_advance -> INIT_CHECK`: automatically creates the worktree + branches off.
+- `story_advance -> DONE`: automatically merges back into the main branch + cleans up the worktree + deletes the branch. On failure it returns an error message for the agent to handle.
+- `story_advance -> DONE` must hold the unified main write lock before triggering any main-affecting preflight, canonical path `.koala/locks/main-write.lock/` (since B-f60c; the old `.koala/runtime/done-main-merge.lock` is retired, no alias). The lock covers main divergence check / autoSyncMain / DONE pre-merge gate / phase writes / main merge / worktree cleanup / branch delete; when a live lock cannot be acquired, it must fail before writing `phase=DONE` and prompt to retry later. A stale lock can be reclaimed by the lock primitive. For the canonical lock path definition, see the Storage section of `session-ownership-and-write-leases.md`.
+- After the story branch is merged into the local main, `story_advance -> DONE` records the main SHA before and after the merge, and checks whether that merge diff touches CLI runtime inputs: `packages/main/src/**`, `packages/main/package.json`, `packages/main/package-lock.json`, `packages/main/tsconfig.json`, the root `package.json`, and `package-lock.json`. On a hit it runs `npm --prefix packages/main run build` to refresh the local `packages/main/dist`; on a miss it prints a visible skip line. If the post-merge build fails, the DONE command must clearly warn that `packages/main/dist` may be stale, give the recovery command `npm --prefix packages/main run build`, and attach the captured output.
+- **story owner lease (since B-c55d)**: the authoring / lifecycle mutation of a single story is serialized by a per-story owner lease, orthogonal to the main write lock — the main write lock governs cross-session main / B-META shared writes, while the owner lease governs "one mutating owner per story." The lease is persisted at `.koala/story/actives/<storyId>/owner-lease.json` (a runtime artifact, leaving no dirty write before DONE). The first story-scoped mutating command acquires the lease, owner commands refresh the heartbeat, and a successful DONE/DISCARDED+cleanup releases it. A non-owner `storyScopedMutating` / `dangerousMutating` command is rejected fail-closed at a single CLI choke-point gate (`enforceStoryOwnerLeaseGate`, decided by `CommandPolicy.ownershipClass`), with an error message containing the owned storyId / owner sessionId / cwd / heartbeat age / stale flag / next action; read-only commands are never blocked. A heartbeat not refreshed for over 30 minutes is judged stale and may be transferred with `--takeover`; an active lease requires `--forceTakeover` (manual approval), and both transfers record a `story-owner-lease-takeover` audit event. `session_brief` renders a `## Story ownership` section (owner session/cwd/heartbeat age/stale|active/whether it is this session/recommended action); the B-META container renders a separate `## Shared audit state (B-META)` section and does not recommend story_advance. For the full rules, see `session-ownership-and-write-leases.md`.
+- If a post-merge path failure causes the story branch to have already written `phase=DONE` while `story/B-xxx` has not yet merged into main, this is called partial-DONE. `lattice doctor` must list such stories in its `Partial-DONE scan` and provide `lattice done_recover --storyId=B-xxx`. `done_recover` itself must also first acquire the same `.koala/locks/main-write.lock/`, and then run only when main is clean, the story worktree is clean, the story branch exists, and `merge-tree main story/B-xxx` applies cleanly; it completes the merge, worktree remove, worktree prune, and branch delete. After the recovery merge it likewise records the main SHA before and after the merge, and reuses the DONE post-merge `packages/main` build rule: it runs `npm --prefix packages/main run build` only when CLI runtime inputs are touched, otherwise it prints a visible skip; a build failure must warn that `packages/main/dist` may be stale, the recovery command, and the captured output. It is not a general conflict resolver, and will not delete a story worktree with local changes; conflicts or a dirty worktree still require manual handling.
+- **post-DONE activity heartbeat must land in main (B-da5b)**: `story_advance -> DONE` deletes the current story worktree partway through command execution, but the activity log (written to `.koala/activity.jsonl`) is persisted only after the command. At that point the `root` captured when the command started already points at the deleted ghost worktree. The CLI must capture a durable main-root fallback at the start of the command, while the worktree still exists (resolving the main repository root from `root/.git`), and prefer it for writing the log when `root` no longer has a `koala.config.json`; it must not fall back to `resolveRoot()`'s cwd-walk — when `KOALA_PROJECT_ROOT` points at the worktree it would resolve back to the ghost path again, causing the heartbeat of the finally-successful `story_advance DONE` to be silently dropped, or rebuilding the log directory inside the deleted worktree. The final success record must appear in the main repository's `.koala/activity.jsonl`, and must not rebuild the deleted worktree directory. Regression coverage is in `assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval` of `tasks/worktree-authority-smoke.ts`.
 
-通过 `git rev-parse --abbrev-ref HEAD` 检测当前分支，`story/` 开头则提取 storyId 识别 active story。
+The current branch is detected via `git rev-parse --abbrev-ref HEAD`; when it starts with `story/`, the storyId is extracted to identify the active story.
 
-主目录 `session_brief` 必须同时看主目录 story metadata 和 linked worktree 内的真实 story metadata。如果两者 phase 不一致，输出应采用：
+The main directory's `session_brief` must look at both the main directory's story metadata and the real story metadata inside the linked worktree. If the two phases disagree, the output should use:
 
 ```text
 B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 → cd /path/to/.worktrees/B-xxxx
 ```
 
-这表示继续工作时以 worktree phase 为准；main phase 只是滞后索引，不应该触发重复推进。
+This means that when continuing to work, the worktree phase is authoritative; the main phase is only a lagging index and should not trigger a duplicate advance.
 
-### Convergence 中的 parked backlog
+### Parked Backlog in Convergence
 
-`koala convergence_check` 的硬性 `所有 Story 完成` 口径只统计正在执行或已进入 worktree 流程的非终态 story。`phase=INIT`、没有记录 `worktree.path`、且 `git worktree list` 中也没有 linked `story/<id>` 分支的 story 视为 parked backlog：它仍会在独立的 `Parked backlog` advisory 行展示，提醒用户后续完成、废弃或排期，但不会单独让 convergence 变红。
+The hard `all Stories complete` criterion of `lattice convergence_check` counts only non-terminal stories that are executing or have entered the worktree flow. A story with `phase=INIT`, no recorded `worktree.path`, and no linked `story/<id>` branch in `git worktree list` is treated as parked backlog: it is still shown on a separate `Parked backlog` advisory line, reminding the user to later complete, discard, or schedule it, but it does not by itself turn convergence red.
 
-一旦 story 有 recorded `worktree.path`、linked git worktree branch，或 phase 已推进到 `INIT_CHECK` / `PLAN` / `DEV` / `REVIEW` / `TEST` 等非终态执行阶段，它就是 active blocker，必须继续完成、回退修复或明确 discard。`META` audit 容器和 `DONE` / `DISCARDED` 终态 story 不进入这个 hard completion check。
+Once a story has a recorded `worktree.path`, a linked git worktree branch, or has advanced its phase to a non-terminal execution phase such as `INIT_CHECK` / `PLAN` / `DEV` / `REVIEW` / `TEST`, it is an active blocker and must continue to completion, be rolled back and fixed, or be explicitly discarded. The `META` audit container and `DONE` / `DISCARDED` terminal stories do not enter this hard completion check.
 
-## 设计决策
+## Design Decisions
 
-- **Story 即 Feature**：Story 是最小可追踪单元。
-- **状态机管理**：使用 xstate，而不是散落的手写 if。
-- **门禁不可跳过**：REVIEW/TEST/DONE 都必须由确定性 gate 判定。
-- **verificationIntent 前置**：PLAN 记录 happy/edge/adversarial 验收意图。
-- **verificationEvidence 跟随实现**：DEV/REVIEW/TEST 挂真实证据，不再把测试阶段拆成旧 `TEST_CASE` 流程。
-- **Grill 只澄清意图**：`grill_start` / `grill_record` / `grill_close` 写 PLAN 阶段的 `grill.json` planning artifact，`grill_get` 可全阶段读取。Grill clarifies intent; evidence proves behavior. Grill transcript 不能替代 `verificationEvidence`、review pass、delivery check 或 `lattice validate` validation evidence。
-- **evidence kind 允许自然 aliases**：持久化 kind 仍是 `logic_test` / `manual_transcript` 等规范值；CLI 接受 `logic`→`logic_test`、`cli`→`manual_transcript`，避免 plan.md 和命令表面口径打架。
-- **DONE evidence 必须新鲜**：`lattice validate --story` 写入测试运行时的 git HEAD/material hash。DONE gate 比对当前 story 分支，验证语义相关文件变化会让旧 evidence stale。
-- **Decision doc quorum 是本地 DONE gate**：当 story 改动决策文档时，DONE 还必须满足本地 decision-doc quorum：当前 material digest 下有 3 个 distinct review rounds，每轮至少 2 个 distinct PASSing hosts；旧 material digest、重复 host、FAIL/BLOCKED verdict 或被忽略 verdict 不能计数。`decision_doc_quorum_check` 只读报告同一状态；`autopilot_review_submit` 写入的 `host_verdict` 是独立 host/reviewer evidence write，不要求 story owner lease，但它仍只是本地 workflow evidence，不是 Authority Server receipt completion，不能推出 `authorityDone` / `fullAuthorityDone` / `productionDone`。
-- **stale evidence 不能被“测试通过”覆盖**：`lattice validate` 如果发现 verification coverage missing/stale，JSON 必须是 `allPass:false`，提示也必须指向补 evidence，而不是说“验证全绿”。可用 `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` 查看需刷新项；重跑对应验证命令后去掉 dryRun 刷新 metadata。
-- **Gate oracle 与 renderer 分离**：DONE pre-check 等 gate 输出必须先形成稳定 row contract（`id/status/detail/hint/source/blocking`），`status` / `session_brief` / `next` 只渲染这些 row。展示层不能用 phase 或 label 文案复制一份 gate 规则。
-- **下一步提示必须 phase-aware**：`lattice validate` 通过只代表验证命令通过，不代表可以跨过当前 phase。DEV 通过后提示 commit + REVIEW，REVIEW 通过后提示 TEST，TEST 通过后仍要渲染 DONE pre-check 的失败 row 和补救 hint。
-- **流程事实必须双层保护**：prompt 只负责指导 agent 调用正确命令；CLI / handler / gate 必须硬编码兜底，负责 schema、runtime 归一、签名、hash、evidence fresh check 和拒绝策略。该原则只覆盖流程事实：phase / state transition、pass / no-issue confirmation、review run / finding category / role / severity、verification evidence、init / scope / delivery check、REVIEW / TEST / DONE gate artifact。普通解释性 prose 不应被当作流程证据。
-- **流程事实需要 typed registry**：`packages/main/src/core/process-fact-registry.ts` 从 `COMMAND_POLICIES` 与 `PROCESS_FACT_LEVELS` 机械组装 command fact，并显式覆盖 reviewer lane、artifact、required semantic facts（如 validation-status、verification-evidence、review-pass、finding-state）。维护者新增 gate、reviewer lane 或 artifact 时，必须先让 registry 和 contract verifier 同步更新。
-- **生命周期事实需要 typed registry**：`packages/main/src/core/lifecycle-registry.ts` 是 phase/order、legacy alias、transition event、rollback edge、gate/effect/oracle row id 的只读登记表。`phase-flow.ts`、`handlers/context.ts` 和 focused smoke 必须从这张表投影或校验；维护者改 phase/event/command policy 时，测试失败应直接点名 `Lifecycle registry mismatch`，不能让多张表静默漂移。
-- **运行环境事实单独登记**：CLI entrypoint、global core realpath、project-local bin、Node/package version、validate source、external-reference-policy 等 runtime/environment facts 不进入流程事实 registry。它们登记在 `packages/main/src/core/runtime-fact-registry.ts`，由 `doctor` 的 `Runtime scan:` 展示，并由 `scripts/verify-runtime-fact-contract.mjs` 验证 registry / checker / doctor 输出一致。外部项目对 Orchestrate-local realpath/symlink 期望只 warn/advisory；`external-reference-policy` 是 bounded policy scan，不做 connectivity pass。
-- **运行时文件事实单独登记**：`.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等 runtime artifacts 登记在 `packages/main/src/core/runtime-artifact-registry.ts`。freshness、baseline risk、`story_sync_main`、`koala init` 和 `doctor` 必须消费这张表，避免 activity log 之类运行时文件被误当成 material change；`.koala/story/` 仍是流程证据，不属于 runtime artifact。
-- **Pass 结论不是 finding**：reviewer 没有 finding 时必须写 `review_pass_set`。为了兼容旧 prompt 或误用，pass-only `finding_add`（如 no findings、检查通过、PASS/PASSED）在 handler 里转成 review pass；含“但是/failed/issue found”等歧义失败语义时仍保留为 finding。
-- **REVIEW evidence 先绑 reviewer run**：`review_run_start` 写 signed `review-runs.json`，记录 `reviewRunId / lane / reviewRound / headHash / materialHash / promptHash`。当前 REVIEW round 的 `finding_add` / `review_pass_set` 必须携带 `reviewRunId`，gate 只接受 lane 匹配、reviewRound 匹配、签名有效、且仍 fresh 的最新 reviewer run。
-- **Finding category 不扩散**：当前 canonical category 是 `happy|edge|adversarial|missing`。已知 legacy category（`cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary`）只作为兼容输入归一到 `missing`，不得作为 active reviewer prompt 示例或新流程语义继续传播。
-- **用户价值验收优先**：DONE 前必须能说清楚“用户看到什么变化、怎么使用、证据在哪里”。工程链路通过不等于任务真正完成。
-- **用户价值验收结构化**：`summary_set` 必须记录 `expectedOutcome`、`actualTranscript`、`outcomeDiff`、`acceptanceVerdict`，并可记录 `outcomeKind=success|blocked|audit_only`。DONE gate 消费这些字段，缺失时不能进入 DONE；缺 `outcomeKind` 的 legacy summary 按 success/default 展示。
-- **统一推进命令**：`story_advance` 统一处理所有阶段推进。
+- **Story is Feature**: a Story is the minimal trackable unit.
+- **State-machine managed**: use xstate, rather than scattered hand-written ifs.
+- **Gates are not skippable**: REVIEW/TEST/DONE must all be judged by a deterministic gate.
+- **verificationIntent comes first**: PLAN records happy/edge/adversarial acceptance intent.
+- **verificationEvidence follows the implementation**: DEV/REVIEW/TEST attach real evidence, no longer splitting the test phase into the old `TEST_CASE` flow.
+- **Grill only clarifies intent**: `grill_start` / `grill_record` / `grill_close` write the `grill.json` planning artifact of the PLAN phase, and `grill_get` can read it in all phases. Grill clarifies intent; evidence proves behavior. A grill transcript cannot replace `verificationEvidence`, a review pass, a delivery check, or `lattice validate` validation evidence.
+- **evidence kind allows natural aliases**: the persisted kind is still a canonical value such as `logic_test` / `manual_transcript`; the CLI accepts `logic`→`logic_test` and `cli`→`manual_transcript`, to avoid plan.md and the command surface fighting over wording.
+- **DONE evidence must be fresh**: `lattice validate --story` writes the git HEAD/material hash at the time of the test run. The DONE gate compares against the current story branch, and a change to a verification-semantics-relevant file makes the old evidence stale.
+- **Review escalation is threshold-triggered, not documentation-triggered**: documentation and decision-doc audit changes follow ordinary REVIEW by default. Direct edits under `docs/requirements/decisions/*.md` are classification/diagnostic only and do not by themselves require 3 rounds x 2 hosts at DONE. DONE requires review escalation only when the first lifecycle REVIEW round records at least two countable reviewer problems: `lattice-review-*` findings with severity `critical`, `high`, or `medium`, and `evidenceState=verified` or legacy missing. Suspected, disproven, low-severity, non-reviewer, and later-round findings do not trigger it. When triggered, DONE requires 3 distinct `runId` rounds, each with 2 independent PASS `host_verdict` events over the current material hash. Missing binding fields, stale material, duplicate host/session/key identity, and FAIL/BLOCKED decisions fail closed. An explicit degraded fallback may pass only as `assuranceLevel=degraded-single-host`: allowed eligibility/reason, evidence or approval, fresh material binding, and 3 rounds with at least 1 PASS host. Local host verdicts and degraded fallback evidence are not Authority Server receipts and cannot imply `authorityDone`, `fullAuthorityDone`, or `productionDone`.
+- **stale evidence cannot be overridden by "tests passed"**: if `lattice validate` finds verification coverage missing/stale, the JSON must be `allPass:false`, and the prompt must point to adding evidence rather than saying "validation passed." You can use `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` to view the items needing refresh; after re-running the corresponding verification command, drop `dryRun` to refresh the metadata.
+- **Gate oracle and renderer are separate**: gate output such as the DONE pre-check must first form a stable row contract (`id/status/detail/hint/source/blocking`), and `status` / `session_brief` / `next` only render these rows. The presentation layer must not duplicate a copy of the gate rules using phase or label wording.
+- **Next-step hints must be phase-aware**: `lattice validate` passing means only that the verification command passed, not that you can skip the current phase. After DEV passes, the hint is commit + REVIEW; after REVIEW passes, the hint is TEST; after TEST passes, it must still render the DONE pre-check's failed rows and remediation hints.
+- **Process facts must have two-layer protection**: the prompt is only responsible for guiding the agent to call the correct command; the CLI / handler / gate must be hardcoded as a backstop, responsible for schema, runtime normalization, signature, hash, evidence freshness check, and rejection policy. This principle covers only process facts: phase / state transition, pass / no-issue confirmation, review run / finding category / role / severity, verification evidence, init / scope / delivery check, REVIEW / TEST / DONE gate artifact. Ordinary explanatory prose should not be treated as process evidence.
+- **Process facts need a typed registry**: `packages/main/src/core/process-fact-registry.ts` mechanically assembles command facts from `COMMAND_POLICIES` and `PROCESS_FACT_LEVELS`, and explicitly overrides reviewer lanes, artifacts, and required semantic facts (such as validation-status, verification-evidence, review-pass, finding-state). When a maintainer adds a gate, reviewer lane, or artifact, they must first update the registry and the contract verifier in sync.
+- **Lifecycle facts need a typed registry**: `packages/main/src/core/lifecycle-registry.ts` is the read-only registry of phase/order, legacy alias, transition event, rollback edge, and gate/effect/oracle row id. `phase-flow.ts`, `handlers/context.ts`, and the focused smoke must project from or validate against this table; when a maintainer changes a phase/event/command policy, the test failure should directly name `Lifecycle registry mismatch`, not let multiple tables silently drift.
+- **Runtime environment facts are registered separately**: runtime/environment facts such as the CLI entrypoint, the global core realpath, the project-local bin, the Node/package version, the validate source, and the external-reference-policy do not enter the process-fact registry. They are registered in `packages/main/src/core/runtime-fact-registry.ts`, displayed by `doctor`'s `Runtime scan:`, and verified by `scripts/verify-runtime-fact-contract.mjs` to ensure the registry / checker / doctor output are consistent. An external project's expectations about Orchestrate-local realpath/symlink only warn/advisory; `external-reference-policy` is a bounded policy scan and does not perform a connectivity pass.
+- **Runtime file facts are registered separately**: runtime artifacts such as `.koala/activity.jsonl`, the legacy `docs/story/activity.jsonl`, `.koala/runtime/`, `.koala/traces/`, `.koala-serve.json`, and debug/browser logs are registered in `packages/main/src/core/runtime-artifact-registry.ts`. Freshness, baseline risk, `story_sync_main`, `lattice init`, and `doctor` must consume this table, to avoid mistaking a runtime file such as the activity log for a material change; `.koala/story/` is still process evidence and is not a runtime artifact.
+- **A Pass conclusion is not a finding**: when a reviewer has no finding, it must write `review_pass_set`. To stay compatible with old prompts or misuse, a pass-only `finding_add` (such as no findings, check passed, PASS/PASSED) is converted into a review pass in the handler; ambiguous failure semantics such as "but/failed/issue found" are still kept as a finding.
+- **REVIEW evidence is first bound to a reviewer run**: `review_run_start` writes a signed `review-runs.json`, recording `reviewRunId / lane / reviewRound / headHash / materialHash / promptHash`. The `finding_add` / `review_pass_set` of the current REVIEW round must carry the `reviewRunId`, and the gate accepts only the latest reviewer run with a matching lane, matching reviewRound, valid signature, and still fresh.
+- **Finding category does not proliferate**: the current canonical categories are `happy|edge|adversarial|missing`. Known legacy categories (`cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary`) are only normalized to `missing` as compatibility input, and must not continue to propagate as active reviewer prompt examples or new process semantics.
+- **User-value acceptance comes first**: before DONE, you must be able to clearly state "what change the user sees, how to use it, and where the evidence is." An engineering pipeline passing does not mean the task is truly complete.
+- **User-value acceptance is structured**: `summary_set` must record `expectedOutcome`, `actualTranscript`, `outcomeDiff`, and `acceptanceVerdict`, and may record `outcomeKind=success|blocked|audit_only`. The DONE gate consumes these fields, and when they are missing it cannot enter DONE; a legacy summary missing `outcomeKind` is displayed as success/default.
+- **Unified advance command**: `story_advance` uniformly handles all phase advances.
 
-## Phase-Aware 工具过滤
+## Phase-Aware Tool Filtering
 
-在 CLI 层按当前 story phase 过滤可用命令。无 active story（主分支）时全量可用。
+The CLI layer filters the available commands by the current story phase. When there is no active story (main branch), all are available.
 
-### 全阶段可用
+### Available in All Phases
 
-| 工具 | 行为 |
+| Tool | Behavior |
 |---|---|
-| `story_get` / `story_list` | 只读查看 |
-| `story_discard` | 任何阶段可废弃 |
-| `task_scan` / `task_detail` | 了解项目，只读 |
-| `checklist_get` | 只读查看 |
-| `grill_get` | 只读查看 PLAN 阶段写入的 grill planning context；不产生 gate evidence |
-| `truth_*` / `gap_*` / `arch_trace` | 分析参考，只读 |
-| `session_brief` / `status` / `next` | 恢复现场和下一步建议，不推进 phase |
+| `story_get` / `story_list` | Read-only view |
+| `story_discard` | Can discard in any phase |
+| `task_scan` / `task_detail` | Understand the project, read-only |
+| `checklist_get` | Read-only view |
+| `grill_get` | Read-only view of the grill planning context written in the PLAN phase; produces no gate evidence |
+| `truth_*` / `gap_*` / `arch_trace` | Analysis reference, read-only |
+| `session_brief` / `status` / `next` | Restore context and suggest next steps, does not advance the phase |
 
 ### PLAN
 
-| 工具 | 行为 |
+| Tool | Behavior |
 |---|---|
-| `story_update` | 编辑 story |
-| `story_review` | 对抗审查 |
-| `grill_start` / `grill_record` / `grill_close` | PLAN-only mutating grill commands；记录非门禁 grill planning context；开放 session / unresolved question 只会在 `story_review` 中 advisory 提示 |
-| `story_advance -> DEV` | 通过 gate 后进入实现 |
-| `checklist_add` | 追加 item |
-| `checklist_update` | 补 verificationIntent / metadata，不应标 done |
-| `testintent_handoff` | legacy 名称，实际用于生成 verificationIntent 交接上下文 |
+| `story_update` | Edit the story |
+| `story_review` | Adversarial review |
+| `grill_start` / `grill_record` / `grill_close` | PLAN-only mutating grill commands; record non-gating grill planning context; an open session / unresolved question only produces an advisory hint in `story_review` |
+| `story_advance -> DEV` | Enter implementation after passing the gate |
+| `checklist_add` | Append an item |
+| `checklist_update` | Fill in verificationIntent / metadata, should not mark done |
+| `testintent_handoff` | Legacy name, actually used to generate verificationIntent handoff context |
 
 ### DEV
 
-| 工具 | 行为 |
+| Tool | Behavior |
 |---|---|
-| `checklist_add` | 必要时追加 item，并补 verificationIntent；PLAN 阶段必须提供 replan/scope audit reason |
-| `checklist_update` | 可改 status + verificationIntent + verificationEvidence |
-| `fixture_batch_add` / `fixture_update` | legacy/compat 维护入口，只用于旧 fixture 或迁移；新流程用 `checklist_update` 补 `verificationEvidence` |
-| `lattice validate` | 可手动预检，正式 evidence 在 TEST gate 写入 |
-| `story_advance -> REVIEW` | checklist 完成且改动提交后推进 |
+| `checklist_add` | Append an item when necessary and fill in verificationIntent; the PLAN phase must provide a replan/scope audit reason |
+| `checklist_update` | Can change status + verificationIntent + verificationEvidence |
+| `fixture_batch_add` / `fixture_update` | Legacy/compat maintenance entry, only for old fixtures or migration; the new flow uses `checklist_update` to fill in `verificationEvidence` |
+| `lattice validate` | Can be pre-checked manually; the formal evidence is written at the TEST gate |
+| `story_advance -> REVIEW` | Advance after the checklist is complete and changes are committed |
 
 ### REVIEW
 
-| 工具 | 行为 |
+| Tool | Behavior |
 |---|---|
-| `finding_*` | reviewer 记录 findings |
-| `reviewer_list` | 查看需要哪些 reviewer |
-| `story_advance -> TEST` | blocker 解决、preflight 通过后推进 |
-| `story_advance -> DEV` | 有问题时回实现 |
+| `finding_*` | Reviewer records findings |
+| `reviewer_list` | View which reviewers are needed |
+| `story_advance -> TEST` | Advance after blockers are resolved and preflight passes |
+| `story_advance -> DEV` | Return to implementation when there is a problem |
 
-`koala-review-test-coverage` 是 REVIEW 阶段的 reviewer agent/lane 名称，不是 `koala` CLI 命令或 phase tool。它检查 `verificationIntent` / `verificationEvidence` 覆盖；先 `review_run_start` 拿当前 round 的 `reviewRunId`，无 blocker 时通过 `review_pass_set` + `reviewRunId` 写 review pass，内部 coverage validation 消费这些结构化 evidence。
+`lattice-review-test-coverage` is the name of a reviewer agent/lane in the REVIEW phase, not a `koala` CLI command or phase tool. It checks `verificationIntent` / `verificationEvidence` coverage; it first does `review_run_start` to get the current round's `reviewRunId`, and when there are no blockers it writes a review pass via `review_pass_set` + `reviewRunId`, while the internal coverage validation consumes this structured evidence.
 
 ### TEST
 
-| 工具 | 行为 |
+| Tool | Behavior |
 |---|---|
-| `lattice validate` | 标准验证，写 validation evidence |
-| `verification_evidence_refresh_stale` | 根据 coverage 报告刷新 stale evidence 的 HEAD/material hash |
-| `bug_report` / `bug_update` / `bug_list` | 管理验证失败产生的 bug |
-| `summary_set` | 写 DONE 前用户价值、actual transcript、diff、outcomeKind 和使用说明 |
-| `delivery_check_set` | 记录 delivery reviewer 签名 |
-| `decision_doc_quorum_check` | 只读查看 decision-doc 本地 quorum DONE gate 状态；不等于 Authority receipt completion |
-| `story_advance -> DONE` | DONE checklist 全通过后合并清理 |
+| `lattice validate` | Standard validation, writes validation evidence |
+| `verification_evidence_refresh_stale` | Refresh the HEAD/material hash of stale evidence based on the coverage report |
+| `bug_report` / `bug_update` / `bug_list` | Manage bugs produced by validation failures |
+| `summary_set` | Write the pre-DONE user value, actual transcript, diff, outcomeKind, and usage notes |
+| `delivery_check_set` | Record the delivery reviewer signature |
+| `decision_doc_quorum_check` | Read-only decision-doc quorum diagnostic; direct decision-doc edits are classification-only unless `review_escalation_status` shows the DONE escalation trigger fired |
+| `review_escalation_status` | Read-only view of the actual DONE review escalation requirement and assurance level |
+| `review_escalation_fallback_set` | Explicit degraded 3x1 fallback evidence, bound to current material hash; not Authority receipt completion |
+| `story_advance -> DONE` | Merge and clean up after the DONE checklist fully passes |
 
-### 关键行为差异
+### Key Behavioral Differences
 
-- `lattice validate`：TEST gate 消费其结果作为 validation evidence。
-- `verification_evidence_refresh_stale`：只刷新已经 stale 且原 evidence 仍存在的 intentRef；它不会替你证明测试真的跑过，因此 dry-run 输出里的 command 应先重跑。
-- `fixture_*`：legacy/compat 维护入口；DEV 如需迁移旧 fixture 可用，但新 story 不应把它当作标准验证流。REVIEW/TEST 主要读取 `verificationEvidence`，不应绕过 review 改行为。
-- `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
-- `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。
-- `grill_start` / `grill_record` / `grill_close`：PLAN-only mutating planning context。`story_review` 可展示 open session / unresolved question advisory，但 `blockerCount` 不因 grill 增加；`grill.json` 不进入 validation evidence，也不进入 checklist `verificationEvidence`。
-- `grill_get`：全阶段只读查看 grill planning context；读不存在的 artifact 返回 empty，读到损坏或不可读的既有 `grill.json` 必须 fail-fast 暴露问题，不能被当作缺失后覆盖。
-- `process-fact-registry` + `verify-process-fact-contract`：静态 contract 负责校验 MAIN_TOOLS、DEFAULT_PHASE_TOOLS、reviewer lanes、signed/gate artifacts、L4 gate evidence 与 required semantic facts 是否一致；fail 文案必须直接点名 `missing from PROCESS_FACT_REGISTRY` 或 `required process fact missing`，避免维护者只看到 prompt 漂移。
-- Flow fact policy 必须硬编码在 `packages/main/src/core/flow-fact-policy.ts` 并登记进 `process-fact-registry` / `process-fact-levels`。当前明确登记：`flow-policy:review-pass`、`flow-policy:finding`、`flow-policy:pass-only-normalization`、`flow-policy:review-round-iso-string`、`flow-policy:express-verification-policy`。
-- `reviewRound: string (ISO 8601 review round id)`。review pass / finding / delivery check 的签名域消费这个字符串，不能退回 number round。
-- `story_create --phase=REVIEW` 也必须初始化 `currentReviewRound`。直接创建 REVIEW story 是 review-only / backfill 场景的兼容入口，但持久化后必须满足 REVIEW 命令的结构化元数据契约，不能留下 phase=REVIEW 且无 review round 的半初始化状态。
-- `story_review.planReviewRound: number (PLAN review round count)`。这是 PLAN 阶段 story review 轮次数字，来自 `review.json.reviews.length`；`story_review.reviewRound` 仅是 legacy numeric PLAN review alias，不能解释成 signed artifact `reviewRound`。
-- pass-only finding_add 归一化：low severity 且 agent 为 `koala-review-*` 的 pass-only `finding_add` 机械转成 `review_pass_set`；ambiguous pass+failure、非 reviewer、非 low severity 都是真 finding。
-- review run freshness：同一 reviewer lane 在当前 REVIEW round 可多次 `review_run_start`；只有该 lane 最新 signed run 仍是 current。代码/文档 material 改动后旧 run 会 stale，必须重跑 `review_run_start` 再提交 finding/pass。
-- Express exemption 是机器策略不是口头解释：express channel 且 zero `verificationIntent` 时输出 `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`；fast / normal zero intent 不显示 `express-exempt`。
+- `lattice validate`: the TEST gate consumes its result as validation evidence.
+- `verification_evidence_refresh_stale`: it only refreshes an intentRef that is already stale and whose original evidence still exists; it does not prove for you that the test actually ran, so the command in the dry-run output should be re-run first.
+- `fixture_*`: legacy/compat maintenance entry; DEV can use it if it needs to migrate old fixtures, but a new story should not treat it as the standard validation flow. REVIEW/TEST mainly read `verificationEvidence`, and should not bypass review to change behavior.
+- `checklist_update`: PLAN fills in intent, DEV fills in status/evidence, use cautiously in other phases.
+- `summary_set`: not a formal summary; the DONE gate and the final user delivery both consume it.
+- `grill_start` / `grill_record` / `grill_close`: PLAN-only mutating planning context. `story_review` can display an open-session / unresolved-question advisory, but `blockerCount` does not increase due to grill; `grill.json` does not enter validation evidence, nor the checklist `verificationEvidence`.
+- `grill_get`: read-only view of the grill planning context in all phases; reading a nonexistent artifact returns empty, while reading a corrupt or unreadable existing `grill.json` must fail-fast and expose the problem, and must not be treated as missing and then overwritten.
+- `process-fact-registry` + `verify-process-fact-contract`: the static contract is responsible for validating that MAIN_TOOLS, DEFAULT_PHASE_TOOLS, reviewer lanes, signed/gate artifacts, L4 gate evidence, and required semantic facts are consistent; the failure wording must directly name `missing from PROCESS_FACT_REGISTRY` or `required process fact missing`, to avoid the maintainer seeing only prompt drift.
+- Flow fact policy must be hardcoded in `packages/main/src/core/flow-fact-policy.ts` and registered into `process-fact-registry` / `process-fact-levels`. Currently explicitly registered: `flow-policy:review-pass`, `flow-policy:finding`, `flow-policy:pass-only-normalization`, `flow-policy:review-round-iso-string`, `flow-policy:express-verification-policy`.
+- `reviewRound: string (ISO 8601 review round id)`. The signature domain of review pass / finding / delivery check consumes this string, and cannot fall back to a number round.
+- `story_create --phase=REVIEW` must also initialize `currentReviewRound`. Directly creating a REVIEW story is a compatibility entry for the review-only / backfill scenario, but after persistence it must satisfy the structured metadata contract of REVIEW commands, and must not leave a half-initialized state with phase=REVIEW and no review round.
+- `story_review.planReviewRound: number (PLAN review round count)`. This is the numeric count of PLAN-phase story review rounds, derived from `review.json.reviews.length`; `story_review.reviewRound` is only the legacy numeric PLAN review alias, and must not be interpreted as the signed-artifact `reviewRound`.
+- pass-only finding_add normalization: a pass-only `finding_add` with low severity and an agent of `lattice-review-*` is mechanically converted to `review_pass_set`; an ambiguous pass+failure, a non-reviewer, or a non-low severity are all real findings.
+- review run freshness: the same reviewer lane may do `review_run_start` multiple times in the current REVIEW round; only that lane's latest signed run is still current. After a code/document material change, the old run becomes stale, and you must re-run `review_run_start` before submitting a finding/pass.
+- Express exemption is a machine policy, not a verbal explanation: when the channel is express and there is zero `verificationIntent`, it outputs `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`; fast / normal with zero intent does not display `express-exempt`.
 
-## 三方制衡
+## Three-Way Checks and Balances
 
-- **主 agent**：写需求、拆 checklist、写代码、补 evidence、修 bug。
-- **test-intent / verification-intent agent**：写验收标准，逼出 edge/adversarial。
-- **reviewer**：审实现和覆盖；`koala-review-test-coverage` 是其中一个 reviewer lane。先 `review_run_start` 建当前 REVIEW round 的 reviewer run；无 blocker 时写 `review_pass_set` + `reviewRunId`，有 blocker 时独立记录 `finding_add` + `reviewRunId` / delivery check。
-- **用户**：最终产品价值裁决者。
+- **Main agent**: writes requirements, breaks down the checklist, writes code, fills in evidence, fixes bugs.
+- **test-intent / verification-intent agent**: writes acceptance criteria, forcing out edge/adversarial.
+- **reviewer**: audits the implementation and coverage; `lattice-review-test-coverage` is one reviewer lane among them. It first does `review_run_start` to create the reviewer run for the current REVIEW round; when there are no blockers it writes `review_pass_set` + `reviewRunId`, and when there are blockers it independently records `finding_add` + `reviewRunId` / delivery check.
+- **User**: the final arbiter of product value.
 
-主 agent 不是裁判。reviewer fail 了，正确反应是读懂反馈并修复，而不是解释到 pass。
+The main agent is not the judge. When a reviewer fails, the correct reaction is to understand the feedback and fix it, not to explain it into a pass.

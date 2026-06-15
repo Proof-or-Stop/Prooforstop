@@ -1,0 +1,58 @@
+{
+  "storyId": "B-59a6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/decision-doc-quorum.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+    "packages/main/src/handlers/decision-doc-quorum.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/config.ts",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/types.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/review-escalation.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/host-independence.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/handlers/review-escalation.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "Required post-merge process-fact contract repair: delivery reviewer prompt mirrors must state that prompt-only user-value claims are not mechanical delivery evidence and must distinguish subjective user approval from machine evidence.",
+      "timestamp": "2026-06-15T11:16:58.439Z",
+      "paths": [
+        ".Codex/agents/koala-review-delivery.md",
+        ".claude/agents/koala-review-delivery.md",
+        "packages/main/templates/agents/koala-review-delivery.md"
+      ],
+      "anchors": [
+        "delivery_reviewer_evidence_boundary",
+        "process_fact_contract"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-15T03:29:40.753Z",
+  "updatedAt": "2026-06-15T11:16:58.439Z"
+}

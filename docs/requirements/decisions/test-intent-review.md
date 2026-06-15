@@ -1,56 +1,56 @@
-# testIntent 对抗审查体系
+# testIntent Adversarial Review System
 
-## 决策 1：checklist item 必须带 testIntent
+## Decision 1: a checklist item must carry testIntent
 
-每个 checklist item 可带 `testIntent` 字段，三栏结构：
-- **happy**: 正常路径
-- **edge**: 边界路径
-- **adversarial**: 对抗路径（暴力操作、断网、并发、时序异常）
+Each checklist item may carry a `testIntent` field, with a three-column structure:
+- **happy**: the normal path
+- **edge**: the boundary path
+- **adversarial**: the adversarial path (brute-force operations, network loss, concurrency, timing anomalies)
 
-缺少 testIntent 时 story_create 给出提示。三栏填不满说明 item 拆得不对。
+When testIntent is missing, story_create gives a prompt. If the three columns cannot be filled, it means the item was not broken down correctly.
 
-**理由**：测试意图决定测试质量。脚本只是执行手段，意图设计不到位测试脚本写再多也没用。
+**Rationale**: Test intent determines test quality. The script is merely the means of execution; if the intent design is inadequate, no amount of test scripts will help.
 
-## 决策 2：Agent A/B 对抗审查
+## Decision 2: Agent A/B adversarial review
 
-- Agent A 负责拆解需求和实现代码
-- Agent B 负责审查 testIntent 完整性（找弱项、交叉场景遗漏、truth 未覆盖的约束）
-- 写 testIntent 的和审 testIntent 的必须分开
+- Agent A is responsible for breaking down requirements and implementing code
+- Agent B is responsible for reviewing the completeness of testIntent (finding weak spots, missed cross-scenarios, and constraints from the truth that are not covered)
+- The one who writes testIntent and the one who reviews testIntent must be separate
 
-`story_review` 命令输出 `_reviewPrompt`，包含 truth + checklist + testIntent 对照材料，交给独立 agent 审查。
+The `story_review` command outputs `_reviewPrompt`, which contains truth + checklist + testIntent comparison material, to be handed to an independent agent for review.
 
-**理由**：自己审自己找不到盲点。testIntent 是考卷（Agent B 审过的），fixture/browser case 是答题（Agent A 按意图写）。
+**Rationale**: You cannot find your own blind spots when reviewing yourself. testIntent is the exam paper (reviewed by Agent B), and the fixture/browser case is the answer (written by Agent A according to the intent).
 
-### testintent_handoff 交接包
+### testintent_handoff handoff package
 
-PLAN 阶段可运行 `koala testintent_handoff --storyId=B-xxx`，让 CLI 生成给 test-intent agent 的结构化交接包。交接包包含 story 摘要、目标 worktree、待补齐的 checklist item、已有 verificationIntent/testIntent 数量，以及 `checklist_update` 示例命令。
+In the PLAN phase you can run `lattice testintent_handoff --storyId=B-xxx` to have the CLI generate a structured handoff package for the test-intent agent. The handoff package contains the story summary, the target worktree, the checklist items still to be filled in, the count of existing verificationIntent/testIntent, and an example `checklist_update` command.
 
-`testintent_handoff` 是正式 CLI 命令，应同时满足三层一致性：`koala help` / `koala testintent_handoff --help` 可发现，handler registry 可调用，PLAN phase allowlist 允许执行。它不是特定 story 的 adapter，也不是 `dispatch` 的隐藏替代品；它的职责只是在 PLAN 阶段把 test-intent agent 需要的上下文打包清楚。
+`testintent_handoff` is a formal CLI command, and should satisfy all three layers of consistency: discoverable via `lattice help` / `lattice testintent_handoff --help`, callable through the handler registry, and allowed to execute on the PLAN phase allowlist. It is not an adapter for a specific story, nor a hidden replacement for `dispatch`; its sole responsibility is to clearly package the context the test-intent agent needs during the PLAN phase.
 
-## 决策 3：白盒 fixture 和 browser test 的分工
+## Decision 3: division of labor between white-box fixtures and browser tests
 
-- **白盒 fixture**：函数正确性（fn + execute + expect）
-- **browser test**：业务正确性（模拟真实用户操作路径，覆盖边界和异常）
+- **White-box fixture**: function correctness (fn + execute + expect)
+- **Browser test**: business correctness (simulate a real user's operation path, covering boundaries and exceptions)
 
-browser test 验证的是"业务链路在真实操作下的表现"，不只是"渲染映射"。例如：升级后经验条归零还是溢出、暴力连点会不会重复扣费。
+A browser test verifies "how the business chain behaves under real operations," not just "the rendering mapping." For example: after a level-up, does the experience bar reset to zero or overflow; will brute-force rapid clicking cause a double charge.
 
-DEV 阶段同时写代码和 fixture（含 browser case），testIntent 前置。
+In the DEV phase, code and fixtures (including browser cases) are written together, with testIntent established first.
 
-## 决策 4：漏需求的三层防线
+## Decision 4: a three-layer defense against missed requirements
 
-- **事前**：三栏结构逼完整 + Agent B 对抗审查
-- **事中**：checklist 逐项验证，标 done 需 testIntent 对应的测试通过
-- **事后**：代码覆盖扫遗漏（哪些代码路径没被 testIntent 覆盖）
+- **Before the fact**: the three-column structure forces completeness + Agent B's adversarial review
+- **During the fact**: the checklist is validated item by item, and marking an item done requires the test corresponding to its testIntent to pass
+- **After the fact**: a code-coverage scan catches omissions (which code paths are not covered by testIntent)
 
-需求完整性没有银弹，靠多层防线降低遗漏概率。
+There is no silver bullet for requirement completeness; multiple layers of defense lower the probability of an omission.
 
-## 决策 4.1：verificationEvidence 可以表达 verdict，但不改 gate 语义
+## Decision 4.1: verificationEvidence may express a verdict, but does not change gate semantics
 
-当前 lifecycle 使用 `verificationIntent` / `verificationEvidence` 取代旧 `testIntent` fixture-only 流程。Evidence 仍以 `kind`、`result=pass|fail`、waiver、freshness 决定 gate 结果；schema enum 仍是 `verdict=success|blocked_classified|audit_only|waived`，但用户可见 coverage 渲染为 hyphenated label，如 `verdict=blocked-classified` / `verdict=audit-only`。比如 spike 证明并分类了一个 blocker 时可以显示 `verdict=blocked-classified`，但只要 `result=fail`，coverage 仍是 failed，不能被算作 success。
+The current lifecycle uses `verificationIntent` / `verificationEvidence` to replace the old `testIntent` fixture-only flow. Evidence still determines the gate result by `kind`, `result=pass|fail`, waiver, and freshness; the schema enum is still `verdict=success|blocked_classified|audit_only|waived`, but the user-visible coverage is rendered as a hyphenated label, such as `verdict=blocked-classified` / `verdict=audit-only`. For example, when a spike proves and classifies a blocker, it can show `verdict=blocked-classified`, but as long as `result=fail`, the coverage is still failed and cannot be counted as success.
 
-## 决策 5：checklist item 拆解标准
+## Decision 5: standards for breaking down a checklist item
 
-合格的 item 必须同时满足：
-1. 有可观测的结果（用户能看到/感受到变化）
-2. 有明确的输入触发（操作、事件、时间都算触发）
-3. happy/edge/adversarial 三栏能填满
+A qualified item must satisfy all of the following at once:
+1. It has an observable result (the user can see/feel the change)
+2. It has a clear input trigger (an operation, an event, or time all count as triggers)
+3. The happy/edge/adversarial columns can all be filled

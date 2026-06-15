@@ -1,0 +1,91 @@
+{
+  "storyId": "B-5253",
+  "name": "implement-slim-fields-query-guidance",
+  "title": "Implement slim fields query guidance",
+  "description": "Implement the B-f495 follow-up by updating Lattice agent prompts and documentation examples so routine story_get/checklist_get status polling prefers slim and fields, while full output remains required before evidence-sensitive conclusions or mutations.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "slim-fields",
+    "prompt-guidance",
+    "story-get",
+    "checklist-get",
+    "query-output"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-15T15:11:24.277Z",
+  "startedAt": "2026-06-15T15:11:24.277Z",
+  "endedAt": "2026-06-15T15:39:29.962Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T15:11:24.292Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:13:08.352Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:13:22.431Z",
+      "branch": "story/B-5253",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:17:44.247Z",
+      "branch": "story/B-5253",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:29:06.443Z",
+      "branch": "story/B-5253",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:34:58.812Z",
+      "branch": "story/B-5253",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:39:29.962Z",
+      "branch": "story/B-5253",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive: this story discusses LLM context tokens and query output size, not authentication tokens, credentials, secrets, or security-sensitive credential handling.",
+      "at": "2026-06-15T15:13:37.195Z"
+    }
+  ],
+  "currentReviewRound": "2026-06-15T15:29:06.443Z"
+}

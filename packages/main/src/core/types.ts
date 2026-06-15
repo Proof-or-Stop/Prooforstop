@@ -522,7 +522,7 @@ export interface DisprovenEvidence {
   reproCommand?: string;
 }
 
-/** Finding: a finding raised by koala-reviewer (replaces testIntent) */
+/** Finding: a finding raised by a lattice reviewer (replaces testIntent) */
 export interface Finding {
   id: string;            // format B-xxx:F-001
   desc: string;
@@ -951,6 +951,7 @@ export type ProcessEventType =
   | 'planner_story_created'
   | 'planner_job_created'
   | 'host_verdict'
+  | 'review_escalation_fallback'
   | 'authority_receipt'
   | 'decision_doc_proposal'
   | 'decision_doc_save'
@@ -965,7 +966,7 @@ export type ProcessEvent = {
   [key: string]: unknown;
 };
 
-// ── Scope Check (B-d4d1: signed scope-check.json written by koala-review-scope-plan agent) ──
+// ── Scope Check (B-d4d1: signed scope-check.json written by lattice-review-scope-plan agent) ──
 // B-ed3e CHK-002: schema extended to 5 states + source field (backward compatible, missing fields in old data default to undefined / 0).
 // Signing domain (signScopeCheck parameters) unchanged: still only contains storyId / timestamp / gaps / covered / reviewRound,
 // newly added source / orphanSuspect / drift / openQuestions do not enter _hash (see decision preMortem 1).
@@ -1009,7 +1010,7 @@ export interface ScopeCheckData {
   };
   /**
    * B-ed3e CHK-003: 6th channel Open Questions. Reviewer writes here when scanning the full decisions/ directory and finding
-   * contradictions/questions that are "seen but not classified". Main agent must use `koala scope_question_resolve`
+   * contradictions/questions that are "seen but not classified". Main agent must use `lattice scope_question_resolve`
    * to resolve them in writing (prevents self-absolution); the PLAN gate blocks unresolved OQs.
    * Signature domain excludes this field (resolution is a main agent action, not part of reviewer signature _hash).
    */
@@ -1018,7 +1019,7 @@ export interface ScopeCheckData {
   _hash: string;
 }
 
-// ── Init Check (B-e71f: signed init-check.json written by koala-review-story-init agent) ──
+// ── Init Check (B-e71f: signed init-check.json written by lattice-review-story-init agent) ──
 // INIT → INIT_CHECK hard gate artifact. Written by reviewer subagent after reviewing background.md + initial checklist,
 // `_hash` covers storyId / sha256(background.md) / title / description / sha256(initial checklist) / reviewRound + INIT_CHECK_SALT.
 // After main agent modifies background / title / description / initial checklist, _hash mismatches → story_advance INIT_CHECK

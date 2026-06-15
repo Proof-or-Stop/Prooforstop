@@ -291,13 +291,13 @@ export function evaluateDecisionDocQuorum(args: EvaluateDecisionDocQuorumArgs): 
 export function formatDecisionDocQuorumFailure(report: DecisionDocQuorumReport): string {
   if (report.ok) return '';
   if (report.diffError) {
-    return `Cannot enter DONE: decision-doc quorum could not determine docs/requirements/decisions/*.md changes. [decision_doc_quorum_diff_error]\n  - ${report.diffError}`;
+    return `Decision-doc quorum diagnostic: could not determine docs/requirements/decisions/*.md changes. [decision_doc_quorum_diff_error]\n  - ${report.diffError}`;
   }
   const lines = [
-    `Cannot enter DONE: changed decision docs require host_verdict quorum. [decision_doc_quorum_missing]`,
+    `Decision-doc quorum diagnostic: changed decision docs do not by themselves require DONE quorum. [decision_doc_quorum_diagnostic]`,
     `  - changed decision docs: ${report.changedFiles.map(f => `${f.path} (${f.status})`).join(', ') || 'none'}`,
     `  - materialDigest: ${report.materialDigest ?? '<missing>'}`,
-    `  - valid rounds: ${report.validRounds.length}/${report.missing.requiredRounds}; missing rounds: ${report.missing.rounds}`,
+    `  - diagnostic valid rounds: ${report.validRounds.length}/${report.missing.requiredRounds}; missing rounds: ${report.missing.rounds}`,
   ];
   for (const round of report.invalidRounds) {
     lines.push(`  - invalid round ${round.runId}: ${round.passingHostIds.length}/${report.missing.requiredPassingHostsPerRound} passing distinct host(s) (${round.reasons.join('; ')})`);
@@ -309,7 +309,7 @@ export function formatDecisionDocQuorumFailure(report: DecisionDocQuorumReport):
   if (report.ignoredVerdicts.length > 8) {
     lines.push(`  - ... ${report.ignoredVerdicts.length - 8} more ignored verdict event(s)`);
   }
-  lines.push('→ Collect three distinct runId rounds, each with at least two distinct PASS host_verdict events whose materialDigest equals the current decision-doc digest.');
+  lines.push('→ Use review_escalation_status to see whether DONE actually requires escalation; this command is classification/diagnostic only.');
   return lines.join('\n');
 }
 
@@ -324,5 +324,5 @@ export function formatDecisionDocQuorumReport(report: DecisionDocQuorumReport): 
       `  - valid rounds: ${report.validRounds.map(r => `${r.runId}(${r.passingHostIds.length} hosts)`).join(', ')}`,
     ].join('\n');
   }
-  return formatDecisionDocQuorumFailure(report).replace(/^Cannot enter DONE: /, 'Decision-doc quorum: blocked — ');
+  return formatDecisionDocQuorumFailure(report);
 }

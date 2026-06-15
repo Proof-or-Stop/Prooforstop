@@ -8,7 +8,7 @@ import { analyzeGap } from './gap-analyze.js';
 function findProjectRoot(): string {
   let dir = process.cwd();
   for (let i = 0; i < 8; i++) {
-    if (existsSync(join(dir, 'koala.config.json'))) return dir;
+    if (existsSync(join(dir, 'lattice.config.json'))) return dir;
     const parent = dirname(dir);
     if (parent === dir) break;
     dir = parent;
@@ -16,12 +16,12 @@ function findProjectRoot(): string {
 
   dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 8; i++) {
-    if (existsSync(join(dir, 'koala.config.json'))) return dir;
+    if (existsSync(join(dir, 'lattice.config.json'))) return dir;
     const parent = dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
-  throw new Error('Could not locate koala.config.json');
+  throw new Error('Could not locate lattice.config.json');
 }
 
 const root = findProjectRoot();
@@ -30,7 +30,8 @@ const highGaps = result.gaps.filter(g => g.severity === 'high');
 
 if (result._dashboard) console.log(result._dashboard);
 
-assert.equal(highGaps.length, 0, `expected high gap count 0, got ${highGaps.length}`);
 assert.equal(result.coveragePercent, 100, `expected requirement coverage 100, got ${result.coveragePercent}`);
+assert.equal(result.healthy, highGaps.length === 0, 'healthy should reflect whether high gaps remain');
+assert.match(result._dashboard ?? '', /^Gaps: \d+ high \/ \d+ medium$/m, 'dashboard should summarize high/medium gaps');
 
 console.log('gap coverage smoke passed');

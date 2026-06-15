@@ -130,7 +130,7 @@ function detectFastChannel(store: StoryStore, storyId: string): boolean {
  * by a reviewer.
  *
  * Rule (F-014 fix): "reviewer ran" = there exists at least one finding with
- * agent=koala-review-concept scoped to the current review round — REGARDLESS
+ * agent=lattice-review-concept scoped to the current review round — REGARDLESS
  * of status (open / resolved / dismissed). This covers:
  *   - reviewer ran and found real issues (finding registered, any status)
  *   - reviewer ran and found zero real issues (registers 1 info/low-level
@@ -156,7 +156,7 @@ function conceptReviewerHandledResiduals(
     const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot);
     const conceptFindings = evidenceState.valid
       .map((entry) => entry.finding)
-      .filter((finding): finding is Finding => !!finding && finding.agent === 'koala-review-concept');
+      .filter((finding): finding is Finding => !!finding && finding.agent === 'lattice-review-concept');
     const conceptPasses = evidenceState.valid
       .map((entry) => entry.pass)
       .filter((pass) => !!pass && findingAgentMatchesReviewer(pass.agent, 'concept'));
@@ -165,7 +165,7 @@ function conceptReviewerHandledResiduals(
       return {
         handled: false,
         reason: conceptIssues[0]?.message
-          ?? 'No finding/review pass from koala-review-concept seen in the current REVIEW round (reviewer did not run or did not register any result)',
+          ?? 'No finding/review pass from lattice-review-concept seen in the current REVIEW round (reviewer did not run or did not register any result)',
       };
     }
     return {

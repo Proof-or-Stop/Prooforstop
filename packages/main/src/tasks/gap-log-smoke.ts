@@ -52,7 +52,7 @@ function createMainProject(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
   return root;
 }
@@ -238,7 +238,7 @@ function assertVerifiedWithEvidenceAllowed(): void {
       severity: 'high',
       evidence: 'story_review_dismiss leaves high-risk decision/preMortem gate forced after dismissing a misfired riskSignal',
       sourceRefs: ['packages/main/src/handlers/story-review.ts:120'],
-      reproCommand: 'koala story_review_dismiss ... then koala story_review',
+      reproCommand: 'lattice story_review_dismiss ... then lattice story_review',
       observedOutput: 'story_review still blocks PLAN->DEV demanding preMortem >= 3',
       evidenceState: 'verified',
     });
@@ -351,7 +351,7 @@ function assertDifferentGapsNotFalselyMerged(): void {
     // differs ONLY in sourceRefs -> distinct gap
     runGapLog(root, { ...VALID, sourceRefs: ['packages/main/src/core/other-file.ts:99'] });
     // differs ONLY in reproCommand -> distinct gap
-    runGapLog(root, { ...VALID, reproCommand: 'koala validate --story=B-xxxx' });
+    runGapLog(root, { ...VALID, reproCommand: 'lattice validate --story=B-xxxx' });
     // differs ONLY in observedOutput -> distinct gap
     runGapLog(root, { ...VALID, observedOutput: 'gate unexpectedly passed' });
     // differs ONLY in analysisNote -> distinct gap
@@ -463,7 +463,7 @@ function assertSourceRefsAndFilesMerged(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-/** Spawn one real `koala gap_log` child process; resolves with exit info. */
+/** Spawn one real `lattice gap_log` child process; resolves with exit info. */
 function spawnGapLog(root: string, args: Record<string, unknown>): Promise<{ code: number; output: string }> {
   return new Promise((resolveP) => {
     const child = spawn(process.execPath, [cliPath, 'gap_log', JSON.stringify(args)], {
@@ -535,17 +535,17 @@ async function assertConcurrentSameGapDeduped(): Promise<void> {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-// ── 11: gap_log is discoverable -> koala help / koala gap_log --help shows it ──
+// ── 11: gap_log is discoverable -> lattice help / lattice gap_log --help shows it ──
 function assertCommandDiscoverable(): void {
   const root = createMainProject('koala-gaplog-discover-');
   try {
     const help = execFileSync(process.execPath, [cliPath, 'gap_log', '--help'], {
       cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
-    assert.match(help, /gap_log/, 'koala gap_log --help must render the command');
+    assert.match(help, /gap_log/, 'lattice gap_log --help must render the command');
     assert.match(help, /category/, 'help must list the category parameter');
     assert.match(help, /severity/, 'help must list the severity parameter');
-    console.log('✓ gap-log-11: gap_log is registered and discoverable via koala help');
+    console.log('✓ gap-log-11: gap_log is registered and discoverable via lattice help');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 

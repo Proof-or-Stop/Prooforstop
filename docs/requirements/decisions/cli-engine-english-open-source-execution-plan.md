@@ -105,8 +105,9 @@ identifier.
 4. **User-visible output** (hints, errors, `cli-output`): short, actionable, no
    internal jargon. Prefer plain English over abbreviations.
 5. **Preserve identifiers exactly**: command names, enum values, JSON keys, IDs,
-   filenames, and legacy aliases (`lattice` / `koala`) are never reworded, and
-   template tokens such as `${e.message}` are kept verbatim.
+   filenames, historical/process identifiers, and template tokens such as
+   `${e.message}` are kept verbatim. Active executable command guidance uses
+   `lattice`.
 6. **Apply the glossary**: use `blocked` vs `excluded` per the glossary, and use
    `source of truth` and `iteration` consistently.
 
@@ -219,8 +220,8 @@ Reviewer checks:
 - Phase-aware next-step hints are English.
 - Tests no longer require Chinese output except in explicitly named legacy
   compatibility assertions.
-- `koala` remains documented only as a legacy alias, not as the primary product
-  name.
+- Active user-facing command guidance documents `lattice` only; historical
+  process names remain only as identifiers.
 
 ## Translation Review Table
 
@@ -689,13 +690,13 @@ M253	570	command-description	记录一次轻量 review（DEV 阶段每完成一�
 M254	572	schema	本次 review 覆盖的 checklist item ID 列表	Checklist item IDs covered by this review.	review-draft
 M255	573	schema	review 备注	Review note.	review-draft
 M256	575	command-description	启动一次当前 REVIEW round 的 reviewer run，并写入 signed review-runs.json	Start a reviewer run for the current REVIEW round; write signed review-runs.json	review-draft
-M257	577	schema	reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）	Reviewer agent ID, for example koala-review-quality; defaults to KOALA_AGENT.	review-draft
+M257	577	schema	reviewer agent id（如 lattice-review-quality；默认 KOALA_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.	review-draft
 M258	585	schema	显式 reviewer lane；与 agent 同义，传一个即可	Explicit reviewer lane; synonym for agent, provide only one.	review-draft
 M259	586	schema	reviewer 实际收到的 prompt 文本；若提供会自动计算 promptHash	Prompt text actually received by the reviewer; promptHash is computed automatically when provided.	review-draft
 M260	587	schema	reviewer prompt 的 sha256；若同时传 prompt，必须与 prompt 实际哈希一致	SHA-256 of the reviewer prompt; if prompt is also provided, it must match the actual prompt hash.	review-draft
 M261	588	schema	scope-protected story：reviewer 本轮检查的 verification intent refs（计入 scope binding，可选）	Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.	review-draft
 M262	590	command-description	记录 reviewer 已审查且无 blocking finding 的通过凭证	Record a reviewer pass credential (reviewer checked, found no blocking findings)	review-draft
-M263	592	schema	reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）	Reviewer agent ID, for example koala-review-quality; defaults to KOALA_AGENT.	review-draft
+M263	592	schema	reviewer agent id（如 lattice-review-quality；默认 KOALA_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.	review-draft
 M264	593	schema	当前 reviewer run id（先调用 review_run_start 获取）	Current reviewer run ID; call review_run_start first.	review-draft
 M265	594	schema	审查范围与无 blocker 理由（≥10 字符）	Review scope and reason there is no blocker (at least 10 characters).	review-draft
 M266	596	command-description	记录 REVIEW reflection loop 开始事件（recording-only，不执行 host/rollback）	Record REVIEW reflection loop start (recording only; no host or rollback)	review-draft
@@ -933,13 +934,13 @@ M497	1545	command-description	调 evaluator agent 对 browser 应用打分（功
 M498	1547	schema	lattice serve 端口（默认 3456）	lattice serve port (default: 3456).	review-draft
 M499	1549	command-description	保存 evaluator 打分结果到 eval-evidence.json	Save evaluator scoring result to eval-evidence.json	review-draft
 M500	1551	schema	evaluator 输出的 JSON 字符串	JSON string output by evaluator.	review-draft
-M501	1554	comment	Finding (koala-reviewer 发现项)	Finding (koala-reviewer finding).	review-draft
-M502	1555	command-description	添加 finding（koala-reviewer 发现项）	Add a finding (koala-reviewer finding)	review-draft
+M501	1554	comment	Finding (lattice-reviewer 发现项)	Finding (lattice-reviewer finding).	review-draft
+M502	1555	command-description	添加 finding（lattice-reviewer 发现项）	Add a finding (lattice-reviewer finding)	review-draft
 M503	1557	schema	发现描述	Finding description.	review-draft
 M504	1558	schema	严重程度	Severity.	review-draft
 M505	1568	schema	分类（legacy category 会归一为 missing）	Category (legacy category is normalized to missing).	review-draft
 M506	1569	schema	调用者身份（可选，默认从 KOALA_AGENT 环境变量读）	Caller identity (optional, defaults from KOALA_AGENT environment variable).	review-draft
-M507	1570	schema	koala-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）	Current koala-review-* reviewer run ID (call review_run_start first; main finding may omit this).	review-draft
+M507	1570	schema	lattice-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）	Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).	review-draft
 M508	1571	schema	关联文件路径（用于 reviewer finding cluster 与溯源）	Related file paths (for reviewer finding clustering and traceability).	review-draft
 M509	1572	comment	B-3fad CHK-001: 证据状态轴。省略时默认 verified（REVIEW 阶段 reviewer finding，保持现有 gate 行为）。	B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.	review-draft
 M510	1573	comment	suspected 必须带 uncertaintyReason；disproven 必须带 disprovenEvidence.summary（runtime 同标准校验）。	suspected requires uncertaintyReason; disproven requires disprovenEvidence.summary (runtime applies the same standard validation).	review-draft
@@ -974,7 +975,7 @@ M538	1619	schema	issue 严重度	Issue severity.	review-draft
 M539	1620	schema	desc 必填且 ≥ 1 字符 / issue 具体描述（reviewer 主观判断需具体）	desc is required and must be at least 1 character / Issue details (reviewer subjective judgment must be specific).	review-draft
 M540	1621	schema	Reviewer 提出的 issue 列表；critical/high 会阻塞 INIT_CHECK，允许空数组	List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.	review-draft
 M541	1622	schema	Reviewer 自报 agent 名；product-reviewer 必须传 product-reviewer	Reviewer self-reported agent name; product-reviewer must pass product-reviewer.	review-draft
-M542	1623	schema	Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 koala-review-story-init	Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass koala-review-story-init.	review-draft
+M542	1623	schema	Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 lattice-review-story-init	Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass lattice-review-story-init.	review-draft
 M543	1630	command-description	受控 fallback：无法 spawn INIT reviewer 时显式、可审计地生成签名 init-check.json（默认禁用，需 acknowledge + fallbackReason）	Create an audited INIT reviewer fallback attestation	review-draft
 M544	1632	schema	fallbackReason 必须 ≥ 30 字符 / 为什么 INIT reviewer 无法运行 + 你人工核查了什么（durable 审计 attestation）	fallbackReason must be at least 30 characters / Why INIT reviewer cannot run plus what you manually checked (durable audit attestation).	review-draft
 M545	1633	schema	必须显式传 true：确认你在刻意顶替独立 INIT reviewer 做 attestation	Must explicitly pass true: confirms you are intentionally substituting for independent INIT reviewer attestation.	review-draft
@@ -986,7 +987,7 @@ M550	1639	schema	desc 必填且 ≥ 1 字符 / issue 具体描述	desc is requir
 M551	1640	schema	可选：人工 attestation 提出的 issue；high/critical 仍会阻塞 INIT_CHECK	Optional issues raised by manual attestation; high/critical still block INIT_CHECK.	review-draft
 M552	1641	schema	可选：操作者标识；缺省取 git user.name	Optional actor identifier; defaults to git user.name.	review-draft
 M553	1645	comment	TEST→DONE 硬门槛产物。签名域：storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound。	TEST to DONE hard-gate artifact. Signature domain: storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound.	review-draft
-M554	1646	command-description	保存 delivery check 结果（由 koala-review-delivery reviewer 调用）	Save delivery check results (called by koala-review-delivery reviewer)	review-draft
+M554	1646	command-description	保存 delivery check 结果（由 lattice-review-delivery reviewer 调用）	Save delivery check results (called by lattice-review-delivery reviewer)	review-draft
 M555	1649	schema	文档路径	Document path.	review-draft
 M556	1650	schema	文档中的承诺描述	Promise described in the document.	review-draft
 M557	1651	schema	可选状态；met/verified 视为已验证，waived 需 waiverReason	Optional status; met/verified are treated as verified, waived requires waiverReason.	review-draft
@@ -1024,18 +1025,18 @@ M588	1713	schema	resolution 必填且 ≥ 20 字符（书面消解，防自我�
 M589	1714	schema	resolution 的证据指针（decisions/ 路径或 checklist item id），默认 []	Evidence pointers for resolution (decisions/ path or checklist item ID), default [].	review-draft
 M590	1718	command-description	生成标准 implementer prompt 字符串（主 agent 派发 CHK-xxx 用）	Generate a standard implementer prompt string (main agent dispatches CHK-xxx)	review-draft
 M591	1720	schema	Checklist item ID（如 CHK-001）	Checklist item ID, for example CHK-001.	review-draft
-M592	1721	schema	subagent 类型（如 koala-implementer / koala-review-channel）；CHK-008 will expand matrix	subagent type, for example koala-implementer / koala-review-channel; CHK-008 will expand matrix.	review-draft
+M592	1721	schema	subagent 类型（如 lattice-implementer / lattice-review-channel）；CHK-008 will expand matrix	subagent type, for example lattice-implementer / lattice-review-channel; CHK-008 will expand matrix.	review-draft
 M593	1724	comment	Finding dispatch (B-45ed CHK-010: reviewer-finding 修复 prompt generator，与 story_dispatch 同构)	Finding dispatch (B-45ed CHK-010: reviewer-finding repair prompt generator, isomorphic with story_dispatch).	review-draft
 M594	1725	comment	B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `lattice dispatch`	B-9d95 CHK-004: deprecated alias; first stdout line prints a deprecation warning and recommends lattice dispatch.	review-draft
 M595	1726	command-description	[deprecated: 请改用 lattice dispatch] 生成标准 reviewer-finding 修复 prompt 字符串	[deprecated: use lattice dispatch] Generate reviewer-finding repair prompt	review-draft
 M596	1728	schema	Finding ID（如 F-001 或 B-xxx:F-001 完整形式）	Finding ID, for example F-001 or the full B-xxx:F-xxx form.	review-draft
-M597	1729	schema	subagent 类型（如 koala-implementer / koala-review-channel）；复用 CHK-008 分级矩阵	subagent type, for example koala-implementer / koala-review-channel; reuses the CHK-008 grading matrix.	review-draft
+M597	1729	schema	subagent 类型（如 lattice-implementer / lattice-review-channel）；复用 CHK-008 分级矩阵	subagent type, for example lattice-implementer / lattice-review-channel; reuses the CHK-008 grading matrix.	review-draft
 M598	1732	comment	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `lattice dispatch`，全阶段开放)	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases).	review-draft
 M599	1733	command-description	统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）	Dispatch a subagent prompt for one item, finding, or cluster	review-draft
 M600	1735	schema	Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个	Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.	review-draft
 M601	1736	schema	Finding ID（F-xxx 或 B-xxx:F-xxx）；与 itemId / clusterId 互斥	Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId/clusterId.	review-draft
 M602	1737	schema	Cluster ID（CL-xxx）；与 itemId / findingId 互斥	Cluster ID (CL-xxx); mutually exclusive with itemId/findingId.	review-draft
-M603	1738	schema	subagent 类型；INIT reviewer 可只传 koala-review-story-init，其他场景与 itemId/findingId/clusterId 搭配	subagent type; INIT reviewer may pass only koala-review-story-init, other cases pair it with itemId/findingId/clusterId.	review-draft
+M603	1738	schema	subagent 类型；INIT reviewer 可只传 lattice-review-story-init，其他场景与 itemId/findingId/clusterId 搭配	subagent type; INIT reviewer may pass only lattice-review-story-init, other cases pair it with itemId/findingId/clusterId.	review-draft
 M604	1741	comment	Background CLI 三件套 (B-45ed CHK-007: background.md set/append/get)	Background CLI trio (B-45ed CHK-007: background.md set/append/get).	review-draft
 M605	1742	command-description	全量写入 background.md（四段式格式校验，复用 CHK-006 validator）	Write the full background.md (four-section check, reuses CHK-006 validator)	review-draft
 M606	1744	schema	background.md 完整内容（四段式）	Complete background.md content (four-section format).	review-draft
@@ -1062,7 +1063,7 @@ M626	2127	schema	触发场景（≥5 字符）	Trigger scenario (at least 5 char
 M627	2128	schema	可复用的教训（≥10 字符）	Reusable lesson (at least 10 characters).	review-draft
 M628	2129	schema	如何在下次会话中调出这条经验（≥5 字符）	How to retrieve this lesson in a later session (at least 5 characters).	review-draft
 M629	2130	schema	关键词标签（逗号分隔字符串或数组）	Keyword tags, as a comma-separated string or array.	review-draft
-M630	2131	schema	来源 agent（默认 koala-implementer）	Source agent (default: koala-implementer).	review-draft
+M630	2131	schema	来源 agent（默认 lattice-implementer）	Source agent (default: lattice-implementer).	review-draft
 M631	2132	schema	来源 story ID	Source story ID.	review-draft
 M632	2133	schema	证据引用（文件路径/commit sha）	Evidence references (file paths or commit SHAs).	review-draft
 M633	2135	command-description	列出 dev-memory 经验条目	List dev-memory lessons	review-draft
@@ -1156,7 +1157,7 @@ M720	3397	comment	dashboard 走独立长驻模式	dashboard uses standalone long
 M721	3403	comment	如果没指定 roots，用 --root（或自动检测）作为默认	If roots are not specified, use --root (or auto-detection) as the default.	review-draft
 M722	3517	cli-output	未知命令: ${cmd}	Unknown command: ${cmd}	review-draft
 M723	3519	cli-output	你是不是要找:	Did you mean:	review-draft
-M724	3520	cli-output	用 lattice help 查看所有命令（legacy alias: koala）	Use lattice help to view all commands (legacy alias: koala).	review-draft
+M724	3520	cli-output	用 lattice help 查看所有命令	Use lattice help to view all commands.	review-draft
 M725	3526	comment	Phase gate: 有 active story 时，拒绝不在白名单中的命令	Phase gate: When an active story exists, reject commands outside the allowlist.	review-draft
 M726	3539	comment	Parse arguments — 支持三种格式：	Parse arguments — supports three formats:	review-draft
 M727	3540	comment	1. --key=value --flag (标准 flag)	1. --key=value --flag (standard flag)	review-draft

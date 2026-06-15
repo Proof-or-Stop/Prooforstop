@@ -1,0 +1,34 @@
+{
+  "storyId": "B-d959",
+  "checkedAt": "2026-06-15T01:59:43.047Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-15T01:59:43.047Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-15T01:59:43.047Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Subagent INIT reviewers are not being spawned for this small follow-up because the current user turn requested a policy optimization rather than explicit delegation. I manually checked that scope_boundary, execution_boundary, and scope_freeze_check constrain the work to one decision document plus B-d959 metadata, with runtime implementation excluded.",
+    "evidenceRefs": [
+      "scope_boundary_set hash c8a1b707cb437a47622a0a93a06d29336b6919e2f96e4a8c2bee1f3c95e5b3dd",
+      "execution_boundary_set hash 33451cd5f4b7a64559727519af4f2ca53eb7570a7fcf641d08615137266695eb",
+      "scope_freeze_check PASS for B-d959"
+    ],
+    "actor": "codex-main-agent",
+    "session": "sess-a84a7a94f001df02",
+    "attestedAt": "2026-06-15T01:59:43.047Z",
+    "headHash": "68283f0ad4c1f3b8b2a8556b2d965b6f14596384",
+    "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d"
+  },
+  "_hash": "ac0897478540149780dd20d81c7df35805b8635f1d848cd28c125844341c14fb"
+}

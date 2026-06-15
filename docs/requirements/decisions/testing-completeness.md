@@ -1,34 +1,34 @@
-# 测试完整性决策
+# Testing Completeness Decisions
 
-## 决策 1：flow 函数必须有 @test
+## Decision 1: flow functions must have @test
 
-标注了 @flow 的函数是业务关键路径，必须有 @test 注释指向 fixture。
-task_scan 校验时，flow 函数缺 @test 应报 error 而非静默忽略。
+A function annotated with @flow is on a business-critical path and must have a @test comment pointing to a fixture.
+During `task_scan` validation, a flow function missing @test should report an error rather than being silently ignored.
 
-**理由**：flow 函数出问题影响整条链路，优先级高于普通函数。gap_analyze 之前将所有 no_test 统一报 medium，关键路径被淹没。
+**Rationale**: A problem in a flow function affects the entire chain, so it ranks higher in priority than an ordinary function. Previously `gap_analyze` reported every `no_test` uniformly as medium, which drowned out the critical paths.
 
-## 决策 2：flow 链路必须有端到端验证
+## Decision 2: flow chains must have end-to-end verification
 
-每条 @flow 链路需要端到端测试——用临时数据跑完全流程，验证数据从头传到尾。
-test_auto 改动 flow 中任一函数时，自动触发该 flow 的端到端回归。
+Every @flow chain needs an end-to-end test — run the full pipeline with temporary data and verify that the data is carried from start to finish.
+When `test_auto` modifies any function within a flow, it automatically triggers the end-to-end regression for that flow.
 
-**理由**：单函数测试通过不代表链路通。函数间的数据传递、状态依赖只有端到端才能覆盖。
+**Rationale**: A passing single-function test does not mean the chain is sound. Data hand-off between functions and state dependencies can only be covered end-to-end.
 
-## 决策 3：task_scan 应做全量代码健康检查
+## Decision 3: task_scan should perform a full code health check
 
-task_scan 当前只校验注释格式，应增加：
-- @test 缺失检查（所有有 functionName 的注释）
-- flow 函数无测试报 error（高于普通函数）
+`task_scan` currently only validates comment formatting. It should additionally include:
+- A @test missing check (for every comment that has a functionName)
+- Reporting an error for a flow function that has no test (higher than for an ordinary function)
 
-**理由**：AI 开发过程中随时调 task_scan 就应该知道"代码层面还差什么"，而不是等到 gap_analyze 才发现。
+**Rationale**: While the AI is developing, it should be able to call `task_scan` at any time and learn "what is still missing at the code level," rather than discovering it only at `gap_analyze` time.
 
-## 决策 4：gap_analyze 分层展示
+## Decision 4: gap_analyze layered presentation
 
-gap_analyze 的 no_test 应区分：
-- flow 函数缺测试 → severity: high
-- 普通函数缺测试 → severity: medium
+`gap_analyze`'s `no_test` should distinguish:
+- A flow function missing a test → severity: high
+- An ordinary function missing a test → severity: medium
 
-**理由**：扁平列表 39 条 medium 没有可操作性，分层后 AI 知道先补哪些。
+**Rationale**: A flat list of 39 medium items is not actionable. Once layered, the AI knows which ones to fill in first.
 
 ## Policy: test-evidence.json is gate-consumed validation metadata
 

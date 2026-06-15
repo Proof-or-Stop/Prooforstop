@@ -6,16 +6,16 @@
  *
  * - residuals.length == 0     → status=pass, recommendation="skip concept LLM reviewer"
  * - 1 ≤ residuals.length < 5  → status=warn, recommendation="skip concept LLM reviewer"
- * - residuals.length ≥ 5      → status=warn, recommendation="dispatch koala-review-concept"
+ * - residuals.length ≥ 5      → status=warn, recommendation="dispatch lattice-review-concept"
  *
  * Output structure:
  *   {
- *     provider: "koala-concept",
+ *     provider: "lattice-concept",
  *     status: "pass" | "warn",
  *     summary: string,
  *     deletedSymbols: string[],
  *     residuals: Array<{ symbol, file, line, snippet }>,
- *     recommendation: "skip concept LLM reviewer" | "dispatch koala-review-concept"
+ *     recommendation: "skip concept LLM reviewer" | "dispatch lattice-review-concept"
  *   }
  *
  * See docs/koala/reviewer-redesign.md §III S1 item 2.
@@ -34,12 +34,12 @@ export interface ConceptResidual {
 export interface ConceptCheckResult {
   // F-017 (B-9d95 Round 1 review): residuals ≥ 5 upgraded to fail (instead of warn),
   // aligned with the ok=false semantics returned by runConceptGateCli/CLI gate, rendering shows ✗ fail.
-  provider: 'koala-concept';
+  provider: 'lattice-concept';
   status: 'pass' | 'warn' | 'fail';
   summary: string;
   deletedSymbols: string[];
   residuals: ConceptResidual[];
-  recommendation: 'skip concept LLM reviewer' | 'dispatch koala-review-concept';
+  recommendation: 'skip concept LLM reviewer' | 'dispatch lattice-review-concept';
 }
 
 /** Readers can be injected for tests. Default uses `git diff main...HEAD`. */
@@ -243,7 +243,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     // but also don't fail outright (no diff → nothing to verify; e.g. orphan
     // branch case). recommendation=skip since we couldn't compute residuals.
     return {
-      provider: 'koala-concept',
+      provider: 'lattice-concept',
       status: 'warn',
       summary: `git diff failed (${base}...HEAD): ${String(e?.message ?? e)}`,
       deletedSymbols: [],
@@ -255,7 +255,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   const symbols = scanDeletedSymbols(diff);
   if (symbols.length === 0) {
     return {
-      provider: 'koala-concept',
+      provider: 'lattice-concept',
       status: 'pass',
       summary: `no deleted exports in ${base}...HEAD`,
       deletedSymbols: [],
@@ -268,7 +268,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
 
   if (residuals.length === 0) {
     return {
-      provider: 'koala-concept',
+      provider: 'lattice-concept',
       status: 'pass',
       summary: `${symbols.length} symbol(s) deleted, no residual references`,
       deletedSymbols: symbols,
@@ -278,14 +278,14 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   }
 
   const recommendation: ConceptCheckResult['recommendation'] =
-    residuals.length >= 5 ? 'dispatch koala-review-concept' : 'skip concept LLM reviewer';
+    residuals.length >= 5 ? 'dispatch lattice-review-concept' : 'skip concept LLM reviewer';
 
   // F-017: residuals ≥ 5 → status=fail (blocks CLI gate and renders ✗ fail),
   // residuals 1..4 → status=warn (preserves original semantics, suggests skip reviewer, non-blocking)
   const status: ConceptCheckResult['status'] = residuals.length >= 5 ? 'fail' : 'warn';
 
   return {
-    provider: 'koala-concept',
+    provider: 'lattice-concept',
     status,
     summary: `${symbols.length} symbol(s) deleted, ${residuals.length} residual reference(s) found`,
     deletedSymbols: symbols,
@@ -295,7 +295,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
 }
 
 /**
- * B-9d95 CHK-006: CLI entry for `koala validate --concept`.
+ * B-9d95 CHK-006: CLI entry for `lattice validate --concept`.
  *
  * Does not spawn pytest / does not run full validate.ts — directly calls checkConcept, outputs
  * structured results + human-readable rendering. Used for independent REVIEW→TEST preflight routing.
@@ -348,7 +348,7 @@ export function renderConceptResult(r: ConceptCheckResult): string {
   }
   lines.push(`  recommendation: ${r.recommendation}`);
   if (r.status === 'fail') {
-    lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after koala-review-concept records a finding or review_pass_set in the current review round.');
+    lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after lattice-review-concept records a finding or review_pass_set in the current review round.');
   }
   return lines.join('\n');
 }

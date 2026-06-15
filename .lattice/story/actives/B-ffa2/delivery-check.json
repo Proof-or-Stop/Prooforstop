@@ -1,0 +1,72 @@
+{
+  "storyId": "B-ffa2",
+  "checkedAt": "2026-06-15T17:27:38.462Z",
+  "reviewRound": "2026-06-15T17:19:16.480Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+      "promise": "Inventory, canonical koala-* to lattice-* role map, rollout, verification commands, and active-vs-legacy boundary are documented before close.",
+      "status": "verified",
+      "verifiedBy": "manual+rg",
+      "evidence": "Execution doc includes rename map, Active vs Legacy Boundary, Explicit Non-Goals, verification commands, and says this is not a global Koala token purge."
+    },
+    {
+      "docPath": "packages/main/templates/agents + .claude/agents + .Codex/agents",
+      "promise": "Canonical agent templates and mirrored host assets use lattice-* role IDs while unrelated agent names remain unchanged.",
+      "status": "verified",
+      "verifiedBy": "find+rg",
+      "evidence": "find ... | rg koala-(implementer|review|evaluator) returned no hits; unrelated product/test/implementation reviewer assets preserved by CHK-002 edge evidence."
+    },
+    {
+      "docPath": "CLI/runtime/reviewer contracts",
+      "promise": "CLI dispatch/help/schema, reviewer lanes, process facts, and signed artifacts use lattice-* as active canonical role IDs; legacy salts are bounded exceptions.",
+      "status": "verified",
+      "verifiedBy": "test_list+rg",
+      "evidence": "TEST snapshot covers CHK-003 happy/edge/adversarial; strict active koala role-ID regex returned no hits. Remaining koala-review matches are signed salts/process-fact descriptions allowed by the execution plan."
+    },
+    {
+      "docPath": "README.md, CLAUDE.md, docs/requirements, docs/audits, packages/main/src/tasks",
+      "promise": "Active docs/tests no longer teach koala role IDs, koala_metadata, or koala-verifier vocabulary; lattice.config.json is the active config guidance where this story touched config surfaces.",
+      "status": "verified",
+      "verifiedBy": "rg+diff review",
+      "evidence": "Active role/verifier scan returned no hits; docs now say lattice.config.json is canonical. Broad koala.config.json hits remain in older compatibility/temp-root tests or explicitly legacy notes, not new active role guidance."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ffa2/evidence/transcript-diff.md",
+      "promise": "User-value transcript records expected vs actual behavior and bounds remaining Koala mentions as legacy/runtime/compatibility contexts.",
+      "status": "verified",
+      "verifiedBy": "transcript review",
+      "evidence": "Transcript records validate --story=B-ffa2 --json PASS, allPass=true, npm test/cli-e2e ALL PASS, 15/15 verification coverage, warnings=[] and no observed mismatch."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs_check evidence verifies the execution plan contains canonical old/new role map plus active-vs-legacy and non-goal boundaries for KOALA_*, .koala, archive docs, and signed salts."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Focused filesystem/rg checks show active template and mirrored agent directories have no koala implementer/review/evaluator role filenames or role IDs; unrelated agent assets remain present."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "TEST snapshot covers process fact contract + CLI help exposing lattice roles; legacy koala role dispatch is recorded as fail-fast rejected rather than accepted as canonical evidence."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Focused smokes recorded passing: flow-stability, validation-protocol, npm build, and active docs/tests scan with no old role/verifier/metadata guidance outside documented exceptions."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node bin/lattice.js validate --story=B-ffa2 --json PASS at TEST: allPass=true, fallback npm test -> cli-e2e ALL PASS, verification intent coverage 15/15, warnings=[]. verify_codex evidence reports 8/8 pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review passes: docs promises are delivered or bounded as legacy exceptions; TEST transcript and focused smokes cover happy/edge/adversarial behavior; finding_list shows all high findings resolved; strict active role scan and diff TODO scan found no unresolved blockers."
+  },
+  "_hash": "da10232b60147de4abace955083e82d840e7cdf857825243058efb5bb76c14d5"
+}

@@ -26,7 +26,7 @@ function write(root: string, path: string, content: string): void {
 
 function commit(root: string, message: string): string {
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=koala-implementer', 'commit', '-m', message]);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=lattice-implementer', 'commit', '-m', message]);
   return git(root, ['rev-parse', 'HEAD']);
 }
 
@@ -80,7 +80,7 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
       severity: 'high',
       category: 'happy',
       status: 'open',
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       createdAt: now,
       reviewRound: now,
       _hash: 'smoke',
@@ -90,7 +90,7 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
       severity: 'medium',
       category: 'edge',
       status: 'open',
-      agent: 'koala-review-concept',
+      agent: 'lattice-review-concept',
       createdAt: now,
       reviewRound: now,
       _hash: 'smoke',

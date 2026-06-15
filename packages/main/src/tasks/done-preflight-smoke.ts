@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import {
   upsertAuthorityGateReceiptRef,
@@ -101,6 +102,13 @@ function gitStatus(root: string): string {
   });
 }
 
+function evidenceFreshnessRow(store: StoryStore, root: string, storyId: string) {
+  const row = buildDoneChecklist(storyId, store, root, { auditWriter: null })
+    .find((candidate) => candidate.id === 'evidence-freshness');
+  assert.ok(row, 'DONE checklist must include evidence-freshness row');
+  return row;
+}
+
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-04T10:00:00.000Z';
   store.writeTestEvidence(storyId, {
@@ -134,7 +142,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     storyId,
     checkedAt: now,
     reviewRound: '',
-    agentId: 'koala-review-delivery',
+    agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -220,7 +228,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const now = '2026-06-04T10:00:00.000Z';
@@ -259,7 +267,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
   store.writeChecklist(storyId, checklist);
 
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
   git(root, ['branch', `story/${storyId}`]);
   git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
 
@@ -268,7 +276,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
   if (writeClosureEvidence) {
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence']);
   }
 
   return { worktreePath, store };
@@ -279,7 +287,7 @@ function buildTestPassedStoryMissingClosureArtifacts(root: string, storyId: stri
   const worktreeStore = new StoryStore(worktreePath);
   writePassingTestEvidence(worktreeStore, worktreePath, storyId);
   git(worktreePath, ['add', '.']);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'test evidence only']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'test evidence only']);
   return { worktreePath };
 }
 
@@ -348,7 +356,7 @@ function markStoryBranchAsPartialDone(worktreePath: string, storyId: string): vo
   story.endedAt = story.endedAt || '2026-06-04T10:30:00.000Z';
   store.writeStory(storyId, story);
   git(worktreePath, ['add', store.storyDirRel()]);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'partial done state']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'partial done state']);
 }
 
 /**
@@ -458,6 +466,79 @@ function assertDoneRejectsWhenMainIsDirty(): void {
     assert.equal(existsSync(worktreePath), true, 'worktree directory must survive a dirty-main preflight failure');
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'story branch must survive a dirty-main preflight failure');
     console.log('  ✓ phase remains TEST after failed preflight (main worktree dirty)');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertCompletedDoneEvidenceFreshnessUsesRecordedSnapshot(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-evidence-snapshot-'));
+  try {
+    const storyId = 'B-done-evidence-snapshot';
+    const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
+
+    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.ok(output.includes(`Story ${storyId} advanced to DONE`), `DONE success expected, got:\n${output}`);
+
+    write(root, 'packages/main/src/unrelated-after-done.ts', 'export const unrelatedAfterDone = true;\n');
+    git(root, ['add', 'packages/main/src/unrelated-after-done.ts']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'unrelated material after done']);
+
+    const store = new StoryStore(root);
+    const story = store.readStory(storyId);
+    const evidence = store.readTestEvidence(storyId);
+    assert.equal(story.phase, 'DONE', 'pre-condition: story must already be DONE');
+    assert.ok(evidence?.headHash, 'pre-condition: test evidence must record headHash');
+    assert.ok(evidence.materialHash, 'pre-condition: test evidence must record materialHash');
+    assert.notEqual(
+      currentMaterialHash(root),
+      evidence.materialHash,
+      'pre-condition: later material commit must differ from recorded evidence materialHash',
+    );
+
+    const row = evidenceFreshnessRow(store, root, storyId);
+    assert.equal(row.status, 'pass', `DONE evidence snapshot must remain fresh after later material commit: ${row.detail}`);
+    assert.match(row.detail ?? '', /recorded evidence snapshot/, 'row detail must explain historical snapshot validation');
+
+    store.writeTestEvidence(storyId, { ...evidence, headHash: 'missing-evidence-head' });
+    const missingHeadRow = evidenceFreshnessRow(store, root, storyId);
+    assert.equal(missingHeadRow.status, 'fail', 'DONE evidence freshness must fail closed when recorded head is unavailable');
+    assert.match(missingHeadRow.detail ?? '', /cannot be inspected/, 'missing-head failure must explain snapshot inspection failure');
+
+    store.writeTestEvidence(storyId, { ...evidence, materialHash: '0'.repeat(64) });
+    const mismatchRow = evidenceFreshnessRow(store, root, storyId);
+    assert.equal(mismatchRow.status, 'fail', 'DONE evidence freshness must fail closed when recorded materialHash mismatches');
+    assert.match(mismatchRow.detail ?? '', /does not match material tree/, 'mismatch failure must explain snapshot hash mismatch');
+
+    console.log('  ✓ DONE evidence freshness: PASS — completed story uses recorded snapshot after later material commit');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertActiveTestEvidenceFreshnessStillUsesCurrentMaterialHash(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-active-evidence-stale-'));
+  try {
+    const storyId = 'B-active-evidence-stale';
+    const { worktreePath } = buildDoneReadyStoryWithLinkedWorktree(root, storyId);
+    const store = new StoryStore(worktreePath);
+    const evidence = store.readTestEvidence(storyId);
+    assert.ok(evidence?.materialHash, 'pre-condition: test evidence must record materialHash');
+
+    write(worktreePath, 'packages/main/src/unrelated-active.ts', 'export const unrelatedActive = true;\n');
+    git(worktreePath, ['add', 'packages/main/src/unrelated-active.ts']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'unrelated material during test']);
+    assert.equal(store.readStory(storyId).phase, 'TEST', 'pre-condition: story must remain active TEST');
+    assert.notEqual(
+      currentMaterialHash(worktreePath),
+      evidence.materialHash,
+      'pre-condition: later material commit must differ from recorded evidence materialHash',
+    );
+
+    const row = evidenceFreshnessRow(store, worktreePath, storyId);
+    assert.equal(row.status, 'fail', 'active TEST evidence must still go stale after later material commit');
+    assert.match(row.detail ?? '', /current entity file state/, 'active TEST row must still compare against current material state');
+    console.log('  ✓ active TEST evidence freshness: PASS — later material commit still fails freshness');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -618,6 +699,8 @@ assertDoneSucceedsWhenMainBranchOwnedBySeparateWorktree();
 assertDoneRecoverUsesSeparateRegisteredMainWorktree();
 assertDoneRejectsWhenMainOnWrongBranch();
 assertDoneRejectsWhenMainIsDirty();
+assertCompletedDoneEvidenceFreshnessUsesRecordedSnapshot();
+assertActiveTestEvidenceFreshnessStillUsesCurrentMaterialHash();
 assertDoneClosureIsReadOnlyAndNonAuthority();
 assertDoneClosureAuthorityEnforceWithoutReceiptBlocksReadiness();
 assertDoneClosureAuthorityEnforceEligibleReceiptReportsVerifiedReadOnly();

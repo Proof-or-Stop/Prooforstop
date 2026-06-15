@@ -1,0 +1,41 @@
+{
+  "storyId": "B-198c",
+  "checkedAt": "2026-06-15T17:47:09.166Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights section cites the detection site as worktree.ts:754 but the actual file path is packages/main/src/handlers/worktree.ts:754; the shortened reference could mildly confuse an implementer who searches for a top-level worktree.ts that does not exist."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T17:46:27.583Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "All four checklist items are missing the userSees field. CHK-002 and CHK-003 are user-facing (doctor output and story_create/session_brief advisory) but do not specify what exact text the user will see. Before DEV, userSees should be filled in with concrete terminal output (e.g. the exact warning message and remediation text) so product acceptance can verify the user loop is closed."
+        },
+        {
+          "severity": "low",
+          "desc": "The story description explains the problem and solution approach well, but does not include a concrete before/after transcript showing the user experience improvement. Consider adding one in understanding.outcome during PLAN to make the done-state unambiguous."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-15T17:47:09.166Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights section cites the detection site as worktree.ts:754 but the actual file path is packages/main/src/handlers/worktree.ts:754; the shortened reference could mildly confuse an implementer who searches for a top-level worktree.ts that does not exist."
+        }
+      ]
+    }
+  ],
+  "_hash": "3da384aa3579889a1f191167138db054686f8c4107beaca23d73a84e6f7116d5"
+}

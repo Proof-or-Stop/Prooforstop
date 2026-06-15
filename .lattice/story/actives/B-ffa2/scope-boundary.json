@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ffa2",
+  "mode": "maintenance",
+  "allowed": [
+    "Mark archival Koala documents as historical only when needed rather than rewriting unrelated archive content",
+    "Rename active koala-* agent role IDs and prompt template assets to lattice-*",
+    "Update CLI help, schema defaults, dispatch attribution, generated host assets, tests, and active documentation affected by agent role naming",
+    "Write an execution document under docs/requirements/decisions explaining the migration and verification plan"
+  ],
+  "excluded": [
+    "Do not change unrelated Lattice lifecycle behavior beyond role naming",
+    "Do not publish or push remote branches",
+    "Do not rewrite docs/story or tests/fixtures directly",
+    "Do not run or use omx or .omx artifacts"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly agreed to run a normal story and asked to write an execution document and clean all Koala naming.",
+  "createdAt": "2026-06-15T15:28:34.904Z",
+  "updatedAt": "2026-06-15T15:28:34.904Z",
+  "_hash": "2663d918e31742d58ae934804b854b4f398c759b45574ae7a71e6ac9bb3a3e6e"
+}

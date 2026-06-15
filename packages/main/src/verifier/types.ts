@@ -42,7 +42,7 @@ export interface Transition {
   description: string;
   /** Input structure description (optional, used by Dashboard to generate forms, does not affect API) */
   inputSchema?: Record<string, InputFieldSchema>;
-  /** Circuit cross-endpoint routing declaration (optional, used for koala serve --circuit multi-machine joint debugging) */
+  /** Circuit cross-endpoint routing declaration (optional, used for lattice serve --circuit multi-machine joint debugging) */
   circuit?: CircuitRef;
 }
 
@@ -155,7 +155,7 @@ export interface ValidateOptions {
   constraintRuns?: number;
   /** Shell source text (key=filename, value=source), used for Bridge I/O isolation check */
   shellSources?: Record<string, string>;
-  /** Finding list (items discovered by koala-reviewer), used for coverage check */
+  /** Finding list (items discovered by Lattice reviewers), used for coverage check */
   findings?: Finding[];
   /** Bridge factory function for core test (provided by project validate.ts) */
   bridgeFactory?: () => { sendEvent(event: string, input: any): boolean; getState(): any; getMachineState(): string; reset(): void };
@@ -167,9 +167,9 @@ export interface ValidateResult {
   allPass: boolean;
 }
 
-/** koala validate --json structured output (consumed by gate) */
+/** lattice validate --json structured output (consumed by gate) */
 export interface ExternalVerifierResult {
-  provider: 'koala-verifier';
+  provider: 'lattice-verifier';
   status: 'pass' | 'fail' | 'warn';
   allPass: boolean;
   summary: string;

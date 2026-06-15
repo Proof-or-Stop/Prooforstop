@@ -17,27 +17,23 @@ import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
-  KOALA_MD_TEMPLATE,
   LATTICE_DOT_DIR_MD_TEMPLATE,
   LATTICE_MD_TEMPLATE,
   getCodexHooks,
-  getKoalaHooks,
+  getClaudeHooks,
   codexHookCommand,
   hookCommand,
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
   LATTICE_SCOPE_PRETOOL_HOOK_FILE,
   listAgentPromptFiles,
   migrateHookCommandEntries,
-  renderCodexAdapterManifest,
   renderCodexAgentContent,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
   renderCodexReadmeTemplate,
-  renderCodexWrapperScript,
   renderLatticeBootstrapScript,
   renderLatticeCodexAdapterManifest,
   renderLatticeCodexWrapperScript,
-  renderKoalaBootstrapScript,
   renderLatticeProjectConfig,
   type InitAssetMode,
   type InitProfile,
@@ -143,7 +139,7 @@ interface ManagedAssetPathInfo {
 
 const MANIFEST_REL_PATH = '.lattice/managed-assets.json';
 const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
-const KOALA_INTERNAL_SECTION_RE = /<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g;
+const LEGACY_INTERNAL_SECTION_RE = /<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g;
 
 function packageRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -253,10 +249,10 @@ function writeText(root: string, relPath: string, content: string, executable = 
   if (executable) chmodSync(full, 0o755);
 }
 
-function removeGeneratedFileIfExact(root: string, relPath: string, expectedContent: string): void {
+function removeGeneratedFileIfExact(root: string, relPath: string, expectedContent: string, ownedWhen?: (actual: string) => boolean): void {
   const actual = readText(root, relPath);
   if (actual === null) return;
-  if (normalizeContent(actual) !== normalizeContent(expectedContent)) return;
+  if (normalizeContent(actual) !== normalizeContent(expectedContent) && !ownedWhen?.(actual)) return;
   unlinkSync(join(root, relPath));
 }
 
@@ -266,6 +262,7 @@ function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 
       root,
       `.codex/hooks/${LEGACY_SCOPE_PRETOOL_HOOK_FILE}`,
       renderCodexPretoolScopeHookScript(),
+      actual => actual.includes("provider: 'codex'") && actual.includes('prewrite_guard_check'),
     );
     return;
   }
@@ -277,13 +274,14 @@ function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 
     root,
     `.claude/hooks/${LEGACY_SCOPE_PRETOOL_HOOK_FILE}`,
     readFileSync(template, 'utf-8'),
+    actual => actual.includes("provider: 'claude'") && actual.includes('prewrite_guard_check'),
   );
 }
 
-function extractKoalaSection(content: string): string {
+function extractManagedSection(content: string): string {
   const match = content.match(INIT_DOC_SECTION_RE);
   if (!match) return normalizeContent(content);
-  return match[0].replace(KOALA_INTERNAL_SECTION_RE, '');
+  return match[0].replace(LEGACY_INTERNAL_SECTION_RE, '');
 }
 
 function hasManagedMarkers(content: string): boolean {
@@ -291,7 +289,7 @@ function hasManagedMarkers(content: string): boolean {
 }
 
 function safeJsonParse(text: string): unknown {
-  try { return JSON.parse(text); } catch { /* PROBE: malformed JSON means this asset cannot prove Koala ownership. */ return null; }
+  try { return JSON.parse(text); } catch { /* PROBE: malformed JSON means this asset cannot prove managed ownership. */ return null; }
 }
 
 function gitLines(root: string, args: string[]): string[] {
@@ -332,12 +330,19 @@ function collectApplyWarnings(root: string): string[] {
   return warnings;
 }
 
-function isKoalaPrompt(actual: string, file: string): boolean {
+function isManagedPrompt(actual: string, file: string): boolean {
   const base = file.replace(/\.md$/, '');
-  return actual.includes('<!-- koala:start -->')
+  return actual.includes('<!-- lattice:start -->')
     || actual.includes(`name: ${base}`)
     || actual.includes('name: koala-')
     || actual.includes('Koala');
+}
+
+function isGeneratedLegacyKoalaAgentPrompt(actual: string, file: string): boolean {
+  return /^koala-[^/\\]+\.md$/.test(file)
+    && (actual.includes('<!-- lattice:start -->')
+      || actual.includes('<!-- lattice:start-slot -->')
+      || /^\s*name:\s*koala-/m.test(actual));
 }
 
 function hasHookCommand(entries: unknown, command: string): boolean {
@@ -346,7 +351,7 @@ function hasHookCommand(entries: unknown, command: string): boolean {
 }
 
 function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; incompatible: string[] } {
-  const koalaHooks = getKoalaHooks();
+  const claudeHooks = getClaudeHooks();
   const updated = existing && typeof existing === 'object' && !Array.isArray(existing) ? { ...existing } : {};
   const hooks = updated.hooks && typeof updated.hooks === 'object' && !Array.isArray(updated.hooks)
     ? { ...updated.hooks }
@@ -354,7 +359,7 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
   const incompatible: string[] = [];
   let changed = !updated.hooks;
 
-  for (const [event, eventHooks] of Object.entries(koalaHooks)) {
+  for (const [event, eventHooks] of Object.entries(claudeHooks)) {
     const command = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
@@ -449,10 +454,8 @@ export function detectManagedAssetProfile(root: string): InitProfile {
   const hasCodex = Boolean(
     (agents && hasManagedMarkers(agents))
       || existsSync(join(root, '.Codex', 'lattice.json'))
-      || existsSync(join(root, '.Codex', 'koala.json'))
       || existsSync(join(root, '.Codex', 'agents'))
       || existsSync(join(root, 'bin', 'lattice-codex.js'))
-      || existsSync(join(root, 'bin', 'koala-codex.js')),
   );
   const hasClaude = Boolean(
     (claude && hasManagedMarkers(claude))
@@ -476,7 +479,7 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
   if (existsSync(join(root, '.Codex', 'lattice.json')) || existsSync(join(root, '.Codex', 'agents'))) {
     return 'full';
   }
-  if (existsSync(join(root, 'bin', 'lattice.js')) || existsSync(join(root, 'bin', 'koala.js'))) {
+  if (existsSync(join(root, 'bin', 'lattice.js'))) {
     return 'full';
   }
   // Legacy full-mode: KOALA.md or LATTICE.md presence (any casing) implies non-global-thin project
@@ -525,7 +528,7 @@ function isKoalaSelfRepoBootstrap(actual: string, root: string): boolean {
     && managedAssetPathKind(root, 'packages/main/src/core/managed-assets.ts') === 'file';
 }
 
-function isExpandedKoalaAgentsGuide(actual: string): boolean {
+function isExpandedLatticeAgentsGuide(actual: string): boolean {
   const currentLattice = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
     && actual.includes('lattice session_brief')
@@ -534,19 +537,19 @@ function isExpandedKoalaAgentsGuide(actual: string): boolean {
     && actual.includes('Fail-fast policy');
   const english = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('Two-Layer Process Fact Contract')
     && actual.includes('Story Phase Transitions')
     && actual.includes('Fail-fast policy');
   const legacyChinese = actual.includes('# AGENTS.md')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
     && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
     && actual.includes('Fail-fast policy');
   return currentLattice || english || legacyChinese;
 }
 
-function isExpandedKoalaOverview(actual: string): boolean {
+function isExpandedLatticeOverview(actual: string): boolean {
   const english = actual.includes('# Koala Module Classification and Flow')
     && actual.includes('project execution and verification substrate')
     && actual.includes('verificationIntent')
@@ -562,15 +565,15 @@ function isExpandedKoalaOverview(actual: string): boolean {
   return english || legacyChinese;
 }
 
-function isExpandedKoalaClaudeGuide(actual: string): boolean {
+function isExpandedLatticeClaudeGuide(actual: string): boolean {
   const english = actual.includes('# CLAUDE.md')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('REVIEW→TEST')
     && actual.includes('Claude Prompt Hook')
     && actual.includes('Reviewer opt-in')
     && actual.includes('Framework Introspection audit Configuration');
   const legacyChinese = actual.includes('# CLAUDE.md')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('REVIEW→TEST')
     && actual.includes('Claude Prompt Hook')
     && actual.includes('Reviewer opt-in')
@@ -578,10 +581,13 @@ function isExpandedKoalaClaudeGuide(actual: string): boolean {
   return english || legacyChinese;
 }
 
-function useLegacyAssetPath(projectRoot: string, primaryRelPath: string, legacyRelPath: string): boolean {
-  const legacyKind = managedAssetPathKind(projectRoot, legacyRelPath);
-  return managedAssetPathKind(projectRoot, primaryRelPath) === 'missing'
-    && legacyKind !== 'missing';
+function appendLegacyRuntimeExclusions(defs: ManagedAssetDefinition[]): void {
+  defs.push(
+    { id: 'excluded:bin/koala.js', relPath: 'bin/koala.js', kind: 'excluded-path' },
+    { id: 'excluded:bin/koala-codex.js', relPath: 'bin/koala-codex.js', kind: 'excluded-path' },
+    { id: 'excluded:.Codex/koala.json', relPath: '.Codex/koala.json', kind: 'excluded-path' },
+    { id: 'excluded:.codex/koala.json', relPath: '.codex/koala.json', kind: 'excluded-path' },
+  );
 }
 
 export function listManagedAssetDefinitions(
@@ -650,53 +656,34 @@ export function listManagedAssetDefinitions(
           'CLAUDE.md',
           CLAUDE_MD_TEMPLATE,
           actual => actual.includes('Koala For Claude Code') || actual.includes('Claude Code subagents 位于'),
-          actual => isExpandedKoalaClaudeGuide(actual),
+          actual => isExpandedLatticeClaudeGuide(actual),
         ),
         { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
       );
     }
+    appendLegacyRuntimeExclusions(defs);
     return defs;
   }
 
-  const useLegacyGuide = useLegacyAssetPath(projectRoot, 'LATTICE.md', 'KOALA.md');
-  const useLegacyBootstrap = useLegacyAssetPath(projectRoot, 'bin/lattice.js', 'bin/koala.js');
-  const useLegacyCodexWrapper = useLegacyAssetPath(projectRoot, 'bin/lattice-codex.js', 'bin/koala-codex.js');
-  const useLegacyCodexManifest = useLegacyAssetPath(projectRoot, '.Codex/lattice.json', '.Codex/koala.json');
   const defs: ManagedAssetDefinition[] = [
-    useLegacyGuide
-      ? managedDoc(
-        'doc:KOALA.md',
-        'KOALA.md',
-        KOALA_MD_TEMPLATE,
-        actual => actual.includes('canonical, host-neutral') || actual.includes('All init profiles will create or sync this file'),
-        actual => isExpandedKoalaOverview(actual),
-      )
-      : managedDoc(
-        'doc:LATTICE.md',
-        'LATTICE.md',
-        LATTICE_MD_TEMPLATE,
-        actual => actual.includes('canonical, host-neutral') || actual.includes('New init profile'),
-        actual => isExpandedKoalaOverview(actual),
-      ),
-    useLegacyBootstrap
-      ? wholeFile(
-        'bin:koala.js',
-        'bin/koala.js',
-        renderKoalaBootstrapScript(root),
-        actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
-        true,
-        isKoalaSelfRepoBootstrap,
-      )
-      : wholeFile(
-        'bin:lattice.js',
-        'bin/lattice.js',
-        renderLatticeBootstrapScript(root),
-        actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
-        true,
-        isKoalaSelfRepoBootstrap,
-      ),
+    managedDoc(
+      'doc:LATTICE.md',
+      'LATTICE.md',
+      LATTICE_MD_TEMPLATE,
+      actual => actual.includes('canonical, host-neutral') || actual.includes('New init profile'),
+      actual => isExpandedLatticeOverview(actual),
+    ),
+    wholeFile(
+      'bin:lattice.js',
+      'bin/lattice.js',
+      renderLatticeBootstrapScript(root),
+      actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
+      true,
+      isKoalaSelfRepoBootstrap,
+    ),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
+  appendLegacyRuntimeExclusions(defs);
 
   const wantsCodex = profile === 'codex' || profile === 'all';
   const wantsClaude = profile === 'claude' || profile === 'all';
@@ -709,27 +696,25 @@ export function listManagedAssetDefinitions(
         'AGENTS.md',
         AGENTS_MD_TEMPLATE,
         actual => actual.includes('Codex / AGENTS') || actual.includes('Codex subagent prompts are located at'),
-        actual => isExpandedKoalaAgentsGuide(actual),
+        actual => isExpandedLatticeAgentsGuide(actual),
       ),
       wholeFile(
-        useLegacyCodexWrapper ? 'bin:koala-codex.js' : 'bin:lattice-codex.js',
-        useLegacyCodexWrapper ? 'bin/koala-codex.js' : 'bin/lattice-codex.js',
-        useLegacyCodexWrapper ? renderCodexWrapperScript() : renderLatticeCodexWrapperScript(),
+        'bin:lattice-codex.js',
+        'bin/lattice-codex.js',
+        renderLatticeCodexWrapperScript(),
         actual => actual.includes('KOALA_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
       wholeFile(
         '.Codex:README.md',
         '.Codex/README.md',
-        renderCodexReadmeTemplate(assetMode, useLegacyCodexManifest ? 'koala' : 'lattice'),
+        renderCodexReadmeTemplate(assetMode, 'lattice'),
         actual => actual.includes('Codex + Koala') || actual.includes('Codex + Lattice'),
       ),
       wholeFile(
-        useLegacyCodexManifest ? '.Codex:koala.json' : '.Codex:lattice.json',
-        useLegacyCodexManifest ? '.Codex/koala.json' : '.Codex/lattice.json',
-        useLegacyCodexManifest
-          ? renderCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {})
-          : renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
+        '.Codex:lattice.json',
+        '.Codex/lattice.json',
+        renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
       { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
@@ -750,7 +735,7 @@ export function listManagedAssetDefinitions(
           `.Codex/agents:${file}`,
           `.Codex/agents/${file}`,
           renderCodexAgentContent(content),
-          actual => isKoalaPrompt(actual, file),
+          actual => isManagedPrompt(actual, file),
         ));
       }
     }
@@ -763,19 +748,31 @@ export function listManagedAssetDefinitions(
         'CLAUDE.md',
         CLAUDE_MD_TEMPLATE,
         actual => actual.includes('Koala For Claude Code') || actual.includes('Claude Code subagents are located at'),
-        actual => isExpandedKoalaClaudeGuide(actual),
+        actual => isExpandedLatticeClaudeGuide(actual),
       ),
       { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
     );
     if (templates) {
-      for (const file of listAgentPromptFiles(templates)) {
+      const expected = new Set(listAgentPromptFiles(templates));
+      for (const file of expected) {
         const content = readFileSync(join(templates, file), 'utf-8');
         defs.push(wholeFile(
           `.claude/agents:${file}`,
           `.claude/agents/${file}`,
           content,
-          actual => isKoalaPrompt(actual, file),
+          actual => isManagedPrompt(actual, file),
         ));
+      }
+      if (existsSync(join(projectRoot, '.claude', 'agents'))) {
+        for (const file of listAgentPromptFiles(join(projectRoot, '.claude', 'agents'))) {
+          if (expected.has(file) || !/^koala-[^/\\]+\.md$/.test(file)) continue;
+          defs.push({
+            id: `.claude/agents:legacy-koala-extra:${file}`,
+            relPath: `.claude/agents/${file}`,
+            kind: 'remove-extra',
+            ownedWhen: actual => isGeneratedLegacyKoalaAgentPrompt(actual, file),
+          });
+        }
       }
     }
     const hooks = hookTemplateDir(root);
@@ -830,10 +827,10 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (def.kind === 'excluded-path') {
     if (pathKind === 'missing') {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'excluded Codex runtime asset is absent', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'excluded runtime asset is absent', action: 'none' };
     }
     const found = pathKind === 'file' ? 'file' : pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Codex runtime must not use this Claude-only asset path (found ${found})`, action: 'fix manually: remove it if it is not user-owned' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Lattice runtime must not use this excluded asset path (found ${found})`, action: 'fix manually: remove it if it is not user-owned' };
   }
 
   if (def.kind === 'remove-extra') {
@@ -842,7 +839,10 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     }
     if (pathKind !== 'file') {
       const found = pathKind === 'directory' ? 'directory' : 'non-file path';
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'fix manually: remove it if it is Koala-owned' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'fix manually: remove it if it is generated by Lattice' };
+    }
+    if (def.ownedWhen && actual !== null && !def.ownedWhen(actual)) {
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'legacy Koala-named prompt is not recognized as generated by Lattice; preserving it', action: 'none' };
     }
     return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Codex agent mirror contains a prompt no longer present in managed templates', action: 'remove generated stale prompt' };
   }
@@ -862,7 +862,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (def.kind === 'claude-settings') {
     if (actual === null) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', reason: 'Claude hook settings are missing', action: 'create settings with Koala hooks' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', reason: 'Claude hook settings are missing', action: 'create settings with Lattice hooks' };
     }
     const parsed = safeJsonParse(actual);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -873,9 +873,9 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `hook event(s) have incompatible shape: ${merged.incompatible.join(', ')}`, action: 'fix manually: repair hook array shape' };
     }
     if (!merged.changed) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Koala Claude hooks are present', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Lattice Claude hooks are present', action: 'none' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Koala Claude hooks are missing from settings.json', action: 'merge missing Koala hook commands' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Lattice Claude hooks are missing from settings.json', action: 'merge missing Lattice hook commands' };
   }
 
   if (def.kind === 'codex-hooks') {
@@ -901,22 +901,22 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   }
 
   if (def.kind === 'managed-block') {
-    const desiredSection = extractKoalaSection(expected ?? '');
+    const desiredSection = extractManagedSection(expected ?? '');
     const manifestUnchanged = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
     if (!hasManagedMarkers(actual)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Lattice/Koala managed markers', action: 'fix manually: add markers or merge the managed section' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Lattice managed markers', action: 'fix manually: add markers or merge the managed section' };
     }
     const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
     if (sha256(actualSection) === sha256(desiredSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches template', action: 'none' };
     }
     if (def.okWhen?.(actualSection, root)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches alternate Lattice/Koala-owned contract', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches a recognized Lattice compatibility contract', action: 'none' };
     }
     if (!manifestUnchanged && !def.ownedWhen?.(actualSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_LOCAL_EDIT', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section differs and is not recognized as the generated init block', action: 'review local doc edits before replacing the section' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash: sha256(desiredSection), actualHash, reason: 'Lattice/Koala managed section differs from template', action: 'replace managed section only' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash: sha256(desiredSection), actualHash, reason: 'Lattice managed section differs from template', action: 'replace managed section only' };
   }
 
   if (expected && actual === expected) {
@@ -924,7 +924,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   }
 
   if (actual !== null && def.okWhen?.(actual, root)) {
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches alternate Koala-owned contract', action: 'none' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches a recognized Lattice compatibility contract', action: 'none' };
   }
 
   const unchangedSinceManifest = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
@@ -970,7 +970,7 @@ function applyDefinition(root: string, def: ManagedAssetDefinition, item: Manage
     if (actual === null) {
       writeFileSync(full, expected);
     } else {
-      writeFileSync(full, actual.replace(INIT_DOC_SECTION_RE, extractKoalaSection(expected)));
+      writeFileSync(full, actual.replace(INIT_DOC_SECTION_RE, extractManagedSection(expected)));
     }
     return true;
   }
@@ -1042,8 +1042,8 @@ function reviewLocalEdit(root: string, def: ManagedAssetDefinition): ManagedAsse
   const actual = readText(root, def.relPath);
   if (actual === null) return null;
   const expected = normalizeContent(def.expectedContent ?? '');
-  const actualReviewText = def.kind === 'managed-block' ? extractKoalaSection(actual) : actual;
-  const expectedReviewText = def.kind === 'managed-block' ? extractKoalaSection(expected) : expected;
+  const actualReviewText = def.kind === 'managed-block' ? extractManagedSection(actual) : actual;
+  const expectedReviewText = def.kind === 'managed-block' ? extractManagedSection(expected) : expected;
   const currentHeadings = markdownHeadings(actualReviewText);
   const expectedHeadings = markdownHeadings(expectedReviewText);
   const localOnlyHeadings = stringDifference(currentHeadings, expectedHeadings);

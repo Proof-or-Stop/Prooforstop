@@ -18,7 +18,6 @@ import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-reso
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
-const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core';
 
 export interface GlobalKoalaLinkRepairOptions {
   globalPackagePath?: string;
@@ -34,8 +33,7 @@ export interface GlobalKoalaLinkRepairResult {
 
 interface ResolvedGlobalCorePackagePath {
   path: string;
-  packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof LEGACY_CORE_PACKAGE_NAME;
-  isLegacyFallback: boolean;
+  packageName: typeof CANONICAL_CORE_PACKAGE_NAME;
 }
 
 function isPathInside(child: string, parent: string): boolean {
@@ -51,9 +49,7 @@ function packagePathFromName(root: string, packageName: string): string {
 }
 
 function describeGlobalCorePackage(resolved: ResolvedGlobalCorePackagePath): string {
-  return resolved.isLegacyFallback
-    ? `${resolved.packageName} (legacy fallback for ${CANONICAL_CORE_PACKAGE_NAME})`
-    : resolved.packageName;
+  return resolved.packageName;
 }
 
 function entryExists(path: string): boolean {
@@ -67,12 +63,9 @@ function entryExists(path: string): boolean {
 
 function resolveGlobalCorePackagePaths(options: GlobalKoalaLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
   if (options.globalPackagePath) {
-    const normalized = options.globalPackagePath.replace(/\\/g, '/');
-    const isLegacyFallback = normalized.includes('/@koala-agent/core');
     return [{
       path: options.globalPackagePath,
-      packageName: isLegacyFallback ? LEGACY_CORE_PACKAGE_NAME : CANONICAL_CORE_PACKAGE_NAME,
-      isLegacyFallback,
+      packageName: CANONICAL_CORE_PACKAGE_NAME,
     }];
   }
   try {
@@ -81,10 +74,8 @@ function resolveGlobalCorePackagePaths(options: GlobalKoalaLinkRepairOptions = {
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const canonicalPath = packagePathFromName(globalRoot, CANONICAL_CORE_PACKAGE_NAME);
-    const legacyPath = packagePathFromName(globalRoot, LEGACY_CORE_PACKAGE_NAME);
     const candidates: ResolvedGlobalCorePackagePath[] = [
-      { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, isLegacyFallback: false },
-      { path: legacyPath, packageName: LEGACY_CORE_PACKAGE_NAME, isLegacyFallback: true },
+      { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME },
     ];
     const present = candidates.filter(candidate => entryExists(candidate.path));
     return present.length > 0 ? present : [candidates[0]];
@@ -166,7 +157,7 @@ export function repairGlobalKoalaLinkBeforeWorktreeDelete(
 /**
  * B-9e4a CHK-001 (F-003): A freshly created git worktree does NOT inherit the
  * main repo's `node_modules` (git worktree only checks out tracked files, and
- * `node_modules` is gitignored). Without it, `tsc` / `koala validate` fail with
+ * `node_modules` is gitignored). Without it, `tsc` / `lattice validate` fail with
  * unresolved-dependency errors. Detect the gap so worktree creation never reports
  * "development environment is ready" alone while dependencies are actually missing.
  *
@@ -222,7 +213,7 @@ export function detectMissingNodeModulesWarning(worktreePath: string): string | 
 
     return [
       `⚠ worktree missing node_modules: ${missing.join(', ')}`,
-      `  Missing dependencies will cause tsc / koala validate to fail to resolve modules.`,
+      `  Missing dependencies will cause tsc / lattice validate to fail to resolve modules.`,
       `  → Remediation (recommended): cd ${worktreePath} && npm install`,
       `  → Advanced optional: manually symlink main repo node_modules to this worktree`,
     ].join('\n');
@@ -316,7 +307,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     repoRoot: string;
   }): void {
     const { storyId, branch, storyRel, repoRoot } = args;
-    const tempDir = mkdtempSync(join(tmpdir(), `koala-index-${storyId}-`));
+    const tempDir = mkdtempSync(join(tmpdir(), `lattice-index-${storyId}-`));
     const indexFile = join(tempDir, 'index');
     try {
       const head = gitFile(['rev-parse', '--verify', 'HEAD'], repoRoot);
@@ -324,7 +315,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       gitFile(['read-tree', 'HEAD'], repoRoot, env);
       gitFile(['add', '--', storyRel], repoRoot, env);
       const tree = gitFile(['write-tree'], repoRoot, env);
-      const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `koala: story ${storyId} init`], repoRoot);
+      const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `lattice: story ${storyId} init`], repoRoot);
       gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);
     } finally {
       try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* DEBUG: temp index cleanup best effort */ }
@@ -535,7 +526,11 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return '⚠ Uncleaned main init commit: cannot read HEAD';
     }
 
-    const safeSubject = subject === `koala: story ${storyId} init` || subject.includes(storyId);
+    const legacyInitSubject = `koala${':'} story ${storyId} init`;
+    const safeSubject =
+      subject === `lattice: story ${storyId} init` ||
+      subject === legacyInitSubject ||
+      subject.includes(storyId);
     const safeFiles = files.length > 0 && files.every(path => path.startsWith(storyRel));
     if (!safeSubject || !safeFiles) {
       return `⚠ Uncleaned main init commit: HEAD does not look like a pure metadata init commit for ${storyId}`;
@@ -552,12 +547,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       git(`add "${storyRel}"`);
       const staged = git(`diff --cached --name-only -- "${storyRel}"`);
       if (!staged) return '';
-      git(`-c commit.gpgsign=false commit -m "koala: discard ${storyId}" --only -- "${storyRel}"`);
+      git(`-c commit.gpgsign=false commit -m "lattice: discard ${storyId}" --only -- "${storyRel}"`);
       const after = git(`status --porcelain -- "${storyRel}"`);
       if (after) {
         throw new Error(`story metadata still dirty:\n${after}`);
       }
-      return `✓ discard metadata committed: koala: discard ${storyId}`;
+      return `✓ discard metadata committed: lattice: discard ${storyId}`;
     } catch (e: any) {
       throw new Error(
         `story_discard: discard metadata could not be committed, discard aborted.\n` +
@@ -808,7 +803,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const parallelWarning = checkParallelSafety(args.storyId);
 
       // B-9e4a CHK-001 (F-003): warn when the fresh worktree lacks node_modules,
-      // which would otherwise make tsc / koala validate fail with unresolved deps.
+      // which would otherwise make tsc / lattice validate fail with unresolved deps.
       const nodeModulesWarning = detectMissingNodeModulesWarning(worktreePath);
 
       // Dependency check
@@ -832,7 +827,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `Story ${args.storyId} development environment is ready`,
         `Branch: ${branch}`,
         `Path: ${worktreePath}`,
-        `→ cd ${worktreePath} to enter the worktree for development; run all koala commands in this directory`,
+        `→ cd ${worktreePath} to enter the worktree for development; run all lattice commands in this directory`,
         `→ sub agent should not use isolation:"worktree", run directly in the main agent's worktree`,
         `→ checklist_get(${args.storyId}) to view pending development items`,
         `→ After development completes, call dev_finish(${args.storyId}) to merge back to the main branch`,
@@ -864,7 +859,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
         if (staged) {
-          git(`commit -m "koala: auto-add story files for ${args.storyId}"`, wtPath);
+          git(`commit -m "lattice: auto-add story files for ${args.storyId}"`, wtPath);
         }
       } catch { /* no new files is fine */ }
 
@@ -929,7 +924,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
         if (staged) {
-          git(`commit -m "koala: auto-add story files for ${args.storyId}"`, wtPath);
+          git(`commit -m "lattice: auto-add story files for ${args.storyId}"`, wtPath);
         }
       } catch { /* It's fine if there are no new files */ }
 
@@ -1030,7 +1025,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             throw new Error(
               `Worktree git metadata is corrupted, cannot safely check for uncommitted changes:\n` +
               `${wtPath}\n` +
-              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: koala story_discard '{"storyId":"${args.storyId}","force":true}'`,
+              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`,
             );
           }
 
@@ -1058,7 +1053,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
               const wtStatus = git('status --porcelain', wtPath);
               if (wtStatus) {
                 throw new Error(
-                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: koala story_discard '{"storyId":"${args.storyId}","force":true}'`
+                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`
                 );
               }
             }

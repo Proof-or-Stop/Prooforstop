@@ -1,5 +1,5 @@
 /**
- * Handler Registry — koala 的工具注册中心
+ * Handler Registry — Lattice 的工具注册中心
  *
  * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @lattice-agent/utils）
  * 可以把自己的 handler 通过 registry.register / registerBatch 注入进来，
@@ -60,6 +60,7 @@ import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { createDoneClosureHandlers } from './handlers/done-closure.js';
 import { createDecisionDocQuorumHandlers } from './handlers/decision-doc-quorum.js';
 import { createDecisionDocPromotionHandlers } from './handlers/decision-doc-promotion.js';
+import { createReviewEscalationHandlers } from './handlers/review-escalation.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeAntiExpansionHandlers } from './handlers/scope-anti-expansion.js';
@@ -195,7 +196,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createCheckHandlers(ctx));
 
   // B-a2f1 CHK-003: recover_evidence — single-shot stale-evidence recovery
-  // (refuse-on-non-metadata-dirt → verification_evidence_refresh_stale → koala validate).
+  // (refuse-on-non-metadata-dirt → verification_evidence_refresh_stale → lattice validate).
   registry.registerBatch(createRecoverEvidenceHandlers(ctx));
 
   // B-cf60: artifact_declare — per-story declared product artifact registration.
@@ -214,6 +215,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createDoneClosureHandlers(ctx));
   registry.registerBatch(createDecisionDocQuorumHandlers(ctx));
   registry.registerBatch(createDecisionDocPromotionHandlers(ctx));
+  registry.registerBatch(createReviewEscalationHandlers(ctx));
   registry.registerBatch(createVerificationContextPackHandlers(ctx));
   registry.registerBatch(createCapsuleHandlers(ctx));
 
@@ -230,14 +232,14 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // Never submits evidence, claims jobs, registers actor keys, or verifies receipts.
   registry.registerBatch(createAuthorityEnforceHandlers(ctx));
 
-  // B-ad2c: dev_memory_* — lightweight experience capture outside Koala story gates.
-  // Non-authoritative: entries cannot satisfy Koala DONE gate evidence.
+  // B-ad2c: dev_memory_* — lightweight experience capture outside Lattice story gates.
+  // Non-authoritative: entries cannot satisfy Lattice DONE gate evidence.
   registry.registerBatch(createDevMemoryHandlers(ctx));
 
   // B-d4dd/B-2a63: deterministic virtual benchmark + real-data export baseline harnesses.
   registry.registerBatch(createMemoryBenchmarkHandlers(ctx));
 
-  // Host-neutral capability discovery for Koala/Lattice adapters.
+  // Host-neutral capability discovery for Lattice adapters.
   registry.registerBatch(createCapabilityListHandlers());
 
   // Lattice productized export and cross-host handoff surfaces.

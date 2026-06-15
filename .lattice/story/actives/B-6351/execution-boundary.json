@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6351",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node bin/lattice-codex.js *",
+    "node bin/lattice.js *",
+    "node scripts/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice-cli",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".Codex",
+    "AGENTS.md",
+    "bin",
+    "docs/guide-hooks.md",
+    "docs/guide.md",
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git reset --hard*",
+    "koala *",
+    "node bin/koala-codex.js *",
+    "node bin/koala.js *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Delete active koala compatibility while preserving immutable signed historical story evidence. Do not run koala/omx commands during implementation.",
+  "createdAt": "2026-06-15T01:59:32.058Z",
+  "updatedAt": "2026-06-15T01:59:32.058Z",
+  "_hash": "3d3ea2bd30ef40eac015f690cfff2e7a0feb32f7e5eb19eaa4c116370eec8a90"
+}

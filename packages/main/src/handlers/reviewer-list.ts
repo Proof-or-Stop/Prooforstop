@@ -1,5 +1,5 @@
 /**
- * B-fdcf CHK-001: koala reviewer_list CLI
+ * B-fdcf CHK-001: lattice reviewer_list CLI
  *
  * Output the opt-in reviewer roster for the current story (computed in real time based on 5 conditions):
  *   - concept  / quality / test-coverage → baseline (always on)
@@ -58,7 +58,7 @@ const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
 
 function reviewerLaneShortName(lane: string): string {
-  return lane.replace(/^koala-review-/, '');
+  return lane.replace(/^lattice-review-/, '');
 }
 
 function supportedForceReviewerNames(): string {
@@ -71,7 +71,7 @@ export function normalizeForceReviewerName(value: string): string {
   const raw = String(value).trim();
   if (!raw) return '';
   if (isReviewRunLane(raw)) return reviewerLaneShortName(raw);
-  const lane = `koala-review-${raw}`;
+  const lane = `lattice-review-${raw}`;
   if (isReviewRunLane(lane)) return raw;
   throw new Error(
     `reviewer_list: forceReviewer "${raw}" is not supported by review_run_start. Supported reviewers: ${supportedForceReviewerNames()}`,
@@ -135,7 +135,7 @@ export function computeActiveReviewers(
   }
 
   // channel LLM reviewer has been retired; normal-channel mechanical constraints are handled by the
-  // `koala validate --channel --story=<id>` preflight in REVIEW→TEST.
+  // `lattice validate --channel --story=<id>` preflight in REVIEW→TEST.
 
   // forced override: command-line --forceReviewer=a,b,c explicitly mounts (input already constrained to lanes supported by review_run_start)
   // Auto reviewers with the same name will be overridden to reason='forced' + forced=true

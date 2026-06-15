@@ -181,13 +181,13 @@ export function getGuardFailureReason(
       try {
         const findings = store.readFindings(storyId);
         if (!findings.findings || findings.findings.length === 0) {
-          return `Cannot enter TEST: reviewer has not run (findings.json is empty)\n→ Launch reviewer per opt-in results (see koala reviewer_list)`;
+          return `Cannot enter TEST: reviewer has not run (findings.json is empty)\n→ Launch reviewer per opt-in results (see lattice reviewer_list)`;
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
-          // B-ad2c F-005: classify reviewer evidence by koala-review-* lane prefix
+          // B-ad2c F-005: classify reviewer evidence by lattice-review-* lane prefix
           // (shared isReviewerAgent helper), NOT by `agent != main`. Otherwise
-          // main / main-agent / koala-implementer findings recorded during DEV
+          // main / main-agent / lattice-implementer findings recorded during DEV
           // are misclassified as reviewer evidence and block REVIEW→TEST when
           // they lack a reviewRunId. Mirrors core/review-run.ts
           // collectReviewerEvidenceState (used by machine.ts canPassReview /
@@ -217,13 +217,13 @@ export function getGuardFailureReason(
               const names = optIn.map(r => r.name).join(',');
               const missingNames = missing.map(r => r.name).join(',');
               const presentAgents = Array.from(new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent))).join(', ') || 'none';
-              return `Cannot enter TEST: Round 1 expects ${optIn.length} reviewer(s) (opt-in: ${names}); currently ${currentRoundReviewerFindings.length} finding(s) cover ${optIn.length - missing.length} reviewer(s) (missing: ${missingNames}; seen agents: ${presentAgents})\n→ Launch the missing koala-review-* agents in parallel`;
+              return `Cannot enter TEST: Round 1 expects ${optIn.length} reviewer(s) (opt-in: ${names}); currently ${currentRoundReviewerFindings.length} finding(s) cover ${optIn.length - missing.length} reviewer(s) (missing: ${missingNames}; seen agents: ${presentAgents})\n→ Launch the missing lattice-review-* agents in parallel`;
             }
           } else {
             if (currentRoundReviewerFindings.length === 0) {
               return currentRound
-                ? `Cannot enter TEST: Round ${rc} has no reviewer finding in the current review round (${currentRound}); please launch the corresponding koala-review-* agent`
-                : `Cannot enter TEST: all findings come from the main agent (reviewers did not run)\n→ Launch koala-review-* subagents`;
+                ? `Cannot enter TEST: Round ${rc} has no reviewer finding in the current review round (${currentRound}); please launch the corresponding lattice-review-* agent`
+                : `Cannot enter TEST: all findings come from the main agent (reviewers did not run)\n→ Launch lattice-review-* subagents`;
             }
           }
         }
@@ -238,7 +238,7 @@ export function getGuardFailureReason(
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing run finding_resolve, or to confirm not fixing run finding_dismiss (reason must be ≥10 characters)`;
         }
       } catch {
-        return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see koala reviewer_list)`;
+        return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see lattice reviewer_list)`;
       }
     }
   }
@@ -246,7 +246,7 @@ export function getGuardFailureReason(
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
-      return 'Cannot enter DONE: no test evidence (run koala validate first)';
+      return 'Cannot enter DONE: no test evidence (run lattice validate first)';
     }
     if (evidence.result !== 'PASS') {
       return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d959",
+  "checkedAt": "2026-06-15T01:59:26.053Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "c8a1b707cb437a47622a0a93a06d29336b6919e2f96e4a8c2bee1f3c95e5b3dd",
+  "executionBoundaryHash": "33451cd5f4b7a64559727519af4f2ca53eb7570a7fcf641d08615137266695eb",
+  "freshnessHash": "d6dadef396567e70f2e48440e34794a889267898dfa668b25f3893b7502a2d78",
+  "effectiveExcludedKeywords": [
+    ".omx/**",
+    "Authority server behavior changes",
+    "packages/main/src/** implementation changes",
+    "runtime gate implementation"
+  ],
+  "keywordHits": [
+    {
+      "keyword": ".omx/**",
+      "source": "scopeBoundary.excluded",
+      "text": ".omx/**",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority server behavior changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority server behavior changes",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/** implementation changes",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/** implementation changes",
+      "excluded": true
+    },
+    {
+      "keyword": "runtime gate implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "runtime gate implementation",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "d33bd05ce8c31d657aa48625f5046b6d66cd613e782380f84c330dc3c16325d8"
+}

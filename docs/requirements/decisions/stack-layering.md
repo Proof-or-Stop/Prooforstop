@@ -1,77 +1,77 @@
-# Claude Code / Codex × Superpowers × Koala 分层说明（草稿）
+# Claude Code / Codex × Superpowers × Koala Layering Notes (draft)
 
-> 2026.04 · 用三层模型解释当前体系的职责边界，避免“谁负责 workflow、谁负责 project state、谁负责 runtime”继续混在一起
+> 2026.04 · Explains the responsibility boundaries of the current system with a three-layer model, to stop "who is responsible for workflow, who for project state, who for runtime" from staying tangled together
 
-## 一句话结论
+## One-Sentence Conclusion
 
-推荐把当前体系理解成三层：
+The recommended way to understand the current system is as three layers:
 
-1. **Claude Code / Codex**：agent runtime
-2. **Superpowers**：agent workflow / methodology
-3. **Lattice CLI / Koala**：project execution + verification substrate
+1. **Claude Code / Codex**: agent runtime
+2. **Superpowers**: agent workflow / methodology
+3. **Lattice CLI / Koala**: project execution + verification substrate
 
-三层不是并列功能列表，而是自上而下分工：
+The three layers are not a flat feature list, but a top-down division of labor:
 
 ```text
 Claude Code / Codex
-  ↓ 提供模型、对话、工具调用、subagent、UI 宿主
+  ↓ provides the model, conversation, tool calling, subagents, UI host
 
 Superpowers
-  ↓ 提供 workflow、skills、方法论、默认工作习惯
+  ↓ provides workflow, skills, methodology, default work habits
 
 Lattice CLI / Koala
-  ↓ 提供 story / checklist / phase / gate / artifact / evidence / bug / review result
+  ↓ provides story / checklist / phase / gate / artifact / evidence / bug / review result
 ```
 
-## 为什么要分三层
+## Why Three Layers
 
-之前的讨论里，容易把这三件事混成一个“大而全系统”：
+In earlier discussions, it was easy to lump these three things into one "big all-in-one system":
 
-- agent 在哪运行
-- agent 应该怎么工作
-- 项目状态怎么被记录、验证、推进
+- where the agent runs
+- how the agent should work
+- how project state is recorded, verified, and advanced
 
-这三件事本质上是三个不同问题：
+These three things are essentially three different questions:
 
-| 层 | 回答的问题 |
+| Layer | Question it answers |
 |---|---|
-| **Claude Code / Codex** | agent 在哪里运行、原生有什么能力？ |
-| **Superpowers** | agent 应该按什么方法工作？ |
-| **Koala** | 项目状态怎么被落盘、推进、验证、复查？ |
+| **Claude Code / Codex** | Where does the agent run, and what native capabilities does it have? |
+| **Superpowers** | By what method should the agent work? |
+| **Koala** | How is project state persisted, advanced, verified, and re-reviewed? |
 
-如果不把边界划开，就会出现两个典型问题：
+If the boundaries are not drawn, two typical problems appear:
 
-1. **都想当 workflow 编排层**  
-   Superpowers 和 Koala 都开始下指挥，会互相打架。
-2. **没人负责 project state**  
-   agent 工作流看起来很完整，但 story/gate/artifact/evidence 没有明确底座。
+1. **Everyone wants to be the workflow orchestration layer**  
+   Both Superpowers and Koala start issuing orders, and they fight each other.
+2. **No one is responsible for project state**  
+   The agent workflow looks complete, but story/gate/artifact/evidence has no clear foundation.
 
-## 各层职责
+## Responsibilities of Each Layer
 
-### 1. Claude Code / Codex：Runtime 层
+### 1. Claude Code / Codex: The Runtime Layer
 
-这是宿主层，负责：
+This is the host layer, responsible for:
 
-- 模型本身
-- 对话上下文
+- the model itself
+- the conversation context
 - tool calling
-- subagent 能力
-- 交互 UI
-- 插件 / skill / agent 资产的运行环境
+- subagent capability
+- the interactive UI
+- the runtime environment for plugin / skill / agent assets
 
-这一层不应该负责 project-state 语义，也不应该直接定义业务工作流本身。
+This layer should not be responsible for project-state semantics, nor should it directly define the business workflow itself.
 
-它的职责是：
+Its responsibility is:
 
-> **让 agent 能运行**
+> **Let the agent run**
 
-而不是：
+and not:
 
-> **规定项目怎么推进**
+> **Dictate how the project advances**
 
-### 2. Superpowers：Workflow 层
+### 2. Superpowers: The Workflow Layer
 
-这是工作方法层，负责：
+This is the work-method layer, responsible for:
 
 - brainstorming
 - writing-plans
@@ -80,77 +80,77 @@ Lattice CLI / Koala
 - requesting-code-review
 - finishing-a-development-branch
 
-它的强项是：
+Its strengths are:
 
-- 塑造 agent 行为
-- 减少即兴发挥
-- 把“一个靠谱工程师会怎么做”变成 skill-driven workflow
+- shaping agent behavior
+- reducing improvisation
+- turning "how a reliable engineer would do it" into a skill-driven workflow
 
-它的职责是：
+Its responsibility is:
 
-> **让 agent 更像一个会按流程工作的工程师**
+> **Make the agent more like an engineer who works by process**
 
-而不是：
+and not:
 
-> **长期保存项目状态和验证证据**
+> **Persist project state and verification evidence for the long term**
 
-### 3. Lattice CLI / Koala：Execution / Verification 底座
+### 3. Lattice CLI / Koala: The Execution / Verification Substrate
 
-这是项目状态层，负责：
+This is the project-state layer, responsible for:
 
 - story
 - checklist
 - phase
 - gate
-- worktree 生命周期
-- review 记录
+- worktree lifecycle
+- review records
 - test evidence
 - bug / bug cleanup
 - summary
 - implementation review result
 - artifact contract
 
-它的强项是：
+Its strengths are:
 
-- 明确“做到哪一步了”
-- 明确“为什么不能继续”
-- 明确“证据在哪里”
-- 明确“是不是已经真的完成”
+- clarifying "how far we have gotten"
+- clarifying "why we cannot continue"
+- clarifying "where the evidence is"
+- clarifying "whether it is actually done"
 
-它的职责是：
+Its responsibility is:
 
-> **把工作流落成可判定、可追踪、可复查的 project state**
+> **Turn the workflow into a decidable, trackable, re-reviewable project state**
 
-而不是：
+and not:
 
-> **替上层 agent methodology 设计全部工作方式**
+> **Design the entire way of working for the upper-layer agent methodology**
 
-## 组合方式
+## How They Combine
 
-最健康的组合关系不是“谁替代谁”，而是：
+The healthiest combination is not "who replaces whom," but:
 
-- **Claude Code / Codex** 提供 runtime
-- **Superpowers** 提供 workflow
-- **Koala** 提供 state substrate
-- **Lattice CLI 0.3.5** 是这个 substrate 的主产品入口；`koala` 是 legacy alias
+- **Claude Code / Codex** provides the runtime
+- **Superpowers** provides the workflow
+- **Koala-era state artifacts** provide the historical state substrate
+- **Lattice CLI 0.3.5** is the active product entry point of this substrate
 
-也就是：
+That is:
 
 ```text
-用户 / agent
+User / agent
   ↓
 Superpowers skills / workflow
-  ↓ 调用
-Lattice CLI / Koala CLI / MCP / story machine
-  ↓ 落盘
+  ↓ invokes
+Lattice CLI / MCP / story machine
+  ↓ persists
 story / checklist / phase / gate / artifact / evidence
 ```
 
-一句更白话的话：
+A more plain-spoken version:
 
-- **Claude/Codex**：让 agent 能工作
-- **Superpowers**：告诉 agent 应该怎么工作
-- **Lattice CLI / Koala**：记录它到底工作到了哪
+- **Claude/Codex**: lets the agent work
+- **Superpowers**: tells the agent how it should work
+- **Lattice CLI / Koala**: records how far it actually got
 
 ## Mac App Boundary
 
@@ -165,118 +165,115 @@ report capability degradations and receipt requirements, and keep
 `productionDone=false` / `receiptVerified=false` unless a future receipt-backed
 authority path is implemented and mechanically verified.
 
-## 为什么这种组合比单独使用更强
+## Why This Combination Is Stronger Than Using Them Alone
 
-### 只有 Superpowers 的风险
+### The Risk of Superpowers Alone
 
-优点：
+Advantages:
 
-- agent workflow 很完整
-- 使用体验流畅
-- 很适合快速把模型拉进正确习惯
+- the agent workflow is very complete
+- the experience is smooth
+- well-suited to quickly pulling the model into the right habits
 
-风险：
+Risks:
 
-- project state 未必足够结构化
-- 长期复查和跨 session 对齐未必够硬
-- “到底做到哪了 / 为什么能继续 / 证据在哪里”可能分散在聊天和 skill 内部
+- project state may not be sufficiently structured
+- long-term re-review and cross-session alignment may not be hard enough
+- "how far it actually got / why it can continue / where the evidence is" may be scattered across the chat and inside skills
 
-### 只有 Koala 的风险
+### The Risk of Koala Alone
 
-优点：
+Advantages:
 
-- phase / gate / artifact 很强
-- 状态可追踪
-- 复查能力强
+- phase / gate / artifact are very strong
+- state is trackable
+- the re-review capability is strong
 
-风险：
+Risks:
 
-- agent workflow 塑形不如 Superpowers 完整
-- 自动 skill 触发和方法论体验没有那么顺
-- 容易显得“系统很硬，但 agent 未必天然用得好”
+- agent-workflow shaping is less complete than Superpowers
+- automatic skill triggering and the methodology experience are not as smooth
+- it can feel like "the system is very hard, but the agent may not naturally use it well"
 
-### 组合后的收益
+### The Benefit of Combining Them
 
-组合起来的最佳形态是：
+The best form of the combination is:
 
-- 上层更聪明
-- 中层更守纪律
-- 下层更可验证
+- the top layer is smarter
+- the middle layer is more disciplined
+- the bottom layer is more verifiable
 
-换句话说：
+In other words:
 
-> **Superpowers 负责“会做正确的事”，Koala 负责“系统知道它到底做到了什么”。**
+> **Superpowers is responsible for "doing the right thing," and Koala is responsible for "the system knowing what it actually did."**
 
-## 边界原则
+## Boundary Principles
 
-为了不让三层打架，建议遵守这 3 条边界：
+To keep the three layers from fighting, it is recommended to follow these 3 boundaries:
 
-### 原则 1：Superpowers 不负责长期 project state
+### Principle 1: Superpowers Is Not Responsible for Long-Term Project State
 
-Superpowers 可以触发 workflow，但不应该自己定义：
+Superpowers can trigger workflows, but should not define for itself:
 
-- story 生命周期真相源
-- gate 的最终判定记录
-- bug/evidence 的持久化协议
+- the story-lifecycle source of truth
+- the final-judgment record of a gate
+- the persistence protocol of bug/evidence
 
-这些应由 Koala 负责。
+These should be Koala's responsibility.
 
-### 原则 2：Koala 不负责塑造全部 agent methodology
+### Principle 2: Koala Is Not Responsible for Shaping the Entire Agent Methodology
 
-Koala 应继续专注于：
+Koala should keep focusing on:
 
 - state machine
 - gate
 - artifact
 - verification
 
-而不是试图自己重写一整套：
+rather than trying to rewrite an entire set of:
 
-- brainstorming 技法
-- plan 写法
+- brainstorming techniques
+- plan-writing styles
 - subagent methodology
-- TDD 哲学包装
+- TDD philosophy packaging
 
-这些更适合 Superpowers。
+These are better suited to Superpowers.
 
-### 原则 3：Claude/Codex 不直接承载业务状态语义
+### Principle 3: Claude/Codex Does Not Directly Carry Business-State Semantics
 
-Claude/Codex 提供运行时与交互，但不应成为：
+Claude/Codex provides the runtime and interaction, but should not become:
 
-- story 真相源
-- checklist 真相源
-- reviewer 真相源
+- the story source of truth
+- the checklist source of truth
+- the reviewer source of truth
 
-否则一旦跨 session / 跨 tool / 跨 agent，就会丢状态。
+Otherwise, as soon as you cross sessions / tools / agents, you lose state.
 
-### 原则 4：Koala 的 runtime 只限 project state
+### Principle 4: Koala's Runtime Is Limited to Project State
 
-这里的 runtime 不是 agent runtime。Koala 不负责启动、恢复或调度 Codex/Claude
-session，也不实现通用 worker 池、prompt marketplace、token/model 管理或通知系统。
+The runtime here is not the agent runtime. Koala is not responsible for starting, recovering, or scheduling a Codex/Claude session, nor does it implement a general worker pool, prompt marketplace, token/model management, or notification system.
 
-Koala 可以借鉴 OMX 的可观察、可恢复、可诊断思想，但借鉴对象应落在
-project-state runtime：
+Koala can borrow OMX's ideas of being observable, recoverable, and diagnosable, but the thing it borrows for should land on the project-state runtime:
 
-- `status`：只读展示 story / phase / worktree / reviewer / artifact / dirty risk
-- `next`：只读输出当前最可信的下一步
-- `doctor`：诊断 Koala 流程和本地状态健康
-- 后续可选的 `.koala/state`：只能是可删除、可重建的投影缓存，不能成为第二真相源
+- `status`: read-only display of story / phase / worktree / reviewer / artifact / dirty risk
+- `next`: read-only output of the currently most trustworthy next step
+- `doctor`: diagnoses the health of the Koala flow and local state
+- the optional future `.koala/state`: can only be a deletable, rebuildable projection cache, and must not become a second source of truth
 
-硬边界是：story、checklist、fixture、requirements、git 仍然是真相源；所有 gate
-仍由确定性 CLI / fixture / review record 判定，不由 LLM 的即时判断判定。
+The hard boundary is: story, checklist, fixture, requirements, and git are still the sources of truth; all gates are still judged by the deterministic CLI / fixture / review record, not by the LLM's on-the-spot judgment.
 
-## 当前实践对应关系
+## Mapping to Current Practice
 
-结合当前仓库，已经能看到这个分层开始成型：
+Looking at the current repository, you can already see this layering starting to take shape:
 
-### Claude Code / Codex 层
+### Claude Code / Codex Layer
 
 - `.claude/agents/*`
 - `.Codex/agents/*`
-- `bin/koala-codex.js`
-- runtime 工具调用、subagent、交互入口
+- `bin/lattice-codex.js`
+- runtime tool calling, subagents, interactive entry points
 
-### Superpowers 层（外部方法论参考）
+### Superpowers Layer (external methodology reference)
 
 - brainstorming
 - writing-plans
@@ -284,9 +281,9 @@ project-state runtime：
 - requesting-code-review
 - verification-before-completion
 
-这些更像“如何驱动 agent”的方法，不是 Koala 自己要全部重写的东西。
+These are more like methods for "how to drive the agent," not things Koala itself needs to fully rewrite.
 
-### Koala 层
+### Koala Layer
 
 - `story_advance`
 - `session_brief`
@@ -297,27 +294,27 @@ project-state runtime：
 - `phase invariant / reason code`
 - `artifact contract`
 
-这些都属于 project state / verification substrate。
+These all belong to the project state / verification substrate.
 
-## 对 Koala 的直接指导
+## Direct Guidance for Koala
 
-如果接受这份分层，Koala 后续应优先做的，不是“像 Superpowers 那样多加技能”，而是继续强化这些底座能力：
+If you accept this layering, what Koala should prioritize next is not "adding more skills like Superpowers," but continuing to strengthen these foundational capabilities:
 
-1. **state machine 更清晰**  
-   phase / rollback / gate reason 继续结构化
-2. **artifact 更统一**  
-   让更多 reviewer / evidence / summary / implementation review 结果走统一 contract
-3. **verification 更可判定**  
-   减少“看起来完成”但系统无法确认的状态
-4. **runtime 集成更稳定**  
-   让上层 workflow 调 Koala 时更少出现 worktree / reconcile / ownership 漂移
+1. **A clearer state machine**  
+   keep structuring phase / rollback / gate reason
+2. **More unified artifacts**  
+   let more reviewer / evidence / summary / implementation review results follow a unified contract
+3. **More decidable verification**  
+   reduce states that "look complete" but the system cannot confirm
+4. **More stable runtime integration**  
+   make worktree / reconcile / ownership drift less frequent when upper-layer workflows call Koala
 
-## 一句话定位（推荐对外/对内表述）
+## One-Sentence Positioning (recommended for external/internal phrasing)
 
-推荐统一说法：
+The recommended unified phrasing:
 
-> **Claude Code / Codex 是 runtime，Superpowers 是 workflow，Koala 是 project execution and verification substrate。**
+> **Claude Code / Codex is the runtime, Superpowers is the workflow, Koala is the project execution and verification substrate.**
 
-再白话一点：
+A bit more plainly:
 
-> **他们教 agent 怎么干活，我们记录它到底干到了哪。**
+> **They teach the agent how to do the work; we record how far it actually got.**

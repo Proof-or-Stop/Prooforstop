@@ -12,7 +12,12 @@ const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
 function findRepoRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
-    if (existsSync(join(dir, 'koala.config.json')) && existsSync(join(dir, 'packages', 'main'))) return dir;
+    if (
+      existsSync(join(dir, 'lattice.config.json')) &&
+      existsSync(join(dir, 'packages', 'main', 'src'))
+    ) {
+      return dir;
+    }
     const parent = dirname(dir);
     if (parent === dir) throw new Error(`Could not find repo root from ${start}`);
     dir = parent;
@@ -38,12 +43,12 @@ const targetDocs = [
 ];
 
 const staleFirstSessionPhrases = [
-  'Run `koala status` at the start of every new session',
-  'Run `koala status` before taking action',
-  'koala status — check for existing active story',
-  'koala status — see current phase',
-  'Not sure what to do now? Run koala status',
-  'koala status                # one-screen view of project status',
+  'Run `lattice status` at the start of every new session',
+  'Run `lattice status` before taking action',
+  'lattice status — check for existing active story',
+  'lattice status — see current phase',
+  'Not sure what to do now? Run lattice status',
+  'lattice status                # one-screen view of project status',
 ];
 
 for (const file of targetDocs) {
@@ -62,22 +67,23 @@ const projectVision = read('docs/requirements/decisions/project-vision.md');
 for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]] as const) {
   assert.match(content, /npm --prefix packages\/main run build/, `${label} documents local package build before refresh`);
   assert.match(content, /npm install -g \.\/packages\/main/, `${label} documents global package refresh`);
-  assert.match(content, /\blattice --version\b/, `${label} verifies primary lattice binary version`);
-  assert.match(content, /\bkoala --version\b/, `${label} verifies legacy koala alias version`);
+  assert.match(content, /\blattice --version\b/, `${label} verifies lattice binary version`);
+  assert.doesNotMatch(content, /\bkoala --version\b/, `${label} does not require legacy koala alias version verification`);
   assert.match(content, /\blattice check\b/, `${label} documents lattice check`);
   assert.match(content, /\blattice doctor --format=json\b/, `${label} documents lattice doctor json`);
   assert.match(content, /\blattice rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
 }
 
-assert.match(readme, /`lattice`\s+[\s\S]{0,80}primary entry[\s\S]{0,120}`koala`[\s\S]{0,80}legacy alias/, 'README states lattice primary and koala legacy alias');
+assert.match(readme, /`lattice`\s+[\s\S]{0,120}(?:only active|sole active|active product) command/i, 'README states lattice is the only active command');
 assert.match(readme, /node bin\/lattice\.js tool_status/, 'README uses lattice local wrapper for generic tool_status');
 assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice local wrapper for generic verify_codex fallback');
 assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
-assert.doesNotMatch(readme, /node bin\/koala\.js (?:tool_status|verify_codex|aux_doc_list)\b/, 'README keeps bin/koala.js as legacy alias, not preferred generic command examples');
-assert.match(guide, /`lattice` is the current primary command entry, `koala` is retained only as a legacy alias/, 'guide states lattice primary and koala legacy alias');
-assert.match(projectVision, /`lattice` is the 0\.3\.5 primary product entry, `koala` is retained as a compatibility alias/, 'project vision states primary and legacy aliases');
-assert.match(projectVision, /`lattice rollout_check` read-only scan/, 'project vision keeps rollout_check read-only constraint');
-assert.match(projectVision, /`lattice --version`[\s\S]{0,80}`koala --version`/, 'project vision requires primary and alias version verification');
+assert.doesNotMatch(readme, /node bin\/koala\.js (?:tool_status|verify_codex|aux_doc_list)\b/, 'README does not use bin/koala.js generic command examples');
+assert.match(guide, /`lattice` is the current command entry/i, 'guide states lattice as current command entry');
+assert.doesNotMatch(guide, /koala` is retained only as a legacy alias/, 'guide does not preserve koala as active alias');
+assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states lattice as active product entry');
+assert.match(projectVision, /`lattice rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
+assert.doesNotMatch(projectVision, /`lattice --version`[\s\S]{0,120}`koala --version`/, 'project vision does not require alias version verification');
 
 for (const file of targetDocs) {
   const content = read(file);
@@ -148,8 +154,8 @@ function tmpRoot(prefix: string): string {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
-      detail: 'koala session_brief',
-      args: { command: 'koala session_brief' },
+      detail: 'lattice session_brief',
+      args: { command: 'lattice session_brief' },
       endTime: new Date().toISOString(),
     }) + '\n');
     const result = runHook(root, JSON.stringify({ cwd: root }));
@@ -184,8 +190,8 @@ function tmpRoot(prefix: string): string {
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'actives', 'B-demo', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
-      detail: 'koala session_brief',
-      args: { command: 'koala session_brief' },
+      detail: 'lattice session_brief',
+      args: { command: 'lattice session_brief' },
       endTime: new Date().toISOString(),
     }) + '\n');
     const result = runHook(root, JSON.stringify({ cwd: root }));
@@ -218,7 +224,7 @@ function tmpRoot(prefix: string): string {
 }
 
 const cliInit = read('packages/main/src/cli-init.ts');
-assert.match(cliInit, /getKoalaHooks/);
+assert.match(cliInit, /getClaudeHooks/);
 assert.match(cliInit, /session-brief-reminder\.cjs/);
 
 console.log('✓ session brief prompt sync smoke passed');

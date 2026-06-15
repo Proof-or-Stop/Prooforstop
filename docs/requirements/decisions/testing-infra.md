@@ -1,86 +1,85 @@
-# 测试基础设施
+# Testing Infrastructure
 
-## 测试策略
+## Test Strategy
 
-当前测试契约以 story checklist 为中心：
+The current test contract is centered on the story checklist:
 
-1. PLAN 阶段为每个 checklist item 记录 happy/edge/adversarial `verificationIntent`。
-2. DEV 阶段实现代码，并通过 `checklist_update` 记录 `verificationEvidence`（命令、摘要、intentRef、hash 等）。
-3. REVIEW 阶段由 reviewer agent/lane（包含 `koala-review-test-coverage` 覆盖审查 lane）检查实现与 evidence 覆盖。
-4. TEST 阶段运行 `lattice validate`，写 validation evidence、bug、stale/missing evidence 结果。
+1. The PLAN phase records the happy/edge/adversarial `verificationIntent` for each checklist item.
+2. The DEV phase implements the code and records the `verificationEvidence` (command, summary, intentRef, hash, etc.) via `checklist_update`.
+3. The REVIEW phase has the reviewer agent/lane (including the `lattice-review-test-coverage` coverage-review lane) check the implementation and evidence coverage.
+4. The TEST phase runs `lattice validate`, writing validation evidence, bugs, and stale/missing-evidence results.
 
-### 项目原生验证
+### Project-Native Validation
 
-优先使用项目自己的验证命令（如 `npm test`、`pytest`、`go test`、`cargo test`）产出 evidence。Lattice 不要求所有项目都有 TypeScript `validate.ts`，也不要求通过 fixture 才算验证。
+Prefer using the project's own validation commands (such as `npm test`, `pytest`, `go test`, `cargo test`) to produce evidence. Lattice does not require every project to have a TypeScript `validate.ts`, nor does it require passing through a fixture to count as validation.
 
-### 浏览器真机测试
+### Browser Real-Machine Tests
 
-浏览器黑盒验证仍可作为 `verificationEvidence`：
+Browser black-box validation can still serve as `verificationEvidence`:
 
-1. 启动项目 dev server + bridge proxy
-2. 在真实浏览器中执行用户可见流程
-3. 将 transcript、截图/trace、命令和结果通过 `checklist_update` 关联到对应 `verificationIntent`
+1. Start the project dev server + bridge proxy
+2. Execute the user-visible flow in a real browser
+3. Associate the transcript, screenshot/trace, command, and result with the corresponding `verificationIntent` via `checklist_update`
 
-用户价值验收只能逼近，不能伪装成全自动证明：transcript/delivery evidence is required; prompt-only user-value claims are not enough。用户最终认可属于 non-mechanical user approval，Koala gate 只能消费 transcript、verificationEvidence、delivery-check / product-reviewer evidence 或 waiver。
+User-value acceptance can only be approximated, not disguised as a fully automatic proof: transcript/delivery evidence is required; prompt-only user-value claims are not enough. The user's final approval is non-mechanical user approval, and the Lattice gate can only consume a transcript, verificationEvidence, delivery-check / product-reviewer evidence, or a waiver.
 
-### Grill planning artifact 边界
+### Grill Planning Artifact Boundary
 
-`grill_start` / `grill_record` / `grill_close` 只写 `grill.json` 作为 PLAN 阶段澄清记录；`grill_get` 只读这个 planning artifact。Grill clarifies intent; evidence proves behavior. Grill 的问题、回答、open session 和 remainingUnknowns 可以帮助 `story_review` 给 advisory，但不能写入或替代 `verificationEvidence`、`test-evidence.json`、validation evidence、review pass 或 delivery evidence。
+`grill_start` / `grill_record` / `grill_close` only write `grill.json` as a PLAN-phase clarification record; `grill_get` only reads this planning artifact. Grill clarifies intent; evidence proves behavior. Grill's questions, answers, open session, and remainingUnknowns can help `story_review` give an advisory, but cannot be written into or replace `verificationEvidence`, `test-evidence.json`, validation evidence, a review pass, or delivery evidence.
 
-### Legacy fixture 兼容
+### Legacy Fixture Compatibility
 
-`test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是旧 fixture/test 家族，保留给旧 story、迁移、诊断和维护。它们不是当前 story 的默认流程；新流程应优先使用 `verificationIntent`、`verificationEvidence` 和 `lattice validate`。
+`test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` are the old fixture/test family, retained for old stories, migration, diagnosis, and maintenance. They are not the default flow for the current story; the new flow should prefer `verificationIntent`, `verificationEvidence`, and `lattice validate`.
 
-## 测试执行
+## Test Execution
 
-`lattice validate` 是项目级验证入口，不能假设所有项目都有 TypeScript
-`validate.ts`。执行优先级：
+`lattice validate` is the project-level validation entry point, and cannot assume every project has a TypeScript `validate.ts`. Execution priority:
 
-1. 项目根目录存在 `validate.ts` / `validate.js` / `validate.mts` 时，按原 D/M/F verifier 路径执行。
-2. 否则读取**项目配置**：canonical `lattice.config.json` 优先；legacy `koala.config.json` 仅在 canonical 缺失时作为兜底读取，使用时输出迁移提示。两者同时存在时 `lattice.config.json` 胜出并打印冲突诊断，`koala.config.json` 的 validate 配置被忽略。读取的 `validate.command` 或 `validate.commands` 直接执行。
-3. 否则按项目类型自动发现标准命令：`npm test`、`python -m pytest`、`go test ./...`、`cargo test`、`mvn test`、`gradle test`。
-   - **Swift / Package.swift 不在自动 fallback 列表**：Mac Native App 已退役，不再作为当前产品入口；如需运行 `swift test` 必须在 `lattice.config.json`（或 legacy `koala.config.json`）显式声明 `validate.commands` 条目。
-4. 仍找不到验证入口时返回 `warn/skip`，不把 Python/Go/C++ 等非 TS 项目误判为失败；需要强门禁的项目必须显式配置验证命令。
+1. When the project root has `validate.ts` / `validate.js` / `validate.mts`, execute via the original D/M/F verifier path.
+2. Otherwise, read the **project config**: canonical `lattice.config.json` is the only active config file. Legacy `koala.config.json` is ignored by the active loader, so its `validate.command` or `validate.commands` are not executed.
+3. Otherwise, auto-discover the standard command by project type: `npm test`, `python -m pytest`, `go test ./...`, `cargo test`, `mvn test`, `gradle test`.
+   - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `lattice.config.json`.
+4. When no validation entry is still found, return `warn/skip`, and do not misjudge a non-TS project such as Python/Go/C++ as a failure; a project that needs a hard gate must explicitly configure a validation command.
 
-`lattice validate` 的成功提示必须使用当前 story phase 和 gate oracle，而不是硬编码 DONE：
-DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
-TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree、missing/stale `verificationEvidence` 等门禁项。
+The success prompt of `lattice validate` must use the current story phase and the gate oracle, rather than hardcoding DONE:
+after the DEV phase passes, the prompt is to commit and enter REVIEW; after the REVIEW phase passes, the prompt is to enter TEST;
+after the TEST phase passes, the prompt is to view the DONE pre-check, and per the hint of the failed rows, fill in gate items such as summary, delivery check, dirty tree, and missing/stale `verificationEvidence`.
 
-REVIEW→TEST 的验证入口必须 fail-closed。`review-preflight` import/runtime 异常、`lattice validate` handler 执行异常或 JSON 解析异常都属于 gate infrastructure failure，必须阻止进入 TEST，并输出 `Cannot enter TEST` 加可复跑命令；不能把这些异常降级成 warning。找不到验证入口但由 validate policy 明确返回的 `warn/skip` 仍按 validate JSON 语义处理，区别于 runner 自身崩溃。
+The REVIEW→TEST validation entry must be fail-closed. A `review-preflight` import/runtime exception, a `lattice validate` handler execution exception, or a JSON parse exception are all gate infrastructure failures, and must block entry into TEST and output `Cannot enter TEST` plus a re-runnable command; these exceptions must not be downgraded to a warning. A `warn/skip` that is explicitly returned by the validate policy when no validation entry is found is still handled per the validate JSON semantics, distinct from the runner itself crashing.
 
-验证相关的流程事实必须登记在 `packages/main/src/core/process-fact-registry.ts`：
-`validate` 代表 `validation-status`，`verification_evidence_*` 代表
-`verification-evidence` / `execution-evidence`，`test-evidence.json` 是 DONE
-gate 消费的验证结果 artifact。`scripts/verify-process-fact-contract.mjs`
-负责校验这些 registry 事实与 `COMMAND_POLICIES`、`PROCESS_FACT_LEVELS`、
-`DEFAULT_PHASE_TOOLS`、reviewer lane 和 signed artifact 一致；项目配置只能补
-本地验证命令或收窄可用命令，不能放宽 legacy/rootOnly/gateEvidence 语义。
+The validation-related process facts must be registered in `packages/main/src/core/process-fact-registry.ts`:
+`validate` represents `validation-status`, `verification_evidence_*` represents
+`verification-evidence` / `execution-evidence`, and `test-evidence.json` is the validation-result artifact consumed by the DONE
+gate. `scripts/verify-process-fact-contract.mjs`
+is responsible for validating that these registry facts are consistent with `COMMAND_POLICIES`, `PROCESS_FACT_LEVELS`,
+`DEFAULT_PHASE_TOOLS`, reviewer lanes, and signed artifacts; the project config can only add
+a local validation command or narrow the available commands, and cannot relax the legacy/rootOnly/gateEvidence semantics.
 
-runtime/environment drift 事实必须单独登记在 `packages/main/src/core/runtime-fact-registry.ts`，
-并用 `scripts/verify-runtime-fact-contract.mjs` 防回退；不要把 CLI entrypoint、
-global realpath、project-local bin 这类环境事实混入流程事实 registry。
+runtime/environment drift facts must be registered separately in `packages/main/src/core/runtime-fact-registry.ts`,
+and protected against regression with `scripts/verify-runtime-fact-contract.mjs`; do not mix environment facts such as the CLI entrypoint,
+global realpath, and project-local bin into the process-fact registry.
 
-Legacy `test_auto` 是兼容 runner，不是统一入口。当前 handler 只负责执行 legacy fixture 并返回执行摘要；维护旧 fixture 时它的行为是：
+The legacy `test_auto` is a compatibility runner, not a unified entry point. The current handler is only responsible for executing legacy fixtures and returning an execution summary; when maintaining old fixtures, its behavior is:
 
-1. 扫描 `fixturesDir` 下所有 `.json` fixture 文件
-2. 校验 `fn` + `file` 字段是否指向真实源码
-3. 通过语言无关 executor registry 执行每个 case：优先 `executor` / `command`，兼容 legacy JS `execute`
-4. 验证结果（`expect` 精确/pattern 匹配，或 `throws` 错误匹配）
-5. 采集 V8 profiler trace，检测调用链变化并输出 warnings
-6. 汇总 total / passed / failed / warnings / trace 快照等结果
+1. Scan all `.json` fixture files under `fixturesDir`
+2. Validate that the `fn` + `file` fields point to real source code
+3. Execute each case via the language-agnostic executor registry: prefer `executor` / `command`, fall back to legacy JS `execute`
+4. Validate the result (`expect` exact/pattern match, or `throws` error match)
+5. Collect a V8 profiler trace, detect call-chain changes, and output warnings
+6. Aggregate results such as total / passed / failed / warnings / trace snapshot
 
-它不会写 `bug.json`，也不会写 `test-evidence.json` / `verificationEvidence`。bug 管理和 validation evidence 写入属于 `lattice validate` / gate 或显式 bug/evidence 命令；真实 legacy 维护运行仍可能执行 workspace-destructive cleanup（`git restore . && git clean -fd`）。
+It does not write `bug.json`, nor does it write `test-evidence.json` / `verificationEvidence`. Bug management and validation-evidence writing belong to `lattice validate` / the gate or explicit bug/evidence commands; a real legacy maintenance run may still execute a workspace-destructive cleanup (`git restore . && git clean -fd`).
 
-Outcome semantics 的 focused smoke 覆盖 dashboard/session wording、`summary_set.outcomeKind` schema、verification evidence verdict 渲染，以及 worktree authority wording：
+The focused smoke for outcome semantics covers dashboard/session wording, the `summary_set.outcomeKind` schema, verification-evidence verdict rendering, and worktree authority wording:
 
 ```bash
 npm --prefix packages/main run build
 npm --prefix packages/main run test:outcome-semantics-smoke
 ```
 
-它必须在回归成单一含糊 DONE 百分比，或恢复旧的 alarming main metadata wording 时失败。
+It must fail when something regresses into a single ambiguous DONE percentage, or restores the old alarming main metadata wording.
 
-配置示例：
+Configuration example:
 
 ```json
 {
@@ -93,101 +92,98 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 }
 ```
 
-`validate.command` / `validate.commands` 的 JSON receipt 是审计证据：每条命令应记录
-`command`、`args`、`code`、`durationMs`、`output`，以及需要 shell 语义时的
-`shell=true`。字符串命令里包含 `cd`/`&&`/管道/重定向等 shell 语义时，Koala 会把它
-作为一个有意的 shell receipt 执行；结构化命令对象默认不走 shell，除非显式写
-`"shell": true`。必需命令失败时 `lattice validate` hard fail；`optional:true`
-命令失败时只返回 warn。
+The JSON receipt of `validate.command` / `validate.commands` is audit evidence: each command should record
+`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Lattice will execute it
+as a deliberate shell receipt; a structured command object does not go through the shell by default, unless `"shell": true` is written explicitly. When a required command fails, `lattice validate` hard-fails; when an `optional:true`
+command fails, it only returns a warn.
 
-`lattice doctor` 的 Validation scan 是项目级 advisory，不替代 `lattice validate`：
-它说明 `validate.ts/js/mts` 是否存在、项目配置（`lattice.config.json` 优先，legacy `koala.config.json` 仍可读）是否配置了验证命令、
-自动发现的 fallback 命令标签、是否处于 no-validator warning，以及 shell 风格配置
-是否会留下 `shell=true` receipt。这里不能写项目专属测试数量或 PVSC 之类的假设；
-需要强门禁时应配置显式 validate command。Swift / Package.swift 不属于自动 fallback（Mac Native App 已退役），doctor 输出会显式提示需要显式 `validate.commands` 才会跑 `swift test`。
+The Validation scan of `lattice doctor` is a project-level advisory and does not replace `lattice validate`:
+it states whether `validate.ts/js/mts` exists, whether canonical `lattice.config.json` has a validation command configured,
+the labels of the auto-discovered fallback commands, whether it is in a no-validator warning, and whether the shell-style config
+will leave a `shell=true` receipt. It must not write a project-specific test count or an assumption such as PVSC here;
+when a hard gate is needed, an explicit validate command should be configured. Swift / Package.swift is not in the auto-fallback (the Mac Native App is retired), and the doctor output will explicitly note that an explicit `validate.commands` is needed before `swift test` will run.
 
-`lattice doctor` 的 `Runtime scan:` 是另一类 advisory / warn 输出：它检查 Lattice 运行环境事实，
-不写 validation evidence，也不进入 `process-fact-registry`。runtime facts 由
-`packages/main/src/core/runtime-fact-registry.ts` 声明，并由
-`scripts/verify-runtime-fact-contract.mjs` 验证 registry ID、output key、checker wiring、
-doctor JSON `runtime` 分区和 text source coverage。`external-reference-policy` 只做 bounded
-truth/config scan：`koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md`、
-`docs/requirements/**/*.md`；排除 `.koala/story`、`docs/story`、`tests/fixtures`、
-`node_modules`、`dist/build` 和普通源码注释。扫描到外部 URL / host:port 且没有 health command
-语义时只能输出 reference-only / health-check-required warning，不能声称 connectivity pass。bounded scan 同时识别 `lattice.config.json`（canonical）与 `koala.config.json`（legacy fallback）作为项目配置 marker。
+The `Runtime scan:` of `lattice doctor` is another kind of advisory / warn output: it checks Lattice runtime environment facts,
+does not write validation evidence, and does not enter the `process-fact-registry`. The runtime facts are declared by
+`packages/main/src/core/runtime-fact-registry.ts`, and `scripts/verify-runtime-fact-contract.mjs` validates the registry ID, output key, checker wiring,
+the doctor JSON `runtime` section, and text source coverage. `external-reference-policy` only does a bounded
+truth/config scan: `lattice.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`,
+`docs/requirements/**/*.md`; it excludes `.koala/story`, `docs/story`, `tests/fixtures`,
+`node_modules`, `dist/build`, and ordinary source-code comments. When it scans an external URL / host:port with no health-command
+semantics, it can only output a reference-only / health-check-required warning, and cannot claim a connectivity pass. The bounded scan recognizes `lattice.config.json` as the canonical project-config marker.
 
-Runtime artifacts 不属于 `Runtime scan` 的环境事实，而是由
-`packages/main/src/core/runtime-artifact-registry.ts` 单独登记的运行时文件事实。
-这张表为 `.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、
-`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等路径提供统一的
-gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语义。
-`currentMaterialHash` / verification freshness 必须排除 registry 标记的 runtime artifacts，
-但不能排除 source/config/requirements/package files；`.koala/story/` 是流程证据，
-不按 runtime artifact 处理。
+Runtime artifacts are not the environment facts of the `Runtime scan`, but are runtime file facts registered separately by
+`packages/main/src/core/runtime-artifact-registry.ts`.
+This table provides unified gitignore, materialHash exclusion, volatile dirty-risk, and tracked-repair semantics for paths such as
+`.koala/activity.jsonl`, the legacy `docs/story/activity.jsonl`, `.koala/runtime/`,
+`.koala/traces/`, `.koala-serve.json`, and debug/browser logs.
+`currentMaterialHash` / verification freshness must exclude the runtime artifacts marked by the registry,
+but must not exclude source/config/requirements/package files; `.koala/story/` is process evidence,
+and is not handled as a runtime artifact.
 
-### 阶段行为差异
+### Phase Behavior Differences
 
-- **DEV 阶段**：用项目原生命令验证，并通过 `checklist_update` 写 `verificationEvidence`；legacy `test_auto` 只在维护旧 fixture 时可用，且必须明确提示可能修改实际文件
-- **REVIEW 阶段**：reviewer lane（包含 `koala-review-test-coverage`）先 `review_run_start` 建当前 round 的 signed reviewer run，再消费 `verificationIntent` / `verificationEvidence`；无 blocker 时写 `review_pass_set` + `reviewRunId`
-- **TEST 阶段**：`lattice validate` 写 validation evidence；legacy `test_auto` 若被维护场景显式调用，仍会执行 `git restore . && git clean -fd`
+- **DEV phase**: validate with project-native commands, and write `verificationEvidence` via `checklist_update`; the legacy `test_auto` is available only when maintaining old fixtures, and must clearly warn that it may modify actual files
+- **REVIEW phase**: the reviewer lane (including `lattice-review-test-coverage`) first does `review_run_start` to create the current round's signed reviewer run, then consumes `verificationIntent` / `verificationEvidence`; when there are no blockers it writes `review_pass_set` + `reviewRunId`
+- **TEST phase**: `lattice validate` writes validation evidence; the legacy `test_auto`, if explicitly invoked in a maintenance scenario, will still execute `git restore . && git clean -fd`
 
 ## Flow Fact Policy
 
-流程事实必须由代码 policy 和 gate 双层保护，不能只靠 prompt 或文档。`packages/main/src/core/flow-fact-policy.ts` 是 review/pass/finding/verification exemption 的集中表，并同步登记到 `process-fact-registry`、`process-fact-levels` 和 `scripts/verify-process-fact-contract.mjs`。
+Process facts must be protected by two layers of code policy and gate, not only by a prompt or document. `packages/main/src/core/flow-fact-policy.ts` is the centralized table of review/pass/finding/verification exemptions, and is registered in sync into `process-fact-registry`, `process-fact-levels`, and `scripts/verify-process-fact-contract.mjs`.
 
-- `reviewRound: string (ISO 8601 review round id)`，由 `story.currentReviewRound` 提供；签名事实消费字符串，不消费 number round。
-- `reviewRunId: string`，由 `review_run_start` 生成并写入 signed `review-runs.json`；当前 REVIEW round 的 `finding_add` / `review_pass_set` 必须带这个字段，gate 会校验 lane/current round/latest run/freshness。
-- `story_review.planReviewRound: number (PLAN review round count)` 是 PLAN review 输出数字计数；`story_review.reviewRound` 仅是 legacy numeric PLAN review alias，不能作为 finding / review pass / delivery check 的 signed artifact schema。
-- pass-only finding_add 归一化：low severity 且 agent 为 `koala-review-*` 的 pass-only finding 转为 `review_pass_set`；含 failure / blocker / 缺少 / 失败 等矛盾语义、非 reviewer、非 low severity 都必须保留为 finding。
-- review run freshness：`review_run_start` 记录 `headHash/materialHash`。如果代码或文档 material 变化导致 run stale，旧 `reviewRunId` 不再可用，reviewer 必须重跑 `review_run_start` 再提 finding/pass。
-- Express exemption：express channel 且 zero `verificationIntent` 输出 `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`；normal / fast zero intent 只显示普通 coverage 缺失文案，不显示 `express-exempt`。
-- Worker evidence boundary：prompt-only worker claims are not mechanical evidence。可审计 worker 事实只来自 `koala dispatch` / dispatch/process-event/commit evidence / commit author 等结构化记录；Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence。
+- `reviewRound: string (ISO 8601 review round id)`, provided by `story.currentReviewRound`; signed facts consume the string, not a number round.
+- `reviewRunId: string`, generated by `review_run_start` and written into the signed `review-runs.json`; the `finding_add` / `review_pass_set` of the current REVIEW round must carry this field, and the gate validates lane/current round/latest run/freshness.
+- `story_review.planReviewRound: number (PLAN review round count)` is the numeric count of PLAN review output; `story_review.reviewRound` is only the legacy numeric PLAN review alias, and cannot be used as the signed-artifact schema of a finding / review pass / delivery check.
+- pass-only finding_add normalization: a pass-only finding with low severity and an agent of `lattice-review-*` is converted to `review_pass_set`; one containing contradictory semantics such as failure / blocker / missing / failed, a non-reviewer, or a non-low severity must all be kept as a finding.
+- review run freshness: `review_run_start` records `headHash/materialHash`. If a code or document material change makes the run stale, the old `reviewRunId` is no longer usable, and the reviewer must re-run `review_run_start` before submitting a finding/pass.
+- Express exemption: when the channel is express and there is zero `verificationIntent`, it outputs `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`; normal / fast with zero intent only displays the ordinary coverage-missing wording, not `express-exempt`.
+- Worker evidence boundary: prompt-only worker claims are not mechanical evidence. Auditable worker facts only come from structured records such as `lattice dispatch` / dispatch/process-event/commit evidence / commit author; Lattice cannot mechanically prove true subagent context isolation, and can only prove observable assignment evidence.
 
-## 测试流程
+## Test Flow
 
-- PLAN：用 `verificationIntent` 描述每个 checklist item 的 happy/edge/adversarial 验收。
-- DEV：实现后跑项目原生命令或浏览器流程，并用 `checklist_update` 写入 `verificationEvidence`。
-- REVIEW：reviewer lane `koala-review-test-coverage` 检查 `verificationIntent` 是否都有可追溯 evidence；先 `review_run_start` 拿 `reviewRunId`，无 blocker 时通过 `review_pass_set` + `reviewRunId` 记录 pass。内部 coverage validation 消费 `verificationIntent` / `verificationEvidence`，不是单独的 CLI 命令。
-- TEST：`lattice validate` 执行项目级验证，记录 validation evidence；缺失或 stale evidence 时返回 `allPass:false`。
-- DONE：只接受 PASS、bug fixed、evidence fresh、summary/delivery gate 全部满足的结果。
+- PLAN: use `verificationIntent` to describe the happy/edge/adversarial acceptance of each checklist item.
+- DEV: after implementing, run project-native commands or the browser flow, and write the `verificationEvidence` with `checklist_update`.
+- REVIEW: the reviewer lane `lattice-review-test-coverage` checks whether every `verificationIntent` has traceable evidence; it first does `review_run_start` to get the `reviewRunId`, and when there are no blockers it records a pass via `review_pass_set` + `reviewRunId`. The internal coverage validation consumes `verificationIntent` / `verificationEvidence`, and is not a separate CLI command.
+- TEST: `lattice validate` runs the project-level validation and records validation evidence; when evidence is missing or stale, it returns `allPass:false`.
+- DONE: only accepts a result where PASS, bug fixed, evidence fresh, and the summary/delivery gate are all satisfied.
 
-## CLI 工具
+## CLI Tools
 
-| 工具 | 用途 |
+| Tool | Purpose |
 |---|---|
-| `lattice validate` | 当前标准项目级验证入口，写 validation evidence / bug / stale evidence 结果 |
-| `checklist_update` | DEV 阶段记录 checklist status、`verificationIntent`、`verificationEvidence` |
-| `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context；不属于 gateEvidence，不产生 validation evidence |
-| `verification_evidence_refresh_stale` | 在重跑真实验证后刷新 stale evidence 的 HEAD/material hash |
-| `test_auto` | legacy/compat 全量 fixture runner，维护旧 fixture 时才用 |
+| `lattice validate` | The current standard project-level validation entry point, writes validation evidence / bug / stale-evidence results |
+| `checklist_update` | Records the checklist status, `verificationIntent`, and `verificationEvidence` in the DEV phase |
+| `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context; not gateEvidence, produces no validation evidence |
+| `verification_evidence_refresh_stale` | Refreshes the HEAD/material hash of stale evidence after re-running real validation |
+| `test_auto` | legacy/compat full fixture runner, used only when maintaining old fixtures |
 | `test_story` | legacy/compat story fixture runner |
-| `test_fixture` | legacy/compat 单 fixture/链路 runner |
-| `fixture_batch_add` / `fixture_update` | legacy/compat fixture 维护入口 |
-| `test_add` | legacy/compat 测试证据写入；新流程用 `verificationEvidence` |
-| `task_coverage` | legacy/maintenance 覆盖辅助；当前 coverage reviewer lane / validation 读取 `verificationEvidence` |
-| `browser_test` | 单独跑浏览器测试，结果应转写为 `verificationEvidence` |
-| `test_list` | 查看测试证据 |
-| `bug_report` | 报告 bug（自动标关联 item in_progress + 回退 DEV） |
-| `bug_update` | 更新 bug 状态 |
-| `bug_list` | 查看 bug 列表 |
-| `diagnose` | 自动诊断（DEV 纯建议，TEST 关联 bug_report） |
+| `test_fixture` | legacy/compat single-fixture/chain runner |
+| `fixture_batch_add` / `fixture_update` | legacy/compat fixture maintenance entry |
+| `test_add` | legacy/compat test-evidence writing; the new flow uses `verificationEvidence` |
+| `task_coverage` | legacy/maintenance coverage helper; the current coverage reviewer lane / validation reads `verificationEvidence` |
+| `browser_test` | Run browser tests separately; the result should be transcribed into `verificationEvidence` |
+| `test_list` | View test evidence |
+| `bug_report` | Report a bug (automatically marks the associated item in_progress + rolls back to DEV) |
+| `bug_update` | Update bug status |
+| `bug_list` | View the bug list |
+| `diagnose` | Auto-diagnosis (pure advice in DEV, associates with bug_report in TEST) |
 
-## 跨语言执行协议
+## Cross-Language Execution Protocol
 
-Legacy fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；Python、Go、C++、Java、Rust 等项目应优先通过 `command` / 语言 executor / 原生测试命令产生 `verificationEvidence`，再由 `lattice validate` 在 TEST 阶段消费。Swift / Objective-C（Mac Native App）已退役，不再作为当前产品默认验证入口，只有显式通过 `validate.commands` 或 legacy `swift.test` / `objc.xcodebuild` executor opt-in 时才会被执行。
+A legacy fixture is a language-agnostic test protocol, not a JS script container. `execute` represents only the legacy `js.execute` executor; projects such as Python, Go, C++, Java, and Rust should prefer producing `verificationEvidence` via `command` / a language executor / a native test command, then have `lattice validate` consume it in the TEST phase. Swift / Objective-C (Mac Native App) is retired and is no longer a current default product validation entry point; it will only be executed when explicitly opted in via `validate.commands` or the legacy `swift.test` / `objc.xcodebuild` executor.
 
-第一批内置 executor：
+The first batch of built-in executors:
 
-| executor | 用途 |
+| executor | Purpose |
 |---|---|
-| `js.execute` | 兼容旧 JS fixture，执行 `execute` 函数体 |
-| `command` | 通用黑盒命令，适合 `go test`、`pytest`、`ctest`、`mvn test`、`swift test`、`xcodebuild test` 等 |
-| `python.function` | Python 函数级样板 executor，通过 JSON 进程边界调用单个函数 |
-| `go.test` | Go 标准入口，默认 `go test ./...` |
-| `java.junit` | Java/JUnit 标准入口，默认 `mvn test`，可选 `buildTool:"gradle"` |
-| `cpp.binary` | C/C++ 测试二进制入口 |
-| `swift.test` | Swift Package 标准入口，默认 `swift test`；仅在 legacy executor 显式声明时使用（Mac Native App 已退役，**不**在 `lattice validate` 的自动 fallback 列表里） |
-| `objc.xcodebuild` | Objective-C / Apple 平台标准入口，默认 `xcodebuild test`；同 `swift.test`，仅 legacy executor 显式 opt-in |
-| `rust.cargo` | Rust 标准入口，默认 `cargo test` |
+| `js.execute` | Compatible with old JS fixtures, executes the `execute` function body |
+| `command` | General black-box command, suitable for `go test`, `pytest`, `ctest`, `mvn test`, `swift test`, `xcodebuild test`, etc. |
+| `python.function` | Python function-level boilerplate executor, calls a single function via the JSON process boundary |
+| `go.test` | Go standard entry, default `go test ./...` |
+| `java.junit` | Java/JUnit standard entry, default `mvn test`, optional `buildTool:"gradle"` |
+| `cpp.binary` | C/C++ test binary entry |
+| `swift.test` | Swift Package standard entry, default `swift test`; used only when the legacy executor is explicitly declared (the Mac Native App is retired, **not** in the auto-fallback list of `lattice validate`) |
+| `objc.xcodebuild` | Objective-C / Apple-platform standard entry, default `xcodebuild test`; same as `swift.test`, only via explicit legacy executor opt-in |
+| `rust.cargo` | Rust standard entry, default `cargo test` |
 
-Reviewer 不能把“JS runner 无法 import Python/Go/C++/Java/Swift/OC”判定为测试通过；这只能说明缺少对应 executor 证据或 `verificationEvidence`。
+A reviewer must not judge "the JS runner cannot import Python/Go/C++/Java/Swift/OC" as a test pass; this only indicates that the corresponding executor evidence or `verificationEvidence` is missing.

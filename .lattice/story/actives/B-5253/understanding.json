@@ -1,0 +1,30 @@
+{
+  "task": "Implement B-f495 slim/fields query guidance in prompts, docs, and regression coverage.",
+  "outcome": "After the story, running prompt-token-cost-smoke prints that compact query guidance, mirror sync, default compatibility, slim reductions, and full-output fallback are verified; verify_codex reports Codex adapter checks passed.",
+  "facts": [
+    "B-f495 accepted the plan as audit-only and deferred implementation to this story.",
+    "story_get and checklist_get already support slim and fields parameters.",
+    "prompt-token-cost-smoke already verifies default full-output compatibility and slim output size reductions.",
+    "The repository is currently in full-asset mode, so package templates and .claude/.Codex mirrors must stay synchronized."
+  ],
+  "constraints": [
+    "Do not change default story_get or checklist_get output.",
+    "Do not make lifecycle gates consume slim output.",
+    "Do not alter Authority receipt, DONE, or provider billing semantics.",
+    "Do not touch .omx, docs/story, or tests/fixtures directly.",
+    "Use English for new open-source-facing prompt and docs text."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/templates/agents",
+    ".claude/agents",
+    ".Codex/agents",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "README.md",
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+  ],
+  "timestamp": "2026-06-15T15:13:54.483Z"
+}

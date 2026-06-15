@@ -1,0 +1,87 @@
+{
+  "storyId": "B-a57f",
+  "checkedAt": "2026-06-14T16:31:31.811Z",
+  "features": [
+    {
+      "feature": "Add scripts/extract-cli-engine-english-manifest.mjs with required manifest columns (translationId, sourceLine, surface, chineseSource, proposedEnglish, reviewStatus); regenerate manifest from current 767-line source; re-anchor sourceLine for the 5 drifted rows; carry over approved English; re-scan for runtime Chinese matchers beyond M668/M669/M750; gate: every Chinese line maps to an approved or deferred row",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Translate public CLI surface of cli-engine.ts: command descriptions, Zod .describe() values, printHelp labels/examples, validation error text, unknown-command suggestions, and story/worktree next-step hints",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Update tests that assert the old Chinese CLI output (Phase 1 must update affected tests)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Translate internal comments in cli-engine.ts; preserve technical meaning; no logic changes",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Add english-open-source-surface-smoke gate test that fails on new Chinese in active source and active docs, with allowlists for the plan doc, generated manifests, legacy archive docs, and migration-compatibility tests",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Translate active docs (README.md, docs/guide.md, docs/guide-hooks.md, active files under docs/requirements/decisions/); move historical Chinese-only material to explicit legacy/archive locations",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Behavior-sensitive rows M668/M669/M750 (regex/.includes matchers over Chinese) — deferred to follow-up story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The 3 behavior-sensitive rows M668/M669/M750 (regex/.includes matchers over Chinese) — deferred to a follow-up story",
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "CLI logic or control-flow changes beyond translating text strings",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Changing CLI logic or behavior beyond translating text strings",
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Retranslating the plan doc itself or generated manifests (allowlisted, not retranslated)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Retranslating the plan doc itself or generated manifests (allowlisted)",
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Translating inactive/legacy archive content (moved to archive, not translated)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Translating inactive/legacy archive content (moved, not translated)",
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 6,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "734a956ad6061749be2f05bd95221e58cb7a393d31b74af4900a96a9f1829c69",
+  "openQuestions": []
+}

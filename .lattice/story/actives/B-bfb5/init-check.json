@@ -1,0 +1,36 @@
+{
+  "storyId": "B-bfb5",
+  "checkedAt": "2026-06-15T10:36:08.786Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "The INIT background/checklist correctly frame this as token-cost work and exclude Authority Server changes plus reviewer gate relaxation, but the linked audit also contains takeover/handoff authority material. To avoid scope creep, PLAN/scope should explicitly state that handoff authority boundary changes, handoff receipt semantics, ownership transfer, merge authority, and DONE authority changes are out of scope for this story."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T10:36:02.385Z",
+      "issues": [
+        {
+          "id": "P-1",
+          "severity": "medium",
+          "desc": "Product completion is slightly under-specified for the measurable token-cost outcome: CHK-001 captures the audit baseline and CHK-004 mentions token-reduction invariants, but no checklist item explicitly requires a before/after measurement artifact for the main agent prompt snapshot reduction. Add DEV/TEST evidence that reports baseline vs final context bytes or approximate tokens for affected agent templates, plus the slim story_get/checklist_get payload delta and the prompt-cache billing caveat, so the user can recognize the work as a safe measurable cost reduction rather than a generic optimization."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-15T10:36:08.786Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "The INIT background/checklist correctly frame this as token-cost work and exclude Authority Server changes plus reviewer gate relaxation, but the linked audit also contains takeover/handoff authority material. To avoid scope creep, PLAN/scope should explicitly state that handoff authority boundary changes, handoff receipt semantics, ownership transfer, merge authority, and DONE authority changes are out of scope for this story."
+        }
+      ]
+    }
+  ],
+  "_hash": "8876ad5361619cdb1bb4349b69aac37801aebc516db7ccc40abf61df32972f0a"
+}

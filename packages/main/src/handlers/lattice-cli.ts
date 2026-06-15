@@ -338,7 +338,7 @@ function readPackageVersion(path: string): string | null {
 function packageBinHasLattice(path: string): boolean {
   try {
     const parsed = JSON.parse(readFileSync(path, 'utf8')) as { bin?: Record<string, unknown> };
-    return parsed.bin?.lattice === 'dist/cli.js' && parsed.bin?.koala === 'dist/cli.js';
+    return parsed.bin?.lattice === 'dist/cli.js' && parsed.bin?.koala === undefined;
   } catch {
     return false;
   }
@@ -489,14 +489,14 @@ function buildConfigDoctor(ctx: HandlerContext) {
       detail: 'bin/lattice.js exists as the primary local bootstrap wrapper',
     },
     {
-      id: 'legacy-koala-wrapper',
-      ok: existsSync(join(ctx.root, 'bin', 'koala.js')),
-      detail: 'bin/koala.js remains available as the legacy alias',
+      id: 'no-koala-local-wrapper',
+      ok: !existsSync(join(ctx.root, 'bin', 'koala.js')),
+      detail: 'legacy local wrapper is absent; lattice is the only active local bootstrap wrapper',
     },
     {
       id: 'package-bin-aliases',
       ok: packageBinHasLattice(mainPackagePath),
-      detail: 'packages/main package.json exposes both lattice and koala bins',
+      detail: 'packages/main package.json exposes only the lattice bin',
     },
   ];
   const ok = checks.every(check => check.ok);
@@ -509,7 +509,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
       cliFirst: true as const,
       macAppRequired: false as const,
       macAppRole: 'optional-dashboard-archive' as const,
-      legacyKoalaAliasPreserved: true as const,
+      legacyKoalaAliasPreserved: false as const,
     },
     versions,
     checks,
@@ -526,7 +526,7 @@ function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): s
   return [
     `${formatLatticeProductLine()} config doctor (${result.schemaVersion})`,
     `status: ${result.status}`,
-    `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; legacyKoalaAliasPreserved=${result.migration.legacyKoalaAliasPreserved}`,
+    `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; activeCommand=lattice`,
     `versions: root=${result.versions.root ?? 'unreadable'}; main=${result.versions.main ?? 'unreadable'}; expected=${result.versions.expected}`,
     `authority: productionDone=${result.authority.productionDone}; receiptVerified=${result.authority.receiptVerified}`,
     '',
@@ -569,8 +569,7 @@ function renderWrapperGitRootDiagnosticsText(wrapperGitRoot: WrapperGitRootDiagn
  *    non-mutating preview that prints the exact confirm command;
  *  - validates the target is a relative path that stays strictly under the
  *    metadata root and is itself a git repository root;
- *  - writes ONLY the `gitRoot` field of the existing project config file
- *    (lattice.config.json preferred, legacy koala.config.json fallback);
+ *  - writes ONLY the `gitRoot` field of the existing lattice.config.json file;
  *  - reports whether the configured git root verifies after the write. It
  *    does not claim story resolution; check story_resolve separately.
  */
@@ -645,7 +644,7 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
   const picked = pickProjectConfigPath(metadataRoot);
   if (!picked) {
     throw new Error(
-      `Cannot repair gitRoot because no existing ${LATTICE_CONFIG_FILENAME} or koala.config.json was found at ${metadataRoot}. Initialize project config first.`,
+      `Cannot repair gitRoot because no existing ${LATTICE_CONFIG_FILENAME} was found at ${metadataRoot}. Initialize project config first.`,
     );
   }
   const configPath = picked.path;

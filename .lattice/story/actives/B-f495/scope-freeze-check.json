@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f495",
+  "checkedAt": "2026-06-15T14:11:36.508Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "dded772614be6d90da788a0f8878ca579fbd9e0684e3b0512ff41100b1149de7",
+  "executionBoundaryHash": "6494868d469b70e4072316e410a27b02e106e1bcdb3b182b4b651910efd02b95",
+  "freshnessHash": "ec43d1c72c372d05d63471788db22aee6436a7ba79ba7e7422615a39bddb0b64",
+  "effectiveExcludedKeywords": [
+    "Do not change story_get or checklist_get default output semantics",
+    "Do not implement prompt/template/code changes in this audit story unless separately requested",
+    "Do not modify Authority receipt, DONE, lifecycle gate, or provider billing semantics",
+    "Do not take over or mutate active story B-acec"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change story_get or checklist_get default output semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change story_get or checklist_get default output semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement prompt/template/code changes in this audit story unless separately requested",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement prompt/template/code changes in this audit story unless separately requested",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify Authority receipt, DONE, lifecycle gate, or provider billing semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify Authority receipt, DONE, lifecycle gate, or provider billing semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not take over or mutate active story B-acec",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not take over or mutate active story B-acec",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8be60aeae80d74d596f3de6dd9f5a906552fdf50b5358365cd0a18bca3b6f920"
+}

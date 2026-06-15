@@ -1,4 +1,4 @@
-# Koala CLI Authority Client Role (PD-1 / PD-2 Decisions)
+# Lattice CLI Authority Client Role (PD-1 / PD-2 Decisions)
 
 > **Status**: PD-1 decision recorded — 2026-05-25; PD-2 boundary recorded — 2026-05-27
 > **Stories**: B-4bd4 (PD-1, decision-only; no production code changed), B-7e38 (PD-2, docs + smoke tests only)
@@ -10,24 +10,24 @@
 ## PD-2 Decision (Isolated Enforce Subsystem — B-7e38 Milestone 0)
 
 **Question**: If a future product track enables a CLI-side authority runner, must it be
-isolated from ordinary koala workflow commands, and how should the four subsystem roles
+isolated from ordinary Lattice workflow commands, and how should the four subsystem roles
 be named so the boundary is cold-readable?
 
 **Answer**: **Yes — isolated, opt-in, headless.** The four subsystem roles are:
 
 | Role | Subsystem | L2+ evidence authority? |
 |------|-----------|------------------------|
-| **Ordinary Lattice/koala** | Workflow thin client (`@lattice-agent/core`, this repo; legacy package fallback `@koala-agent/core`) | **No** — transport / local only |
-| **`koala authority enforce`** | Future isolated opt-in headless runner path (this repo, future CLI command) | **Only after M2+ gates cleared** — see Milestone Routing below |
+| **Ordinary Lattice CLI** | Workflow thin client (`@lattice-agent/core`, this repo) | **No** — transport / local only |
+| **`lattice authority enforce`** | Future isolated opt-in headless runner path (this repo, future CLI command) | **Only after M2+ gates cleared** — see Milestone Routing below |
 | **Python authority** | Receipt authority (separate Python repo) | **Yes** — signed `AuthorityReceipt` |
-| **Mac Runner / Koala Runner CLI** | Execution plane (separate Mac/Swift + forthcoming Runner CLI repo) | **Yes** — actor key, heartbeat, signed envelope |
+| **Mac Runner / Lattice Runner CLI** | Execution plane (separate Mac/Swift + forthcoming Runner CLI repo) | **Yes** — actor key, heartbeat, signed envelope |
 
 Key constraints recorded by this milestone:
 
-- Ordinary koala workflow commands (`koala story_advance`, `koala verification_evidence_add`, etc.)
+- Ordinary Lattice workflow commands (`lattice story_advance`, `lattice verification_evidence_add`, etc.)
   **must never** become or be treated as authority evidence submissions, regardless of future
   enforce subsystem wording in docs.
-- `koala authority enforce` **does not exist yet** as a command. Milestone 0 reserves the
+- `lattice authority enforce` **does not exist yet** as a command. Milestone 0 reserves the
   namespace only. No actor key, job claim, provider execution, full `EvidenceEnvelope`
   submission, or receipt signature verification is introduced by this story.
 - PD-2 does **not** replace Mac Runner. The Mac Runner remains the sole execution plane
@@ -44,12 +44,12 @@ Key constraints recorded by this milestone:
 | Milestone | Name | What may be implemented | What remains forbidden |
 |-----------|------|------------------------|------------------------|
 | **M0 (B-7e38)** | Boundary docs + smoke | Docs, mechanical classifier tests | All runner behavior; actor keys; job claim; provider execution; full envelope; receipt verification |
-| **M1** | Policy discovery | `koala authority enforce` command stub; policy query endpoint; no evidence submission | Actor key registration; job claim; execution; evidence signing; receipt verification |
+| **M1** | Policy discovery | `lattice authority enforce` command stub; policy query endpoint; no evidence submission | Actor key registration; job claim; execution; evidence signing; receipt verification |
 | **M2+** | Actor identity, execution, receipts | Actor key registration; runner heartbeat; job claim; provider execution; full `EvidenceEnvelope`; receipt signature verification | Must not land before explicit enforce-mode product approval |
 
 ### M1: Policy Discovery Detail
 
-M1 adds a command with two equivalent syntaxes: `authority_enforce_policy` (underscore form, koala CLI dispatch style) and `koala authority enforce policy` (space-separated CLI form). Both invoke the same handler; the underscore form is the internal command name and the space form is the user-facing alias.
+M1 adds a command with two equivalent syntaxes: `authority_enforce_policy` (underscore form, Lattice CLI dispatch style) and `lattice authority enforce policy` (space-separated CLI form). Both invoke the same handler; the underscore form is the internal command name and the space form is the user-facing alias.
 
 **Ownership boundary**: the Python authority server **owns** policy discovery — it publishes `GET /v1/authority/policy` and defines the policy schema. The TypeScript CLI **consumes** that endpoint read-only; it has no authority to modify, sign, or version the policy.
 
@@ -71,10 +71,10 @@ Milestone 1 implemented read-only policy discovery only; actor keys, jobs, provi
 
 ## PD-1 Decision
 
-**Question**: Should Lattice/Koala CLI become a first-class enforce-mode authority client, or stay a thin
+**Question**: Should Lattice CLI become a first-class enforce-mode authority client, or stay a thin
 local/shadow tool with MAC as the canonical runner for authority evidence?
 
-**Answer**: **Lattice/Koala CLI remains a thin local/shadow lifecycle client.** It must not claim or certify
+**Answer**: **Lattice CLI remains a thin local/shadow lifecycle client.** It must not claim or certify
 L2+ authority evidence. MAC/runner/CI/human and the Python authority remain the canonical sources
 for L2+ authority evidence. A first-class enforce-mode CLI authority client is **deferred** to a
 future explicit product track once handshake, full evidence envelope submission, actor-key/signing/
@@ -128,7 +128,7 @@ requires the receipt-backed path described by PD-1 / PD-2.
 **readiness** section so users can tell `off` (intentional opt-out, free local
 workflow) apart from `shadow` / `enforce` with missing prerequisites. Missing
 prerequisites are surfaced as warnings, **not** as global blockers — ordinary
-local Koala/Lattice story development (`story_advance`,
+local Lattice story development (`story_advance`,
 `verification_evidence_add`, DONE) keeps working in every mode.
 
 New readiness JSON fields (both `authority_status` and `conduit_status`):
@@ -249,11 +249,11 @@ product approval lands).
 
 Three roles, named so the boundary is cold-readable without prior context:
 
-1. **Lattice CLI / legacy koala — workflow client** (`@lattice-agent/core`, this repo; legacy package fallback `@koala-agent/core`). Drives the
+1. **Lattice CLI — workflow client** (`@lattice-agent/core`, this repo). Drives the
    Story lifecycle, runs local validations, and may POST observational evidence
    in `shadow` mode or transport-only evidence in `enforce` mode. **The CLI
    never produces production-grade authority evidence.**
-2. **Koala Runner CLI / Mac Runner — execution plane** (separate Mac/Swift repo
+2. **Lattice Runner CLI / Mac Runner — execution plane** (separate Mac/Swift repo
    and forthcoming Runner CLI). Owns actor-key registration, runner heartbeat,
    ed25519-signed evidence envelopes, and the run identity that L2+ evidence
    binds to.
@@ -276,7 +276,7 @@ Three roles, named so the boundary is cold-readable without prior context:
 > bindings, or a verifier run id equal to the producer run id — is not L2+
 > authority.
 
-The Koala CLI envelope (`buildEnvelope` in
+The Lattice CLI envelope (`buildEnvelope` in
 [`packages/main/src/core/authority-submit.ts`](../../../packages/main/src/core/authority-submit.ts))
 is a strict subset that lacks (a), (b), and (c) by design under PD-1. The
 boundary classifier
@@ -317,14 +317,14 @@ classifier, a labeled transport-acceptance helper in `authority-submit.ts`, and
 the `test:authority-boundary-smoke` adversarial test. M2 (Python authority
 policy discovery, FU-5) is owned by the Cord Team Python authority repo, and
 M5/FU-4 (Mac/Runner actor-key, heartbeat, runner identity) is owned by the
-Koala Mac/Swift repo; both live in separate repos with their own Koala stories
+Lattice Mac/Swift repo; both live in separate repos with their own Lattice stories
 and are **not** auto-opened by this story. M3–M6 remain routed per the table
 below — M3 and M4 are CLI-side deferred follow-ups that require an explicit
 enforce-mode product approval before any CLI authority-client code lands.
 
 ## L2+ Evidence Boundary
 
-**Koala CLI must not claim or certify L2+ authority evidence** until the following gaps are
+**Lattice CLI must not claim or certify L2+ authority evidence** until the following gaps are
 resolved in dedicated implementation stories:
 
 | Gap | AUDIT ref | Status |
@@ -394,28 +394,28 @@ The Python authority's preset/limit/gate details (e.g., `anti-hallucination` as 
 `balanced-basic`, `balanced-heterogeneous`, `strict-ci`) are **external authority constraints**.
 They are not locally-landed facts in this repo unless there is an explicit code/doc reference here.
 Under the current thin-client decision, the CLI does not need to model or mirror Python presets.
-(VCP-DOC §设计决策 / §Server 配合; AUDIT advisory A2 scoping presets as external.)
+(VCP-DOC §Design Decisions / §Server Coordination; AUDIT advisory A2 scoping presets as external.)
 
 ---
 
 ## Milestone Routing
 
-> Routing reflects the **current PD-1 decision: Koala CLI stays thin local/shadow**. CLI must
+> Routing reflects the **current PD-1 decision: Lattice CLI stays thin local/shadow**. CLI must
 > not claim or certify L2+ authority evidence. Python authority and Mac runner remain canonical.
 >
 > Status values: **required** — work may proceed now; **deferred** — must not begin until an
 > explicit enforce-mode product approval overrides PD-1 (or until deemed worth the cost for
 > PD-1-independent items); **docs-only** — resolved by this document, no code needed;
 > **not authority work** — owned by a different repo or team (Python authority, Mac runner);
-> Koala CLI has no implementation obligation and cannot schedule or block this work.
+> Lattice CLI has no implementation obligation and cannot schedule or block this work.
 
 | Milestone | Name | Owning repo / component | Status (PD-1 = thin-client) | Prerequisite | Validation expectation | User approval required |
 |-----------|------|------------------------|-----------------------------|--------------|-----------------------|------------------------|
-| **M2** | Python authority policy discovery (FU-5) | Cord Team Python authority — **separate repo; own Koala story** | **not authority work** — Cord Team initiative; Koala CLI has no implementation obligation; Python/Mac work is not current Koala CLI authority implementation | B-4bd4 decided (current story, complete) | Cord Team publishes `/v1/authority/policy` with versioned thin-client compatibility contract (`evidenceSchemaDigest` + required-field discovery), so a reduced-capability client can negotiate a lower trust level rather than be hard-rejected | No — Cord Team initiative; CLI team may request but cannot block |
-| **M3** | CLI authority handshake fields (FU-2) | Koala CLI TypeScript — **this repo** | **Deferred** — must not implement until enforce-mode PD-1 explicitly approved | Explicit enforce-mode product approval; M2 policy contract (advisory input) | CLI sends `clientName` / `clientVersion` / `commandCatalogDigest` / `evidenceSchemaDigest` / `authorityMode`; production Python with `production_enforce_authority=true` accepts rather than returning `authority_handshake_required` | **Yes — enforce-mode product approval required before any code lands** |
-| **M4** | Full `EvidenceEnvelope` in `buildEnvelope` (FU-1) | Koala CLI TypeScript — **this repo** | **Deferred** — same gate as M3 | Enforce-mode product approval; M3 (handshake implemented) | `buildEnvelope` populates `producerRunId` / `verifierRunId`, `provider` / `model` / `vendor`, and optionally `claims` / `coverage` / `negativeControls`; CLI evidence accepted at L2+ by production Python authority | **Yes — enforce-mode product approval required before any code lands** |
-| **M5** | Actor-key / runner identity / envelope signing (FU-3, FU-4-runner) | **FU-3**: Koala CLI — **docs-only, resolved** (this document). **FU-4 runner portion**: Koala Mac/Swift — **separate repo; own Koala story** | **FU-3: docs-only / resolved** under thin-client posture — CLI is explicitly not a runner; MAC is the canonical runner (see §FU-3 doc-only resolution above). **FU-4 runner portion: not authority work** — MAC work in a separate repo; Koala CLI has no implementation obligation | FU-3: none (resolved by this document). FU-4: MAC/Cord team decision, unblocked by PD-1 | FU-3: this document is the durable record; no CLI code required. FU-4: MAC populates `model` / `vendor` + handshake `nil` fields in runner build; actor-key / heartbeat / signing remain MAC-owned | FU-3: No — resolved by design decision recorded here. FU-4: No — MAC team advisory, independent of CLI |
-| **M6** | `AuthorityReceipt` signature verification + VCP cross-repo test (FU-4-receipt, FU-6) | **FU-4 receipt**: Koala Mac/Swift — **separate repo**. **FU-6**: Koala CLI (optional; pursue if deemed worth cost) | FU-4 receipt: **not authority work** — MAC work, separate repo; Koala CLI has no obligation. FU-6: **deferred** — independent of PD-1 enforce gate; may pursue if deemed worth cost | M5 FU-4-runner for MAC receipt; FU-6 independent | MAC cryptographically verifies `AuthorityReceipt` ed25519 signature (currently only JobSpec is verified). FU-6 (if pursued): fixture-based cross-repo VCP digest-equality test passes in CLI CI | No — advisory items; FU-6 requires no product approval; MAC is Cord team decision |
+| **M2** | Python authority policy discovery (FU-5) | Cord Team Python authority — **separate repo; own Lattice story** | **not authority work** — Cord Team initiative; Lattice CLI has no implementation obligation; Python/Mac work is not current Lattice CLI authority implementation | B-4bd4 decided (current story, complete) | Cord Team publishes `/v1/authority/policy` with versioned thin-client compatibility contract (`evidenceSchemaDigest` + required-field discovery), so a reduced-capability client can negotiate a lower trust level rather than be hard-rejected | No — Cord Team initiative; CLI team may request but cannot block |
+| **M3** | CLI authority handshake fields (FU-2) | Lattice CLI TypeScript — **this repo** | **Deferred** — must not implement until enforce-mode PD-1 explicitly approved | Explicit enforce-mode product approval; M2 policy contract (advisory input) | CLI sends `clientName` / `clientVersion` / `commandCatalogDigest` / `evidenceSchemaDigest` / `authorityMode`; production Python with `production_enforce_authority=true` accepts rather than returning `authority_handshake_required` | **Yes — enforce-mode product approval required before any code lands** |
+| **M4** | Full `EvidenceEnvelope` in `buildEnvelope` (FU-1) | Lattice CLI TypeScript — **this repo** | **Deferred** — same gate as M3 | Enforce-mode product approval; M3 (handshake implemented) | `buildEnvelope` populates `producerRunId` / `verifierRunId`, `provider` / `model` / `vendor`, and optionally `claims` / `coverage` / `negativeControls`; CLI evidence accepted at L2+ by production Python authority | **Yes — enforce-mode product approval required before any code lands** |
+| **M5** | Actor-key / runner identity / envelope signing (FU-3, FU-4-runner) | **FU-3**: Lattice CLI — **docs-only, resolved** (this document). **FU-4 runner portion**: Lattice Mac/Swift — **separate repo; own Lattice story** | **FU-3: docs-only / resolved** under thin-client posture — CLI is explicitly not a runner; MAC is the canonical runner (see §FU-3 doc-only resolution above). **FU-4 runner portion: not authority work** — MAC work in a separate repo; Lattice CLI has no implementation obligation | FU-3: none (resolved by this document). FU-4: MAC/Cord team decision, unblocked by PD-1 | FU-3: this document is the durable record; no CLI code required. FU-4: MAC populates `model` / `vendor` + handshake `nil` fields in runner build; actor-key / heartbeat / signing remain MAC-owned | FU-3: No — resolved by design decision recorded here. FU-4: No — MAC team advisory, independent of CLI |
+| **M6** | `AuthorityReceipt` signature verification + VCP cross-repo test (FU-4-receipt, FU-6) | **FU-4 receipt**: Lattice Mac/Swift — **separate repo**. **FU-6**: Lattice CLI (optional; pursue if deemed worth cost) | FU-4 receipt: **not authority work** — MAC work, separate repo; Lattice CLI has no obligation. FU-6: **deferred** — independent of PD-1 enforce gate; may pursue if deemed worth cost | M5 FU-4-runner for MAC receipt; FU-6 independent | MAC cryptographically verifies `AuthorityReceipt` ed25519 signature (currently only JobSpec is verified). FU-6 (if pursued): fixture-based cross-repo VCP digest-equality test passes in CLI CI | No — advisory items; FU-6 requires no product approval; MAC is Cord team decision |
 
 ### Deduplication against known backlog (B-4622, B-da5b, B-0f04)
 
@@ -424,37 +424,37 @@ completed stories:
 
 | Story | Phase | Topic | Overlap with M2–M6 |
 |-------|-------|-------|--------------------|
-| **B-4622** | INIT (parked) | `scope_check_save` PLAN-only evidence-hygiene gap — internal Koala CLI scope-check lifecycle (`command-policy.ts` allowedPhases, `story_review` PLAN→DEV gate) | None — different subsystem; not authority/receipt/envelope work |
+| **B-4622** | INIT (parked) | `scope_check_save` PLAN-only evidence-hygiene gap — internal Lattice CLI scope-check lifecycle (`command-policy.ts` allowedPhases, `story_review` PLAN→DEV gate) | None — different subsystem; not authority/receipt/envelope work |
 | **B-da5b** | INIT (parked) | Post-DONE activity heartbeat recreating orphan `.worktrees/` dirs — worktree lifecycle bug | None — different subsystem; not authority/receipt/envelope work |
 | **B-0f04** | DONE | Cross-end authority contract audit that produced the FU-1–FU-6 recommendations and the PD-1 question | Completed; M2–M6 are the forward routing from its recommendations, not a re-audit |
 
-FU-1 / FU-2 / FU-3 / FU-6 all live in the Koala CLI authority-client subsystem
+FU-1 / FU-2 / FU-3 / FU-6 all live in the Lattice CLI authority-client subsystem
 (`authority-submit.ts` / `authority-client.ts` / `authority-contracts.ts`) — a
 different subsystem from B-4622's scope-check and B-da5b's worktree lifecycle.
 Routing M2–M6 does not re-propose either parked backlog item.
 
 Any Python authority (M2, M5/FU-4) or Mac runner (M5/FU-4, M6/FU-4) work must be
-tracked as **separate stories in their own repos**, following each team's own Koala
+tracked as **separate stories in their own repos**, following each team's own Lattice
 flow. CLI stories in this repo may only implement CLI-owned items (M3, M4, M6/FU-6),
 and only after the enforce-mode approval gate is cleared (M3, M4).
 
 ---
 
-## `koala authority enforce` Command Boundary (Milestone 1 Reserve)
+## `lattice authority enforce` Command Boundary (Milestone 1 Reserve)
 
-The `koala authority enforce` command namespace is **reserved** for a future isolated
+The `lattice authority enforce` command namespace is **reserved** for a future isolated
 headless runner path. The following rules apply until Milestone 2+ approval:
 
 - **Milestone 0 (B-7e38)**: no command is introduced. This document and the boundary
   classifier + smoke tests are the only artifacts.
-- **Milestone 1**: may add `koala authority enforce` as a command stub that queries the
+- **Milestone 1**: may add `lattice authority enforce` as a command stub that queries the
   authority policy endpoint only. It must not submit evidence, claim jobs, register actor
   keys, execute providers, sign envelopes, or verify receipts.
 - **Milestone 2+**: actor key registration, runner heartbeat, job claim, provider
   execution, full `EvidenceEnvelope` submission, and receipt signature verification may
   be implemented only after an explicit enforce-mode product approval overrides PD-1.
 
-Any code added under the `koala authority enforce` namespace that bypasses this
+Any code added under the `lattice authority enforce` namespace that bypasses this
 sequencing — including direct evidence submission, receipt claims, or L2+ classification
 without a full signed envelope + verified receipt — **must be rejected in code review**.
 
@@ -473,7 +473,7 @@ guard against future wording changes silently promoting thin-client submissions.
 
 - Docs: PD-2 boundary recorded in this file (four-role table, prohibited actions,
   milestone sequence).
-- Docs: `koala authority enforce` command boundary reserved without implementing runner
+- Docs: `lattice authority enforce` command boundary reserved without implementing runner
   behavior.
 - Smoke tests: `test:authority-boundary-smoke` adversarial suite guards the mechanical
   L2+ classifier (`authority-boundary.ts`) — normal workflow submissions remain
@@ -487,7 +487,7 @@ guard against future wording changes silently promoting thin-client submissions.
 
 ### What Milestone 1 may implement next
 
-- A `koala authority enforce` command stub that queries `/v1/authority/policy` (policy
+- A `lattice authority enforce` command stub that queries `/v1/authority/policy` (policy
   discovery only).
 - Milestone 1 must not submit evidence, claim jobs, register actor keys, execute
   providers, sign envelopes, or verify receipts.
@@ -513,5 +513,5 @@ guard against future wording changes silently promoting thin-client submissions.
 | B-2522 CHK-002 enforce matrix | In-process smoke proving local/off stays free/local, shadow is warning-only, enforce fake receipt only classifies after receipt verification, enforce missing server fails closed, parallel_report stays non-authoritative with productionDone=false | `packages/main/src/tasks/authority-enforce-matrix-smoke.ts` |
 | Verification Context Pack | Defines locally-landed vs external authority constraints | `docs/requirements/decisions/verification-context-pack.md` |
 | Truth-source management | Defines where human decisions must live | `docs/requirements/decisions/truth-source.md` |
-| Role separation doc | Koala multi-role architecture reference | `docs/requirements/decisions/role-separation.md` |
+| Role separation doc | Lattice multi-role architecture reference | `docs/requirements/decisions/role-separation.md` |
 | Story lifecycle | DONE/REVIEW/TEST gate policy | `docs/requirements/decisions/story-lifecycle.md` |

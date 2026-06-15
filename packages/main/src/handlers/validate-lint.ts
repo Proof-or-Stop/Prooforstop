@@ -1,7 +1,7 @@
 /**
  * validate-lint — CLI gate: tsc + ruff + import-graph boundaries
  *
- * koala validate runs three lint categories before spawning validate.ts by default; any failure causes overall failure
+ * lattice validate runs three lint categories before spawning validate.ts by default; any failure causes overall failure
  * and returns early without spawning. When tools are unavailable (tsc missing, ruff not installed) or the corresponding config file does not exist
  * → that sub-check is skipped, and the overall result does not fail because of it (graceful degrade).
  *
@@ -12,7 +12,7 @@
  *
  * Output structure:
  *   {
- *     provider: "koala-lint",
+ *     provider: "lattice-lint",
  *     status: "pass" | "fail" | "skipped",
  *     summary: string,
  *     details: string[],
@@ -79,7 +79,7 @@ interface LintChecks {
 }
 
 export interface LintResult {
-  provider: 'koala-lint';
+  provider: 'lattice-lint';
   status: LintSubStatus;
   summary: string;
   details: string[];
@@ -554,7 +554,7 @@ export function checkLint(deps: CheckLintDeps): LintResult {
       }
     } else {
       // B-5a28 CHK-002: When tsc passes, include "tsc: checked N tsconfigs" in the output,
-      // so `koala validate --lint` output directly shows how many tsconfigs were scanned.
+      // so `lattice validate --lint` output directly shows how many tsconfigs were scanned.
       const passOut =
         name === 'tsc' ? tsc.output ?? '' :
         '';
@@ -583,7 +583,7 @@ export function checkLint(deps: CheckLintDeps): LintResult {
   }
 
   return {
-    provider: 'koala-lint',
+    provider: 'lattice-lint',
     status,
     summary,
     details,
@@ -592,7 +592,7 @@ export function checkLint(deps: CheckLintDeps): LintResult {
 }
 
 /**
- * B-9d95 CHK-006: CLI entry for `koala validate --lint`.
+ * B-9d95 CHK-006: CLI entry for `lattice validate --lint`.
  *
  * Doesn't spawn pytest / doesn't run full validate.ts — directly calls checkLint, outputs
  * structured result + human-readable rendering. Used for REVIEW→TEST preflight as an independent branch.

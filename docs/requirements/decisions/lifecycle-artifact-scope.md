@@ -1,12 +1,12 @@
 # Lifecycle Artifact Scope Policy
 
 **Status**: active (B-b9d0)
-**Scope**: scope-contract enforcement when a Koala command writes a story-scoped
+**Scope**: scope-contract enforcement when a Lattice command writes a story-scoped
 metadata artifact during DEV / REVIEW / TEST / DONE.
 
 ## Why this exists
 
-Koala lifecycle CLI commands (`delivery_check_set`, `summary_set`,
+Lattice lifecycle CLI commands (`delivery_check_set`, `summary_set`,
 `scope_contract_set`, `finding_add`, `init_check_set`, …) write metadata files
 under `.lattice/story/actives/<storyId>/` or `docs/story/.../<storyId>/`.
 `.koala/story/...` is no longer a recognized story-dir prefix. These
@@ -45,8 +45,8 @@ order:
    – returns true for paths registered in the runtime-artifact registry:
      `.koala/activity.jsonl`, `.koala/runtime/...`, `.koala/traces/...`,
      `.koala/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
-     `.koala-tmp-*`, `koala-debug.log`, `browser-test.log`, etc. `.omx/...` is disabled locally and must not be registered as a Lattice runtime artifact path.
-   – Used by scope to skip volatile runtime telemetry that Koala writes as a
+  `.koala-tmp-*`, `koala-debug.log`, `browser-test.log`, etc. `.omx/...` is disabled locally and must not be registered as a Lattice runtime artifact path.
+   – Used by scope to skip volatile runtime telemetry that Lattice writes as a
      side-effect of read/write commands. **This is NOT a blanket `.koala/`
      pass.** An arbitrary file like `.koala/foo.json` does not match any
      registered runtime matcher and therefore falls through.
@@ -133,8 +133,8 @@ Lattice init supports two compatible prompt asset shapes:
 
 | Layer | Examples | Ownership |
 | --- | --- | --- |
-| project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim/legacy (compatibility or explicit `--asset-mode=full`/`--asset-mode=thin` opt-in): `LATTICE.md`, `KOALA.md`, `.Codex/lattice.json`, `.Codex/koala.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `bin/koala.js`, `bin/koala-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
-| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `koala.prompt-registry.v1` | Versioned Koala/Lattice package assets. These are the canonical prompt bodies. |
+| project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `LATTICE.md`, `.Codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
+| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `lattice.prompt-registry.v1` | Versioned Lattice package assets. These are the canonical prompt bodies. |
 | generated or materialized prompt caches | `.Codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
 
 The phrase **registry-backed prompt assets** means project metadata points at the
@@ -142,19 +142,19 @@ package prompt registry instead of treating every rendered agent prompt as a
 project-local required file. In global-thin mode (the default for new projects),
 `.lattice/lattice.json` carries the project config and asset mode declaration,
 and Codex adapter verification resolves the `.lattice/` manifest rather than
-requiring `.Codex/` entries or local bin wrappers. In full/thin modes, the legacy
-`.Codex/lattice.json` path carries the prompt registry version and material hash.
-Existing repositories that already committed `.Codex/koala.json` remain valid
-legacy inputs.
+requiring `.Codex/` entries or local bin wrappers. In full/thin modes,
+`.Codex/lattice.json` carries the prompt registry version and material hash.
+Legacy `.Codex/koala.json` files may remain archived or user-owned, but they are
+not active adapter inputs.
 
 The Lattice naming migration is a managed-asset naming contract only. It does
-not promote ordinary CLI output to receipt-backed authority, does not change
-Story lifecycle gates, and does not remove the `koala` command alias. Fresh init
-must not generate `KOALA.md`, `.Codex/koala.json`, `bin/koala.js`, or
-`bin/koala-codex.js`; compatibility checks may still read those paths when a
-project has not yet adopted the Lattice primary files. Cleanup may remove a
-legacy Koala-named asset only when its content exactly matches a generated
-template or manifest; user-owned legacy files are preserved.
+not promote ordinary CLI output to receipt-backed authority and does not change
+Story lifecycle gates. `lattice` is the only active runtime/product command.
+Fresh init must not generate `KOALA.md`, `.Codex/koala.json`, `bin/koala.js`, or
+`bin/koala-codex.js`; compatibility checks do not treat those paths as active
+adapter or runtime inputs. Cleanup may remove a legacy-named asset only
+when its content exactly matches a generated template or manifest; user-owned
+legacy files are preserved.
 
 This is a **legacy mirror compatibility** change, not a host behavior removal.
 Legacy full-mode repositories may keep `.Codex/agents` and `.claude/agents`.
@@ -167,9 +167,9 @@ Safe migration follows the existing managed-asset states:
 - `OK` registry manifests and full-mode mirrors are both valid.
 - `MISSING` registry metadata can be created by explicit thin init/check flows.
 - `STALE_SAFE` generated prompt mirrors may be updated or removed only when
-  Koala can prove they are old unedited managed assets.
+  Lattice can prove they are old unedited managed assets.
 - `STALE_LOCAL_EDIT`, `CASE_MISMATCH`, and `INCOMPATIBLE` prompt files are
-  report-only. Koala must not overwrite or delete local edits during thin
+  report-only. Lattice must not overwrite or delete local edits during thin
   migration.
 
 Registry-backed prompt checks are adapter hygiene. They do not submit evidence,

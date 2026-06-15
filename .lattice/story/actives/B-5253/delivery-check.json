@@ -1,0 +1,61 @@
+{
+  "storyId": "B-5253",
+  "checkedAt": "2026-06-15T15:38:44.876Z",
+  "reviewRound": "2026-06-15T15:29:06.443Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md",
+      "promise": "Routine story/checklist status examples use slim:true and fields, while full output remains required before evidence-sensitive conclusions or mutations.",
+      "status": "verified",
+      "verifiedBy": "git diff and rg manual review",
+      "evidence": "git diff main...HEAD shows AGENTS.md adds slim/fields routine examples and a full-output fallback before evidence-sensitive conclusions or mutations."
+    },
+    {
+      "docPath": "CLAUDE.md",
+      "promise": "The quick reference shows routine read-only slim/fields story_get/checklist_get examples and keeps full-output examples for evidence or mutation work.",
+      "status": "verified",
+      "verifiedBy": "git diff and rg manual review",
+      "evidence": "git diff main...HEAD shows CLAUDE.md lines adding routine read-only slim/fields commands and full output before evidence/mutations comments."
+    },
+    {
+      "docPath": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "promise": "The plan requires prompt/docs guidance to prefer slim/fields for routine status, keep full-output fallback, avoid Authority/DONE/provider-billing overclaims, and protect behavior with smoke coverage.",
+      "status": "verified",
+      "verifiedBy": "diff review, smoke tests, transcript review",
+      "evidence": "Prompt registry/templates/mirrors contain compact guidance plus fallback; prompt-registry-smoke and prompt-token-cost-smoke pass; overclaim scan found only default-full wording; transcript records provider-billing caveat."
+    },
+    {
+      "docPath": "README.md",
+      "promise": "Codex adapter guidance requires verify_codex evidence after Codex-facing prompt asset changes and does not let local CLI output claim production authority.",
+      "status": "verified",
+      "verifiedBy": "test_list and diff review",
+      "evidence": "CHK-004 evidence records verify_codex --json pass with adapter checks passed; README was untouched in main...HEAD, so no new authority claim was introduced."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed main...HEAD diff and rg output: prompt registry, package templates, .claude mirrors, and .Codex mirrors include compact story_get/checklist_get slim/fields guidance and full-output fallback wording."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reviewed AGENTS.md and CLAUDE.md diff: routine orientation examples use slim/fields and evidence-sensitive examples remain full output. Scoped added-line English scan returned no CJK matches; overclaim scan found no Authority/DONE/billing/provider additions beyond default-full wording."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Ran node packages/main/dist/tasks/prompt-token-cost-smoke.js; it passed, verified compact guidance, full-output fallback, mirror sync, default compatibility, slim reductions, and printed the provider-billing caveat."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Read test_list latest snapshot: validate --story=B-5253 --json PASS, allPass=true, 12/12 verification intents covered. Reran npm --prefix packages/main run test:prompt-registry-smoke; it passed with 16 agents rendered for claude and codex. Reviewed transcript-diff.md real-machine/user-value transcript."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: reverse-scanned main...HEAD diff, checklist userSees, related docs promises, TEST validation evidence, and transcript-diff.md. Slim/fields guidance is delivered, full-output fallback remains clear, no billing/Authority/DONE overclaims were introduced, scoped added open-source content is English, and user-value transcript evidence exists."
+  },
+  "_hash": "bbf0a55fdf2f712322163f351f3f5ff3c3c04175e78f87a75cefb01045582c61"
+}

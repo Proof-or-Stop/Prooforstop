@@ -93,8 +93,8 @@ function assertInitHelpDocumentsStarterAsOptional(help, label) {
 }
 
 function assertManagedMarkerSync(content, expectedNeedle, staleNeedle, label) {
-  assertIncludes(content, '<!-- koala:start -->', label);
-  assertIncludes(content, '<!-- koala:end -->', label);
+  assertIncludes(content, '<!-- lattice:start -->', label);
+  assertIncludes(content, '<!-- lattice:end -->', label);
   assertIncludes(content, expectedNeedle, label);
   if (staleNeedle) assertNotIncludes(content, staleNeedle, label);
 }
@@ -124,8 +124,8 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
       '.Codex/lattice.json',
       '.Codex/agents/test-intent.md',
       '.Codex/agents/test-case-reviewer.md',
-      '.Codex/agents/koala-review-quality.md',
-      '.Codex/agents/koala-implementer.md',
+      '.Codex/agents/lattice-review-quality.md',
+      '.Codex/agents/lattice-implementer.md',
     );
   } else if (!opts.allowExistingCodex) {
     absent.push('AGENTS.md', 'bin/lattice-codex.js', '.Codex');
@@ -134,12 +134,12 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
   if (profile === 'claude' || profile === 'all') {
     present.push(
       'CLAUDE.md',
-      '.claude/agents/koala-implementer.md',
-      '.claude/skills/koala/skill.md',
+      '.claude/agents/lattice-implementer.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',
     );
+    absent.push('.claude/skills/koala');
   } else if (!opts.allowExistingClaude) {
     absent.push('CLAUDE.md', '.claude');
   }
@@ -165,12 +165,12 @@ function assertGlobalThinAssets(tempDir, profile, opts = {}) {
   if (profile === 'claude' || profile === 'all') {
     present.push(
       'CLAUDE.md',
-      '.claude/agents/koala-implementer.md',
-      '.claude/skills/koala/skill.md',
+      '.claude/agents/lattice-implementer.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',
     );
+    absent.push('.claude/skills/koala');
   } else if (!opts.allowExistingClaude) {
     absent.push('CLAUDE.md', '.claude');
   }
@@ -235,16 +235,16 @@ function assertCodexWrapperSessionFrom(envName) {
     TERM_SESSION_ID: '',
     [envName]: marker,
   };
-  const out = run('node', ['bin/koala-codex.js', 'session_brief'], { env });
+  const out = run('node', ['bin/lattice-codex.js', 'session_brief'], { env });
   assert(
-    /# (?:lattice|koala) session brief/.test(out),
-    `bin/koala-codex.js ${envName} session_brief missing session_brief heading`,
+    /# lattice session brief/.test(out),
+    `bin/lattice-codex.js ${envName} session_brief missing session_brief heading`,
   );
 
   const record = readActivityRecord(marker, 'session_brief');
-  assert(record, `bin/koala-codex.js should derive session from ${envName}`);
-  assert(record.source === 'codex', 'bin/koala-codex.js should force activity source=codex');
-  assert(record.entrypoint === 'local-wrapper', 'bin/koala-codex.js should mark entrypoint=local-wrapper');
+  assert(record, `bin/lattice-codex.js should derive session from ${envName}`);
+  assert(record.source === 'codex', 'bin/lattice-codex.js should force activity source=codex');
+  assert(record.entrypoint === 'local-wrapper', 'bin/lattice-codex.js should mark entrypoint=local-wrapper');
   return marker;
 }
 
@@ -290,23 +290,26 @@ export function createActor(_machine, options = {}) {
 const checks = [];
 
 checks.push(() => {
-  const out = run('node', ['bin/koala.js', 'aux_doc_list', '--format=json']);
-  assertIncludes(out, '"docs"', 'bin/koala.js aux_doc_list');
+  const out = run('node', ['bin/lattice.js', 'aux_doc_list', '--format=json']);
+  assertIncludes(out, '"docs"', 'bin/lattice.js aux_doc_list');
+  assertPathMissing(repoRoot, 'bin/koala.js', 'legacy local koala wrapper');
+  assertPathMissing(repoRoot, 'bin/koala-codex.js', 'legacy local koala Codex wrapper');
+  assertPathMissing(repoRoot, '.Codex/koala.json', 'legacy Codex manifest');
 });
 
 checks.push(() => {
   const coreHelp = run('node', [CORE_ENTRYPOINT, 'init', '--help']);
   assertInitHelpDocumentsStarterAsOptional(coreHelp, 'repo-local core CLI init --help');
 
-  const localWrapperHelp = run('node', ['bin/koala.js', 'init', '--help']);
-  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'repo-local bin/koala.js init --help');
+  const localWrapperHelp = run('node', ['bin/lattice.js', 'init', '--help']);
+  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'repo-local bin/lattice.js init --help');
 });
 
 checks.push(() => {
   const marker = assertCodexWrapperSessionFrom('CODEX_SESSION_ID');
   if (currentStoryId()) {
     const event = readProcessEvent(marker, 'session_brief');
-    assert(event, 'bin/koala-codex.js should write codex_cli process-event in active story');
+    assert(event, 'bin/lattice-codex.js should write codex_cli process-event in active story');
     assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
   }
 });
@@ -360,16 +363,16 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.Codex', 'agents', 'reviewer.md'), 'old codex-only prompt\n');
 
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
-    assertIncludes(initOut, 'Selected init profile: all', 'koala init explicit all profile selection');
-    assertIncludes(initOut, 'explicit --profile=all', 'koala init explicit all reason');
-    assertIncludes(initOut, '.Codex/README.md', 'koala init output');
+    assertIncludes(initOut, 'Selected init profile: all', 'lattice init explicit all profile selection');
+    assertIncludes(initOut, 'explicit --profile=all', 'lattice init explicit all reason');
+    assertIncludes(initOut, '.Codex/README.md', 'lattice init output');
     assertProfileAssets(tempDir, 'all');
 
     const defaultConfig = readJson(tempDir, 'lattice.config.json');
-    assert(defaultConfig.scanRoot === '.', 'default koala init without preexisting src should set scanRoot=.');
-    assertPathMissing(tempDir, 'src/core', 'default koala init src/core');
-    assertPathMissing(tempDir, 'src/shells', 'default koala init src/shells');
-    assertPathMissing(tempDir, 'tests', 'default koala init tests');
+    assert(defaultConfig.scanRoot === '.', 'default lattice init without preexisting src should set scanRoot=.');
+    assertPathMissing(tempDir, 'src/core', 'default lattice init src/core');
+    assertPathMissing(tempDir, 'src/shells', 'default lattice init src/shells');
+    assertPathMissing(tempDir, 'tests', 'default lattice init tests');
     assertManagedMarkerSync(readFileSync(join(tempDir, 'LATTICE.md'), 'utf8'), 'host-neutral', null, 'LATTICE.md');
     const generatedClaude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
     assertIncludes(generatedClaude, 'LATTICE.md', 'all profile CLAUDE.md should point to LATTICE.md');
@@ -412,11 +415,11 @@ checks.push(() => {
     assert(codexManifest.excludedRuntimeAssets.includes('.Codex/settings.json'), 'adapter manifest should exclude .Codex/settings.json');
     assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
     assertPathExists(tempDir, '.codex/hooks.json', 'lattice init .codex/hooks.json');
-    assertPathMissing(tempDir, '.Codex/settings.json', 'koala init .Codex/settings.json');
+    assertPathMissing(tempDir, '.Codex/settings.json', 'lattice init .Codex/settings.json');
 
     const codexAgents = readdirSync(join(tempDir, '.Codex', 'agents'));
-    assert(!codexAgents.includes('implementer.md'), 'koala init should not keep stale Codex-only implementer.md');
-    assert(!codexAgents.includes('reviewer.md'), 'koala init should not keep stale Codex-only reviewer.md');
+    assert(!codexAgents.includes('implementer.md'), 'lattice init should not keep stale Codex-only implementer.md');
+    assert(!codexAgents.includes('reviewer.md'), 'lattice init should not keep stale Codex-only reviewer.md');
 
     const generatedWrapper = readFileSync(join(tempDir, 'bin', 'lattice-codex.js'), 'utf8');
     const generatedBootstrap = readFileSync(join(tempDir, 'bin', 'lattice.js'), 'utf8');
@@ -426,16 +429,21 @@ checks.push(() => {
     assertIncludes(generatedWrapper, 'lattice init --verify-codex', 'generated Codex wrapper recovery hint');
     assertIncludes(generatedBootstrap, 'coreCliEngineCandidates', 'generated local bootstrap candidate list');
     assertIncludes(generatedBootstrap, "node_modules', '@lattice-agent', 'core'", 'generated local bootstrap should search local @lattice-agent/core first');
-    assertIncludes(generatedBootstrap, "node_modules', '@koala-agent', 'core'", 'generated local bootstrap should keep legacy @koala-agent/core fallback');
+    assertNotIncludes(generatedBootstrap, "@koala-agent", 'generated local bootstrap should not search @koala-agent/core fallback');
+    assertNotIncludes(generatedBootstrap, 'bin/koala.js', 'generated local bootstrap should not mention bin/koala.js');
+    assertNotIncludes(generatedBootstrap, "spawnSync('koala'", 'generated local bootstrap should not delegate to global koala');
     assertIncludes(generatedBootstrap, "typeof mod.runCli", 'generated local bootstrap should execute a local CLI engine');
     assertIncludes(generatedBootstrap, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated local bootstrap should reject stale global fallback');
+    assertPathMissing(tempDir, 'bin/koala.js', 'full init should not generate bin/koala.js');
+    assertPathMissing(tempDir, 'bin/koala-codex.js', 'full init should not generate bin/koala-codex.js');
+    assertPathMissing(tempDir, '.Codex/koala.json', 'full init should not generate .Codex/koala.json');
 
     const verifyInitOut = run('node', [CORE_ENTRYPOINT, 'init', '--asset-mode=full', '--verify-codex', tempDir]);
-    assertIncludes(verifyInitOut, 'Codex verification:', 'koala init --verify-codex output');
-    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'koala init --verify-codex checks');
-    assertPathMissing(tempDir, 'src/core', 'koala init --verify-codex src/core');
-    assertPathMissing(tempDir, 'src/shells', 'koala init --verify-codex src/shells');
-    assertPathMissing(tempDir, 'tests', 'koala init --verify-codex tests');
+    assertIncludes(verifyInitOut, 'Codex verification:', 'lattice init --verify-codex output');
+    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'lattice init --verify-codex checks');
+    assertPathMissing(tempDir, 'src/core', 'lattice init --verify-codex src/core');
+    assertPathMissing(tempDir, 'src/shells', 'lattice init --verify-codex src/shells');
+    assertPathMissing(tempDir, 'tests', 'lattice init --verify-codex tests');
 
     const staleBin = join(tempDir, 'stale-bin');
     mkdirSync(staleBin);
@@ -452,63 +460,63 @@ checks.push(() => {
     assertIncludes(freshWrapperOut, '# lattice session brief', 'fresh generated wrapper should run with stale global lattice on PATH');
 
     const checkOk = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
-    assert(checkOk.ok === true, 'koala check should pass immediately after init');
-    assert(checkOk.profile === 'all', 'koala check should detect all profile after all init');
+    assert(checkOk.ok === true, 'lattice check should pass immediately after init');
+    assert(checkOk.profile === 'all', 'lattice check should detect all profile after all init');
 
     writeFileSync(join(tempDir, '.Codex', 'lattice.json'), '{}\n');
     const checkDrift = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
-    assert(checkDrift.ok === false, 'koala check should report drift after managed manifest edit');
+    assert(checkDrift.ok === false, 'lattice check should report drift after managed manifest edit');
     assert(
       checkDrift.items.some(item => item.relPath === '.Codex/lattice.json' && item.status === 'STALE_SAFE'),
-      'koala check should classify generated Codex manifest drift as STALE_SAFE',
+      'lattice check should classify generated Codex manifest drift as STALE_SAFE',
     );
 
     const checkApply = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--apply', '--json'], { cwd: tempDir }));
-    assert(checkApply.ok === true, 'koala check --apply should repair safe managed drift');
-    assert(checkApply.applied.includes('.Codex/lattice.json'), 'koala check --apply should report applied managed manifest');
-    assert(readJson(tempDir, '.Codex/lattice.json').adapterOwner === 'lattice', 'koala check --apply should restore Codex manifest');
-    assertPathExists(tempDir, '.lattice/managed-assets.json', 'koala check --apply manifest');
+    assert(checkApply.ok === true, 'lattice check --apply should repair safe managed drift');
+    assert(checkApply.applied.includes('.Codex/lattice.json'), 'lattice check --apply should report applied managed manifest');
+    assert(readJson(tempDir, '.Codex/lattice.json').adapterOwner === 'lattice', 'lattice check --apply should restore Codex manifest');
+    assertPathExists(tempDir, '.lattice/managed-assets.json', 'lattice check --apply manifest');
 
     run('git', ['init'], { cwd: tempDir });
     writeFileSync(join(tempDir, 'koala-user-note.txt'), 'uncommitted local work\n');
     writeFileSync(join(tempDir, '.Codex', 'lattice.json'), '{}\n');
     const checkUpgrade = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--upgrade', '--json'], { cwd: tempDir }));
-    assert(checkUpgrade.ok === true, 'koala check --upgrade should repair safe managed drift');
-    assert(checkUpgrade.mode === 'upgrade', 'koala check --upgrade should report upgrade mode');
-    assert(checkUpgrade.applied.includes('.Codex/lattice.json'), 'koala check --upgrade should report applied managed manifest');
+    assert(checkUpgrade.ok === true, 'lattice check --upgrade should repair safe managed drift');
+    assert(checkUpgrade.mode === 'upgrade', 'lattice check --upgrade should report upgrade mode');
+    assert(checkUpgrade.applied.includes('.Codex/lattice.json'), 'lattice check --upgrade should report applied managed manifest');
     assert(
       checkUpgrade.warnings.some(warning => warning.includes('working tree already has')),
-      'koala check --upgrade should warn before syncing into a dirty worktree',
+      'lattice check --upgrade should warn before syncing into a dirty worktree',
     );
 
     const originalClaude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
     writeFileSync(join(tempDir, 'CLAUDE.md'), [
       '# CLAUDE.md',
       '',
-      '<!-- koala:start -->',
+      '<!-- lattice:start -->',
       '## Local Project Rule',
       '',
       'Preserve this locally edited Claude instruction.',
-      '<!-- koala:end -->',
+      '<!-- lattice:end -->',
       '',
     ].join('\n'));
     const checkLocalReview = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--review-local-edits', '--json'], { cwd: tempDir }));
     const claudeReview = checkLocalReview.localEditReviews.find(review => review.relPath === 'CLAUDE.md');
-    assert(checkLocalReview.ok === false, 'koala check --review-local-edits should preserve STALE_LOCAL_EDIT status');
-    assert(claudeReview, 'koala check --review-local-edits should report CLAUDE.md review data');
+    assert(checkLocalReview.ok === false, 'lattice check --review-local-edits should preserve STALE_LOCAL_EDIT status');
+    assert(claudeReview, 'lattice check --review-local-edits should report CLAUDE.md review data');
     assert(
       claudeReview.localOnlyHeadings.includes('Local Project Rule'),
-      'koala check --review-local-edits should surface local-only headings',
+      'lattice check --review-local-edits should surface local-only headings',
     );
     writeFileSync(join(tempDir, 'CLAUDE.md'), originalClaude);
 
     mkdirSync(join(tempDir, '.Codex', 'settings.json'), { recursive: true });
     const checkExcludedDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
     const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === '.Codex/settings.json');
-    assert(checkExcludedDirectory.ok === false, 'koala check should report excluded directory drift');
+    assert(checkExcludedDirectory.ok === false, 'lattice check should report excluded directory drift');
     assert(
       excludedDirectoryItem?.status === 'INCOMPATIBLE' && excludedDirectoryItem.reason.includes('directory'),
-      'koala check should classify directory at excluded asset path without throwing EISDIR',
+      'lattice check should classify directory at excluded asset path without throwing EISDIR',
     );
     rmSync(join(tempDir, '.Codex', 'settings.json'), { recursive: true, force: true });
 
@@ -518,7 +526,7 @@ checks.push(() => {
     const managedFileDirectoryItem = checkManagedFileDirectory.items.find(item => item.relPath === '.Codex/README.md');
     assert(
       managedFileDirectoryItem?.status === 'INCOMPATIBLE' && managedFileDirectoryItem.reason.includes('expected a file'),
-      'koala check should classify directory at managed file path without throwing EISDIR',
+      'lattice check should classify directory at managed file path without throwing EISDIR',
     );
 
   } finally {
@@ -534,9 +542,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, 'Lattice.md'), '# Lattice.md\n\nmixed-case Lattice guide\n');
     const result = runManagedAssetCheck(tempDir, { profile: 'all' });
     const item = result.items.find(asset => asset.relPath === 'LATTICE.md');
-    assert(item?.status === 'CASE_MISMATCH', 'koala check should classify LATTICE.md casing drift as CASE_MISMATCH');
-    assert(item.actualRelPath === 'Lattice.md', 'koala check should report the mixed-case actual path');
-    assert(item.reason.includes('different case'), 'koala check should explain path casing drift');
+    assert(item?.status === 'CASE_MISMATCH', 'lattice check should classify LATTICE.md casing drift as CASE_MISMATCH');
+    assert(item.actualRelPath === 'Lattice.md', 'lattice check should report the mixed-case actual path');
+    assert(item.reason.includes('different case'), 'lattice check should explain path casing drift');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -568,8 +576,8 @@ checks.push(() => {
 checks.push(() => {
   const result = runManagedAssetCheck(repoRoot, { profile: 'all', assetMode: 'full' });
   const item = result.items.find(asset => asset.relPath === 'bin/lattice.js');
-  assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Koala-owned compatibility asset');
-  assert(item.reason.includes('alternate Koala-owned contract'), 'self-repo local wrapper should explain alternate contract');
+  assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Lattice-owned compatibility asset');
+  assert(item.reason.includes('recognized Lattice compatibility contract'), 'self-repo local wrapper should explain alternate contract');
 });
 
 checks.push(() => {
@@ -582,11 +590,11 @@ checks.push(() => {
     assertGlobalThinAssets(tempDir, 'core');
 
     const config = readJson(tempDir, 'lattice.config.json');
-    assert(config.scanRoot === 'src', 'default koala init with preexisting src should keep scanRoot=src');
+    assert(config.scanRoot === 'src', 'default lattice init with preexisting src should keep scanRoot=src');
     assertPathExists(tempDir, 'src/index.ts', 'preexisting src/index.ts');
-    assertPathMissing(tempDir, 'src/core/app.ts', 'default koala init with preexisting src src/core/app.ts');
-    assertPathMissing(tempDir, 'src/shells/cli/main.ts', 'default koala init with preexisting src cli shell');
-    assertPathMissing(tempDir, 'tests', 'default koala init with preexisting src tests');
+    assertPathMissing(tempDir, 'src/core/app.ts', 'default lattice init with preexisting src src/core/app.ts');
+    assertPathMissing(tempDir, 'src/shells/cli/main.ts', 'default lattice init with preexisting src cli shell');
+    assertPathMissing(tempDir, 'tests', 'default lattice init with preexisting src tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -604,7 +612,7 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), existingGitignoreLines.join('\n'));
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (merged koala runtime ignores)', 'koala init existing .gitignore merge output');
+    assertIncludes(initOut, '.gitignore (merged Lattice runtime ignores)', 'lattice init existing .gitignore merge output');
 
     const gitignore = readFileSync(join(tempDir, '.gitignore'), 'utf8');
     assertIncludes(gitignore, 'custom-cache/', 'existing .gitignore merge should preserve user content');
@@ -621,9 +629,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), gitignoreBefore);
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (runtime ignores already present)', 'koala init existing .gitignore no-churn output');
+    assertIncludes(initOut, '.gitignore (runtime ignores already present)', 'lattice init existing .gitignore no-churn output');
     const gitignoreAfter = readFileSync(join(tempDir, '.gitignore'), 'utf8');
-    assert(gitignoreAfter === gitignoreBefore, 'koala init should not churn .gitignore when runtime ignores are already present');
+    assert(gitignoreAfter === gitignoreBefore, 'lattice init should not churn .gitignore when runtime ignores are already present');
     assertNotIncludes(gitignoreAfter, MANAGED_GITIGNORE_BLOCK_START, 'no-churn .gitignore should not add a managed block');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -635,17 +643,17 @@ checks.push(() => {
     const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-starter-'));
     try {
       const initOut = run('node', [INIT_ENTRYPOINT, flag, tempDir]);
-      assertIncludes(initOut, 'src/core/app.ts', `koala init ${flag} output`);
+      assertIncludes(initOut, 'src/core/app.ts', `lattice init ${flag} output`);
       assertGlobalThinAssets(tempDir, 'core');
 
       const config = readJson(tempDir, 'lattice.config.json');
-      assert(config.scanRoot === 'src', `koala init ${flag} should set scanRoot=src`);
-      assertPathExists(tempDir, 'src/core/app.ts', `koala init ${flag} src/core/app.ts`);
-      assertPathExists(tempDir, 'src/core/debug.ts', `koala init ${flag} src/core/debug.ts`);
-      assertPathExists(tempDir, 'src/core/machines/game/bridge.ts', `koala init ${flag} bridge.ts`);
-      assertPathExists(tempDir, 'src/shells/cli/main.ts', `koala init ${flag} cli shell`);
-      assertPathExists(tempDir, 'src/shells/web', `koala init ${flag} web shell dir`);
-      assertPathExists(tempDir, 'tests', `koala init ${flag} tests dir`);
+      assert(config.scanRoot === 'src', `lattice init ${flag} should set scanRoot=src`);
+      assertPathExists(tempDir, 'src/core/app.ts', `lattice init ${flag} src/core/app.ts`);
+      assertPathExists(tempDir, 'src/core/debug.ts', `lattice init ${flag} src/core/debug.ts`);
+      assertPathExists(tempDir, 'src/core/machines/game/bridge.ts', `lattice init ${flag} bridge.ts`);
+      assertPathExists(tempDir, 'src/shells/cli/main.ts', `lattice init ${flag} cli shell`);
+      assertPathExists(tempDir, 'src/shells/web', `lattice init ${flag} web shell dir`);
+      assertPathExists(tempDir, 'tests', `lattice init ${flag} tests dir`);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -777,9 +785,9 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-managed-sync-'));
   try {
-    writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nbefore-agents\n<!-- koala:start -->\nold agents section\n<!-- koala:end -->\nafter-agents\n');
-    writeFileSync(join(tempDir, 'CLAUDE.md'), '# CLAUDE.md\n\nbefore-claude\n<!-- koala:start -->\nold claude section\n<!-- koala:end -->\nafter-claude\n');
-    writeFileSync(join(tempDir, 'LATTICE.md'), '# LATTICE.md\n\nbefore-lattice\n<!-- koala:start -->\nold lattice section\n<!-- koala:end -->\nafter-lattice\n');
+    writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nbefore-agents\n<!-- lattice:start -->\nold agents section\n<!-- lattice:end -->\nafter-agents\n');
+    writeFileSync(join(tempDir, 'CLAUDE.md'), '# CLAUDE.md\n\nbefore-claude\n<!-- lattice:start -->\nold claude section\n<!-- lattice:end -->\nafter-claude\n');
+    writeFileSync(join(tempDir, 'LATTICE.md'), '# LATTICE.md\n\nbefore-lattice\n<!-- lattice:start -->\nold lattice section\n<!-- lattice:end -->\nafter-lattice\n');
 
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
 
@@ -813,9 +821,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, 'LATTICE.md'), latticeOriginal);
 
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
-    assertIncludes(initOut, 'AGENTS.md (exists, no koala markers, skip)', 'AGENTS.md unmanaged preservation log');
-    assertIncludes(initOut, 'CLAUDE.md (exists, no koala markers, skip)', 'CLAUDE.md unmanaged preservation log');
-    assertIncludes(initOut, 'LATTICE.md (exists, no koala markers, skip)', 'LATTICE.md unmanaged preservation log');
+    assertIncludes(initOut, 'AGENTS.md (exists, no Lattice managed markers, skip)', 'AGENTS.md unmanaged preservation log');
+    assertIncludes(initOut, 'CLAUDE.md (exists, no Lattice managed markers, skip)', 'CLAUDE.md unmanaged preservation log');
+    assertIncludes(initOut, 'LATTICE.md (exists, no Lattice managed markers, skip)', 'LATTICE.md unmanaged preservation log');
     assert(readFileSync(join(tempDir, 'AGENTS.md'), 'utf8') === agentsOriginal, 'AGENTS.md without markers should be preserved');
     assert(readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8') === claudeOriginal, 'CLAUDE.md without markers should be preserved');
     assert(readFileSync(join(tempDir, 'LATTICE.md'), 'utf8') === latticeOriginal, 'LATTICE.md without markers should be preserved');
@@ -829,14 +837,14 @@ checks.push(() => {
   try {
     writeFileSync(join(tempDir, 'pyproject.toml'), '[project]\nname = "koala-smoke"\nversion = "0.0.0"\n');
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '检测到 Python 项目', 'python no-src koala init output');
+    assertIncludes(initOut, '检测到 Python 项目', 'python no-src lattice init output');
     assertGlobalThinAssets(tempDir, 'core');
 
     const config = readJson(tempDir, 'lattice.config.json');
-    assert(config.language === 'python', 'python no-src koala init should set language=python');
-    assert(config.scanRoot === '.', 'python no-src koala init should set scanRoot=.');
-    assertPathMissing(tempDir, 'src', 'python no-src koala init src');
-    assertPathMissing(tempDir, 'tests', 'python no-src koala init tests');
+    assert(config.language === 'python', 'python no-src lattice init should set language=python');
+    assert(config.scanRoot === '.', 'python no-src lattice init should set scanRoot=.');
+    assertPathMissing(tempDir, 'src', 'python no-src lattice init src');
+    assertPathMissing(tempDir, 'tests', 'python no-src lattice init tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -859,20 +867,18 @@ checks.push(() => {
   const staleBin = join(tempDir, 'stale-bin');
   try {
     mkdirSync(staleBin);
-    for (const name of ['lattice', 'koala']) {
-      const staleCli = join(staleBin, name);
-      writeFileSync(staleCli, `#!/bin/sh\necho "stale ${name} without verify_codex"\nexit 0\n`);
-      chmodSync(staleCli, 0o755);
-    }
+    const staleCli = join(staleBin, 'lattice');
+    writeFileSync(staleCli, '#!/bin/sh\necho "stale lattice without verify_codex"\nexit 0\n');
+    chmodSync(staleCli, 0o755);
     const out = run(process.execPath, [CORE_ENTRYPOINT, 'init', '--profile=all', '--asset-mode=full', '--verify-codex', tempDir], {
       env: {
         ...process.env,
         PATH: `${staleBin}:/usr/bin:/bin`,
       },
     });
-    assertIncludes(out, 'Codex verification:', 'fresh koala init --verify-codex minimal PATH output');
-    assertIncludes(out, 'Local wrapper heartbeat: source=codex', 'fresh koala init --verify-codex should execute generated wrapper heartbeat');
-    assertIncludes(out, 'Codex adapter checks passed', 'fresh koala init --verify-codex should pass via generated local bootstrap');
+    assertIncludes(out, 'Codex verification:', 'fresh lattice init --verify-codex minimal PATH output');
+    assertIncludes(out, 'Local wrapper heartbeat: source=codex', 'fresh lattice init --verify-codex should execute generated wrapper heartbeat');
+    assertIncludes(out, 'Codex adapter checks passed', 'fresh lattice init --verify-codex should pass via generated local bootstrap');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

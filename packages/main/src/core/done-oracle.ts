@@ -15,7 +15,7 @@
  */
 
 import { execFileSync, execSync } from 'child_process';
-import type { ChecklistData } from './types.js';
+import type { ChecklistData, StoryPhase, TestEvidenceData } from './types.js';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -33,12 +33,16 @@ import {
   renderDirtyWorktreeGroups,
 } from './dirty-worktree.js';
 import { defaultAuditWriter, evaluateDirtyGate, type AuditWriter, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { checkEvidenceFreshnessForGit } from './evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash } from './evidence-freshness.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import {
   summarizeCodexEvidence,
   storyRequiresCodexEvidence,
 } from './codex-adapter-checks.js';
+import {
+  evaluateReviewEscalation,
+  formatReviewEscalationFailure,
+} from './review-escalation.js';
 
 // B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
@@ -135,10 +139,44 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
   return true;
 }
 
-// B-c622 CHK-009: evidence freshness check — DONE gate verifies whether test-evidence corresponds to current HEAD
-function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string): { fresh: boolean; message: string } {
+function checkCompletedEvidenceSnapshotFreshness(
+  projectRoot: string,
+  evidence: TestEvidenceData,
+): { fresh: boolean; message: string } {
+  if (!evidence.headHash) {
+    return { fresh: false, message: 'DONE test-evidence is missing headHash; cannot inspect recorded evidence snapshot' };
+  }
+  if (!evidence.materialHash) {
+    return { fresh: false, message: 'DONE test-evidence is missing materialHash; cannot validate recorded evidence snapshot' };
+  }
+
+  const recordedMaterialHash = currentMaterialHash(projectRoot, evidence.headHash);
+  if (!recordedMaterialHash) {
+    return {
+      fresh: false,
+      message: `recorded evidence head ${evidence.headHash.slice(0, 7)} cannot be inspected`,
+    };
+  }
+  if (recordedMaterialHash !== evidence.materialHash) {
+    return {
+      fresh: false,
+      message: `recorded evidence materialHash does not match material tree at ${evidence.headHash.slice(0, 7)}`,
+    };
+  }
+
+  return {
+    fresh: true,
+    message: `evidence materialHash matches recorded evidence snapshot @ ${evidence.headHash.slice(0, 7)}`,
+  };
+}
+
+// B-c622 CHK-009: active DONE-entry verifies current HEAD; completed DONE projections verify recorded snapshot.
+function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string, phase?: StoryPhase): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json does not exist' };
+  if (phase === 'DONE') {
+    return checkCompletedEvidenceSnapshotFreshness(projectRoot, evidence);
+  }
   const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash, evidence.materialHash);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
@@ -182,7 +220,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Test evidence',
       detail: 'no test evidence',
-      hint: `koala validate --json`,
+      hint: `lattice validate --json`,
       source: 'test-evidence.json',
     }));
   } else if (evidence.result !== 'PASS') {
@@ -191,7 +229,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Test evidence',
       detail: `${evidence.result}: ${evidence.output.slice(0, 120)}`,
-      hint: 'rerun koala validate after fixing failures',
+      hint: 'rerun lattice validate after fixing failures',
       source: 'test-evidence.json',
     }));
   } else {
@@ -205,7 +243,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'Test evidence',
           detail: `allPassed=${parsed.allPass ?? parsed.allPassed}`,
-          hint: 'rerun koala validate after fixing failures',
+          hint: 'rerun lattice validate after fixing failures',
           source: 'test-evidence.json',
         }));
       }
@@ -236,14 +274,14 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 1b. evidence freshness (B-c622 CHK-009)
-  const freshness = checkEvidenceFreshness(store, storyId, root);
+  const freshness = checkEvidenceFreshness(store, storyId, root, storyForPolicy.phase);
   if (!freshness.fresh) {
     rows.push(doneCheckRow({
       id: 'evidence-freshness',
       status: 'fail',
       label: 'Evidence freshness',
       detail: freshness.message,
-      hint: 'koala validate --json',
+      hint: 'lattice validate --json',
       source: 'test-evidence.json',
     }));
   } else {
@@ -266,7 +304,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Bugs fixed',
       detail: `${openBugs.length} open / ${total} total: ${openBugs.map(b => b.id).join(', ')}`,
-      hint: 'rerun koala validate after fixing all open bugs',
+      hint: 'rerun lattice validate after fixing all open bugs',
       source: 'bugs.json',
     }));
   } else {
@@ -315,7 +353,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     ];
     if (!result.allPass) {
-      hintLines.push('If these files come from koala validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. KOALA_WRITE_*_REPORT=1) to explicitly enable report writing.');
+      hintLines.push('If these files come from lattice validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. KOALA_WRITE_*_REPORT=1) to explicitly enable report writing.');
     }
     const hint = hintLines.join('\n');
     rows.push(doneCheckRow({
@@ -348,7 +386,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'warn',
           label: 'Branch synced with main',
           detail: `${branch} does not exist (may have been manually merged and cleaned up)`,
-          hint: `if story is still stuck at TEST/DONE boundary, use koala story_reconcile '{"dryRun":false}' to repair phase/worktree metadata`,
+          hint: `if story is still stuck at TEST/DONE boundary, use lattice story_reconcile '{"dryRun":false}' to repair phase/worktree metadata`,
           source: 'git worktree metadata',
           blocking: false,
         });
@@ -458,8 +496,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       id: 'delivery-check',
       status: 'fail',
       label: 'delivery-check',
-      detail: 'Missing delivery-check.json (requires koala-review-delivery reviewer signature)',
-      hint: 'Run the koala-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with koala-review-delivery provenance / agentId=koala-review-delivery; the main agent must not self-sign.',
+      detail: 'Missing delivery-check.json (requires lattice-review-delivery reviewer signature)',
+      hint: 'Run the lattice-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign.',
       source: 'delivery-check.json',
     }));
   } else {
@@ -470,7 +508,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: 'fail',
         label: 'delivery-check',
         detail: 'delivery-check.json _hash mismatch',
-        hint: 'Re-run the koala-review-delivery reviewer to generate a new delivery-check.json',
+        hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json',
         source: 'delivery-check.json._hash',
       }));
     } else {
@@ -483,7 +521,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'delivery-check',
           detail: `${unverified.length} docsPromise entries are unverified and not waived`,
-          hint: 'Use delivery_waiver_add to write a waiver, or re-run the koala-review-delivery reviewer to add verification evidence',
+          hint: 'Use delivery_waiver_add to write a waiver, or re-run the lattice-review-delivery reviewer to add verification evidence',
           source: 'delivery-check.json.docsPromises',
         }));
       } else {
@@ -617,6 +655,30 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }
   }
 
+  // 6d. review escalation quorum. Ordinary documentation/decision-doc edits do
+  //     not trigger this gate by themselves; the trigger is mechanical: the
+  //     first REVIEW round recorded at least two countable verified reviewer
+  //     problems. When triggered, DONE requires full 3x2 host quorum or explicit
+  //     degraded 3x1 fallback over the current material hash.
+  {
+    const escalation = evaluateReviewEscalation({
+      projectRoot: root,
+      storyId,
+      store,
+    });
+    rows.push(doneCheckRow({
+      id: 'review-escalation',
+      status: escalation.ok ? 'pass' : 'fail',
+      label: 'Review escalation',
+      detail: escalation.required
+        ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`
+        : `not required; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`,
+      hint: escalation.ok ? 'review escalation satisfied or not required' : formatReviewEscalationFailure(escalation),
+      source: 'findings.json + process-events.jsonl:host_verdict',
+      blocking: escalation.required && !escalation.ok,
+    }));
+  }
+
   // 7. evaluator evidence (policy-aware: hard gate or advisory depending on profile)
   if (config.browser?.devCommand) {
     const requireEval = policy.test.requireEvaluatorForBrowser;
@@ -629,7 +691,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         detail: requireEval
           ? 'No evaluator score (browser projects must run the evaluator)'
           : 'No evaluator score (advisory — not required by profile)',
-        hint: `koala evaluate '{"storyId":"${storyId}"}'`,
+        hint: `lattice evaluate '{"storyId":"${storyId}"}'`,
         source: 'eval-evidence.json',
         blocking: requireEval,
       }));
@@ -639,7 +701,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: requireEval ? 'fail' : 'warn',
         label: 'Evaluator',
         detail: `Did not pass: functionality=${evalEvidence.scores.functionality} usability=${evalEvidence.scores.usability} total=${evalEvidence.total}`,
-        hint: 'Re-run koala evaluate after fixing the issues found by evaluator',
+        hint: 'Re-run lattice evaluate after fixing the issues found by evaluator',
         source: 'eval-evidence.json',
         blocking: requireEval,
       }));
@@ -667,7 +729,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         detail: summaryReq === 'full'
           ? 'No summary.json'
           : 'No summary.json (advisory — profile requires minimal)',
-        hint: `koala summary_set '{"storyId":"${storyId}","changes":"What changed (≥10 chars)","usage":"How to use (≥10 chars)","expectedOutcome":"What the user expects to see","actualTranscript":"What was actually observed when run","outcomeDiff":"expected vs actual diff","acceptanceVerdict":"accepted","limitations":"Known limitations or \\"none — fully covered\\"","pitfalls":"Pitfall notes (≥10 chars, mandatory section)"}'`,
+        hint: `lattice summary_set '{"storyId":"${storyId}","changes":"What changed (≥10 chars)","usage":"How to use (≥10 chars)","expectedOutcome":"What the user expects to see","actualTranscript":"What was actually observed when run","outcomeDiff":"expected vs actual diff","acceptanceVerdict":"accepted","limitations":"Known limitations or \\"none — fully covered\\"","pitfalls":"Pitfall notes (≥10 chars, mandatory section)"}'`,
         source: 'summary.json',
         blocking: summaryReq === 'full',
       }));
@@ -687,7 +749,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: summaryReq === 'full' ? 'fail' : 'warn',
           label: 'Story summary',
           detail: `Missing/too short fields: ${missing.join(', ')}`,
-          hint: `Re-invoke koala summary_set to fill in ${missing.join(', ')}`,
+          hint: `Re-invoke lattice summary_set to fill in ${missing.join(', ')}`,
           source: 'summary.json',
           blocking: summaryReq === 'full',
         }));

@@ -17,12 +17,12 @@ import {
 export const REVIEW_RUN_SALT = 'koala-review-run-integrity-v1';
 
 export const REVIEW_RUN_LANES = [
-  'koala-review-concept',
-  'koala-review-quality',
-  'koala-review-test-coverage',
-  'koala-review-behavior',
-  'koala-review-docs',
-  'koala-review-channel',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-test-coverage',
+  'lattice-review-behavior',
+  'lattice-review-docs',
+  'lattice-review-channel',
 ] as const;
 
 export type ReviewRunLane = typeof REVIEW_RUN_LANES[number];
@@ -73,13 +73,13 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
 }
 
 // A finding / review pass counts as reviewer evidence (subject to reviewRunId
-// binding) only when its agent is a koala-review-* lane. main / main-agent /
-// koala-implementer / other non-reviewer actors create findings during DEV or
+// binding) only when its agent is a lattice-review-* lane. main / main-agent /
+// lattice-implementer / other non-reviewer actors create findings during DEV or
 // for meta-process notes and must NOT be treated as reviewer evidence by the
 // REVIEW→TEST gate. Mirrors the predicate used at finding_add time
 // (handlers/finding.ts) and elsewhere in the codebase.
 export function isReviewerAgent(agent: string | undefined | null): boolean {
-  return !!agent && agent.startsWith('koala-review-');
+  return !!agent && agent.startsWith('lattice-review-');
 }
 
 export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLane {
@@ -87,10 +87,10 @@ export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLa
   const resolvedLane = (lane || '').trim();
   const candidate = resolvedLane || resolvedAgent;
   if (!candidate) {
-    throw new Error(`review_run_start: agent/lane must provide a valid koala-review-* reviewer (supported: ${REVIEW_RUN_LANES.join(', ')})`);
+    throw new Error(`review_run_start: agent/lane must provide a valid lattice-review-* reviewer (supported: ${REVIEW_RUN_LANES.join(', ')})`);
   }
-  if (resolvedAgent && !resolvedAgent.startsWith('koala-review-')) {
-    throw new Error(`review_run_start: agent "${resolvedAgent}" is not a koala-review-* reviewer`);
+  if (resolvedAgent && !resolvedAgent.startsWith('lattice-review-')) {
+    throw new Error(`review_run_start: agent "${resolvedAgent}" is not a lattice-review-* reviewer`);
   }
   if (!isReviewRunLane(candidate)) {
     throw new Error(`review_run_start: lane "${candidate}" is not in the supported REVIEW reviewer lane list (supported: ${REVIEW_RUN_LANES.join(', ')})`);
@@ -409,7 +409,7 @@ function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string)
 }
 
 function startRunHint(storyId: string, lane: string): string {
-  return `→ Current REVIEW round has no available reviewer run: run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}', then resubmit finding_add/review_pass_set with the returned reviewRunId`;
+  return `→ Current REVIEW round has no available reviewer run: run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}', then resubmit finding_add/review_pass_set with the returned reviewRunId`;
 }
 
 function latestRunHint(storyId: string, lane: string, latestRunId?: string): string {
@@ -418,17 +418,17 @@ function latestRunHint(storyId: string, lane: string, latestRunId?: string): str
 }
 
 function roundMismatchHint(storyId: string, lane: string): string {
-  return `→ This reviewRunId does not belong to the current REVIEW round: run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to obtain the reviewRunId for the current round, then resubmit finding_add/review_pass_set`;
+  return `→ This reviewRunId does not belong to the current REVIEW round: run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to obtain the reviewRunId for the current round, then resubmit finding_add/review_pass_set`;
 }
 
 function staleMaterialHint(storyId: string, lane: string): string {
-  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run koala story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run lattice story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
 }
 
 // ── B-6bfd CHK-005: review scope binding (scope-protected stories only) ──
 
 function scopeBindingHint(storyId: string, lane: string): string {
-  return `→ scope-protected story: reviewer evidence must be bound to the current scope contract and diff. Re-run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to capture the latest scopeContractHash/diffPackHash, then use the new reviewRunId to resubmit finding_add/review_pass_set`;
+  return `→ scope-protected story: reviewer evidence must be bound to the current scope contract and diff. Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to capture the latest scopeContractHash/diffPackHash, then use the new reviewRunId to resubmit finding_add/review_pass_set`;
 }
 
 /**
@@ -601,7 +601,7 @@ function validateRunWorkspaceBinding(
 }
 
 function workspaceBindingHint(storyId: string, lane: string): string {
-  return `→ Re-run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
+  return `→ Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
 }
 
 export function assertCurrentReviewRunForEvidence(
@@ -819,8 +819,8 @@ export function collectReviewerEvidenceState(
   const findings = store.readFindings(storyId).findings || [];
   const passes = store.readReviewPasses(storyId).passes || [];
 
-  // Only true reviewer lanes (koala-review-*) require reviewRunId binding.
-  // main / main-agent / koala-implementer / other non-reviewer actors create
+  // Only true reviewer lanes (lattice-review-*) require reviewRunId binding.
+  // main / main-agent / lattice-implementer / other non-reviewer actors create
   // findings during DEV or capture meta-process notes that must not be treated
   // as reviewer evidence by the REVIEW→TEST gate.
   const reviewerFindings = findings

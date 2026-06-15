@@ -7,7 +7,7 @@
  * @priority high
  * @description
  *   Exercises PreToolUse scope pre-write guard:
- *   1. getKoalaHooks() includes PreToolUse with write-tool matcher
+ *   1. getClaudeHooks() includes PreToolUse with write-tool matcher
  *   2. getCodexHooks() includes PreToolUse for apply_patch/Edit/Write
  *   3. mergeClaudeHooks generates settings.json containing PreToolUse
  *   4. Codex init generates lowercase .codex native hook assets
@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 import {
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   getCodexHooks,
-  getKoalaHooks,
+  getClaudeHooks,
   PRETOOL_SCOPE_HOOK_MATCHER,
 } from '../init-assets.js';
 import { extractPathsFromToolInput, normalizeToProjectRoot } from '../core/prewrite-guard.js';
@@ -73,10 +73,10 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
   }
 }
 
-// ─── Test 1: getKoalaHooks() includes PreToolUse ─────────────────────────────
+// ─── Test 1: getClaudeHooks() includes PreToolUse ─────────────────────────────
 
-const hooks = getKoalaHooks() as Record<string, unknown>;
-assert.ok('PreToolUse' in hooks, 'getKoalaHooks() must include PreToolUse');
+const hooks = getClaudeHooks() as Record<string, unknown>;
+assert.ok('PreToolUse' in hooks, 'getClaudeHooks() must include PreToolUse');
 const preToolEntry = (hooks.PreToolUse as any[])[0];
 assert.equal(preToolEntry.matcher, PRETOOL_SCOPE_HOOK_MATCHER, 'PreToolUse matcher must match write tools');
 assert.match(
@@ -84,11 +84,11 @@ assert.match(
   /lattice-scope-pretool\.cjs/,
   'PreToolUse hook must reference lattice-scope-pretool.cjs',
 );
-assert.ok('UserPromptSubmit' in hooks, 'getKoalaHooks() must still include UserPromptSubmit');
-assert.ok('PostToolUse' in hooks, 'getKoalaHooks() must still include PostToolUse');
-assert.ok('PostToolUseFailure' in hooks, 'getKoalaHooks() must still include PostToolUseFailure');
+assert.ok('UserPromptSubmit' in hooks, 'getClaudeHooks() must still include UserPromptSubmit');
+assert.ok('PostToolUse' in hooks, 'getClaudeHooks() must still include PostToolUse');
+assert.ok('PostToolUseFailure' in hooks, 'getClaudeHooks() must still include PostToolUseFailure');
 
-console.log('✓ Test 1: getKoalaHooks() includes PreToolUse');
+console.log('✓ Test 1: getClaudeHooks() includes PreToolUse');
 
 // ─── Test 1b: getCodexHooks() includes PreToolUse ────────────────────────────
 
@@ -187,7 +187,7 @@ try {
     cwd: migrationRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
   });
 
-  const legacyClaudeHooks = JSON.parse(JSON.stringify(getKoalaHooks()));
+  const legacyClaudeHooks = JSON.parse(JSON.stringify(getClaudeHooks()));
   legacyClaudeHooks.PreToolUse[0].hooks[0].command = legacyClaudeHooks.PreToolUse[0].hooks[0].command
     .replace('lattice-scope-pretool.cjs', 'scope-pretool.cjs');
   write(migrationRoot, '.claude/settings.json', JSON.stringify({ hooks: legacyClaudeHooks }, null, 2) + '\n');

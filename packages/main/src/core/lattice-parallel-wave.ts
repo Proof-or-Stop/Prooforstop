@@ -553,12 +553,12 @@ function dispatchAgentRole(recommendation: ParallelWaveRecommendation): Parallel
 
 function dispatchNextCommand(ref: ParallelWaveStoryRef): string {
   if (ref.recommendation === 'parallel_dev') {
-    return `koala dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=koala-implementer`;
+    return `lattice dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=lattice-implementer`;
   }
   if (ref.recommendation === 'plan_only') {
-    return `koala parallel_plan --storyIds='["${ref.storyId}"]'`;
+    return `lattice parallel_plan --storyIds='["${ref.storyId}"]'`;
   }
-  return `koala parallel_status --storyIds='["${ref.storyId}"]'`;
+  return `lattice parallel_status --storyIds='["${ref.storyId}"]'`;
 }
 
 function dispatchEntry(ref: ParallelWaveStoryRef, refs: ParallelWaveExperienceRef[]): ParallelDispatchEntry {
@@ -604,7 +604,7 @@ function mergeGuidance(wave: LatticeParallelWave): ParallelWaveMergeGuidance {
       storyId: ref.storyId,
       title: ref.title,
       guidance: ref.recommendation === 'parallel_dev'
-        ? 'Ready for operator-confirmed implementer dispatch; normal Koala review, test, merge, and receipt gates still apply.'
+        ? 'Ready for operator-confirmed implementer dispatch; normal Lattice review, test, merge, and receipt gates still apply.'
         : blockers.length > 0
           ? `Ready for planning-only handoff; resolve scheduling risks before simultaneous DEV or merge: ${blockers.join('; ')}.`
           : 'Ready for planning-only handoff; avoid simultaneous DEV until hotspot or capability degradations clear.',
@@ -1137,7 +1137,7 @@ export function buildParallelPlan(wave: LatticeParallelWave): LatticeParallelPla
       blockedStories.length > 0
         ? `Resolve active dependencies or explicit blockers before DEV: ${blockedStories.join(', ')}.`
         : 'No dependency-blocked stories in this wave.',
-      'Rerun normal Koala validation and require verified receipts before claiming productionDone.',
+      'Rerun normal Lattice validation and require verified receipts before claiming productionDone.',
     ],
   };
 }

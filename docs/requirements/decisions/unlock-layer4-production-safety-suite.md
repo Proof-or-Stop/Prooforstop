@@ -33,11 +33,11 @@ Lattice has validated the Layer 4 Production Safety Baseline for the tested
 Authority-backed task classes.
 ```
 
-Chinese wording:
+Plain wording:
 
 ```text
-Lattice 已验证 Layer 4 Production Safety Baseline，适用于已测试的
-Authority-backed 任务类别。
+Lattice has validated the Layer 4 Production Safety Baseline for the tested
+Authority-backed task classes.
 ```
 
 The unlock does not allow these claims:

@@ -1,0 +1,402 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Validate the token-cost audit document as an executable implementation source",
+      "context": "Confirm current code still matches the document claims before coding: agent template snapshot sizes, signature domains, prompt registry/global-thin support, and story_get/checklist_get duplication. Treat prompt-cache billing uncertainty as a measurement caveat, not a blocker.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T10:48:42.745Z",
+      "endTime": "2026-06-15T10:59:25.911Z",
+      "files": {
+        "modify": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A mechanical audit check reports current template snapshot sizes and confirms the audit document remains executable against current source paths.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The audit evidence reports prompt-cache billing uncertainty as a caveat rather than an exact cost-saving claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a cited implementation path drifts, the verification must fail or report the drift instead of silently treating the audit as executable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees prompt-token-cost-smoke report baseline template snapshot sizes and confirm the audit source paths are executable, with prompt-cache caveat shown.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke reported baseline and current package template bytes/tokens and confirmed audit source paths are executable.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:25.946Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Audit doc and smoke explicitly keep prompt-cache billing as a caveat, not an exact cost-saving claim.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:25.973Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke stat-checks required audit source paths and fails if cited implementation paths drift.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:26.000Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Replace repeated full agent prompt snapshots with registry-generated load-bearing prompt slices",
+      "context": "Use prompt-registry/managed-assets patterns instead of hand-maintained prompt copies. Preserve fresh-context fence text and flow-fact/process-gate semantics required by init/scope/review/delivery gates. Do not weaken reviewer independence or signed artifact validation.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T10:59:50.448Z",
+      "endTime": "2026-06-15T10:59:58.084Z",
+      "files": {
+        "modify": [
+          "packages/main/templates/agents/*.md",
+          ".claude/agents/*.md",
+          ".Codex/agents/*.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          ".Codex/agents/*.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Affected package and project agent prompts no longer carry repeated full 50KB+ guide snapshots and instead retain compact load-bearing guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Fresh-context fence, review-run/finding/pass flow facts, and lifecycle safety instructions remain present after slimming.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prompt slimming must not change Authority Server receipt claims, handoff authority boundaries, reviewer independence, or signed artifact validation semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees affected agent prompts report compact load-bearing Lattice guidance instead of repeated full 50KB guide snapshots, while safety phrases remain present.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Affected package templates and .claude/.Codex mirrors no longer carry repeated 50KB+ guide snapshots; total package prompt bytes dropped from 632687 to 115317.",
+          "headHash": "e822f4d0a88576659fc7f4f61bb83304bd96b939",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:58.118Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Fresh-context fence, review_run_start, review_pass_set, finding_add, reviewRunId, verificationEvidence, and Authority boundary phrases remain present in load-bearing prompt slices.",
+          "headHash": "e822f4d0a88576659fc7f4f61bb83304bd96b939",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:58.149Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Smokes assert no Authority overclaim: receiptVerified, productionDone, authorityDone, and fullAuthorityDone remain boundary terms, not local completion claims.",
+          "headHash": "e822f4d0a88576659fc7f4f61bb83304bd96b939",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:58.177Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add additive slim read output for high-frequency story inspection commands",
+      "context": "Add default-preserving slim/fields behavior for story_get and checklist_get only if it does not alter existing callers. This is a low-risk token reduction and must remain opt-in.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T11:00:14.814Z",
+      "endTime": "2026-06-15T11:00:26.051Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_get/checklist_get provide explicit opt-in slim output that removes repeated heavy payload while preserving enough status information for quick inspection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default story_get and checklist_get output remains byte-shape compatible for existing callers unless slim/fields is requested.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Slim output must not hide lifecycle-blocking facts such as phase, checklist status counts, init fallback, review status, or required reviewer evidence when those facts are requested.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees story_get/checklist_get default output remain unchanged, and explicit slim output return smaller status-focused JSON.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\"[\\\"story\\\",\\\"checklist\\\"]\" --json && node packages/main/dist/cli.js checklist_get --storyId=B-bfb5 --slim --fields=\"[\\\"counts\\\"]\" --json",
+          "result": "pass",
+          "note": "Explicit slim output returns compact status-focused JSON for story_get and checklist_get.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.151Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke deep-equals default handler output to seeded full checklist/story data, proving default output remains backward compatible unless slim/fields is requested.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.180Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js story_get --storyId=B-bfb5 --json | wc -c; node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\"[\\\"story\\\",\\\"checklist\\\"]\" --json | wc -c",
+          "result": "pass",
+          "note": "Slim story_get retained phase/checklist counts/review-round status while reducing actual B-bfb5 output from about 25839 bytes to 463 bytes.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.211Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression checks for prompt-safety and token-reduction invariants",
+      "context": "Tests must prove load-bearing prompt sections remain present, default command output remains backward compatible, slim output reduces repeated payload, and managed assets/process facts do not drift.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T11:00:31.491Z",
+      "endTime": "2026-06-15T11:00:55.758Z",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          ".Codex/agents/*.md",
+          "bin/lattice-codex.js"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A dedicated smoke prints before/after prompt bytes or approximate token deltas and exits successfully only when reductions and safety invariants hold.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing prompt registry and managed asset smoke coverage still passes after template slimming.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if a required load-bearing phrase is removed, default output compatibility regresses, or slim output is not actually smaller.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees prompt-token-cost-smoke PASS with byte/token deltas, required prompt-safety phrases, default compatibility, and slim output reduction checked.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke prints before/after bytes and approximate token deltas, and passes only when prompt reduction plus safety invariants hold.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.816Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js && node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json",
+          "result": "pass",
+          "note": "Prompt registry smoke and Codex adapter verification passed; package, .claude, and .Codex prompt mirrors remain consistent.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.844Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && lattice scope_contract_check --storyId=B-bfb5 --json",
+          "result": "pass",
+          "note": "Smoke asserts required prompt-safety phrases, default output compatibility, and slim output reduction; scope gate passed for changed files.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.871Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Run full Lattice review and delivery closure without Authority overclaim",
+      "context": "Validate through Lattice lifecycle with concept/quality/test-coverage/docs/delivery reviewers as required. This story may produce local Non-authority evidence only; Authority Server receipt-backed claims remain out of scope.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T11:01:31.840Z",
+      "endTime": "2026-06-15T11:01:32.227Z",
+      "files": {
+        "modify": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "REVIEW/TEST/DONE evidence distinguishes local Non-authority token-cost optimization from Authority Server receipt-backed completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Related audit documentation records what was measured, what was only estimated, and why prompt-cache billing remains a caveat.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delivery review must reject any claim that this story changed Authority Server, handoff authority, productionDone, receiptVerified, or fullAuthorityDone semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees Lattice REVIEW/TEST/DONE evidence pass locally, with summary explicitly stating local Non-authority optimization and no Authority Server claim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice session_brief && lattice finding_list --storyId=B-bfb5 --json && lattice delivery_check_set --storyId=B-bfb5 ... --agentId=koala-review-delivery",
+          "result": "pass",
+          "note": "REVIEW shows concept, quality, test-coverage, and docs passes with no findings; delivery_check_set wrote signed local Non-authority delivery evidence and explicitly does not claim Authority completion.",
+          "headHash": "b5f672d739346da6217d936d8120af5e409efaf7",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:11:11.473Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "file": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && rg prompt-cache docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "result": "pass",
+          "note": "Audit doc records measured package template reduction 632687 B to 115317 B and states prompt-cache billing remains a caveat, not proven billable savings.",
+          "headHash": "b5f672d739346da6217d936d8120af5e409efaf7",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:11:11.473Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice delivery_check_set --storyId=B-bfb5 ... --agentId=koala-review-delivery && rg receiptVerified productionDone authorityDone fullAuthorityDone docs/audits/lattice-token-cost-and-takeover-audit.md packages/main/src/core/prompt-registry.ts",
+          "result": "pass",
+          "note": "Delivery reviewer verified no Authority Server, handoff authority, receiptVerified, productionDone, authorityDone, or fullAuthorityDone overclaim; local evidence remains Non-authority only.",
+          "headHash": "b5f672d739346da6217d936d8120af5e409efaf7",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:11:11.473Z"
+        }
+      ]
+    }
+  ]
+}

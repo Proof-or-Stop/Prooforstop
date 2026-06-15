@@ -1,0 +1,57 @@
+{
+  "storyId": "B-6351",
+  "checkedAt": "2026-06-15T10:20:02.620Z",
+  "reviewRound": "2026-06-15T10:16:22.348Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Active CLI and validation guidance uses lattice-only commands and lattice.config.json as the only active project config.",
+      "status": "verified",
+      "verifiedBy": "manual+grep+doctor",
+      "evidence": "README active config paragraph now says lattice.config.json is the canonical and only active project config; doctor residue check found no koala.config.json fallback text."
+    },
+    {
+      "docPath": "CLAUDE.md",
+      "promise": "Active story/serve guidance does not tell users to run koala CLI or koala-dev commands.",
+      "status": "verified",
+      "verifiedBy": "manual+grep",
+      "evidence": "CLAUDE.md story rule says lattice CLI; serve examples were changed to lattice serve."
+    },
+    {
+      "docPath": "docs/guide-hooks.md",
+      "promise": "Hook configuration documentation points to lattice.config.json only.",
+      "status": "verified",
+      "verifiedBy": "manual+grep",
+      "evidence": "docs/guide-hooks.md now says add hooks to lattice.config.json and no longer documents koala.config.json as fallback."
+    },
+    {
+      "docPath": ".Codex/.claude/generated assets",
+      "promise": "Generated Codex/Claude assets use lattice wrappers and do not expose koala wrapper/manifests as active compatibility assets.",
+      "status": "verified",
+      "verifiedBy": "scripts/verify-codex-assets.mjs; scripts/verify-entrypoints.mjs",
+      "evidence": "Codex asset verifier and entrypoint verifier passed; .claude/skills/koala was removed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node bin/lattice.js --version -> Lattice CLI 0.3.5; help/story_create help contain no legacy alias or Compatible: koala text; doctor residue check contains no koala.config.json/bin/koala/@koala-agent/core active fallback."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node scripts/verify-entrypoints.mjs passed 26/26; node scripts/verify-codex-assets.mjs passed; node bin/lattice.js verify_codex --forceTakeover passed 7/7."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run build passed; node scripts/verify-runtime-fact-contract.mjs passed; node packages/main/dist/tasks/lattice-only-absence-smoke.js passed; node bin/lattice.js validate --story=B-6351 --json passed with allPass=true and 21/21 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery fallback recorded because subagent quota prevented a separate koala-review-delivery process. Checked docs promises, real-machine command transcripts, edge/adversarial coverage, and unresolved findings; all open findings are resolved and validate reports allPass=true."
+  },
+  "_hash": "2402bf0d80586225bb54b17efaf7cdf20869d1b695d42b376ce0e7fbe2ab8a07"
+}

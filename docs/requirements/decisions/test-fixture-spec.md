@@ -1,20 +1,20 @@
-# @test 注释与 Fixture 规范
+# @test Annotation and Fixture Specification
 
-## @test 注释放置规则
+## @test Annotation Placement Rule
 
-**必须写在函数/方法级别的 `@task` 块里，不能写在文件顶部。**
+**It must be written in the function/method-level `@task` block, not at the top of the file.**
 
 ```js
-// ✅ 正确：每个函数各自标注
+// ✅ Correct: each function is annotated individually
 /**
  * @task S-001
  * @checklist CHK-001
- * @title 发送消息
+ * @title Send message
  * @type feature
  * @priority high
- * @description 发送消息到房间
+ * @description Send a message to the room
  * @changes
- *   - [CHK-001] 新增 sendRoomMessage
+ *   - [CHK-001] Add sendRoomMessage
  * @test application/agent-service-facade
  */
 sendRoomMessage(conversationKey, content) { ... }
@@ -22,46 +22,46 @@ sendRoomMessage(conversationKey, content) { ... }
 /**
  * @task S-001
  * @checklist CHK-002
- * @title 回复消息
+ * @title Reply to message
  * @type feature
  * @priority high
- * @description 回复指定消息
+ * @description Reply to a specified message
  * @changes
- *   - [CHK-002] 新增 replyRoomMessage
+ *   - [CHK-002] Add replyRoomMessage
  * @test application/agent-service-facade
  */
 replyRoomMessage(conversationKey, targetEventId, content) { ... }
 ```
 
 ```js
-// ❌ 错误：文件顶部写 @test，所有函数继承同一个 fixture
+// ❌ Wrong: @test at the top of the file, so all functions inherit the same fixture
 /**
  * @task S-001
  * @checklist CHK-001
  * @title AgentServiceFacade
- * @test application/agent-service-facade   ← 这里不该有 @test
+ * @test application/agent-service-facade   ← @test should not be here
  */
 ```
 
-**原因**：文件级 `@task` 没有 `functionName`，但如果写在方法上的 `@task` 都指向同一个 fixture，test_auto 会对每个函数跑 fixture 的全部 case。需要用 `fn` 字段区分（见下文）。
+**Reason**: a file-level `@task` has no `functionName`, but if the `@task` blocks written on the methods all point to the same fixture, test_auto will run all of the fixture's cases for every function. You need to distinguish them with the `fn` field (see below).
 
-## Fixture 路径映射
+## Fixture Path Mapping
 
 `@test application/agent-service-facade` → `{fixturesDir}/application/agent-service-facade.json`
 
-- 路径相对于 `koala.config.json` 的 `fixturesDir`
-- 不含 `.json` 后缀
-- 多个函数可指向同一个 fixture 文件（用 `fn` 字段区分 case 归属）
+- The path is relative to the `fixturesDir` of `lattice.config.json`
+- No `.json` suffix
+- Multiple functions can point to the same fixture file (use the `fn` field to distinguish which case belongs to which)
 
-## Fixture JSON 格式
+## Fixture JSON Format
 
-### 基本结构
+### Basic Structure
 
 ```json
 {
   "cases": [
     {
-      "name": "case 描述",
+      "name": "case description",
       "input": { ... },
       "expect": { ... }
     }
@@ -69,46 +69,46 @@ replyRoomMessage(conversationKey, targetEventId, content) { ... }
 }
 ```
 
-### Case 字段
+### Case Fields
 
-| 字段 | 必填 | 类型 | 说明 |
+| Field | Required | Type | Description |
 |------|------|------|------|
-| `name` | 是 | string | case 描述 |
-| `executor` | 否 | string | 执行器 ID；缺省时有 `execute` 走 `js.execute`，有 `command` 走 `command` |
-| `input` | 否 | any | 传给函数的参数（函数 executor 中 array 展开为多参，object 传单参） |
-| `fn` | 否 | string | 指定调用哪个函数（多函数共享 fixture 时必填） |
-| `command` | 否 | string / array | `command` executor 的命令；数组形式为 `[cmd, ...args]` |
-| `args` | 否 | string[] | 追加给 `command` 的参数 |
-| `execute` | 否 | string | legacy JS executor 函数体 |
-| `expect` | 否 | any | 期望返回值（部分匹配） |
-| `throws` | 否 | string | 期望抛出的错误消息片段（与 expect 互斥） |
-| `intentRef` | 否 | string | 关联 testIntent（如 CHK-001:happy:0） |
+| `name` | Yes | string | case description |
+| `executor` | No | string | Executor ID; when omitted, a case with `execute` uses `js.execute` and a case with `command` uses `command` |
+| `input` | No | any | Arguments passed to the function (in a function executor, an array is spread into multiple args, an object is passed as a single arg) |
+| `fn` | No | string | Specifies which function to call (required when multiple functions share a fixture) |
+| `command` | No | string / array | The command for the `command` executor; the array form is `[cmd, ...args]` |
+| `args` | No | string[] | Arguments appended to `command` |
+| `execute` | No | string | legacy JS executor function body |
+| `expect` | No | any | Expected return value (partial match) |
+| `throws` | No | string | Expected error-message fragment to be thrown (mutually exclusive with expect) |
+| `intentRef` | No | string | Associated testIntent (such as CHK-001:happy:0) |
 
-### Executor 协议
+### Executor Protocol
 
-Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；跨语言代码必须使用 `command`、语言 executor 或原生测试命令作为证据。
+A fixture is a language-agnostic test protocol, not a JS script container. `execute` represents only the legacy `js.execute` executor; cross-language code must use `command`, a language executor, or a native test command as evidence.
 
-内置 executor：
+Built-in executors:
 
-| executor | 说明 |
+| executor | Description |
 |---|---|
-| `js.execute` | 兼容旧格式，执行 JS `execute` 函数体并注入 `$handlers` / `$root` / `$ctx` |
-| `command` | 通用进程边界 executor，适合 `pytest`、`go test`、`ctest`、`mvn test`、`swift test`、`xcodebuild test` |
-| `python.function` | Python 函数级 executor，通过 JSON 调用 `file` 中的 `fn` |
-| `go.test` | Go 标准测试入口，默认运行 `go test ./...` |
-| `java.junit` | Java/JUnit 标准测试入口，默认运行 `mvn test`，`buildTool:"gradle"` 时运行 Gradle test |
-| `cpp.binary` | C/C++ 已编译测试二进制入口，运行 `binary` 或 `command` |
-| `swift.test` | Swift Package 测试入口，默认运行 `swift test` |
-| `objc.xcodebuild` | Objective-C / Apple 平台测试入口，默认运行 `xcodebuild test` |
-| `rust.cargo` | Rust Cargo 测试入口，默认运行 `cargo test` |
+| `js.execute` | Compatible with the old format; executes the JS `execute` function body and injects `$handlers` / `$root` / `$ctx` |
+| `command` | General process-boundary executor, suitable for `pytest`, `go test`, `ctest`, `mvn test`, `swift test`, `xcodebuild test` |
+| `python.function` | Python function-level executor, calls the `fn` in `file` via JSON |
+| `go.test` | Go standard test entry, runs `go test ./...` by default |
+| `java.junit` | Java/JUnit standard test entry, runs `mvn test` by default, and runs the Gradle test when `buildTool:"gradle"` |
+| `cpp.binary` | C/C++ compiled test binary entry, runs `binary` or `command` |
+| `swift.test` | Swift Package test entry, runs `swift test` by default |
+| `objc.xcodebuild` | Objective-C / Apple-platform test entry, runs `xcodebuild test` by default |
+| `rust.cargo` | Rust Cargo test entry, runs `cargo test` by default |
 
-语言策略：
+Language strategy:
 
-- 新语言优先走 `command`，保证任何 CLI/测试框架都能接入。
-- 常见语言用专用 executor 固化默认命令，减少每个 fixture 重复写命令细节。
-- 专用 executor 不改变断言模型；`expect`、`throws`、`timeoutMs`、`cwd`、`env` 仍由统一 runner 处理。
+- New languages should prefer `command`, ensuring any CLI/test framework can be integrated.
+- Common languages use a dedicated executor to fix the default command, reducing the per-fixture repetition of command details.
+- A dedicated executor does not change the assertion model; `expect`, `throws`, `timeoutMs`, `cwd`, and `env` are still handled by the unified runner.
 
-#### command 示例
+#### command Example
 
 ```json
 {
@@ -121,7 +121,7 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 }
 ```
 
-#### python.function 示例
+#### python.function Example
 
 ```json
 {
@@ -136,7 +136,7 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 }
 ```
 
-#### 常见语言 executor 示例
+#### Common-Language Executor Examples
 
 ```json
 {
@@ -190,22 +190,22 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 }
 ```
 
-## 阶段语义
+## Phase Semantics
 
-- `DEV` 阶段可以提前用 `fixture_batch_add` 补 fixture，主要用于兼容验证或边写边跑；这不是完成测试阶段的必要条件。
-- `TEST_CASE` 阶段是正式补齐 fixture 覆盖的阶段。写完 case 后应立即运行 `test_story --storyId=...` 验证当前 story 关联 case。
-- `checklist_update --status=done` 不再要求 fixture intentRef 已覆盖；fixture 覆盖由 `testintent_check` / TEST_CASE_REVIEW gate 负责。
-- 如果 `testintent_check` 报 fixture coverage missing，请给对应 case 添加 `intentRef`，格式如 `CHK-001:happy:0`。在 story worktree 中 `fixture_batch_add` 会自动补成带 storyId 的 scoped ref。
+- The `DEV` phase can add fixtures early with `fixture_batch_add`, mainly for compatibility verification or writing-and-running as you go; this is not a necessary condition for completing the test phase.
+- The `TEST_CASE` phase is the phase for formally completing fixture coverage. After writing the cases, you should immediately run `test_story --storyId=...` to verify the cases associated with the current story.
+- `checklist_update --status=done` no longer requires that the fixture intentRef be covered; fixture coverage is the responsibility of the `testintent_check` / TEST_CASE_REVIEW gate.
+- If `testintent_check` reports fixture coverage missing, add an `intentRef` to the corresponding case, in a format such as `CHK-001:happy:0`. In a story worktree, `fixture_batch_add` will automatically complete it into a scoped ref with the storyId.
 
-### expect 匹配规则
+### expect Matching Rules
 
-1. **部分匹配**：expect 中的每个字段都必须在 actual 中存在且相等，actual 可以有额外字段
-2. **pattern 正则**：如果 expect 含 `pattern` 字段，用正则匹配 actual（string 直接匹配，object 先 JSON.stringify）
-3. **throws 错误匹配**：throws 字段是字符串，actual error message 包含该字符串即通过
+1. **Partial match**: each field in expect must exist in actual and be equal; actual may have extra fields
+2. **pattern regex**: if expect contains a `pattern` field, match actual with a regex (a string is matched directly, an object is JSON.stringify'd first)
+3. **throws error match**: the throws field is a string, and it passes if the actual error message contains that string
 
-### 示例
+### Examples
 
-#### 1. 函数返回字符串，用 pattern 匹配
+#### 1. Function returns a string, matched with pattern
 
 ```json
 {
@@ -215,7 +215,7 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 }
 ```
 
-#### 2. 函数返回对象，部分匹配
+#### 2. Function returns an object, partial match
 
 ```json
 {
@@ -226,7 +226,7 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 }
 ```
 
-#### 3. 期望抛错
+#### 3. Expect a throw
 
 ```json
 {
@@ -237,9 +237,9 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 }
 ```
 
-#### 4. 前置 case + $prev 引用（取代旧 setup 字段）
+#### 4. Prerequisite case + $prev reference (replaces the old setup field)
 
-需要前置数据的 fixture 通过前置 case 创建数据，后续 case 用 `$prev.xxx` 引用前一个 case 的输出：
+A fixture needing prerequisite data creates the data via a prerequisite case, and a later case references the output of the previous case with `$prev.xxx`:
 
 ```json
 {
@@ -260,15 +260,15 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 }
 ```
 
-context 传递机制：
-- executor 维护共享 `context` 对象，每个 case 执行后自动提取返回值字段
-- 字符串返回值：自动匹配 `Story B-xxxx`→`storyId`、`Bug BUG-xxx`→`bugId` 等模式
-- 对象返回值：直接 `Object.assign` 到 context
-- 后续 case 的 input 中 `$prev.xxx` 被替换为 context 中对应字段
+context-passing mechanism:
+- The executor maintains a shared `context` object, and automatically extracts return-value fields after each case executes
+- String return value: automatically matches patterns such as `Story B-xxxx`→`storyId`, `Bug BUG-xxx`→`bugId`
+- Object return value: directly `Object.assign`ed into context
+- `$prev.xxx` in a later case's input is replaced with the corresponding field in context
 
-#### 5. 多函数共享一个 fixture 文件
+#### 5. Multiple functions sharing one fixture file
 
-当一个模块/类的多个方法共用一个 fixture 时，**每个 case 必须用 `fn` 字段标注归属**：
+When multiple methods of a module/class share one fixture, **each case must be annotated with a `fn` field for ownership**:
 
 ```json
 {
@@ -295,92 +295,92 @@ context 传递机制：
 }
 ```
 
-**没有 `fn` 字段的 case 会被每个指向该 fixture 的函数都跑一遍**——这是笛卡尔积问题的根源。
+**A case without a `fn` field is run once by every function that points to that fixture** — this is the root of the Cartesian-product problem.
 
-## 常见错误格式
+## Common Wrong Formats
 
-### ❌ 不要用 `expect.throws: true`
+### ❌ Do not use `expect.throws: true`
 
 ```json
-// ❌ 错误
+// ❌ Wrong
 { "expect": { "throws": true, "errorMessageContains": "not configured" } }
 
-// ✅ 正确
+// ✅ Correct
 { "throws": "not configured" }
 ```
 
-### ❌ 不要用 `expect.error`
+### ❌ Do not use `expect.error`
 
 ```json
-// ❌ 错误
+// ❌ Wrong
 { "expect": { "error": "Bug BUG-001 already exists" } }
 
-// ✅ 正确
+// ✅ Correct
 { "throws": "Bug BUG-001 already exists" }
 ```
 
-### ❌ 不要在 input 里放 dispatch 路由字段
+### ❌ Do not put dispatch routing fields in input
 
 ```json
-// ❌ 错误：scenario/method 是 dispatch 框架字段，koala 不识别
+// ❌ Wrong: scenario/method are dispatch-framework fields, koala does not recognize them
 { "input": { "scenario": "send_no_adapter", "method": "sendRoomMessage", "content": "Hello" } }
 
-// ✅ 正确：用顶层 fn + 干净的 input
+// ✅ Correct: use a top-level fn + clean input
 { "fn": "sendRoomMessage", "input": { "conversationKey": "bot1:room1", "content": "Hello" } }
 ```
 
-## 批量转换旧格式
+## Batch-Converting the Old Format
 
-对于已有的 dispatch 风格 fixture，用转换脚本批量处理：
+For existing dispatch-style fixtures, batch-process them with the conversion script:
 
 ```bash
-# 转换整个 fixtures 目录
+# Convert the entire fixtures directory
 node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures
 
-# 转换单个文件
+# Convert a single file
 node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures/application/agent-service-facade.json
 ```
 
-转换规则：
-- `input.method` → 顶层 `fn`
-- `input.scenario` → 移除
-- `expect.throws: true` + `errorMessageContains` → 顶层 `throws`
-- `expect.throws: false` + 自定义断言 → 标 `_warning`，需手动检查
-- 原文件备份为 `.bak`
+Conversion rules:
+- `input.method` → top-level `fn`
+- `input.scenario` → removed
+- `expect.throws: true` + `errorMessageContains` → top-level `throws`
+- `expect.throws: false` + custom assertion → marked `_warning`, needs manual check
+- The original file is backed up as `.bak`
 
-### 转换后需要手动检查
+### Manual Checks Needed After Conversion
 
-1. **`_warning` 标记的 case** — 含自定义断言（`resultLength`、`memoryNull` 等），需要 wrapper 配合验证
-2. **constructor case** — `fn` 不会设为 `constructor`，需要在 wrapper 里特殊处理
-3. **`input.deps` / `input.stubTasks`** — 测试桩数据，wrapper 需要知道如何使用
+1. **Cases marked `_warning`** — contain custom assertions (`resultLength`, `memoryNull`, etc.), which need a wrapper to verify
+2. **constructor case** — `fn` will not be set to `constructor`, and needs special handling in the wrapper
+3. **`input.deps` / `input.stubTasks`** — test-stub data; the wrapper needs to know how to use it
 
-## case 执行路由机制
+## Case Execution Routing Mechanism
 
-`test_auto` / `test_story` / `test_fixture` 共用 executor registry：
+`test_auto` / `test_story` / `test_fixture` share the executor registry:
 
 ```
-对 fixture 的每个 case:
-  1. 若 case.executor 存在，选择对应 executor
-  2. 否则若 case.execute 存在，兼容为 js.execute
-  3. 否则若 case.command 存在，兼容为 command
-  4. executor 返回 actual 或抛错
-  5. runner 统一用 expect / throws 判定，并写入 evidence / bug / gate
+For each case in the fixture:
+  1. If case.executor exists, select the corresponding executor
+  2. Otherwise, if case.execute exists, fall back to js.execute
+  3. Otherwise, if case.command exists, fall back to command
+  4. The executor returns actual or throws
+  5. The runner uniformly judges with expect / throws and writes evidence / bug / gate
 ```
 
-handler 优先只属于 `js.execute` 兼容路径；跨语言项目不要依赖 JS import，应使用 `command` 或语言 executor。
+The handler is preferentially part of the `js.execute` compatibility path only; cross-language projects should not depend on JS import, and should use `command` or a language executor.
 
-## test-runtime 机制
+## test-runtime Mechanism
 
-`test_auto` 执行时创建临时 store 隔离测试数据，加载 handlers：
+When `test_auto` runs, it creates a temporary store to isolate the test data, and loads handlers:
 
-1. **koala 自身**：直接使用 `createToolHandlers(testStore, root)`
-2. **外部项目**：通过 `koala.config.json` 的 `testRuntime` 配置指向 `tests/test-runtime.js`，该文件 export `createTestHandlers(store, projectRoot)` 返回 handler 映射
+1. **Lattice itself**: uses `createToolHandlers(testStore, root)` directly
+2. **External projects**: point to `tests/test-runtime.js` via the `testRuntime` config of `lattice.config.json`; that file exports `createTestHandlers(store, projectRoot)`, which returns a handler map
 
-## 浏览器真机测试（browser case）
+## Browser Real-Machine Tests (browser case)
 
-### 配置
+### Configuration
 
-`koala.config.json` 加 `browser` 配置（`koala init` 会自动检测浏览器项目）：
+Add a `browser` config to `lattice.config.json` (`lattice init` will auto-detect a browser project):
 
 ```json
 {
@@ -390,75 +390,75 @@ handler 优先只属于 `js.execute` 兼容路径；跨语言项目不要依赖 
 }
 ```
 
-支持任何 HTTP dev server：vite / webpack / next / serve 等。
+Supports any HTTP dev server: vite / webpack / next / serve, etc.
 
-### browser case 格式
+### browser case Format
 
-fixture 里 `browser: true` 的 case 由 `browser_test` MCP 工具执行：
+A case with `browser: true` in the fixture is executed by the `browser_test` MCP tool:
 
 ```json
 {
-  "name": "点击后状态变化",
+  "name": "state changes after click",
   "browser": true,
   "steps": [
     { "action": "eval", "code": "document.getElementById('btn').click()" },
-    { "action": "assert", "selector": "#status", "contains": "完成" },
+    { "action": "assert", "selector": "#status", "contains": "Done" },
     { "action": "screenshot", "saveTo": "result.png" }
   ]
 }
 ```
 
-### steps action 类型
+### steps action Types
 
-| action | 参数 | 说明 |
+| action | Parameters | Description |
 |--------|------|------|
-| `eval` | `code` | 在浏览器执行 JS，返回结果 |
-| `click` | `selector` 或 `x`/`y` | 模拟点击 |
-| `type` | `selector`, `text` | 模拟键盘输入 |
-| `assert` | `selector`, `contains` | 断言 DOM 文本内容（自动轮询，默认 3s 超时） |
-| `screenshot` | `saveTo` | 截图保存到 tests/screenshots/ |
-| `wait` | `ms` | 等待（尽量用 assert 代替） |
-| `call` | `code`(fn name), `text`(args JSON) | 调用 __koala_modules 注册的函数 |
-| `trace` | 无 | 获取 window.__trace 调用链 |
+| `eval` | `code` | Execute JS in the browser and return the result |
+| `click` | `selector` or `x`/`y` | Simulate a click |
+| `type` | `selector`, `text` | Simulate keyboard input |
+| `assert` | `selector`, `contains` | Assert the DOM text content (auto-polls, default 3s timeout) |
+| `screenshot` | `saveTo` | Take a screenshot and save it to tests/screenshots/ |
+| `wait` | `ms` | Wait (use assert instead where possible) |
+| `call` | `code`(fn name), `text`(args JSON) | Call a function registered in __koala_modules |
+| `trace` | none | Get the window.__trace call chain |
 
-### 运行方式
+### How to Run
 
 ```
-# MCP 工具调用
-browser_test({ projectRoot: "packages/game" })
+# MCP tool call
+browser_test({ projectRoot: "/path/to/browser-app" })
 
-# 指定 fixture
-browser_test({ projectRoot: "packages/game", fixture: "game-browser" })
+# Specify a fixture
+browser_test({ projectRoot: "/path/to/browser-app", fixture: "browser-case" })
 ```
 
-### 工作原理
+### How It Works
 
-1. 启动 bridge server（WS :9876 + HTTP :9877）
-2. 启动项目 dev server（如 vite :5173）
-3. 启动代理（:5174）→ 拦截 HTML 自动注入 WS client 脚本
-4. 打开浏览器访问代理地址
-5. WS client 连接 bridge → 通过 HTTP API 执行 steps
-6. 项目不需要改任何代码
+1. Start the bridge server (WS :9876 + HTTP :9877)
+2. Start the project dev server (such as vite :5173)
+3. Start the proxy (:5174) → intercept HTML and auto-inject the WS client script
+4. Open the browser and visit the proxy address
+5. The WS client connects to the bridge → execute steps via the HTTP API
+6. The project does not need to change any code
 
-### 示例：五子棋游戏测试
+### Example: Gomoku Game Test
 
 ```json
 {
   "cases": [
     {
-      "name": "初始状态显示黑棋落子",
+      "name": "initial state shows black to move",
       "browser": true,
       "steps": [
-        { "action": "assert", "selector": "#status", "contains": "黑棋" },
+        { "action": "assert", "selector": "#status", "contains": "Black" },
         { "action": "screenshot", "saveTo": "initial-state.png" }
       ]
     },
     {
-      "name": "落子后切换到白棋",
+      "name": "switches to white after a move",
       "browser": true,
       "steps": [
         { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+7*40, clientY: r.top+30+7*40 })); })()" },
-        { "action": "assert", "selector": "#status", "contains": "白棋" },
+        { "action": "assert", "selector": "#status", "contains": "White" },
         { "action": "screenshot", "saveTo": "after-move.png" }
       ]
     }

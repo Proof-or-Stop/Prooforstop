@@ -114,7 +114,7 @@ function createFlowStoryRepo(): { root: string; store: StoryStore } {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const store = new StoryStore(root);
@@ -206,7 +206,7 @@ function collectEvidence(id: string): EvidenceEnvelopeContract {
     projectId: 'proj',
     storyId: 'B-94a6',
     producerActorId: 'actor-1',
-    command: 'koala validate --story=B-94a6',
+    command: 'lattice validate --story=B-94a6',
     exitCode: 0,
     nonce: `nonce-${id}`,
     createdAt: '2026-05-21T00:00:00Z',
@@ -454,7 +454,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
       intentRef: 'CHK-001:happy:0',
       kind: 'integration_test',
       file: 'validate.ts',
-      command: 'koala validate --story=B-flow',
+      command: 'lattice validate --story=B-flow',
       result: 'pass',
       note: 'off mode happy path writes local evidence',
     });

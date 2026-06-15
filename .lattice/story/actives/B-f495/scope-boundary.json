@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f495",
+  "mode": "maintenance",
+  "allowed": [
+    "Audit docs/requirements/decisions/slim-fields-token-savings-execution-plan.md against current Lattice CLI behavior and existing smoke evidence",
+    "Record audit disposition and recommended follow-up for the slim / fields plan",
+    "Use read-only Lattice CLI commands and local source inspection to verify documented claims"
+  ],
+  "excluded": [
+    "Do not change story_get or checklist_get default output semantics",
+    "Do not implement prompt/template/code changes in this audit story unless separately requested",
+    "Do not modify Authority receipt, DONE, lifecycle gate, or provider billing semantics",
+    "Do not take over or mutate active story B-acec"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested a new Lattice CLI audit story for the slim / fields token savings execution plan; scope is audit-only unless the user separately asks for implementation.",
+  "createdAt": "2026-06-15T14:10:58.165Z",
+  "updatedAt": "2026-06-15T14:10:58.165Z",
+  "_hash": "dded772614be6d90da788a0f8878ca579fbd9e0684e3b0512ff41100b1149de7"
+}

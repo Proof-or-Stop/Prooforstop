@@ -64,7 +64,7 @@ function commitAll(root: string, message: string): void {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -335,7 +335,7 @@ function assertDispatch(dispatch: LatticeParallelDispatch, root: string, expecte
   assert.equal(independent.spawned, false);
   assert.equal(independent.requiresRunnerConfirmation, true);
   assert.deepEqual(independent.recommendedHostIds, ['codex']);
-  assert.match(independent.nextCommand, /koala dispatch/);
+  assert.match(independent.nextCommand, /lattice dispatch/);
   assert.deepEqual(independent.blockers, []);
   assert.ok(independent.evidenceRefs.includes('B-independent:happy:0'));
   assertExperienceRefs(independent.experienceRefs, expectedExperienceRefs);

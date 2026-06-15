@@ -1,0 +1,80 @@
+{
+  "storyId": "B-59a6",
+  "checkedAt": "2026-06-15T03:12:05.763Z",
+  "features": [
+    {
+      "feature": "Zero-finding documentation and decision-doc audit follows ordinary REVIEW default and does not require host verdict quorum",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story description and PLAN checklist"
+    },
+    {
+      "feature": "First REVIEW round threshold of at least two countable problems escalates to full 3x2 and missing quorum blocks DONE",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story description, decision rationale, verificationIntent"
+    },
+    {
+      "feature": "Countable-problem filtering excludes suspected, disproven, non-reviewer, low severity, stale, duplicate, FAIL, and BLOCKED signals",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 edge/adversarial and CHK-002 smoke coverage"
+    },
+    {
+      "feature": "Explicit degraded 3x1 fallback requires eligibility, allowed reason, evidence or approval, fresh material binding, and lower-assurance reporting",
+      "covered_by": "CHK-002, CHK-003, CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story description, constraints, CHK-005"
+    },
+    {
+      "feature": "Direct decision-doc file-change always-on 3x2 trigger is removed from target DONE policy while decision-doc detection remains diagnostic",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story description and understanding outcome"
+    },
+    {
+      "feature": "Operator-facing diagnostics avoid false always-on and Authority-completion claims",
+      "covered_by": "CHK-003, CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "constraints and diagnostics checklist"
+    },
+    {
+      "feature": "Gate-consumed review-escalation and verdict facts are registered in command policy, process-fact registry, levels, CLI surface, and verifier script",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "process-fact contract checklist"
+    },
+    {
+      "feature": "Implementation scope is bounded to PLAN touchpoints: core evaluator/gate, verdict event fields, CLI/handlers/registry, process-fact contract, smoke tasks, and the two decision docs",
+      "covered_by": "understanding.touchpoints and checklist files",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding and checklist file scopes"
+    },
+    {
+      "feature": "Authority Server implementation, remote push, unrelated branding, completed-story retrofits, and .omx usage",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints and user-provided expected scope",
+      "source": "constraints and reviewer task"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 8,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3110d10364186abf601c5eca2b030025fc12e0d2ddb1b54fe0a7c91e03a85f55",
+  "openQuestions": []
+}

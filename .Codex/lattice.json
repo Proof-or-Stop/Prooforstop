@@ -4,14 +4,9 @@
   "activitySource": "codex",
   "recommendedEntrypoints": [
     {
-      "name": "global-codex",
-      "command": "lattice codex",
-      "useWhen": "Use the global Lattice primary CLI for Codex-tagged operations after installing or linking the current package."
-    },
-    {
       "name": "local-wrapper",
       "command": "node bin/lattice-codex.js",
-      "useWhen": "Use only when you need to prove the repository-local wrapper path or when the global CLI is unavailable."
+      "useWhen": "This repository includes the Lattice bootstrap wrapper."
     },
     {
       "name": "global-fallback",
@@ -30,14 +25,14 @@
     ]
   },
   "excludedRuntimeAssets": [
-    ".Codex/hooks",
     ".Codex/settings.json"
   ],
   "notes": [
     "This file is read by Lattice tooling, not by the Codex runtime.",
     "Codex agent prompts live in .Codex/agents and are generated from .claude/agents in full asset mode.",
+    "Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .Codex directory entry.",
     "Claude Code hooks, settings, and skills remain under .claude only.",
-    "Run lattice codex verify after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.",
-    "Legacy Koala projects may still use .Codex/koala.json and bin/koala-codex.js as compatibility assets."
+    "Run node bin/lattice-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.",
+    "Legacy project documents may remain archived, but active Codex adapter assets use .Codex/lattice.json and bin/lattice-codex.js."
   ]
 }

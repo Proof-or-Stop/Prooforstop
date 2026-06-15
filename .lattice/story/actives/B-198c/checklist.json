@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extract the storyDir-inside-gitRoot invariant check into one reusable core fn",
+      "context": "worktree.ts:754 and cli-engine.ts:3367 both inline the same relative()+.. escape check. Extract to core (near story-signed-workspace-resolution.ts) as the single source of truth: realpath both sides, violation when rel is empty/absolute/contains a .. segment. Have both existing guards call it so behavior is byte-identical.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a lattice doctor check reporting storyDir-outside-gitRoot early with remediation",
+      "context": "doctor should detect the violation using the shared fn and print the same remediation text (configure storyDir so story metadata lives inside the gitRoot), so users see it before INIT_CHECK.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Surface the violation as an early advisory at story_create / session_brief",
+      "context": "Warn early so wrapper-root users learn before investing PLAN work. Decide hard-fail vs warn in PLAN: a hard-fail at story_create would retroactively break existing limping wrapper-root projects (e.g. ClawCreek with 19 live stories).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Tests covering the invariant fn + doctor + advisory, including a wrapper-root fixture",
+      "context": "Cover: storyDir inside gitRoot (ok); storyDir as a .. sibling of gitRoot (violation, the ClawCreek case); symlinked roots resolved via realpath; no configured gitRoot / plain repo (unchanged).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

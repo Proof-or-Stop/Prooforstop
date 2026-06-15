@@ -56,7 +56,7 @@ function createStoryRepo(): { root: string; store: StoryStore } {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const store = new StoryStore(root);
@@ -125,7 +125,7 @@ function createStoryRepo(): { root: string; store: StoryStore } {
       intentRef: 'CHK-001:happy:0',
       kind: 'integration_test',
       file: 'validate.ts',
-      command: 'koala validate --story=B-authh',
+      command: 'lattice validate --story=B-authh',
       result: 'pass',
       note: 'integration test covers the happy path',
     }));

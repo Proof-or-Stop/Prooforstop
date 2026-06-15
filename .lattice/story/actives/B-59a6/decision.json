@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "One gate policy for code and documentation audit.",
+    "Escalate based on review evidence, not file path alone.",
+    "Fail closed on missing quorum when escalation is required.",
+    "Report degraded single-host review as lower assurance.",
+    "Register every gate-consumed fact mechanically."
+  ],
+  "drivers": [
+    "User explicitly asked to execute the runtime development after the decision document was updated.",
+    "Current direct decision-doc quorum blocks zero-finding documentation changes and conflicts with the new target policy.",
+    "DONE gate changes are high-risk and need tests plus process-fact contract coverage."
+  ],
+  "options": [
+    {
+      "name": "A: Patch decision-doc quorum only",
+      "pros": [
+        "Smallest diff",
+        "Reuses existing tests"
+      ],
+      "cons": [
+        "Blurs classification and escalation",
+        "Leaves no general review_escalation_status surface",
+        "Harder to express degraded 3x1 honestly"
+      ]
+    },
+    {
+      "name": "B: Add shared review-escalation evaluator and keep decision-doc quorum as compatibility diagnostic",
+      "pros": [
+        "Clear target policy",
+        "Reusable threshold and degraded fallback logic",
+        "Allows diagnostics to explain classification versus required quorum"
+      ],
+      "cons": [
+        "More files touched",
+        "Requires process-fact registry and CLI schema updates"
+      ]
+    },
+    {
+      "name": "C: Remove decision-doc quorum gate entirely",
+      "pros": [
+        "Immediately stops always-on blocking"
+      ],
+      "cons": [
+        "Loses threshold-triggered 3x2 enforcement",
+        "Does not implement degraded 3x1",
+        "Unsafe for high-risk review findings"
+      ]
+    }
+  ],
+  "chosen": "B: Add shared review-escalation evaluator and keep decision-doc quorum as compatibility diagnostic",
+  "rationale": "Choose B because it implements the user-facing policy directly while preserving diagnostics and fail-closed quorum behavior when the first REVIEW round exposes enough risk. It also gives degraded 3x1 a visible lower-assurance path rather than hiding it in the old decision-doc quorum code.",
+  "preMortem": [
+    {
+      "scenario": "Zero-finding decision-doc stories still block DONE.",
+      "trigger": "machine.canFinish continues to call decision-doc quorum unconditionally.",
+      "consequence": "User sees the same old always-on behavior despite the document change.",
+      "mitigation": "Make DONE consume review escalation requiresQuorum and treat direct decision-doc changes as classification only."
+    },
+    {
+      "scenario": "Risky first-review findings no longer trigger 3x2.",
+      "trigger": "Evaluator only checks changed files and forgets reviewer findings.",
+      "consequence": "High-risk stories pass with normal DONE after two verified findings.",
+      "mitigation": "Add smoke tests with two verified medium/high reviewer findings in the first review round and assert quorum is required."
+    },
+    {
+      "scenario": "3x1 becomes a silent downgrade.",
+      "trigger": "Fallback accepts one host without explicit reason or lower-assurance output.",
+      "consequence": "Status claims full two-host review even when only one host ran.",
+      "mitigation": "Require explicit fallback command/evidence and report quorumResult=pass-degraded-3x1 plus assuranceLevel=degraded-single-host."
+    },
+    {
+      "scenario": "Process-fact contract drifts from implementation.",
+      "trigger": "New command or gate fact is added without registry/level/verifier coverage.",
+      "consequence": "Future docs or handlers can drift silently.",
+      "mitigation": "Update process-fact registry, levels, command policy, CLI schema, and verifier script in CHK-004."
+    }
+  ],
+  "timestamp": "2026-06-15T03:08:10.223Z"
+}

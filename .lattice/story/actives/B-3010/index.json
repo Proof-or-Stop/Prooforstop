@@ -1,0 +1,85 @@
+{
+  "storyId": "B-3010",
+  "name": "lattice-runtime-owned-agent-assets-inventory",
+  "title": "Runtime-owned agent asset inventory and doctor projection",
+  "description": "Implement the first phase of the runtime-owned agent assets plan: add mechanical inventory/doctor projection for prompt asset resolution, detect stale project-local agent assets without deleting or migrating them, and record measurable token accounting for the task. This must keep Lattice CLI local Non-authority evidence separate from Authority Server receipt-backed completion.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-15T11:47:13.713Z",
+  "startedAt": "2026-06-15T11:47:13.713Z",
+  "endedAt": "2026-06-15T12:13:41.648Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T11:47:13.714Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:50:32.831Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:50:46.602Z",
+      "branch": "story/B-3010",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:56:59.741Z",
+      "branch": "story/B-3010",
+      "user": "Harmonygo",
+      "sessionId": "codex-b3010",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T12:05:16.529Z",
+      "branch": "story/B-3010",
+      "user": "Harmonygo",
+      "sessionId": "codex-b3010",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T12:08:41.443Z",
+      "branch": "story/B-3010",
+      "user": "Harmonygo",
+      "sessionId": "codex-b3010",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T12:13:41.648Z",
+      "branch": "story/B-3010",
+      "user": "Harmonygo",
+      "sessionId": "codex-b3010",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-15T12:05:16.529Z"
+}

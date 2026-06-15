@@ -1,0 +1,108 @@
+{
+  "storyId": "B-ffa2",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/templates/agents",
+    "packages/main/templates/agents/*.md",
+    ".claude/agents",
+    ".claude/agents/*.md",
+    ".Codex/agents",
+    ".Codex/agents/*.md",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/reviewer-quorum.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/flow-fact-policy.ts",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "CLAUDE.md",
+    "README.md",
+    "docs/requirements/decisions/role-separation.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "packages/main/src/tasks"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-concept.md",
+    "packages/main/templates/agents/lattice-review-quality.md",
+    "packages/main/templates/agents/lattice-review-docs.md",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-review-story-init.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-test-coverage.md",
+    "packages/main/templates/agents/lattice-review-channel.md",
+    "packages/main/templates/agents/lattice-evaluator.md",
+    "packages/main/templates/agents/lattice-evaluator-cli.md"
+  ],
+  "allowedTest": [
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/tasks/*smoke.ts",
+    "packages/main",
+    "node bin/lattice.js verify_codex",
+    "lattice validate --story=B-ffa2"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Necessary active-surface naming cleanup after CHK-004 expanded from role IDs to verifier/config/test vocabulary; covered by execution plan update, focused scans, build, flow, validation protocol, and contract verification evidence.",
+      "timestamp": "2026-06-15T16:22:01.106Z",
+      "paths": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "scripts/verify-dev-memory.mjs",
+        "scripts/verify-entrypoints.mjs",
+        "scripts/verify-init-check-bootstrap.mjs",
+        "scripts/verify-product-reviewer.mjs",
+        "scripts/verify-runtime-reviewer-contract.mjs",
+        "scripts/verify-worktree-baseline-risk.mjs"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Expanded Koala-to-Lattice cleanup needed to remove active old naming from docs, hooks, and verification scripts.",
+      "timestamp": "2026-06-15T16:57:12.565Z",
+      "paths": [
+        ".Codex/lattice.json",
+        ".claude/hooks/lattice-scope-pretool.cjs",
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "scripts/run-story-review-experiment.mjs",
+        "scripts/verify-main-branch-runtime-health.mjs"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required by review finding F-006: this active decision doc still taught koala.config.json, conflicting with the Lattice naming cleanup scope.",
+      "timestamp": "2026-06-15T17:10:08.733Z",
+      "paths": [
+        "docs/requirements/decisions/cc-learnings.md"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-15T16:20:23.171Z",
+  "updatedAt": "2026-06-15T17:10:08.733Z"
+}

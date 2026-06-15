@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-249c",
+  "allowedCommands": [
+    "lattice decision_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice understanding_*",
+    "lattice validate*",
+    "node packages/main/dist/tasks/done-preflight-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-249c",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/verification-freshness-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "omx*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/game",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Correctness fix only: use recorded evidence snapshot for already DONE story freshness projection; preserve strict active gates.",
+  "createdAt": "2026-06-15T02:52:00.779Z",
+  "updatedAt": "2026-06-15T02:52:00.779Z",
+  "_hash": "23a3d5c260da71ac5e3688e8c4c2bff423c17b6bcc46f4a359e7782e78a72ee1"
+}

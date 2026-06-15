@@ -12,10 +12,8 @@ import {
   SUPPORTED_INIT_ASSET_MODES,
   SUPPORTED_INIT_PROFILES,
   listAgentPromptFiles,
-  renderCodexAdapterManifest,
   renderCodexAgentContent,
   renderCodexReadmeTemplate,
-  renderCodexWrapperScript,
   renderLatticeBootstrapScript,
   renderLatticeCodexAdapterManifest,
   renderLatticeCodexWrapperScript,
@@ -24,7 +22,7 @@ import {
   renderCodexPretoolScopeHookScript,
   codexHookCommand,
   getCodexHooks,
-  getKoalaHooks,
+  getClaudeHooks,
   hookCommand,
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
   LATTICE_SCOPE_PRETOOL_HOOK_FILE,
@@ -42,24 +40,17 @@ import { LATTICE_STORY_DIR } from './core/lattice-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const packageRoot = join(__dirname, '..'); // @koala/main 的根目录
+const packageRoot = join(__dirname, '..'); // @lattice-agent/core package root
 const agentTemplateDir = [
   join(packageRoot, 'templates', 'agents'),
   join(packageRoot, '..', '..', '.claude', 'agents'),
 ].find(existsSync);
-const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
 const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
-const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
 
-你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
-
-详细用法参考 @koala/main 文档。
-`;
-
-// 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
+// 通过 lattice init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
-const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
+const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
   `${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_END)}`,
 );
@@ -230,7 +221,7 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-lattice init — 初始化 Lattice/Koala 开发框架
+lattice init — 初始化 Lattice 开发框架
 
 用法:
   lattice init [目标目录]                    在指定目录初始化（默认当前目录）
@@ -244,13 +235,11 @@ lattice init — 初始化 Lattice/Koala 开发框架
   lattice init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
   lattice init --help                        显示帮助
 
-Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
-
 默认初始化（global-thin mode）:
   .lattice/Lattice.md           canonical host-neutral Lattice 指南（新目录）
   .lattice/lattice.json         项目 Lattice 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
-  lattice.config.json           项目配置（canonical; legacy koala.config.json 仍可读为兜底）
+  lattice.config.json           项目配置（canonical）
   .lattice/story/actives/       Story 数据目录
   docs/requirements/            真相源目录
 
@@ -322,13 +311,13 @@ function writeExecutable(relPath: string, content: string): boolean {
   return created;
 }
 
-function extractKoalaSection(content: string): string {
+function extractManagedSection(content: string): string {
   const match = content.match(INIT_DOC_SECTION_RE);
   if (!match) return content;
   return match[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
 }
 
-function hasKoalaMarkers(content: string): boolean {
+function hasManagedMarkers(content: string): boolean {
   return INIT_DOC_SECTION_RE.test(content);
 }
 
@@ -344,16 +333,16 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
 
   const existing = readFileSync(full, 'utf-8');
   if (!INIT_DOC_SECTION_RE.test(existing)) {
-    console.log(`  - ${label} (exists, no koala markers, skip)`);
+    console.log(`  - ${label} (exists, no Lattice managed markers, skip)`);
     return;
   }
 
-  const updated = existing.replace(INIT_DOC_SECTION_RE, extractKoalaSection(desiredContent));
+  const updated = existing.replace(INIT_DOC_SECTION_RE, extractManagedSection(desiredContent));
   if (updated !== existing) {
     writeFileSync(full, updated);
-    console.log(`  ✓ ${label} (koala section synced)`);
+    console.log(`  ✓ ${label} (Lattice section synced)`);
   } else {
-    console.log(`  - ${label} (koala section up to date)`);
+    console.log(`  - ${label} (Lattice section up to date)`);
   }
 }
 
@@ -363,7 +352,7 @@ function hasHookCommand(entries: any, command: string): boolean {
 }
 
 function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incompatible: string[] } {
-  const koalaHooks = getCodexHooks();
+  const codexHooks = getCodexHooks();
   const updated = existing && typeof existing === 'object' && !Array.isArray(existing) ? { ...existing } : {};
   const hooks = updated.hooks && typeof updated.hooks === 'object' && !Array.isArray(updated.hooks)
     ? { ...updated.hooks }
@@ -371,7 +360,7 @@ function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incom
   const incompatible: string[] = [];
   let changed = !updated.hooks;
 
-  for (const [event, eventHooks] of Object.entries(koalaHooks)) {
+  for (const [event, eventHooks] of Object.entries(codexHooks)) {
     const command = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
@@ -405,7 +394,7 @@ function removeIfManagedDoc(relPath: string, label: string) {
   const full = join(targetDir, relPath);
   if (!existsSync(full)) return;
   const content = readFileSync(full, 'utf-8');
-  if (!hasKoalaMarkers(content)) return;
+  if (!hasManagedMarkers(content)) return;
   unlinkSync(full);
   console.log(`  ↻ ${label} (removed managed doc for profile cleanup)`);
 }
@@ -424,6 +413,30 @@ function removeWholeFileIfGenerated(relPath: string, label: string, expectedCont
   if (!expectedContents.some(expected => actual === (expected.endsWith('\n') ? expected : `${expected}\n`))) return;
   unlinkSync(full);
   console.log(`  ↻ ${label} (removed generated file for profile cleanup)`);
+}
+
+function isGeneratedLegacyKoalaAgentPrompt(file: string, actual: string): boolean {
+  return /^koala-[^/\\]+\.md$/.test(file)
+    && (actual.includes('<!-- lattice:start -->')
+      || actual.includes('<!-- lattice:start-slot -->')
+      || /^\s*name:\s*koala-/m.test(actual));
+}
+
+function cleanupGeneratedLegacyKoalaAgentPrompts(agentDir: string) {
+  if (!existsSync(agentDir)) return;
+  for (const file of listAgentPromptFiles(agentDir)) {
+    if (!/^koala-[^/\\]+\.md$/.test(file)) continue;
+    const full = join(agentDir, file);
+    let actual = '';
+    try {
+      actual = readFileSync(full, 'utf-8');
+    } catch {
+      continue;
+    }
+    if (!isGeneratedLegacyKoalaAgentPrompt(file, actual)) continue;
+    unlinkSync(full);
+    console.log(`  - .claude/agents/${file} (removed generated legacy Koala prompt)`);
+  }
 }
 
 function cleanupEmptyDirChain(relDir: string) {
@@ -445,10 +458,10 @@ function removeClaudeSettingsIfManaged() {
   if (!existsSync(settingsPath)) return;
   try {
     const parsed = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-    const legacyHooks = JSON.parse(JSON.stringify(getKoalaHooks()));
+    const legacyHooks = JSON.parse(JSON.stringify(getClaudeHooks()));
     legacyHooks.PreToolUse[0].hooks[0].command = hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE);
     const managedSettings = [
-      { hooks: getKoalaHooks() },
+      { hooks: getClaudeHooks() },
       { hooks: legacyHooks },
     ];
     if (!managedSettings.some(settings => JSON.stringify(parsed) === JSON.stringify(settings))) return;
@@ -462,17 +475,12 @@ function removeClaudeSettingsIfManaged() {
 
 function removeCodexWrapperIfManaged() {
   removeWholeFileIfGenerated('bin/lattice-codex.js', 'bin/lattice-codex.js', [renderLatticeCodexWrapperScript()]);
-  removeWholeFileIfGenerated('bin/koala-codex.js', 'bin/koala-codex.js', [renderCodexWrapperScript()]);
 }
 
 function removeCodexManifestIfManaged() {
   removeWholeFileIfGenerated('.Codex/lattice.json', '.Codex/lattice.json', [
     renderLatticeCodexAdapterManifest(),
     renderLatticeCodexAdapterManifest({ promptMode: 'registry' }),
-  ]);
-  removeWholeFileIfGenerated('.Codex/koala.json', '.Codex/koala.json', [
-    renderCodexAdapterManifest(),
-    renderCodexAdapterManifest({ promptMode: 'registry' }),
   ]);
 }
 
@@ -527,7 +535,7 @@ const dirs = [
   'docs/requirements/extracted',
 ];
 if (isGlobalThin) dirs.push('.lattice');
-if (wantsClaude) dirs.push('.claude/skills/koala', '.claude/agents');
+if (wantsClaude) dirs.push('.claude/agents');
 if (wantsCodex && selectedAssetMode === 'full') dirs.push('.Codex/agents');
 for (const d of dirs) {
   const full = join(targetDir, d);
@@ -537,13 +545,13 @@ for (const d of dirs) {
   }
 }
 
-// 1.5 .gitignore（从 koala 项目复制）
+// 1.5 .gitignore（同步 Lattice runtime ignore 模板）
 const giPath = join(targetDir, '.gitignore');
 const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
   if (existsSync(giSrc)) {
     cpSync(giSrc, giPath);
-    console.log('  ✓ .gitignore (copied from koala)');
+    console.log('  ✓ .gitignore (copied from Lattice template)');
   } else {
     const minimalGitignore = [
       'node_modules',
@@ -565,7 +573,7 @@ if (!existsSync(giPath)) {
   const mergeResult = mergeKoalaRuntimeIgnores(readFileSync(giPath, 'utf8'));
   if (mergeResult.changed) {
     writeFileSync(giPath, mergeResult.content);
-    console.log('  ✓ .gitignore (merged koala runtime ignores)');
+    console.log('  ✓ .gitignore (merged Lattice runtime ignores)');
   } else {
     console.log('  - .gitignore (runtime ignores already present)');
   }
@@ -781,7 +789,7 @@ import { createApp } from './app.js';
   console.log('  ✓ src/core/debug.ts (调试入口模板)');
 }
 
-// 2. lattice.config.json (canonical; legacy koala.config.json still readable)
+// 2. lattice.config.json (canonical)
 console.log('\n[2/6] 生成 lattice.config.json...');
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
@@ -812,10 +820,6 @@ if (existsSync(pkgPath)) {
 }
 if (existsSync(join(targetDir, 'lattice.config.json'))) {
   console.log('  - lattice.config.json (exists, skip)');
-} else if (existsSync(join(targetDir, 'koala.config.json'))) {
-  // Legacy fallback already present — keep it intact and skip scaffold to
-  // avoid producing a conflicting canonical file the user did not ask for.
-  console.log('  - lattice.config.json (skip; legacy koala.config.json detected, keeping it as fallback)');
 } else {
   write('lattice.config.json', JSON.stringify(latticeConfig, null, 2) + '\n');
 }
@@ -850,30 +854,20 @@ if (isGlobalThin) {
   console.log('  - AGENTS.md (profile skip)');
 }
 
-// 4. 复制 skill
-console.log('\n[4/6] 复制 /koala skill...');
-const skillDst = join(targetDir, '.claude', 'skills', 'koala');
-if (wantsClaude && existsSync(skillSrc)) {
-  const skillFile = join(skillSrc, 'skill.md');
-  const dstFile = join(skillDst, 'skill.md');
-  if (!existsSync(dstFile)) {
-    if (!existsSync(skillDst)) mkdirSync(skillDst, { recursive: true });
-    cpSync(skillFile, dstFile);
-    console.log('  ✓ .claude/skills/koala/skill.md');
-  } else {
-    console.log('  - .claude/skills/koala/skill.md (exists, skip)');
-  }
-} else if (wantsClaude) {
-  // 从模板生成最小 skill
-  write('.claude/skills/koala/skill.md', KOALA_SKILL_FALLBACK);
+// 4. Claude slash-command skills
+console.log('\n[4/6] 清理 legacy Claude skill...');
+if (wantsClaude) {
+  removePathIfExists('.claude/skills/koala', '.claude/skills/koala');
+  console.log('  - .claude/skills/koala (removed if managed legacy asset existed)');
 } else {
-  console.log('  - .claude/skills/koala/skill.md (profile skip)');
+  console.log('  - .claude/skills/koala (profile skip)');
 }
 
 // 5. agent 模板 → symlink/copy（发布包内置模板）
 console.log('\n[5/6] 同步 agent 模板...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
+  cleanupGeneratedLegacyKoalaAgentPrompts(agentDstDir);
   for (const file of readdirSync(agentTemplateDir)) {
     if (!file.endsWith('.md')) continue;
     const src = join(agentTemplateDir, file);
@@ -982,13 +976,13 @@ if (wantsClaude) {
   
   // 合并 settings.json（不覆盖已有配置）
   const settingsPath = join(targetDir, '.claude', 'settings.json');
-  const koalaHooks = getKoalaHooks();
+  const claudeHooks = getClaudeHooks();
   if (existsSync(settingsPath)) {
     try {
       const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       if (!existing.hooks) existing.hooks = {};
-      // 只添加缺失的 koala hook，不覆盖用户已有配置。
-      for (const [event, hooks] of Object.entries(koalaHooks)) {
+      // 只添加缺失的 Lattice hook，不覆盖用户已有配置。
+      for (const [event, hooks] of Object.entries(claudeHooks)) {
         const command = hooks[0]?.hooks?.[0]?.command;
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
@@ -1010,7 +1004,7 @@ if (wantsClaude) {
         }
         if (command && !hasHookCommand(existing.hooks[event], command)) {
           existing.hooks[event].push(...hooks);
-          console.log(`  ✓ settings.json: 合并 ${event} koala hook`);
+          console.log(`  ✓ settings.json: 合并 ${event} Lattice hook`);
         } else {
           console.log(`  - settings.json: ${event} hook 已存在, skip`);
         }
@@ -1020,7 +1014,7 @@ if (wantsClaude) {
       console.log(`  ⚠ settings.json 合并失败: ${e.message}`);
     }
   } else {
-    writeFileSync(settingsPath, JSON.stringify({ hooks: koalaHooks }, null, 2) + '\n');
+    writeFileSync(settingsPath, JSON.stringify({ hooks: claudeHooks }, null, 2) + '\n');
     console.log('  ✓ .claude/settings.json (created)');
   }
 } else {
@@ -1073,7 +1067,7 @@ ${isGlobalThin ? `  1. Read .lattice/Lattice.md
   2. Use the global lattice CLI: lattice session_brief
   3. For Codex adapter: lattice codex verify / lattice codex doctor
   4. Optional: lattice validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
-  2. Optional: edit lattice.config.json to adjust scanRoot (legacy koala.config.json is still read as a fallback)
+  2. Optional: edit lattice.config.json to adjust scanRoot
   3. Optional: lattice validate to verify project`}
 `);
 

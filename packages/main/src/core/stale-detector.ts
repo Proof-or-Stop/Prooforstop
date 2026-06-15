@@ -1,14 +1,14 @@
 /**
- * Stale state detector — soft warning before each koala command runs.
+ * Stale state detector — soft warning before each lattice command runs.
  *
  * Inspired by Claude Code's todo_reminder: inject system-reminder after periods of inactivity.
  * koala takes activity.jsonl + checklist.startTime + story.events + bug.foundAt as inputs,
- * and emits a warning to stderr before each koala command actually runs to remind the main agent and avoid stuck phases.
+ * and emits a warning to stderr before each lattice command actually runs to remind the main agent and avoid stuck phases.
  *
  * Design principles:
  *   - Never throw (PROBE class). An error in any single rule only affects that rule; the overall fallback is return [].
  *   - Do not write health (warnings are soft reminders, not health issues)
- *   - When there is no active story, return [] directly to avoid disturbing koala help / koala doctor
+ *   - When there is no active story, return [] directly to avoid disturbing lattice help / lattice doctor
  */
 
 import { execSync } from 'child_process';
@@ -22,7 +22,7 @@ export interface StaleThresholds {
   phaseStale: number;
   /** How long a checklist item can stay in_progress before it is treated as forgotten, in minutes. */
   itemStale: number;
-  /** How long since the last koala command counts as idle, in minutes. */
+  /** How long since the last lattice command counts as idle, in minutes. */
   idleKoala: number;
   /** How long an open bug can remain unfixed before it is overdue, in minutes. Default: 24h = 1440. */
   bugStale: number;
@@ -122,7 +122,7 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
 }
 
 /**
- * Rule 3: more than the threshold since the last koala command of any kind.
+ * Rule 3: more than the threshold since the last lattice command of any kind.
  * Uses readActivityLogTail (dual-source: .koala/activity.jsonl + legacy docs/story/activity.jsonl).
  */
 function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number): string | null {
@@ -136,7 +136,7 @@ function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number):
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
     if (diff > thresholds.idleKoala * 60_000) {
-      return `It has been ${formatMinutes(diff)} since the last koala command; remember to continue the flow`;
+      return `It has been ${formatMinutes(diff)} since the last lattice command; remember to continue the flow`;
     }
   } catch { /* PROBE */ }
   return null;
@@ -171,8 +171,8 @@ function cooldownKeyForWarning(warning: string): string {
     .replace(/(has been in .+? phase for )\d+ (?:min|minutes)( without advance)/, '$1<duration>$2')
     .replace(/(has been in_progress for )\d+h(?: \d+ (?:min|minutes))?/, '$1<duration>')
     .replace(/(has been in_progress for )\d+ (?:min|minutes)/, '$1<duration>')
-    .replace(/(It has been )\d+h(?: \d+ (?:min|minutes))?( since the last koala command; remember to continue the flow)/, '$1<duration>$2')
-    .replace(/(It has been )\d+ (?:min|minutes)( since the last koala command; remember to continue the flow)/, '$1<duration>$2')
+    .replace(/(It has been )\d+h(?: \d+ (?:min|minutes))?( since the last lattice command; remember to continue the flow)/, '$1<duration>$2')
+    .replace(/(It has been )\d+ (?:min|minutes)( since the last lattice command; remember to continue the flow)/, '$1<duration>$2')
     .replace(/(has been open for )\d+h(?: \d+ (?:min|minutes))?(; consider fixing it first)/, '$1<duration>$2')
     .replace(/(has been open for )\d+ (?:min|minutes)(; consider fixing it first)/, '$1<duration>$2');
 }

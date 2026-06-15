@@ -1,5 +1,5 @@
 /**
- * Scope Contract handlers — koala scope_contract_set / show / check / acknowledge
+ * Scope Contract handlers — lattice scope_contract_set / show / check / acknowledge
  *
  * scope_contract_set       — create or update the contract for a story
  * scope_contract_show      — display the current contract

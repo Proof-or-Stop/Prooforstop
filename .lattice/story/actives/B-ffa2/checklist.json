@@ -1,0 +1,459 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the Koala-to-Lattice role naming execution document",
+      "context": "Capture inventory, canonical rename map, compatibility boundary, affected template/runtime/doc/test surfaces, and verification commands before changing the role IDs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+        "CLAUDE.md",
+        "README.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T15:42:19.618Z",
+      "endTime": "2026-06-15T15:45:44.433Z",
+      "userSees": "The user can open docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md and see the inventory, rename map, boundary, rollout steps, and verification commands for the Koala-to-Lattice role migration.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execution document lists every canonical active koala-* role ID and its lattice-* replacement.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document distinguishes active role IDs from legacy runtime/archive compatibility strings such as KOALA_* or .koala references.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document does not claim all Koala tokens are gone when intentionally preserved historical/runtime compatibility references remain.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "command": "rg -n 'Active vs Legacy Boundary|Explicit Non-Goals|KOALA_\\*|\\.koala|hash salts|signed artifact' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan explicitly separates active role cleanup from legacy runtime/archive compatibility, .koala paths, KOALA_* envs, and signed salts.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "command": "rg -n 'not a global removal|documented exception|legacy/archive/signed-artifact exception|Do not rewrite archive docs' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan says the story is not a blind removal of every Koala token and documents permitted historical/runtime/signed-artifact exceptions.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "command": "rg -n 'koala-implementer|lattice-implementer|koala-review-quality|lattice-review-quality|koala-evaluator|lattice-evaluator' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan contains the canonical old-to-new role map for implementer, reviewer, and evaluator IDs.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rename canonical agent templates and mirrored host assets from koala-* to lattice-*",
+      "context": "Template filenames, frontmatter names, prompt prose, .claude agent assets, and .Codex agent assets must share the same Lattice role IDs so regenerated assets do not reintroduce Koala names.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+        "CLAUDE.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T15:42:26.628Z",
+      "endTime": "2026-06-15T15:48:55.414Z",
+      "userSees": "Terminal search prints no active Koala agent filenames: `find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg koala-` exits with no matches.",
+      "files": {
+        "modify": [
+          "packages/main/templates/agents",
+          "packages/main/templates/agents/*.md",
+          ".claude/agents",
+          ".claude/agents/*.md",
+          ".Codex/agents",
+          ".Codex/agents/*.md"
+        ],
+        "create": [
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-evaluator.md",
+          "packages/main/templates/agents/lattice-evaluator-cli.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical template files and mirrored .claude/.Codex assets use lattice-* filenames and frontmatter names.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Product-reviewer, implementation-reviewer, test-intent, and test-case-reviewer assets remain correctly named and are not accidentally converted.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A search of active template and mirrored agent directories does not find koala-* role IDs after the rename.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg koala-",
+          "result": "pass",
+          "note": "Command exited 1 with no output, so active agent filenames no longer use koala-* in the template or mirrored host asset directories.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg \"/(product-reviewer|implementation-reviewer|test-intent|test-case-reviewer)\\.md$\"",
+          "result": "pass",
+          "note": "All 12 unrelated agent asset filenames remain present across packages/main/templates/agents, .claude/agents, and .Codex/agents.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg \"\\bkoala-(implementer|review|evaluator)\" packages/main/templates/agents .claude/agents .Codex/agents",
+          "result": "pass",
+          "note": "Command exited 1 with no output, so active koala implementer/review/evaluator role IDs are absent from active agent prompt directories.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update CLI runtime role dispatch, schemas, attribution, and help text to Lattice naming",
+      "context": "story_dispatch defaults, reviewer requirement maps, command schemas, commit author fallback, review/pass/finding guidance, and visible help text must stop emitting koala-* identifiers. Legacy koala role aliases should be deleted unless needed only for read-only historical metadata.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T15:42:50.995Z",
+      "endTime": "2026-06-15T15:54:36.534Z",
+      "userSees": "Lattice CLI help and workflow hints refer to lattice-implementer and lattice-review-* role IDs, and review/finding/runtime checks accept the lattice reviewer prefix as canonical.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/flow-fact-policy.ts",
+          "packages/main/src/core/delivery-check-hash.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI schemas, defaults, help text, dispatch prompts, and review attribution use lattice-* role IDs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical metadata compatibility remains readable only where explicitly documented, without reintroducing active koala-* aliases.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "review_run_start/finding_add/review_pass_set reject stale koala-review-* active role usage once lattice-* is canonical.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs && node packages/main/dist/cli.js help | rg 'lattice-(implementer|review|evaluator)'",
+          "result": "pass",
+          "note": "Process fact contract passed and local CLI help exposes canonical lattice role lanes without koala role guidance.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "command": "rg focused scan with execution-plan and signed-salt exceptions",
+          "result": "pass",
+          "note": "Focused scan shows active surfaces are clean; remaining koala-review matches are signed artifact salts or the execution-plan old-to-new map documented as exceptions.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js dispatch with agentType=koala-implementer",
+          "result": "pass",
+          "note": "Legacy koala role dispatch fails fast with a legacy-role rejection, so stale koala active role usage is not accepted as canonical evidence.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update documentation, audits, and tests so active surfaces no longer teach Koala naming",
+      "context": "Active docs should teach lattice-* role IDs; legacy archived docs can remain only when explicitly marked historical. Tests and verifier snapshots should assert the Lattice naming surface.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "README.md",
+        "CLAUDE.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T15:56:30.895Z",
+      "endTime": "2026-06-15T16:18:41.634Z",
+      "userSees": "Active documentation and tests teach Lattice role IDs; any remaining Koala references are explicitly historical, runtime-compatibility, or archive material rather than current role guidance.",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "README.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+          "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "packages/main/src/tasks"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/*smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Active docs and tests that mention agent role IDs use lattice-* names.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Archived Koala docs under legacy paths are not rewritten unless needed to label them as historical.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not instruct users to invoke koala-implementer or koala-review-* for new Lattice work.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "rg -n --hidden --glob '!docs/story/**' --glob '!tests/fixtures/**' --glob '!.omx/**' --glob '!.git/**' --glob '!.worktrees/**' --glob '!packages/main/dist/**' --glob '!packages/main/node_modules/**' --glob '!docs/koala/**' --glob '!docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md' '\\bkoala-(implementer|review|evaluator)|koala_metadata|koala-verifier|Koala Smoke|koala-owned|koala-metadata' CLAUDE.md README.md docs/requirements docs/audits packages/main/src/tasks packages/main/templates .claude .Codex",
+          "result": "pass",
+          "note": "Command exited 1 with no output, so active docs, tests, templates, and mirrored host assets no longer teach old koala role IDs or active Koala-branded verifier/metadata vocabulary.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Flow stability and validation protocol smokes passed after preserving archive/signed-artifact boundaries while moving active surfaces to Lattice naming.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after docs/tests/runtime vocabulary updates, proving active references compile with lattice role IDs, lattice_metadata_changes, and lattice-verifier provider names.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify no active CLI/template/runtime surface still emits Koala role IDs",
+      "context": "Run targeted rg inventory, CLI help/version checks, unit/build tests, and Codex adapter verification if host agent assets changed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+        "CLAUDE.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T16:18:52.169Z",
+      "endTime": "2026-06-15T16:20:00.881Z",
+      "userSees": "Verification output shows build/test/Codex adapter checks passing and targeted rg scans show no active koala-* role IDs in CLI help, templates, mirrored host assets, or active documentation.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main",
+          "scripts/verify-process-fact-contract.mjs",
+          "node bin/lattice.js verify_codex",
+          "lattice validate --story=B-ffa2"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build/test and node bin/lattice.js verify_codex pass after the rename.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Targeted rg scans separate active role IDs from permitted historical/runtime compatibility references.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice help and dispatch-related help do not emit koala-* role guidance after rebuild.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs && node bin/lattice.js verify_codex",
+          "result": "pass",
+          "note": "Build, process/runtime fact contracts, and Codex adapter verification passed; verify_codex reported 8/8 checks passing after host asset rename.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg focused active-surface scan plus signed-salt review",
+          "result": "pass",
+          "note": "Targeted active scan found no active koala role IDs, koala_metadata, koala-verifier, Koala Smoke, koala-owned, or koala-metadata in docs/templates/tasks/verifier/help surfaces. Remaining focused hits are old signed artifact salts and this execution plan old-to-new map, both documented exceptions.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/cli.js help | rg 'koala-(implementer|review|evaluator)|koala-verifier|koala_metadata' && node bin/lattice.js validate --channel --story=B-ffa2",
+          "result": "pass",
+          "note": "Help scan exited 1 with no output for old role/verifier/metadata guidance, and channel validation passed with all CHK covered by structured dispatch/subagent_result evidence.",
+          "headHash": "c966ff354e5ce26aa3cb36467e816739fc577a3f",
+          "materialHash": "af039c11bcd31629e7c79a8f84c50474e3a9a83b569c445b01874eebe7c16b19",
+          "timestamp": "2026-06-15T21:19:53.021Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T15:42:19.618Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start execution document implementation."
+    },
+    {
+      "timestamp": "2026-06-15T15:42:26.628Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start agent template and mirrored asset rename."
+    },
+    {
+      "timestamp": "2026-06-15T15:42:50.995Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start runtime role dispatch/schema/gate naming migration."
+    },
+    {
+      "timestamp": "2026-06-15T15:56:30.895Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start active docs and smoke/test role naming update."
+    }
+  ]
+}

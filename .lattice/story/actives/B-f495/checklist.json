@@ -1,0 +1,302 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Audit the plan against current Lattice CLI surfaces",
+      "context": "Verify story_get/checklist_get slim and fields support, command schemas, and existing smoke coverage referenced by the document.",
+      "relatedDocs": [
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T14:26:03.913Z",
+      "endTime": "2026-06-15T14:26:14.279Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+        ],
+        "test": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document claims about story_get/checklist_get slim and fields support match current handler and CLI schema surfaces.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The audit identifies stale or risky verification-command ordering, especially dist smoke commands that require a fresh build after TS changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The audit does not accept provider billing, prompt-cache, or Authority completion claims unless backed by explicit receipts or executable evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees B-f495 audit evidence confirming the slim / fields CLI surfaces and smoke coverage either match the plan or list exact corrections.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-token-cost-smoke.js && npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Build, prompt-token-cost smoke, and prompt-registry smoke passed, confirming the documented slim/fields CLI surfaces and existing smoke coverage remain executable.",
+          "headHash": "2b1cb7c52c468fd54ec6c1dd30aae3f6df34e9a2",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:14.378Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"npm --prefix packages/main run build|prompt-token-cost-smoke|Execution Discipline\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document now places build before dist smoke execution and adds execution discipline, addressing the stale-build audit finding.",
+          "headHash": "2b1cb7c52c468fd54ec6c1dd30aae3f6df34e9a2",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:14.440Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"provider billing|Authority Server|Formal Audit Disposition\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document keeps provider billing and Authority completion claims explicitly out of scope unless backed by receipts or executable evidence.",
+          "headHash": "2b1cb7c52c468fd54ec6c1dd30aae3f6df34e9a2",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:14.496Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Audit risk boundaries and verification discipline",
+      "context": "Check that the plan preserves default full output, requires full output for evidence-sensitive work, and does not overclaim provider billing or Authority completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T14:26:20.017Z",
+      "endTime": "2026-06-15T14:26:29.766Z",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document explicitly preserves default full story_get/checklist_get output and requires full output before evidence-sensitive conclusions or mutations.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes approximate context-token estimates from provider billing receipts and does not claim prompt-cache savings are proven.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document excludes lifecycle gate, DONE, Authority receipt, and provider billing semantic changes from this low-risk plan.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees B-f495 audit evidence confirming the plan preserves full-output fallback, local-only evidence boundaries, and no Authority or billing overclaim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"Do not change default|Use full output before evidence-sensitive|full-output fallback\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document preserves default full output and requires full output before evidence-sensitive conclusions or mutations.",
+          "headHash": "57a26102d9729d5f8ec5aa3fee83fdb43f3b9ca3",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:29.833Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"approximate context-token|not provider billing receipts|Provider prompt-cache behavior is not proven|Provider billing savings are not proven\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document distinguishes approximate context-token savings from provider billing and prompt-cache behavior.",
+          "headHash": "57a26102d9729d5f8ec5aa3fee83fdb43f3b9ca3",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:29.892Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"Do not make lifecycle gates consume slim output|Authority receipt|DONE semantic|no lifecycle gate\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document explicitly excludes lifecycle gate, DONE, Authority receipt, and provider billing semantic changes.",
+          "headHash": "57a26102d9729d5f8ec5aa3fee83fdb43f3b9ca3",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:29.947Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record audit disposition and required follow-up",
+      "context": "Summarize pass/fail findings, recommended document edits, and whether implementation should proceed as a separate story.",
+      "relatedDocs": [
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T14:26:35.574Z",
+      "endTime": "2026-06-15T14:26:45.290Z",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The final audit disposition is recorded in the document with accepted findings, required fixes, and implementation follow-up guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document explains that implementation should run as a separate Lattice story and follow ordinary REVIEW plus automatic 3x2/degraded 3x1 escalation when triggered.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The audit result does not mutate unrelated active story B-acec and does not rely on lattice audit writing B-META findings for this document review.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees a concise B-f495 audit disposition stating accepted claims, required document fixes, verification commands, and whether implementation should proceed separately.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"Formal Audit Disposition|accepted after the corrections|Build-before-dist-smoke|Execution discipline\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document records the B-f495 audit disposition, accepted corrections, and verification expectations.",
+          "headHash": "c52126c48523f7dea5f02bac5b7122232ce5b5f7",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:45.379Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"dedicated Lattice story|session_brief|aux_doc_list|3x2|3x1|ordinary REVIEW\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document states implementation should run separately and follow ordinary REVIEW plus automatic 3x2/degraded 3x1 escalation when triggered.",
+          "headHash": "c52126c48523f7dea5f02bac5b7122232ce5b5f7",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:45.436Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js session_brief && git status --short",
+          "result": "pass",
+          "note": "B-f495 audit stayed in its own worktree, did not mutate B-acec, and did not use lattice audit to write B-META findings for this document review.",
+          "headHash": "c52126c48523f7dea5f02bac5b7122232ce5b5f7",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:45.488Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T14:26:03.913Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Recording audit evidence for CLI surface checks."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:14.279Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CLI surface audit completed and evidence recorded after commit 516fb568."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:20.017Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Recording audit evidence for risk-boundary checks."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:29.766Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Risk-boundary audit completed and evidence recorded after commit 516fb568."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:35.574Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Recording audit disposition and follow-up evidence."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:45.290Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Audit disposition and follow-up evidence recorded after commit 516fb568."
+    }
+  ]
+}

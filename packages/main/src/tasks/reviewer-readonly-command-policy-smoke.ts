@@ -19,7 +19,7 @@ import {
   enforceReviewerReadOnlyCommandGate,
 } from '../cli-engine.js';
 
-const root = join(tmpdir(), `koala-reviewer-readonly-smoke-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `lattice-reviewer-readonly-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 const savedRO = process.env[REVIEWER_READONLY_ENV];

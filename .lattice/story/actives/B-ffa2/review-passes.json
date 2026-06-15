@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-ffa2:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review passed: F-009 resolved; active Lattice-named smokes now use lattice.config.json and remaining koala.config.json hits are legacy or negative compatibility tests.",
+      "createdAt": "2026-06-15T17:23:11.973Z",
+      "reviewRound": "2026-06-15T17:19:16.480Z",
+      "reviewRunId": "B-ffa2:RR-012",
+      "_hash": "f990225c4695f3d6148db6d56ac991bc03ba7d43898b9bd7cd297625603de5ee"
+    },
+    {
+      "id": "B-ffa2:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review passed: F-008 resolved; Claude generated legacy koala-* cleanup is bounded to recognized generated prompts, preserves user-owned prompts, and relevant checks passed.",
+      "createdAt": "2026-06-15T17:23:22.595Z",
+      "reviewRound": "2026-06-15T17:19:16.480Z",
+      "reviewRunId": "B-ffa2:RR-013",
+      "_hash": "aa57c2c0d81a531b7d5a135d568bf2c25258a8e367aec4c85e2cef932178c4de"
+    },
+    {
+      "id": "B-ffa2:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test-coverage review passed: evidence_inspect is fresh, validate passed with 15/15 verification intents covered, and no open findings remain.",
+      "createdAt": "2026-06-15T17:23:37.550Z",
+      "reviewRound": "2026-06-15T17:19:16.480Z",
+      "reviewRunId": "B-ffa2:RR-014",
+      "_hash": "7f2a213d159e340d53226fa4ddd5d20984c8164ccec096f8589a408cca844777"
+    },
+    {
+      "id": "B-ffa2:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Final docs review passed: docs-facing Koala role/config naming remains clean, F-006 stays resolved, and remaining Koala mentions are legacy or compatibility exceptions.",
+      "createdAt": "2026-06-15T17:23:49.839Z",
+      "reviewRound": "2026-06-15T17:19:16.480Z",
+      "reviewRunId": "B-ffa2:RR-015",
+      "_hash": "fe8238889ff1c52d83b856e9280760e8533bedf9bbd43cb5a908ee64f6283e51"
+    }
+  ]
+}

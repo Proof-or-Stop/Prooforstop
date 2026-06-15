@@ -1,0 +1,185 @@
+{
+  "storyId": "B-59a6",
+  "name": "implement-documentation-audit-auto-escalation-runtime",
+  "title": "Implement documentation audit automatic 3x2/3x1 runtime gate",
+  "description": "Implement the runtime behavior described by the 3x2 review escalation execution plan: documentation and decision-doc audit changes should follow the ordinary REVIEW default, escalate to full 3x2 only when the first REVIEW round records at least two countable problems, and preserve explicit degraded 3x1 lower-assurance fallback semantics. Remove the direct decision-doc file-change always-on 3x2 trigger from the target DONE policy while keeping diagnostics honest.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "createdAt": "2026-06-15T03:02:07.367Z",
+  "startedAt": "2026-06-15T03:02:07.367Z",
+  "endedAt": "2026-06-15T11:30:22.162Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T03:02:07.368Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:06:10.365Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:06:22.294Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:12:48.538Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:33:10.540Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:24:47.414Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:28:56.312Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:32:00.084Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:33:57.448Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:40:08.948Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:42:06.356Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:50:03.538Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:50:18.925Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:05:19.802Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:16:44.767Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:17:14.149Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:21:13.866Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:23:15.768Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:28:46.964Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T11:30:22.162Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-15T11:23:15.767Z"
+}

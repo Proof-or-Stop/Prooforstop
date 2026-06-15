@@ -162,7 +162,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           type: 'risk_signals',
           severity: 'advisory',
           message: `story hit ${activeRiskSignals.length} high-risk signal(s): ${activeRiskSignals.map((r: any) => r.category).join(', ')}. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path).`
-            + ` If this story only mentions rather than modifies that area (false positive), run koala story_review_dismiss '{"storyId":"${args.storyId}","category":"<category>","reason":"..."}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted).`,
+            + ` If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{"storyId":"${args.storyId}","category":"<category>","reason":"..."}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted).`,
         });
       }
       if (dismissedCats.size > 0) {
@@ -201,7 +201,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             type: 'missing_decision',
             severity: isHighRisk ? 'blocker' : 'advisory',
             message: isHighRisk
-              ? `High-risk story must fill decision.json (principles/drivers/options/chosen/>= 3 preMortem). Call: koala decision_set '{...}'`
+              ? `High-risk story must fill decision.json (principles/drivers/options/chosen/>= 3 preMortem). Call: lattice decision_set '{...}'`
               : 'decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale.',
           });
         } else {
@@ -384,7 +384,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         }
       }
 
-      // 2.6. Scope check: read scope-check.json (written by koala-review-scope-plan agent)
+      // 2.6. Scope check: read scope-check.json (written by lattice-review-scope-plan agent)
       // Only check scope when understanding exists and checklist has items
       // (without these, scope check is meaningless and would block trivial stories)
       const scopeData = store.readScopeCheck(args.storyId);
@@ -392,7 +392,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: 'missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a koala-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion.',
+          message: 'missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion.',
         });
       } else if (scopeData) {
         // Verify signature using shared signScopeCheck function
@@ -466,7 +466,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           issues.push({
             type: 'scope_open_question_unresolved',
             severity: 'blocker',
-            message: `scope_open_question_unresolved: ${oq.id} unresolved — "${qText}"${shortTag}. Please run \`koala scope_question_resolve --storyId=${args.storyId} --oqId=${oq.id} --resolution=...\` to provide a written resolution (the main agent is responsible for the conclusion)`,
+            message: `scope_open_question_unresolved: ${oq.id} unresolved — "${qText}"${shortTag}. Please run \`lattice scope_question_resolve --storyId=${args.storyId} --oqId=${oq.id} --resolution=...\` to provide a written resolution (the main agent is responsible for the conclusion)`,
           });
         }
       }

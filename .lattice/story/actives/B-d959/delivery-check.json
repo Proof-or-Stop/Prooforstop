@@ -1,0 +1,64 @@
+{
+  "storyId": "B-d959",
+  "checkedAt": "2026-06-15T02:23:42.933Z",
+  "reviewRound": "2026-06-15T02:18:31.855Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Full 3x2 remains the default; degraded 3x1 is only an explicit lower-assurance fallback when a second host is unavailable or approved single-host local mode is allowed.",
+      "status": "verified",
+      "verifiedBy": "git diff plus rg",
+      "evidence": "Diff and rg show full default at lines 92-109, lower assurance at lines 31 and 128, and degraded 3x1 at lines 216-218 and 278."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Fallback paths are separated between unavailable-second-host and approved-single-host-local, with concrete reason codes.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg lines 96-119 and 557-559 show unavailable-second-host, approved-single-host-local, and allowed reason codes including credit exhausted, auth missing, runtime unavailable, provider outage, rate limited, and user approved local mode."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Required, effective, and achieved assurance fields are explicit and degraded review cannot overclaim full 3x2 or Authority completion.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg lines 307 and 348-366 show requiredAssurance, effectiveAssurance, achievedAssurance, quorumMode, and stable full-3x2/degraded-single-host terms; lines 424-426, 802, 856-866, and 911-927 reject Authority and full-3x2 overclaims."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "High-risk limits and negative controls are documented for degraded fallback use.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg lines 131-135 require stricter policy or explicit user approval for high-risk/decision-doc/gate/authority/process-fact changes; lines 730-737, 748, 800-802, and 860 cover fabricated unavailability, silent downgrade, and Authority overclaim negative controls."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Scope is documentation-only and runtime implementation remains a stated limitation.",
+      "status": "verified",
+      "verifiedBy": "git diff plus rg",
+      "evidence": "git diff shows only the decision doc as material change plus Lattice artifacts; the doc states it is a planning artifact that does not implement source-code changes or claim Authority receipt completion, and Non-Goals keeps implementation out of this story."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-d959 --json --forceTakeover returned status=pass/allPass=true at 2026-06-15T02:23:05.052Z, ran npm test, and reported verificationIntent coverage 6/6 with all six docs intents covered."
+    },
+    {
+      "featureId": "CHK-001-package-tests",
+      "transcript": "npm test returned exit code 0; test:e2e cli-e2e completed story-lifecycle and gap-convergence and ended with ALL PASS."
+    },
+    {
+      "featureId": "CHK-001-transcript-diff",
+      "transcript": "Transcript diff artifact exists at .lattice/story/actives/B-d959/evidence/transcript-diff.md and is non-empty (1547 bytes)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review PASS. The material diff is documentation-only, the doc preserves full 3x2 as default, marks 3x1 as degraded lower assurance, separates fallback paths and reason codes, includes assurance fields, high-risk limits, negative controls, and avoids Authority/full-3x2 overclaim. Runtime implementation remains explicitly out of scope."
+  },
+  "_hash": "0fb89a36dbc985519261e6659427c0505455e071a0c943bf05137a5e345319e2"
+}

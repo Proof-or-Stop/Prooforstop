@@ -89,7 +89,7 @@ export interface KoalaConfig {
     bugStale?: number;
   };
   /**
-   * Lifecycle hooks — spawn shell commands at koala 命令的 4 个事件点。
+   * Lifecycle hooks — spawn shell commands at Lattice command lifecycle points.
    * 每个事件下用 commandName 或 "*" 通配匹配，value 是 shell 命令数组。
    * onPhaseChange 的 key 用 "FROM->TO" 格式（或 "*"）。
    *
@@ -122,8 +122,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
     'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
     'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
-    'decision_doc_quorum_check', // B-2c0c: read-only local decision-doc quorum diagnostics for the DONE gate
+    'decision_doc_quorum_check', // B-2c0c: read-only decision-doc quorum diagnostic; DONE uses review_escalation_status
     'decision_doc_preview', // read-only decision-doc proposal render; writes no files or metadata
+    'review_escalation_status', // B-59a6: read-only view of actual DONE review escalation requirement
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
@@ -186,7 +187,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   INIT: [
     'story_update', 'checklist_update',
-    'init_check_set', // B-e71f CHK-003: koala-review-story-init reviewer 在 INIT 阶段写 init-check.json
+    'init_check_set', // B-e71f CHK-003: lattice-review-story-init reviewer 在 INIT 阶段写 init-check.json
     'init_check_repair', // B-95d8 CHK-001: 受控 fallback——无 subagent 环境下显式生成签名 init-check.json
     'scope_boundary_set', 'execution_boundary_set',
     'scope_freeze_check',
@@ -247,7 +248,11 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
+    'review_escalation_fallback_set',
     'story_advance',
+  ],
+  DONE: [
+    'review_escalation_fallback_set',
   ],
 };
 
@@ -307,50 +312,32 @@ const DEFAULT_CONFIG: KoalaConfig = {
 const _cache = new Map<string, KoalaConfig>();
 
 /**
- * Canonical project config filename. lattice.config.json wins over the legacy
- * koala.config.json when both are present.
+ * Canonical project config filename.
  */
 export const LATTICE_CONFIG_FILENAME = 'lattice.config.json';
-/**
- * Legacy fallback project config filename. Still read when lattice.config.json
- * is absent so existing koala-only repositories keep working.
- */
-export const LEGACY_KOALA_CONFIG_FILENAME = 'koala.config.json';
-/**
- * Lattice-first ordering of config filenames; consumers that walk upward
- * looking for a project root should treat the first match as canonical.
- */
+/** Project config filenames that define an active Lattice project root. */
 export const PROJECT_CONFIG_FILENAMES: readonly string[] = [
   LATTICE_CONFIG_FILENAME,
-  LEGACY_KOALA_CONFIG_FILENAME,
 ];
 
-/** True if any known project config file (lattice or legacy koala) exists in dir. */
+/** True if the canonical Lattice project config file exists in dir. */
 export function hasProjectConfigFile(dir: string): boolean {
   return PROJECT_CONFIG_FILENAMES.some((name) => existsSync(join(dir, name)));
 }
 
 /**
  * Pick the canonical project config file path for `dir`. Returns the first
- * matching filename in {@link PROJECT_CONFIG_FILENAMES} (lattice-first), or
- * null if neither file exists.
+ * matching filename in {@link PROJECT_CONFIG_FILENAMES}, or null if no active
+ * config file exists.
  */
 export function pickProjectConfigPath(dir: string): { path: string; filename: string; legacy: boolean } | null {
   for (const name of PROJECT_CONFIG_FILENAMES) {
     const candidate = join(dir, name);
     if (existsSync(candidate)) {
-      return { path: candidate, filename: name, legacy: name === LEGACY_KOALA_CONFIG_FILENAME };
+      return { path: candidate, filename: name, legacy: false };
     }
   }
   return null;
-}
-
-const _warnedRoots = new Set<string>();
-function warnOnce(root: string, message: string): void {
-  const key = `${root}::${message}`;
-  if (_warnedRoots.has(key)) return;
-  _warnedRoots.add(key);
-  try { process.stderr.write(`${message}\n`); } catch { /* stderr write best-effort */ }
 }
 
 function findProjectRootByMarker(startDir: string): string | null {
@@ -364,7 +351,7 @@ function findProjectRootByMarker(startDir: string): string | null {
   return null;
 }
 
-/** Search upward from cwd for a project config file (lattice.config.json first, koala.config.json fallback), return the project root directory */
+/** Search upward from cwd for lattice.config.json, return the project root directory. */
 function resolveProjectRoot(): string {
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
@@ -377,9 +364,7 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
   if (_cache.has(root)) return _cache.get(root)!;
 
   const latticePath = join(root, LATTICE_CONFIG_FILENAME);
-  const legacyPath = join(root, LEGACY_KOALA_CONFIG_FILENAME);
   const latticeExists = existsSync(latticePath);
-  const legacyExists = existsSync(legacyPath);
 
   let userConfig: Partial<KoalaConfig> = {};
   let chosenPath: string | null = null;
@@ -388,21 +373,6 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
     try {
       userConfig = JSON.parse(readFileSync(latticePath, 'utf-8'));
     } catch { /* ignore parse errors */ }
-    if (legacyExists) {
-      warnOnce(
-        root,
-        `⚠ ${LATTICE_CONFIG_FILENAME} and legacy ${LEGACY_KOALA_CONFIG_FILENAME} both exist at ${root}; using ${LATTICE_CONFIG_FILENAME} (canonical). Delete ${LEGACY_KOALA_CONFIG_FILENAME} once migration is complete.`,
-      );
-    }
-  } else if (legacyExists) {
-    chosenPath = legacyPath;
-    try {
-      userConfig = JSON.parse(readFileSync(legacyPath, 'utf-8'));
-    } catch { /* ignore parse errors */ }
-    warnOnce(
-      root,
-      `ℹ Reading legacy ${LEGACY_KOALA_CONFIG_FILENAME} at ${root}; rename to ${LATTICE_CONFIG_FILENAME} to silence this notice (canonical Lattice CLI config).`,
-    );
   }
   void chosenPath; // retained for future diagnostics; suppress unused warning
 
@@ -423,7 +393,6 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
 /** 重置缓存（测试用） */
 export function resetConfigCache(): void {
   _cache.clear();
-  _warnedRoots.clear();
 }
 
 /**

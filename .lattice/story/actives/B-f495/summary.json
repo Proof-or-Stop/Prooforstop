@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f495",
+  "changes": "Added the slim / fields token savings execution plan as a tracked Lattice decision document, with audit corrections for execution discipline, build-before-dist-smoke verification, full-output fallback, and formal audit disposition.",
+  "usage": "Use this document as the implementation plan for a follow-up Lattice story that updates agent templates and docs to prefer slim / fields for routine status queries while preserving full output for evidence-sensitive work.",
+  "expectedOutcome": "The repository contains a version-controlled decision plan explaining how to reduce routine story_get/checklist_get context cost without changing command defaults or lifecycle gate semantics.",
+  "actualTranscript": "Formal validation passed via lattice validate --story=B-f495 --json: npm test completed, cli-e2e reported ALL PASS, and verification intent coverage was 9/9. Delivery reviewer saved delivery_check_set with 5 docsPromises checked and no blockers.",
+  "outcomeDiff": "No difference for the audit story: expected tracked plan and validation evidence were produced. Template implementation remains intentionally deferred to a separate story.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "audit_only",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story is audit/documentation only; it does not update agent prompt templates or documentation examples yet. Provider billing savings remain unproven and token numbers are approximate context-size estimates.",
+  "pitfalls": "Main had an older untracked copy of the same decision document, while the B-f495 worktree contains the corrected tracked version. Preserve the B-f495 version during DONE merge and implement prompt changes in a separate story.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 237337
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 162355
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 511892
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 246385
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1713444
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 220466
+    }
+  },
+  "totalDurationMs": 3091887,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T14:59:14.592Z",
+  "updatedAt": "2026-06-15T14:59:14.592Z"
+}

@@ -1,13 +1,13 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, isAbsolute, join, resolve } from 'node:path';
+import { resolveAgentAssetResolution, summarizeAgentAssetResolution } from './agent-asset-resolution.js';
 import { runManagedAssetCheck, type ManagedAssetCheckResult, type ManagedAssetStatus } from './managed-assets.js';
 import { runRuntimeEnvironmentChecks, type RuntimeEnvironmentReport, type RuntimeFactStatus } from './runtime-environment-checks.js';
 import {
   LATTICE_CLI_VERSION,
   LATTICE_PRODUCT_NAME,
   LATTICE_PRIMARY_BIN,
-  KOALA_LEGACY_ALIAS,
   formatLatticeProductLine,
 } from './lattice-brand.js';
 import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
@@ -63,7 +63,6 @@ export interface RolloutCheckResult {
     name: typeof LATTICE_PRODUCT_NAME;
     version: typeof LATTICE_CLI_VERSION;
     primaryBin: typeof LATTICE_PRIMARY_BIN;
-    legacyAlias: typeof KOALA_LEGACY_ALIAS;
   };
   readOnly: true;
   macAppRequired: false;
@@ -100,7 +99,6 @@ const PRODUCT = {
   name: LATTICE_PRODUCT_NAME,
   version: LATTICE_CLI_VERSION,
   primaryBin: LATTICE_PRIMARY_BIN,
-  legacyAlias: KOALA_LEGACY_ALIAS,
 } as const;
 
 function statusRank(status: RolloutStatus): number {
@@ -165,7 +163,7 @@ function packageBinHasLattice(path: string): boolean {
   const bin = parsed?.bin;
   return !!bin && typeof bin === 'object' &&
     (bin as Record<string, unknown>).lattice === 'dist/cli.js' &&
-    (bin as Record<string, unknown>).koala === 'dist/cli.js';
+    (bin as Record<string, unknown>).koala === undefined;
 }
 
 function parseProjectList(root: string, projects: string | string[] | undefined, maxDepth: number): string[] {
@@ -227,7 +225,6 @@ function discoverProjects(root: string, maxDepth: number): string[] {
 
 function looksLikeProject(dir: string): boolean {
   return existsSync(join(dir, 'lattice.config.json')) ||
-    existsSync(join(dir, 'koala.config.json')) ||
     existsSync(join(dir, LATTICE_DIR)) ||
     existsSync(join(dir, '.koala')) ||
     existsSync(join(dir, 'package.json')) ||
@@ -296,13 +293,13 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', 'lattice.js'));
   const hasLegacyWrapper = existsSync(join(projectRoot, 'bin', 'koala.js'));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
-  const isSelfLayout = mainPackageName === '@lattice-agent/core' && hasBinAliases;
+  const isSelfLayout = mainPackageName === '@lattice-agent/core';
   const ok = isSelfLayout
-    ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && hasLegacyWrapper && hasBinAliases
+    ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && !hasLegacyWrapper && hasBinAliases
     : true;
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
-    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; legacyAlias=${hasLegacyWrapper}; binAliases=${hasBinAliases}`
+    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; legacyWrapper=${hasLegacyWrapper}; bin=lattice-only:${hasBinAliases}`
     : `external project; global ${formatLatticeProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',
@@ -341,6 +338,23 @@ function buildManagedAssetProbe(result: ManagedAssetCheckResult): RolloutProbe {
     readOnly: true,
     detail: `mode=${result.mode}; OK=${result.summary.OK ?? 0}; MISSING=${result.summary.MISSING ?? 0}; STALE_SAFE=${result.summary.STALE_SAFE ?? 0}; STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT ?? 0}; INCOMPATIBLE=${result.summary.INCOMPATIBLE ?? 0}`,
     ...(status !== 'pass' ? { nextAction: 'Run lattice check manually, review unsafe items, then use lattice check --apply or --upgrade only after operator approval.' } : {}),
+  };
+}
+
+function buildAgentAssetResolutionProbe(projectRoot: string): RolloutProbe {
+  const resolution = resolveAgentAssetResolution(projectRoot);
+  const hasLocalIssues = resolution.projectPromptAssets.some(asset =>
+    asset.status === 'stale' || asset.status === 'override');
+  const status: RolloutStatus = hasLocalIssues ? 'warn' : 'pass';
+  return {
+    id: 'agent_asset_resolution',
+    label: 'Agent asset resolution',
+    status,
+    command: 'lattice verify_codex --json',
+    executed: 'in-process',
+    readOnly: true,
+    detail: `${summarizeAgentAssetResolution(resolution)}; ${resolution.authorityBoundary.text}`,
+    ...(status !== 'pass' ? { nextAction: 'Review project-local prompt assets manually; rollout_check is read-only and does not delete, repair, or migrate files.' } : {}),
   };
 }
 
@@ -433,6 +447,7 @@ function scanProject(projectRoot: string): RolloutProjectResult {
     buildConfigProbe(path),
     buildRuntimeProbe(runtime),
     buildManagedAssetProbe(managedAssets),
+    buildAgentAssetResolutionProbe(path),
     buildDoctorProbe(runtime, git),
     buildTranscriptScopeProbe(path, story),
   ];

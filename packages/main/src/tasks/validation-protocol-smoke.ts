@@ -20,7 +20,7 @@ import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../c
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
-import { renderCodexWrapperScript, renderKoalaBootstrapScript } from '../init-assets.js';
+import { renderLatticeBootstrapScript, renderLatticeCodexWrapperScript } from '../init-assets.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -112,15 +112,15 @@ try {
   assert.match(timeout.details.join('\n'), /configured timeoutMs=100ms/);
   assert.match(timeout.details.join('\n'), /lattice\.config\.json validate\.commands\[\]\.timeoutMs/);
 
-  writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
     validate: {
       commands: [
         {
           label: 'configured command',
           command: 'node',
-          args: ['-e', 'process.stdout.write(process.env.KOALA_SMOKE || "")'],
+          args: ['-e', 'process.stdout.write(process.env.LATTICE_SMOKE || "")'],
           cwd: 'sub',
-          env: { KOALA_SMOKE: 'yes' },
+          env: { LATTICE_SMOKE: 'yes' },
           timeoutMs: 1234,
           optional: true,
         },
@@ -132,11 +132,11 @@ try {
   assert.equal(discovered.length, 1);
   assert.equal(discovered[0].label, 'configured command');
   assert.equal(discovered[0].cwd, 'sub');
-  assert.equal(discovered[0].env?.KOALA_SMOKE, 'yes');
+  assert.equal(discovered[0].env?.LATTICE_SMOKE, 'yes');
   assert.equal(discovered[0].timeoutMs, 1234);
   assert.equal(discovered[0].optional, true);
 
-  writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
+  writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
     validate: {
       command: 'cd sub && node -e "process.stdout.write(process.cwd())"',
     },
@@ -159,7 +159,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const noEntryResult = JSON.parse(noEntryJson);
-    assert.equal(noEntryResult.provider, 'koala-verifier-no-validation-entry');
+    assert.equal(noEntryResult.provider, 'lattice-verifier-no-validation-entry');
     assert.equal(noEntryResult.status, 'warn');
     assert.equal(noEntryResult.allPass, true);
     assert.equal(noEntryResult.commands.length, 0);
@@ -175,7 +175,7 @@ try {
 
   const configuredOnlyRoot = mkdtempSync(join(tmpdir(), 'koala-validation-configured-'));
   try {
-    writeFileSync(join(configuredOnlyRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(configuredOnlyRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
         commands: [
           {
@@ -195,7 +195,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const configuredResult = JSON.parse(validateJson);
-    assert.equal(configuredResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(configuredResult.provider, 'lattice-verifier-configured-commands');
     assert.equal(configuredResult.status, 'pass');
     assert.equal(configuredResult.allPass, true);
     assert.deepEqual(configuredResult.warnings, []);
@@ -211,7 +211,7 @@ try {
 
   const configuredFailRoot = mkdtempSync(join(tmpdir(), 'koala-validation-configured-fail-'));
   try {
-    writeFileSync(join(configuredFailRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(configuredFailRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
         commands: [
           {
@@ -234,7 +234,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const configuredFailResult = JSON.parse(configuredFailJson);
-    assert.equal(configuredFailResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(configuredFailResult.provider, 'lattice-verifier-configured-commands');
     assert.equal(configuredFailResult.status, 'fail');
     assert.equal(configuredFailResult.allPass, false);
     assert.equal(configuredFailResult.commands.length, 1);
@@ -265,7 +265,7 @@ try {
       log: () => {},
     }).validate({ json: true });
     const fallbackResult = JSON.parse(fallbackJson);
-    assert.equal(fallbackResult.provider, 'koala-verifier-fallback-commands');
+    assert.equal(fallbackResult.provider, 'lattice-verifier-fallback-commands');
     assert.equal(fallbackResult.status, 'pass');
     assert.equal(fallbackResult.allPass, true);
     assert.deepEqual(fallbackResult.warnings, []);
@@ -293,7 +293,7 @@ try {
       log: (line) => logs.push(line),
     }).validate({ json: true });
     const swiftResult = JSON.parse(swiftJson);
-    assert.equal(swiftResult.provider, 'koala-verifier-no-validation-entry', 'Package.swift alone must surface no-validation-entry warn/skip');
+    assert.equal(swiftResult.provider, 'lattice-verifier-no-validation-entry', 'Package.swift alone must surface no-validation-entry warn/skip');
     assert.equal(swiftResult.status, 'warn');
     assert.equal(swiftResult.allPass, true, 'no-validation-entry skip is advisory, not a hard fail');
     assert.equal(swiftResult.commands.length, 0);
@@ -328,7 +328,7 @@ try {
       log: () => {},
     }).validate({ json: true });
     const swiftExplicitResult = JSON.parse(swiftExplicitJson);
-    assert.equal(swiftExplicitResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(swiftExplicitResult.provider, 'lattice-verifier-configured-commands');
     assert.equal(swiftExplicitResult.status, 'pass');
     assert.match(swiftExplicitResult.commands[0].output, /swift-opt-in-ok/);
   } finally {
@@ -357,15 +357,15 @@ try {
       log: () => {},
     }).validate({ json: true });
     const canonicalResult = JSON.parse(canonicalJson);
-    assert.equal(canonicalResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(canonicalResult.provider, 'lattice-verifier-configured-commands');
     assert.equal(canonicalResult.status, 'pass');
     assert.match(canonicalResult.commands[0].output, /lattice-canonical-ok/);
   } finally {
     rmSync(latticeCanonicalRoot, { recursive: true, force: true });
   }
 
-  // B-38d6 CHK-002: koala.config.json remains readable as legacy fallback
-  // when lattice.config.json is absent, with a visible migration notice.
+  // Lattice-only config: koala.config.json is no longer an active fallback
+  // when lattice.config.json is absent.
   const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-legacy-only-'));
   try {
     writeFileSync(join(legacyOnlyRoot, 'koala.config.json'), JSON.stringify({
@@ -376,33 +376,8 @@ try {
       },
     }));
     resetConfigCache();
-    const legacyStderr: string[] = [];
-    const originalWrite = process.stderr.write.bind(process.stderr);
-    (process.stderr.write as unknown as (chunk: string) => boolean) = ((chunk: any) => {
-      legacyStderr.push(String(chunk));
-      return true;
-    }) as any;
-    let legacyResult: any;
-    try {
-      const legacyDiscovered = configuredValidationCommands(legacyOnlyRoot);
-      assert.equal(legacyDiscovered.length, 1, 'koala.config.json validate.commands must load as legacy fallback');
-      assert.equal(legacyDiscovered[0].label, 'legacy koala gate');
-      const legacyJson = await createVerifierHandlers({
-        root: legacyOnlyRoot,
-        scanRoot: legacyOnlyRoot,
-        store: new StoryStore(legacyOnlyRoot),
-        log: () => {},
-      }).validate({ json: true });
-      legacyResult = JSON.parse(legacyJson);
-    } finally {
-      (process.stderr.write as any) = originalWrite;
-    }
-    assert.equal(legacyResult.provider, 'koala-verifier-configured-commands');
-    assert.equal(legacyResult.status, 'pass');
-    assert.match(legacyResult.commands[0].output, /legacy-ok/);
-    const legacyMigrationText = legacyStderr.join('');
-    assert.match(legacyMigrationText, /Reading legacy koala\.config\.json/);
-    assert.match(legacyMigrationText, /rename to lattice\.config\.json/);
+    const legacyDiscovered = configuredValidationCommands(legacyOnlyRoot);
+    assert.equal(legacyDiscovered.length, 0, 'koala.config.json validate.commands must not load as an active config fallback');
   } finally {
     rmSync(legacyOnlyRoot, { recursive: true, force: true });
   }
@@ -426,32 +401,18 @@ try {
       },
     }));
     resetConfigCache();
-    const conflictStderr: string[] = [];
-    const originalWrite = process.stderr.write.bind(process.stderr);
-    (process.stderr.write as unknown as (chunk: string) => boolean) = ((chunk: any) => {
-      conflictStderr.push(String(chunk));
-      return true;
-    }) as any;
-    let conflictResult: any;
-    try {
-      const conflictDiscovered = configuredValidationCommands(conflictConfigRoot);
-      assert.equal(conflictDiscovered.length, 1, 'only the canonical lattice.config.json entry must be loaded');
-      assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over koala.config.json');
-      const conflictJson = await createVerifierHandlers({
-        root: conflictConfigRoot,
-        scanRoot: conflictConfigRoot,
-        store: new StoryStore(conflictConfigRoot),
-        log: () => {},
-      }).validate({ json: true });
-      conflictResult = JSON.parse(conflictJson);
-    } finally {
-      (process.stderr.write as any) = originalWrite;
-    }
+    const conflictDiscovered = configuredValidationCommands(conflictConfigRoot);
+    assert.equal(conflictDiscovered.length, 1, 'only the canonical lattice.config.json entry must be loaded');
+    assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over koala.config.json');
+    const conflictJson = await createVerifierHandlers({
+      root: conflictConfigRoot,
+      scanRoot: conflictConfigRoot,
+      store: new StoryStore(conflictConfigRoot),
+      log: () => {},
+    }).validate({ json: true });
+    const conflictResult = JSON.parse(conflictJson);
     assert.match(conflictResult.commands[0].output, /lattice-wins/);
     assert.doesNotMatch(conflictResult.commands[0].output, /koala-loses/, 'koala.config.json gate must NOT be executed when lattice.config.json is present');
-    const conflictDiagnostic = conflictStderr.join('');
-    assert.match(conflictDiagnostic, /lattice\.config\.json.*koala\.config\.json.*both exist/i);
-    assert.match(conflictDiagnostic, /using lattice\.config\.json/i);
   } finally {
     rmSync(conflictConfigRoot, { recursive: true, force: true });
   }
@@ -463,7 +424,7 @@ try {
     }));
     writeFileSync(join(dirtyFallbackRoot, 'report.md'), 'baseline\n');
     execFileSync('git', ['init'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed dirty fallback smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -491,7 +452,7 @@ try {
 
   const categorizedPollutionRoot = mkdtempSync(join(tmpdir(), 'koala-validation-dirty-classified-'));
   try {
-    writeFileSync(join(categorizedPollutionRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(categorizedPollutionRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -500,7 +461,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed classified pollution smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -526,7 +487,7 @@ try {
     const details = categorizedPollution.details.join('\n');
     assert.equal(categorizedPollution.status, 'fail');
     assert.equal(categorizedPollution.allPass, false);
-    assert.match(details, /koala_metadata_changes=1/);
+    assert.match(details, /lattice_metadata_changes=1/);
     assert.match(details, /runtime_artifact_changes=1/);
     assert.match(details, /material_source_changes=1/);
     assert.match(details, /fixture_changes=1/);
@@ -542,12 +503,12 @@ try {
   }
 
   // B-4b22: pollution that classifies entirely as passing categories
-  // (koala_metadata_changes + runtime_artifact_changes) must NOT trip
+  // (lattice_metadata_changes + runtime_artifact_changes) must NOT trip
   // executeValidationPlan; status stays 'pass', allPass=true, details swap
   // to the policy-allowed wording and audit info appears.
   const passingPollutionRoot = mkdtempSync(join(tmpdir(), 'koala-validation-passing-pollution-'));
   try {
-    writeFileSync(join(passingPollutionRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(passingPollutionRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -556,7 +517,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     mkdirSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass'), { recursive: true });
     writeFileSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
@@ -585,13 +546,13 @@ try {
     assert.doesNotMatch(details, /✗ validation command dirtied worktree/, 'passing-only pollution must NOT emit the blocking failure header');
     assert.match(details, /policy-allowed dirty paths/);
     assert.match(details, /pass: blocking=0/);
-    assert.match(details, /koala_metadata_changes=1/);
+    assert.match(details, /lattice_metadata_changes=1/);
     assert.match(details, /runtime_artifact_changes=1/);
     // Audit JSONL must be persisted in the per-story process-events file.
     const auditPath = join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'process-events.jsonl');
     assert.ok(existsSync(auditPath), 'audit log must be appended to per-story process-events.jsonl');
     const auditLines = readFileSync(auditPath, 'utf-8').trim().split('\n').filter(Boolean);
-    assert.equal(auditLines.length, 2, 'one audit line per passing category (koala_metadata + runtime_artifact)');
+    assert.equal(auditLines.length, 2, 'one audit line per passing category (lattice_metadata + runtime_artifact)');
     for (const line of auditLines) {
       const ev = JSON.parse(line);
       assert.equal(ev.type, 'dirty_gate_audit');
@@ -609,7 +570,7 @@ try {
   const declaredPathRoot = mkdtempSync(join(tmpdir(), 'koala-validation-declared-bl21-'));
   try {
     const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
-    writeFileSync(join(declaredPathRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(declaredPathRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -712,7 +673,7 @@ try {
   const declaredE2eRoot = mkdtempSync(join(tmpdir(), 'koala-validation-declared-e2e-'));
   try {
     const BL21_E2E = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
-    writeFileSync(join(declaredE2eRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(declaredE2eRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -721,7 +682,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed declared e2e smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -809,7 +770,7 @@ try {
   const attackChainRoot = mkdtempSync(join(tmpdir(), 'koala-validation-attack-chain-'));
   try {
     const ATTACK_SOURCE = 'packages/main/src/core/store.ts';
-    writeFileSync(join(attackChainRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(attackChainRoot, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       testsDir: 'packages/main/tests',
@@ -820,7 +781,7 @@ try {
     mkdirSync(join(attackChainRoot, 'packages/main/src/core'), { recursive: true });
     writeFileSync(join(attackChainRoot, ATTACK_SOURCE), 'export const seed = 1;\n');
     execFileSync('git', ['init'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed attack-chain smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -896,7 +857,7 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(invalidVerificationIntent.status, 0, 'invalid nested verificationIntent enum should fail');
-  assert.match(invalidVerificationIntent.stderr, /parameter validation failed|参数校验失败/);
+  assert.match(invalidVerificationIntent.stderr, /Argument validation failed/);
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
@@ -919,10 +880,10 @@ try {
   assert.equal(existsSync(join(malformedJsonCwd, '.lattice')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
-  const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-local-'));
+  const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-local-'));
   try {
     mkdirSync(join(projectLocalRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
     writeFileSync(localBin, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
       commandResolver: () => localBin,
@@ -985,33 +946,34 @@ try {
     rmSync(latticeConflictRuntimeRoot, { recursive: true, force: true });
   }
 
-  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-conflict-'));
+  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-legacy-koala-local-'));
   try {
     mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
     const otherCli = join(conflictRuntimeRoot, 'other-koala');
-    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(otherCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(conflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(conflictRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
+      corePackageRoot: join(conflictRuntimeRoot, 'runtime-core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
     assert.equal(report.runtimeMode.source, 'unknown');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
-    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must keep legacy koala fallback coverage');
-    assert.equal((report.projectLocalBin.actual as any).shadowsEntrypoint, true);
+    assert.equal(
+      (report.projectLocalBin.actual as any).path,
+      join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice'),
+      'project-local-bin must ignore stale koala local bins',
+    );
+    assert.equal((report.projectLocalBin.actual as any).present, false);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
     assert.ok(runtimeSummary.startsWith('Runtime footprint:\nRuntime mode: diagnostic-only'));
     assert.match(runtimeSummary, /Runtime source: unknown/);
     assert.match(runtimeSummary, /Project-local JavaScript runtime required: no/);
     assert.match(runtimeSummary, /Authority: local-runtime-diagnostic-only/);
-    assert.match(
-      runtimeSummary,
-      /Next action: project-local CLI bin .*node_modules\/\.bin\/koala resolves to .* but the active CLI resolves to .*/,
-    );
+    assert.doesNotMatch(runtimeSummary, /node_modules\/\.bin\/koala/);
   } finally {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
@@ -1021,9 +983,9 @@ try {
   const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-conflict-'));
   try {
     mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
     const packagedCli = join(packagedConflictRoot, 'packaged-koala');
-    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(packagedConflictRoot, {
       commandResolver: () => packagedCli,
@@ -1031,9 +993,10 @@ try {
       corePackageRoot: join(packagedConflictRoot, 'packaged-runtime'),
     });
     assertRuntimeModeShape(report.runtimeMode);
-    assert.equal(report.runtimeMode.mode, 'diagnostic-only');
-    assert.equal(report.runtimeMode.source, 'unknown');
+    assert.equal(report.runtimeMode.mode, 'packaged-runtime');
+    assert.equal(report.runtimeMode.source, 'packaged-runtime');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+    assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale koala local bins');
   } finally {
     rmSync(packagedConflictRoot, { recursive: true, force: true });
     if (previousPackagedRuntime === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
@@ -1096,8 +1059,8 @@ try {
 
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'KOALA.md'), '<!-- koala:start -->\n# Local Koala Notes\ncustom text\n<!-- koala:end -->\n');
-    const before = readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8');
+    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Lattice Notes\ncustom text\n<!-- lattice:end -->\n');
+    const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
       scanRoot: staleLocalAssetRoot,
@@ -1117,16 +1080,16 @@ try {
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
     assert.match(staleLocalCheckText, /Lattice managed asset check: DRIFT/);
-    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT KOALA\.md|STALE_LOCAL_EDIT[\s\S]*KOALA\.md/);
+    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT LATTICE\.md|STALE_LOCAL_EDIT[\s\S]*LATTICE\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
     assert.equal(item?.status, 'STALE_LOCAL_EDIT');
     assert.equal(item?.applied, undefined);
-    assert.equal(readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
-    assert.equal(result.applied.includes('KOALA.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
+    assert.equal(readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
+    assert.equal(result.applied.includes('LATTICE.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
     assert.equal(managedAssetNextAction(result), 'review unsafe managed assets manually');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /STALE_LOCAL_EDIT KOALA\.md/);
+    assert.match(rendered, /STALE_LOCAL_EDIT LATTICE\.md/);
     assert.match(rendered, /action: review local edits before overwriting|action: review local doc edits before replacing the section/);
   } finally {
     rmSync(staleLocalAssetRoot, { recursive: true, force: true });
@@ -1134,14 +1097,14 @@ try {
 
   const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-case-mismatch-'));
   try {
-    writeFileSync(join(caseMismatchAssetRoot, 'koala.md'), 'case mismatch\n');
+    writeFileSync(join(caseMismatchAssetRoot, 'lattice.md'), 'case mismatch\n');
     const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
     assert.equal(item?.status, 'CASE_MISMATCH');
     assert.equal(item?.applied, undefined);
-    assert.equal(result.applied.includes('KOALA.md'), false, 'CASE_MISMATCH must not be counted as applied');
+    assert.equal(result.applied.includes('LATTICE.md'), false, 'CASE_MISMATCH must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /CASE_MISMATCH KOALA\.md/);
+    assert.match(rendered, /CASE_MISMATCH LATTICE\.md/);
     assert.match(rendered, /action: rename the path with exact casing/);
   } finally {
     rmSync(caseMismatchAssetRoot, { recursive: true, force: true });
@@ -1162,24 +1125,24 @@ try {
     rmSync(incompatibleAssetRoot, { recursive: true, force: true });
   }
 
-  const wrapperRoot = mkdtempSync(join(tmpdir(), 'koala-wrapper-cjs-'));
+  const wrapperRoot = mkdtempSync(join(tmpdir(), 'lattice-wrapper-cjs-'));
   try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
-    const koalaWrapperPath = join(wrapperRoot, 'bin', 'koala.js');
-    const codexWrapperPath = join(wrapperRoot, 'bin', 'koala-codex.js');
-    writeFileSync(koalaWrapperPath, renderKoalaBootstrapScript(packageRoot));
-    writeFileSync(codexWrapperPath, renderCodexWrapperScript());
-    const koalaWrapper = readFileSync(koalaWrapperPath, 'utf-8');
+    const latticeWrapperPath = join(wrapperRoot, 'bin', 'lattice.js');
+    const codexWrapperPath = join(wrapperRoot, 'bin', 'lattice-codex.js');
+    writeFileSync(latticeWrapperPath, renderLatticeBootstrapScript(packageRoot));
+    writeFileSync(codexWrapperPath, renderLatticeCodexWrapperScript());
+    const latticeWrapper = readFileSync(latticeWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
-    assert.match(koalaWrapper, /require\('node:fs'\)/, 'Koala wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.match(latticeWrapper, /require\('node:fs'\)/, 'Lattice wrapper should be CommonJS so non-JS repos do not need package.json type=module');
     assert.match(codexWrapper, /import\('node:fs'\)/, 'Codex wrapper should use dynamic import so it runs in both CommonJS and type=module projects');
     assert.doesNotMatch(codexWrapper, /require\(/, 'Codex wrapper must not use require because type=module projects execute .js files as ESM');
-    assert.doesNotMatch(koalaWrapper, /^import\s/m, 'Koala wrapper must not use static ESM import syntax');
+    assert.doesNotMatch(latticeWrapper, /^import\s/m, 'Lattice wrapper must not use static ESM import syntax');
     assert.doesNotMatch(codexWrapper, /^import\s/m, 'Codex wrapper must not use static ESM import syntax');
 
-    const koalaHelp = spawnSync(process.execPath, [koalaWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
-    assert.equal(koalaHelp.status, 0, koalaHelp.stderr || koalaHelp.stdout);
-    assert.doesNotMatch(koalaHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Koala wrapper help must not emit Node module-type warnings');
+    const latticeHelp = spawnSync(process.execPath, [latticeWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
+    assert.equal(latticeHelp.status, 0, latticeHelp.stderr || latticeHelp.stdout);
+    assert.doesNotMatch(latticeHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Lattice wrapper help must not emit Node module-type warnings');
 
     const codexHelp = spawnSync(process.execPath, [codexWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
     assert.equal(codexHelp.status, 0, codexHelp.stderr || codexHelp.stdout);
@@ -1192,7 +1155,7 @@ try {
     scripts: { test: 'node -e "process.stdout.write(\\"fallback\\")"' },
   }));
   execFileSync('git', ['init'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
-  execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   mkdirSync(join(tmp, '.lattice', 'story', 'actives', 'B-demo'), { recursive: true });
   mkdirSync(join(tmp, '.lattice', 'runtime'), { recursive: true });
@@ -1329,7 +1292,7 @@ try {
   }
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
-  // The DEV->TEST koala validate gate was extracted into handlers/phase-gates.ts
+  // The DEV->TEST lattice validate gate was extracted into handlers/phase-gates.ts
   // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
   // transition-orchestrator.ts. The gate must still fail-closed: a failing
   // validate run must throw "Cannot enter TEST" and persist a FAIL
@@ -1339,7 +1302,7 @@ try {
 
   const gateFailRoot = mkdtempSync(join(tmpdir(), 'koala-validate-gate-fail-'));
   try {
-    writeFileSync(join(gateFailRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(gateFailRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
         commands: [
           { label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] },
@@ -1360,8 +1323,8 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: koala validate did not pass/,
-      'runValidateGate must block TEST when koala validate fails',
+      /Cannot enter TEST: lattice validate did not pass/,
+      'runValidateGate must block TEST when lattice validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
@@ -1402,7 +1365,7 @@ try {
       log: () => {},
     }).validate({ storyId: 'B-alias-smoke', json: true, noSync: true });
     const aliasResult = JSON.parse(aliasJson);
-    assert.equal(aliasResult.provider, 'koala-verifier-no-validation-entry', 'storyId alias: expected no-validation-entry provider');
+    assert.equal(aliasResult.provider, 'lattice-verifier-no-validation-entry', 'storyId alias: expected no-validation-entry provider');
     assert.equal(aliasResult.status, 'warn', 'storyId alias: expected warn status for no-validator');
     const aliasEvidence = aliasStore.readTestEvidence('B-alias-smoke');
     assert.ok(aliasEvidence !== null, 'storyId alias: test evidence must be written when storyId is supplied');
@@ -1423,7 +1386,7 @@ try {
       log: () => {},
     }).validate({ story: 'B-story-flag-smoke', json: true, noSync: true });
     const storyFlagResult = JSON.parse(storyFlagJson);
-    assert.equal(storyFlagResult.provider, 'koala-verifier-no-validation-entry', '--story flag: expected no-validation-entry provider');
+    assert.equal(storyFlagResult.provider, 'lattice-verifier-no-validation-entry', '--story flag: expected no-validation-entry provider');
     const storyFlagEvidence = storyFlagStore.readTestEvidence('B-story-flag-smoke');
     assert.ok(storyFlagEvidence !== null, '--story flag: test evidence must be written (regression guard)');
   } finally {
@@ -1441,7 +1404,7 @@ try {
       log: () => {},
     }).validate({ json: true });
     const noStoryResult = JSON.parse(noStoryJson);
-    assert.equal(noStoryResult.provider, 'koala-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
+    assert.equal(noStoryResult.provider, 'lattice-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
     assert.equal(existsSync(join(noStoryReadOnlyRoot, '.lattice')), false, 'no-story validate must not create any .lattice/ state (read-only)');
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });

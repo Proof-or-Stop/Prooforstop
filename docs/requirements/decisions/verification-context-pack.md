@@ -1,39 +1,39 @@
 # Verification Context Pack
 
-## 背景
+## Background
 
-2026-05-20，Koala Python authority server 引入更严格的 authority evidence gate：L2 verifier 不能只提交自然语言结论，而应提交可追踪、可重放、可覆盖的结构化证据。Koala CLI 需要同步这个协议，否则 verifier 仍可能漏看关键 diff、使用弱测试命令，或者把没有覆盖 artifact 的结论交给服务端。
+On 2026-05-20, the Python authority server introduced a stricter authority evidence gate: an L2 verifier may not submit a natural-language conclusion alone, but should submit structured evidence that is traceable, replayable, and coverable. The Lattice CLI needs to synchronize with this protocol; otherwise a verifier may still miss key diffs, use weak test commands, or hand the server a conclusion that has no covering artifact.
 
-这个文档是 Orchestrate 侧的长期真相源，用来说明 Koala CLI 与 Python authority server 在 Verification Context Pack 上的配合关系。
+This document is the long-term source of truth on the Orchestrate side, describing how the Lattice CLI and the Python authority server coordinate on the Verification Context Pack.
 
-## 设计决策
+## Design Decisions
 
-Koala CLI 负责机械生成 Verification Context Pack。外部 Python authority server 负责签发 verifier job、校验 evidence envelope、执行 gate adequacy。两边的字段、digest 规则和默认覆盖语义应保持一致；但 Python 侧 preset、limit、gate 细节只有在本仓出现显式代码/文档引用时，才能被视为 Orchestrate 本地已落地事实。
+The Lattice CLI is responsible for mechanically generating the Verification Context Pack. The external Python authority server is responsible for issuing verifier jobs, validating the evidence envelope, and enforcing gate adequacy. The fields, digest rules, and default coverage semantics on both sides should stay consistent; however, the Python-side preset, limit, and gate details may be regarded as locally-landed facts in Orchestrate only when there is an explicit code/doc reference in this repo.
 
-Context Pack 是 verifier 的默认阅读边界，不是自然语言建议。它应包含 changed files、changed hunks、changed symbols、source snippets、checklist item ids、test intent refs、oracle refs、required commands、risk tags、limitations、token budget、truncated 标记，以及扩展包的 parent digest。
-当 diff 含删除文件时，默认 source snippets 仍应提供可读的删除上下文；若源码已不在 worktree，CLI 需从 diff/removed lines 派生 snippet 内容，而不是留空。
+The Context Pack is the verifier's default reading boundary, not a natural-language suggestion. It should contain changed files, changed hunks, changed symbols, source snippets, checklist item ids, test intent refs, oracle refs, required commands, risk tags, limitations, token budget, the truncated marker, and the parent digest of an expansion pack.
+When the diff contains deleted files, the default source snippets should still provide readable deletion context; if the source is no longer in the worktree, the CLI must derive the snippet content from the diff/removed lines rather than leaving it blank.
 
-Verifier 可以请求扩展 context，但扩展必须带 `expansionReason`。如果外部 authority server 另有 `maxContextPackExpansionDepth`、`maxContextPackEstimatedTokens` 或 preset 级限制，那是 authority 侧预期/待对齐约束，不应在本仓文档中写成本地已落地事实。扩展不是绕过上下文包，而是形成 parent-linked pack chain。
+A verifier may request an expanded context, but the expansion must carry an `expansionReason`. If the external authority server has its own `maxContextPackExpansionDepth`, `maxContextPackEstimatedTokens`, or preset-level limits, those are authority-side expected/to-be-aligned constraints and should not be written as locally-landed facts in this repo's documentation. An expansion is not a way to bypass the context pack, but forms a parent-linked pack chain.
 
-## CLI 责任
+## CLI Responsibilities
 
-- `verification_context_pack_create` 从当前 git diff 机械生成 pack，不写 story metadata。
-- `verification_context_pack_expand` 基于 parent pack 生成受控扩展，必须说明扩展原因。
-- `digestVerificationContextPack` 与 Python `VerificationContextPack.digest()` 保持 canonical digest parity。
-- `buildTargetBoundEvidenceEnvelope` 和 `EvidenceCollector` 默认把 context pack required refs 纳入 `coveredRefs`，并填充 `verificationContextPackId`、`verificationContextPackDigest`、`inspectedPackRefs`。
-- CLI command policy 中这两个命令应为 read-only / all phases / non-destructive。
+- `verification_context_pack_create` mechanically generates a pack from the current git diff, and does not write story metadata.
+- `verification_context_pack_expand` generates a controlled expansion based on a parent pack, and must state the reason for the expansion.
+- `digestVerificationContextPack` maintains canonical digest parity with Python's `VerificationContextPack.digest()`.
+- `buildTargetBoundEvidenceEnvelope` and `EvidenceCollector` by default include the context pack's required refs in `coveredRefs`, and populate `verificationContextPackId`, `verificationContextPackDigest`, and `inspectedPackRefs`.
+- In the CLI command policy, these two commands should be read-only / all phases / non-destructive.
 
-## Server 配合
+## Server Coordination
 
-外部 Python authority server 的 verifier job 预期会绑定 signed context pack 和 digest。提交 L2 evidence 时，authority 侧通常会检查 evidence 中的 pack id、digest、producerRunId、diffHash 是否和 server-issued verifier job 一致；本仓只对 CLI 侧字段和 digest 产物负责。
+The external Python authority server's verifier job is expected to bind a signed context pack and digest. When L2 evidence is submitted, the authority side typically checks whether the pack id, digest, producerRunId, and diffHash in the evidence match the server-issued verifier job; this repo is only responsible for the CLI-side fields and digest output.
 
-外部 authority gate 预期会要求 pack 中的 files、hunks、oracle refs、test intent refs、required commands 等被覆盖，否则 evidence 不足。本仓当前已落地的责任，是把这些 required refs 稳定映射到 `coveredRefs` / `inspectedPackRefs` 等证据表面，供 authority 侧消费。
+The external authority gate is expected to require that the pack's files, hunks, oracle refs, test intent refs, required commands, and so on are covered, otherwise the evidence is insufficient. The responsibility currently landed in this repo is to stably map these required refs onto evidence surfaces such as `coveredRefs` / `inspectedPackRefs` for the authority side to consume.
 
-若 authority 侧未来或外部部署启用 `anti-hallucination`、`strict-ci` 等 preset，预期 verifier job 必须携带 context pack；截至本仓当前状态，这些 preset 名称属于外部 authority 约束，不是本仓本地 gate 的既成事实。
+If the authority side in the future, or an external deployment, enables presets such as `anti-hallucination` or `strict-ci`, the verifier job is expected to be required to carry a context pack; as of this repo's current state, these preset names are external authority constraints, not established facts of this repo's local gate.
 
-## 验证命令
+## Verification Commands
 
-CLI 侧至少运行：
+On the CLI side, at minimum run:
 
 ```bash
 npm --prefix packages/main run build
@@ -41,17 +41,17 @@ npm --prefix packages/main run test:verification-context-pack
 npm --prefix packages/main run test:command-ownership-contract
 ```
 
-外部 authority server 侧若要验证协议对齐，可运行对应回归：
+On the external Python authority server side, to verify protocol alignment, run the corresponding regression:
 
 ```bash
 uv run pytest -q
 ```
 
-## 后续维护规则
+## Subsequent Maintenance Rules
 
-以后修改 Koala CLI 的 authority/evidence/context-pack 相关代码时，必须先按 Orchestrate 的 Koala story flow 建立或恢复 Story，并运行 `koala session_brief` 与 `koala aux_doc_list`。除非用户明确要求快速修补，否则不要绕过 Story/checklist/verificationEvidence。
+When modifying the authority/evidence/context-pack-related code of the Lattice CLI in the future, you must first establish or restore a Story per Orchestrate's Lattice story flow, and run `lattice session_brief` and `lattice aux_doc_list`. Unless the user explicitly requests a quick patch, do not bypass Story/checklist/verificationEvidence.
 
-凡是修改以下内容，都要同步检查外部 Python authority server 的协议字段和测试：
+Whenever you modify any of the following, you must synchronously check the protocol fields and tests of the external Python authority server:
 
 - `packages/main/src/core/authority-contracts.ts`
 - `packages/main/src/core/evidence-collector.ts`
@@ -60,7 +60,7 @@ uv run pytest -q
 - `packages/main/src/cli-engine.ts`
 - `packages/main/src/core/command-policy.ts`
 
-对应外部 Python 侧重点检查：
+Key checks on the corresponding external Python side:
 
 - `cord_team.schemas.verification.VerificationContextPack`
 - `cord_team.schemas.command.EvidenceEnvelope`

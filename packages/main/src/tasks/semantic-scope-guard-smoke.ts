@@ -584,7 +584,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 
 // ── 12. CHK-005: review run signature folds in the binding hash ──────────────
 {
-  const base = ['B-x', 'B-x:RR-001', 'koala-review-quality', 'koala-review-quality', 'round-1', '2026-01-01T00:00:00.000Z', 'head', 'material', ''] as const;
+  const base = ['B-x', 'B-x:RR-001', 'lattice-review-quality', 'lattice-review-quality', 'round-1', '2026-01-01T00:00:00.000Z', 'head', 'material', ''] as const;
   const noBinding = signReviewRun(...base);
   const withBinding = signReviewRun(...base, 'binding-hash-abc');
   assert.notEqual(noBinding, withBinding, 'a present scope binding hash changes the run signature');
@@ -593,7 +593,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 }
 
 // ── 13. CHK-005 integration: collectReviewerEvidenceState gate behavior ──────
-const BASELINE_LANES = ['koala-review-concept', 'koala-review-quality', 'koala-review-test-coverage'];
+const BASELINE_LANES = ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'];
 
 function writeScopeStory(root: string, opts: { withContract: boolean }): { store: StoryStore; storyId: string; reviewRound: string; contract: ScopeContractData | null } {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
@@ -767,7 +767,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     );
     const reason = getGuardFailureReason(storyId, store, 'TEST', root) ?? '';
     assert.match(reason, /scope binding/, 'gate failure reason names the scope binding problem');
-    assert.match(reason, /koala-review-/, 'gate failure reason names the affected reviewer lane');
+    assert.match(reason, /lattice-review-/, 'gate failure reason names the affected reviewer lane');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -972,7 +972,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   const binding = computeReviewScopeBinding({ contract: bindContract, diffPack: bindPack })!;
   const round = '2026-05-23T12:01:00.000Z';
   const boundRun: ReviewRun = {
-    reviewRunId: 'B-x:RR-1', storyId: 'B-x', agent: 'koala-review-quality', lane: 'koala-review-quality',
+    reviewRunId: 'B-x:RR-1', storyId: 'B-x', agent: 'lattice-review-quality', lane: 'lattice-review-quality',
     reviewRound: round, startedAt: round, headHash: 'h', materialHash: 'm', promptHash: '', scopeBinding: binding,
   };
   assert.equal(
@@ -1015,7 +1015,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   // A stale run: pack has different hunks from what was bound.
   const stalePack = makePack([makeHunk('src/allowed.ts', { anchor: 'fn', digest: 'deadbeef99887766' })]);
   const boundRun: ReviewRun = {
-    reviewRunId: 'B-p:RR-1', storyId: 'B-p', agent: 'koala-review-quality', lane: 'koala-review-quality',
+    reviewRunId: 'B-p:RR-1', storyId: 'B-p', agent: 'lattice-review-quality', lane: 'lattice-review-quality',
     reviewRound: round, startedAt: round, headHash: 'h', materialHash: 'm', promptHash: '',
     scopeBinding: binding,
   };

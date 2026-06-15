@@ -104,7 +104,7 @@ function snapshotDirtyClassification(projectRoot: string): DirtyWorktreeClassifi
 
 function nonMetadataCounts(classification: DirtyWorktreeClassification): Array<{ category: DirtyWorktreeCategory; count: number }> {
   return DIRTY_WORKTREE_CATEGORIES
-    .filter(category => category !== 'koala_metadata_changes')
+    .filter(category => category !== 'lattice_metadata_changes')
     .map(category => ({ category, count: classification.groups[category]?.length ?? 0 }))
     .filter(({ count }) => count > 0);
 }

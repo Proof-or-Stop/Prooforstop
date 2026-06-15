@@ -1,0 +1,159 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define degraded one-host fallback for unavailable second hosts",
+      "context": "The execution plan should avoid blocking development when only one host can run. The fallback must not pretend to provide two-host independence; it should require an explicit reason, artifact marker, stronger local evidence, and clear limits for high-risk changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/handlers/verdict.ts"
+      ],
+      "status": "done",
+      "startTime": "2026-06-15T02:08:29.067Z",
+      "endTime": "2026-06-15T02:13:53.412Z",
+      "userSees": "User sees: The execution plan now says 3x2 remains the default, but when a second host is unavailable or out of credits, Lattice may use a clearly marked 3-round x 1-host degraded fallback with reason codes and stronger evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "degraded-default-preserved",
+            "desc": "The document preserves 3x2 as the default and introduces 3x1 only as an explicitly degraded fallback for unavailable second hosts.",
+            "type": "docs"
+          },
+          {
+            "id": "fallback-reasons",
+            "desc": "The document lists acceptable second-host unavailable reasons such as credit exhausted, auth missing, runtime unavailable, provider outage, and rate limited.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "degraded-not-equivalent",
+            "desc": "The document states degraded 3x1 is not equivalent to two-host independence and must be shown as a lower assurance level.",
+            "type": "docs"
+          },
+          {
+            "id": "high-risk-limits",
+            "desc": "The document defines limits or extra approval expectations for high-risk or decision-doc changes using degraded review.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-silent-downgrade",
+            "desc": "The document requires negative controls so the gate cannot silently downgrade or treat fabricated host unavailability as valid.",
+            "type": "docs"
+          },
+          {
+            "id": "no-authority-overclaim",
+            "desc": "The document keeps degraded local review separate from Authority receipt completion and full 3x2 claims.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "degraded-default-preserved",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"Full 3x2 remains the default and preferred quorum\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"3 quorum rounds x 1 PASS host\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"assuranceLevel = degraded-single-host\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves full 3x2 as default and introduces 3x1 only as degraded single-host review.",
+          "headHash": "f1581955f1fdb7a74c48e7dd01ec0059c6b01689",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:18:11.733Z"
+        },
+        {
+          "intentRef": "fallback-reasons",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"second-host-credit-exhausted\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-auth-missing\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-runtime-unavailable\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-provider-outage\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-rate-limited\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"user-approved-single-host-local-mode\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document lists concrete allowed fallback reason codes for unavailable or credit-limited second hosts.",
+          "headHash": "f1581955f1fdb7a74c48e7dd01ec0059c6b01689",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:18:11.733Z"
+        },
+        {
+          "intentRef": "degraded-not-equivalent",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"not full-3x2\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"two-host independence\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"lower assurance\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document says degraded review is lower assurance and must not be treated as full independent two-host review.",
+          "headHash": "f1581955f1fdb7a74c48e7dd01ec0059c6b01689",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:18:11.733Z"
+        },
+        {
+          "intentRef": "high-risk-limits",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"High-risk changes may require stricter project policy\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"explicit user approval for the degraded\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document sets stricter policy or explicit approval expectations for high-risk and decision-doc degraded fallback use.",
+          "headHash": "f1581955f1fdb7a74c48e7dd01ec0059c6b01689",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:18:11.733Z"
+        },
+        {
+          "intentRef": "no-silent-downgrade",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"silently downgrade full 3x2 to 3x1\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"Fabricated unavailability, silent downgrade, and Authority overclaim all\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"must not be inferred from a missing verdict\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes negative controls against silent downgrade, fabricated unavailability, and missing-verdict fallback.",
+          "headHash": "f1581955f1fdb7a74c48e7dd01ec0059c6b01689",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:18:11.733Z"
+        },
+        {
+          "intentRef": "no-authority-overclaim",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"set `authorityDone`, `fullAuthorityDone`, `receiptVerified`, or\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"not Authority receipt completion\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document keeps degraded local review separate from Authority receipt completion and full Authority/DONE claims.",
+          "headHash": "f1581955f1fdb7a74c48e7dd01ec0059c6b01689",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:18:11.733Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T02:08:29.067Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin documentation update for degraded one-host fallback."
+    },
+    {
+      "timestamp": "2026-06-15T02:13:53.412Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Documented degraded 3x1 fallback, recorded docs evidence, and validate passed."
+    }
+  ]
+}

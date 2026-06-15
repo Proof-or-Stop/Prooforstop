@@ -586,7 +586,7 @@ export async function applyDoneMergeEffects(
         const staged = runGitArgs(['diff', '--cached', '--name-only'], wtPathAbs);
         if (staged) {
           runGitArgs(
-            ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: mark ${storyId} DONE + clear worktree`],
+            ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: mark ${storyId} DONE + clear worktree`],
             wtPathAbs,
           );
         }
@@ -713,7 +713,7 @@ export async function applyDoneMergeEffects(
         });
         throw new Error(
           `Story ${storyId} 已合并，但 worktree 清理未完成: ${cleanupFailure}\n` +
-          `→ 请运行 koala doctor 查看，或执行 koala doctor --repair 清理终态 worktree 残留。`,
+          `→ 请运行 lattice doctor 查看，或执行 lattice doctor --repair 清理终态 worktree 残留。`,
         );
       }
 

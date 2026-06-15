@@ -140,7 +140,7 @@ function createTmpRepo(): { root: string; store: StoryStore } {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
   const store = new StoryStore(root);
   return { root, store };
@@ -158,7 +158,7 @@ function createTmpRepo(): { root: string; store: StoryStore } {
     projectId: 'proj',
     storyId: 'B-2522',
     producerActorId: 'actor-1',
-    command: 'koala validate',
+    command: 'lattice validate',
     exitCode: 0,
     nonce: 'nonce-off',
     createdAt: '2026-06-02T00:00:00.000Z',

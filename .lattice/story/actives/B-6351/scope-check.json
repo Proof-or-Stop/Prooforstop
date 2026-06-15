@@ -1,0 +1,38 @@
+{
+  "storyId": "B-6351",
+  "checkedAt": "2026-06-15T02:12:31.589Z",
+  "features": [
+    {
+      "feature": "remove active koala CLI alias runtime behavior",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request; understanding_get outcome/facts; checklist_get CHK-001; plan_get CHK-001"
+    },
+    {
+      "feature": "update Codex/generated assets to lattice-only wrappers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request; understanding_get touchpoints; checklist_get CHK-002; plan_get CHK-002"
+    },
+    {
+      "feature": "replace compatibility smokes with absence assertions",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request; decision_get preMortem; checklist_get CHK-003; plan_get CHK-003"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "552a92c3ad63ba3b009c7ad044a5a778fd4314b641dcb32377a554adfb1bd2d0",
+  "openQuestions": []
+}

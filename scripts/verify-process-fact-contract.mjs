@@ -19,22 +19,22 @@ const promptDirs = [
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
 const legacyCategories = new Set(['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary']);
 const reviewPassReviewerPrompts = new Set([
-  'koala-evaluator.md',
-  'koala-review-behavior.md',
-  'koala-review-channel.md',
-  'koala-review-concept.md',
-  'koala-review-delivery.md',
-  'koala-review-docs.md',
-  'koala-review-quality.md',
-  'koala-review-scope-plan.md',
-  'koala-review-story-init.md',
-  'koala-review-test-coverage.md',
+  'lattice-evaluator.md',
+  'lattice-review-behavior.md',
+  'lattice-review-channel.md',
+  'lattice-review-concept.md',
+  'lattice-review-delivery.md',
+  'lattice-review-docs.md',
+  'lattice-review-quality.md',
+  'lattice-review-scope-plan.md',
+  'lattice-review-story-init.md',
+  'lattice-review-test-coverage.md',
 ]);
 const requiredReviewerRunIdPromptFiles = new Set([
-  'koala-evaluator.md',
-  'koala-review-delivery.md',
-  'koala-review-scope-plan.md',
-  'koala-review-story-init.md',
+  'lattice-evaluator.md',
+  'lattice-review-delivery.md',
+  'lattice-review-scope-plan.md',
+  'lattice-review-story-init.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -66,12 +66,12 @@ const activeLifecycleDocCurrentTerms = [
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
 const legacyAliasDocContextPattern = /\blegacy\b|\balias\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|别名|destructive/i;
-const coverageReviewerLaneName = 'koala-review-test-coverage';
+const coverageReviewerLaneName = 'lattice-review-test-coverage';
 const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
 const coverageReviewerCliCommandPatterns = [
-  { label: 'CLI invocation', pattern: /\bkoala\s+koala-review-test-coverage\b/i },
-  { label: 'tool table row', pattern: /^\s*\|\s*`?koala-review-test-coverage`?\s*\|/ },
-  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?koala-review-test-coverage`?\s*(?:[:：-]|$)/ },
+  { label: 'CLI invocation', pattern: /\blattice\s+lattice-review-test-coverage\b/i },
+  { label: 'tool table row', pattern: /^\s*\|\s*`?lattice-review-test-coverage`?\s*\|/ },
+  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?lattice-review-test-coverage`?\s*(?:[:：-]|$)/ },
 ];
 const legacyTestAutoProcessFactClaimPatterns = [
   {
@@ -124,19 +124,20 @@ const requiredProcessFactSemantics = {
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
+  review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   authority_receipt_verify: ['gate-evidence'],
 };
 const requiredReviewerLanes = [
-  'koala-review-story-init',
+  'lattice-review-story-init',
   'product-reviewer',
-  'koala-review-scope-plan',
-  'koala-review-concept',
-  'koala-review-quality',
-  'koala-review-test-coverage',
-  'koala-review-behavior',
-  'koala-review-docs',
-  'koala-review-channel',
-  'koala-review-delivery',
+  'lattice-review-scope-plan',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-test-coverage',
+  'lattice-review-behavior',
+  'lattice-review-docs',
+  'lattice-review-channel',
+  'lattice-review-delivery',
 ];
 const requiredArtifactFacts = [
   { name: 'artifact:index.json', path: 'index.json', signed: false },
@@ -258,6 +259,12 @@ const requiredRuntimeEntries = [
     owner: 'core/review-run',
     line: '- runtime:review_run_workspace_binding_gate [L4] owner=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate',
   },
+  {
+    name: 'runtime:review_escalation_done_gate',
+    level: 'L4',
+    owner: 'core/review-escalation',
+    line: '- runtime:review_escalation_done_gate [L4] owner=core/review-escalation gate=storyMachine.canFinish DONE review escalation gate',
+  },
 ];
 const requiredFlowFactPolicies = [
   {
@@ -329,7 +336,7 @@ const evidenceBoundaryDocPaths = [
 const requiredEvidenceBoundaryPhrases = [
   'prompt-only worker claims are not mechanical evidence',
   'dispatch/process-event/commit evidence',
-  'Koala cannot mechanically prove true subagent context isolation',
+  'Lattice cannot mechanically prove true subagent context isolation',
   'transcript/delivery evidence is required; prompt-only user-value claims are not enough',
   'non-mechanical user approval',
 ];
@@ -434,7 +441,7 @@ function listMarkdown(dir) {
 
 function isReviewerPrompt(relPath, text) {
   const name = basename(relPath);
-  return name.startsWith('koala-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
+  return name.startsWith('lattice-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
 }
 
 function scanBraceState(line, state) {
@@ -465,8 +472,8 @@ function scanBraceState(line, state) {
 }
 
 function commandBlocks(text, command) {
-  const commandPattern = new RegExp(`\\bkoala\\s+${command}\\b`);
-  const anyKoalaCommandPattern = /\bkoala\s+[a-z_][a-z0-9_]*\b/;
+  const commandPattern = new RegExp(`\\b(?:lattice|koala)\\s+${command}\\b`);
+  const anyCliCommandPattern = /\b(?:lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
   const lines = text.split(/\r?\n/);
   const blocks = [];
 
@@ -488,7 +495,7 @@ function commandBlocks(text, command) {
 
       const nextLine = lines[nextIndex];
       const trimmed = nextLine.trim();
-      if (!state.seenJson && (!trimmed || trimmed.startsWith('```') || anyKoalaCommandPattern.test(nextLine))) break;
+      if (!state.seenJson && (!trimmed || trimmed.startsWith('```') || anyCliCommandPattern.test(nextLine))) break;
 
       blockLines.push(nextLine);
       scanBraceState(nextLine, state);
@@ -505,7 +512,7 @@ function requiresReviewPassProtocol(label) {
 }
 
 function requiresNoFindingReviewPassProtocol(label) {
-  return basename(label) !== 'koala-evaluator.md' && requiresReviewPassProtocol(label);
+  return basename(label) !== 'lattice-evaluator.md' && requiresReviewPassProtocol(label);
 }
 
 function hasHardCodedReviewRunIdExample(block) {
@@ -781,10 +788,10 @@ function scanActiveLifecycleDocText(text, label) {
 
 function assertSyntheticAdversarialChecks() {
   const badPassOnlyLines = [
-    'koala finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
-    'koala finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
-    'koala finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
-    'koala finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
   ];
   for (const [index, line] of badPassOnlyLines.entries()) {
     assert(
@@ -793,12 +800,12 @@ function assertSyntheticAdversarialChecks() {
     );
   }
   const multilinePassOnly = [
-    "koala finding_add '{",
+    "lattice finding_add '{",
     '  storyId:"B-x",',
     '  desc:"PASS",',
     '  severity:"low",',
     '  category:"happy",',
-    '  agent:"koala-review-quality"',
+    '  agent:"lattice-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -807,7 +814,7 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const noReviewPass = [
-    'Use koala finding_add for every problem.',
+    'Use lattice finding_add for every problem.',
     'No findings. Review passed.',
   ].join('\n');
   assert(
@@ -815,18 +822,18 @@ function assertSyntheticAdversarialChecks() {
     'synthetic no-finding prompt without review_pass_set should fail',
   );
 
-  const activeLegacy = 'koala finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"koala-review-quality"}\'';
+  const activeLegacy = 'lattice finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(activeLegacy, 'synthetic-active-legacy').some(issue => issue.includes('legacy category')),
     'synthetic active legacy category should fail',
   );
   const multilineLegacy = [
-    "koala finding_add '{",
+    "lattice finding_add '{",
     '  storyId:"B-x",',
     '  desc:"real issue",',
     '  severity:"medium",',
     '  category:"cleanup",',
-    '  agent:"koala-review-quality"',
+    '  agent:"lattice-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -834,25 +841,25 @@ function assertSyntheticAdversarialChecks() {
     'synthetic multiline legacy category should fail',
   );
 
-  const unknownCategory = 'koala finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"koala-review-quality"}\'';
+  const unknownCategory = 'lattice finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
   );
-  const literalReviewRunId = 'koala finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  const literalReviewRunId = 'lattice finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
     'synthetic literal RR-001 reviewer command should fail',
   );
-  const missingFindingReviewRunId = 'koala finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  const missingFindingReviewRunId = 'lattice finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
   assert(
-    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/koala-review-story-init.md')
+    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/lattice-review-story-init.md')
       .some(issue => issue.includes('finding_add example must include reviewRunId')),
     'synthetic reviewer finding_add JSON example without reviewRunId should fail',
   );
-  const missingPassReviewRunId = 'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
+  const missingPassReviewRunId = 'lattice review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
   assert(
-    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/koala-evaluator.md')
+    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/lattice-evaluator.md')
       .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
     'synthetic reviewer review_pass_set JSON example without reviewRunId should fail',
   );
@@ -876,12 +883,12 @@ function assertSyntheticAdversarialChecks() {
     'synthetic story_review.planReviewRound numeric docs should pass',
   );
   const multilineUnknown = [
-    "koala finding_add '{",
+    "lattice finding_add '{",
     '  storyId:"B-x",',
     '  desc:"real issue",',
     '  severity:"medium",',
     '  category:"docs",',
-    '  agent:"koala-review-quality"',
+    '  agent:"lattice-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -890,13 +897,13 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const goodPrompt = [
-    'koala review_run_start \'{"storyId":"B-x","agent":"koala-review-quality"}\'',
-    'koala finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
-    'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
+    'lattice review_run_start \'{"storyId":"B-x","agent":"lattice-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'',
+    'lattice review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
 
-  const localizedAgentPlaceholder = 'koala review_run_start \'{"storyId":"B-x","agent":"<本 reviewer 名>"}\'';
+  const localizedAgentPlaceholder = 'lattice review_run_start \'{"storyId":"B-x","agent":"<本 reviewer 名>"}\'';
   assert(
     scanPromptText(localizedAgentPlaceholder, 'synthetic-localized-agent-placeholder')
       .some(issue => issue.includes('machine field "agent" uses non-code value')),
@@ -937,7 +944,7 @@ function assertSyntheticAdversarialChecks() {
     '    allowedPhases: ["PLAN", "REVIEW"],',
     '    destructiveRisk: "none",',
     '    reason: "Reviewer\\\'s plan artifact with \\"quotes\\" stays parseable.",',
-    '    replacement: `Use koala validate --story=<storyId> and record verificationEvidence`,',
+    '    replacement: `Use lattice validate --story=<storyId> and record verificationEvidence`,',
     '  },',
     '} as const satisfies Record<string, CommandPolicy>;',
   ].join('\n');
@@ -1031,19 +1038,19 @@ function assertSyntheticAdversarialChecks() {
     'synthetic active lifecycle doc may explicitly say test_auto does not write bug/test evidence',
   );
 
-  const badCoverageToolDoc = '| `koala-review-test-coverage` | 检查 verificationIntent 覆盖 |';
+  const badCoverageToolDoc = '| `lattice-review-test-coverage` | 检查 verificationIntent 覆盖 |';
   assert(
     scanActiveLifecycleDocText(badCoverageToolDoc, 'synthetic-coverage-tool-doc').some(issue => issue.includes('CLI/tool command')),
     'synthetic coverage reviewer documented as a tool table row should fail',
   );
 
-  const badCoverageBareDoc = '`koala-review-test-coverage` checks coverage.';
+  const badCoverageBareDoc = '`lattice-review-test-coverage` checks coverage.';
   assert(
     scanActiveLifecycleDocText(badCoverageBareDoc, 'synthetic-coverage-bare-doc').some(issue => issue.includes('reviewer agent/lane')),
     'synthetic bare coverage reviewer name without reviewer/lane context should fail',
   );
 
-  const goodCoverageLaneDoc = 'reviewer lane `koala-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
+  const goodCoverageLaneDoc = 'reviewer lane `lattice-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
   assert(
     scanActiveLifecycleDocText(goodCoverageLaneDoc, 'synthetic-coverage-good-doc').length === 0,
     'synthetic coverage reviewer lane wording should pass',
@@ -1948,6 +1955,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
       assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
       assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} must stay readOnly`);
       assert(/without mutating|read-only/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the read-only boundary`);
+      assert(/classification-only|do not by themselves require DONE quorum|review_escalation_status/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state decision-doc edits are diagnostic/classification only`);
       assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the Authority/no-overclaim boundary`);
     }
 
@@ -1973,15 +1981,72 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     }
   }
 
+  const statusCommand = 'review_escalation_status';
+  assert(cliToolNameSet.has(statusCommand), `CLI schema: required review escalation read command missing from MAIN_TOOLS: ${statusCommand}`);
+  const statusPolicy = policyByName.get(statusCommand);
+  assert(statusPolicy, `${commandPolicyPath}: required review escalation status command missing lifecycle policy`);
+  if (statusPolicy) {
+    assert(!statusPolicy.gateEvidence, `${commandPolicyPath}: ${statusCommand} must not be gateEvidence`);
+    assert(statusPolicy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${statusCommand} must be allowed in all phases`);
+    assert(statusPolicy.destructiveRisk === 'none', `${commandPolicyPath}: ${statusCommand} destructiveRisk must stay none`);
+    assert(policyBlockHasOwnershipClass(statusPolicy, 'readOnly'), `${commandPolicyPath}: ${statusCommand} must stay readOnly`);
+    assert(/first-round verified reviewer findings|3x2|degraded 3x1/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} must describe the trigger/quorum policy`);
+    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} policy must preserve no-overclaim boundary`);
+  }
+  const statusLevel = levelRegistry.get(statusCommand);
+  assert(statusLevel, `${processFactLevelRegistryPath}: ${statusCommand} missing level entry`);
+  if (statusLevel) {
+    assert(statusLevel.level === 'L0', `${processFactLevelRegistryPath}: ${statusCommand} must stay L0`);
+    assert(statusLevel.category === 'review-escalation-read', `${processFactLevelRegistryPath}: ${statusCommand} category drifted`);
+    assert(statusLevel.owner === 'handlers/review-escalation', `${processFactLevelRegistryPath}: ${statusCommand} owner drifted`);
+    assert(!statusLevel.gateConsumer, `${processFactLevelRegistryPath}: ${statusCommand} must not declare a gateConsumer`);
+  }
+  const statusRegistry = registry.get(statusCommand);
+  assert(statusRegistry, `${processFactRegistryPath}: ${statusCommand} missing registry entry`);
+  if (statusRegistry) {
+    assert(statusRegistry.level === 'L0', `${processFactRegistryPath}: ${statusCommand} registry level must stay L0`);
+    assert(statusRegistry.kind === 'command', `${processFactRegistryPath}: ${statusCommand} registry kind must stay command`);
+    assert(statusRegistry.gateEvidence === false, `${processFactRegistryPath}: ${statusCommand} registry gateEvidence must stay false`);
+    assert(!statusRegistry.artifact, `${processFactRegistryPath}: ${statusCommand} must not produce a process artifact`);
+  }
+
+  const fallbackCommand = 'review_escalation_fallback_set';
+  assert(cliToolNameSet.has(fallbackCommand), `CLI schema: required review escalation fallback command missing from MAIN_TOOLS: ${fallbackCommand}`);
+  const fallbackPolicy = policyByName.get(fallbackCommand);
+  assert(fallbackPolicy, `${commandPolicyPath}: required review escalation fallback command missing lifecycle policy`);
+  if (fallbackPolicy) {
+    assert(fallbackPolicy.gateEvidence, `${commandPolicyPath}: ${fallbackCommand} must be gateEvidence`);
+    assert(fallbackPolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${fallbackCommand} destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(fallbackPolicy, 'storyScopedMutating'), `${commandPolicyPath}: ${fallbackCommand} must stay storyScopedMutating`);
+    assert(/degraded 3x1|degraded-single-host|current material hash/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must describe degraded-single-host material binding`);
+    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must preserve no-overclaim boundary`);
+  }
+  const fallbackLevel = levelRegistry.get(fallbackCommand);
+  assert(fallbackLevel, `${processFactLevelRegistryPath}: ${fallbackCommand} missing level entry`);
+  if (fallbackLevel) {
+    assert(fallbackLevel.level === 'L4', `${processFactLevelRegistryPath}: ${fallbackCommand} must stay L4`);
+    assert(fallbackLevel.category === 'review-escalation-fallback', `${processFactLevelRegistryPath}: ${fallbackCommand} category drifted`);
+    assert(fallbackLevel.owner === 'handlers/review-escalation', `${processFactLevelRegistryPath}: ${fallbackCommand} owner drifted`);
+    assert(/review escalation/i.test(fallbackLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: ${fallbackCommand} gateConsumer drifted`);
+  }
+  const fallbackRegistry = registry.get(fallbackCommand);
+  assert(fallbackRegistry, `${processFactRegistryPath}: ${fallbackCommand} missing registry entry`);
+  if (fallbackRegistry) {
+    assert(fallbackRegistry.level === 'L4', `${processFactRegistryPath}: ${fallbackCommand} registry level must stay L4`);
+    assert(fallbackRegistry.gateEvidence === true, `${processFactRegistryPath}: ${fallbackCommand} registry gateEvidence must stay true`);
+    assert(fallbackRegistry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${fallbackCommand} must record process-events.jsonl evidence`);
+    assert(/review escalation/i.test(fallbackRegistry.consumerGate), `${processFactRegistryPath}: ${fallbackCommand} consumerGate drifted`);
+  }
+
   const commandName = 'autopilot_review_submit';
   const policy = policyByName.get(commandName);
   assert(policy, `${commandPolicyPath}: required local host verdict command missing lifecycle policy: ${commandName}`);
   if (policy) {
-    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local decision-doc quorum`);
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local review escalation`);
     assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
     assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(policy, 'reviewerWrite'), `${commandPolicyPath}: ${commandName} must stay reviewerWrite so independent hosts can submit verdicts without story owner lease`);
-    assert(/decision-doc quorum DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local decision-doc quorum DONE gate`);
+    assert(/review escalation DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local review escalation DONE gate`);
     assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must preserve the Authority no-overclaim boundary`);
   }
 
@@ -1991,7 +2056,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
     assert(levelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay lattice-local-host-verdict`);
     assert(levelEntry.owner === 'handlers/verdict', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
-    assert(/(decision-doc quorum.*DONE|DONE.*decision-doc quorum)/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
+    assert(/review escalation/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
   }
 
   const registryEntry = registry.get(commandName);
@@ -2004,7 +2069,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     for (const semantic of ['host-verdict', 'execution-evidence', 'gate-evidence']) {
       assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing ${semantic} semantic`);
     }
-    assert(/(decision-doc quorum.*DONE|DONE.*decision-doc quorum)/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
+    assert(/review escalation/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
   }
 }
 
@@ -2625,7 +2690,7 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
     .map(relPath => basename(relPath, '.md'))
-    .filter(name => name.startsWith('koala-review-') || name === 'product-reviewer');
+    .filter(name => name.startsWith('lattice-review-') || name === 'product-reviewer');
   for (const lane of promptReviewerLanes) {
     assert(
       registry.has(`reviewer-lane:${lane}`),
@@ -3200,10 +3265,10 @@ const inventory = [
         patterns: [
           'getGuardFailureReason',
           'runReviewCliGates',
-          'koala validate --json',
+          'lattice validate --json',
           'writeTestEvidence',
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: koala validate execution error',
+          'Cannot enter TEST: lattice validate execution error',
         ],
       },
       {
@@ -3427,8 +3492,8 @@ const inventory = [
           'allowedScope: z.array(z.string().min(1)).min(1)',
           'allowedPaths: z.array(z.string().min(1)).optional()',
           'excludedPaths: z.array(z.string().min(1)).optional()',
-          'INIT reviewer lane 不可直接改需求定义',
-          'INIT reviewer lane 不可直接改 story-level scope 字段',
+          'INIT reviewer lanes may not directly change requirement definitions.',
+          'INIT reviewer lanes may not directly change story-level scope fields.',
         ],
       },
       {
@@ -3484,7 +3549,7 @@ const inventory = [
     files: [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
-        // (runReviewCliGates / writeTestEvidence / the `koala validate --json`
+        // (runReviewCliGates / writeTestEvidence / the `lattice validate --json`
         // gate / the two English `Cannot enter TEST` strings) into phase-gates.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
         relPath: 'packages/main/src/handlers/story-advance.ts',
@@ -3492,7 +3557,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/phase-gates.ts',
-        patterns: ['runReviewCliGates', 'koala validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight execution error', 'Cannot enter TEST: koala validate execution error'],
+        patterns: ['runReviewCliGates', 'lattice validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight execution error', 'Cannot enter TEST: lattice validate execution error'],
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',

@@ -18,9 +18,10 @@ mechanical path for an operator, reviewer, or agent to say: this story decision
 is no longer just local story evidence; it is now a durable project rule.
 
 Once a decision document is created or updated under
-`docs/requirements/decisions/*.md`, the existing decision-doc quorum DONE gate
-applies. That means the story cannot complete without the local 3-round,
-2-host fresh `host_verdict` quorum.
+`docs/requirements/decisions/*.md`, the change is governance/documentation
+material for diagnostics and reviewer context. It does not by itself trigger the
+local 3-round, 2-host DONE quorum; review escalation is required only when the
+first lifecycle REVIEW round records at least two countable reviewer problems.
 
 This is a planning artifact only. It does not implement the CLI change, add
 commands, or authorize this story to edit source-code surfaces outside its
@@ -40,8 +41,9 @@ The gap is the promotion path between those layers.
 Today, a story can record a good `decision.json`, but that decision may remain
 buried in story metadata. Future developers then have to reconstruct durable
 project rules from old story history. Conversely, manually creating a decision
-doc does trigger the new decision-doc quorum gate, but Lattice does not help
-operators decide when and how a story decision should become such a document.
+doc creates governance and diagnostic material, but it does not by itself
+trigger DONE 3x2 review escalation. Lattice also does not help operators decide
+when and how a story decision should become such a document.
 
 The missing capability is not another free-form doc writer. The missing
 capability is a controlled promotion workflow:
@@ -52,7 +54,8 @@ decision_set
   -> review / operator confirmation
   -> decision_doc_save
   -> docs/requirements/decisions/<slug>.md
-  -> existing decision-doc 3x2 quorum DONE gate
+  -> normal lifecycle gates; DONE 3x2 only if the first REVIEW round
+     has at least two countable reviewer problems
 ```
 
 ## Design Principles
@@ -63,7 +66,7 @@ decision_set
 4. Follow consistency of logic.
 5. Preserve the distinction between story evidence and project policy.
 6. Treat decision-doc writes as high-impact workflow facts.
-7. Never imply Authority Server receipt completion from local decision-doc
+7. Never imply Authority Server receipt completion from local review-escalation
    quorum evidence.
 
 ## Target Capability
@@ -95,10 +98,11 @@ The future implementation must not:
   contract `allowedCreate`/`allowedModify` coverage or a mechanically valid
   accepted/approved scope extension;
 - create or update decision docs outside `docs/requirements/decisions/*.md`;
-- bypass the existing decision-doc quorum DONE gate;
+- bypass the review escalation DONE gate when the first-round problem threshold
+  actually fires;
 - weaken `story_review`, REVIEW, TEST, delivery-check, or DONE gates;
 - let INIT reviewers expand story scope by writing decision docs;
-- use prose-only review comments as decision-doc quorum evidence;
+- use prose-only review comments as review-escalation quorum evidence;
 - treat local host output as Authority Server receipts;
 - set or imply `receiptVerified=true`, `authorityDone=true`,
   `fullAuthorityDone=true`, or `productionDone=true`;
@@ -165,11 +169,11 @@ lattice decision_doc_proposal '{
   "operationalRules": [
     "Promotion requires explicit operator or reviewer intent",
     "Saved docs must use the canonical decisions directory",
-    "Saved docs trigger the existing decision-doc quorum gate"
+    "Saved docs are governance and diagnostic material, not automatic DONE 3x2 triggers"
   ],
   "verificationRequirements": [
     "Preview output must match the saved Markdown",
-    "DONE must consume the existing decision-doc 3x2 quorum gate",
+    "DONE escalation must depend on the first REVIEW round countable reviewer problem threshold",
     "Local quorum must remain separate from Authority receipt completion"
   ],
   "risks": [
@@ -281,7 +285,10 @@ docs/requirements/decisions/<slug>.md
   not become a back door for expanding story scope during DEV.
 
 The write itself does not complete the story. It changes a decision doc, so the
-existing decision-doc quorum gate becomes applicable before DONE.
+change is governance and diagnostic material for reviewers and status commands.
+It does not by itself make DONE require 3x2; DONE escalation is required only
+when the first lifecycle REVIEW round records at least two countable reviewer
+problems.
 
 ## Proposal Artifact Shape
 
@@ -379,8 +386,10 @@ Cons:
 ## Supersession
 
 If this decision changes, update this file through a Lattice story. Because
-this file is under `docs/requirements/decisions/*.md`, DONE requires the local
-decision-doc 3x2 host verdict quorum.
+this file is under `docs/requirements/decisions/*.md`, the edit is governance
+and diagnostic material. DONE requires local review-escalation quorum only if
+the first lifecycle REVIEW round records at least two countable reviewer
+problems.
 ```
 
 ## Validation Rules
@@ -450,14 +459,15 @@ TEST:
   - lattice validate checks verification coverage and evidence freshness
 
 DONE:
-  - existing decision-doc quorum gate detects changed
-    docs/requirements/decisions/*.md
-  - DONE blocks unless 3 distinct rounds x 2 distinct PASSing hosts are present
-    for the current decision-doc material digest
+  - decision-doc changes remain visible as governance/diagnostic material
+  - DONE requires 3 distinct rounds x 2 independent PASSing hosts only when
+    the first lifecycle REVIEW round has at least two countable reviewer
+    problems for the current material
 ```
 
 This plan must not add a second quorum implementation. It should consume the
-existing decision-doc quorum detector and DONE gate.
+unified review-escalation evaluator for DONE enforcement and keep any
+decision-doc change detector read-only for diagnostics and migration reporting.
 
 ## Process Fact Contract
 
@@ -474,8 +484,8 @@ Required registry updates in the implementation story:
 - `PROCESS_FACT_LEVELS`
   - proposal: L4 if `decision_doc_save` consumes it to write durable project
     policy; otherwise the save handler must not trust it as gate evidence.
-  - save: L4, category `decision-doc-promotion`, consumed by the existing
-    decision-doc quorum DONE gate through the changed file.
+  - save: L4, category `decision-doc-promotion`, visible to diagnostics and
+    reviewers; it must not make the changed file an always-on quorum trigger.
 - `process-fact-registry`
   - register proposal artifact if introduced, including digest/freshness
     semantics and the save-command consumer.
@@ -506,7 +516,8 @@ Reviewers should verify:
 - Verification requirements are explicit enough for a future story to test.
 - Generated Markdown is clear enough to be read without story history.
 - The save command wrote only the canonical decision doc path.
-- The existing decision-doc quorum gate became applicable when the doc changed.
+- The saved decision doc is treated as governance and diagnostic material, not
+  as an automatic DONE 3x2 trigger.
 - Local host verdict quorum is not described as Authority receipt completion.
 
 ## Implementation Phases
@@ -518,7 +529,7 @@ Inspect:
 - `decision_set` / `decision_get` handlers;
 - story store read/write conventions;
 - command policy and phase tools;
-- existing decision-doc quorum detector;
+- diagnostic decision-doc change detector;
 - story lifecycle docs;
 - process fact registry and verifier script;
 - existing docs execution-plan style.
@@ -592,15 +603,18 @@ Tests:
 
 ### Phase 5. Gate Integration Regression
 
-Do not add a new DONE gate. Instead prove that saved decision docs naturally
-trigger the existing one.
+Do not add a new DONE gate. Instead prove that saved decision docs flow through
+the unified review-escalation policy and do not create an always-on quorum
+trigger.
 
 Tests:
 
 - save a decision doc in a fixture story;
 - confirm changed files include `docs/requirements/decisions/<slug>.md`;
-- confirm DONE is blocked without 3x2 fresh host verdict quorum;
-- confirm DONE passes after valid quorum;
+- confirm DONE is not blocked solely because the decision doc changed;
+- confirm DONE is blocked without fresh 3x2 host verdict quorum only when the
+  first REVIEW round has at least two countable reviewer problems;
+- confirm DONE passes after valid quorum when that escalation trigger fired;
 - confirm stale digest, duplicate host, duplicate round, non-pass decision, and
   prose-only review pass do not satisfy quorum.
 
@@ -611,7 +625,8 @@ Update docs to explain:
 - `decision_set` is story-local evidence;
 - `decision_doc_proposal` is a controlled promotion request;
 - `decision_doc_save` writes durable project policy;
-- saved decision docs are protected by the existing 3x2 quorum gate;
+- saved decision docs are governance and diagnostic material; they do not by
+  themselves trigger DONE 3x2;
 - not every decision should become a decision doc.
 
 Potential docs:
@@ -643,8 +658,9 @@ Minimum tests for the implementation story:
 - Adversarial: only one alternative with no cons -> refused.
 - Regression: `decision_set` alone does not write a decision doc.
 - Regression: `decision_doc_proposal` alone does not write a decision doc.
-- Gate: `decision_doc_save` makes the existing decision-doc quorum gate
-  applicable before DONE.
+- Gate: `decision_doc_save` does not by itself make DONE require 3x2; DONE
+  escalation still depends on the first lifecycle REVIEW round having at least
+  two countable reviewer problems.
 - Authority boundary: local save/quorum cannot set Authority or production
   completion fields.
 
@@ -653,7 +669,8 @@ Minimum tests for the implementation story:
 1. Implement behind normal CLI command availability, not a feature flag.
 2. Keep first version path-fixed to `docs/requirements/decisions/*.md`.
 3. Ship with command help that warns against over-promotion.
-4. Let existing decision-doc quorum gate enforce multi-host review.
+4. Let the unified review-escalation gate enforce multi-host review only when
+   the first REVIEW round countable-problem threshold fires.
 5. After usage stabilizes, consider a separate story for configurable
    decision-doc directories.
 
@@ -674,9 +691,10 @@ Minimum tests for the implementation story:
   freshness is anchored by the reviewed proposal/source digests, not by a
   mandatory preview event.
 
-The core requirement is stable: durable project decisions need an explicit
-promotion path, and saved decision docs must remain protected by the existing
-3x2 host quorum DONE gate.
+These are implementation choices. The core requirement is stable: durable
+project decisions need an explicit promotion path, and saved decision docs must
+remain governance and diagnostic material unless the first REVIEW round
+countable-problem threshold triggers 3x2 review escalation.
 
 ## Acceptance Criteria
 
@@ -688,11 +706,10 @@ The future implementation is complete when:
 - developers can save the proposal only into
   `docs/requirements/decisions/*.md`;
 - invalid paths and accidental overwrites are refused;
-- target paths outside scope contract `allowedCreate`/`allowedModify` and
-  without a mechanically valid accepted/approved scope extension are refused;
-- missing, blank, and stale reviewed proposal/source-decision digest anchors
-  are refused;
-- saved decision docs trigger the existing decision-doc quorum DONE gate;
+- target paths outside PLAN scope or accepted scope extension are refused;
+- stale proposal/source-decision digests are refused;
+- saved decision docs remain diagnostic/governance material; DONE escalation
+  still depends on the first-round countable reviewer problem threshold;
 - process fact registry and contract verifier cover the new commands;
 - tests cover happy, edge, adversarial, and gate integration cases;
 - docs explain when to promote a decision and when not to;

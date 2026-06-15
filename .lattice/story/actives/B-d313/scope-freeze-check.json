@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d313",
+  "checkedAt": "2026-06-15T00:25:17.407Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "eea640c105e45271a72934f9abb3d9c55ef8f94aaaa25aa5f5e4d1d7ec3fd596",
+  "executionBoundaryHash": "cc203ac192373304522e041167f997c7d7a561a22f421b607fe275d89d4a074c",
+  "freshnessHash": "784b1075c93056229a1aaa96f83e95c0dcc9f4a515a7710c86692d73d75a19cf",
+  "effectiveExcludedKeywords": [
+    "Any product/behavior change to the stale-warning cooldown logic",
+    "Authority",
+    "Broadening the regex to be brand-agnostic instead of matching the exact Lattice header",
+    "Changing the CLI emit string in cli-engine.ts",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Touching any other test assertions or unrelated koala->Lattice strings"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any product/behavior change to the stale-warning cooldown logic",
+      "source": "scopeBoundary.excluded",
+      "text": "Any product/behavior change to the stale-warning cooldown logic",
+      "excluded": true
+    },
+    {
+      "keyword": "Broadening the regex to be brand-agnostic instead of matching the exact Lattice header",
+      "source": "scopeBoundary.excluded",
+      "text": "Broadening the regex to be brand-agnostic instead of matching the exact Lattice header",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the CLI emit string in cli-engine.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the CLI emit string in cli-engine.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "Touching any other test assertions or unrelated koala->Lattice strings",
+      "source": "scopeBoundary.excluded",
+      "text": "Touching any other test assertions or unrelated koala->Lattice strings",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9c5b2eb6ea97ebffad27e84c776d7b0aaeca772510b8327ea00cbf4ef0554f8c"
+}

@@ -1,0 +1,262 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "extract script exists, runs, non-empty output"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "output has translationId header + >=1 M-row"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "manifest rows (3) == cli-engine CJK lines (3); source-driven (767==767 at Phase 0, 3 post-translation)"
+ },
+ "CHK-001:happy:3": {
+  "pass": true,
+  "note": "behavior-sensitive rows: M668,M669,M750 (deferred matchers)"
+ },
+ "CHK-001:happy:4": {
+  "pass": true,
+  "note": "deferred rows carry English present in the plan doc"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "extract deterministic / idempotent"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "Phase-0 snapshot (f14689b54) included drifted rows M763-M767"
+ },
+ "CHK-001:edge:2": {
+  "pass": true,
+  "note": "current manifest review-draft/needs-rewrite rows = 0"
+ },
+ "CHK-001:edge:3": {
+  "pass": true,
+  "note": "Phase-0 commit touched 2 file(s), not cli-engine.ts: cli-engine-english-translation-manifest.md,extract-cli-engine-english-manifest.mjs"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "injecting a Chinese line increases row count by 1"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "deleting a Chinese line decreases row count by 1"
+ },
+ "CHK-001:adversarial:2": {
+  "pass": true,
+  "note": "extract errors when cli-engine.ts is missing"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "packages/main build exits 0"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "validate exits 0"
+ },
+ "CHK-002:happy:2": {
+  "pass": true,
+  "note": "lattice help Chinese chars: 0"
+ },
+ "CHK-002:happy:3": {
+  "pass": true,
+  "note": "per-command --help Chinese-free across 60 cmds; offenders: none"
+ },
+ "CHK-002:happy:4": {
+  "pass": true,
+  "note": "cli-engine.ts CJK lines = 3 (only M668/M669/M750)"
+ },
+ "CHK-002:happy:5": {
+  "pass": true,
+  "note": "build green"
+ },
+ "CHK-002:happy:6": {
+  "pass": true,
+  "note": "tasks with Chinese are compat smokes or gate-allowlisted pending-source: cli-engine-branding-smoke.ts,cli-json-stdout-contract-smoke.ts,extract.ts,validation-protocol-smoke.ts,worktree-authority-smoke"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "unknown-command output English"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "invalid-JSON error English"
+ },
+ "CHK-002:edge:2": {
+  "pass": true,
+  "note": "cli-engine.ts CJK = 3 (3 deferred)"
+ },
+ "CHK-002:edge:3": {
+  "pass": true,
+  "note": "command name strings unchanged vs main (222 -> 222)"
+ },
+ "CHK-002:edge:4": {
+  "pass": true,
+  "note": "Next: hint style present"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "re-extract reflects current state (3 rows == 3 CJK)"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "only 3 deferred CJK lines remain (no partial/mixed translation)"
+ },
+ "CHK-002:adversarial:2": {
+  "pass": true,
+  "note": "behavior-sensitive matcher lines byte-identical to main (3)"
+ },
+ "CHK-002:adversarial:3": {
+  "pass": true,
+  "note": "no CJK input-rejection; Chinese args handled as data (story_get with CJK id errors in English)"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "cli-engine.ts CJK = 3"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "Chinese comment lines = 0"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "build green"
+ },
+ "CHK-003:happy:3": {
+  "pass": true,
+  "note": "validate green"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "cli-engine.ts code skeleton (strings+comments blanked, template-expr code preserved) identical to main => only string/comment content changed, no logic; 117892 chars"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "comment meaning preserved (docs reviewer lane)"
+ },
+ "CHK-003:edge:2": {
+  "pass": true,
+  "note": "comment translation scoped to cli-engine.ts"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "Chinese TODO/FIXME/HACK markers = 0"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "no Chinese in string literals (only 3 deferred CJK lines)"
+ },
+ "CHK-004:happy:0": {
+  "pass": true,
+  "note": "gate file exists + compiles"
+ },
+ "CHK-004:happy:1": {
+  "pass": true,
+  "note": "gate passes clean (exit 0)"
+ },
+ "CHK-004:happy:2": {
+  "pass": true,
+  "note": "gate wired into package.json"
+ },
+ "CHK-004:edge:0": {
+  "pass": true,
+  "note": "allowlist includes plan doc"
+ },
+ "CHK-004:edge:1": {
+  "pass": true,
+  "note": "allowlist includes generated manifest"
+ },
+ "CHK-004:edge:2": {
+  "pass": true,
+  "note": "allowlist includes legacy/archive"
+ },
+ "CHK-004:edge:3": {
+  "pass": true,
+  "note": "allowlist includes compat tests"
+ },
+ "CHK-004:edge:4": {
+  "pass": true,
+  "note": "gate scans both packages + active docs"
+ },
+ "CHK-004:adversarial:0": {
+  "pass": true,
+  "note": "gate FAILS on Chinese in active source"
+ },
+ "CHK-004:adversarial:1": {
+  "pass": true,
+  "note": "gate FAILS on Chinese in active doc"
+ },
+ "CHK-004:adversarial:2": {
+  "pass": true,
+  "note": "gate PASSES on Chinese in allowlisted file"
+ },
+ "CHK-004:adversarial:3": {
+  "pass": true,
+  "note": "gate FAILS on new non-allowlisted file with Chinese"
+ },
+ "CHK-004:adversarial:4": {
+  "pass": true,
+  "note": "3 deferred M668/M669/M750 lines do not trip the gate"
+ },
+ "CHK-005:happy:0": {
+  "pass": true,
+  "note": "README.md Chinese-free"
+ },
+ "CHK-005:happy:1": {
+  "pass": true,
+  "note": "docs/guide.md Chinese-free"
+ },
+ "CHK-005:happy:2": {
+  "pass": true,
+  "note": "docs/guide-hooks.md Chinese-free"
+ },
+ "CHK-005:happy:3": {
+  "pass": true,
+  "note": "active decision docs with Chinese (excl allowlisted): 0"
+ },
+ "CHK-005:happy:4": {
+  "pass": true,
+  "note": "no purely-historical Chinese-only docs found; all active docs translated (archival not needed) — see summary"
+ },
+ "CHK-005:happy:5": {
+  "pass": true,
+  "note": "gate passes end-to-end after Phase 4"
+ },
+ "CHK-005:edge:0": {
+  "pass": true,
+  "note": "plan doc NOT retranslated (Chinese in chineseSource retained)"
+ },
+ "CHK-005:edge:1": {
+  "pass": true,
+  "note": "generated manifest NOT retranslated"
+ },
+ "CHK-005:edge:2": {
+  "pass": true,
+  "note": "archival N/A; active docs intact (build/gate pass)"
+ },
+ "CHK-005:edge:3": {
+  "pass": true,
+  "note": "internal doc links checked by docs reviewer lane"
+ },
+ "CHK-005:edge:4": {
+  "pass": true,
+  "note": "originally-English decision docs unchanged (only Chinese-bearing files touched)"
+ },
+ "CHK-005:adversarial:0": {
+  "pass": true,
+  "note": "code identifiers preserved in docs"
+ },
+ "CHK-005:adversarial:1": {
+  "pass": true,
+  "note": "koala documented as legacy alias"
+ },
+ "CHK-005:adversarial:2": {
+  "pass": true,
+  "note": "no mixed Chinese/English active docs: none"
+ },
+ "CHK-005:adversarial:3": {
+  "pass": true,
+  "note": "build + validate green after Phase 4"
+ }
+}

@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-1550:RP-001",
+      "agent": "koala-review-docs",
+      "note": "PASS docs review: new decision document is English-only, consistent with existing decision-doc quorum wording, explicitly frames local host verdict quorum as local workflow evidence, and avoids claiming Authority Server receipt completion or authorityDone/fullAuthorityDone/receiptVerified/productionDone.",
+      "createdAt": "2026-06-14T23:00:03.994Z",
+      "reviewRound": "2026-06-14T22:58:14.585Z",
+      "reviewRunId": "B-1550:RR-003",
+      "_hash": "773970ff49b5b103f8a9389047176d89c06b1e1a5325011669e55cefc234af91"
+    },
+    {
+      "id": "B-1550:RP-002",
+      "agent": "koala-review-quality",
+      "note": "F-002 is resolved: the plan now states review_escalation_status is read-only, must not write review-escalation.json, and persisted diagnostics belong to DONE gate evaluation or a separate mutating review_escalation_snapshot-style command. I found no remaining clarity or internal-consistency blocker in the reviewed sections.",
+      "createdAt": "2026-06-14T23:08:30.973Z",
+      "reviewRound": "2026-06-14T23:04:58.714Z",
+      "reviewRunId": "B-1550:RR-008",
+      "_hash": "2a7468cbafd13fe4bfe1b7c916416721cc43dc0a4a423bbced28fc8f0da66c5d"
+    },
+    {
+      "id": "B-1550:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md is English/ASCII, states the plan is non-implementing and not Authority Server receipt completion, keeps local host verdict quorum separate from authorityDone/fullAuthorityDone/receiptVerified/productionDone, and is consistent after the signature and review_escalation_status/review_escalation_snapshot changes.",
+      "createdAt": "2026-06-14T23:11:13.688Z",
+      "reviewRound": "2026-06-14T23:04:58.714Z",
+      "reviewRunId": "B-1550:RR-009",
+      "_hash": "08e64773c3152d7436a11f73879e68bd8c28a84d35ce1f2e4ba71559741f616b"
+    },
+    {
+      "id": "B-1550:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass after F-003 fixes: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md now requires every counted local host_verdict to carry a canonical payload signature verified before counting, includes head/material/validation/prompt/artifact binding in the signed payload, rejects missing/invalid/mismatched or material-weak signatures, keeps local verdicts separate from Authority completion flags, and routes gate-consumed facts through shared predicates plus process-fact registry/contract verification. No new concept or governance blocker found.",
+      "createdAt": "2026-06-14T23:11:14.316Z",
+      "reviewRound": "2026-06-14T23:04:58.714Z",
+      "reviewRunId": "B-1550:RR-006",
+      "_hash": "8cda63b6179fc063a4bd5d7a7bbf39e75a2c89228bf7650d9088138aeef4b7d3"
+    },
+    {
+      "id": "B-1550:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "F-004 resolved: CHK-001 verificationEvidence intentRef B-1550:F-004 uses five independent anchored rg -q clauses joined by && for ^## Proposed Artifacts$, ^## Proposed CLI Surface$, ^## File-Level Execution Plan$, ^## Rollout Plan$, and ^## Acceptance Criteria$; running that exact conjunctive command in the worktree exits 0, so each required section is mechanically required.",
+      "createdAt": "2026-06-14T23:15:50.467Z",
+      "reviewRound": "2026-06-14T23:13:48.422Z",
+      "reviewRunId": "B-1550:RR-013",
+      "_hash": "a1910bcb716dc5437f92cbe97dc0ae96c0485ca6ba41d2da937eca31c63fccce"
+    },
+    {
+      "id": "B-1550:RP-006",
+      "agent": "koala-review-concept",
+      "note": "No concept/governance blocker in current material. The plan preserves the default REVIEW path and decision-doc always-on 3x2 rule, keeps final quorum enforcement at DONE to avoid stale review, separates read-only review_escalation_status from DONE/snapshot persistence, requires canonical local host_verdict payload signatures with key/material binding before quorum counting, and keeps local host verdict quorum separate from Authority receipt completion. Checked docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:12,68,172,194,241,274,301,419,631 and related lifecycle/receipt docs.",
+      "createdAt": "2026-06-14T23:16:22.154Z",
+      "reviewRound": "2026-06-14T23:13:48.422Z",
+      "reviewRunId": "B-1550:RR-010",
+      "_hash": "2deaffdf2d07aee26c0fcb0a9c6e4c818e4bf7833053f098c116df352cdc34f2"
+    },
+    {
+      "id": "B-1550:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: final changed Markdown is English/ASCII and consistent. perl non-ASCII checks over .lattice/story/actives/B-1550/plan.md and docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md returned no output; git diff --check for changed markdown returned no output. Authority wording remains evidence-only: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:27 says the plan does not claim Authority Server receipt completion, lines 297-299 separate Authority-backed verdicts from local workflow evidence and forbidden flags, and lines 650-697 repeat that local quorum is not Authority receipt or production completion.",
+      "createdAt": "2026-06-14T23:16:42.465Z",
+      "reviewRound": "2026-06-14T23:13:48.422Z",
+      "reviewRunId": "B-1550:RR-011",
+      "_hash": "27c4cc3334dc66dedd09f3026146ca89e28c8bdcbefccd901aa0167a5f80820a"
+    },
+    {
+      "id": "B-1550:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Quality review after F-002 fix: current plan consistently separates read-only review_escalation_status from persisted DONE/snapshot artifact, keeps ordinary REVIEW/default trigger/decision-doc always-on rules coherent, and leaves no quality/internal-consistency blocker.",
+      "createdAt": "2026-06-14T23:16:55.418Z",
+      "reviewRound": "2026-06-14T23:13:48.422Z",
+      "reviewRunId": "B-1550:RR-012",
+      "_hash": "53afc7b8d70ea0a3fcc59f9a9432138d32adb763479f64b0a28a57e57058e09a"
+    }
+  ]
+}

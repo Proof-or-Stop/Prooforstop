@@ -1,5 +1,5 @@
 /**
- * Init Check handler — koala init_check_set command shell + metadata lock.
+ * Init Check handler — lattice init_check_set command shell + metadata lock.
  *
  * The signature/gate primitives (INIT_CHECK_SALT, REQUIRED_INIT_CHECK_AGENTS,
  * normalize/match/results helpers, missingRequiredInitCheckAgents,
@@ -91,7 +91,7 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
 /**
  * init_check_set handler factory.
  *
- * Called by the koala-review-story-init subagent (CHK-002 template); writes init-check.json.
+ * Called by the lattice-review-story-init subagent (CHK-002 template); writes init-check.json.
  * Does not validate the caller's agentId (EXP-001 has falsified the mechanical distinguishability between subagent and main agent from the CLI perspective);
  * agentId is passed through purely as a reviewer-self-reported audit field. Anti-self-exemption relies on three layers: (1) the signature mechanism +
  * (2) the reviewer template fence + (3) CLAUDE.md behavioral conventions (same architecture as the landed B-ed3e scope-check).
@@ -188,7 +188,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
     /**
      * init_check_repair — B-95d8 CHK-001 explicit, auditable INIT_CHECK fallback.
      *
-     * For environments that cannot spawn the koala-review-story-init / product-reviewer
+     * For environments that cannot spawn the lattice-review-story-init / product-reviewer
      * subagents (no init reviewer available). Produces a SIGNED init-check.json that
      * `canEnterInitCheck` / `getGuardFailureReason` accept — WITHOUT weakening the gate:
      *
@@ -223,7 +223,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       if (args.acknowledge !== true) {
         throw new Error(
           'init_check_repair: refused — this fallback bypasses the independent INIT reviewer and is disabled by default. ' +
-          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of koala-review-story-init / product-reviewer.',
+          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of lattice-review-story-init / product-reviewer.',
         );
       }
       const reason = (args.fallbackReason ?? '').trim();
@@ -345,7 +345,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
           const lines = blockers.slice(0, 8).map(({ issue }) => `  - ${issue.severity} ${issue.id ? `${issue.id} ` : ''}${issue.desc}`);
           return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n⚠ but high/critical issues were recorded, the INIT_CHECK gate will still block. Please fix them and rerun first:\n${lines.join('\n')}${commitHint}`;
         }
-        return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n→ You can now run koala story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
+        return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n→ You can now run lattice story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
       });
     },
   };
