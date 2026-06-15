@@ -4,7 +4,7 @@
   "title": "Document degraded one-host fallback for 3x2 review escalation",
   "description": "Update the 3x2 review escalation execution plan to allow an honest degraded 3-round x 1-host fallback when a second host is unavailable, unauthenticated, rate-limited, or out of credits, while preserving 3x2 as the default and recording the degraded assurance level explicitly.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-06-15T01:58:31.599Z",
   "startedAt": "2026-06-15T01:58:31.599Z",
@@ -46,6 +46,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-15T02:14:06.912Z",
+      "branch": "story/B-d959",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:16:43.484Z",
       "branch": "story/B-d959",
       "user": "Harmonygo",
       "agent": "main"

@@ -90,8 +90,17 @@ host-independence predicate it uses.
 ### Degraded Single-Host Fallback Rule
 
 Full 3x2 remains the default and preferred quorum. A story that requires 3x2 may
-use degraded single-host review only when a second host is demonstrably
-unavailable and project policy allows the fallback.
+use degraded single-host review only through one of two explicit eligibility
+paths:
+
+1. `unavailable-second-host`: a second host was attempted or probed and is
+   unavailable because of credits, auth, runtime, outage, or rate limits.
+2. `approved-single-host-local`: the user or project policy explicitly approves
+   single-host local review for this story even though it does not prove
+   second-host unavailability.
+
+Both paths require project policy to allow degraded review for the story's risk
+class. Neither path is equivalent to two-host independence.
 
 The degraded fallback is:
 
@@ -111,8 +120,9 @@ Allowed fallback reasons are:
 
 The fallback must be explicit. It must not be inferred from a missing verdict,
 timeout, or convenience preference alone. The evaluator must record the fallback
-reason, the attempted host or provider, the observed unavailable condition when
-available, and the user/project policy that permits single-host degraded review.
+reason, the eligibility path, the attempted host or provider when the path is
+`unavailable-second-host`, the observed unavailable condition for that path, and
+the user/project policy that permits single-host degraded review.
 
 Degraded single-host review must never be reported as "3x2 passed", "two-host
 independent", or Authority receipt completion. It may unblock local lifecycle
@@ -203,7 +213,8 @@ Version 1 allows degraded quorum only as:
 3 quorum rounds
 AND each quorum round has at least 1 PASS host verdict
 AND every counted verdict is bound to current head/material/validation evidence
-AND second-host unavailability is proven or explicitly user-approved
+AND fallback eligibility is either unavailable-second-host or
+    approved-single-host-local
 AND the result is reported as degraded-single-host
 ```
 
@@ -334,11 +345,13 @@ When degraded review is used, the artifact must set:
 
 ```json
 {
-  "requiredAssurance": "degraded-single-host",
-  "assuranceLevel": "degraded-single-host",
+  "requiredAssurance": "two-host",
+  "effectiveAssurance": "degraded-single-host",
+  "achievedAssurance": "degraded-single-host",
   "quorumMode": "degraded-3x1",
   "degradedFallback": {
     "allowed": true,
+    "eligibilityPath": "unavailable-second-host",
     "reason": "second-host-credit-exhausted",
     "evidenceRefs": ["host_runtime_probe:claude-code:credit-exhausted"],
     "approvalRef": "user-approved:B-xxxx:2026-06-15"
@@ -348,7 +361,9 @@ When degraded review is used, the artifact must set:
 
 The words `full-3x2`, `two-host`, and `degraded-single-host` should be stable
 machine-readable values so downstream status commands and delivery summaries do
-not blur the assurance level.
+not blur the assurance level. `requiredAssurance` records the original policy
+target; `effectiveAssurance` records the gate path actually accepted for this
+story; `achievedAssurance` records what the evidence proves.
 
 ### Host Verdict Process Event
 
@@ -525,14 +540,24 @@ the degraded fallback:
 degradedAllowed = projectPolicy.allowsDegradedSingleHost
                   OR explicitUserApprovalForThisStory
 
+fallbackEligibility =
+  unavailableSecondHostEvidencePresent
+  OR explicitSingleHostLocalApprovalPresent
+
 degradedPass =
   degradedAllowed
   AND allowedFallbackReason
-  AND unavailableSecondHostEvidencePresent
+  AND fallbackEligibility
   AND validSingleHostRounds.length >= 3
   AND every counted single-host round has >=1 PASS host
   AND every counted verdict is fresh for current material
 ```
+
+`unavailableSecondHostEvidencePresent` is required only for the
+`unavailable-second-host` path. `explicitSingleHostLocalApprovalPresent` is the
+required evidence for the `approved-single-host-local` path. The two paths must
+be reported separately so implementation cannot silently treat user approval as
+proof that a second host was unavailable.
 
 The evaluator result must distinguish:
 
