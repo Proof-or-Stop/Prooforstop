@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bfb5",
+  "changes": "Reduced Lattice agent prompt token overhead by replacing repeated full guide snapshots in large agent templates with a compact load-bearing prompt slice, added prompt-token-cost smoke coverage, strengthened prompt registry mirror checks, and added opt-in slim/fields output for story_get and checklist_get while preserving default output compatibility.",
+  "usage": "Run node packages/main/dist/tasks/prompt-token-cost-smoke.js to see measured byte/token deltas. Use lattice story_get --storyId=B-xxx --slim --fields='[\"story\",\"checklist\"]' --json or lattice checklist_get --storyId=B-xxx --slim --fields='[\"counts\"]' --json for compact inspection; omit slim to keep existing full output.",
+  "expectedOutcome": "Agent templates no longer repeat 50KB+ full guide snapshots, required Lattice flow and Authority safety phrases remain present, mirrors stay consistent for Claude and Codex, slim read output is materially smaller, and local validation passes without claiming Authority Server completion.",
+  "actualTranscript": "prompt-token-cost-smoke passed and reported package templates 632687 B (~158172 tok) to 115317 B (~28830 tok), delta 517370 B (~129343 tok). prompt-registry-smoke passed for 16 agents. verify_codex passed 7/7. story_get default was 35881 bytes and slim story/checklist/review/initCheck output was 830 bytes. lattice validate --story=B-bfb5 --json passed with 15/15 verificationIntent coverage.",
+  "outcomeDiff": "Actual matched expected. Token values are approximate bytes/4 prompt/context estimates, not proven provider billing savings. flow-stability-smoke still fails on clean main at assertProductionHelperPassesProjectRootToClassifier and is recorded as unrelated baseline debt, not a B-bfb5 regression.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local Non-authority completion only; no Authority Server receipt-backed completion, receiptVerified, productionDone, authorityDone, or fullAuthorityDone claim. Provider prompt-cache billing behavior remains unverified.",
+  "pitfalls": "summary_set requires flag arguments rather than a JSON object. CHK-005 deferred evidence correctly blocked TEST until delivery_check_set and verification_evidence_batch_add replaced it with real evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 483641
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11584
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 591865
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 877244
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 600115
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 74129
+    }
+  },
+  "totalDurationMs": 2638641,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T11:12:54.631Z",
+  "updatedAt": "2026-06-15T11:12:54.631Z"
+}
