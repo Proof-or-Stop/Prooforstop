@@ -1,0 +1,68 @@
+{
+  "storyId": "B-3010",
+  "checkedAt": "2026-06-15T12:12:52.230Z",
+  "reviewRound": "2026-06-15T12:05:16.529Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "promise": "Story B-3010 covers the first split: a read-only runtime-owned agent asset inventory and doctor/adapter projection, with stale/matching/override classification and no repair or deletion behavior.",
+      "status": "verified",
+      "verifiedBy": "source diff + runtime-owned-agent-assets-smoke + transcript-diff",
+      "evidence": "Added packages/main/src/core/agent-asset-resolution.ts, Codex adapter and rollout read-only probes, and runtime-owned-agent-assets-smoke. Smoke passed and transcript records stale detection without file rewrite."
+    },
+    {
+      "docPath": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+      "promise": "Prompt token accounting remains approximate local byte/token evidence only; provider billing token usage and prompt-cache billing are not claimed.",
+      "status": "verified",
+      "verifiedBy": "prompt-token-cost-smoke + transcript-diff",
+      "evidence": "prompt-token-cost-smoke passed and printed provider billing tokens are unavailable; transcript records providerBillingTokens=unavailable and B-bfb5 savings preserved."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "promise": "Local runtime-owned prompt rendering remains local Non-authority evidence and must not claim receiptVerified, productionDone, authorityDone, or fullAuthorityDone without Authority Server receipt verification.",
+      "status": "verified",
+      "verifiedBy": "source scan + runtime smoke assertion + session_brief evidence",
+      "evidence": "AgentAssetResolution authorityBoundary is localNonAuthorityAudit; runtime-owned smoke asserts forbidden authority completion fields are absent; grep found authority terms only in negative boundary language or smoke assertions."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "build",
+      "transcript": "PASS: npm --prefix packages/main run build completed with tsc exit 0."
+    },
+    {
+      "featureId": "CHK-001/CHK-003",
+      "transcript": "PASS: node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js printed PASS runtime-owned-agent-assets-smoke promptRegistryHash=6e42c247be24625d0427f6d72dedcb8a968f3d994c4118dc93ce22f32097cb0b approximateTokens=73027 providerBillingTokens=unavailable."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS: node packages/main/dist/tasks/prompt-token-cost-smoke.js preserved the B-bfb5 reductions, total current 115559 B (~28890 tok), delta 517128 B (~129282 tok), and printed the provider billing unavailable caveat."
+    },
+    {
+      "featureId": "prompt-registry-smoke",
+      "transcript": "PASS: node packages/main/dist/tasks/prompt-registry-smoke.js printed prompt registry smoke passed: 16 agents rendered for claude and codex."
+    },
+    {
+      "featureId": "codex-rollout-smokes",
+      "transcript": "PASS: codex-registry-mode-smoke, thin-init-assets-smoke, and rollout-check-smoke all passed on this worktree after the fresh build."
+    },
+    {
+      "featureId": "verify_codex",
+      "transcript": "PASS evidence exists from the owner session: session_brief DONE pre-check reports Codex adapter evidence passing: Codex adapter checks passed (8/8 pass). Reviewer rerun attempts were refused by the active owner lease, which is a coordination guard rather than an implementation failure.",
+      "waiverReason": "Reviewer rerun was blocked by the active same-worktree owner lease; the delivery review relied on the fresh recorded owner-session Codex adapter PASS evidence instead."
+    },
+    {
+      "featureId": "validate",
+      "transcript": "PASS evidence exists from the owner session: session_brief reports Last test run 2026-06-15T12:08:43.502Z PASS and DONE pre-check Test evidence PASS with verification coverage 15/15. Reviewer rerun attempt was refused by the active owner lease.",
+      "waiverReason": "Reviewer rerun was blocked by the active same-worktree owner lease; the delivery review relied on the fresh recorded owner-session lattice validate PASS evidence instead."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery acceptable: implementation is scoped to read-only runtime-owned agent asset inventory/projection, docs promises are either met or explicitly unchanged, real-machine smokes pass, recorded validate and verify_codex evidence are fresh, and no local evidence overclaims Authority completion."
+  },
+  "_hash": "f1258c7905130e2409754e0f4fdea9e51027eb943d7b98ec4e4a1bf4a9890a0d"
+}
