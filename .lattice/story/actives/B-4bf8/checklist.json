@@ -323,6 +323,38 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc requires BOTH raw provider units AND a normalized canonical view {input, output, cacheCreation, cacheRead} -> grep for canonical or normalized and raw or provider-specific; WHY: resolves the tension between fidelity and cross-source summaries",
+            "type": "cli"
+          },
+          {
+            "desc": "doc includes explicit mapping rules for how each providers cache/cached-token fields map to the canonical cache fields -> grep for mapping or map; WHY: without mapping rules, normalization is unimplementable",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "canonical view uses {input, output, cacheCreation, cacheRead} (four fields matching CHK-001) not a different set -> grep for canonical field names; WHY: catch inconsistency between CHK-001 four-field model and CHK-007 canonical names",
+            "type": "cli"
+          },
+          {
+            "desc": "provider adapter extraction touchpoint (existing section 2) is consistent with new dual-view requirement -> grep Implementation Touchpoints section 2 for canonical or raw; WHY: catch contradiction between existing touchpoint and new requirement",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for any statement that discards raw provider units in favor of only the canonical view -> must be absent; WHY: adversarial check that raw fidelity is not lost despite normalization",
+            "type": "cli"
+          },
+          {
+            "desc": "JSON example includes both raw provider units (e.g., billableUnits or provider-specific block) and canonical fields -> grep example for both; WHY: catch prose-updated-but-example-not showing only one view",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
