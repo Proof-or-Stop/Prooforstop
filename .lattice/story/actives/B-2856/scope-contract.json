@@ -18,7 +18,21 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "All part of the cwd-routing fix: verifier.ts + review-preflight.ts are the handler ENTRIES where authoritativeCwd is resolved and threaded into the channel/concept readers (the chosen approach); package.json files wire the gitroot-cwd-routing smoke into the test suite; evidence/ holds the acceptance verifier.",
+      "timestamp": "2026-06-15T22:06:58.941Z",
+      "paths": [
+        ".lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+        ".lattice/story/actives/B-2856/evidence/verify-result.json",
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/handlers/review-preflight.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-15T22:06:39.416Z",
-  "updatedAt": "2026-06-15T22:06:39.416Z"
+  "updatedAt": "2026-06-15T22:06:58.941Z"
 }
