@@ -36,7 +36,14 @@
       "context": "In 'Usage Source Semantics' and the Estimate path, require prompt-size-estimate to prefer the provider's count_tokens endpoint (model-version-specific — counts differ across model versions), falling back to local tokenizer then bytes/chars only when offline. Record estimator confidence high|medium|low accordingly and require the estimate to be tied to the exact provider.model.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-004",
