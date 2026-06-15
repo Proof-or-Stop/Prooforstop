@@ -105,6 +105,24 @@
         "packages/main/src/core/runtime-fact-registry.ts",
         ".codex/hooks/lattice-scope-pretool.cjs"
       ]
+    },
+    {
+      "id": "B-6351:F-006",
+      "desc": "Test-coverage cannot pass because B-6351 verification evidence is incomplete and one touched verifier is failing. CHK-001:edge:1 (lattice.config.json behavior continues to work) has no verificationEvidence intentRef at all. Also `node scripts/verify-session-brief-command-center.mjs` fails with `Error: session_brief missing reviewer role` at scripts/verify-session-brief-command-center.mjs:33, even though session-brief prompt sync is a changed test surface called out for this story. I reran runtime-fact contract, entrypoints, Codex assets, lattice-only absence smoke, CLI product/help absence, and package/bin absence; those passed, so this finding is scoped to missing edge evidence and the red session-brief verifier.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-15T03:22:42.851Z",
+      "reviewRound": "2026-06-15T03:18:38.436Z",
+      "reviewRunId": "B-6351:RR-005",
+      "_hash": "7b16078384c349d712699b0e6f9736bc7f4453b0d37c4513f4f8394d5d770aa8",
+      "files": [
+        "scripts/verify-session-brief-command-center.mjs",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+        "packages/main/package.json"
+      ]
     }
   ]
 }
