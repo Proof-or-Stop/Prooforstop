@@ -170,6 +170,46 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc specifies storyId=null for non-story calls (global validate, daemon) and explicitly states they are NOT dropped -> grep for storyId and null; WHY: non-story usage must still be recorded",
+            "type": "cli"
+          },
+          {
+            "desc": "doc describes subagent/nested call propagation of parent storyId plus subagent/thread id -> grep for subagent or nested or propagat; WHY: ensures nested calls are traceable to parent story",
+            "type": "cli"
+          },
+          {
+            "desc": "doc adds role or agentType field (implementer|reviewer|main or similar) -> grep for role or agentType; WHY: enables per-story breakdown by role",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies storyId/phase captured at preflight (call time) from active lease/session context -> grep for preflight or call time in attribution context; WHY: prevents post-hoc attribution errors",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "JSON example block includes storyId field (already present) and now also includes role/agentType field -> grep JSON example for agentType or role; WHY: catch prose-updated-but-example-not inconsistency",
+            "type": "cli"
+          },
+          {
+            "desc": "subagent propagation specifies a subagentId or threadId field in the record -> grep for subagentId or threadId; WHY: without an id field, subagent propagation is unimplementable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for any statement that drops or filters out storyId=null records -> must be absent; WHY: adversarial check that null-story records are not silently excluded from summaries",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for storyId in Validation/Smoke Plan -> must assert null-storyId recording and subagent propagation; WHY: catch stale Validation section that does not test the new attribution rules",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
