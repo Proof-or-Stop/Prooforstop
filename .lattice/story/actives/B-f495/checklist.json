@@ -98,7 +98,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The final audit disposition is recorded in the document with accepted findings, required fixes, and implementation follow-up guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document explains that implementation should run as a separate Lattice story and follow ordinary REVIEW plus automatic 3x2/degraded 3x1 escalation when triggered.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The audit result does not mutate unrelated active story B-acec and does not rely on lattice audit writing B-META findings for this document review.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
