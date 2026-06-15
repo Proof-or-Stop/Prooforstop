@@ -133,7 +133,20 @@
         "test": [
           "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (a): out-of-scope tsconfig with package node_modules absent -> reported '[lint] skipped: <rel> (out of scope, deps absent)' instead of TS2307 hard fail (packageHasNodeModules via injected FileExists).",
+          "headHash": "7a5bf2f18dda3715998367700e16ab7424e5b302",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:48.922Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
