@@ -1,0 +1,55 @@
+{
+  "storyId": "B-d313",
+  "changes": "Updated the two stale-warning assertions in packages/main/src/tasks/field-regression-cli-smoke.ts (lines 1894 assert.match and 1906 assert.doesNotMatch) from /koala stale state warnings/ to /Lattice stale state warnings/, matching the rebranded CLI header emitted at cli-engine.ts:3657.",
+  "usage": "Run `npm run test:field-regression-cli-smoke`; the suite now runs to completion instead of aborting in assertStaleWarningCooldownCliSurface.",
+  "expectedOutcome": "`npm run test:field-regression-cli-smoke` prints '✓ field regression CLI smoke passed' and exits 0, with no AssertionError about /koala stale state warnings/.",
+  "actualTranscript": "Observed: '> node dist/tasks/field-regression-cli-smoke.js' followed by '✓ field regression CLI smoke passed', exit code 0. lattice validate passed with 9/9 verification intent coverage; all 3 REVIEW lanes passed with no findings; delivery-check signed.",
+  "outcomeDiff": "No gap. Before: suite threw 'AssertionError ... did not match /koala stale state warnings/' and aborted. After: suite reaches the final pass line and exits 0, exactly matching the expected outcome.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. Scope was deliberately limited to the two stale-warning assertions; unrelated 'koala' references at :609 (review_run_start hint) and :1871 (temp-dir prefix) were intentionally left untouched.",
+  "pitfalls": "The dist/ build must be regenerated (npm --prefix packages/main run build) for the test to pick up the source change, since the test runner executes the compiled dist/tasks/field-regression-cli-smoke.js. Keep the regex brand-specific (do not relax to /stale state warnings/) so it continues to guard header drift.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 172027
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 64391
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 510584
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 266752
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 145075
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 288796
+    }
+  },
+  "totalDurationMs": 1447632,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T00:46:33.367Z",
+  "updatedAt": "2026-06-15T00:46:33.367Z"
+}
