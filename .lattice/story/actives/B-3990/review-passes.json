@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-3990:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. The change is purely additive: (1) verifier.ts import line extended to add evaluateStoryDirConfigInsideGitRoot alongside the existing resolveGitCwd (resolveGitCwd not deleted, still used for the --story branch at line 605); (2) the only removed line is the literal value fallback `projectRoot` replaced by the resolver expression; (3) a new task file bare-gate-gitroot-cwd-smoke.ts was added. evaluateStoryDirConfigInsideGitRoot is already exported from story-signed-workspace-resolution.ts and was already consumed by doctor.ts, session.ts, story-create.ts, and task files prior to this story. No named symbol was deleted or replaced en masse. Concept residue check completed: zero blocker.",
+      "createdAt": "2026-06-15T23:36:56.436Z",
+      "reviewRound": "2026-06-15T23:36:08.742Z",
+      "reviewRunId": "B-3990:RR-001",
+      "_hash": "bc5f1a491461421f7a3a262cfba3be52249b5d28743317ff85c10fad25202530"
+    }
+  ]
+}
