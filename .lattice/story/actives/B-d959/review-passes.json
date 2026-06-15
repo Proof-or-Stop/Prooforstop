@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-15T02:18:31.855Z",
       "reviewRunId": "B-d959:RR-005",
       "_hash": "127878737b36a079c63e6de32e79ab84cfafc1aabbd7085e41975470d20a7abd"
+    },
+    {
+      "id": "B-d959:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: verification coverage remains complete after B-d959:F-001. lattice validate reports 6/6 verificationIntent covered and npm test passed. The decision doc covers both degraded eligibility paths (unavailable-second-host and approved-single-host-local), allowed reason codes, lower assurance/degraded-single-host reporting, no silent downgrade or fabricated unavailability, and separation from Authority receipt/full 3x2 claims via artifact fields, evaluator rules, completion criteria, transcript expectations, and degraded fallback negative tests.",
+      "createdAt": "2026-06-15T02:20:46.952Z",
+      "reviewRound": "2026-06-15T02:18:31.855Z",
+      "reviewRunId": "B-d959:RR-007",
+      "_hash": "e658f661d3405a6fcf4d42330e07f072f0272a15b4b55f6ac0e77336a9b570c3"
     }
   ]
 }
