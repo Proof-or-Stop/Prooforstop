@@ -170,9 +170,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T03:02:34.535Z",
       "userSees": "User sees done-preflight-smoke pass with explicit coverage for post-DONE main movement and active TEST stale-evidence blocking.",
       "files": {
         "modify": [],
@@ -262,6 +262,15 @@
       "from": "pending",
       "to": "done",
       "reason": "DONE oracle implemented: phase DONE uses recorded evidence snapshot while active non-DONE freshness remains strict."
+    },
+    {
+      "timestamp": "2026-06-15T03:02:34.535Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "done-preflight-smoke regression coverage added and validate reports 9/9 coverage."
     }
   ]
 }
