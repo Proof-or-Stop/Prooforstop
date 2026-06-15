@@ -56,7 +56,27 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Necessary active-surface naming cleanup after CHK-004 expanded from role IDs to verifier/config/test vocabulary; covered by execution plan update, focused scans, build, flow, validation protocol, and contract verification evidence.",
+      "timestamp": "2026-06-15T16:22:01.106Z",
+      "paths": [
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "scripts/verify-dev-memory.mjs",
+        "scripts/verify-entrypoints.mjs",
+        "scripts/verify-init-check-bootstrap.mjs",
+        "scripts/verify-product-reviewer.mjs",
+        "scripts/verify-runtime-reviewer-contract.mjs",
+        "scripts/verify-worktree-baseline-risk.mjs"
+      ]
+    }
+  ],
   "createdAt": "2026-06-15T16:20:23.171Z",
-  "updatedAt": "2026-06-15T16:20:23.171Z"
+  "updatedAt": "2026-06-15T16:22:01.106Z"
 }
