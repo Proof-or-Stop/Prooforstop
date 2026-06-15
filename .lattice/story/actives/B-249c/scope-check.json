@@ -1,0 +1,52 @@
+{
+  "storyId": "B-249c",
+  "checkedAt": "2026-06-15T02:56:23.878Z",
+  "features": [
+    {
+      "feature": "DONE story historical freshness projection",
+      "covered_by": "CHK-001 reproduces post-DONE freshness drift in an isolated temp fixture; CHK-002 implements phase=DONE comparison against evidence.headHash material tree; plan CHK-002 chosen behavior compares DONE evidence.materialHash against currentMaterialHash(root, evidence.headHash).",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/plan_get"
+    },
+    {
+      "feature": "active TEST freshness remains strict",
+      "covered_by": "CHK-002 edge requires non-DONE stories use current HEAD/materialHash and block stale active evidence; CHK-003 edge proves active TEST evidence still fails after material changes; decision preMortem mitigates accidental application to non-DONE phases.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/decision_get/plan_get"
+    },
+    {
+      "feature": "regression coverage in done-preflight-smoke",
+      "covered_by": "CHK-001 files.test includes packages/main/src/tasks/done-preflight-smoke.ts; CHK-003 requires node packages/main/dist/tasks/done-preflight-smoke.js with post-DONE main movement regression; plan CHK-003 commands include build and done-preflight-smoke.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/plan_get"
+    },
+    {
+      "feature": "Authority semantics excluded / unchanged",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraint says Do not change Authority Server receipt semantics; decision preMortem preserves done_closure authorityServerPath receiptVerified=false unless receipts exist; plan non-goal says Do not alter Authority receipt or productionDone semantics; CHK-003 adversarial forbids Authority Server receipt completion claims.",
+      "source": "understanding_get/decision_get/plan_get/checklist_get"
+    },
+    {
+      "feature": "unrelated active stories excluded / untouched",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 edge says production DONE stories B-a57f/B-22b0 are not mutated and an isolated temp repo fixture is used; plan CHK-001 acceptance says existing stories B-a57f/B-22b0 are not rewritten; touchpoints are limited to done-oracle.ts and done-preflight-smoke.ts.",
+      "source": "checklist_get/understanding_get/plan_get"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d3d7e37d67d609b7498b0ea58c46a3111b2e4902dffab2969265c9376350551c",
+  "openQuestions": []
+}
