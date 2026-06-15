@@ -451,6 +451,41 @@ Rules:
 - Because the total is derived, it always reflects the current set of token
   fields and cannot fall out of sync with the cache-token accounting.
 
+## Multi-Provider Normalization
+
+Providers report usage with different field names and unit semantics. Two goals
+are in tension: preserving provider-specific fidelity (so nothing is lost or
+misinterpreted) and producing cross-source summaries (so usage across providers
+can be compared). The plan resolves the tension by requiring BOTH views on every
+provider-reported record, not one or the other:
+
+- `usage.raw`: the raw provider units and a provider usage `payloadDigest`,
+  preserving provider-specific meaning. The raw view is never discarded in favor
+  of the canonical view; canonical is additive, not a replacement.
+- `usage.canonical`: a normalized canonical view with exactly four fields
+  `{input, output, cacheCreation, cacheRead}`, matching the four-field token
+  model. Cross-source summaries read the canonical view so providers are
+  comparable.
+
+Mapping rules (provider cache/cached-token fields to canonical cache fields):
+
+- Each provider adapter must declare an explicit mapping from its reported usage
+  fields to the canonical `{input, output, cacheCreation, cacheRead}` fields. The
+  mapping must be explicit and reviewable, never implicit.
+- Anthropic-shaped providers map `input_tokens -> input`,
+  `output_tokens -> output`, `cache_creation_input_tokens -> cacheCreation`, and
+  `cache_read_input_tokens -> cacheRead`.
+- Providers that report only a single "cached tokens" figure (cache reads, with
+  no separate write count) map that figure to `cacheRead` and set
+  `cacheCreation` according to what the provider actually reports; a value the
+  provider does not report must not be inferred (see the provider-reported
+  constraint on never inferring `0`).
+- Providers that do not expose cache tokens at all map `cacheCreation` and
+  `cacheRead` to unavailable for that dimension rather than a silent `0`, while
+  still mapping `input` and `output`.
+- `canonical.input` follows the same uncached-remainder semantics as
+  `inputTokens`: it is the uncached input only, not the gross input.
+
 ## Local Non-authority Boundary
 
 The local ledger belongs to ordinary Lattice workflow. It is a diagnostic and
@@ -514,7 +549,12 @@ Future implementation should be split into narrow slices:
 2. Provider adapter extraction:
    - map each provider's reported usage into the shared `provider-reported`
      shape;
-   - preserve provider-specific units without normalizing away meaning;
+   - preserve provider-specific units in the raw view without normalizing away
+     meaning, AND emit the normalized canonical
+     `{input, output, cacheCreation, cacheRead}` view (see Multi-Provider
+     Normalization);
+   - declare each provider's explicit cache/cached-token mapping into the
+     canonical cache fields;
    - attach final provider records to the locally generated call and attempt
      ids;
    - record `unavailable` when provider usage is absent.
