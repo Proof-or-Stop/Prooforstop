@@ -90,6 +90,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   finding_resolve: 'finding',
   finding_dismiss: 'finding',
   autopilot_review_submit: 'host-verdict',
+  review_escalation_fallback_set: 'gate-evidence',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -113,6 +114,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
@@ -395,7 +397,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'process-events.jsonl',
     signed: false,
     producerCommand: 'autopilot_review_submit',
-    consumerGate: 'story_advance DONE local decision-doc quorum gate',
+    consumerGate: 'storyMachine.canFinish DONE review escalation gate',
+  },
+  review_escalation_fallback_set: {
+    name: 'process-events.jsonl',
+    path: 'process-events.jsonl',
+    signed: false,
+    producerCommand: 'review_escalation_fallback_set',
+    consumerGate: 'storyMachine.canFinish DONE review escalation gate',
   },
   authority_receipt_verify: {
     name: 'authority-receipt-refs.json',

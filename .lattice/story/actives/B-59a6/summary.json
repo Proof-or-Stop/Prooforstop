@@ -1,0 +1,55 @@
+{
+  "storyId": "B-59a6",
+  "changes": "Implemented the review-escalation DONE gate: direct decision-doc edits are diagnostic only, first-review countable findings trigger escalation, host verdict binding is stricter, and explicit degraded 3x1 fallback is supported as lower assurance.",
+  "usage": "Use review_escalation_status to see the actual DONE escalation state, decision_doc_quorum_check for decision-doc diagnostics, review_escalation_fallback_set for explicit degraded 3x1 fallback, and autopilot_review_submit for bound host verdict evidence.",
+  "expectedOutcome": "A zero-finding decision-doc audit no longer fails DONE just because a decision doc changed; if the first REVIEW round records at least two countable reviewer problems, DONE requires full 3x2 or explicit degraded 3x1 evidence.",
+  "actualTranscript": "npm test passed through lattice validate with 17/17 verification intents covered. review_escalation_status now reports required:true and ok:true for B-59a6 with assuranceLevel=degraded-single-host after three local single-host verdict rounds and explicit fallback B-59a6:REF-mqf3y1s0. decision_doc_quorum_check reports decision-doc changes are diagnostic only.",
+  "outcomeDiff": "Expected behavior matches actual runtime. The only difference is this story itself triggered escalation during REVIEW because F-001 and F-002 were verified high first-round findings, so final DONE evidence uses explicit degraded 3x1 rather than ordinary-review/no-escalation.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local degraded 3x1 is lower assurance and does not prove full 3x2, Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone.",
+  "pitfalls": "Do not interpret decision_doc_quorum_check as a DONE blocker. Use review_escalation_status for the gate and keep degraded-single-host distinct from full-3x2.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 242997
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11929
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 386244
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 1721059
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 26630205
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 69520
+    }
+  },
+  "totalDurationMs": 29061955,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T11:06:29.323Z",
+  "updatedAt": "2026-06-15T11:06:29.323Z"
+}

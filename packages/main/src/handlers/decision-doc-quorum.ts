@@ -38,9 +38,10 @@ function fallbackText(report: unknown): string {
   const applicable = record.applicable !== false;
   const materialDigest = typeof record.materialDigest === 'string' ? record.materialDigest : '<missing>';
   return [
-    `Decision doc quorum (${ok ? 'pass' : 'blocked'})`,
+    `Decision doc quorum diagnostic (${ok ? 'pass' : 'incomplete'})`,
     `applicable: ${String(applicable)}`,
     `materialDigest: ${materialDigest}`,
+    'doneRequirement: classification-only; review_escalation_status decides whether DONE requires escalation',
     'authorityBoundary: local quorum evidence only; not Authority Server receipt completion',
   ].join('\n');
 }

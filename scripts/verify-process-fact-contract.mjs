@@ -122,6 +122,7 @@ const requiredProcessFactSemantics = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   authority_receipt_verify: ['gate-evidence'],
 };
 const requiredReviewerLanes = [
@@ -249,6 +250,12 @@ const requiredRuntimeEntries = [
     level: 'L4',
     owner: 'core/review-run',
     line: '- runtime:review_run_workspace_binding_gate [L4] owner=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate',
+  },
+  {
+    name: 'runtime:review_escalation_done_gate',
+    level: 'L4',
+    owner: 'core/review-escalation',
+    line: '- runtime:review_escalation_done_gate [L4] owner=core/review-escalation gate=storyMachine.canFinish DONE review escalation gate',
   },
 ];
 const requiredFlowFactPolicies = [
@@ -1940,6 +1947,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
       assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
       assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} must stay readOnly`);
       assert(/without mutating|read-only/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the read-only boundary`);
+      assert(/classification-only|do not by themselves require DONE quorum|review_escalation_status/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state decision-doc edits are diagnostic/classification only`);
       assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the Authority/no-overclaim boundary`);
     }
 
@@ -1965,15 +1973,72 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     }
   }
 
+  const statusCommand = 'review_escalation_status';
+  assert(cliToolNameSet.has(statusCommand), `CLI schema: required review escalation read command missing from MAIN_TOOLS: ${statusCommand}`);
+  const statusPolicy = policyByName.get(statusCommand);
+  assert(statusPolicy, `${commandPolicyPath}: required review escalation status command missing lifecycle policy`);
+  if (statusPolicy) {
+    assert(!statusPolicy.gateEvidence, `${commandPolicyPath}: ${statusCommand} must not be gateEvidence`);
+    assert(statusPolicy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${statusCommand} must be allowed in all phases`);
+    assert(statusPolicy.destructiveRisk === 'none', `${commandPolicyPath}: ${statusCommand} destructiveRisk must stay none`);
+    assert(policyBlockHasOwnershipClass(statusPolicy, 'readOnly'), `${commandPolicyPath}: ${statusCommand} must stay readOnly`);
+    assert(/first-round verified reviewer findings|3x2|degraded 3x1/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} must describe the trigger/quorum policy`);
+    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} policy must preserve no-overclaim boundary`);
+  }
+  const statusLevel = levelRegistry.get(statusCommand);
+  assert(statusLevel, `${processFactLevelRegistryPath}: ${statusCommand} missing level entry`);
+  if (statusLevel) {
+    assert(statusLevel.level === 'L0', `${processFactLevelRegistryPath}: ${statusCommand} must stay L0`);
+    assert(statusLevel.category === 'review-escalation-read', `${processFactLevelRegistryPath}: ${statusCommand} category drifted`);
+    assert(statusLevel.owner === 'handlers/review-escalation', `${processFactLevelRegistryPath}: ${statusCommand} owner drifted`);
+    assert(!statusLevel.gateConsumer, `${processFactLevelRegistryPath}: ${statusCommand} must not declare a gateConsumer`);
+  }
+  const statusRegistry = registry.get(statusCommand);
+  assert(statusRegistry, `${processFactRegistryPath}: ${statusCommand} missing registry entry`);
+  if (statusRegistry) {
+    assert(statusRegistry.level === 'L0', `${processFactRegistryPath}: ${statusCommand} registry level must stay L0`);
+    assert(statusRegistry.kind === 'command', `${processFactRegistryPath}: ${statusCommand} registry kind must stay command`);
+    assert(statusRegistry.gateEvidence === false, `${processFactRegistryPath}: ${statusCommand} registry gateEvidence must stay false`);
+    assert(!statusRegistry.artifact, `${processFactRegistryPath}: ${statusCommand} must not produce a process artifact`);
+  }
+
+  const fallbackCommand = 'review_escalation_fallback_set';
+  assert(cliToolNameSet.has(fallbackCommand), `CLI schema: required review escalation fallback command missing from MAIN_TOOLS: ${fallbackCommand}`);
+  const fallbackPolicy = policyByName.get(fallbackCommand);
+  assert(fallbackPolicy, `${commandPolicyPath}: required review escalation fallback command missing lifecycle policy`);
+  if (fallbackPolicy) {
+    assert(fallbackPolicy.gateEvidence, `${commandPolicyPath}: ${fallbackCommand} must be gateEvidence`);
+    assert(fallbackPolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${fallbackCommand} destructiveRisk must stay metadata-write`);
+    assert(policyBlockHasOwnershipClass(fallbackPolicy, 'storyScopedMutating'), `${commandPolicyPath}: ${fallbackCommand} must stay storyScopedMutating`);
+    assert(/degraded 3x1|degraded-single-host|current material hash/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must describe degraded-single-host material binding`);
+    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must preserve no-overclaim boundary`);
+  }
+  const fallbackLevel = levelRegistry.get(fallbackCommand);
+  assert(fallbackLevel, `${processFactLevelRegistryPath}: ${fallbackCommand} missing level entry`);
+  if (fallbackLevel) {
+    assert(fallbackLevel.level === 'L4', `${processFactLevelRegistryPath}: ${fallbackCommand} must stay L4`);
+    assert(fallbackLevel.category === 'review-escalation-fallback', `${processFactLevelRegistryPath}: ${fallbackCommand} category drifted`);
+    assert(fallbackLevel.owner === 'handlers/review-escalation', `${processFactLevelRegistryPath}: ${fallbackCommand} owner drifted`);
+    assert(/review escalation/i.test(fallbackLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: ${fallbackCommand} gateConsumer drifted`);
+  }
+  const fallbackRegistry = registry.get(fallbackCommand);
+  assert(fallbackRegistry, `${processFactRegistryPath}: ${fallbackCommand} missing registry entry`);
+  if (fallbackRegistry) {
+    assert(fallbackRegistry.level === 'L4', `${processFactRegistryPath}: ${fallbackCommand} registry level must stay L4`);
+    assert(fallbackRegistry.gateEvidence === true, `${processFactRegistryPath}: ${fallbackCommand} registry gateEvidence must stay true`);
+    assert(fallbackRegistry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${fallbackCommand} must record process-events.jsonl evidence`);
+    assert(/review escalation/i.test(fallbackRegistry.consumerGate), `${processFactRegistryPath}: ${fallbackCommand} consumerGate drifted`);
+  }
+
   const commandName = 'autopilot_review_submit';
   const policy = policyByName.get(commandName);
   assert(policy, `${commandPolicyPath}: required local host verdict command missing lifecycle policy: ${commandName}`);
   if (policy) {
-    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local decision-doc quorum`);
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence for local review escalation`);
     assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
     assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(policy, 'reviewerWrite'), `${commandPolicyPath}: ${commandName} must stay reviewerWrite so independent hosts can submit verdicts without story owner lease`);
-    assert(/decision-doc quorum DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local decision-doc quorum DONE gate`);
+    assert(/review escalation DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local review escalation DONE gate`);
     assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must preserve the Authority no-overclaim boundary`);
   }
 
@@ -1983,7 +2048,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
     assert(levelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay lattice-local-host-verdict`);
     assert(levelEntry.owner === 'handlers/verdict', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
-    assert(/(decision-doc quorum.*DONE|DONE.*decision-doc quorum)/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
+    assert(/review escalation/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
   }
 
   const registryEntry = registry.get(commandName);
@@ -1996,7 +2061,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     for (const semantic of ['host-verdict', 'execution-evidence', 'gate-evidence']) {
       assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing ${semantic} semantic`);
     }
-    assert(/(decision-doc quorum.*DONE|DONE.*decision-doc quorum)/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
+    assert(/review escalation/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
   }
 }
 

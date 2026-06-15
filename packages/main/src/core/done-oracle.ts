@@ -39,6 +39,10 @@ import {
   summarizeCodexEvidence,
   storyRequiresCodexEvidence,
 } from './codex-adapter-checks.js';
+import {
+  evaluateReviewEscalation,
+  formatReviewEscalationFailure,
+} from './review-escalation.js';
 
 // B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
@@ -649,6 +653,30 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         }));
       }
     }
+  }
+
+  // 6d. review escalation quorum. Ordinary documentation/decision-doc edits do
+  //     not trigger this gate by themselves; the trigger is mechanical: the
+  //     first REVIEW round recorded at least two countable verified reviewer
+  //     problems. When triggered, DONE requires full 3x2 host quorum or explicit
+  //     degraded 3x1 fallback over the current material hash.
+  {
+    const escalation = evaluateReviewEscalation({
+      projectRoot: root,
+      storyId,
+      store,
+    });
+    rows.push(doneCheckRow({
+      id: 'review-escalation',
+      status: escalation.ok ? 'pass' : 'fail',
+      label: 'Review escalation',
+      detail: escalation.required
+        ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`
+        : `not required; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`,
+      hint: escalation.ok ? 'review escalation satisfied or not required' : formatReviewEscalationFailure(escalation),
+      source: 'findings.json + process-events.jsonl:host_verdict',
+      blocking: escalation.required && !escalation.ok,
+    }));
   }
 
   // 7. evaluator evidence (policy-aware: hard gate or advisory depending on profile)

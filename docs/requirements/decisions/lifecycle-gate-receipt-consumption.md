@@ -139,23 +139,46 @@ When Authority-backed DONE is required:
 - gate consumption must be recorded before local `productionDone=true` can be
   derived.
 
-## Local Decision-Doc Quorum Gate
+## Local Review Escalation Gate
 
-Decision-doc quorum is a local DONE gate, not Authority Server receipt
-completion. When a story changes decision docs, local DONE requires:
+Review escalation is a local DONE gate, not Authority Server receipt completion.
+Documentation and decision-doc audit changes follow ordinary REVIEW by default.
+Direct edits under `docs/requirements/decisions/*.md` are
+classification/diagnostic only; they do not by themselves require 3 rounds x 2
+hosts at DONE.
 
-- 3 distinct review rounds over the current material digest;
-- at least 2 distinct PASSing hosts in each round;
-- a fresh material digest match at DONE time;
-- ignored, duplicate-host, FAIL, BLOCKED, or stale-digest verdicts do not count.
+Local DONE requires review escalation only when the first lifecycle REVIEW round
+records at least two countable reviewer problems:
+
+- the finding agent is a `koala-review-*` reviewer;
+- severity is `critical`, `high`, or `medium`;
+- `evidenceState` is `verified`, or the legacy field is missing.
+
+Suspected findings, disproven findings, low-severity findings, non-reviewer
+findings, and later-round findings do not trigger the escalation requirement.
+When triggered, full local quorum requires:
+
+- 3 distinct `runId` rounds over the current material hash;
+- at least 2 independent PASSing hosts in each round;
+- host verdict binding fields for host, session, key, material, validation, and
+  prompt;
+- stale material, duplicate host/session/key identity, FAIL/BLOCKED decisions,
+  and missing binding fields fail closed.
 
 `autopilot_review_submit` records local `host_verdict` workflow evidence consumed
-by this local quorum gate. The write is a host/reviewer evidence write, not a
-story owner self-certification path, so it is exempt from story owner lease while
-remaining local and non-authority. `decision_doc_quorum_check` reports the same
-quorum state read-only. Neither command verifies a server `gate_decision`
-receipt, nor may either command derive Authority receipt completion,
-`authorityDone`, `fullAuthorityDone`, or `productionDone`.
+by this local review escalation gate. The write is a host/reviewer evidence
+write, not a story owner self-certification path, so it is exempt from story
+owner lease while remaining local and non-authority. `review_escalation_status`
+reports the actual DONE requirement read-only. `decision_doc_quorum_check`
+remains a decision-doc diagnostic only; it must not claim that every decision-doc
+edit requires quorum. Neither command verifies a server `gate_decision` receipt,
+nor may either command derive Authority receipt completion, `authorityDone`,
+`fullAuthorityDone`, or `productionDone`.
+
+An explicit degraded fallback may satisfy local DONE only as
+`assuranceLevel=degraded-single-host`: allowed eligibility/reason, evidence or
+approval, fresh material binding, and 3 rounds with at least 1 PASS host. The
+degraded path must never be reported as full 3x2 or Authority completion.
 
 ## Process Fact Registry Updates
 

@@ -1,0 +1,50 @@
+{
+  "storyId": "B-59a6",
+  "checkedAt": "2026-06-15T11:09:35.599Z",
+  "reviewRound": "2026-06-15T10:50:18.925Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE review escalation is threshold-triggered, direct decision-doc edits are classification/diagnostic only, degraded 3x1 is lower assurance, and local evidence is not Authority completion.",
+      "status": "verified",
+      "verifiedBy": "diff+rg+live-cli",
+      "evidence": "story-lifecycle.md updated; review_escalation_status reports required:true ok:true assuranceLevel=degraded-single-host with Authority booleans false; decision_doc_quorum_check says classification/diagnostic only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "promise": "Local review escalation gate is separate from Authority receipt completion and degraded fallback is not full 3x2.",
+      "status": "verified",
+      "verifiedBy": "rg+live-cli",
+      "evidence": "Doc states decision-doc changes are classification-only and degraded-single-host must never be full 3x2 or Authority completion; live status reports authorityDone/fullAuthorityDone/productionDone false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Execution plan distinguishes direct doc diagnostics, first-round countable finding trigger, full 3x2, and explicit degraded 3x1 fallback.",
+      "status": "verified",
+      "verifiedBy": "diff+targeted-smoke",
+      "evidence": "review-escalation smoke passed ordinary docs, threshold trigger, stale/duplicate/non-pass fail-closed, full-3x2 pass, degraded-single-host pass, and degraded fail-closed cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "promise": "Decision-doc promotion language no longer says saved/direct decision-doc edits automatically trigger the DONE 3x2 gate.",
+      "status": "verified",
+      "verifiedBy": "diff+decision-doc-quorum-smoke",
+      "evidence": "Diff replaces always-on decision-doc quorum language with first-review threshold policy; decision-doc-quorum smoke passed diagnostic wording checks."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-59a6-cli-core-delivery",
+      "transcript": "No browser or GUI workflow exists for this story; the product surface is CLI/core gate behavior. Verified with npm run build, review-escalation smoke, decision-doc-quorum smoke, process-fact contract verifier, live review_escalation_status/decision_doc_quorum_check, and lattice validate --story=B-59a6 --json.",
+      "waiverReason": "No browser or external real-machine workflow is applicable because this story changes CLI/core lifecycle gates and documentation diagnostics only; targeted CLI and logic verification cover the delivered user-visible behavior."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": false,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery passes: direct decision-doc edits are diagnostic only, first-round verified reviewer findings trigger escalation, full 3x2 remains distinct from degraded 3x1, degraded is lower assurance only, no Authority completion is claimed, and validation/build/smoke/process-fact evidence is green."
+  },
+  "_hash": "9958972d8e201895cc06e62546edeb62bc22341f0cdf835dc893e69014afbc14"
+}

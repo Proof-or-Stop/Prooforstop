@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-59a6:RP-001",
+      "agent": "koala-review-concept",
+      "note": "PASS concept: threshold escalation is mechanical and local-only. Direct decision-doc edits are diagnostic only; first REVIEW round with >=2 countable verified/legacy medium+ reviewer findings triggers DONE review escalation; full path requires 3 rounds x 2 independent PASS hosts, explicit degraded fallback is 3 rounds x 1 host with assuranceLevel=degraded-single-host, and authorityDone/fullAuthorityDone/productionDone remain false. Commands: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/review-escalation-smoke.js; npm --prefix packages/main run test:decision-doc-quorum-smoke; node bin/lattice.js review_escalation_status; node bin/lattice.js decision_doc_quorum_check.",
+      "createdAt": "2026-06-15T10:14:43.229Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-001",
+      "_hash": "9208d2ac794cd13d905da4469ff10c3286481082ab5acce194a8ebc04c4b7fc7"
+    },
+    {
+      "id": "B-59a6:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: inspected review escalation core, host independence evaluator, DONE machine/oracle integration, process-fact registry/contract, CLI handlers, command policy, and diagnostics. Verified build plus targeted runtime smokes: process-fact contract, review-escalation smoke, decision-doc quorum smoke, command ownership, reviewer readonly policy, flow stability, and live status/check commands.",
+      "createdAt": "2026-06-15T10:18:43.447Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-002",
+      "_hash": "8508451dcd0d846cae1d2c52b87778cb1c5c052e8b41babdf9af61b6b61e4368"
+    },
+    {
+      "id": "B-59a6:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: test/verification coverage reviewed. Current-worktree commands passed: review-escalation smoke covers zero-finding doc audit, threshold trigger, ignored finding classes, stale/duplicate/non-pass verdicts, and degraded 3x1 pass/fail; decision-doc quorum smoke covers diagnostic wording and stale/duplicate/non-pass verdict handling; process-fact contract verifier covers review_escalation_status, review_escalation_fallback_set, autopilot_review_submit host verdict evidence, and runtime:review_escalation_done_gate; CLI diagnostics for B-59a6 report required=false ordinary-review and decision-doc classification-only.",
+      "createdAt": "2026-06-15T10:20:50.790Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-003",
+      "_hash": "d96665dd7c6ac1144401419a7fa01fc697dd00b0948f80526abefbc427c15348"
+    },
+    {
+      "id": "B-59a6:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Final docs re-review PASS. Confirmed B-59a6:F-001/F-002/F-003 are resolved in finding_list; docs and implementation now agree that direct decision-doc edits are classification/diagnostic only, the current runtime trigger is firstReviewRoundCountableProblems >= 2 rather than changedDirectDecisionDocs OR threshold, degraded fallback has three eligibility values plus free-form reason and evidenceRefs or approvalRef, fallback is bound to current material hash, assuranceLevel=degraded-single-host, and local quorum/fallback evidence does not claim Authority completion.",
+      "createdAt": "2026-06-15T10:37:02.388Z",
+      "reviewRound": "2026-06-15T10:33:57.448Z",
+      "reviewRunId": "B-59a6:RR-007",
+      "_hash": "e23c1a9e57f646799ad9a7041087689f30e85e645cb88a446858a07884bd5d6d"
+    },
+    {
+      "id": "B-59a6:RP-005",
+      "agent": "koala-review-concept",
+      "note": "PASS: F-004 and earlier concept/docs contradictions are resolved. Source and docs now agree that decision-doc edits are diagnostic/classification-only; first REVIEW round with >=2 countable reviewer findings triggers local review escalation; full 3x2 and explicit degraded 3x1 remain distinct assurance levels; review escalation diagnostics keep authorityDone/fullAuthorityDone/productionDone false. Verified with review_escalation_status, decision_doc_quorum_check, review-escalation smoke, decision-doc-quorum smoke, and process-fact contract.",
+      "createdAt": "2026-06-15T10:44:59.844Z",
+      "reviewRound": "2026-06-15T10:42:06.356Z",
+      "reviewRunId": "B-59a6:RR-009",
+      "_hash": "c102125d81b0b1ab4bdf18eeef9ed4f8691a59c5e11caeda103662fe057c3a61"
+    },
+    {
+      "id": "B-59a6:RP-006",
+      "agent": "koala-review-quality",
+      "note": "PASS: Re-reviewed F-005 and CHK-003 against live behavior. F-005 is resolved; CHK-003 verificationEvidence now matches review_escalation_status required:true/ok:false for B-59a6 due first-round F-001/F-002 while smoke covers ordinary not-required, full 3x2, degraded 3x1, and fail-closed states. Build, smokes, process-fact contract, and validate pass; no open blockers found.",
+      "createdAt": "2026-06-15T10:52:17.362Z",
+      "reviewRound": "2026-06-15T10:50:18.925Z",
+      "reviewRunId": "B-59a6:RR-011",
+      "_hash": "89ceadb976a84a660b130117ab2273676c9eb37bf87b56672af8ce5063c644b2"
+    },
+    {
+      "id": "B-59a6:RP-007",
+      "agent": "koala-review-concept",
+      "note": "PASS: F-001..F-005 are resolved. Direct decision-doc edits are diagnostic/classification-only, review escalation is sticky from first REVIEW round countable findings >=2, and full/degraded local quorum output remains separated from Authority completion. Verified with finding_list, review_escalation_status, decision_doc_quorum_check, review-escalation smoke, decision-doc quorum smoke, process fact contract, and targeted source/docs inspection.",
+      "createdAt": "2026-06-15T10:56:16.088Z",
+      "reviewRound": "2026-06-15T10:50:18.925Z",
+      "reviewRunId": "B-59a6:RR-012",
+      "_hash": "c399b111d7d0d235bd673ce24fce2938c6a4cf696fd3dccfd93a6b75315b706c"
+    },
+    {
+      "id": "B-59a6:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: final coverage review found 17/17 verification intents covered. validate passes; review-escalation smoke covers not-required, threshold-triggered, ignored finding classes, stale/duplicate/non-pass verdicts, degraded pass/fail, and no Authority overclaim; decision-doc quorum smoke covers diagnostic-only wording and legacy quorum edge cases; process-fact contract verifier passes for review escalation commands, host verdict facts, and DONE gate registration.",
+      "createdAt": "2026-06-15T11:02:04.289Z",
+      "reviewRound": "2026-06-15T10:50:18.925Z",
+      "reviewRunId": "B-59a6:RR-013",
+      "_hash": "262709affca97d41dff9bd4b2d8ee19de839f4507a5d4fc55713c19c411f926f"
+    },
+    {
+      "id": "B-59a6:RP-009",
+      "agent": "koala-review-docs",
+      "note": "PASS docs review: changed decision docs are English; stale current-behavior claims that every decision-doc edit requires 3x2 are removed; remaining migration/always-on mentions are framed as rollout/non-goals or diagnostics, not current DONE behavior; fallback eligibility values match implementation (single-host-environment, temporary-host-unavailability, explicit-human-approval); free-form reason, evidenceRefs or approvalRef, and fresh material binding are documented; local review escalation is consistently separated from Authority receipt completion and does not imply authorityDone, fullAuthorityDone, receiptVerified, or productionDone.",
+      "createdAt": "2026-06-15T11:04:16.495Z",
+      "reviewRound": "2026-06-15T10:50:18.925Z",
+      "reviewRunId": "B-59a6:RR-014",
+      "_hash": "cb11f346bc5ad01855a64268af83dcce1f2b3214b6a3eaa806fb23032986d089"
+    },
+    {
+      "id": "B-59a6:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: diff implements threshold-triggered review escalation, keeps decision-doc edits diagnostic-only, reports degraded 3x1 as lower assurance, and the delivery prompt scope acknowledgement is limited to evidence-boundary wording.",
+      "createdAt": "2026-06-15T11:19:30.113Z",
+      "reviewRound": "2026-06-15T11:17:14.149Z",
+      "reviewRunId": "B-59a6:RR-015",
+      "_hash": "abee3da55f58c99b45812ebcbc001685a101546f81f71e4b5485471e002be841"
+    },
+    {
+      "id": "B-59a6:RP-011",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage reviewed: review-escalation and decision-doc smokes, process-fact contract verifier, validate snapshot 17/17, done_closure, and live degraded 3x1 final material binding all pass without full-3x2/Authority overclaim.",
+      "createdAt": "2026-06-15T11:19:30.896Z",
+      "reviewRound": "2026-06-15T11:17:14.149Z",
+      "reviewRunId": "B-59a6:RR-017",
+      "_hash": "7e342c4195663ddc4f0ad34f856ac29cb1101aac283e8e078e2f847fb12ff0d3"
+    },
+    {
+      "id": "B-59a6:RP-012",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: inspected review-escalation DONE gate wiring, host-independence predicate, process-fact contract, and delivery prompt evidence-boundary patch; verify-process-fact-contract, review-escalation smoke, decision-doc quorum smoke, command ownership contract, review_escalation_status, and done_closure all passed with degraded-single-host explicitly not Authority/full-3x2.",
+      "createdAt": "2026-06-15T11:20:36.562Z",
+      "reviewRound": "2026-06-15T11:17:14.149Z",
+      "reviewRunId": "B-59a6:RR-016",
+      "_hash": "3625660296e06689dbbec8b0e3db7e0da7d8125631ebf96f85e7908f9542847d"
+    },
+    {
+      "id": "B-59a6:RP-013",
+      "agent": "koala-review-concept",
+      "note": "Concept review after F-006: degraded fallback wording now states eligibility plus lower-assurance 3x1; policy remains mechanical: escalation trigger from countable first-round reviewer problems, full 3x2 preferred, explicit fallback plus 3x1 rounds required, and no Authority completion claims.",
+      "createdAt": "2026-06-15T11:25:12.217Z",
+      "reviewRound": "2026-06-15T11:23:15.767Z",
+      "reviewRunId": "B-59a6:RR-019",
+      "_hash": "05cff3f01157c7adafbaa0e8ef6b08c83d0c2cceb05f5e2cd2f3ccef717cd88f"
+    },
+    {
+      "id": "B-59a6:RP-014",
+      "agent": "koala-review-quality",
+      "note": "Quality review after F-006: cli-engine descriptions, handler output, DONE oracle consumer, command-policy, and process-fact registry consistently describe degraded 3x1 as lower-assurance local fallback only, with authorityDone/fullAuthorityDone/productionDone false. Verified npm run build, review-escalation smoke, and process fact contract.",
+      "createdAt": "2026-06-15T11:26:08.142Z",
+      "reviewRound": "2026-06-15T11:23:15.767Z",
+      "reviewRunId": "B-59a6:RR-020",
+      "_hash": "7b63da9994b9356e30855832720c1a38461d5bd48f3e7c79a6bf8b282b2d911c"
+    },
+    {
+      "id": "B-59a6:RP-015",
+      "agent": "koala-review-docs",
+      "note": "PASS: F-006 fixed. review_escalation_fallback_set help/schema at packages/main/src/cli-engine.ts:846 and handler error at packages/main/src/handlers/review-escalation.ts:61 now require the reason to explain selected degraded fallback eligibility and lower-assurance 3x1 use, without asserting host unavailability for explicit-human-approval. Docs checked: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:104-136,572-587,735-747; docs/requirements/decisions/story-lifecycle.md:190,266; docs/requirements/decisions/lifecycle-gate-receipt-consumption.md:144-181. No Authority/full-3x2 overclaim found in relevant docs; legacy broad hits are forbidden/fail criteria or receipt-backed Authority contexts.",
+      "createdAt": "2026-06-15T11:26:10.816Z",
+      "reviewRound": "2026-06-15T11:23:15.767Z",
+      "reviewRunId": "B-59a6:RR-021",
+      "_hash": "a63e4844937482e67eddf079bfcb80a78dbf5b33d0c42e73c379ba4abe40703d"
+    }
+  ]
+}

@@ -1,0 +1,393 @@
+import { currentMaterialHash } from './evidence-freshness.js';
+import {
+  evaluateHostVerdictRounds,
+  type HostVerdictRound,
+  type IgnoredHostVerdict,
+} from './host-independence.js';
+import { isReviewerAgent } from './review-run.js';
+import type { Finding, ProcessEvent, StoryInfo } from './types.js';
+import type { StoryStore } from './store.js';
+
+export const REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT = 2;
+export const REVIEW_ESCALATION_REQUIRED_ROUNDS = 3;
+export const REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND = 2;
+export const REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND = 1;
+
+export const REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES = [
+  'single-host-environment',
+  'temporary-host-unavailability',
+  'explicit-human-approval',
+] as const;
+
+export type ReviewEscalationFallbackEligibility = typeof REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES[number];
+export type ReviewEscalationAssuranceLevel =
+  | 'ordinary-review'
+  | 'full-3x2'
+  | 'degraded-single-host';
+
+export interface CountableFirstRoundProblem {
+  findingId: string;
+  agent: string;
+  severity: string;
+  evidenceState: 'verified' | 'legacy-missing';
+  reviewRound: string;
+}
+
+export interface ReviewEscalationFallbackRecord {
+  index: number;
+  fallbackId?: string;
+  eligibility?: string;
+  reason?: string;
+  evidenceRefs: string[];
+  approvalRef?: string;
+  materialHash?: string;
+  assuranceLevel?: string;
+  valid: boolean;
+  reasons: string[];
+}
+
+export interface ReviewEscalationReport {
+  schemaVersion: 'lattice.review_escalation_status.v1';
+  ok: boolean;
+  required: boolean;
+  trigger: {
+    firstReviewRound: string | null;
+    requiredProblemCount: number;
+    countableProblems: CountableFirstRoundProblem[];
+    ignoredCount: number;
+  };
+  materialHash: string | null;
+  fullQuorum: {
+    requiredRounds: number;
+    requiredPassingHostsPerRound: number;
+    ok: boolean;
+    validRounds: HostVerdictRound[];
+    invalidRounds: HostVerdictRound[];
+    ignoredVerdicts: IgnoredHostVerdict[];
+  };
+  degradedFallback: {
+    ok: boolean;
+    allowed: boolean;
+    record: ReviewEscalationFallbackRecord | null;
+    requiredRounds: number;
+    requiredPassingHostsPerRound: number;
+    validRounds: HostVerdictRound[];
+    invalidRounds: HostVerdictRound[];
+    ignoredVerdicts: IgnoredHostVerdict[];
+  };
+  assuranceLevel: ReviewEscalationAssuranceLevel;
+  authorityDone: false;
+  fullAuthorityDone: false;
+  productionDone: false;
+  reasons: string[];
+}
+
+export interface EvaluateReviewEscalationArgs {
+  projectRoot: string;
+  storyId?: string;
+  store?: Pick<StoryStore, 'readStory' | 'readFindings' | 'readProcessEvents'>;
+  story?: StoryInfo;
+  findings?: Finding[];
+  processEvents?: ProcessEvent[];
+  materialHash?: string;
+}
+
+function normalizeString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function latestByIndex<T extends { index: number }>(items: T[]): T | null {
+  return items.length === 0 ? null : [...items].sort((a, b) => b.index - a.index)[0];
+}
+
+function uniqueReviewRounds(story: StoryInfo | null, findings: Finding[]): string[] {
+  const rounds: string[] = [];
+  for (const event of story?.events ?? []) {
+    if (event.phase === 'REVIEW' && event.action === 'advance' && event.timestamp) {
+      rounds.push(event.timestamp);
+    }
+  }
+  if (rounds.length === 0) {
+    for (const finding of findings) {
+      if (finding.reviewRound) rounds.push(finding.reviewRound);
+    }
+  }
+  return [...new Set(rounds)].sort((a, b) => {
+    const at = Date.parse(a);
+    const bt = Date.parse(b);
+    if (Number.isFinite(at) && Number.isFinite(bt) && at !== bt) return at - bt;
+    return a.localeCompare(b);
+  });
+}
+
+function countableFinding(finding: Finding, firstReviewRound: string | null): CountableFirstRoundProblem | null {
+  if (!firstReviewRound) return null;
+  if (finding.reviewRound !== firstReviewRound) return null;
+  if (!isReviewerAgent(finding.agent)) return null;
+  if (!['critical', 'high', 'medium'].includes(finding.severity)) return null;
+  if (finding.evidenceState === 'suspected' || finding.evidenceState === 'disproven') return null;
+  if (finding.evidenceState && finding.evidenceState !== 'verified') return null;
+  return {
+    findingId: finding.id,
+    agent: finding.agent!,
+    severity: finding.severity,
+    evidenceState: finding.evidenceState === 'verified' ? 'verified' : 'legacy-missing',
+    reviewRound: finding.reviewRound,
+  };
+}
+
+function readStory(args: EvaluateReviewEscalationArgs): StoryInfo | null {
+  if (args.story) return args.story;
+  if (!args.store || !args.storyId) return null;
+  return args.store.readStory(args.storyId);
+}
+
+function readFindings(args: EvaluateReviewEscalationArgs): Finding[] {
+  if (args.findings) return args.findings;
+  if (!args.store || !args.storyId) return [];
+  return args.store.readFindings(args.storyId).findings;
+}
+
+function readEvents(args: EvaluateReviewEscalationArgs): ProcessEvent[] {
+  if (args.processEvents) return args.processEvents;
+  if (!args.store || !args.storyId) return [];
+  return args.store.readProcessEvents(args.storyId);
+}
+
+export function isReviewEscalationFallbackEligibility(value: unknown): value is ReviewEscalationFallbackEligibility {
+  return typeof value === 'string' && (REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES as readonly string[]).includes(value);
+}
+
+function fallbackRecordFromEvent(
+  event: ProcessEvent,
+  index: number,
+  expectedMaterialHash: string,
+): ReviewEscalationFallbackRecord {
+  const eligibility = normalizeString(event.eligibility);
+  const reason = normalizeString(event.reason);
+  const evidenceRefs = Array.isArray(event.evidenceRefs)
+    ? event.evidenceRefs.map(ref => normalizeString(ref)).filter(Boolean)
+    : [];
+  const approvalRef = normalizeString(event.approvalRef);
+  const materialHash = normalizeString(event.materialHash);
+  const assuranceLevel = normalizeString(event.assuranceLevel);
+  const reasons: string[] = [];
+
+  if (!isReviewEscalationFallbackEligibility(eligibility)) {
+    reasons.push(`eligibility must be one of ${REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES.join('|')}`);
+  }
+  if (reason.length < 20) reasons.push('reason must be at least 20 characters');
+  if (evidenceRefs.length === 0 && !approvalRef) reasons.push('fallback requires evidenceRefs or approvalRef');
+  if (!materialHash) reasons.push('missing materialHash');
+  else if (materialHash !== expectedMaterialHash) reasons.push('materialHash is stale');
+  if (assuranceLevel !== 'degraded-single-host') {
+    reasons.push('assuranceLevel must be degraded-single-host');
+  }
+
+  return {
+    index,
+    ...(normalizeString(event.fallbackId) ? { fallbackId: normalizeString(event.fallbackId) } : {}),
+    ...(eligibility ? { eligibility } : {}),
+    ...(reason ? { reason } : {}),
+    evidenceRefs,
+    ...(approvalRef ? { approvalRef } : {}),
+    ...(materialHash ? { materialHash } : {}),
+    ...(assuranceLevel ? { assuranceLevel } : {}),
+    valid: reasons.length === 0,
+    reasons,
+  };
+}
+
+function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string): ReviewEscalationFallbackRecord | null {
+  const records = events
+    .map((event, index) => ({ event, index }))
+    .filter(({ event }) => event.type === 'review_escalation_fallback')
+    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash));
+  return latestByIndex(records);
+}
+
+function emptyRoundReport() {
+  return {
+    requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
+    requiredPassingHostsPerRound: REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND,
+    ok: false,
+    validRounds: [],
+    invalidRounds: [],
+    ignoredVerdicts: [],
+  };
+}
+
+export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): ReviewEscalationReport {
+  const story = readStory(args);
+  const findings = readFindings(args);
+  const events = readEvents(args);
+  const firstReviewRound = uniqueReviewRounds(story, findings)[0] ?? null;
+  const countableProblems = findings
+    .map(finding => countableFinding(finding, firstReviewRound))
+    .filter((problem): problem is CountableFirstRoundProblem => problem !== null);
+  const required = countableProblems.length >= REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT;
+  const materialHash = args.materialHash ?? currentMaterialHash(args.projectRoot) ?? null;
+  const reasons: string[] = [];
+
+  if (!required) {
+    return {
+      schemaVersion: 'lattice.review_escalation_status.v1',
+      ok: true,
+      required: false,
+      trigger: {
+        firstReviewRound,
+        requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
+        countableProblems,
+        ignoredCount: findings.length - countableProblems.length,
+      },
+      materialHash,
+      fullQuorum: { ...emptyRoundReport(), ok: true },
+      degradedFallback: {
+        ok: false,
+        allowed: false,
+        record: null,
+        requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
+        requiredPassingHostsPerRound: REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND,
+        validRounds: [],
+        invalidRounds: [],
+        ignoredVerdicts: [],
+      },
+      assuranceLevel: 'ordinary-review',
+      authorityDone: false,
+      fullAuthorityDone: false,
+      productionDone: false,
+      reasons: [],
+    };
+  }
+
+  if (!materialHash) {
+    reasons.push('current material hash is unavailable');
+    return {
+      schemaVersion: 'lattice.review_escalation_status.v1',
+      ok: false,
+      required: true,
+      trigger: {
+        firstReviewRound,
+        requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
+        countableProblems,
+        ignoredCount: findings.length - countableProblems.length,
+      },
+      materialHash: null,
+      fullQuorum: emptyRoundReport(),
+      degradedFallback: {
+        ok: false,
+        allowed: false,
+        record: null,
+        requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
+        requiredPassingHostsPerRound: REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND,
+        validRounds: [],
+        invalidRounds: [],
+        ignoredVerdicts: [],
+      },
+      assuranceLevel: 'ordinary-review',
+      authorityDone: false,
+      fullAuthorityDone: false,
+      productionDone: false,
+      reasons,
+    };
+  }
+
+  const fullRounds = evaluateHostVerdictRounds(events, materialHash, REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND);
+  const fullOk = fullRounds.validRounds.length >= REVIEW_ESCALATION_REQUIRED_ROUNDS;
+  const fallback = latestFallbackRecord(events, materialHash);
+  const degradedRounds = evaluateHostVerdictRounds(events, materialHash, REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND);
+  const degradedRoundsOk = degradedRounds.validRounds.length >= REVIEW_ESCALATION_REQUIRED_ROUNDS;
+  const degradedOk = fallback?.valid === true && degradedRoundsOk;
+
+  if (!fullOk && !degradedOk) {
+    reasons.push(
+      `review escalation requires ${REVIEW_ESCALATION_REQUIRED_ROUNDS} rounds x ${REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND} independent PASS hosts, or an explicit degraded fallback with ${REVIEW_ESCALATION_REQUIRED_ROUNDS} rounds x ${REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND} PASS host`,
+    );
+    if (!fallback) reasons.push('no review_escalation_fallback record found for degraded fallback');
+    else if (!fallback.valid) reasons.push(...fallback.reasons.map(reason => `fallback invalid: ${reason}`));
+    if (!degradedRoundsOk) reasons.push(`degraded fallback has ${degradedRounds.validRounds.length}/${REVIEW_ESCALATION_REQUIRED_ROUNDS} valid single-host rounds`);
+  }
+
+  return {
+    schemaVersion: 'lattice.review_escalation_status.v1',
+    ok: fullOk || degradedOk,
+    required: true,
+    trigger: {
+      firstReviewRound,
+      requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
+      countableProblems,
+      ignoredCount: findings.length - countableProblems.length,
+    },
+    materialHash,
+    fullQuorum: {
+      requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
+      requiredPassingHostsPerRound: REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND,
+      ok: fullOk,
+      ...fullRounds,
+    },
+    degradedFallback: {
+      ok: degradedOk,
+      allowed: fallback?.valid === true,
+      record: fallback,
+      requiredRounds: REVIEW_ESCALATION_REQUIRED_ROUNDS,
+      requiredPassingHostsPerRound: REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND,
+      ...degradedRounds,
+    },
+    assuranceLevel: fullOk ? 'full-3x2' : degradedOk ? 'degraded-single-host' : 'ordinary-review',
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
+    reasons,
+  };
+}
+
+export function formatReviewEscalationFailure(report: ReviewEscalationReport): string {
+  if (report.ok) return '';
+  const lines = [
+    'Cannot enter DONE: first REVIEW round recorded multiple countable reviewer problems; review escalation quorum is required. [review_escalation_missing]',
+    `  - first review round: ${report.trigger.firstReviewRound ?? '<missing>'}`,
+    `  - countable first-round problems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
+    `  - materialHash: ${report.materialHash ?? '<missing>'}`,
+    `  - full quorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds with ${report.fullQuorum.requiredPassingHostsPerRound} independent PASS hosts`,
+    `  - degraded fallback: ${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds with ${report.degradedFallback.requiredPassingHostsPerRound} PASS host; explicit fallback=${report.degradedFallback.allowed ? 'valid' : 'missing/invalid'}`,
+  ];
+  for (const problem of report.trigger.countableProblems.slice(0, 8)) {
+    lines.push(`  - problem ${problem.findingId}: ${problem.agent} [${problem.severity}] evidenceState=${problem.evidenceState}`);
+  }
+  for (const round of report.fullQuorum.invalidRounds.slice(0, 5)) {
+    lines.push(`  - invalid full round ${round.runId}: ${round.reasons.join('; ')}`);
+  }
+  for (const ignored of report.fullQuorum.ignoredVerdicts.slice(0, 8)) {
+    const id = ignored.verdictId ?? `event#${ignored.index}`;
+    lines.push(`  - ignored host verdict ${id}: ${ignored.reasons.join('; ')}`);
+  }
+  for (const reason of report.reasons) {
+    lines.push(`  - ${reason}`);
+  }
+  lines.push('→ Run review_escalation_status for diagnostics. Submit fresh host verdicts with autopilot_review_submit, or record an explicit degraded fallback with review_escalation_fallback_set.');
+  return lines.join('\n');
+}
+
+export function formatReviewEscalationReport(report: ReviewEscalationReport): string {
+  const lines = [
+    `Review escalation (${report.schemaVersion})`,
+    `required: ${report.required}`,
+    `ok: ${report.ok}`,
+    `assuranceLevel: ${report.assuranceLevel}`,
+    `authorityDone: ${report.authorityDone}`,
+    `fullAuthorityDone: ${report.fullAuthorityDone}`,
+    `productionDone: ${report.productionDone}`,
+    `firstReviewRound: ${report.trigger.firstReviewRound ?? '<missing>'}`,
+    `countableProblems: ${report.trigger.countableProblems.length}/${report.trigger.requiredProblemCount}`,
+    `materialHash: ${report.materialHash ?? '<missing>'}`,
+    `fullQuorum: ${report.fullQuorum.validRounds.length}/${report.fullQuorum.requiredRounds} rounds x ${report.fullQuorum.requiredPassingHostsPerRound} hosts`,
+    `degradedFallback: ${report.degradedFallback.ok ? 'pass' : 'not-satisfied'} (${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds x ${report.degradedFallback.requiredPassingHostsPerRound} host)`,
+  ];
+  if (report.degradedFallback.record) {
+    lines.push(`fallbackRecord: ${report.degradedFallback.record.valid ? 'valid' : 'invalid'} ${report.degradedFallback.record.fallbackId ?? `event#${report.degradedFallback.record.index}`}`);
+  }
+  if (!report.ok && report.required) {
+    lines.push('', formatReviewEscalationFailure(report).replace(/^Cannot enter DONE: /, 'Blocked: '));
+  }
+  return lines.join('\n');
+}

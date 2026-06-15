@@ -898,6 +898,7 @@ export type ProcessEventType =
   | 'planner_story_created'
   | 'planner_job_created'
   | 'host_verdict'
+  | 'review_escalation_fallback'
   | 'authority_receipt'
   | 'auxiliary_worktree_cleanup'
   // B-6bfd CHK-004: Koala-managed guard session projection lifecycle events.

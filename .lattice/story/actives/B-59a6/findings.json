@@ -1,0 +1,135 @@
+{
+  "findings": [
+    {
+      "id": "B-59a6:F-001",
+      "desc": "docs/requirements/decisions/decision-doc-promotion-execution-plan.md:44,56,169,173,436,619,629 still says manual/saved decision-doc edits trigger or are enforced by the existing decision-doc 3x2 quorum DONE gate. WHY: the implemented and newly documented policy makes direct decision-doc edits classification/diagnostic only; escalation is threshold-triggered via review_escalation_status. This stale operator-facing wording fails the docs acceptance criterion that no decision-doc edit is described as always requiring 3x2.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T10:24:07.237Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-005",
+      "_hash": "6bb11c0d95ce7180d7094db649c52e399a258d3e0365c30eadcc4ac65599195c",
+      "files": [
+        "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
+      ],
+      "resolvedAt": "2026-06-15T10:29:01.270Z"
+    },
+    {
+      "id": "B-59a6:F-002",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:101,112 says degraded fallback has two/both eligibility paths even though packages/main/src/core/review-escalation.ts:16-20 and packages/main/src/cli-engine.ts:245-249 implement three eligibility values. The same doc at 282,806,871 describes an allowed fallback reason as the enum, but packages/main/src/handlers/review-escalation.ts:56-66 validates enum eligibility plus a free-form reason and evidenceRefs/approvalRef. WHY: operator docs do not match the implemented eligibility contract and can tell operators to supply the wrong degraded 3x1 evidence shape.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T10:24:15.053Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-005",
+      "_hash": "cbcdc60c78d31e516cfbbe024bec4a2c02286a8f22c0302dbb22b247072141d2",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedAt": "2026-06-15T10:29:07.918Z"
+    },
+    {
+      "id": "B-59a6:F-003",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:265-268 still says the current runtime may evaluate `changedDirectDecisionDocs || firstReviewRoundCountableProblems >= 2` until the implementation story migrates the existing decision-doc gate. WHY: the implementation is already migrated: machine.ts:420 and machine.ts:850 call evaluateReviewEscalation for DONE, done-oracle.ts:626 documents the first REVIEW round countable-problem trigger, and decision-doc-quorum.ts:44 reports classification-only diagnostics. This stale transition note contradicts current runtime behavior and can mislead operators into believing direct decision-doc edits still trigger an always-on DONE 3x2 quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T10:31:30.423Z",
+      "reviewRound": "2026-06-15T10:28:56.312Z",
+      "reviewRunId": "B-59a6:RR-006",
+      "_hash": "788f51d8d97e9efe3da80595171d4d3e98c1c355ce6819c7ba9ba52c75c5e442",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/decision-doc-quorum.ts"
+      ],
+      "resolvedAt": "2026-06-15T10:34:03.969Z"
+    },
+    {
+      "id": "B-59a6:F-004",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:893-894 still says documentation must state that any current direct decision-doc 3x2 gate is legacy transitional behavior until the implementation story migrates it. WHY: this contradicts the same doc at docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:23-24,94-96,265-267 and the implemented runtime at packages/main/src/core/review-escalation.ts:220-229, packages/main/src/core/decision-doc-quorum.ts:291-313, and packages/main/src/core/machine.ts:850-856, where direct decision-doc edits are diagnostic only and DONE escalation is triggered by the first REVIEW round countable-problem threshold. F-001/F-002/F-003 being resolved still leaves this policy contradiction in the acceptance criteria, so a future reviewer/operator can be told to preserve a pre-migration rule that no longer exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-15T10:39:40.860Z",
+      "reviewRound": "2026-06-15T10:33:57.448Z",
+      "reviewRunId": "B-59a6:RR-008",
+      "_hash": "efa7801cf0b8be2a81d850ea6a0cc76400fd2a2815fcbe79a230b6531e500f79",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "resolvedAt": "2026-06-15T10:42:13.847Z"
+    },
+    {
+      "id": "B-59a6:F-005",
+      "desc": "CHK-003 verificationEvidence for status-command-clear-output is semantically stale and contradicts the current CLI output. checklist_get shows the stored manual_transcript note for command `node bin/lattice.js review_escalation_status --storyId=B-59a6` says `required:false, ok:true, assuranceLevel: ordinary-review` for the current story. Re-running `node bin/lattice.js review_escalation_status --storyId=B-59a6 --json` in this review returns `required:true`, `ok:false`, `assuranceLevel: ordinary-review`, with countable first-round problems B-59a6:F-001 and B-59a6:F-002. WHY: verificationEvidence is a gate-consumed process fact in this repo; after the docs findings triggered sticky review escalation, the old transcript can no longer prove CHK-003 CLI behavior and makes the story appear to have no stale evidence when the live command says the opposite. Refresh or replace the CHK-003 evidence with a current transcript, or use a dedicated smoke that proves not-required/required/full/degraded CLI states without depending on B-59a6 changing review history.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T10:49:12.809Z",
+      "reviewRound": "2026-06-15T10:42:06.356Z",
+      "reviewRunId": "B-59a6:RR-010",
+      "_hash": "20dd516883522bcc745d2c7897b61b7013e2928533edbae55d8e197e59abacfd",
+      "files": [
+        ".lattice/story/actives/B-59a6/checklist.json"
+      ],
+      "resolvedAt": "2026-06-15T10:50:24.317Z"
+    },
+    {
+      "id": "B-59a6:F-006",
+      "desc": "packages/main/src/cli-engine.ts:846 and packages/main/src/handlers/review-escalation.ts:61 still tell operators the degraded fallback reason explains why full 3x2 hosts are unavailable. That conflicts with docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:104-111, where explicit-human-approval is a valid eligibility that explicitly does not prove second-host unavailability. This risks conflating human approval with unavailable-host evidence; change the help/error text to say the reason explains the selected degraded fallback eligibility and why lower-assurance 3x1 is being used, without asserting unavailability for approval mode.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T11:19:33.991Z",
+      "reviewRound": "2026-06-15T11:17:14.149Z",
+      "reviewRunId": "B-59a6:RR-018",
+      "_hash": "5cad4a623bc63f389c7b287e27325c47d3b6f27b3f247f440af7602038aacbfe",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "resolvedReason": "Updated review_escalation_fallback_set CLI schema/help and handler validation error so fallback reason explains the selected degraded eligibility and lower-assurance 3x1 use, without asserting host unavailability for explicit-human-approval.",
+      "resolvedAt": "2026-06-15T11:23:20.811Z"
+    },
+    {
+      "id": "B-59a6:F-007",
+      "desc": "verification_evidence_refresh_stale --dryRun reports 17 stale verificationEvidence entries after the F-006 wording/material change, including build-adjacent smoke evidence for review-escalation, decision-doc quorum, process-fact contract, and live status transcripts. Re-running the requested coverage commands passes, but `node bin/lattice.js review_escalation_status --storyId=B-59a6 --json` currently returns ok=false because the degraded fallback record and host verdict material digests are stale. WHY: verificationEvidence and review-escalation fallback material binding are gate-consumed process facts; without refreshing the checklist evidence and current fallback/verdict material binding, TEST/DONE can fail for stale evidence even though the implementation checks pass. Refresh stale verification evidence and re-establish current review-escalation fallback/verdict evidence before treating coverage as current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-15T11:26:27.660Z",
+      "reviewRound": "2026-06-15T11:23:15.767Z",
+      "reviewRunId": "B-59a6:RR-022",
+      "_hash": "a6b2ac66262302be19744fa650f6d0957c2cae17988074cb99180b81841e688d",
+      "files": [
+        ".lattice/story/actives/B-59a6/checklist.json",
+        ".lattice/story/actives/B-59a6/process-events.jsonl"
+      ]
+    }
+  ]
+}
