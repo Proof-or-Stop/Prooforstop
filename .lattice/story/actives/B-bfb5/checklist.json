@@ -146,7 +146,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A dedicated smoke prints before/after prompt bytes or approximate token deltas and exits successfully only when reductions and safety invariants hold.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing prompt registry and managed asset smoke coverage still passes after template slimming.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if a required load-bearing phrase is removed, default output compatibility regresses, or slim output is not actually smaller.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
