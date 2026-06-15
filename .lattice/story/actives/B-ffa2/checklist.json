@@ -142,9 +142,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T15:42:50.995Z",
-      "endTime": null,
+      "endTime": "2026-06-15T15:54:36.534Z",
       "userSees": "Lattice CLI help and workflow hints refer to lattice-implementer and lattice-review-* role IDs, and review/finding/runtime checks accept the lattice reviewer prefix as canonical.",
       "files": {
         "modify": [
@@ -188,7 +188,49 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:runtime-contract",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact registry and reviewer-lane contract verified with lattice-* reviewer lanes.",
+          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
+          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
+          "timestamp": "2026-06-15T15:54:36.986Z"
+        },
+        {
+          "intentRef": "CHK-003:runtime-contract",
+          "kind": "logic_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Runtime fact contract verified after rebuilding packages/main and packages/utils dist artifacts.",
+          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
+          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
+          "timestamp": "2026-06-15T15:54:37.055Z"
+        },
+        {
+          "intentRef": "CHK-003:cli-help",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js help | rg koala role pattern",
+          "result": "pass",
+          "note": "No koala role matches from the freshly built local core CLI help.",
+          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
+          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
+          "timestamp": "2026-06-15T15:54:37.133Z"
+        },
+        {
+          "intentRef": "CHK-003:dispatch-compat-boundary",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js dispatch with agentType=koala-implementer",
+          "result": "pass",
+          "note": "Legacy koala role dispatch now fails fast with a legacy-role rejection instead of aliasing.",
+          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
+          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
+          "timestamp": "2026-06-15T15:54:37.216Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
