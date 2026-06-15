@@ -58,7 +58,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       }
       const reason = normalizeString(args.reason);
       if (reason.length < 20) {
-        throw new Error('review_escalation_fallback_set: reason must be at least 20 characters and explain why 3x2 hosts are unavailable');
+        throw new Error('review_escalation_fallback_set: reason must be at least 20 characters and explain the selected degraded fallback eligibility and why lower-assurance 3x1 is being used');
       }
       const evidenceRefs = normalizeStringArray(args.evidenceRefs);
       const approvalRef = normalizeString(args.approvalRef);

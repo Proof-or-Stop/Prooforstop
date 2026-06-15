@@ -843,7 +843,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'review_escalation_fallback_set', description: 'Record explicit degraded 3x1 review escalation fallback evidence bound to the current material hash. Alias: lattice review escalation fallback set', schema: {
     storyId: z.string().describe('Story ID'),
     eligibility: reviewEscalationFallbackEligibilitySchema.describe('Allowed degraded fallback eligibility'),
-    reason: z.string().min(20).describe('Why full 3x2 host quorum is unavailable'),
+    reason: z.string().min(20).describe('Why the selected degraded fallback eligibility applies and lower-assurance 3x1 review is being used'),
     evidenceRefs: z.array(z.string().min(1)).optional().describe('Local evidence references supporting degraded fallback'),
     approvalRef: z.string().optional().describe('Explicit approval reference; required when evidenceRefs is empty'),
     materialHash: z.string().optional().describe('Optional expected current material hash; stale values are rejected'),
