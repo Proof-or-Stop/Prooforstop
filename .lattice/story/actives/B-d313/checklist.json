@@ -60,7 +60,75 @@
         "test": [
           "packages/main/src/tasks/field-regression-cli-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Suite runs end-to-end with exit 0 and prints '✓ field regression CLI smoke passed'; assertStaleWarningCooldownCliSurface no longer throws.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.839Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "First session_brief invocation: assert.match(first.stderr, /Lattice stale state warnings/) passes against the rebranded header.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.870Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Second (cooldown) invocation: assert.doesNotMatch(second.stderr, /Lattice stale state warnings/) passes, proving the warning is suppressed on the cooldown run.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.898Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "grep -c 'koala stale state warnings' packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "result": "pass",
+          "note": "Returns 0 — no residual legacy /koala stale state warnings/ regex remains in source.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.927Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "docs_check",
+          "file": "packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "command": "grep -c 'Lattice stale state warnings' / 'koala stale state warnings' in dist",
+          "result": "pass",
+          "note": "Compiled dist has 2 'Lattice stale state warnings' and 0 'koala stale state warnings' after rebuild.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.957Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke (with old /koala/ regex)",
+          "result": "pass",
+          "note": "Observed at session start: with the old /koala stale state warnings/ regex the suite threw 'AssertionError ... did not match /koala stale state warnings/', confirming the fix is necessary and the assertion still guards the header.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.984Z"
+        }
+      ]
     }
   ]
 }
