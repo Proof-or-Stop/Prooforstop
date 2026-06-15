@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-15T14:27:00.681Z",
       "reviewRunId": "B-f495:RR-002",
       "_hash": "47e566817e47462a7e7b3eac33dc4047a9c5292b30aa107345b45d45716488c8"
+    },
+    {
+      "id": "B-f495:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: new execution plan is clear open-source English, keeps slim/fields advisory with full-output fallback, and matches current CLI behavior. Evidence: docs/requirements/decisions/slim-fields-token-savings-execution-plan.md:21 documents existing story_get/checklist_get slim+fields; packages/main/src/handlers/story-query.ts:415 and packages/main/src/handlers/checklist.ts:299 implement opt-in compact/fields behavior; packages/main/src/cli-engine.ts:355 and :425 expose schemas; docs/audits/lattice-token-cost-and-takeover-audit.md:35 and :209 support approximate token figures and output dedup scope; docs/requirements/decisions/story-lifecycle.md:190 matches ordinary REVIEW plus threshold-triggered 3x2/degraded 3x1 escalation. Also ran story_get/checklist_get slim examples and review_escalation_status; no Authority/provider-billing overclaim found.",
+      "createdAt": "2026-06-15T14:29:15.933Z",
+      "reviewRound": "2026-06-15T14:27:00.681Z",
+      "reviewRunId": "B-f495:RR-004",
+      "_hash": "970d54b502212b5314674b821a864dc03b9c5c9afb6d9abf4622efa347368f08"
     }
   ]
 }
