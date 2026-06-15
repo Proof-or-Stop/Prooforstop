@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-16 a developer reported that `lattice doctor` still prints two leading `fatal: not a git repository` lines. Reproduced (Lattice 0.3.5) by running `lattice doctor` from the ClawCreek wrapper root (/Users/jek/Documents/ClawCreek, not a git repo; configured gitRoot=clawcreek): two `fatal: not a git repository (or any of the parent directories): .git` lines appear before the report. ~/.lattice/health.jsonl has 0 ClawCreek entries (recorded issues are this dev repo's B-ffa2/B-acec index.lock), so the cross-project log is fine; only the live git probes are noisy.
+
+## Key Insights
+Doctor invokes git with cwd=root (the metadataRoot) instead of the resolved gitRoot at doctor.ts:505 (scanTrackedRuntimeArtifacts git ls-files -z), :554 (orphan-worktree scan git rev-parse --show-toplevel), and :760/:773 (the B-854c metadata-protection probe git ls-files / git check-ignore). Each is wrapped in try/catch that returns safe defaults, so the only symptom is stderr noise. The correct pattern already exists one site over: doctor.ts:93 evaluateStoryDirConfigInsideGitRoot (added by B-198c) resolves the gitRoot and never throws. This is the same defect class B-2856 fixed for validate-channel/concept/cluster-sync/worktree, just in doctor's scan sites B-2856 did not cover (and two sites were freshly introduced by B-854c).
+
+## Solution Tradeoffs
+Approach A (chosen): resolve the gitRoot once at doctor entry (reuse resolveConfiguredGitRoot / the B-198c resolver) and thread it as cwd into the four git-probe sites, falling back to root when no gitRoot resolves so plain repos are byte-identical; also suppress/route the inherited git stderr so a caught probe failure does not leak a fatal line. Approach B (per-call git -C) was rejected as scattering root logic. Risk is low (cosmetic, graceful-catch preserved), but a regression must confirm plain-repo behavior is unchanged and wrapper-root no longer emits fatal noise.
+
+## Conversational Texture
+A developer flagged this as a small residual after the four ClawCreek bug fixes (B-2856/B-804c/B-854c/B-a749) landed, noting it does not affect ClawCreek's lifecycle but is worth confirming doctor's own scan honors each project's gitRoot. Confirmed by reproduction; the user asked to fix it via a story. Kept tight (two checklist items) and low priority since it is cosmetic.

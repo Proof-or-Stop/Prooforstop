@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1637",
+  "allowedCommands": [
+    "git",
+    "lattice",
+    "lattice validate",
+    "node packages/main/dist",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Doctor gitRoot probe fix; cosmetic; do not change what the probes check.",
+  "createdAt": "2026-06-15T23:54:53.464Z",
+  "updatedAt": "2026-06-15T23:54:53.464Z",
+  "_hash": "94ee7b654ac90d4992ea77483d9d544446884edb47bbe34d613e1c82284825b4"
+}

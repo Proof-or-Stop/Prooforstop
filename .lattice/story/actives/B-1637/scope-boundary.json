@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1637",
+  "mode": "correctness_fix",
+  "allowed": [
+    "packages/main/src/handlers/doctor.ts: resolve gitRoot and thread as cwd into the git probe sites (ls-files, rev-parse --show-toplevel, check-ignore)",
+    "quiet inherited git stderr on caught probe failures",
+    "regression tests for doctor git-probe gitRoot resolution"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to fix the doctor gitRoot-probe residual via a story.",
+  "createdAt": "2026-06-15T23:54:53.262Z",
+  "updatedAt": "2026-06-15T23:54:53.262Z",
+  "_hash": "d1e5b8747aeca9c6dedc654006e912e531d46d38573d8c7ddebd344e73b552ea"
+}
