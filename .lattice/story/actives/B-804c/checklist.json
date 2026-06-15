@@ -72,6 +72,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ]
       }
     },
     {
