@@ -162,7 +162,9 @@
         "test": [
           "packages/main/src/tasks/prompt-token-cost-smoke.ts",
           "packages/main/src/tasks/prompt-registry-smoke.ts",
-          "packages/main/src/tasks/flow-stability-smoke.ts"
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          ".Codex/agents/*.md",
+          "bin/lattice-codex.js"
         ]
       },
       "verificationIntent": {
