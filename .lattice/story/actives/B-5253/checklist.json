@@ -149,10 +149,46 @@
         "README.md",
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Codex adapter verification and prompt registry checks pass after the template update.",
+      "userSees": "Verification output includes build success, prompt-token-cost-smoke pass, prompt-registry-smoke pass, and verify_codex adapter checks passed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents",
+          ".claude/agents",
+          ".Codex/agents",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build passes before built dist smoke tasks are executed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "prompt-registry-smoke passes, proving package templates render consistently for Claude and Codex mirrors.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify_codex --json passes after Codex-facing prompt assets change and reports adapter checks passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
