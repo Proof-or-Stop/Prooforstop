@@ -35,6 +35,22 @@
       ],
       "resolvedReason": "Fixed in commit 8a9c44b86. Changed the cli-engine INIT_CHECK pre-check condition from (!alreadyInitCheck && !phaseDetectionFailed) to (!alreadyInitCheck), so getGuardFailureReason(...,INIT_CHECK,...) now runs BEFORE dev_start on the phaseDetectionFailed fallback too (comment updated). No-partial-state proof: alreadyInitCheck=true is intentional recovery (phase already at INIT_CHECK, not partial); when !alreadyInitCheck the full guard runs before dev_start AND story_advance re-runs the same guard on the same inputs, so a pre-bootstrap pass passes again at advance time; a guard fail throws before dev_start, and a dev_start throw is re-thrown without advancing — no path creates a worktree without advancing the phase.",
       "resolvedAt": "2026-06-15T22:53:38.013Z"
+    },
+    {
+      "id": "B-804c:F-003",
+      "desc": "quality-cleanup: cli-engine.ts:4078 phaseDetectionFailed is declared and set in the catch block but never read after the F-002 fix removed !phaseDetectionFailed from the guard condition; the variable is dead and should be removed along with its comment reference (line 4067: \"If phase detection failed earlier, fall back to advancing here\" — this now happens unconditionally via the else branch of alreadyInitCheck, not conditioned on phaseDetectionFailed)",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-15T22:54:48.485Z",
+      "reviewRound": "2026-06-15T22:53:23.221Z",
+      "reviewRunId": "B-804c:RR-007",
+      "_hash": "a64d8826a9aa02c297bcb4a3bbeba962ce2765b5fe29ded5c0e439983d7b8180",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
