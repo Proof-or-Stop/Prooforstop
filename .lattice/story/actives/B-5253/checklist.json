@@ -56,10 +56,45 @@
         "CLAUDE.md",
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Project guidance shows compact status commands where they are safe.",
+      "userSees": "AGENTS.md and CLAUDE.md routine orientation examples show slim / fields commands, while evidence-sensitive examples still show full output.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "README.md",
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Routine orientation examples in project guidance use slim / fields forms for story_get/checklist_get where full data is not required.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full-output examples remain present where the surrounding text requires complete evidence, mutation decisions, or detailed history.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation does not claim provider billing savings, Authority completion, DONE semantic changes, or default output changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
