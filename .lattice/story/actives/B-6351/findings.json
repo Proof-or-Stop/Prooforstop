@@ -26,7 +26,7 @@
       "desc": "CHK-002:edge:1 has no verificationEvidence entry. The intent asks to prove existing user-owned legacy files are not overwritten; scripts/verify-entrypoints.mjs and thin-init-assets-smoke exercise that behavior, and I reran both successfully, but no evidence is bound to CHK-002:edge:1, so TEST coverage has no exact intentRef for this accepted edge case.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-15T02:58:11.391Z",
@@ -36,7 +36,9 @@
       "files": [
         "scripts/verify-entrypoints.mjs",
         "packages/main/src/tasks/thin-init-assets-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Recorded fresh CHK-002:edge:1 verificationEvidence with command node scripts/verify-entrypoints.mjs; node packages/main/dist/tasks/thin-init-assets-smoke.js. Both commands passed at current HEAD, and CHK-002 evidence was batch refreshed before REVIEW.",
+      "resolvedAt": "2026-06-15T03:07:16.554Z"
     },
     {
       "id": "B-6351:F-003",
