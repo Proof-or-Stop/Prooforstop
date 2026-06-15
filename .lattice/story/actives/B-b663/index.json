@@ -4,7 +4,7 @@
   "title": "Document decision-doc audits using automatic 3x2/3x1 escalation",
   "description": "Update the 3x2 review escalation execution plan so documentation and decision-doc audit changes follow the same ordinary-development automatic escalation policy: default normal REVIEW, escalate to full 3x2 only when first REVIEW round records two or more countable problems, and allow explicit degraded 3x1 when the second host is unavailable or approved single-host local mode is used.",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-06-15T02:43:43.591Z",
   "startedAt": "2026-06-15T02:43:43.591Z",
@@ -30,6 +30,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-15T02:44:35.874Z",
+      "branch": "story/B-b663",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:46:43.680Z",
       "branch": "story/B-b663",
       "user": "Harmonygo",
       "agent": "main"
