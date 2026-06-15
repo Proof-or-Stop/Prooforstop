@@ -4,7 +4,7 @@
   "title": "Rename Koala agent role IDs to Lattice",
   "description": "Clean up remaining Koala naming in Lattice CLI by migrating subagent/reviewer role IDs, template assets, CLI help text, generated Codex/Claude agent assets, runtime references, and user-facing docs from koala-* to lattice-*. This is not the removed binary alias path; it touches reviewer/dispatch attribution and agent asset contracts, so it must run as a normal story with an execution document and verification evidence.",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "koala",
@@ -94,6 +94,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-15T17:10:27.015Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T17:14:52.076Z",
       "branch": "story/B-ffa2",
       "user": "Harmonygo",
       "agent": "main"
