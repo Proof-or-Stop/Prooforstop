@@ -30,7 +30,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-854c/decision.json",
+          "command": "lattice story_get --storyId=B-854c",
+          "result": "pass",
+          "note": "decision.json records chosen=OptAB-combination with rationale making bootstrap git-add (force-add) and the protection stance (scaffold allowlist) mutually consistent; story_get reflects the decision and PLAN advanced to DEV",
+          "headHash": "b734f73be02f4671a61777aad649ef502823031c",
+          "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
+          "timestamp": "2026-06-15T22:31:50.730Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
