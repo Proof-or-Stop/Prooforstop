@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-15T14:57:46.136Z",
       "reviewRunId": "B-1477:RR-008",
       "_hash": "45e061ab64041a823ec2f056890d71c7fea75dac020ad5ab6901e9998936cd08"
+    },
+    {
+      "id": "B-1477:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Second-round quality review passed. Reviewed docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md plus finding records for F-001/F-003. The fixes coherently add locally generated ledgerCallId/attemptId/sequence/supersedesRecordIds before provider dispatch, keep provider.requestIdHash as optional metadata, define non-double-counting summary semantics, and classify .lattice/usage/llm-usage.jsonl as a runtime diagnostic artifact excluded from material hash and not Authority/story/process evidence. No correctness blocker found.",
+      "createdAt": "2026-06-15T15:01:00.690Z",
+      "reviewRound": "2026-06-15T14:57:46.136Z",
+      "reviewRunId": "B-1477:RR-011",
+      "_hash": "ccf8a682728295a07361492b6bc0f880f5d2003c52d92a8a9a6d7f6b73dd537a"
     }
   ]
 }
