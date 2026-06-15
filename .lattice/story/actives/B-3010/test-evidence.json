@@ -1,0 +1,307 @@
+{
+  "command": "lattice validate --story=B-3010 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 3 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/15 covered (3 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — A project with no .claude/agents and no .Codex/agents is classified as runtime-owned with prompt assets absent and a current promptRegistryHash.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — A project with explicit full/local prompt assets is not misclassified as absent runtime-owned; local assets are listed individually.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — The inventory never reports receiptVerified, authorityDone, productionDone, or fullAuthorityDone from local prompt registry facts.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — verify_codex/diagnostic output includes a runtime-owned asset status check with registry hash and local Non-authority boundary text.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — rollout diagnostics surface stale local prompt assets as warnings without suggesting automatic deletion or Authority completion.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — Diagnostics do not add a new mutating command path and do not call apply/upgrade/repair during read-only checks.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test — Project-local prompt files matching runtime registry renderings are classified as matches-runtime.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — Missing prompt asset directories are classified as absent and accepted for runtime-owned default.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — A changed/stale prompt file is detected as stale or override and remains on disk after the diagnostic smoke completes.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — runtime-owned-agent-assets-smoke passes and prints the promptRegistryHash plus asset classification coverage.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — prompt-token-cost-smoke still preserves B-bfb5 prompt savings and reports approximate token math, not billing tokens.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — The smoke fails if output claims exact provider billing token usage or omits the unavailability caveat.\",\"  ~ CHK-005:happy:0 [happy/must/cli] deferred via waiver verdict=waived — REVIEW and TEST gates pass with evidence covering runtime-owned asset projection, stale detection, and token accounting.\",\"  ~ CHK-005:edge:0 [edge/must/manual] deferred via waiver verdict=waived — Summary separates localNonAuthorityAudit from authorityServerPath and does not claim receipt-backed Authority completion.\",\"  ~ CHK-005:adversarial:0 [adversarial/must/cli] deferred via waiver verdict=waived — DONE is not attempted while delivery-check, summary, stale evidence, or review escalation requirements are missing.\"],\"warnings\":[],\"timestamp\":\"2026-06-15T12:08:17.921Z\",\"headSha\":\"c4975cf88d8faf9f1f2e1d41500d8458f4acd617\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":874}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":12,\"missingRequired\":3,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A project with no .claude/agents and no .Codex/agents is classified as runtime-owned with prompt assets absent and a current promptRegistryHash.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"commit 015a00903 adds read-only AgentAssetResolution; smoke proves absent prompt assets classify as runtime-owned with promptRegistryHash\",\"headHash\":\"015a0090337ec63276fd5cc0aaea78d75900d63b\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:13.798Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A project with explicit full/local prompt assets is not misclassified as absent runtime-owned; local assets are listed individually.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"smoke proves local matching prompt assets are listed individually and explicit full/local mode is distinguishable\",\"headHash\":\"015a0090337ec63276fd5cc0aaea78d75900d63b\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:13.839Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The inventory never reports receiptVerified, authorityDone, productionDone, or fullAuthorityDone from local prompt registry facts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"smoke asserts AgentAssetResolution JSON does not report receiptVerified, productionDone, authorityDone, or fullAuthorityDone\",\"headHash\":\"015a0090337ec63276fd5cc0aaea78d75900d63b\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:13.872Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"verify_codex/diagnostic output includes a runtime-owned asset status check with registry hash and local Non-authority boundary text.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"smoke inspects runCodexAdapterChecks output and confirms the agent-asset-resolution check reports runtime-owned mode, promptRegistryHash, and localNonAuthorityAudit boundary\",\"headHash\":\"fa17b26db49be357a6c7e19d2a307fe156e4ce2c\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:26.163Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"rollout diagnostics surface stale local prompt assets as warnings without suggesting automatic deletion or Authority completion.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && node packages/main/dist/tasks/rollout-check-smoke.js\",\"result\":\"pass\",\"note\":\"runtime-owned smoke verifies rollout probe warns on stale local prompt assets with manual review guidance; rollout-check-smoke preserves read-only rollout command contract\",\"headHash\":\"fa17b26db49be357a6c7e19d2a307fe156e4ce2c\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:26.202Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Diagnostics do not add a new mutating command path and do not call apply/upgrade/repair during read-only checks.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/rollout-check-smoke.js\",\"result\":\"pass\",\"note\":\"existing rollout smoke verifies rollout_check records no apply/upgrade/repair/fix commands; implementation adds only an in-process read-only probe\",\"headHash\":\"fa17b26db49be357a6c7e19d2a307fe156e4ce2c\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:26.230Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Project-local prompt files matching runtime registry renderings are classified as matches-runtime.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"smoke seeds matching .claude/agents and .Codex/agents files and verifies they classify as matches-runtime\",\"headHash\":\"c68b7268d6c3a86107659ea344ea6c079b9129d6\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:34.369Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Missing prompt asset directories are classified as absent and accepted for runtime-owned default.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"smoke verifies missing prompt asset directories classify as absent and are accepted for runtime-owned default\",\"headHash\":\"c68b7268d6c3a86107659ea344ea6c079b9129d6\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:34.398Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A changed/stale prompt file is detected as stale or override and remains on disk after the diagnostic smoke completes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"smoke changes a local prompt file, detects stale status, then confirms the file content remains unchanged after projection and rollout diagnostics\",\"headHash\":\"c68b7268d6c3a86107659ea344ea6c079b9129d6\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:34.425Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"runtime-owned-agent-assets-smoke passes and prints the promptRegistryHash plus asset classification coverage.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js\",\"result\":\"pass\",\"note\":\"prints PASS runtime-owned-agent-assets-smoke with promptRegistryHash=6e42c247be24625d0427f6d72dedcb8a968f3d994c4118dc93ce22f32097cb0b approximateTokens=73027 providerBillingTokens=unavailable\",\"headHash\":\"1fb41e180ad95ac69aad8b81160b4ed063356c5d\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:43.023Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"prompt-token-cost-smoke still preserves B-bfb5 prompt savings and reports approximate token math, not billing tokens.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/prompt-registry-smoke.js\",\"result\":\"pass\",\"note\":\"prompt-token-cost-smoke preserves B-bfb5 savings and now explicitly says provider billing tokens are unavailable; prompt-registry-smoke verifies registry render/hash compatibility\",\"headHash\":\"1fb41e180ad95ac69aad8b81160b4ed063356c5d\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:43.054Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"The smoke fails if output claims exact provider billing token usage or omits the unavailability caveat.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js\",\"result\":\"pass\",\"note\":\"runtime-owned smoke requires providerBillingTokens=unavailable in output and token smoke caveat avoids exact provider billing claims\",\"headHash\":\"1fb41e180ad95ac69aad8b81160b4ed063356c5d\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:02:43.088Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"REVIEW and TEST gates pass with evidence covering runtime-owned asset projection, stale detection, and token accounting.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"deferred\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"deferred_gate_evidence\",\"command\":\"lattice story_advance --storyId=B-3010 --phase=REVIEW\",\"result\":\"pass\",\"note\":\"Deferred gate evidence: REVIEW and TEST gate proof cannot exist before entering REVIEW. This waiver only unblocks DEV->REVIEW and must be replaced by actual review/validate evidence before DONE.\",\"headHash\":\"1e157c4ec9a24571aee16645ba99a8897b1442df\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:05:09.939Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Summary separates localNonAuthorityAudit from authorityServerPath and does not claim receipt-backed Authority completion.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"deferred\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"deferred_gate_evidence\",\"command\":\"summary_set after REVIEW/TEST\",\"result\":\"pass\",\"note\":\"Deferred gate evidence: final summary separation of localNonAuthorityAudit and authorityServerPath is produced after REVIEW/TEST. Must be replaced before DONE.\",\"headHash\":\"fe43d16dfa211f4b8af10bf91c6024c59a9dab6e\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:05:10.276Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"DONE is not attempted while delivery-check, summary, stale evidence, or review escalation requirements are missing.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"deferred\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"deferred_gate_evidence\",\"command\":\"lattice validate --story=B-3010 --json\",\"result\":\"pass\",\"note\":\"Deferred gate evidence: DONE precheck cannot be proven before REVIEW/TEST. Validate/DONE gates must replace this waiver with actual evidence.\",\"headHash\":\"833753902d20336bef00eebf79491017395821ec\",\"materialHash\":\"22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e\",\"timestamp\":\"2026-06-15T12:05:10.650Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-15T12:08:18.341Z",
+  "headHash": "c4975cf88d8faf9f1f2e1d41500d8458f4acd617",
+  "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 12,
+    "missingRequired": 3,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A project with no .claude/agents and no .Codex/agents is classified as runtime-owned with prompt assets absent and a current promptRegistryHash.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "commit 015a00903 adds read-only AgentAssetResolution; smoke proves absent prompt assets classify as runtime-owned with promptRegistryHash",
+          "headHash": "015a0090337ec63276fd5cc0aaea78d75900d63b",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:13.798Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "A project with explicit full/local prompt assets is not misclassified as absent runtime-owned; local assets are listed individually.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke proves local matching prompt assets are listed individually and explicit full/local mode is distinguishable",
+          "headHash": "015a0090337ec63276fd5cc0aaea78d75900d63b",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:13.839Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The inventory never reports receiptVerified, authorityDone, productionDone, or fullAuthorityDone from local prompt registry facts.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts AgentAssetResolution JSON does not report receiptVerified, productionDone, authorityDone, or fullAuthorityDone",
+          "headHash": "015a0090337ec63276fd5cc0aaea78d75900d63b",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:13.872Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "verify_codex/diagnostic output includes a runtime-owned asset status check with registry hash and local Non-authority boundary text.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke inspects runCodexAdapterChecks output and confirms the agent-asset-resolution check reports runtime-owned mode, promptRegistryHash, and localNonAuthorityAudit boundary",
+          "headHash": "fa17b26db49be357a6c7e19d2a307fe156e4ce2c",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:26.163Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "rollout diagnostics surface stale local prompt assets as warnings without suggesting automatic deletion or Authority completion.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && node packages/main/dist/tasks/rollout-check-smoke.js",
+          "result": "pass",
+          "note": "runtime-owned smoke verifies rollout probe warns on stale local prompt assets with manual review guidance; rollout-check-smoke preserves read-only rollout command contract",
+          "headHash": "fa17b26db49be357a6c7e19d2a307fe156e4ce2c",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:26.202Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Diagnostics do not add a new mutating command path and do not call apply/upgrade/repair during read-only checks.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/rollout-check-smoke.js",
+          "result": "pass",
+          "note": "existing rollout smoke verifies rollout_check records no apply/upgrade/repair/fix commands; implementation adds only an in-process read-only probe",
+          "headHash": "fa17b26db49be357a6c7e19d2a307fe156e4ce2c",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:26.230Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Project-local prompt files matching runtime registry renderings are classified as matches-runtime.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke seeds matching .claude/agents and .Codex/agents files and verifies they classify as matches-runtime",
+          "headHash": "c68b7268d6c3a86107659ea344ea6c079b9129d6",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:34.369Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Missing prompt asset directories are classified as absent and accepted for runtime-owned default.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke verifies missing prompt asset directories classify as absent and are accepted for runtime-owned default",
+          "headHash": "c68b7268d6c3a86107659ea344ea6c079b9129d6",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:34.398Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A changed/stale prompt file is detected as stale or override and remains on disk after the diagnostic smoke completes.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke changes a local prompt file, detects stale status, then confirms the file content remains unchanged after projection and rollout diagnostics",
+          "headHash": "c68b7268d6c3a86107659ea344ea6c079b9129d6",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:34.425Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "runtime-owned-agent-assets-smoke passes and prints the promptRegistryHash plus asset classification coverage.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "prints PASS runtime-owned-agent-assets-smoke with promptRegistryHash=6e42c247be24625d0427f6d72dedcb8a968f3d994c4118dc93ce22f32097cb0b approximateTokens=73027 providerBillingTokens=unavailable",
+          "headHash": "1fb41e180ad95ac69aad8b81160b4ed063356c5d",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:43.023Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "prompt-token-cost-smoke still preserves B-bfb5 prompt savings and reports approximate token math, not billing tokens.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "prompt-token-cost-smoke preserves B-bfb5 savings and now explicitly says provider billing tokens are unavailable; prompt-registry-smoke verifies registry render/hash compatibility",
+          "headHash": "1fb41e180ad95ac69aad8b81160b4ed063356c5d",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:43.054Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "The smoke fails if output claims exact provider billing token usage or omits the unavailability caveat.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "runtime-owned smoke requires providerBillingTokens=unavailable in output and token smoke caveat avoids exact provider billing claims",
+          "headHash": "1fb41e180ad95ac69aad8b81160b4ed063356c5d",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:43.088Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "REVIEW and TEST gates pass with evidence covering runtime-owned asset projection, stale detection, and token accounting.",
+        "type": "cli",
+        "priority": "must",
+        "status": "deferred",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "command": "lattice story_advance --storyId=B-3010 --phase=REVIEW",
+          "result": "pass",
+          "note": "Deferred gate evidence: REVIEW and TEST gate proof cannot exist before entering REVIEW. This waiver only unblocks DEV->REVIEW and must be replaced by actual review/validate evidence before DONE.",
+          "headHash": "1e157c4ec9a24571aee16645ba99a8897b1442df",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:05:09.939Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Summary separates localNonAuthorityAudit from authorityServerPath and does not claim receipt-backed Authority completion.",
+        "type": "manual",
+        "priority": "must",
+        "status": "deferred",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "command": "summary_set after REVIEW/TEST",
+          "result": "pass",
+          "note": "Deferred gate evidence: final summary separation of localNonAuthorityAudit and authorityServerPath is produced after REVIEW/TEST. Must be replaced before DONE.",
+          "headHash": "fe43d16dfa211f4b8af10bf91c6024c59a9dab6e",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:05:10.276Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "DONE is not attempted while delivery-check, summary, stale evidence, or review escalation requirements are missing.",
+        "type": "cli",
+        "priority": "must",
+        "status": "deferred",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "command": "lattice validate --story=B-3010 --json",
+          "result": "pass",
+          "note": "Deferred gate evidence: DONE precheck cannot be proven before REVIEW/TEST. Validate/DONE gates must replace this waiver with actual evidence.",
+          "headHash": "833753902d20336bef00eebf79491017395821ec",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:05:10.650Z"
+        }
+      }
+    ]
+  }
+}
