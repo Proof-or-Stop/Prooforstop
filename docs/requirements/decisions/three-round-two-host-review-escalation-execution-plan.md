@@ -98,8 +98,8 @@ to see whether the DONE escalation trigger actually fired.
 ### Degraded Single-Host Fallback Rule
 
 Full 3x2 remains the default and preferred quorum. A story that requires 3x2 may
-use degraded single-host review only through one of two explicit eligibility
-paths:
+use degraded single-host review only through one of three explicit eligibility
+values:
 
 1. `single-host-environment`: the current local environment has only one viable
    verifier host.
@@ -109,8 +109,9 @@ paths:
    single-host local review for this story even though it does not prove
    second-host unavailability.
 
-Both paths require project policy to allow degraded review for the story's risk
-class. Neither path is equivalent to two-host independence.
+All three eligibility values require project policy to allow degraded review for
+the story's risk class. No degraded fallback is equivalent to two-host
+independence.
 
 The degraded fallback is:
 
@@ -127,7 +128,8 @@ Allowed fallback eligibility values are:
 
 The fallback must be explicit. It must not be inferred from a missing verdict,
 timeout, or convenience preference alone. The evaluator must record the fallback
-eligibility, reason, evidence refs or approval ref, and current material binding.
+eligibility, a free-form reason, `evidenceRefs` or `approvalRef`, and current
+head/material/validation binding.
 
 Degraded single-host review must never be reported as "3x2 passed", "two-host
 independent", or Authority receipt completion. It may unblock local lifecycle
@@ -279,8 +281,9 @@ accept degraded single-host review only when all of the following are true:
 
 ```text
 degradedFallback.allowed = true
-AND degradedFallback.reason is one of the allowed fallback reasons
-AND degradedFallback.evidence is present
+AND degradedFallback.eligibility is one of the allowed fallback eligibility values
+AND degradedFallback.reason is non-empty free-form explanatory text
+AND degradedFallback.evidenceRefs or degradedFallback.approvalRef is present
 AND current material has 3 quorum rounds
 AND each quorum round has at least 1 PASS host verdict
 AND every counted verdict is bound to current head/material/validation evidence
@@ -331,6 +334,7 @@ writing files.
   },
   "degradedFallback": {
     "allowed": false,
+    "eligibility": null,
     "reason": null,
     "evidenceRefs": [],
     "approvalRef": null,
@@ -552,21 +556,25 @@ degradedAllowed = projectPolicy.allowsDegradedSingleHost
                   OR explicitUserApprovalForThisStory
 
 fallbackEligibility =
-  unavailableSecondHostEvidencePresent
-  OR explicitSingleHostLocalApprovalPresent
+  single-host-environment
+  OR temporary-host-unavailability
+  OR explicit-human-approval
 
 degradedPass =
   degradedAllowed
-  AND allowedFallbackReason
+  AND allowedFallbackEligibility
+  AND nonEmptyFreeFormReason
   AND fallbackEligibility
+  AND evidenceRefsOrApprovalRefPresent
   AND validSingleHostRounds.length >= 3
   AND every counted single-host round has >=1 PASS host
   AND every counted verdict is fresh for current material
 ```
 
 `evidenceRefs` or `approvalRef` is required for every degraded fallback. The
-eligibility value must be reported separately so implementation cannot silently
-treat user approval as proof that a second host was unavailable.
+eligibility value must be reported separately from the free-form reason so
+implementation cannot silently treat user approval as proof that a second host
+was unavailable.
 
 The evaluator result must distinguish:
 
@@ -585,7 +593,8 @@ Fail output must include:
 - whether 3x2 is required;
 - which trigger caused it;
 - whether degraded fallback was considered;
-- fallback reason and evidence refs when degraded fallback is used;
+- fallback eligibility, free-form reason, and evidence refs or approval ref when
+  degraded fallback is used;
 - current material digest;
 - valid rounds count;
 - missing rounds count;
@@ -730,11 +739,12 @@ direct decision-doc edit requires DONE quorum. The hard DONE gate is
 | Case | Expected |
 | --- | --- |
 | Full 3x2 available | `quorumResult=pass-full-3x2`; degraded fallback is not used. |
-| Second host credit exhausted with evidence and approval | `quorumResult=pass-degraded-3x1` after 3 fresh PASS rounds from the available host. |
-| Second host unauthenticated with host-runtime evidence and approval | `quorumResult=pass-degraded-3x1` after 3 fresh PASS rounds from the available host. |
-| Provider outage or rate limit is recorded but no approval exists | Gate blocks and reports missing degraded approval. |
+| `single-host-environment` with policy approval and evidence refs | `quorumResult=pass-degraded-3x1` after 3 fresh PASS rounds from the available host and `assuranceLevel=degraded-single-host`. |
+| `temporary-host-unavailability` with host-runtime evidence refs | `quorumResult=pass-degraded-3x1` after 3 fresh PASS rounds from the available host and `assuranceLevel=degraded-single-host`. |
+| `explicit-human-approval` with approval ref and free-form reason | `quorumResult=pass-degraded-3x1` after 3 fresh PASS rounds from the available host and `assuranceLevel=degraded-single-host`. |
+| Provider outage or rate limit is recorded but no evidence refs or approval ref exists | Gate blocks and reports missing degraded fallback evidence. |
 | No second host verdict and no unavailable-host evidence | Gate blocks; missing verdict alone is not fallback eligibility. |
-| Fabricated unavailable reason without host/runtime/provider evidence | Gate blocks with invalid fallback evidence. |
+| Fabricated unavailable reason without a valid eligibility value and evidence refs or approval ref | Gate blocks with invalid fallback evidence. |
 | Degraded 3x1 tries to set `quorumResult=pass-full-3x2` | Gate blocks or contract test fails. |
 | Degraded 3x1 tries to set Authority receipt completion fields | Gate blocks and reports Authority overclaim. |
 
@@ -803,8 +813,11 @@ Do not wire DONE yet. First, make diagnostics visible and testable.
 Add degraded single-host policy evaluation before DONE wiring. This evaluator
 must require:
 
-- one allowed fallback reason;
-- recent second-host unavailable evidence or explicit user-approved local mode;
+- one allowed fallback eligibility value;
+- a non-empty free-form fallback reason;
+- evidence refs or an approval ref for the selected eligibility;
+- recent second-host unavailable evidence, single-host environment evidence, or
+  explicit user-approved local mode;
 - project policy or story-level user approval;
 - three fresh single-host PASS rounds;
 - `assuranceLevel=degraded-single-host` in every report path.
@@ -827,8 +840,9 @@ The failure reason must tell the operator whether the blocker came from:
 - missing quorum rounds;
 - missing independent hosts;
 - stale material;
-- missing identity fields.
-- degraded fallback reason, approval, and assurance level when fallback is used.
+- missing identity fields;
+- degraded fallback eligibility, free-form reason, evidence/approval reference,
+  and assurance level when fallback is used.
 
 ### Phase 5. Registry and Contract Verification
 
@@ -868,8 +882,9 @@ Implementation is complete only when all are true:
     pass only after 3 fresh PASS rounds from the available host.
 11. Degraded review reports `assuranceLevel=degraded-single-host` and never
     reports `pass-full-3x2`.
-12. Degraded review requires an allowed fallback reason and evidence or explicit
-    user-approved single-host local mode.
+12. Degraded review requires an allowed fallback eligibility value, free-form
+    reason, `evidenceRefs` or `approvalRef`, fresh material binding, and
+    `assuranceLevel=degraded-single-host`.
 13. Fabricated unavailability, silent downgrade, and Authority overclaim all
     fail closed.
 14. `decision_doc_quorum_check` and `review_escalation_status` report the same
