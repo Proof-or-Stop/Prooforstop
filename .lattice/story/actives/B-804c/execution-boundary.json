@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-804c",
+  "allowedCommands": [
+    "git",
+    "lattice",
+    "lattice validate",
+    "node packages/main/dist",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bug 2: INIT_CHECK bootstrap atomicity + recovery; cwd-resolution (B-2856) and data-loss (B-854c) excluded.",
+  "createdAt": "2026-06-15T22:01:50.941Z",
+  "updatedAt": "2026-06-15T22:01:50.941Z",
+  "_hash": "eb4d971c96f250be663788b8f3d13ac005864f01447425df4304d0e26dd103b9"
+}

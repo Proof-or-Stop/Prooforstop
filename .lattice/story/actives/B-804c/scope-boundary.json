@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-804c",
+  "mode": "correctness_fix",
+  "allowed": [
+    "cli-engine.ts INIT_CHECK phase-write/bootstrap atomicity",
+    "core/machine.ts recovery transition",
+    "handlers/worktree.ts re-bootstrap command",
+    "regression tests for atomicity and recovery"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized opening this story from the ClawCreek bug report and dispatching a driver agent.",
+  "createdAt": "2026-06-15T22:03:08.616Z",
+  "updatedAt": "2026-06-15T22:03:08.616Z",
+  "_hash": "a65fa91a59b2daae1ffbd94ef1052dae228e352eb3c5c07f654a408c4bec0f59"
+}
