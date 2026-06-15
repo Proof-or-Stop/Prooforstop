@@ -5,9 +5,9 @@
       "title": "Make the INIT_CHECK phase write atomic with worktree bootstrap",
       "context": "cli-engine.ts:4003 writes phase=INIT_CHECK before dev_start bootstraps the worktree (:4010); on bootstrap failure there is no rollback (:4022-4024). Defer the phase persistence until bootstrap succeeds, OR roll the phase back (and any mirror) if bootstrap throws, so a failed bootstrap never leaves a partially-advanced story.",
       "userSees": "When worktree bootstrap fails, `lattice story_advance --phase=INIT_CHECK` reports failure and the story stays at its prior phase (story_get shows the original phase, not INIT_CHECK) instead of 'advanced to INIT_CHECK' followed by a worktree-failed warning.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:34:53.024Z",
       "verificationIntent": {
         "happy": [
           {
