@@ -295,6 +295,17 @@
           "headHash": "e759b72bde73db2417b3590bc3814264a03def10",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:31:57.499Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files claude-session.mjs",
+          "result": "pass",
+          "note": "Empty output — claude-session.mjs removed from git index.",
+          "headHash": "83c487e1544dd129bf1c3c1068f17e8bb6cb3cd4",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:58.086Z"
         }
       ]
     }
