@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the INIT_CHECK phase write atomic with worktree bootstrap",
+      "context": "cli-engine.ts:4003 writes phase=INIT_CHECK before dev_start bootstraps the worktree (:4010); on bootstrap failure there is no rollback (:4022-4024). Defer the phase persistence until bootstrap succeeds, OR roll the phase back (and any mirror) if bootstrap throws, so a failed bootstrap never leaves a partially-advanced story.",
+      "userSees": "When worktree bootstrap fails, `lattice story_advance --phase=INIT_CHECK` reports failure and the story stays at its prior phase (story_get shows the original phase, not INIT_CHECK) instead of 'advanced to INIT_CHECK' followed by a worktree-failed warning.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a supported recovery path for stories already stuck without a worktree",
+      "context": "core/machine.ts:503-508 has no INIT_CHECK->INIT backward transition, so a story stuck with requiresWorktree=true and no worktree on disk cannot be re-bootstrapped or rolled back today. Add an idempotent re-bootstrap (or guarded re-entry) command/path that recreates the worktree for such a story.",
+      "userSees": "For a story stuck in INIT_CHECK with no worktree, a documented recovery command recreates the worktree and prints its path, instead of 'Cannot transition from PLAN to INIT_CHECK' with no way forward.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression tests for non-atomic advance and recovery",
+      "context": "Cover: (a) a forced bootstrap failure leaves the phase unchanged (no partial advance); (b) the recovery command re-creates a missing worktree for an already-stuck story. Use the existing worktree/cli-engine test seams; do not require a real failing bootstrap if it can be injected.",
+      "userSees": "`lattice validate` runs the new tests green, proving bootstrap-failure leaves phase unchanged and the recovery path re-bootstraps a stuck story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
