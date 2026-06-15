@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d313",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Update the two stale-warning assertion regexes (koala -> Lattice) at packages/main/src/tasks/field-regression-cli-smoke.ts:1894 and :1906"
+  ],
+  "excluded": [
+    "Any product/behavior change to the stale-warning cooldown logic",
+    "Broadening the regex to be brand-agnostic instead of matching the exact Lattice header",
+    "Changing the CLI emit string in cli-engine.ts",
+    "Touching any other test assertions or unrelated koala->Lattice strings"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved fixing this stale assertion via the Lattice story workflow (2026-06-15).",
+  "createdAt": "2026-06-15T00:24:33.974Z",
+  "updatedAt": "2026-06-15T00:24:33.974Z",
+  "_hash": "eea640c105e45271a72934f9abb3d9c55ef8f94aaaa25aa5f5e4d1d7ec3fd596"
+}

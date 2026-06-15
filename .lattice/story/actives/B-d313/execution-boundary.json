@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d313",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git status*",
+    "grep *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run *",
+    "npm run test:field-regression-cli-smoke"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/cli-engine.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Single-file test assertion fix: koala->Lattice at field-regression-cli-smoke.ts:1894/1906. CLI emit string in cli-engine.ts is out of scope (blocked).",
+  "createdAt": "2026-06-15T00:24:59.725Z",
+  "updatedAt": "2026-06-15T00:24:59.725Z",
+  "_hash": "cc203ac192373304522e041167f997c7d7a561a22f421b607fe275d89d4a074c"
+}

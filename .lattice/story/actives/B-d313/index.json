@@ -1,0 +1,42 @@
+{
+  "storyId": "B-d313",
+  "name": "fix-stale-lattice-warning-assertion",
+  "title": "Fix stale koala→Lattice assertion that reds the field-regression-cli-smoke suite",
+  "description": "The koala→Lattice rebrand changed the stale-state warning header emitted by cli-engine.ts to '⚠ Lattice stale state warnings:', but the cooldown regression test in field-regression-cli-smoke.ts still asserts the old /koala stale state warnings/ string at lines 1894 and 1906. assertStaleWarningCooldownCliSurface therefore throws and reds the entire field-regression-cli-smoke suite on main. Update the two assertions to match the current Lattice wording so the suite goes green again.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "low",
+  "keywords": [
+    "field-regression-cli-smoke",
+    "stale-warning",
+    "rebrand",
+    "koala-to-lattice",
+    "test-assertion"
+  ],
+  "createdAt": "2026-06-15T00:22:25.733Z",
+  "startedAt": "2026-06-15T00:22:25.733Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T00:22:25.740Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T00:25:17.767Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d313",
+    "branch": "story/B-d313",
+    "createdAt": "2026-06-15T00:25:17.895Z"
+  }
+}
