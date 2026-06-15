@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-d959:F-001",
+      "desc": "The degraded single-host fallback eligibility is internally inconsistent enough to make later implementation ambiguous. docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:92 says degraded review is allowed only when a second host is demonstrably unavailable and policy allows it, and :112-115 requires attempted-host/provider plus observed unavailable condition. But :203-207, :766-775, and :829-834 describe explicit user-approved single-host local mode as an alternative to unavailable-host evidence, while :521-535 still requires unavailableSecondHostEvidencePresent. The artifact example at :333-350 also changes requiredAssurance to degraded-single-host, which blurs the original two-host requirement with the achieved lower assuranceLevel. Clarify whether user approval alone can substitute for unavailability evidence, and define required vs effective vs achieved assurance fields before implementation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T02:15:57.681Z",
+      "reviewRound": "2026-06-15T02:14:06.912Z",
+      "reviewRunId": "B-d959:RR-004",
+      "_hash": "2013327fd9b3d8b85519b5a609cfe614bb659d92c6a7818a78bec93cd3736307",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ]
+    }
+  ]
+}
