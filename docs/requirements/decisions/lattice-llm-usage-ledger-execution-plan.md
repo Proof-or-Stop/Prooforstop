@@ -81,6 +81,33 @@ Rules:
   returned usage, or triggered a budget refusal.
 - Ledger readers must never infer that missing counts are zero-cost.
 
+### Estimate accuracy and fallback order
+
+`prompt-size-estimate` records must use the most accurate available estimator,
+in a strict, explicitly ordered fallback chain:
+
+1. **Provider `count_tokens` endpoint (preferred).** When the provider exposes a
+   token-counting endpoint, the estimate must prefer it. These counts are
+   model-version-specific: the same text tokenizes differently across model
+   versions, so the count must be requested for the exact target model.
+2. **Local tokenizer (fallback).** When the provider endpoint is unavailable,
+   fall back to a local tokenizer bound to the same provider/model family.
+3. **Bytes/characters heuristic (offline fallback only).** A bytes- or
+   character-based heuristic is the lowest-confidence fallback and is used only
+   when offline, i.e. when neither the provider endpoint nor a local tokenizer is
+   available. It must never be promoted to the preferred estimator.
+
+Every estimate record must:
+
+- record `usage.estimator.confidence` as `high | medium | low`, reflecting which
+  method was used (`high` for provider `count_tokens`, `medium` for a local
+  tokenizer, `low` for the bytes/chars heuristic);
+- bind the estimate to the exact `provider.model` it was computed for, because
+  token counts are model-version-specific and an estimate for one model version
+  must not be reused for another;
+- still record `usage.estimator.name`, `usage.estimator.version`, and
+  `usage.estimator.unit` alongside the new `confidence` field.
+
 ## Ledger Path and Runtime Artifact Classification
 
 The intended local ledger path is:
@@ -403,7 +430,11 @@ Future implementation should be split into narrow slices:
    - record `unavailable` when provider usage is absent.
 3. Estimate path:
    - add preflight prompt-size estimate records for budget checks;
-   - label estimator name, version, unit, and confidence;
+   - prefer the provider `count_tokens` endpoint, fall back to a local tokenizer,
+     then to a bytes/chars heuristic only when offline (see Estimate accuracy
+     and fallback order);
+   - label estimator name, version, unit, and confidence (`high | medium | low`),
+     and bind the estimate to the exact `provider.model`;
    - keep estimate records separate from final provider-reported records;
    - mark estimate records superseded when a provider-reported final record or
      blocked refusal replaces them for summary accounting.
