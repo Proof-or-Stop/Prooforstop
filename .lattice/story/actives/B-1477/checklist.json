@@ -41,7 +41,39 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Problem Statement|## Goals|## Non-Goals|Usage Source Semantics|JSONL Ledger Record Shape|Local Non-authority Boundary|Authority Server Receipt-Backed Path|Implementation Touchpoints|Fail-Closed Budget Behavior|Privacy Constraints|Validation / Smoke Plan|Rollout Phases|Acceptance Criteria\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "result": "pass",
+          "note": "Document exists and contains the expected execution-plan sections for the LLM usage ledger.",
+          "headHash": "88828480290ed8329632fad12eb009febbfa8511",
+          "materialHash": "34e38be6acd984ec5039c087b1fd994f99ffa39237b570c40f97e85c8dabe2c3",
+          "timestamp": "2026-06-15T14:27:13.729Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"true provider-reported usage|approximate prompt-size estimates|unavailable|provider-reported|prompt-size-estimate|usage.source=unavailable\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "result": "pass",
+          "note": "Document mechanically distinguishes provider-reported true usage, prompt-size estimates, and unavailable usage.",
+          "headHash": "88828480290ed8329632fad12eb009febbfa8511",
+          "materialHash": "34e38be6acd984ec5039c087b1fd994f99ffa39237b570c40f97e85c8dabe2c3",
+          "timestamp": "2026-06-15T14:27:13.761Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "if rg -n '\"receiptVerified\": true|\"productionDone\": true|\"authorityChanged\": true|receiptVerified=true|productionDone=true|authorityChanged=true|fullAuthorityDone=true|authorityDone=true' docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md; then exit 1; else echo PASS; fi",
+          "result": "pass",
+          "note": "Negative control passed: document does not claim local ledger records set Authority completion or receipt verification true.",
+          "headHash": "88828480290ed8329632fad12eb009febbfa8511",
+          "materialHash": "34e38be6acd984ec5039c087b1fd994f99ffa39237b570c40f97e85c8dabe2c3",
+          "timestamp": "2026-06-15T14:27:13.792Z"
+        }
+      ]
     }
   ],
   "auditLog": [
