@@ -54,12 +54,13 @@
       "q": "Should DEV explicitly create/import docs/requirements/decisions/slim-fields-token-savings-execution-plan.md into this worktree before audit edits, or should the checklist file boundary be revised from modify to create/import?",
       "evidence": "The target plan document is absent in the B-f495 worktree, but all checklist items list it under files.modify and the understanding says it was drafted in the main worktree before worktree creation.",
       "sourcePointers": [
-        "understanding_get facts[0]",
-        "checklist_get CHK-001 files.modify",
-        "checklist_get CHK-002 files.modify",
-        "checklist_get CHK-003 files.modify",
-        "git ls-tree HEAD docs/requirements/decisions | rg slim|fields|token|savings"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+      ],
+      "resolution": "Resolved: docs/requirements/decisions/slim-fields-token-savings-execution-plan.md is intentionally created by CHK-001 inside the B-f495 worktree from the drafted main-worktree content before audit verification. CHK-002 and CHK-003 then audit the created plan document as evidence, not as separate pre-existing file modifications.",
+      "resolvedAt": "2026-06-15T14:20:01.713Z"
     }
   ]
 }
