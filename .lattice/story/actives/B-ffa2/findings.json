@@ -102,7 +102,7 @@
       "desc": "Active decision docs still teach old Koala surfaces: role-separation.md instructs koala-test-analyst/koala-red-team agent roles, and cc-learnings.md still uses koala.config.json in active checklist/test instructions. These conflict with current lattice-* role naming and lattice.config.json as the only active config.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-15T17:03:31.170Z",
@@ -112,7 +112,9 @@
       "files": [
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/cc-learnings.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by renaming active role references in docs/requirements/decisions/role-separation.md from koala-test-analyst/koala-red-team to lattice-test-analyst/lattice-red-team, and active config instructions in docs/requirements/decisions/cc-learnings.md from koala.config.json to lattice.config.json. Verification: rg -n 'koala-test-analyst|koala-red-team|koala\\.config\\.json' over those files returns no matches.",
+      "resolvedAt": "2026-06-15T17:10:45.354Z"
     },
     {
       "id": "B-ffa2:F-007",
