@@ -1,0 +1,55 @@
+{
+  "storyId": "B-854c",
+  "changes": "OptAB-combination fix for the CRITICAL story-metadata data-loss bug. (A) worktree.ts bootstrap now force-adds (git add -f) so INIT_CHECK never hard-fails with paths-are-ignored, plus a post-commit git check-ignore guard on the actual metadata leaf that emits a loud DATA-LOSS warning when the project default would still leave it untracked. (B) new lattice doctor \"story metadata protection\" scan (text + --json) that flags the neither-tracked-nor-protected state, and doctor --repair that neutralizes a conflicting bare .lattice/ directory ignore then installs the managed ignore-volatile/track-metadata allowlist (reusing the existing runtime-artifact-registry allowlist via the exported managed-assets mergeRuntimeGitignore). New pure predicate core/story-metadata-protection.ts (unsafe = ignored && !tracked) shared by bootstrap, doctor, and a 10-check smoke.",
+  "usage": "Bootstrap is automatic (git add -f). For an existing or downstream project that may be unsafe, run: lattice doctor (shows ✗ story metadata is neither git-tracked nor protected ... when unsafe) then lattice doctor --repair to install the allowlist; re-run lattice doctor to confirm ✓. lattice doctor --format=json exposes storyMetadataProtection.unsafe/needsRepair.",
+  "expectedOutcome": "On a project that ignores .lattice, bootstrap no longer prints \"The following paths are ignored ... .lattice\"; metadata is force-added/tracked. lattice doctor flags untracked-and-unignored metadata with a repair pointer; --repair makes it safe; a fresh project protected by default.",
+  "actualTranscript": "Real-machine (worktree dist/cli.js): OLD git add exit 1 vs NEW git add -f exit 0 (leaf staged); doctor text \"✗ story metadata is neither git-tracked nor protected by the managed ignore allowlist\" + --json unsafe:true; doctor --repair installs the managed block + neutralizes bare .lattice/ → re-scan unsafe:false, git check-ignore leaf exit 1 (safe). 10-check smoke green. Full transcript at .lattice/story/actives/B-854c/evidence/transcript-diff.md.",
+  "outcomeDiff": "No diff — actual matches expected on all four scenarios (bootstrap force-add, bootstrap warning text, doctor unsafe detection, doctor --repair + safe re-scan).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Doctor --repair must be run by the operator (or via init scaffolding) on already-misconfigured projects; the bootstrap force-add commits THIS story metadata but the doctor allowlist is what protects sibling/future paths from git clean. Approach C (relocating volatile vs persistent under different prefixes) was intentionally deferred as an out-of-scope layout migration.",
+  "pitfalls": "The check-ignore guard MUST probe the actual metadata leaf (index.json), NOT the .lattice prefix — under a negation allowlist git check-ignore on the parent reports ignored even though the leaf is re-included (would false-positive a safe repo). A bare .lattice/ directory-form ignore makes the !.lattice/story/actives/** negation INERT (git parent-directory rule), so --repair must comment out that exact line before merging the allowlist. The global lattice binary may be a stale symlink — verify fixes against the worktree built dist/cli.js.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 368293
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 263489
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 375857
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1092089
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 680352
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 395655
+    }
+  },
+  "totalDurationMs": 3175746,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T22:50:01.725Z",
+  "updatedAt": "2026-06-15T22:50:01.725Z"
+}
