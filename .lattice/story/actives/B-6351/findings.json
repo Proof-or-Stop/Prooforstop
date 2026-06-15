@@ -35,6 +35,25 @@
         "scripts/verify-entrypoints.mjs",
         "packages/main/src/tasks/thin-init-assets-smoke.ts"
       ]
+    },
+    {
+      "id": "B-6351:F-003",
+      "desc": "Active Claude/Codex reviewer guidance still tells agents to use the removed koala CLI alias. CLAUDE.md:6-15 requires `koala session_brief`, `koala validate`, and story commands; .claude/agents/koala-review-concept.md:12-21 and .Codex/agents/koala-review-concept.md:12-21 mirror the same active instructions; packages/main/templates/agents/koala-review-concept.md:12-21 would regenerate them for new assets. This is not preserved historical/process evidence: these files are live entry/prompt assets, so removing bin/koala.js and package bin aliases while leaving them to run `koala` makes fresh reviewers/Claude users follow an inactive compatibility path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-15T02:58:29.448Z",
+      "reviewRound": "2026-06-15T02:55:28.853Z",
+      "reviewRunId": "B-6351:RR-004",
+      "_hash": "2af201fef7b92ff2f3748378b77ac23030ff7960a6dcc3a5da36020cbd16e74b",
+      "files": [
+        "CLAUDE.md",
+        ".claude/agents/koala-review-concept.md",
+        ".Codex/agents/koala-review-concept.md",
+        "packages/main/templates/agents/koala-review-concept.md"
+      ]
     }
   ]
 }
