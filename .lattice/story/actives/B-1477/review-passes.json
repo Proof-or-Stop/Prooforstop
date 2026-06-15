@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-15T14:57:46.136Z",
       "reviewRunId": "B-1477:RR-011",
       "_hash": "ccf8a682728295a07361492b6bc0f880f5d2003c52d92a8a9a6d7f6b73dd537a"
+    },
+    {
+      "id": "B-1477:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Second-round concept review passed: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md now defines locally generated ledgerCallId/attemptId/sequence/supersedesRecordIds before provider dispatch, keeps provider-reported, prompt-size-estimate, and unavailable usage semantically distinct, and preserves the local Non-authority boundary so local ledger records cannot claim receiptVerified, productionDone, or Authority proof without verified server receipt subject binding.",
+      "createdAt": "2026-06-15T15:01:15.473Z",
+      "reviewRound": "2026-06-15T14:57:46.136Z",
+      "reviewRunId": "B-1477:RR-009",
+      "_hash": "a135872f15bcc256f4c1057f72f6a505d1ef206797b92e67da22006b61127b8c"
     }
   ]
 }
