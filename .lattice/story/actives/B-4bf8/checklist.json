@@ -119,6 +119,42 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc mentions count_tokens as the preferred estimation method (provider endpoint) -> grep for count_tokens; WHY: ensures estimate path prefers provider tokenizer over local heuristics",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies estimator confidence ranking high|medium|low -> grep for confidence and high|medium|low; WHY: ensures estimate records carry a confidence discriminator",
+            "type": "cli"
+          },
+          {
+            "desc": "doc requires estimate to be bound to exact provider.model (model-version-specific) -> grep for model-version or provider.model in estimate context; WHY: counts differ across model versions, binding prevents stale estimates",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fallback chain is explicitly ordered: count_tokens > local tokenizer > bytes/chars -> grep for fallback or ordered preference; WHY: catch missing fallback order that would leave implementers guessing",
+            "type": "cli"
+          },
+          {
+            "desc": "estimator.name and estimator.version still required in constraints alongside new confidence field -> grep constraints for estimator; WHY: catch regression where adding confidence drops existing estimator fields",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep entire doc for bytes-per-char or bytes heuristic as a PRIMARY estimator (not fallback) -> must only appear as lowest-confidence fallback; WHY: adversarial check that cheap heuristics are not accidentally promoted to preferred",
+            "type": "cli"
+          },
+          {
+            "desc": "grep JSON example for estimator block -> if present, must include confidence field; WHY: catch example updated with estimator but missing the new confidence field, creating prose-example mismatch",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
