@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-15T03:33:10.540Z",
       "reviewRunId": "B-59a6:RR-003",
       "_hash": "d96665dd7c6ac1144401419a7fa01fc697dd00b0948f80526abefbc427c15348"
+    },
+    {
+      "id": "B-59a6:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Final docs re-review PASS. Confirmed B-59a6:F-001/F-002/F-003 are resolved in finding_list; docs and implementation now agree that direct decision-doc edits are classification/diagnostic only, the current runtime trigger is firstReviewRoundCountableProblems >= 2 rather than changedDirectDecisionDocs OR threshold, degraded fallback has three eligibility values plus free-form reason and evidenceRefs or approvalRef, fallback is bound to current material hash, assuranceLevel=degraded-single-host, and local quorum/fallback evidence does not claim Authority completion.",
+      "createdAt": "2026-06-15T10:37:02.388Z",
+      "reviewRound": "2026-06-15T10:33:57.448Z",
+      "reviewRunId": "B-59a6:RR-007",
+      "_hash": "e23c1a9e57f646799ad9a7041087689f30e85e645cb88a446858a07884bd5d6d"
     }
   ]
 }
