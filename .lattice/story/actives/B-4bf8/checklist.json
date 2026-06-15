@@ -126,7 +126,14 @@
       "context": "Extend the Validation/Smoke Plan, Acceptance Criteria, and Rollout Phases sections so they assert: four-field cache-token recording, no stored totalTokens, estimator confidence + count_tokens preference, call-time attribution incl. null/subagent, completeness reconciliation, streaming/failure usage, canonical normalization, and pricingRef. Keep cross-references consistent throughout the doc.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
