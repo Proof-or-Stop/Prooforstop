@@ -119,9 +119,9 @@
         "packages/main/src/tasks/review-escalation-smoke.ts",
         "packages/main/src/tasks/command-ownership-contract-smoke.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T03:32:04.256Z",
       "userSees": "User sees review-escalation smoke tests pass for zero-finding, threshold-triggered, and degraded 3x1 cases.",
       "files": {
         "modify": [
@@ -166,7 +166,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "smoke-zero-finding-doc-audit",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/decision-doc-quorum-smoke.js",
+          "result": "pass",
+          "note": "Review escalation smoke proves zero-finding decision-doc edits are not escalation blockers; decision-doc quorum smoke proves the old command is diagnostic only.",
+          "headHash": "9de162afe3628673bef0b0cf16c645875f3288e4",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:04.301Z"
+        },
+        {
+          "intentRef": "smoke-threshold-doc-audit",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Review escalation smoke proves two countable first-round reviewer findings trigger full quorum requirement.",
+          "headHash": "9de162afe3628673bef0b0cf16c645875f3288e4",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:04.348Z"
+        },
+        {
+          "intentRef": "smoke-degraded-fallback",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Review escalation smoke proves explicit degraded fallback passes only as assuranceLevel=degraded-single-host with fresh material and evidence/approval.",
+          "headHash": "9de162afe3628673bef0b0cf16c645875f3288e4",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:04.410Z"
+        },
+        {
+          "intentRef": "smoke-no-silent-downgrade",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Review escalation smoke proves missing fallback evidence or stale material remains blocked and degraded is never reported as full 3x2.",
+          "headHash": "9de162afe3628673bef0b0cf16c645875f3288e4",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:04.455Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
