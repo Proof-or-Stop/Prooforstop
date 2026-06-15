@@ -103,7 +103,30 @@
       "userSees": "`lattice validate` runs the new tests green, proving story metadata cannot end up in the neither-tracked-nor-protected state after bootstrap.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New regression tests run green under lattice validate, covering metadata tracked/protected after bootstrap under both ignoring and non-ignoring .gitignore",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A test asserts the doctor predicate flags the broad-ignore-untracked (unsafe) state and clears after repair",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A test asserts bootstrap does NOT silently leave metadata untracked: force-add path always yields a tracked leaf or a loud warning, never the silent neither-tracked-nor-protected state",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
