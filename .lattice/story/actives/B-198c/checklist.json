@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Extract the storyDir-inside-gitRoot invariant check into one reusable core fn",
       "context": "worktree.ts:754 and cli-engine.ts:3367 both inline the same relative()+.. escape check. Extract to core (near story-signed-workspace-resolution.ts) as the single source of truth: realpath both sides, violation when rel is empty/absolute/contains a .. segment. Have both existing guards call it so behavior is byte-identical.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T20:46:32.280Z",
       "verificationIntent": {
         "happy": [
           {
