@@ -178,6 +178,46 @@
         "test": [
           "packages/main/src/tasks"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: call story_discard with resolver returning authoritativeCwd=/repo/gitRoot -> git status --porcelain, worktreeRemoveWithRetry, branchExists, and branch -D all run with cwd=/repo/gitRoot (not root=metadataRoot); assert by capturing cwd from injected git/execFileSync; WHY: proves all 5+ git call sites in discard path are rerouted",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root fixture: call story_advance --phase=DONE merge path with resolver returning authoritativeCwd=/repo/gitRoot -> git rev-parse --abbrev-ref HEAD and git merge --no-ff run with cwd=/repo/gitRoot; WHY: proves merge-path git sites are rerouted",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: call story_discard with resolver returning resolved=false -> all git calls use root (the original metadataRoot); WHY: proves null-fallback preserves byte-identical behavior for non-wrapper-root repos",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktreeRemoveWithRetry retry path: first 2 attempts fail with Permission denied from gitRoot, 3rd succeeds -> worktree removed, no crash; WHY: Windows retry logic must use the correct cwd on every retry attempt, not just the first",
+            "type": "cli"
+          },
+          {
+            "desc": "branchExists called after worktree removal with gitRoot -> git rev-parse runs from gitRoot to verify branch deletion; WHY: if branchExists falls back to metadataRoot after worktree removal it could report stale data",
+            "type": "cli"
+          },
+          {
+            "desc": "git add at worktree.ts:316 is NOT rerouted (out of scope, uses repoRoot) -> assert that line 316 cwd is still repoRoot, not gitRoot; WHY: scope boundary: this site is Bug 3, must not be accidentally changed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS on discard: git status --porcelain runs from metadataRoot (wrong tree) and reports clean, but gitRoot worktree has uncommitted changes -> assert story_discard must not proceed to delete the branch when the real worktree is dirty; WHY: a cwd mismatch silently discards uncommitted work",
+            "type": "cli"
+          },
+          {
+            "desc": "merge from wrong tree: git merge --no-ff runs from metadataRoot (no git repo) instead of gitRoot -> assert the merge must fail or be blocked, not silently succeed against the wrong repo; WHY: merging from the wrong cwd could merge unrelated branches or fail silently",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
