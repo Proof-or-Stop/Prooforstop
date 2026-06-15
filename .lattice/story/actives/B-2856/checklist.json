@@ -5,9 +5,9 @@
       "title": "Route validate-channel git operations through the resolved gitRoot",
       "context": "validate-channel.ts:75-98 defaultGitLogReader and defaultGitChangedFilesReader run git rev-parse/merge-base/log/show with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd via resolveStorySignedWorkspace() before checkCommitAuthor and pass it instead of projectRoot. Keep command text and pass/fail/skipped semantics unchanged.",
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate --channel --story=B-xxx` runs the channel gate from the gitRoot and returns its normal pass/fail/skipped result instead of failing with 'fatal: not a git repository'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:06:23.659Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/validate-channel.ts"
