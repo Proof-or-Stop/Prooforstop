@@ -1,0 +1,55 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add compact query guidance to agent prompt templates",
+      "context": "Use the accepted B-f495 plan. Prefer a shared prompt-registry guidance block when possible, then keep package templates and generated Claude/Codex mirrors consistent.",
+      "relatedDocs": [
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+      ],
+      "userSees": "Agent prompts recommend slim / fields for routine status checks and full output for evidence-sensitive work.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update routine documentation examples",
+      "context": "Change only examples used for routine orientation. Keep full story_get/checklist_get examples where complete evidence or mutation decisions require full data.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+      ],
+      "userSees": "Project guidance shows compact status commands where they are safe.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression coverage for compact guidance",
+      "context": "Extend prompt-token-cost-smoke or a focused smoke so future edits cannot remove compact guidance or the full-output fallback from package templates and mirrors.",
+      "relatedDocs": [
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+      ],
+      "userSees": "Verification fails if compact guidance or full-output fallback drifts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify Codex adapter and prompt registry consistency",
+      "context": "Because package templates and .Codex/.claude mirrors may change, run build, prompt registry smoke, prompt token smoke, and verify_codex.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+      ],
+      "userSees": "Codex adapter verification and prompt registry checks pass after the template update.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
