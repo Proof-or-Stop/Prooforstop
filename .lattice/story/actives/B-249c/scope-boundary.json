@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-249c",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add focused regression coverage for post-DONE main movement",
+    "Fix DONE oracle/done_closure evidence-freshness projection for already DONE stories",
+    "Keep active TEST/DONE-entry evidence freshness strict against current workspace state"
+  ],
+  "excluded": [
+    "Do not change Authority Server receipt semantics",
+    "Do not change cli-engine English translation behavior",
+    "Do not remove koala aliases or compatibility paths",
+    "Do not touch unrelated active stories B-6351/B-acec/B-b663/B-f0a6"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to solve the post-DONE evidence-freshness caveat observed on B-a57f/B-22b0; scope limited to real DONE closure correctness issue.",
+  "createdAt": "2026-06-15T02:52:00.710Z",
+  "updatedAt": "2026-06-15T02:52:00.710Z",
+  "_hash": "293aa0c69e07b4663c31e6a21880ac77cd1a872c89f32aba2c16ea86c079d84c"
+}

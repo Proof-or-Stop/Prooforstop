@@ -1,0 +1,35 @@
+{
+  "storyId": "B-f0a6",
+  "name": "remove-unused-packages-game-demo",
+  "title": "Remove unused packages/game demo package",
+  "description": "Remove the legacy packages/game demo because it is not part of the current Lattice CLI direction, is not referenced by root build/test/workspace configuration, and only remains as a fixture documentation example. Update the fixture specification so it no longer points to a real in-repo demo package that should not be maintained as core product surface.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-06-15T02:50:56.610Z",
+  "startedAt": "2026-06-15T02:50:56.610Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T02:50:56.611Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:53:17.317Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f0a6",
+    "branch": "story/B-f0a6",
+    "createdAt": "2026-06-15T02:53:17.498Z"
+  }
+}

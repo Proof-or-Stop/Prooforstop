@@ -1,0 +1,29 @@
+{
+  "storyId": "B-249c",
+  "checkedAt": "2026-06-15T02:52:19.296Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-15T02:52:19.296Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-15T02:52:19.296Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Current tool policy does not allow spawning independent subagents unless the user explicitly requests them; manually verified INIT scope is narrow, user-confirmed, and bounded to DONE oracle freshness projection plus regression coverage only.",
+    "actor": "Harmonygo",
+    "session": "sess-a84a7a94f001df02",
+    "attestedAt": "2026-06-15T02:52:19.296Z",
+    "headHash": "be5c8f88656b220053e047995bdde9a7a9432d70",
+    "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4"
+  },
+  "_hash": "d6068da8669d40d415cf992e90b413eb0872250dca0f97750d135ad913dd9737"
+}
