@@ -1,0 +1,32 @@
+{
+  "storyId": "B-bfb5",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "packages/main/templates/agents/*.md",
+    ".claude/agents/*.md",
+    ".Codex/agents/*.md",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    ".Codex/agents/*.md",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "bin/lattice-codex.js"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T10:47:27.903Z",
+  "updatedAt": "2026-06-15T10:47:27.903Z"
+}
