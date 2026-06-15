@@ -61,7 +61,16 @@
       "userSees": "With gitRoot configured to a subdirectory, `lattice story_discard` and `lattice story_advance --phase=DONE` (merge + branch cleanup) run git from the gitRoot and complete normally instead of aborting with 'fatal: not a git repository'.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      }
     },
     {
       "id": "CHK-005",
