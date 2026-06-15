@@ -51,7 +51,14 @@
       "context": "Specify that storyId/phase are captured from the active lease/session context at preflight (call time). Non-story calls (global validate, daemon) record storyId=null and are NOT dropped. Subagent/nested calls propagate the parent storyId plus a subagent/thread id. Add a role/agentType field (implementer|reviewer|main|...) so per-story breakdowns by role are possible.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-005",
