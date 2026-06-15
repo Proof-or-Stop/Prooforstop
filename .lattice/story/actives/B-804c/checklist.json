@@ -115,6 +115,18 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ]
       }
     }
   ]
