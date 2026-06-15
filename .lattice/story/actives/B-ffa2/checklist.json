@@ -216,7 +216,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Verification output shows build/test/Codex adapter checks passing and targeted rg scans show no active koala-* role IDs in CLI help, templates, mirrored host assets, or active documentation.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main",
+          "scripts/verify-process-fact-contract.mjs",
+          "node bin/lattice.js verify_codex",
+          "lattice validate --story=B-ffa2"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build/test and node bin/lattice.js verify_codex pass after the rename.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Targeted rg scans separate active role IDs from permitted historical/runtime compatibility references.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice help and dispatch-related help do not emit koala-* role guidance after rebuild.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
