@@ -1,0 +1,87 @@
+{
+  "storyId": "B-3990",
+  "checkedAt": "2026-06-15T23:29:57.000Z",
+  "features": [
+    {
+      "feature": "verifier.ts no-story gitCwd fallback changed to evaluateStoryDirConfigInsideGitRoot (cwd-only, no gate-semantics change)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "wrapper-root project: bare validate --concept resolves gitCwd to configured gitRoot (no not-a-git-repository error)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "plain repo / null gitRoot: no-story gitCwd falls back to projectRoot (byte-identical behavior)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "resolver returns null gitRoot or errors internally: falls back to projectRoot, no crash",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "do not touch the --story resolveGitCwd path (B-2856 path unchanged)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "reuse exported evaluateStoryDirConfigInsideGitRoot from core/story-signed-workspace-resolution.ts without modifying it",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "test: wrapper-root fixture no-story gitCwd resolves to the gitRoot",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "test: plain repo no-story gitCwd resolves to projectRoot",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "test: null gitRootAbs falls back to projectRoot",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "test at function level (not via global lattice binary)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 10,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9b04f77cc728dc7a541327b2d42fee7a13cea802f5b4fa29572d0161cb7609ba",
+  "openQuestions": []
+}
