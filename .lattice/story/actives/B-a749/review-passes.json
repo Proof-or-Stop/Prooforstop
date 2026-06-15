@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a749:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified all 10 verificationIntents (CHK-001 happy/edge x2/adversarial, CHK-002 happy/edge/adversarial, CHK-003 happy/edge/adversarial) against validate-lint-change-scope-smoke.ts. Each intent is exercised by a concrete, named smoke case with specific assert statements — no rubber-stamping. The in-scope tsc-error case (CHK-002:edge:0, case b) asserts result.status === fail, confirming the gate bites. The no-real-tsc assertion (CHK-003:adversarial:0) is structural: only injected CommandRunner and ChangedFilesReader are used, never real child_process.spawnSync. Fail-closed case (CHK-001:adversarial:0) asserts computeOutOfScopeTsconfigs returns empty set when changed file maps to no tsconfig subtree. No blocker found.",
+      "createdAt": "2026-06-15T22:32:36.670Z",
+      "reviewRound": "2026-06-15T22:31:12.937Z",
+      "reviewRunId": "B-a749:RR-003",
+      "_hash": "1d78222b2d8e9d2fa8c422e92944a250aaf4a30ac6a1271658559f289e88ff67"
+    }
+  ]
+}
