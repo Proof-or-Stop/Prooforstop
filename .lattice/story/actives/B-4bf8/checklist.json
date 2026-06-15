@@ -161,8 +161,8 @@
       "id": "CHK-004",
       "title": "Call-time story/phase attribution rules",
       "context": "Specify that storyId/phase are captured from the active lease/session context at preflight (call time). Non-story calls (global validate, daemon) record storyId=null and are NOT dropped. Subagent/nested calls propagate the parent storyId plus a subagent/thread id. Add a role/agentType field (implementer|reviewer|main|...) so per-story breakdowns by role are possible.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T23:52:11.190Z",
       "endTime": null,
       "files": {
         "modify": [
