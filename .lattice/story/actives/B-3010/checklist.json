@@ -11,7 +11,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Diagnostic inventory lists runtime prompt registry hash and classifies agent prompt assets without changing project files.",
+      "userSees": "Terminal shows \"agentAssetResolution: mode=runtime-owned promptRegistryHash=<sha256> .claude/agents=absent .Codex/agents=absent authority=localNonAuthority\".",
       "files": {
         "modify": [
           "packages/main/src/core/prompt-registry.ts",
@@ -46,7 +46,12 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "excludes": [
+        "packages/main/src/core/managed-assets.ts: read for inventory context only; no managed asset repair/apply behavior changes in this story",
+        "packages/main/src/init-assets.ts: read for init behavior context only; no init asset generation behavior changes in this story",
+        "packages/main/src/cli-init.ts: read for init behavior context only; no init command behavior changes in this story"
+      ]
     },
     {
       "id": "CHK-002",
