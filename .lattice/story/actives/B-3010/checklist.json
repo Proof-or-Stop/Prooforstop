@@ -251,9 +251,9 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T12:02:42.596Z",
-      "endTime": null,
+      "endTime": "2026-06-15T12:02:42.988Z",
       "userSees": "Terminal shows \"PASS runtime-owned-agent-assets-smoke; approximateTokens=<n>; providerBillingTokens=unavailable\".",
       "files": {
         "modify": [
@@ -291,7 +291,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "prints PASS runtime-owned-agent-assets-smoke with promptRegistryHash=6e42c247be24625d0427f6d72dedcb8a968f3d994c4118dc93ce22f32097cb0b approximateTokens=73027 providerBillingTokens=unavailable",
+          "headHash": "1fb41e180ad95ac69aad8b81160b4ed063356c5d",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:43.023Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "prompt-token-cost-smoke preserves B-bfb5 savings and now explicitly says provider billing tokens are unavailable; prompt-registry-smoke verifies registry render/hash compatibility",
+          "headHash": "1fb41e180ad95ac69aad8b81160b4ed063356c5d",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:43.054Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "runtime-owned smoke requires providerBillingTokens=unavailable in output and token smoke caveat avoids exact provider billing claims",
+          "headHash": "1fb41e180ad95ac69aad8b81160b4ed063356c5d",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:43.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
