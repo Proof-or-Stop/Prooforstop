@@ -84,7 +84,7 @@
       "desc": "Stale CHK-003 verification evidence remains: evidence_inspect reports stale refs CHK-003:runtime-contract, CHK-003:cli-help, and CHK-003:dispatch-compat-boundary bound to old head/material hashes even though validate is green. Remove or refresh these stale legacy evidence refs before TEST.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-15T17:03:07.206Z",
@@ -93,7 +93,9 @@
       "_hash": "f0ee2a3e1ae28e40a3cb4a4a88a7cbc4a8d01c8f4d717b03268794087e29c6a5",
       "files": [
         ".lattice/story/actives/B-ffa2/checklist.json"
-      ]
+      ],
+      "resolvedReason": "Resolved by replacing CHK-003 verificationEvidence through checklist_update with only the current CHK-003 happy/edge/adversarial refs, then running verification_evidence_refresh_stale and node bin/lattice.js validate --story=B-ffa2 --json. evidence_inspect now reports freshness.status=fresh with staleRefs=[].",
+      "resolvedAt": "2026-06-15T17:10:36.009Z"
     },
     {
       "id": "B-ffa2:F-006",
