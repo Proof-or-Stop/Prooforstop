@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Reuse the exported project-level resolver (evaluateStoryDirConfigInsideGitRoot) for the no-story fallback",
+    "cwd-only: never change gate pass/fail semantics or git command text",
+    "Plain-repo behavior byte-identical",
+    "Minimal: only the verifier.ts no-story gitCwd fallback, no repo-wide rework"
+  ],
+  "drivers": [
+    "The report Bug 1 standalone symptom (bare validate --concept) is still live on wrapper-root",
+    "A proven id-independent resolver already exists and is exported",
+    "B-2856 left the no-story branch uncovered because its resolveGitCwd needs a storyId"
+  ],
+  "options": [
+    {
+      "name": "A: project-level fallback at the verifier.ts no-story branch",
+      "pros": [
+        "Minimal, cwd-only, byte-identical for plain repos",
+        "Reuses the exported id-independent resolver",
+        "Covers bare concept/channel/lint gates consistently"
+      ],
+      "cons": [
+        "Latent non-gate git sites elsewhere remain (out of scope, not reported)"
+      ]
+    },
+    {
+      "name": "B: require --story for the gates",
+      "pros": [
+        "No resolution code change"
+      ],
+      "cons": [
+        "Breaks the documented standalone diagnostic command; worse UX"
+      ]
+    },
+    {
+      "name": "C: repo-wide git invocation rework",
+      "pros": [
+        "Comprehensive"
+      ],
+      "cons": [
+        "Overkill, high regression risk, scope creep"
+      ]
+    }
+  ],
+  "chosen": "A: project-level fallback at the verifier.ts no-story branch",
+  "rationale": "Option A changes the no-story gitCwd fallback in verifier.ts from projectRoot to the project-level evaluateStoryDirConfigInsideGitRoot result (falling back to projectRoot when no gitRoot resolves), reusing the exported id-independent resolver. It is cwd-only, byte-identical for plain repos, mirrors the B-2856 pattern, and covers the bare concept/channel/lint gates. B breaks the standalone command; C is overkill.",
+  "preMortem": [
+    {
+      "scenario": "Plain-repo regression",
+      "trigger": "the resolver returns a non-null gitRoot when none is configured",
+      "consequence": "plain repos run gate git in the wrong dir",
+      "mitigation": "fall back to projectRoot when the resolved gitRoot is null; test that plain-repo gitCwd equals projectRoot"
+    },
+    {
+      "scenario": "Resolver throws and crashes the validate pipeline",
+      "trigger": "internal error in evaluateStoryDirConfigInsideGitRoot",
+      "consequence": "validate crashes instead of degrading",
+      "mitigation": "the resolver is total (top-level try/catch returning a null gitRoot); the projectRoot fallback covers null"
+    },
+    {
+      "scenario": "Only the concept gate fixed; channel/lint still broken",
+      "trigger": "the no-story fallback is computed per-gate rather than shared",
+      "consequence": "bare channel/lint still fail on wrapper-root",
+      "mitigation": "apply the same project-level fallback to the shared no-story gitCwd in verifier.ts; the test asserts the resolved cwd"
+    },
+    {
+      "scenario": "Collision with a B-2856 follow-up in verifier.ts",
+      "trigger": "another session edits the same block",
+      "consequence": "merge conflict",
+      "mitigation": "fleet verified done (no in-flight stories); keep the change narrow; merge main before DONE"
+    }
+  ],
+  "timestamp": "2026-06-15T23:27:41.960Z"
+}

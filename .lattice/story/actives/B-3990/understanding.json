@@ -1,0 +1,24 @@
+{
+  "task": "Bare lattice validate --concept (and the channel/lint CLI gates) run without --story fall back to projectRoot (the metadataRoot) in verifier.ts around line 604, failing on wrapper-root with Not a git repository. B-2856 fixed the --story path via the story-scoped resolveGitCwd; the no-story branch was never covered.",
+  "outcome": "On a wrapper-root project, lattice validate --concept with no --story runs git diff in the resolved gitRoot and prints a concept pass line instead of warning: Not a git repository / concept warn: git diff failed. Plain repos stay byte-identical.",
+  "facts": [
+    "verifier.ts line 604 picks gitCwd via the story-scoped resolveGitCwd only when args.story is set, otherwise it falls back to projectRoot (the metadataRoot).",
+    "evaluateStoryDirConfigInsideGitRoot is exported at core/story-signed-workspace-resolution.ts line 366, is id-independent (needs no storyId), and never throws (top-level try/catch returning a null gitRootAbs).",
+    "B-2856 fixed the --story and REVIEW-to-TEST preflight paths but not the standalone CLI.",
+    "Rebuilding the main dist on 2026-06-16 surfaced that the bare command still reproduces the report Bug 1 symptom."
+  ],
+  "constraints": [
+    "cwd-only: do not change gate pass/fail semantics or git command text.",
+    "Plain repos (no configured gitRoot, or metadataRoot equals gitRoot) must stay byte-identical via the projectRoot fallback.",
+    "Reuse the exported evaluateStoryDirConfigInsideGitRoot; do not modify it and do not touch the --story resolveGitCwd path.",
+    "Stay minimal: only the verifier.ts no-story gitCwd fallback, no repo-wide rework."
+  ],
+  "unknowns": [
+    "Whether the channel/lint CLI gates share the same no-story args.story fallback block in verifier.ts (likely the same place); the implementer confirms and applies it consistently."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/"
+  ],
+  "timestamp": "2026-06-15T23:27:41.764Z"
+}

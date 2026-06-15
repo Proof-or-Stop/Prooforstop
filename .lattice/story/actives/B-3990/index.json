@@ -4,7 +4,7 @@
   "title": "Resolve gitRoot for bare CLI gates (no --story) on wrapper-root projects",
   "description": "The bare lattice validate --concept (and the channel/lint CLI gates) run without a --story still fail on wrapper-root projects with Not a git repository. Confirmed root cause at packages/main/src/handlers/verifier.ts:604: gitCwd is resolved via the story-scoped resolveGitCwd only when args.story is set; the no-story branch falls back to projectRoot (the metadataRoot, which is not a git repo on wrapper-root layouts). B-2856 fixed the --story / REVIEW-TEST preflight paths but not the standalone CLI command. Fix: for the no-story branch, resolve gitCwd via the already-exported project-level evaluateStoryDirConfigInsideGitRoot (id-independent, never throws), falling back to projectRoot when no gitRoot resolves. This is cwd-only and byte-identical for plain repos. Scope: just the no-story gitCwd fallback in verifier.ts; do not change gate pass/fail semantics or git command text.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -30,6 +30,14 @@
       "action": "advance",
       "timestamp": "2026-06-15T23:22:29.609Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T23:27:41.507Z",
+      "branch": "story/B-3990",
       "user": "Harmonygo",
       "agent": "main"
     }

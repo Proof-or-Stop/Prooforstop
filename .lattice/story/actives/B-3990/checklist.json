@@ -7,7 +7,30 @@
       "userSees": "User runs lattice validate --concept (no --story) in a wrapper-root project and the concept gate runs git diff in the resolved gitRoot instead of printing warning: Not a git repository / git diff failed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "bare validate --concept on a wrapper-root project resolves gitCwd to the gitRoot (no not a git repository)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plain repo / no configured gitRoot resolves the no-story gitCwd to projectRoot (byte-identical)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolver returns null gitRoot or errors internally -> falls back to projectRoot, no crash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
