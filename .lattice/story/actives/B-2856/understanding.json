@@ -1,0 +1,30 @@
+{
+  "task": "Re-route the ~14 git child-process sites that default cwd to metadataRoot/projectRoot so they use the configured gitRoot (authoritativeCwd from the existing resolveStorySignedWorkspace()), with a null/unresolved fallback to projectRoot. Sites: handlers/validate-channel.ts (git reads), handlers/validate-concept.ts (git diff + repo grep), core/cluster-sync.ts (git log main..HEAD), handlers/worktree.ts (story_discard + story_advance merge + remove/branchExists helpers). cwd-only; no command text, gate semantics, or bootstrap change. Add a wrapper-root vs plain-repo test pair.",
+  "outcome": "In a wrapper-root project (metadataRoot is NOT a git repo; configured gitRoot=<subdir>), `lattice story_discard`, `lattice validate --channel`, and `lattice validate --concept` no longer print 'fatal: not a git repository' — they run git against the resolved gitRoot and succeed, producing the same output as running the identical git commands from inside <subdir>/. In a plain repo (metadataRoot == gitRoot, resolver returns null/unresolved), output and behavior are byte-identical to before (fallback to projectRoot). A new wrapper-root vs plain-repo test pair passes, asserting each rerouted git site runs in the correct cwd.",
+  "facts": [
+    "resolveStorySignedWorkspace() in core/story-signed-workspace-resolution.ts already computes authoritativeCwd = resolved gitRoot (resolutionSource=configured-git-root) and is used by story_resolve",
+    "The defect: ~14 git child-process call sites bypass the resolver and use cwd: projectRoot/root (the metadataRoot)",
+    "Confirmed sites: validate-channel.ts default git readers (cwd: projectRoot, lines ~75/79/83/91/98); validate-concept.ts git diff + grep readers; cluster-sync.ts readCommitsSinceMain git log (cwd: projectRoot); handlers/worktree.ts git()/execFileSync call sites for story_discard + story_advance merge + remove/branchExists",
+    "The readers use a dependency-injection seam (default readers) that can be threaded with the resolved cwd without changing command text",
+    "Bugs 2/3/4 from the ClawCreek report (atomic bootstrap, .lattice track/ignore data-loss, lint change-scope) are out of scope (separate stories)"
+  ],
+  "constraints": [
+    "Reuse the existing resolveStorySignedWorkspace(); do NOT add a new resolver",
+    "cwd-only: do not change any git command text, gate semantics, or bootstrap behavior",
+    "Null/unresolved gitRoot MUST fall back to the current projectRoot/root so non-wrapper-root repos stay byte-identical",
+    "All ~14 sites across the 4 files must be rerouted (no partial coverage)",
+    "A regression could make a gate falsely PASS by running git against the wrong tree — a wrapper-root vs plain-repo test pair is mandatory"
+  ],
+  "unknowns": [
+    "Exact DI seam shape per reader (whether authoritativeCwd threads via an arg, a reader factory, or a cwd param) — to confirm by reading each file",
+    "Whether every call site has the story context needed to call the resolver, or needs a fallback path"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/core/cluster-sync.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts"
+  ],
+  "timestamp": "2026-06-15T21:39:01.528Z"
+}

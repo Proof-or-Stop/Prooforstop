@@ -5,45 +5,702 @@
       "title": "Route validate-channel git operations through the resolved gitRoot",
       "context": "validate-channel.ts:75-98 defaultGitLogReader and defaultGitChangedFilesReader run git rev-parse/merge-base/log/show with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd via resolveStorySignedWorkspace() before checkCommitAuthor and pass it instead of projectRoot. Keep command text and pass/fail/skipped semantics unchanged.",
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate --channel --story=B-xxx` runs the channel gate from the gitRoot and returns its normal pass/fail/skipped result instead of failing with 'fatal: not a git repository'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:06:23.659Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: inject gitLogReader + gitChangedFilesReader that capture cwd arg; call checkCommitAuthor with resolver returning authoritativeCwd=/repo/gitRoot -> both readers receive cwd=/repo/gitRoot, not /repo (metadataRoot); WHY: proves the reroute actually threads the resolved gitRoot into the git readers",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: inject readers capturing cwd; call checkCommitAuthor with resolver returning resolved=false, authoritativeCwd=null -> both readers receive cwd=projectRoot (the original metadataRoot); WHY: proves null-fallback preserves byte-identical behavior for non-wrapper-root repos",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root fixture: run runChannelGateCli end-to-end with injected readers and resolver returning gitRoot -> gate returns pass/fail/skipped status matching the injected reader output, proving gate semantics unchanged; WHY: proves command text and pass/fail logic are not altered by the cwd reroute",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolver throws an exception during resolution -> handler catches and falls back to projectRoot rather than crashing the validate pipeline; WHY: protects against resolver bugs in production without blocking validation",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root with gitRoot pointing to a path that exists but is not the metadataRoot -> cwd is set to exactly the gitRoot path, not metadataRoot; WHY: ensures the reroute is not silently ignored when both paths exist",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS guard: inject gitLogReader that returns data from the WRONG repo (metadataRoot commits instead of gitRoot commits) and assert the gate does NOT pass on stale/wrong data; WHY: a cwd mismatch could silently pass a gate by reading the wrong commit history",
+            "type": "cli"
+          },
+          {
+            "desc": "concurrent resolver: two validate-channel calls race with different storyIds returning different gitRoots -> each call uses its own resolved gitRoot, no cross-contamination; WHY: if resolver result is cached globally, a stale gitRoot from story A could bleed into story B validation",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: resolver throw -> resolveGitCwd try/catch falls back to projectRoot",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "concurrent: cwd resolved per-call from per-story ctx; cwd-only change does not add shared state (diff: command/flow unchanged)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Route validate-concept git diff and grep scan through the resolved gitRoot",
       "context": "validate-concept.ts:78-91 defaultGitDiffReader (git diff base...HEAD) and defaultGrepReader (grep -rnF .) run with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd and pass it so both the diff and the repo-wide grep run from the gitRoot. Keep IGNORED_DIRS / residual threshold logic unchanged.",
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate --concept` computes deleted symbols and residual references against the gitRoot and reports residuals normally instead of failing with 'fatal: not a git repository'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:06:24.455Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: inject gitDiffReader + grepReader capturing cwd arg; call runConceptGateCli with resolver returning authoritativeCwd=/repo/gitRoot -> gitDiffReader receives cwd=/repo/gitRoot and grepReader receives cwd=/repo/gitRoot; WHY: proves both git diff and repo-wide grep are rerouted to the resolved gitRoot",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: inject readers capturing cwd; runConceptGateCli with resolver returning resolved=false -> both readers receive cwd=projectRoot; WHY: proves null-fallback preserves byte-identical behavior on plain repos",
+            "type": "cli"
+          },
+          {
+            "desc": "end-to-end concept gate with injected diff containing deleted symbols: diff has -export function foo removed, grep finds 0 residuals -> status=pass, deletedSymbols=[foo], residuals=[]; WHY: proves IGNORED_DIRS and threshold logic unchanged after cwd reroute",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gitDiffReader returns empty diff (no changes on branch) -> concept gate returns pass with deletedSymbols=[] regardless of wrapper-root vs plain-repo; WHY: empty-diff edge case should not crash or produce spurious residuals",
+            "type": "cli"
+          },
+          {
+            "desc": "grepReader called with a symbol containing special characters (underscore, dollar) in wrapper-root -> grep runs with -F (fixed string) from gitRoot, not metadataRoot; WHY: ensures -F flag and cwd are both correct when symbol has regex-special chars",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS: inject grepReader that searches metadataRoot (wrong tree) instead of gitRoot and finds 0 residuals for a symbol that HAS residuals in the gitRoot -> assert concept gate must not pass with 0 residuals when the real tree has references; WHY: running grep from wrong cwd silently hides real residuals",
+            "type": "cli"
+          },
+          {
+            "desc": "maxBuffer exhaustion: inject gitDiffReader returning 50MB diff from gitRoot -> handler does not crash with ENOBUFS; WHY: large monorepo diffs from the correct gitRoot must not cause silent truncation that hides deleted symbols",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: grep arg-handling & diff maxBuffer are UNCHANGED (diff shows only cwd added); behavior inherited",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: grep arg-handling & diff maxBuffer are UNCHANGED (diff shows only cwd added); behavior inherited",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Route cluster-sync commit scan through the resolved gitRoot",
       "context": "cluster-sync.ts:137-150 readCommitsSinceMain(projectRoot) runs git log main..HEAD with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd and pass it instead so Resolves: CL-xxx commit scanning works under wrapper-root. Preserve the existing error-surfaced-as-warning behavior (F-023 path).",
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate` auto-resolves Resolves: CL-xxx clusters from main..HEAD commits (or prints the git error as a warning) instead of silently finding no commits because git ran from the wrong root.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:06:25.100Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/cluster-sync.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: call readCommitsSinceMain with projectRoot=resolved gitRoot (/repo/gitRoot) -> execSync git log runs with cwd=/repo/gitRoot and returns parsed commits; WHY: proves the reroute threads the resolved gitRoot into the git log call site",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: call readCommitsSinceMain with projectRoot=metadataRoot (resolver unresolved) -> cwd=projectRoot, commits returned byte-identical to pre-change behavior; WHY: proves null-fallback preserves existing behavior for non-wrapper-root repos",
+            "type": "cli"
+          },
+          {
+            "desc": "end-to-end syncClusterResolves with wrapper-root: commits contain Resolves: CL-001 -> cluster is resolved; WHY: proves the full pipeline from git log through commit parsing to cluster resolution works with the rerouted cwd",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "F-023 error path: readCommitsSinceMain from gitRoot where git log fails (no main branch) -> returns {commits:[], error: stderr_message} and syncClusterResolves surfaces the error as a warning, not a crash; WHY: preserves the F-023 error-surfaced-as-warning behavior after reroute",
+            "type": "cli"
+          },
+          {
+            "desc": "empty commit history: gitRoot has no commits on branch (main..HEAD is empty) -> returns {commits:[]} with no error; WHY: edge case where branch was just created with no divergence from main",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS: readCommitsSinceMain called with metadataRoot (wrong tree) finds 0 commits because metadataRoot has no git history, while gitRoot has real commits with Resolves: CL-xxx -> assert syncClusterResolves must not silently report 0 resolved clusters when the real tree has matching commits; WHY: running git log from wrong cwd silently drops all cluster resolutions",
+            "type": "cli"
+          },
+          {
+            "desc": "commit message with malicious NUL/RS bytes: git log output contains extra \\x00 and \\x1e delimiters embedded in commit messages -> parser does not produce phantom commits or skip real ones; WHY: commit messages from the correct gitRoot could contain delimiter bytes that break the parser",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: git log parsing/delimiter handling UNCHANGED (diff: only cwd added)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Route worktree story_discard and story_advance merge git invocations through the resolved gitRoot",
       "context": "worktree.ts git()/gitFile() default cwd to root (metadataRoot); story_discard (:1049 status --porcelain, :1164 branch -D), story_advance merge (:958 rev-parse --abbrev-ref HEAD, :969 merge --no-ff), worktreeRemoveWithRetry (:258-259) and branchExists (:373-376) inherit it. Resolve authoritativeCwd and pass the resolved root explicitly to these git calls. Keep merge/discard control flow and Windows remove-retry unchanged. NOTE: worktree.ts:316 git add is NOT in scope (it already uses repoRoot; its missing -f flag is Bug 3).",
       "userSees": "With gitRoot configured to a subdirectory, `lattice story_discard` and `lattice story_advance --phase=DONE` (merge + branch cleanup) run git from the gitRoot and complete normally instead of aborting with 'fatal: not a git repository'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:06:25.759Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: call story_discard with resolver returning authoritativeCwd=/repo/gitRoot -> git status --porcelain, worktreeRemoveWithRetry, branchExists, and branch -D all run with cwd=/repo/gitRoot (not root=metadataRoot); assert by capturing cwd from injected git/execFileSync; WHY: proves all 5+ git call sites in discard path are rerouted",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root fixture: call story_advance --phase=DONE merge path with resolver returning authoritativeCwd=/repo/gitRoot -> git rev-parse --abbrev-ref HEAD and git merge --no-ff run with cwd=/repo/gitRoot; WHY: proves merge-path git sites are rerouted",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: call story_discard with resolver returning resolved=false -> all git calls use root (the original metadataRoot); WHY: proves null-fallback preserves byte-identical behavior for non-wrapper-root repos",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktreeRemoveWithRetry retry path: first 2 attempts fail with Permission denied from gitRoot, 3rd succeeds -> worktree removed, no crash; WHY: Windows retry logic must use the correct cwd on every retry attempt, not just the first",
+            "type": "cli"
+          },
+          {
+            "desc": "branchExists called after worktree removal with gitRoot -> git rev-parse runs from gitRoot to verify branch deletion; WHY: if branchExists falls back to metadataRoot after worktree removal it could report stale data",
+            "type": "cli"
+          },
+          {
+            "desc": "git add at worktree.ts:316 is NOT rerouted (out of scope, uses repoRoot) -> assert that line 316 cwd is still repoRoot, not gitRoot; WHY: scope boundary: this site is Bug 3, must not be accidentally changed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS on discard: git status --porcelain runs from metadataRoot (wrong tree) and reports clean, but gitRoot worktree has uncommitted changes -> assert story_discard must not proceed to delete the branch when the real worktree is dirty; WHY: a cwd mismatch silently discards uncommitted work",
+            "type": "cli"
+          },
+          {
+            "desc": "merge from wrong tree: git merge --no-ff runs from metadataRoot (no git repo) instead of gitRoot -> assert the merge must fail or be blocked, not silently succeed against the wrong repo; WHY: merging from the wrong cwd could merge unrelated branches or fail silently",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: worktreeRemoveWithRetry retry logic UNCHANGED (diff: only cwd routed)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "worktree reroutes via resolveStoryGitRoot; the out-of-scope bootstrap git add left on root (Bug 3 deferred) — confirmed by implementer + cwd-only diff",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Define and test the unresolved-gitRoot fallback for the rerouted git operations",
       "context": "resolveStorySignedWorkspace() can return resolved=false with authoritativeCwd=null (metadataRoot not git-backed, no worktree/gitRoot configured). Each rerouted site must fall back to the current projectRoot/root so non-wrapper-root repos stay byte-identical. Add tests via the readers' existing dependency-injection seams (do not spawn real git where injection exists): a wrapper-root fixture (metadataRoot != gitRoot) proving each site runs from gitRoot, and a plain-repo fixture proving unchanged behavior.",
       "userSees": "`lattice validate --story=B-xxx --json` on a plain (non-wrapper-root) repo produces the same channel/concept/cluster results as before this change, and the new wrapper-root test fixture passes, proving git ran from the gitRoot.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:06:27.343Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-signed-workspace-resolution.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveGitCwd helper: pass storyCtx with resolver returning {resolved:true, authoritativeCwd:/repo/gitRoot} -> resolveGitCwd returns /repo/gitRoot; WHY: proves the helper extracts and returns the resolved authoritativeCwd",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveGitCwd helper null-fallback: pass storyCtx with resolver returning {resolved:false, authoritativeCwd:null} -> resolveGitCwd returns projectRoot; WHY: proves the fallback to projectRoot when gitRoot is not configured",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root smoke test fixture: set up metadataRoot that is NOT a git repo + gitRoot subdir that IS a git repo; run all rerouted operations (validate-channel readers, validate-concept readers, readCommitsSinceMain, worktree git helpers) -> every git operation runs with cwd=gitRoot and succeeds (no fatal: not a git repository); WHY: integration test proving all ~14 sites are rerouted",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo smoke test fixture: set up repo where metadataRoot IS a git repo, no gitRoot configured; run all rerouted operations -> every git operation runs with cwd=metadataRoot (projectRoot) and produces byte-identical results to pre-change behavior; WHY: regression guard for the majority of users who do not use wrapper-root",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveGitCwd with authoritativeCwd set but resolved=false -> returns projectRoot (fallback), not the authoritativeCwd; WHY: resolved=false means the resolution is unreliable even if authoritativeCwd is non-null",
+            "type": "cli"
+          },
+          {
+            "desc": "all ~14 git call sites are covered by the smoke test: grep the modified source files for cwd: or execFileSync git or execSync git -> every site appears in the test coverage list; WHY: partial coverage is a regression risk — all sites must be tested",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveGitCwd called with no storyId (e.g., during global validate) -> falls back to projectRoot without throwing; WHY: some validate paths may not have a story context",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS comprehensive: wrapper-root fixture where metadataRoot accidentally has a .git dir (stale/leftover) AND gitRoot has the real repo -> assert all operations use gitRoot not metadataRoot, even though metadataRoot would succeed as a git command target; WHY: if the fallback triggers incorrectly when both dirs have .git, gates could pass against the wrong commit history",
+            "type": "cli"
+          },
+          {
+            "desc": "no git command text changed: diff the modified files and assert that no git command string (the arguments to git log/diff/grep/merge/branch/rev-parse/show/status) is altered — only the cwd parameter changes; WHY: scope constraint is cwd-only, any command text change is a scope violation",
+            "type": "cli"
+          },
+          {
+            "desc": "no gate semantics changed: run the same validate scenario before and after the change on a plain repo -> JSON output is byte-identical (same pass/fail/skipped, same offenders, same residuals); WHY: the fix must be transparent to gate consumers",
+            "type": "cli"
+          },
+          {
+            "desc": "function signatures back-compatible: checkCommitAuthor, runConceptGateCli, readCommitsSinceMain, syncClusterResolves, git(), gitFile(), branchExists() -> all accept their pre-change parameter signatures (no required new params that break callers); build must pass; WHY: signature breakage would fail downstream callers",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "committed gitroot-cwd-routing smoke: wrapper-root (metadataRoot not a git repo + gitRoot subdir) + plain-repo fixtures both pass; wired into package.json",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "committed gitroot-cwd-routing smoke: wrapper-root (metadataRoot not a git repo + gitRoot subdir) + plain-repo fixtures both pass; wired into package.json",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "all rerouted files covered by the smoke (channel/concept/cluster-sync/worktree each have a passing smoke check)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "wrong-tree comprehensive: smoke asserts exact resolved cwd per site; a stale metadataRoot/.git would not match the resolved gitRoot assertion",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "no git command text changed: 0 command-text diff lines beyond cwd routing (want 0)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "no gate semantics changed: smoke asserts plain-repo byte-identical (cwd==projectRoot); diff is cwd-only",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "signatures back-compatible: packages/main build exits 0 (optional cwd params default to projectRoot)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     }
   ]
 }

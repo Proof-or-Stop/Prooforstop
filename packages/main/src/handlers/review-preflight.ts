@@ -47,6 +47,7 @@ import {
   type ChangedFilesReader,
 } from './validate-lint.js';
 import type { Finding } from '../core/types.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { findingAgentMatchesReviewer } from '../core/reviewer-opt-in.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
 import {
@@ -255,10 +256,21 @@ export function runReviewCliGates(
     return { ok: gates.every((g) => g.ok), fastChannel, gates };
   }
 
+  // B-2856: resolve the story's gitRoot once (story context is available here)
+  // so the channel/concept git readers run from the real repo in wrapper-root
+  // layouts. Null/unresolved → projectRoot fallback (plain repos unchanged).
+  const gitCwd = resolveGitCwd({
+    store: deps.store,
+    storyId,
+    metadataRoot: deps.projectRoot,
+    projectRoot: deps.projectRoot,
+  });
+
   // ── channel ──
   const channel = checkCommitAuthor(storyId, {
     store: deps.store,
     projectRoot: deps.projectRoot,
+    gitCwd,
     gitLogReader: deps.gitLogReader,
   });
   const channelOk = channel.status === 'pass' || channel.status === 'skipped';
@@ -273,6 +285,7 @@ export function runReviewCliGates(
   // ── concept ──
   const concept = checkConcept({
     projectRoot: deps.projectRoot,
+    gitCwd,
     gitDiffReader: deps.gitDiffReader,
     grepReader: deps.grepReader,
   });
