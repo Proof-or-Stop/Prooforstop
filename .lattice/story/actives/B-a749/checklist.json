@@ -222,6 +222,17 @@
           "headHash": "67933b2021bd1fabc8771188c5db550af83128dd",
           "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
           "timestamp": "2026-06-15T22:30:51.320Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers in-scope frontend change still type-checks + fails on real injected error (b), and no-change-scope keeps full recursive tsc (c).",
+          "headHash": "32fe28e42a64f02417e534f6c4c4513f5c3f4ee4",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:51.757Z"
         }
       ]
     }
