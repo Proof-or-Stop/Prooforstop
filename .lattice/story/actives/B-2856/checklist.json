@@ -25,7 +25,16 @@
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate --concept` computes deleted symbols and residual references against the gitRoot and reports residuals normally instead of failing with 'fatal: not a git repository'.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      }
     },
     {
       "id": "CHK-003",
