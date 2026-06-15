@@ -63,7 +63,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Existing diagnostics show agentAssetResolution mode, promptRegistryHash, project prompt asset status, and a local Non-authority authorityBoundary note.",
+      "userSees": "Terminal shows \"Codex agent asset resolution: pass runtime-owned registry=<sha256>; local prompt assets: absent; authorityBoundary=localNonAuthority\".",
       "files": {
         "modify": [
           "packages/main/src/core/codex-adapter-checks.ts",
@@ -96,7 +96,11 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "excludes": [
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md: source-of-truth reference only unless implementation discovers a factual doc correction",
+        "docs/audits/lattice-token-cost-and-takeover-audit.md: source-of-truth reference only unless token accounting numbers change"
+      ]
     },
     {
       "id": "CHK-003",
