@@ -219,6 +219,17 @@
           "headHash": "949f80f59a9f6f97dca2a6c3f040c174337be571",
           "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
           "timestamp": "2026-06-15T22:31:18.582Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke + predicate unit (empty-leaf rejection) asserts bootstrap never silently leaves metadata in neither-tracked-nor-protected state: force-add yields tracked leaf or loud warning",
+          "headHash": "6673c489398ccaf1b78af82db099cebe5bb75ccc",
+          "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
+          "timestamp": "2026-06-15T22:31:18.966Z"
         }
       ]
     }
