@@ -161,7 +161,75 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The verification suite reports lattice-only branding and absence of koala compatibility; any reintroduced `legacy alias: koala`, koala package fallback, or generated koala wrapper makes the smoke fail.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-codex-assets.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-codex-assets.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run build -> all updated TypeScript tasks compile.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run targeted branding/runtime/codex verification commands -> pass and assert lattice-only entrypoints.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "package scripts no longer expose `test:legacy-koala-compatibility-smoke`; replacement or updated tests assert absence of the alias.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The active docs sync smoke expects lattice as sole active product command and does not require koala --version verification.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Tests still allow historical/process identifiers where deliberately excluded, such as reviewer lane names, but not runtime compatibility claims.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Introduce `legacy alias: koala` into the product line formatter or README active product paragraph -> targeted smoke fails.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Re-add @koala-agent/core fallback to runtime checks or generated bootstrap -> runtime fact contract / entrypoint verification fails.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
