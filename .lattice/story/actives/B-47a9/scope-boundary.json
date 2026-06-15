@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-47a9",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a small shared helper resolving the git cwd for main-relative read ops (reuse resolveProjectGitRoot, fallback to metadataRoot)",
+    "Route story_discard git operations through the resolved git cwd",
+    "Route the concept CLI gate git diff through the resolved git cwd",
+    "Route the finding cluster-sync git log through the resolved git cwd",
+    "Tests: wrapper-root fixture where these commands run git successfully; plain repo unchanged"
+  ],
+  "excluded": [
+    "A repo-wide refactor of all git invocations (only the reported commands are in scope)",
+    "Changing .gitignore track-vs-ignore behavior (that is B-854c / Bug 3)",
+    "INIT_CHECK bootstrap atomicity (that is B-804c / Bug 2)",
+    "Modifying resolveProjectGitRoot / story-signed-workspace-resolution.ts core logic (reuse only — overlaps B-854c)",
+    "session.ts git log and test-story.ts git diff (same pattern, deferred unless trivial)",
+    "validate --lint scoping (that is B-a749 / Bug 4)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose to drive B-47a9 now to cover the Bug 1/1a gap not handled by the parallel fleet (lattice-bug2/3/4).",
+  "createdAt": "2026-06-15T22:09:51.785Z",
+  "updatedAt": "2026-06-15T22:09:51.785Z",
+  "_hash": "cf28a73afc0c016c03298bc492818763a922d16e8d8fb661480abe1698133374"
+}

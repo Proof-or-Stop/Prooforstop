@@ -1,0 +1,37 @@
+{
+  "storyId": "B-804c",
+  "checkedAt": "2026-06-15T21:58:38.177Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md and index.json description both cite cli-engine.ts:4003 as the phase write and :4010 as the dev_start call, and :4022-4024 as the no-rollback path. Reading the actual source: line 4003 is an `if (!gitReady)` guard; the story_advance call (phase write) is at line 4040 and dev_start is at line 4047; the catch block with no rollback is at lines 4059-4061, not 4022-4024. The underlying behavior claim (non-atomic sequence, no rollback) is correct, but the three cited line numbers are inaccurate and will mislead the implementer trying to locate the code."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T21:58:06.467Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 userSees mentions a documented recovery command that recreates the worktree and prints its path, but does not specify (a) the command name/syntax the user would type, or (b) where the documentation would surface (--help, error message hint, CLAUDE.md). During PLAN, ensure the recovery command is named and that the error path from CHK-001 includes a hint pointing the user to the recovery command, so the user does not have to guess what to run next."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-15T21:58:38.177Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md and index.json description both cite cli-engine.ts:4003 as the phase write and :4010 as the dev_start call, and :4022-4024 as the no-rollback path. Reading the actual source: line 4003 is an `if (!gitReady)` guard; the story_advance call (phase write) is at line 4040 and dev_start is at line 4047; the catch block with no rollback is at lines 4059-4061, not 4022-4024. The underlying behavior claim (non-atomic sequence, no rollback) is correct, but the three cited line numbers are inaccurate and will mislead the implementer trying to locate the code."
+        }
+      ]
+    }
+  ],
+  "_hash": "d8870989697734168bdd1c62bcffb38d016c2de9514ebca880cb219dcc94e966"
+}

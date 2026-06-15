@@ -1,0 +1,71 @@
+{
+  "storyId": "B-47a9",
+  "checkedAt": "2026-06-15T22:08:42.110Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "index.json field type=feature but the story is a bug fix: description says Confirmed reproductions, Fix:, same root-cause class as B-4e06 — this is a defect repair, not a new feature. type should be bug."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Trigger Event and Conversational Texture reference Bug 1/1a and Bug 3 with no explanation of what these bugs are or where they are tracked. A new reader cannot understand the bug tracking context. Bug 3 in particular (mentioned only as close the Bug 3 metadata-loss risk) has zero definition anywhere in the document."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md Trigger Event says Empirically re-confirmed in ClawCreek and Conversational Texture says commit ClawCreek story metadata without explaining what ClawCreek is (a project, test environment, or other context). A new reader cannot infer this."
+    },
+    {
+      "id": "INIT-004",
+      "severity": "low",
+      "desc": "background.md Key Insights says added/used by B-198c doctor + advisory without any explanation of what B-198c did or what doctor + advisory means. Low impact since the key claim (function exists and is proven) is still clear."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T22:08:19.141Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "All 5 checklist items lack a userSees field. CLAUDE.md checklist guidelines require each item to state the specific text the user sees after completion (e.g., CHK-002 should say something like: user runs lattice validate --concept on a wrapper-root project and sees the concept reviewer execute normally with no Not a git repository warning). The background does contain concrete symptom text, so this is advisory -- the completion signal is inferrable but not explicitly stated per-item."
+        },
+        {
+          "severity": "low",
+          "desc": "No checklist item explicitly states the post-completion happy-path transcript. Consider adding to at least CHK-003 (the most user-visible command) a userSees like: user runs lattice validate --concept in ClawCreek, concept gate runs git diff main...HEAD successfully, no warning printed."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-15T22:08:42.110Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json field type=feature but the story is a bug fix: description says Confirmed reproductions, Fix:, same root-cause class as B-4e06 — this is a defect repair, not a new feature. type should be bug."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Trigger Event and Conversational Texture reference Bug 1/1a and Bug 3 with no explanation of what these bugs are or where they are tracked. A new reader cannot understand the bug tracking context. Bug 3 in particular (mentioned only as close the Bug 3 metadata-loss risk) has zero definition anywhere in the document."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md Trigger Event says Empirically re-confirmed in ClawCreek and Conversational Texture says commit ClawCreek story metadata without explaining what ClawCreek is (a project, test environment, or other context). A new reader cannot infer this."
+        },
+        {
+          "id": "INIT-004",
+          "severity": "low",
+          "desc": "background.md Key Insights says added/used by B-198c doctor + advisory without any explanation of what B-198c did or what doctor + advisory means. Low impact since the key claim (function exists and is proven) is still clear."
+        }
+      ]
+    }
+  ],
+  "_hash": "391e32b245cd3366b19dd1c2af7bd3106b91dc54aa0a5d675fb8fbfa0a305b44"
+}

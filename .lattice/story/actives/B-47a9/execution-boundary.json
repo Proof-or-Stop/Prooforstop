@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-47a9",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-47a9/",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Scope: route Bug 1/1a read commands (concept gate, cluster-sync, story_discard) through the resolved gitRoot via the existing resolveProjectGitRoot. Reuse that resolver; do NOT modify story-signed-workspace-resolution.ts core logic (B-854c territory).",
+  "createdAt": "2026-06-15T22:09:52.035Z",
+  "updatedAt": "2026-06-15T22:09:52.035Z",
+  "_hash": "b17b3ce8e78eebe49980518fee662c20ec62ca09fa04284ce4e5f6c3dce4988d"
+}

@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a small shared helper resolving the git cwd for main-relative read ops",
+      "context": "Reuse resolveProjectGitRoot(metadataRoot, config.gitRoot) from core/story-signed-workspace-resolution.ts; return the resolved gitRoot when configured + valid, else fall back to metadataRoot/cwd. Plain repos (no configured gitRoot, or metadataRoot==gitRoot) must behave byte-identically. Never throw.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Route the finding cluster-sync git log through the resolved git cwd",
+      "context": "core/cluster-sync.ts syncClusterResolves runs git log main..HEAD; on wrapper-root it currently skips with not a git repository. Run it in the resolved git cwd so Resolves: CL-xxx auto-resolve works on wrapper-root projects.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Route the concept CLI gate git diff through the resolved git cwd",
+      "context": "validate --concept runs git diff main...HEAD; currently warns Not a git repository and skips the concept reviewer. Run it in the resolved git cwd.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Route story_discard git operations through the resolved git cwd",
+      "context": "Bug 1a: story_discard uses the same metadataRoot git path. Implementer must locate its git invocation(s) and route them through the shared helper.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Tests: wrapper-root fixture where these commands run git successfully; plain repo unchanged",
+      "context": "Fixture with gitRoot != metadataRoot: concept/cluster-sync/discard now resolve git in the gitRoot (no false Not a git repository); plain-repo (metadataRoot==gitRoot) path unchanged. Test at function level, not via the global lattice binary.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

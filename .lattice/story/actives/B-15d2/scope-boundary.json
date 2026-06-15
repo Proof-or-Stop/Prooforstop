@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-15d2",
+  "mode": "maintenance",
+  "allowed": [
+    "Delete the 6 confirmed-dead paths: packages/cli-guess-number, packages/python-demo, packages/python-rps, du.exe.stackdump, jek.md, claude-session.mjs; and scrub any residual references in tracked config/docs (tsconfig, package.json, docs/metadata/task.json)"
+  ],
+  "excluded": [
+    "Any non-deletion behavior change to main/utils/lab source",
+    "experiments/ data-drop (deferred to a separate story)",
+    "packages/lab (kept — separate scope decision)",
+    "The koala->Lattice rebrand / legacy alias removal"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved 'one cleanup story now' for the Tier-1 confirmed-dead set during OSS-prep audit (2026-06-15).",
+  "createdAt": "2026-06-15T21:57:34.626Z",
+  "updatedAt": "2026-06-15T21:57:34.626Z",
+  "_hash": "11fd8f9b3799ecfa909defc9df2927021ef60398cf73152fde1e01239230a4e9"
+}
