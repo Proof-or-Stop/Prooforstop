@@ -246,9 +246,9 @@
       "relatedDocs": [
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T11:00:31.491Z",
-      "endTime": null,
+      "endTime": "2026-06-15T11:00:55.758Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/prompt-registry-smoke.ts"
@@ -287,7 +287,39 @@
           }
         ]
       },
-      "userSees": "User sees prompt-token-cost-smoke PASS with byte/token deltas, required prompt-safety phrases, default compatibility, and slim output reduction checked."
+      "userSees": "User sees prompt-token-cost-smoke PASS with byte/token deltas, required prompt-safety phrases, default compatibility, and slim output reduction checked.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke prints before/after bytes and approximate token deltas, and passes only when prompt reduction plus safety invariants hold.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.816Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js && node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json",
+          "result": "pass",
+          "note": "Prompt registry smoke and Codex adapter verification passed; package, .claude, and .Codex prompt mirrors remain consistent.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.844Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && lattice scope_contract_check --storyId=B-bfb5 --json",
+          "result": "pass",
+          "note": "Smoke asserts required prompt-safety phrases, default output compatibility, and slim output reduction; scope gate passed for changed files.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.871Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
