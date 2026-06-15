@@ -422,6 +422,16 @@
           "headHash": "3a41714bf32b536cdaacbcb71d6738414226ce2c",
           "materialHash": "fa86b5c9f5dfde13eca03a4c2b3eda8f064a5b67984886bcdf15c12573846d35",
           "timestamp": "2026-06-15T02:54:14.497Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-only-absence-smoke.js",
+          "result": "pass",
+          "note": "The lattice-only absence smoke asserts generated product lines, README/template text, and compatibility fixtures fail if legacy alias: koala or generated koala wrapper compatibility returns.",
+          "headHash": "efd2929002d05eeec0cfcea5b578c12139584242",
+          "materialHash": "fa86b5c9f5dfde13eca03a4c2b3eda8f064a5b67984886bcdf15c12573846d35",
+          "timestamp": "2026-06-15T02:55:12.141Z"
         }
       ]
     }
