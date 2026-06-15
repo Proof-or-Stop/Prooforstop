@@ -216,8 +216,8 @@
       "id": "CHK-005",
       "title": "Completeness guarantee: single writer choke-point + reconciliation",
       "context": "Add a section requiring all provider dispatch to flow through a single ledger-writing choke-point, plus a periodic reconciliation check (count of provider dispatch events vs count of ledger final records per ledgerCallId+attemptId) that surfaces gaps. Accuracy = completeness, not just per-record correctness; a bypassed writer silently under-counts.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T23:52:45.778Z",
       "endTime": null,
       "files": {
         "modify": [
