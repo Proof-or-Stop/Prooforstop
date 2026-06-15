@@ -209,6 +209,38 @@ Attribution rules:
 These fields never gate workflow; they are accounting and diagnostic
 attribution only.
 
+## Completeness Guarantee
+
+Accuracy is not only per-record correctness; accuracy is completeness. A
+perfectly shaped record is worthless if some provider calls never reach the
+ledger at all. A dispatch path that bypasses the writer silently under-counts,
+and a silent under-count is indistinguishable from low usage. The plan therefore
+treats completeness as a first-class correctness property.
+
+Single writer choke-point:
+
+- All provider dispatch must flow through a single ledger-writing choke-point.
+  There is exactly one code path that emits the provider request and the same
+  path is responsible for emitting the ledger record(s) for that call. No
+  provider call site may dispatch directly without going through this writer.
+- This makes completeness true by construction: if a call happened, the
+  choke-point saw it, and a record was written (provider-reported, estimate,
+  blocked, or unavailable).
+
+Periodic reconciliation:
+
+- A periodic reconciliation check compares the count of provider-dispatch events
+  against the count of ledger final records, keyed per
+  `ledgerCallId` + `attemptId`. Every dispatched attempt must resolve to exactly
+  one final accounting record (provider-reported or unavailable) plus its
+  earlier correlated records.
+- Any mismatch (a dispatch event with no corresponding ledger final record, or
+  the reverse) surfaces a completeness gap for operator attention. The
+  reconciliation surfaces gaps; it does not silently reconcile them away.
+- Reconciliation cannot run on `provider.requestIdHash` alone because blocked and
+  preflight records have no provider request; it uses the locally generated
+  `ledgerCallId` + `attemptId` correlation key.
+
 ## JSONL Ledger Record Shape
 
 The local ledger is append-only JSONL. One line represents one budget-relevant
@@ -451,7 +483,8 @@ Future implementation should be split into narrow slices:
    - write to `.lattice/usage/llm-usage.jsonl`;
    - add the runtime artifact registry entry and gitignore behavior for that
      path;
-   - add append-only writer APIs;
+   - add a single append-only writer choke-point that all provider dispatch flows
+     through (no second writer path; see Completeness Guarantee);
    - generate `ledgerCallId`, `attemptId`, `sequence`, and
      `supersedesRecordIds` before provider dispatch;
    - reject raw prompt and transcript fields at runtime;
