@@ -70,6 +70,42 @@
         "test": [
           "packages/main/src/tasks"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root fixture: inject gitDiffReader + grepReader capturing cwd arg; call runConceptGateCli with resolver returning authoritativeCwd=/repo/gitRoot -> gitDiffReader receives cwd=/repo/gitRoot and grepReader receives cwd=/repo/gitRoot; WHY: proves both git diff and repo-wide grep are rerouted to the resolved gitRoot",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo fixture: inject readers capturing cwd; runConceptGateCli with resolver returning resolved=false -> both readers receive cwd=projectRoot; WHY: proves null-fallback preserves byte-identical behavior on plain repos",
+            "type": "cli"
+          },
+          {
+            "desc": "end-to-end concept gate with injected diff containing deleted symbols: diff has -export function foo removed, grep finds 0 residuals -> status=pass, deletedSymbols=[foo], residuals=[]; WHY: proves IGNORED_DIRS and threshold logic unchanged after cwd reroute",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gitDiffReader returns empty diff (no changes on branch) -> concept gate returns pass with deletedSymbols=[] regardless of wrapper-root vs plain-repo; WHY: empty-diff edge case should not crash or produce spurious residuals",
+            "type": "cli"
+          },
+          {
+            "desc": "grepReader called with a symbol containing special characters (underscore, dollar) in wrapper-root -> grep runs with -F (fixed string) from gitRoot, not metadataRoot; WHY: ensures -F flag and cwd are both correct when symbol has regex-special chars",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS: inject grepReader that searches metadataRoot (wrong tree) instead of gitRoot and finds 0 residuals for a symbol that HAS residuals in the gitRoot -> assert concept gate must not pass with 0 residuals when the real tree has references; WHY: running grep from wrong cwd silently hides real residuals",
+            "type": "cli"
+          },
+          {
+            "desc": "maxBuffer exhaustion: inject gitDiffReader returning 50MB diff from gitRoot -> handler does not crash with ENOBUFS; WHY: large monorepo diffs from the correct gitRoot must not cause silent truncation that hides deleted symbols",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
