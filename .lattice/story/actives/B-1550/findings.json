@@ -1,0 +1,74 @@
+{
+  "findings": [
+    {
+      "id": "B-1550:F-001",
+      "desc": ".lattice/story/actives/B-1550/plan.md:25 Required plan content includes artifacts/commands, code touchpoints, tests/negative controls, rollout/acceptance, but CHK-001 verificationIntent/evidence only check trigger/default, decision-doc always-on, independence/staleness, negative controls, and registry. The docs_check evidence would still pass if the artifact/CLI surface, file-level plan, rollout, or acceptance sections were absent. severity high",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T23:01:29.038Z",
+      "reviewRound": "2026-06-14T22:58:14.585Z",
+      "reviewRunId": "B-1550:RR-004",
+      "_hash": "63c5a12b678e312f1d807075732212259bf13905d83e91b2b718f4648b05f078",
+      "files": [
+        ".lattice/story/actives/B-1550/plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "resolvedReason": "Resolved by extending docs_check evidence to cover Proposed Artifacts, Proposed CLI Surface, File-Level Execution Plan, Rollout Plan, and Acceptance Criteria in docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md; see verificationEvidence intentRef B-1550:F-001.",
+      "resolvedAt": "2026-06-14T23:05:31.588Z"
+    },
+    {
+      "id": "B-1550:F-002",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:196 says review-escalation.json can be written when status is requested, but lines 381-383 and 443 define review_escalation_status as read-only. WHY: the plan must choose on-demand computation or a separate mutating writer/gate artifact path; otherwise implementation either violates command-policy scope discipline or drops the promised artifact. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-14T23:02:10.977Z",
+      "reviewRound": "2026-06-14T22:58:14.585Z",
+      "reviewRunId": "B-1550:RR-002",
+      "_hash": "d21dff40bced0371029163c6d0b5666572fa2bebb99dc28d48c495d5308c6042",
+      "resolvedReason": "Resolved by changing review-escalation.json semantics: read-only review_escalation_status must not write it; persistence belongs to DONE gate evaluation or a separate mutating review_escalation_snapshot command; see verificationEvidence intentRef B-1550:F-002.",
+      "resolvedAt": "2026-06-14T23:05:40.446Z"
+    },
+    {
+      "id": "B-1550:F-003",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:236 lists counted host_verdict identity fields and lines 275-286 define the independence predicate, but neither requires a signature over the local verdict payload nor verification of that signature before counting; keyId/identityDigest remain self-asserted labels, so the planned gate can still be spoofed by fabricated session/key values despite the story requiring signature/material-bound independence. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-14T23:02:38.491Z",
+      "reviewRound": "2026-06-14T22:58:14.585Z",
+      "reviewRunId": "B-1550:RR-001",
+      "_hash": "dd43aaf7c191813563db42bd5bb1b92efd4df2825492b5d91a96bf0aaad44c8a",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "resolvedReason": "Resolved by requiring canonical local host_verdict payload signatures, signature verification before counting, keyId/signature key consistency, and signed material binding; see verificationEvidence intentRef B-1550:F-003.",
+      "resolvedAt": "2026-06-14T23:05:45.101Z"
+    },
+    {
+      "id": "B-1550:F-004",
+      "desc": "CHK-001 verificationEvidence intentRef B-1550:F-001 still uses one alternation command: rg -n \"Proposed Artifacts|Proposed CLI Surface|File-Level Execution Plan|Rollout Plan|Acceptance Criteria\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md. WHY: rg exits 0 if any one label matches, so the evidence would still pass if Proposed CLI Surface, File-Level Execution Plan, Rollout Plan, or Acceptance Criteria were removed individually. I confirmed the semantics with printf \"## Proposed Artifacts\\n\" | rg -n \"Proposed Artifacts|Proposed CLI Surface|File-Level Execution Plan|Rollout Plan|Acceptance Criteria\" returning exit=0. F-001 is therefore not fully resolved: the document currently contains those sections, but the recorded coverage evidence does not mechanically require all artifacts/commands/code touchpoints/rollout/acceptance dimensions. severity high",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-14T23:11:19.744Z",
+      "reviewRound": "2026-06-14T23:04:58.714Z",
+      "reviewRunId": "B-1550:RR-007",
+      "_hash": "f529c3dbb992259eb859a3d502ecb45af0f1e0a06dea9736ec4f12f88b0457b2",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "resolvedReason": "Resolved by replacing broad alternation evidence with conjunctive anchored rg -q checks for Proposed Artifacts, Proposed CLI Surface, File-Level Execution Plan, Rollout Plan, and Acceptance Criteria; see verificationEvidence intentRef B-1550:F-004.",
+      "resolvedAt": "2026-06-14T23:14:16.552Z"
+    }
+  ]
+}
