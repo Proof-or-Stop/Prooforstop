@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-15T15:29:06.443Z",
       "reviewRunId": "B-5253:RR-007",
       "_hash": "bed166b57f1900bf3b1d3d432855c1f456264171aab3a7b38d13490c8a60761a"
+    },
+    {
+      "id": "B-5253:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage pass: checklist_get shows all CHK-001..CHK-004 happy/edge/adversarial intents have passing evidence entries. I inspected prompt-token-cost-smoke and prompt-registry-smoke: prompt-token-cost-smoke directly asserts compact guidance phrases, evidence-sensitive full-output fallback, mirror parity, default story_get/checklist_get compatibility, and slim output reductions; prompt-registry-smoke verifies registry metadata, host rendering, material hash, and Claude/Codex mirror consistency. Live reruns on the current worktree passed: npm --prefix packages/main run build; node packages/main/dist/tasks/prompt-token-cost-smoke.js; npm --prefix packages/main run test:prompt-registry-smoke; node ../../bin/lattice.js verify_codex --json. session_brief still reports one stale verification intent after metadata drift, so TEST should run standard stale-evidence recovery/validate; no uncovered intent or smoke regression gap found.",
+      "createdAt": "2026-06-15T15:32:56.935Z",
+      "reviewRound": "2026-06-15T15:29:06.443Z",
+      "reviewRunId": "B-5253:RR-005",
+      "_hash": "74e62a2894021d4e2d1a0a7e927ae5b67452cc3f868ac253afdbfbc691b39064"
     }
   ]
 }
