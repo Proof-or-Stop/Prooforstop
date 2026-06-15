@@ -1,0 +1,29 @@
+{
+  "task": "Story metadata under .lattice/story/actives/* can end up neither git-tracked nor ignored, causing permanent data loss (ClawCreek lost 19 stories), and the worktree bootstrap git add (no -f) breaks when .lattice is ignored.",
+  "outcome": "On a project whose .gitignore would ignore .lattice, running lattice story_advance INIT_CHECK no longer prints \"The following paths are ignored by one of your .gitignore files: .lattice\"; instead bootstrap force-adds the metadata so it is committed (git ls-files shows .lattice/story/actives/<id>/index.json). Running lattice doctor on a project where story metadata is neither tracked nor protected prints \"✗ story metadata is neither git-tracked nor protected by the managed ignore allowlist\" with a repair pointer, and lattice doctor --repair writes the managed allowlist so the unsafe state clears.",
+  "facts": [
+    "worktree.ts:316 createScopedStoryBootstrapCommit runs gitFile([add, --, storyRel]) with NO -f; when .lattice is ignored git exits 1 with \"paths are ignored\".",
+    "runtime-artifact-registry.ts lattice-runtime-root-ignore entry ALREADY encodes the ignore-volatile/track-metadata allowlist (.lattice/*, !.lattice/story/, !.lattice/story/actives/, !.lattice/story/actives/**, .lattice/story/actives/**/activity.jsonl).",
+    "managed-assets.ts mergeRuntimeGitignore + renderManagedRuntimeIgnoreBlock already scaffold that allowlist as a managed gitignore-runtime asset between BLOCK_START/END markers; runtimeIgnoreMissing detects missing patterns.",
+    "doctor.ts already has a scanTrackedRuntimeArtifacts section and many scan/repair sections; the doctor() handler is the place to add a new track/ignore-invariant check.",
+    "Orchestrate .gitignore:9-18 hand-crafts the correct allowlist; the registry produces the same patterns, so scaffolding makes new projects safe by default.",
+    "Reproduced: git add -- on ignored path exits 1; git add -f -- exits 0 and stages the file."
+  ],
+  "constraints": [
+    "Scope: only the git add / ignore-protection lines in worktree.ts (NOT gitRoot cwd resolution B-2856 nor bootstrap-ordering B-804c), doctor.ts, core/, tests/, .gitignore.",
+    "Handler convention: any Zod min/max/enum constraint must be re-validated at every consumer (handler + gate + fn).",
+    "High-risk/critical data-loss path: decision_set requires >=3 preMortem.",
+    "External defense (pre-push hook) must not depend on lattice CLI; do not weaken it.",
+    "Do not break existing managed-assets / runtime-artifact-registry tests."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/story-metadata-protection.ts (new)",
+    "packages/main/tests/"
+  ],
+  "timestamp": "2026-06-15T22:07:55.525Z"
+}

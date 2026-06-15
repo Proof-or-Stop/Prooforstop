@@ -7,7 +7,30 @@
       "userSees": "A decision record states the chosen protection model and rationale; `lattice story_get` reflects the decision and the PLAN gate passes with >=3 preMortem.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_set records chosen=OptAB-combination with rationale making bootstrap git-add and protection stance mutually consistent; story_get reflects it",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "decision has >=3 preMortem so the high-risk PLAN gate passes (4 recorded)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a decision with <3 preMortem or chosen not in options is rejected by decision_set, so the gate cannot be bypassed",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
