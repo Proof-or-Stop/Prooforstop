@@ -1,0 +1,157 @@
+{
+  "storyId": "B-854c",
+  "checkedAt": "2026-06-15T22:13:21.230Z",
+  "features": [
+    {
+      "feature": "Document the chosen metadata protection model as a structured decision (OptAB-combination) with rationale making bootstrap git-add and protection stance mutually consistent",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Record decision with >=3 preMortem items (high-risk/data-loss path)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fix worktree bootstrap git add to use -f (force-add) so it does not fail with paths-are-ignored error when .lattice is ignored",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "git check-ignore guard on the actual metadata leaf: emit loud warning + repair pointer when the leaf would be cleaned (broad-ignore state)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "check-ignore guard must NOT false-positive on negation allowlist (like Orchestrate .gitignore)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add lattice doctor invariant check that flags when story metadata is neither git-tracked nor protected",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "lattice doctor --repair writes managed ignore-volatile/track-metadata allowlist idempotently using existing runtime-artifact-registry + managed-assets",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Doctor check must not false-positive on safe projects (tracked metadata OR negation allowlist)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression tests: metadata tracked/protected after bootstrap under both ignoring and non-ignoring .gitignore",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression tests: doctor predicate detects unsafe state and clears after repair",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression tests: bootstrap never silently leaves metadata in neither-tracked-nor-protected state",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "gitRoot cwd resolution (B-2856) fix for worktree.ts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly states: not gitRoot cwd (B-2856); understanding.json constraints: Scope: only the git add / ignore-protection lines in worktree.ts (NOT gitRoot cwd resolution B-2856)",
+      "source": "description"
+    },
+    {
+      "feature": "Bootstrap atomicity (B-804c) fix",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly states: not ... bootstrap atomicity (Bug 2); understanding.json constraints: NOT ... bootstrap-ordering B-804c",
+      "source": "description"
+    },
+    {
+      "feature": "Layout migration / relocate volatile vs persistent paths (Approach C)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json OptC-relocate-layout rejected as out-of-scope layout migration with unacceptable blast radius; plan.md Approach C intentionally excluded",
+      "source": "description"
+    },
+    {
+      "feature": "runtime-artifact-registry: track metadata registered with gitignore/material-hash semantics (testing-infra.md: runtime artifacts registered in runtime-artifact-registry.ts)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "lattice doctor Runtime scan does not claim validation evidence or process facts (testing-infra.md constraint)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "lifecycle-artifact-scope: isRuntimeArtifactPath must match registered entries only (not blanket .lattice/ pass) (lifecycle-artifact-scope.md)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "lifecycle-artifact-scope: .lattice/story/actives/ lifecycle artifact paths must remain recognized for story metadata classification (lifecycle-artifact-scope.md)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "stash-split: runtime artifact registry and gitignore alignment kept in registry not hard-coded (stash-split-execution-plan.md Bucket B)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/stash-split-execution-plan.md"
+    },
+    {
+      "feature": "story metadata MUST live inside configured gitRoot for the scoped bootstrap commit (lattice-midflight-story-repair plan delivered constraint)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 14,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 2,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f64e19f128ea0a443cbe05e80a62fa0694a87a0eaaec531abb285736500074f9",
+  "openQuestions": []
+}
