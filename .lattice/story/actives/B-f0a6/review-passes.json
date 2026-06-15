@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f0a6:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: deleting packages/game is correct for B-f0a6. Evidence: root package.json build/test scripts route through packages/main; packages/main/package.json exposes the Lattice CLI only; lattice.config.json scanRoot/testsDir target packages/main; README/project-vision define the product as CLI-first Lattice core, utils, and bin entrypoints, not the old browser game demo; rg found no remaining packages/game, game-browser, or koala-game references outside the updated generic browser fixture example; git diff summary shows only packages/game deletion plus docs/requirements/decisions/test-fixture-spec.md example cleanup outside review metadata. No unrelated package deletion observed.",
+      "createdAt": "2026-06-15T03:03:40.415Z",
+      "reviewRound": "2026-06-15T03:01:34.039Z",
+      "reviewRunId": "B-f0a6:RR-001",
+      "_hash": "6a675d8792d28a3172143961cfa8ffc43bbf2c027300ae5df3b440197b3d0a93"
+    }
+  ]
+}
