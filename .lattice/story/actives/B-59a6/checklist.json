@@ -195,10 +195,49 @@
         "packages/main/src/cli-engine.ts",
         "scripts/verify-process-fact-contract.mjs"
       ],
-      "userSees": "User sees process-fact verification pass for the new review-escalation quorum commands and gate facts.",
+      "userSees": "User sees process-fact contract verification pass for the new review escalation runtime facts.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/cli-engine.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "process-fact-contract-pass",
+            "desc": "Process-fact contract verifier passes and covers review_escalation_status, review_escalation_fallback_set, host verdict identity fields, and DONE gate consumption.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "read-write-policy-boundaries",
+            "desc": "review_escalation_status remains read-only and fallback/host verdict writes are gate-evidence metadata writes with no Authority overclaim.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "contract-catches-drift",
+            "desc": "Contract verifier fails if the new commands or gate-consumed facts are missing from CLI, policy, levels, or registry.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
