@@ -1,0 +1,32 @@
+{
+  "storyId": "B-198c",
+  "checkedAt": "2026-06-15T21:22:56.349Z",
+  "reviewRound": "2026-06-15T21:16:52.028Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "evaluateStoryDirInsideGitRoot (id-dependent) and evaluateStoryDirConfigInsideGitRoot (id-independent) exercised by the consolidated suite (storydir-inside-gitroot-suite.ts, 20 named check() calls) under lattice validate GREEN. Smoke test (storydir-inside-gitroot-smoke.ts) covers the same helper across ok/violation/symlink/no-gitRoot/absent-story. Both tasks registered in package.json scripts."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice doctor storyDirGitRoot check verified via real-machine transcript at .lattice/story/actives/B-198c/evidence/transcript-diff.md: actual CLI output on a wrapper-root fixture shows the ✗ violation block with both absolute paths and the remediation pointer; actual CLI output on the normal repo shows the ✓ healthy pass line. Also covered by suite scenario1-4 doctor JSON+text assertions."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "storyDirOutsideGitRootAdvisory (story_create) and renderStoryDirOutsideGitRootAdvisory (session_brief) exercised by consolidated suite: scenario2.sibling verifies advisory emits the ⚠ one-liner with both abs paths and remediation; scenario1/3/4 verify silence in the healthy/symlink/no-gitRoot cases. Warn-only behaviour (story_create still succeeds) and stderr routing verified in code diff."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Consolidated suite storydir-inside-gitroot-suite.ts with 20 named check() assertions across 4 scenarios: INSIDE (5 checks), SIBLING/ClawCreek wrapper-root (6 checks), SYMLINK realpath (4 checks), NO-GITROOT including totality + absent-story-project-level + legacy-loadConfig-throw (5 checks). Smoke test adds 5 more assertions for the id-dependent helper including the absent-story throw case. All pass under lattice validate GREEN."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "CLAUDE.md was not modified by this story so there are no docsPromises. All 4 checklist items are done with full 3/3 evidence. Real-machine evidence exists (actual lattice doctor CLI output on synthetic wrapper-root and normal fixtures). The 20-check consolidated suite covers inside/sibling/symlink/no-gitRoot paths plus totality, absent-story-project-level, and legacy-loadConfig-throw edge cases. The two late guards (worktree.ts:754, cli-engine.ts:3367) were intentionally left untouched per plan.md scope banner. No TODO/FIXME/HACK in production code."
+  },
+  "_hash": "a09b93b71a792cf0c7378f1b8de02bb20da0f0369992642ef332fd4a3692d14e"
+}
