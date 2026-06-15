@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-854c:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-priority verificationIntent across CHK-001..CHK-004 have valid verificationEvidence (integration_test, result=pass, pointing at story-metadata-protection-smoke.ts). Smoke runs 10 real git-repo fixture checks and passes green. Coverage: CHK-002 all 3 intents (non-ignoring tracked, broad-ignore force-add+warn, negation-allowlist no-false-positive); CHK-003 all 3 intents (unsafe flagged, repair idempotent, safe no-false-positive); CHK-004 all 3 intents (regression smoke green, doctor predicate flagged+cleared, bootstrap never silently leaves untracked). CHK-001 must intents covered by docs_check on decision.json and story_review passage. No blocker found.",
+      "createdAt": "2026-06-15T22:34:15.310Z",
+      "reviewRound": "2026-06-15T22:31:56.255Z",
+      "reviewRunId": "B-854c:RR-004",
+      "_hash": "4fb4850ac1e46a6a2c335333df1edff8d2e5911f4836272d7dacabaac58ad693"
+    },
+    {
+      "id": "B-854c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive story. No concept deletions or replacements found. The three new symbols promoted to export (mergeRuntimeGitignore, runtimeIgnoreMissing from managed-assets.ts) were function-to-export promotions with all references updated. New module story-metadata-protection.ts exports (StoryMetadataProbe, StoryMetadataProtectionResult, MetadataProbeRunner, evaluateStoryMetadataProtection, renderStoryMetadataProtectionWarning) are consistently imported and used in worktree.ts, doctor.ts, and the smoke test — no orphaned references. All new doctor.ts internal helpers (MANAGED_SUPERSEDE_MARKER, neutralizeConflictingLatticeDirIgnore, repairStoryMetadataAllowlist, scanStoryMetadataProtection, renderStoryMetadataProtectionScan) are self-contained with no stale external references. Concept residue check complete: no blocker.",
+      "createdAt": "2026-06-15T22:34:52.194Z",
+      "reviewRound": "2026-06-15T22:31:56.255Z",
+      "reviewRunId": "B-854c:RR-001",
+      "_hash": "498ee13c5e5ed3e4bb9184139fc626b5ea410f40be18d8f91d57520331472023"
+    },
+    {
+      "id": "B-854c:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "All 4 CHK items verified correct against code and adversarial fixtures. Critical correctness points confirmed: (1) guard probes the LEAF (storyRel/index.json) not the .lattice prefix — verified in worktree.ts:868 and by real git check-ignore adversarial fixture showing prefix vs leaf diverge under negation allowlist; (2) negation allowlist (Orchestrate-style) → leaf NOT ignored → unsafe=false, no false positive — confirmed by smoke test + ADV-1 real git probe; (3) broad .lattice/ ignore + untracked → unsafe=true, loud warning + doctor --repair pointer — confirmed; (4) tracked-but-ignored leaf → safe (committed = clean-proof), wouldBeCleaned=false — ADV-2 confirmed; (5) fails OPEN (throwing runner caught by outer try/catch in storyMetadataProtectionWarning, returns empty string) — confirmed; (6) empty/whitespace leaf rejected by runtime re-validation (not only Zod) — confirmed in predicate unit + smoke; (7) doctor --repair neutralizes bare .lattice/ AND .lattice (no slash), preserves all unrelated user lines byte-for-byte, idempotent (second run is no-op verified by byte comparison) — ADV-7 + ADV-10; (8) re-scan after repair classifies leaf safe (git check-ignore freshly reflects new .gitignore) — ADV-9; (9) DONE/DISCARDED stories correctly skipped in doctor scan — ADV-12/ADV-14; (10) no-op logic in repairStoryMetadataAllowlist is correct (compares merged against existing, not neutralized.content); 10/10 smoke checks pass; 14 additional adversarial probes pass. No blockers found.",
+      "createdAt": "2026-06-15T22:36:58.665Z",
+      "reviewRound": "2026-06-15T22:31:56.255Z",
+      "reviewRunId": "B-854c:RR-003",
+      "_hash": "548fec00eac752f949be5aa7f86fd6dc7a1fd3bdfaf8caa8b5069baec2759890"
+    },
+    {
+      "id": "B-854c:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review complete. Story is purely additive (1995 insertions, 14 deletions — all deletions are story metadata JSON). The single symbol visibility change in commit 1166a47: `export interface StoryMetadataProtectionScan` → `interface StoryMetadataProtectionScan` (doctor.ts:743). Grep across entire repo (all .ts/.md/.json, excluding node_modules/dist/.git/@deprecated) confirms zero external consumers of that interface — it appears only within doctor.ts itself (definition at line 743, parameter types at lines 797 and 932). No other concept deletions or replacements found. The two managed-assets.ts promotions (mergeRuntimeGitignore, runtimeIgnoreMissing) went from file-private to exported, with all consumers properly importing from the export site. New story-metadata-protection.ts exports (StoryMetadataProbe, StoryMetadataProtectionResult, MetadataProbeRunner, evaluateStoryMetadataProtection, renderStoryMetadataProtectionWarning) are consistently imported in worktree.ts, doctor.ts, and the smoke test — no orphaned references. All new doctor.ts internal helpers are self-contained. Concept residue check complete: no blocker.",
+      "createdAt": "2026-06-15T22:41:49.145Z",
+      "reviewRound": "2026-06-15T22:40:12.696Z",
+      "reviewRunId": "B-854c:RR-005",
+      "_hash": "b832e762edc7a953c09c5719713481a79a8ed962d38f9272617afbad966fed85"
+    },
+    {
+      "id": "B-854c:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "All three OptAB-combination model behaviors verified correct at HEAD 07cb5dd (post-CL-001 cleanup).\n\n1. worktree.ts bootstrap: `git add -f -- <storyRel>` (line 328) never hard-fails on ignored paths. check-ignore guard probes `${storyRel}/index.json` (line 868) — the ACTUAL metadata leaf — NOT the `.lattice` prefix. Probe is inside `storyMetadataProtectionWarning` which catches all errors and returns empty string (fails OPEN). Verified: broad `.lattice/` → warning; negation allowlist (leaf re-included → check-ignore exits 1 → `ignored=false`) → NO warning; non-ignoring → NO warning.\n\n2. story-metadata-protection.ts predicate: `unsafe = ignored && !tracked` (line 117); tracked=true always yields safe; empty leaf path throws at line 100-103 (runtime re-validation). All predicate units green in smoke.\n\n3. doctor --repair: `neutralizeConflictingLatticeDirIgnore` comments out bare `.lattice/` and `.lattice` lines only (preserves unrelated lines); `mergeRuntimeGitignore` appends idempotent BLOCK_START/END allowlist; `repairStoryMetadataAllowlist` no-ops if `!neutralized.changed && merged === existing` (line 916). Re-scan after repair shows unsafe=false; second repair is a confirmed no-op per smoke check 9/10.\n\nSmoke test (`npm --prefix packages/main run test:story-metadata-protection-smoke`) ran all 10 checks green. Build clean. No correctness bugs found. The CL-001 cosmetic commit (1166a47) only dropped a dead `export` and fixed a garbled string in doctor.ts — zero logic changes. All behavior from Round 1 evidence is reproduced identically at current HEAD.",
+      "createdAt": "2026-06-15T22:42:38.067Z",
+      "reviewRound": "2026-06-15T22:40:12.696Z",
+      "reviewRunId": "B-854c:RR-007",
+      "_hash": "b7ad91b6acd35135a1d0d781b9f4c0195906e8f7ad8a6965afe721146efd377f"
+    },
+    {
+      "id": "B-854c:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all must-priority verificationIntents across CHK-001..CHK-004 have valid passing verificationEvidence at HEAD 4ff012904. Smoke test story-metadata-protection-smoke.ts executed 10/10 checks green at current HEAD. CHK-001 must-intents covered by docs_check on decision.json (appropriate for decision artifacts); CHK-002/CHK-003/CHK-004 must-intents covered by integration_test on the smoke (confirmed passing). Only source-code-touching commits precede evidence; post-evidence commits are process metadata only. No coverage gaps found.",
+      "createdAt": "2026-06-15T22:42:47.710Z",
+      "reviewRound": "2026-06-15T22:40:12.696Z",
+      "reviewRunId": "B-854c:RR-008",
+      "_hash": "83544583f47d21c5e6b70d1b799f4d35cdb32996f6a76bde05ee16b0734539ed"
+    },
+    {
+      "id": "B-854c:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review clean. F-001 confirmed fixed: StoryMetadataProtectionScan is now a file-local interface in doctor.ts with no export keyword. F-002 confirmed fixed: the repair success message at doctor.ts:959 now reads correctly. Full re-check of all 5 changed files: (1) dead code — no unused imports or unreachable functions; realpathSync, relative, mergeRuntimeGitignore, runtimeIgnoreMissing, StoryMetadataProbe are all used at their introduction sites; (2) type safety — no `as any` introduced; catch blocks are intentional probe-failure patterns, each documented, none silently swallow errors that should propagate; (3) I/O isolation — story-metadata-protection.ts has zero imports and is a pure predicate; git spawning lives in gitProbeRunner() in doctor.ts and the inline runner in worktree.ts as designed; shells do not import fn.ts. No blockers found.",
+      "createdAt": "2026-06-15T22:42:54.190Z",
+      "reviewRound": "2026-06-15T22:40:12.696Z",
+      "reviewRunId": "B-854c:RR-006",
+      "_hash": "c4b2262e9dd81788d581f1aee0e6d4fee45df4d2d97d0606bfe5e389da630427"
+    }
+  ]
+}

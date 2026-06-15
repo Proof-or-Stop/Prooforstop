@@ -5,36 +5,257 @@
       "title": "Choose and document the metadata protection model (decision)",
       "context": "Decide between Approach A (git add -f + check-ignore guard), B (scaffold/validate the ignore-volatile/track-metadata .gitignore allowlist on init/doctor), C (relocate volatile vs persistent), or a combination. Capture as a decision with >=3 preMortem since this is a critical data-loss path. The chosen model must make the bootstrap git-add behavior and the data-loss protection stance mutually consistent.",
       "userSees": "A decision record states the chosen protection model and rationale; `lattice story_get` reflects the decision and the PLAN gate passes with >=3 preMortem.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:14:08.915Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_set records chosen=OptAB-combination with rationale making bootstrap git-add and protection stance mutually consistent; story_get reflects it",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "decision has >=3 preMortem so the high-risk PLAN gate passes (4 recorded)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a decision with <3 preMortem or chosen not in options is rejected by decision_set, so the gate cannot be bypassed",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-854c/decision.json",
+          "command": "lattice story_get --storyId=B-854c",
+          "result": "pass",
+          "note": "decision.json records chosen=OptAB-combination with rationale making bootstrap git-add (force-add) and the protection stance (scaffold allowlist) mutually consistent; story_get reflects the decision and PLAN advanced to DEV",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-854c/decision.json",
+          "command": "lattice story_review --storyId=B-854c",
+          "result": "pass",
+          "note": "decision has 4 preMortem (>=3 required for high-risk); story_review Round 1 passed (0 blocker) and the PLAN->DEV high-risk gate accepted the decision",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Make worktree bootstrap robust to an ignored story metadata path",
       "context": "worktree.ts:316 runs `git add .lattice/story/actives/<id>` without -f, which fails with 'paths are ignored' when .lattice is ignored. Implement the chosen model so bootstrap either force-adds with a validated guard or fails with a clear, actionable error/repair instead of an opaque git error.",
       "userSees": "On a project whose .gitignore would ignore story metadata, worktree bootstrap either succeeds (metadata tracked) or prints a clear remediation message, instead of 'The following paths are ignored by one of your .gitignore files: .lattice'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:31:24.431Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a non-ignoring .gitignore, INIT_CHECK bootstrap force-adds metadata and the scoped commit contains .lattice/story/actives/<id>/index.json (story branch tree non-empty)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a project whose .gitignore ignores .lattice (broad ignore), bootstrap still succeeds via git add -f (no paths-are-ignored error) AND emits a loud warning pointing at lattice doctor --repair because check-ignore shows the leaf would be cleaned",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "On a project with the negation allowlist (like Orchestrate .gitignore), bootstrap force-add succeeds and the check-ignore guard does NOT warn (leaf re-included, safe) - no false positive",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: bootstrap non-ignoring .gitignore -> tracked leaf, no warning",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: broad .lattice/ ignore -> dev_start succeeds via git add -f (no paths-are-ignored), leaf tracked, warning present pointing at lattice doctor --repair",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: negation allowlist -> bootstrap succeeds, no false-positive warning (guard probes the leaf not the .lattice prefix)",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Add a doctor check + scaffolding for the track/ignore invariant",
       "context": "Add a `lattice doctor` check that flags when story metadata is neither tracked nor protected (the data-loss state), and scaffold/repair the correct ignore-volatile/track-metadata allowlist on init or via a repair command, so new projects are safe by default rather than depending on a hand-crafted .gitignore.",
       "userSees": "`lattice doctor` reports a clear warning (and offers a repair) when story metadata is untracked-and-unignored, instead of the silent data-loss trap; a freshly-initialized project has metadata protected by default.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:31:24.860Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice doctor on a broad-ignore-untracked project prints a clear warning that story metadata is neither git-tracked nor protected, with a repair pointer; --json marks the invariant unsafe",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice doctor --repair writes the managed ignore-volatile/track-metadata allowlist (idempotent BLOCK markers) so a re-scan reports the invariant safe; second --repair run is a no-op",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "On a safe project (tracked metadata OR negation allowlist like Orchestrate) doctor reports the invariant OK and does NOT false-positive the data-loss warning",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: doctor on broad-ignore-untracked fixture -> unsafe + remediation text + JSON unsafe flag",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: doctor --repair writes managed allowlist (neutralizes bare .lattice/ + mergeRuntimeGitignore) -> re-scan safe; second --repair no-op",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: safe project (negation allowlist) -> doctor reports OK, no false-positive data-loss warning",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Add regression tests for the data-loss invariant",
       "context": "Cover: metadata path is tracked (or protected) after bootstrap under both an ignoring and non-ignoring .gitignore; the doctor check detects the unsafe state; bootstrap does not silently leave metadata untracked. Use existing test seams; simulate .gitignore states with fixtures.",
       "userSees": "`lattice validate` runs the new tests green, proving story metadata cannot end up in the neither-tracked-nor-protected state after bootstrap.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:31:25.245Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New regression tests run green under lattice validate, covering metadata tracked/protected after bootstrap under both ignoring and non-ignoring .gitignore",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A test asserts the doctor predicate flags the broad-ignore-untracked (unsafe) state and clears after repair",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A test asserts bootstrap does NOT silently leave metadata untracked: force-add path always yields a tracked leaf or a loud warning, never the silent neither-tracked-nor-protected state",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "10-check smoke green; covers tracked/protected after bootstrap under ignoring + non-ignoring .gitignore",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke asserts doctor predicate flags broad-ignore-untracked unsafe state and clears after repair",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke + predicate unit (empty-leaf rejection) asserts bootstrap never silently leaves metadata in neither-tracked-nor-protected state: force-add yields tracked leaf or loud warning",
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
+        }
+      ]
     }
   ]
 }

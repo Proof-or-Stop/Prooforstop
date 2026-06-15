@@ -4,7 +4,7 @@
   "title": "Protect tracked story metadata from .gitignore data-loss and resolve the track/ignore contradiction",
   "description": "Bug 3 (most serious) from the 2026-06-15 ClawCreek bug report (Lattice 0.3.5). Story metadata under .lattice/story/actives/* must be git-tracked (it holds index.json/background.md/checklist.json/decision.json/plan.md), but the worktree bootstrap runs `git add .lattice/story/actives/<id>` WITHOUT -f (worktree.ts:316). This creates a contradiction: if a user gitignores .lattice/ (to protect it from git clean) the bootstrap fails with 'paths are ignored'; if they do NOT carefully craft a negation allowlist, the metadata stays untracked and a routine git clean -fd / git checkout permanently deletes it with no git-history recovery (ClawCreek lost 19 stories' files this way). This repo (Orchestrate) is currently safe ONLY because .gitignore hand-crafts the ignore-volatile/track-metadata allowlist (.gitignore:9-18); the framework never scaffolds or validates this, so fresh projects default into the data-loss trap. Outcome: story metadata is reliably protected — pick ONE coherent model (force-add + check-ignore validation/guard at bootstrap; OR scaffold/validate the .gitignore allowlist on init; OR relocate volatile runtime out of the tracked metadata prefix) and make bootstrap + protection consistent. Scope: track/ignore model + data-loss protection only; not gitRoot cwd (B-2856) or bootstrap atomicity (Bug 2).",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "critical",
   "keywords": [
     "gitignore",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-06-15T21:57:05.979Z",
   "startedAt": "2026-06-15T21:57:05.979Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T22:51:13.716Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,11 +41,86 @@
       "user": "Harmonygo",
       "sessionId": "lattice-bug3",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:07:37.772Z",
+      "branch": "story/B-854c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:13:53.629Z",
+      "branch": "story/B-854c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:31:56.255Z",
+      "branch": "story/B-854c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-15T22:32:03.675Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:40:03.233Z",
+      "branch": "story/B-854c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:40:12.696Z",
+      "branch": "story/B-854c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-06-15T22:40:23.156Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:43:26.070Z",
+      "branch": "story/B-854c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug3",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:51:13.716Z",
+      "branch": "story/B-854c",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug3",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-854c",
-    "branch": "story/B-854c",
-    "createdAt": "2026-06-15T22:03:14.386Z"
-  }
+  "currentReviewRound": "2026-06-15T22:40:12.696Z"
 }
