@@ -23,7 +23,7 @@
       "desc": "Active metadata commit vocabulary still emits Koala: packages/main/src/cli-engine.ts:3260 and :3389 create `koala:` from-draft/INIT_CHECK metadata commits, packages/main/src/handlers/worktree.ts:318/:546/:858/:923 create or recognize `koala:` story init/discard/auto-add metadata commits, and packages/main/src/handlers/done-effects.ts:589 creates `koala:` DONE metadata commits. These are current command paths, not archive docs or signed-artifact salts, so the implementation does not yet satisfy the story requirement that active metadata vocabulary be Lattice.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-15T16:24:24.051Z",
@@ -34,7 +34,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/handlers/worktree.ts",
         "packages/main/src/handlers/done-effects.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved in commit c967454 by replacing active metadata commit subjects with lattice: vocabulary. Verification scan rg -n \"koala:\" over cli-engine.ts, worktree.ts, and done-effects.ts returned no hits; lattice: from-draft/story/discard subjects are present.",
+      "resolvedAt": "2026-06-15T16:58:34.103Z"
     },
     {
       "id": "B-ffa2:F-003",
