@@ -4,11 +4,11 @@
   "title": "Remove legacy koala CLI alias and compatibility paths",
   "description": "Delete the legacy koala CLI alias and compatibility surface. Lattice is the only supported command, binary, generated wrapper, fallback package, and active documentation name. Do not keep koala binary or historical compatibility behavior for runtime entrypoints.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-15T01:58:06.650Z",
   "startedAt": "2026-06-15T01:58:06.650Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T10:23:47.975Z",
   "events": [
     {
       "phase": "INIT",
@@ -105,12 +105,15 @@
       "branch": "story/B-6351",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:23:47.975Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6351",
-    "branch": "story/B-6351",
-    "createdAt": "2026-06-15T02:02:57.888Z"
-  },
   "currentReviewRound": "2026-06-15T10:16:22.348Z"
 }
