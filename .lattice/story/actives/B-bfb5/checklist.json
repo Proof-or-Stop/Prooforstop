@@ -193,7 +193,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/audits/lattice-token-cost-and-takeover-audit.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "REVIEW/TEST/DONE evidence distinguishes local Non-authority token-cost optimization from Authority Server receipt-backed completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Related audit documentation records what was measured, what was only estimated, and why prompt-cache billing remains a caveat.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delivery review must reject any claim that this story changed Authority Server, handoff authority, productionDone, receiptVerified, or fullAuthorityDone semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
