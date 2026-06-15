@@ -99,7 +99,30 @@
       "context": "Cover: storyDir inside gitRoot (ok); storyDir as a .. sibling of gitRoot (violation, the ClawCreek case); symlinked roots resolved via realpath; no configured gitRoot / plain repo (unchanged).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "tests cover the storyDir-inside-gitRoot ok case",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tests cover the .. sibling violation (ClawCreek) and the no-gitRoot case",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "tests cover symlinked roots resolved via realpath",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
