@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-08f2",
+  "checkedAt": "2026-06-15T23:45:33.209Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "b2bda2762f885567416a891fb67f863881a210b4cecaf5afcf8796c13031b49b",
+  "executionBoundaryHash": "7ec0050457a6c51fda4c6be56108e307e53b008080a4578c7808b4f73adba0c8",
+  "freshnessHash": "5c14d1591b7035503d37b2b872e639a499a83dc8038ccf3ac0b9638a0ad824ba",
+  "effectiveExcludedKeywords": [
+    "CHANGELOG.md / git-history rewrite",
+    "docs/koala/framework-audit/ (active B-META audit path) — KEEP",
+    "experiments/ data and recorded historical fixtures",
+    "koala.config.json / koala:start-end marker parsing",
+    "LEGACY_KOALA_* path constants in core/lattice-paths.ts and the .koala/ runtime dir (deferred .koala path work)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "CHANGELOG.md / git-history rewrite",
+      "source": "scopeBoundary.excluded",
+      "text": "CHANGELOG.md / git-history rewrite",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/koala/framework-audit/ (active B-META audit path) — KEEP",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/koala/framework-audit/ (active B-META audit path) — KEEP",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/ data and recorded historical fixtures",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/ data and recorded historical fixtures",
+      "excluded": true
+    },
+    {
+      "keyword": "koala.config.json / koala:start-end marker parsing",
+      "source": "scopeBoundary.excluded",
+      "text": "koala.config.json / koala:start-end marker parsing",
+      "excluded": true
+    },
+    {
+      "keyword": "LEGACY_KOALA_* path constants in core/lattice-paths.ts and the .koala/ runtime dir (deferred .koala path work)",
+      "source": "scopeBoundary.excluded",
+      "text": "LEGACY_KOALA_* path constants in core/lattice-paths.ts and the .koala/ runtime dir (deferred .koala path work)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "bb4a60e69491cc09b993f8927ea3092a210b5a116e2059d405321458a77b4f86"
+}
