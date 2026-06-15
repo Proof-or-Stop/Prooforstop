@@ -1,0 +1,22 @@
+{
+  "task": "Update two stale brand-string assertions in the field-regression-cli-smoke cooldown test so the suite stops redding after the koala->Lattice rebrand.",
+  "outcome": "Running `npm run test:field-regression-cli-smoke` prints the per-scenario '⚠ Lattice stale state warnings:' lines and runs to completion with no output (exit 0), instead of crashing with 'AssertionError [ERR_ASSERTION]: The input did not match the regular expression /koala stale state warnings/'.",
+  "facts": [
+    "cli-engine.ts:3657 emits process.stderr.write('⚠ Lattice stale state warnings:\\n').",
+    "field-regression-cli-smoke.ts:1894 does assert.match(first.stderr, /koala stale state warnings/).",
+    "field-regression-cli-smoke.ts:1906 does assert.doesNotMatch(second.stderr, /koala stale state warnings/).",
+    "assertStaleWarningCooldownCliSurface runs at the end of the suite (line 1930) and currently throws, aborting the whole run.",
+    "grep confirms only :1894 and :1906 carry the legacy 'koala stale state warnings' string; :609 and :1871 are unrelated and out of scope."
+  ],
+  "constraints": [
+    "Only edit packages/main/src/tasks/field-regression-cli-smoke.ts (scope/execution boundary).",
+    "Do not change the CLI emit string in cli-engine.ts (blocked path).",
+    "Keep the assertion brand-specific (match the exact 'Lattice stale state warnings' header) rather than brand-agnostic.",
+    "Do not alter the cooldown behavior the test exercises."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "timestamp": "2026-06-15T00:34:34.769Z"
+}
