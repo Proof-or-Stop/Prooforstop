@@ -167,7 +167,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Active documentation and tests teach Lattice role IDs; any remaining Koala references are explicitly historical, runtime-compatibility, or archive material rather than current role guidance.",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "README.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+          "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "packages/main/src/tasks"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/*smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Active docs and tests that mention agent role IDs use lattice-* names.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Archived Koala docs under legacy paths are not rewritten unless needed to label them as historical.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not instruct users to invoke koala-implementer or koala-review-* for new Lattice work.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
