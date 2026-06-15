@@ -58,12 +58,12 @@
           "kind": "docs_check",
           "verdict": "success",
           "file": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
-          "command": "rg -n \"ledgerCallId|attemptId|sequence|supersedesRecordIds|provider\\.requestIdHash|double count|\\.lattice/usage/llm-usage\\.jsonl|runtime-artifact-registry|materialHash|volatile|repairableTrackedArtifact|not process evidence|story evidence\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "command": "rg -n \"provider-reported|prompt-size-estimate|unavailable|not billing truth|not billing|not final usage|May satisfy Authority|A local estimate is not Authority proof|Local prompt-size estimates must never become\" docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
           "result": "pass",
-          "note": "REVIEW findings F-001/F-002/F-003 addressed: document now defines stable local call/attempt correlation and runtime artifact path/classification semantics for the future usage ledger.",
-          "headHash": "4d8be64967dda4faf275bcb34faa583bc3d104a1",
+          "note": "Direct edge evidence for CHK-001:edge:0: the document distinguishes provider-reported true usage, prompt-size-estimate records, and unavailable usage, and explicitly states estimates are not billing truth, not final usage, and not Authority proof.",
+          "headHash": "8efb1f50c2c8c56b72d47b98232c06381c6bd5c9",
           "materialHash": "becc2aa82f8b731b4575a05ff078bbb653ebe3383a1ce0a23840a40b03c87c44",
-          "timestamp": "2026-06-15T14:57:22.727Z"
+          "timestamp": "2026-06-15T15:01:47.442Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
