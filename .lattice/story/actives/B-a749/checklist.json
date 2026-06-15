@@ -175,9 +175,9 @@
       "title": "Add regression tests for lint change-scoping",
       "context": "Cover: (a) backend-only change scopes out the frontend tsconfig (skipped); (b) an in-scope frontend change still type-checks (and still fails on real errors); (c) no-change-scope mode keeps full recursive tsc. Use validate-lint.ts's CommandRunner dependency-injection seam; do not spawn real tsc.",
       "userSees": "`lattice validate` runs the new tests green, proving lint scopes out unrelated packages for a backend-only change while still catching real in-scope type errors.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:30:57.672Z",
       "verificationIntent": {
         "happy": [
           {
