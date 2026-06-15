@@ -108,6 +108,28 @@ Every estimate record must:
 - still record `usage.estimator.name`, `usage.estimator.version`, and
   `usage.estimator.unit` alongside the new `confidence` field.
 
+### Streaming and failure usage capture
+
+Streaming responses report final usage differently from non-streaming responses,
+and a naive reader can lose the counts entirely:
+
+- For streaming responses, final usage must be read from the terminal stream
+  event (the final `message_delta` / final message that carries the completed
+  `usage` object), not assumed from a non-streaming response shape. The usage on
+  the terminal event is the authoritative provider-reported count for the call,
+  and it still qualifies as `usage.source=provider-reported`.
+- A call that errors or times out mid-stream still records the partial output
+  usage it actually consumed up to the failure point. An errored call that
+  produced tokens still cost budget, so it must not be recorded as zero. If a
+  terminal event with partial real counts was received, those partial counts are
+  still `provider-reported`, not downgraded to an estimate.
+- `usage.source=unavailable` is set only when there is truly no count available —
+  no terminal usage event and no partial counts. It must never be used as a
+  shortcut, and missing usage must never be defaulted to `0` to pass a budget.
+
+This is consistent with the existing rule that a failed request may still write a
+ledger entry when it consumed budget, returned usage, or triggered a refusal.
+
 ## Ledger Path and Runtime Artifact Classification
 
 The intended local ledger path is:
