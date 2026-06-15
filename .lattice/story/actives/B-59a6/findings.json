@@ -62,7 +62,7 @@
       "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:893-894 still says documentation must state that any current direct decision-doc 3x2 gate is legacy transitional behavior until the implementation story migrates it. WHY: this contradicts the same doc at docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:23-24,94-96,265-267 and the implemented runtime at packages/main/src/core/review-escalation.ts:220-229, packages/main/src/core/decision-doc-quorum.ts:291-313, and packages/main/src/core/machine.ts:850-856, where direct decision-doc edits are diagnostic only and DONE escalation is triggered by the first REVIEW round countable-problem threshold. F-001/F-002/F-003 being resolved still leaves this policy contradiction in the acceptance criteria, so a future reviewer/operator can be told to preserve a pre-migration rule that no longer exists.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-15T10:39:40.860Z",
@@ -74,7 +74,8 @@
         "packages/main/src/core/review-escalation.ts",
         "packages/main/src/core/decision-doc-quorum.ts",
         "packages/main/src/core/machine.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-15T10:42:13.847Z"
     }
   ]
 }
