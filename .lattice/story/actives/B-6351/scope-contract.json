@@ -51,7 +51,38 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These files contain active command examples, generated prompt snippets, hook fallback lookup, lifecycle artifact policy, or verification scripts that directly referenced the removed koala runtime wrappers or @koala-agent/core fallback. Updating them is necessary for lattice-only runtime behavior and absence tests.",
+      "timestamp": "2026-06-15T02:49:01.465Z",
+      "paths": [
+        ".claude/agents",
+        ".gitignore",
+        "CLAUDE.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/cli-prompts.ts",
+        "packages/main/src/cli.ts",
+        "packages/main/src/core/rollout-check.ts",
+        "packages/main/src/handlers/test-auto.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "scripts/run-session-brief-experiment.mjs",
+        "scripts/run-story-review-experiment.mjs",
+        "scripts/verify-fail-fast-health.mjs",
+        "scripts/verify-lab-foundation.mjs",
+        "scripts/verify-role-telemetry.mjs",
+        "scripts/verify-workflow-phase-consistency.mjs"
+      ],
+      "anchors": [
+        "remove_koala_runtime_alias",
+        "lattice_only_codex_wrapper",
+        "absence_assertions"
+      ]
+    }
+  ],
   "createdAt": "2026-06-15T02:13:25.562Z",
-  "updatedAt": "2026-06-15T02:13:25.562Z"
+  "updatedAt": "2026-06-15T02:49:01.465Z"
 }
