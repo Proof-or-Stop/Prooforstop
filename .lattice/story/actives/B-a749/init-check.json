@@ -1,0 +1,25 @@
+{
+  "storyId": "B-a749",
+  "checkedAt": "2026-06-15T21:59:22.953Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T21:58:20.800Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Outcome in index.json description mixes user-facing result with implementation prescription (mentions adding a change-scope filter). Checklist userSees fields compensate well with concrete terminal output, so this is advisory only -- consider rephrasing the description outcome to be purely user-observable for clarity."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-15T21:59:22.953Z",
+      "issues": []
+    }
+  ],
+  "_hash": "0dca8a5071888f07333fdfe3e67a9579d47692d0325b4a59adbd47bb3e4e3dff"
+}

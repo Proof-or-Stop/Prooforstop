@@ -38,10 +38,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
-import { runLintGateCli } from './validate-lint.js';
+import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
 import {
@@ -597,23 +598,38 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // B-9d95 CHK-006: CLI gate flag 分流——任一命中即只跑对应 gate，
       // 不 spawn pytest 的全量 validate.ts。多个 flag 同时传 → Promise.all 并行。
       if (args.channel || args.concept || args.lint) {
+        // B-2856: resolve the story's gitRoot once at handler entry (story context
+        // is available here) so the channel/concept git readers run from the real
+        // repo in wrapper-root layouts. Null/unresolved → projectRoot fallback.
+        const gitCwd = args.story
+          ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot })
+          : projectRoot;
         type GateTask = () => Promise<{ name: string; ok: boolean; rendered: string; result: unknown }>;
         const tasks: GateTask[] = [];
         if (args.channel) {
           tasks.push(async () => {
-            const r = runChannelGateCli(args.story, { store: ctx.store, projectRoot });
+            const r = runChannelGateCli(args.story, { store: ctx.store, projectRoot, gitCwd });
             return { name: 'channel', ok: r.ok, rendered: r.rendered, result: r.result };
           });
         }
         if (args.concept) {
           tasks.push(async () => {
-            const r = runConceptGateCli({ projectRoot });
+            const r = runConceptGateCli({ projectRoot, gitCwd });
             return { name: 'concept', ok: r.ok, rendered: r.rendered, result: r.result };
           });
         }
         if (args.lint) {
           tasks.push(async () => {
-            const r = runLintGateCli({ projectRoot });
+            // B-a749: when run as a story-scoped gate (--lint --story=B-xxx),
+            // resolve the change-scope (changed files vs main) so out-of-scope
+            // packages whose deps are absent are skipped-with-warning instead of
+            // hard-failing on missing deps. Plain `--lint` (no story) passes no
+            // scope → full recursive tsc (unchanged). On resolution failure the
+            // resolver returns undefined → full recursive tsc (never skip-all).
+            const changedFiles = args.story
+              ? resolveChangedFiles({ projectRoot })
+              : undefined;
+            const r = runLintGateCli({ projectRoot, changedFiles });
             return { name: 'lint', ok: r.ok, rendered: r.rendered, result: r.result };
           });
         }

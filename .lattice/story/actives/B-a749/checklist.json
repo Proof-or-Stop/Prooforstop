@@ -1,0 +1,251 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add an optional change-scope filter to validate --lint",
+      "context": "validate-lint.ts findTsconfigs/runTsc currently tsc every tsconfig with no change-scope. Add an optional changedFiles/change-scope input so that, when available (e.g. validate --lint --story=B-xxx), only tsconfigs whose package contains a changed file (vs main) are hard-required; resolve the changed-file set via the existing signed-workspace/git resolution. Preserve full recursive tsc when no change-scope is provided.",
+      "userSees": "`lattice validate --lint --story=B-xxx` for a backend-only change runs tsc on the backend package and reports the frontend tsconfig as skipped (out of change scope), instead of failing on frontend TS2307 errors.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-15T22:30:56.889Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checkLint/runTsc accept an optional changedFiles set; when a backend-only changed-file set is passed, only tsconfigs whose package subtree contains a changed file are required, others scoped out",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "checkLint/runTsc called with NO changedFiles (plain --lint, no story) runs full recursive tsc over every tsconfig exactly as before (backward compatible)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "git diff reader throws (no merge-base/detached HEAD) => fall back to full recursive tsc, never skip-all",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a changed file not under any tsconfig subtree / ambiguous mapping is treated as in-scope (fail-closed), never silently skipped",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-lint.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/review-preflight.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (a): backend-only changedFiles -> only backend tsconfig required, frontend scoped out (CommandRunner invoked for backend, frontend reported out-of-scope). Build+smoke green.",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (c): undefined changedFiles -> full recursive tsc unchanged, CommandRunner invoked for every tsconfig, legacy 'tsc: checked N tsconfigs' preserved.",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (d): changed-files reader throws -> resolveChangedFiles returns undefined -> full recursive tsc, never skip-all.",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke adversarial: changed file under no tsconfig subtree -> computeOutOfScopeTsconfigs returns empty set (fail-closed, all in-scope), never silently skipped.",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Skip-with-warning for out-of-scope packages missing node_modules",
+      "context": "When a tsconfig's package has no node_modules and is NOT in the change scope, treat it as skipped-with-warning rather than a hard fail (distinct from the in-scope case, which still fails if deps are genuinely missing). Keep the existing ENOENT(binary)->skip vs non-zero-exit->fail distinction for in-scope packages.",
+      "userSees": "When a fresh worktree lacks frontend node_modules and the change is backend-only, validate --lint prints '[lint] skipped: <frontend tsconfig> (out of scope, deps absent)' instead of '[lint] fail: tsc ... Cannot find module'.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-15T22:30:57.287Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "an out-of-scope tsconfig whose package lacks node_modules is reported skipped-with-warning (out of scope, deps absent) instead of hard fail on TS2307",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "an in-scope tsconfig with genuinely missing deps / real tsc error still surfaces as kind:fail (gate still bites)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "out-of-scope skip-with-warning only triggers when node_modules is actually absent AND package is out of change scope; an out-of-scope package WITH deps present is still checked",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-lint.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (a): out-of-scope tsconfig with package node_modules absent -> reported '[lint] skipped: <rel> (out of scope, deps absent)' instead of TS2307 hard fail (packageHasNodeModules via injected FileExists).",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (b): in-scope tsconfig with injected real tsc error -> still kind:fail; in-scope tsconfigs never deps-absent-skipped (gate bites).",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke adversarial: out-of-scope tsconfig WITH node_modules present -> still type-checked (not skipped); deps-absent skip only when both out-of-scope AND node_modules absent.",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression tests for lint change-scoping",
+      "context": "Cover: (a) backend-only change scopes out the frontend tsconfig (skipped); (b) an in-scope frontend change still type-checks (and still fails on real errors); (c) no-change-scope mode keeps full recursive tsc. Use validate-lint.ts's CommandRunner dependency-injection seam; do not spawn real tsc.",
+      "userSees": "`lattice validate` runs the new tests green, proving lint scopes out unrelated packages for a backend-only change while still catching real in-scope type errors.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-15T22:30:57.672Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "new smoke test runs green: backend-only change scopes out the frontend tsconfig (skipped) via CommandRunner DI",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke test: in-scope frontend change still type-checks and still fails on a real injected tsc error; no-change-scope keeps full recursive tsc",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke test never spawns real tsc (uses injected CommandRunner + injected diff reader only)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke test exists and runs green via CommandRunner DI: backend-only change scopes out frontend tsconfig (skipped). Output '✓ validate-lint change-scope smoke passed', exit 0.",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers in-scope frontend change still type-checks + fails on real injected error (b), and no-change-scope keeps full recursive tsc (c).",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke uses injected CommandRunner + injected changed-files reader + injected FileExists only; never spawns real tsc (deterministic, sub-second).",
+          "headHash": "aca2cc329c6ceb370dcdc6cd7280001e205c23ae",
+          "materialHash": "4d60bd82cc8bf252d71ec7e8abf2c744bf875ebaf26840d4b90596d37c8d2492",
+          "timestamp": "2026-06-15T22:43:25.370Z"
+        }
+      ]
+    }
+  ]
+}

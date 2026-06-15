@@ -440,13 +440,21 @@ function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   ].join('\n');
 }
 
-function mergeRuntimeGitignore(existing: string | null): string {
+// B-854c CHK-003: exported so `lattice doctor --repair` can reuse the SAME
+// idempotent append-only allowlist merge (BLOCK_START/END markers, dedupes via
+// runtimeIgnoreMissing) instead of hand-rolling a second allowlist. A second
+// merge over already-merged content is a no-op (missing.length === 0).
+export function mergeRuntimeGitignore(existing: string | null): string {
   const missing = runtimeIgnoreMissing(existing);
   if (missing.length === 0) return existing ?? '';
   const base = (existing ?? '').replace(/\s+$/, '');
   const separator = base.length === 0 ? '' : '\n\n';
   return `${base}${separator}${renderManagedRuntimeIgnoreBlock(missing)}\n`;
 }
+
+// B-854c CHK-003: exported so doctor can detect whether the managed allowlist is
+// already fully present (missing.length === 0 → safe, repair is a no-op).
+export { runtimeIgnoreMissing };
 
 export function detectManagedAssetProfile(root: string): InitProfile {
   const agents = readText(root, 'AGENTS.md');

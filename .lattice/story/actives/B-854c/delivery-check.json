@@ -1,0 +1,59 @@
+{
+  "storyId": "B-854c",
+  "checkedAt": "2026-06-15T22:48:07.078Z",
+  "reviewRound": "2026-06-15T22:40:12.696Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist.json#CHK-002.userSees",
+      "promise": "On a project whose .gitignore would ignore story metadata, worktree bootstrap either succeeds (metadata tracked) or prints a clear remediation message instead of the opaque git error about ignored paths",
+      "verifiedBy": "diff/grep + smoke test run",
+      "evidence": "worktree.ts: git add changed to git add -f. storyMetadataProtectionWarning() posts DATA-LOSS RISK warning pointing at lattice doctor --repair when leaf would be cleaned. Smoke test bootstrap broad-ignore case PASSED. Transcript-diff.md section 1+2: OLD exit 1 vs NEW exit 0 and warning text confirmed."
+    },
+    {
+      "docPath": "checklist.json#CHK-003.userSees",
+      "promise": "lattice doctor reports a clear warning and offers repair when story metadata is untracked-and-unignored; --repair installs the managed allowlist idempotently; safe projects not false-positived",
+      "verifiedBy": "diff/grep + smoke test run",
+      "evidence": "doctor.ts: scanStoryMetadataProtection() + renderStoryMetadataProtectionScan() emits the exact warning text. repairStoryMetadataAllowlist() calls mergeRuntimeGitignore() (idempotent). JSON field storyMetadataProtection.unsafe exposed. Smoke tests (3 doctor cases) PASSED. Transcript-diff.md sections 3+4 confirm text and re-scan behavior."
+    },
+    {
+      "docPath": "packages/main/src/core/story-metadata-protection.ts",
+      "promise": "New pure predicate module: unsafe = ignored && !tracked, with MetadataProbeRunner DI; shared by worktree.ts, doctor.ts, and smoke tests",
+      "verifiedBy": "diff/grep",
+      "evidence": "New 138-line file in diff. Exports evaluateStoryMetadataProtection(), renderStoryMetadataProtectionWarning(), StoryMetadataProbe, StoryMetadataProtectionResult, MetadataProbeRunner. Imported in worktree.ts and doctor.ts. unsafe=wouldBeCleaned=ignored&&!tracked invariant explicit in source."
+    },
+    {
+      "docPath": "packages/main/src/core/managed-assets.ts",
+      "promise": "mergeRuntimeGitignore and runtimeIgnoreMissing exported so doctor --repair reuses the idempotent allowlist merge",
+      "verifiedBy": "diff/grep",
+      "evidence": "managed-assets.ts diff: mergeRuntimeGitignore exported; runtimeIgnoreMissing re-exported. Both imported in doctor.ts repair path. Second --repair is a no-op confirmed by smoke test."
+    },
+    {
+      "docPath": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+      "promise": "10-check regression smoke covering predicate units, bootstrap across 3 .gitignore fixtures, doctor unsafe detect + repair + idempotency + no-false-positive",
+      "verifiedBy": "smoke test run 10/10 PASSED",
+      "evidence": "npm --prefix packages/main run test:story-metadata-protection-smoke ran in worktree: all 10 checks PASSED. New 278-line file in diff. Registered in packages/main/package.json as test:story-metadata-protection-smoke."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002",
+      "transcript": "Transcript in evidence/transcript-diff.md sections 1+2: OLD git add exit 1 on ignored .lattice; NEW git add -f exit 0 with leaf staged. Warning text DATA-LOSS RISK + lattice doctor --repair pointer present. Smoke bootstrap checks (3 cases) all PASSED against real temp git repos with hand-written .gitignore fixtures."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Transcript in evidence/transcript-diff.md sections 3+4: doctor text shows exactly the string checked by the smoke: doctor broad-ignore-untracked -> unsafe+remediation text; --json unsafe:true; --repair neutralizes bare .lattice/ line, appends managed block with !.lattice/story/actives/**, re-scan unsafe:false; git check-ignore exits 1 (safe). Second --repair no-op. Smoke doctor checks (3 cases) PASSED."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "10-check smoke (npm --prefix packages/main run test:story-metadata-protection-smoke) in worktree dist: all 10/10 PASSED. Covers predicate units x4 (tracked safe, negation-allowlist safe, broad-ignore-untracked unsafe, empty-leaf rejected); bootstrap x3 (non-ignoring, broad-ignore, negation-allowlist); doctor x3 (unsafe+JSON, repair+idempotent, safe-no-false-positive)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified from diff and live smoke run. 10-check smoke covers happy, edge (broad-ignore force-add+warn, repair idempotency), and adversarial (negation-allowlist no false positive, empty leaf rejected, tracked leaf always safe). No unresolved TODOs in new or modified files. CRITICAL data-loss fix (git add -f) and doctor invariant scan with --repair present and tested."
+  },
+  "_hash": "e2f1ce716aef431c0734419b2b4b29d052f0ea54ad46fdf9a4035c15a49c2574"
+}

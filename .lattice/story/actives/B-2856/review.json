@@ -1,0 +1,27 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-15T21:44:36.260Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Route validate-channel git operations through the resolved gitRoot + Route validate-concept git diff and grep scan through the resolved gitRoot are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-2856\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact DI seam shape per reader (whether authoritativeCwd threads via an arg, a reader factory, or a cwd param) — to confirm by reading each file; Whether every call site has the story context needed to call the resolver, or needs a fallback path"
+        }
+      ],
+      "_hash": "5288a6dc9e0cc515591a1883d14778f387b752e5ad3b854f327f5f971486a592"
+    }
+  ]
+}

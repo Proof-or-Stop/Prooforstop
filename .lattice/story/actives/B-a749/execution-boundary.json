@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a749",
+  "allowedCommands": [
+    "git",
+    "lattice",
+    "lattice validate",
+    "node packages/main/dist",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/handlers/",
+    "packages/main/src/handlers/validate-lint.ts",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bug 4: validate --lint change-scoping; do not weaken recursive tsc without change-scope.",
+  "createdAt": "2026-06-15T22:01:51.505Z",
+  "updatedAt": "2026-06-15T22:01:51.505Z",
+  "_hash": "c2eed587559d4a03e1f6535be39382882df53c6f619a1a10763d1a5164d29e7a"
+}

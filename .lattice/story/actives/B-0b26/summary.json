@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0b26",
+  "changes": "Deleted five confirmed-dead, git-tracked paths for the open-source release: the three unused sample/dogfood packages packages/cli-guess-number, packages/python-demo, packages/python-rps, and two tracked cruft files du.exe.stackdump (a Windows crash dump) and claude-session.mjs (a dead prototype superseded by packages/main/src/providers/claude-cli.ts). jek.md was deliberately kept (user-owned).",
+  "usage": "Nothing to invoke — the repository simply ships without the sample projects and junk files. `ls packages/` now shows only lab/main/utils.",
+  "expectedOutcome": "`ls packages/` prints only `lab main utils`; `git ls-files` no longer lists any of the five deleted paths; jek.md is still present and tracked; `npm run build`, `npm run test:e2e`, and `lattice validate` all pass.",
+  "actualTranscript": "ls packages/ = 'lab main utils'; 0 deleted paths in git index; git ls-files jek.md still returns jek.md; npm run build exit 0; npm run test:e2e exit 0 (story-lifecycle + gap-convergence ALL PASS); lattice validate exit 0 with 25/25 verification intent coverage; all 3 REVIEW lanes and delivery-check passed with no findings.",
+  "outcomeDiff": "No gap. The five dead paths are gone from git and disk; jek.md survives; build/e2e/validate green; over-deletion guards (packages/lab, experiments/, root markdown files, bin/lattice.js) all confirmed intact.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope was deliberately limited to these five paths. jek.md (user-owned), packages/lab, and the experiments/ committed-data drop are intentionally out of scope; the experiments/ data-drop is a planned separate follow-up story.",
+  "pitfalls": "jek.md is protected by decisions/root-markdown-migration-execution-solution.md and must not be deleted without explicit user request — an earlier story (B-15d2) was discarded because its frozen checklist named jek.md as a deletion target; this story names it only as kept. claude-session.mjs leaves an acceptable historical mention in docs/metadata/task.json and a coincidental '.tmp-claude-session' string in claude-cli.ts:58 (not an import).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 184356
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 27453
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 303574
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 161678
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 178484
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 188181
+    }
+  },
+  "totalDurationMs": 1043735,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T22:38:51.410Z",
+  "updatedAt": "2026-06-15T22:38:51.410Z"
+}

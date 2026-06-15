@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0b26",
+  "mode": "maintenance",
+  "allowed": [
+    "Delete the 5 confirmed-dead paths: packages/cli-guess-number, packages/python-demo, packages/python-rps, du.exe.stackdump, claude-session.mjs; scrub residual references in tracked config/docs"
+  ],
+  "excluded": [
+    "Any non-deletion behavior change to main/utils/lab source",
+    "experiments/ data-drop (deferred to a separate story)",
+    "jek.md — user-owned local bootstrap note, kept per decisions/root-markdown-migration-execution-solution.md and user confirmation; must NOT be deleted",
+    "packages/lab (kept)",
+    "The koala->Lattice rebrand / legacy alias removal"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved 'one cleanup story now' and explicitly chose to keep jek.md during OSS-prep audit (2026-06-15).",
+  "createdAt": "2026-06-15T22:24:30.618Z",
+  "updatedAt": "2026-06-15T22:24:30.618Z",
+  "_hash": "b082cd6fede5f75e0960a6109f883eecf5f1092f1b5bb542f0d63637e1c4c1fe"
+}

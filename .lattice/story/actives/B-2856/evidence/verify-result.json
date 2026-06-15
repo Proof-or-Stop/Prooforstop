@@ -1,0 +1,162 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "smoke: resolver throw -> resolveGitCwd try/catch falls back to projectRoot"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "concurrent: cwd resolved per-call from per-story ctx; cwd-only change does not add shared state (diff: command/flow unchanged)"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-002:happy:2": {
+  "pass": true,
+  "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "cwd-only: grep arg-handling & diff maxBuffer are UNCHANGED (diff shows only cwd added); behavior inherited"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "cwd-only: grep arg-handling & diff maxBuffer are UNCHANGED (diff shows only cwd added); behavior inherited"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "cwd-only: git log parsing/delimiter handling UNCHANGED (diff: only cwd added)"
+ },
+ "CHK-004:happy:0": {
+  "pass": true,
+  "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard"
+ },
+ "CHK-004:happy:1": {
+  "pass": true,
+  "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard"
+ },
+ "CHK-004:happy:2": {
+  "pass": true,
+  "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard"
+ },
+ "CHK-004:edge:1": {
+  "pass": true,
+  "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard"
+ },
+ "CHK-004:adversarial:0": {
+  "pass": true,
+  "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard"
+ },
+ "CHK-004:adversarial:1": {
+  "pass": true,
+  "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard"
+ },
+ "CHK-004:edge:0": {
+  "pass": true,
+  "note": "cwd-only: worktreeRemoveWithRetry retry logic UNCHANGED (diff: only cwd routed)"
+ },
+ "CHK-004:edge:2": {
+  "pass": true,
+  "note": "worktree reroutes via resolveStoryGitRoot; the out-of-scope bootstrap git add left on root (Bug 3 deferred) — confirmed by implementer + cwd-only diff"
+ },
+ "CHK-005:happy:0": {
+  "pass": true,
+  "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back"
+ },
+ "CHK-005:happy:1": {
+  "pass": true,
+  "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back"
+ },
+ "CHK-005:edge:0": {
+  "pass": true,
+  "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back"
+ },
+ "CHK-005:edge:2": {
+  "pass": true,
+  "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back"
+ },
+ "CHK-005:happy:2": {
+  "pass": true,
+  "note": "committed gitroot-cwd-routing smoke: wrapper-root (metadataRoot not a git repo + gitRoot subdir) + plain-repo fixtures both pass; wired into package.json"
+ },
+ "CHK-005:happy:3": {
+  "pass": true,
+  "note": "committed gitroot-cwd-routing smoke: wrapper-root (metadataRoot not a git repo + gitRoot subdir) + plain-repo fixtures both pass; wired into package.json"
+ },
+ "CHK-005:edge:1": {
+  "pass": true,
+  "note": "all rerouted files covered by the smoke (channel/concept/cluster-sync/worktree each have a passing smoke check)"
+ },
+ "CHK-005:adversarial:0": {
+  "pass": true,
+  "note": "wrong-tree comprehensive: smoke asserts exact resolved cwd per site; a stale metadataRoot/.git would not match the resolved gitRoot assertion"
+ },
+ "CHK-005:adversarial:1": {
+  "pass": true,
+  "note": "no git command text changed: 0 command-text diff lines beyond cwd routing (want 0)"
+ },
+ "CHK-005:adversarial:2": {
+  "pass": true,
+  "note": "no gate semantics changed: smoke asserts plain-repo byte-identical (cwd==projectRoot); diff is cwd-only"
+ },
+ "CHK-005:adversarial:3": {
+  "pass": true,
+  "note": "signatures back-compatible: packages/main build exits 0 (optional cwd params default to projectRoot)"
+ }
+}

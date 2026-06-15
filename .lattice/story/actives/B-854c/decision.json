@@ -1,0 +1,92 @@
+{
+  "principles": [
+    "Fail safe, never silent: story metadata must never end up in the neither-tracked-nor-protected state without a loud, actionable signal.",
+    "Defense in depth: bootstrap robustness (force-add) and project-default safety (scaffold/validate allowlist) are additive layers, not either/or.",
+    "Reuse the existing classification truth source: the runtime-artifact-registry already distinguishes volatile runtime from persistent metadata; do not invent a parallel model.",
+    "Minimal blast radius: touch only the git-add/ignore-protection lines, not gitRoot cwd resolution or bootstrap ordering owned by sibling stories."
+  ],
+  "drivers": [
+    "CRITICAL data-loss: ClawCreek lost all 19 stories metadata permanently.",
+    "Bootstrap git add (no -f) hard-fails with an opaque error when .lattice is ignored.",
+    "New projects depend on a hand-crafted .gitignore; the framework never scaffolds the protective allowlist.",
+    "Sibling stories B-2856/B-804c/B-a749 own adjacent worktree.ts regions; changes must be surgical."
+  ],
+  "options": [
+    {
+      "name": "OptA-force-and-guard",
+      "pros": [
+        "Bootstrap becomes robust immediately (git add -f)",
+        "check-ignore guard gives a clear remediation when the resulting commit would mis-track metadata",
+        "small surgical diff at worktree.ts:316"
+      ],
+      "cons": [
+        "force-add alone does not stop a later git clean from deleting the path if the project never tracks it / a fresh checkout drops it",
+        "does not fix the project default; downstream projects still ship unsafe .gitignore unless they hand-craft it"
+      ]
+    },
+    {
+      "name": "OptB-scaffold-allowlist",
+      "pros": [
+        "Scaffolds/validates the ignore-volatile/track-metadata allowlist on init + a doctor check, making new projects safe by default",
+        "leverages the existing runtime-artifact-registry allowlist + managed-assets scaffolding (low new code)",
+        "doctor surfaces the unsafe state for existing projects with a repair"
+      ],
+      "cons": [
+        "does not by itself fix the bootstrap git add no-f failure when the project still has a broad .lattice/ ignore at INIT_CHECK time",
+        "relies on users running lattice doctor / init to get the fix"
+      ]
+    },
+    {
+      "name": "OptC-relocate-layout",
+      "pros": [
+        "Relocating volatile vs persistent under different prefixes removes the lifecycle collision at the root",
+        "cleanest long-term layout"
+      ],
+      "cons": [
+        "a path/layout migration touching readers/writers across the codebase",
+        "high blast radius, migration risk, far exceeds the surgical scope this story is allowed",
+        "B-2856/B-804c adjacency makes a layout move especially risky now"
+      ]
+    },
+    {
+      "name": "OptAB-combination",
+      "pros": [
+        "A makes the immediate bootstrap path robust (force-add + check-ignore guard with clear error/repair) regardless of .gitignore state",
+        "B makes the framework default safe (scaffold allowlist on init + doctor check + repair) so downstream projects cannot silently lose metadata",
+        "both reuse existing infra; additive and low-risk; together they make bootstrap git-add behavior and the data-loss protection stance mutually consistent (the explicit requirement of CHK-001)"
+      ],
+      "cons": [
+        "two surfaces to test instead of one (mitigated by fixtures covering both ignoring and non-ignoring .gitignore)"
+      ]
+    }
+  ],
+  "chosen": "OptAB-combination",
+  "rationale": "Choose the A+B combination. A alone leaves the project default unsafe and force-add does not protect against later git clean on an untracked path; B alone leaves the INIT_CHECK bootstrap git-add hard-failure unaddressed. Together they are mutually consistent: bootstrap force-adds (so metadata is tracked = committed = safe from git clean) AND validates via git check-ignore that the resulting tracked state actually persists, while init/doctor scaffold and verify the managed ignore-volatile/track-metadata allowlist so a fresh project is safe by default rather than depending on a hand-crafted .gitignore. C (relocate) is rejected as out-of-scope layout migration with unacceptable blast radius given B-2856/B-804c adjacency. Both A and B reuse the existing runtime-artifact-registry allowlist + managed-assets scaffolding, keeping new code minimal.",
+  "preMortem": [
+    {
+      "scenario": "Force-add masks a genuinely-misconfigured project",
+      "trigger": "git add -f always succeeds, so an operator with a broad .lattice/ ignore never learns the project default is unsafe",
+      "consequence": "metadata is committed for THIS story but the next git clean on an untracked sibling path still loses data; the operator thinks they are safe",
+      "mitigation": "After force-add, run a git check-ignore guard on the metadata path; if it is ignored (would be untracked were it not force-added), emit a loud warning pointing at lattice doctor --repair to install the allowlist. Force-add fixes the symptom; the guard surfaces the root cause."
+    },
+    {
+      "scenario": "Scaffolding the allowlist corrupts an existing user .gitignore",
+      "trigger": "merge logic rewrites or reorders user lines, or duplicates the managed block on repeated runs",
+      "consequence": "user .gitignore semantics change unexpectedly; could ignore deliverables or un-ignore secrets",
+      "mitigation": "Reuse managed-assets mergeRuntimeGitignore which only APPENDS missing patterns inside idempotent BLOCK_START/END markers (runtimeIgnoreMissing dedupes); add a fixture test asserting a second scaffold run is a no-op and existing user lines are preserved byte-for-byte outside the managed block."
+    },
+    {
+      "scenario": "check-ignore guard false-positives and blocks legitimate bootstrap",
+      "trigger": "git check-ignore semantics on negation patterns report the parent .lattice as ignored even though the metadata leaf is re-included",
+      "consequence": "bootstrap throws/blocks for a project that is actually safe, breaking INIT_CHECK for correctly-configured repos like Orchestrate",
+      "mitigation": "Guard must check the ACTUAL metadata leaf path (the index.json that was added), not the .lattice prefix; verify with git check-ignore on the exact added file. Add fixtures for BOTH the broad-ignore (unsafe) and the negation-allowlist (safe, like Orchestrate .gitignore:9-18) cases asserting the guard fires only on the former."
+    },
+    {
+      "scenario": "Doctor check misclassifies a freshly-bootstrapped safe repo as unsafe",
+      "trigger": "the new doctor invariant uses git ls-files OR check-ignore incorrectly and flags Orchestrate (which IS safe) as the data-loss state",
+      "consequence": "noise: every healthy run shows a false data-loss warning, eroding trust in doctor",
+      "mitigation": "Define the unsafe predicate precisely: metadata leaf is NOT tracked (git ls-files empty) AND NOT protected (git check-ignore shows it would be cleaned). Unit-test the predicate against three fixtures: tracked (safe), ignored-with-allowlist (safe), broad-ignore-untracked (unsafe-flagged)."
+    }
+  ],
+  "timestamp": "2026-06-15T22:08:56.476Z"
+}

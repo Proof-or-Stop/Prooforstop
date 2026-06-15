@@ -11,13 +11,18 @@
  */
 
 import { execFileSync, execSync } from 'child_process';
-import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'fs';
-import { basename, dirname, isAbsolute, join, resolve } from 'path';
+import { existsSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'fs';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { findRuntimeArtifactEntry, isRepairableTrackedRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
+import { mergeRuntimeGitignore, runtimeIgnoreMissing } from '../core/managed-assets.js';
+import {
+  evaluateStoryMetadataProtection,
+  type StoryMetadataProbe,
+} from '../core/story-metadata-protection.js';
 import { formatValidationCommand } from '../core/validation-executor.js';
 import { renderRuntimeEnvironmentReport, renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
@@ -86,6 +91,13 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // resolved gitRoot, never throws, and a no-gitRoot condition is reported
       // separately (not as the violation).
       const storyDirGitRoot = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
+      // B-854c CHK-003: scan active stories' metadata leaves for the
+      // neither-tracked-nor-protected data-loss state (ClawCreek incident).
+      let storyMetadataProtection = scanStoryMetadataProtection(root, store);
+      let storyMetadataRepair: { requested: boolean; wrote: boolean; error?: string } = {
+        requested: !!args?.repair,
+        wrote: false,
+      };
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
       let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
@@ -140,6 +152,15 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           }
         }
         trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root);
+      }
+
+      // B-854c CHK-003: --repair installs the managed ignore-volatile/track-metadata
+      // allowlist (reusing managed-assets mergeRuntimeGitignore — idempotent), then
+      // re-scans so a safe project reports clear after repair and a second run is a no-op.
+      if (args?.repair && storyMetadataProtection.evaluated && storyMetadataProtection.needsRepair) {
+        const result = repairStoryMetadataAllowlist(root);
+        storyMetadataRepair = { requested: true, wrote: result.wrote, error: result.error };
+        storyMetadataProtection = scanStoryMetadataProtection(root, store);
       }
 
       if (args?.format === 'json') {
@@ -202,6 +223,17 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             reason: storyDirGitRoot.reason ?? null,
             violation: storyDirGitRoot.reason === 'outside-gitroot',
             gitRootUnresolved: storyDirGitRoot.reason === 'gitroot-unresolved',
+          },
+          storyMetadataProtection: {
+            evaluated: storyMetadataProtection.evaluated,
+            unsafe: storyMetadataProtection.unsafe,
+            leaves: storyMetadataProtection.leaves,
+            unsafeLeaves: storyMetadataProtection.unsafeLeaves,
+            allowlistMissing: storyMetadataProtection.allowlistMissing,
+            needsRepair: storyMetadataProtection.needsRepair,
+            repairRequested: storyMetadataRepair.requested,
+            repairWrote: storyMetadataRepair.wrote,
+            repairError: storyMetadataRepair.error ?? null,
           },
           codex,
           validation,
@@ -359,6 +391,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       lines.push('');
       for (const line of renderStoryDirGitRootScan(storyDirGitRoot)) lines.push(line);
+
+      lines.push('');
+      for (const line of renderStoryMetadataProtectionScan(storyMetadataProtection, storyMetadataRepair)) lines.push(line);
 
       lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
@@ -693,4 +728,240 @@ function isTerminalStory(store: HandlerContext['store'], storyId: string): boole
   } catch {
     return false;
   }
+}
+
+// ── B-854c CHK-003: story metadata protection scan + --repair ────────────────
+
+interface StoryMetadataLeafScan {
+  storyId: string;
+  leaf: string;
+  tracked: boolean;
+  ignored: boolean;
+  unsafe: boolean;
+}
+
+interface StoryMetadataProtectionScan {
+  /** false when git is unavailable / metadata not under a git root (cannot judge). */
+  evaluated: boolean;
+  leaves: StoryMetadataLeafScan[];
+  unsafeLeaves: StoryMetadataLeafScan[];
+  /** managed allowlist patterns still missing from .gitignore (repair installs them). */
+  allowlistMissing: string[];
+  /** true when any leaf is in the data-loss state. */
+  unsafe: boolean;
+  /** true when --repair should write the managed allowlist. */
+  needsRepair: boolean;
+}
+
+function gitProbeRunner(repoRoot: string): (leaf: string) => StoryMetadataProbe {
+  return (leaf: string): StoryMetadataProbe => {
+    let tracked = false;
+    try {
+      const out = execFileSync('git', ['ls-files', '--', leaf], {
+        cwd: repoRoot,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      tracked = out.trim().length > 0;
+    } catch {
+      tracked = false;
+    }
+    let ignored = false;
+    try {
+      // check-ignore exits 0 (echoing the path) when ignored, exit 1 (throws)
+      // when not ignored — the safe negation-allowlist / no-ignore case.
+      const out = execFileSync('git', ['check-ignore', '--', leaf], {
+        cwd: repoRoot,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      ignored = out.trim().length > 0;
+    } catch {
+      ignored = false;
+    }
+    return { tracked, ignored };
+  };
+}
+
+/**
+ * Scan every active (non-terminal) story's metadata leaf (index.json) for the
+ * neither-tracked-nor-protected data-loss state, reusing the shared pure
+ * predicate. Resolves the git repo root and computes each leaf relative to it
+ * (mirrors worktree.ts bootstrap). A safe project (tracked leaves OR a negation
+ * allowlist that re-includes them) reports unsafe=false → no false positive.
+ *
+ * Stays within the standing invariant: this is a runtime scan that consumes
+ * git's tracking/ignore facts; it does NOT claim validation evidence or process
+ * facts, and it does not widen the runtime-artifact registry.
+ */
+function scanStoryMetadataProtection(root: string, store: HandlerContext['store']): StoryMetadataProtectionScan {
+  let repoRoot: string;
+  try {
+    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+  } catch {
+    return { evaluated: false, leaves: [], unsafeLeaves: [], allowlistMissing: [], unsafe: false, needsRepair: false };
+  }
+
+  const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
+  const runner = gitProbeRunner(canonicalRepoRoot);
+  const storyDirRel = store.storyDirRel().replace(/\/$/, '');
+
+  const leaves: StoryMetadataLeafScan[] = [];
+  let ids: string[] = [];
+  try {
+    ids = store.listStoryIds();
+  } catch {
+    ids = [];
+  }
+  for (const storyId of ids) {
+    if (isTerminalStory(store, storyId)) continue;
+    const storyAbs = join(root, storyDirRel, storyId);
+    const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
+    const leafAbs = join(canonicalStoryAbs, 'index.json');
+    if (!existsSync(leafAbs)) continue;
+    const leafRel = relative(canonicalRepoRoot, leafAbs).replace(/\\/g, '/');
+    // Skip stories whose metadata is not inside this git root (a separate
+    // doctor check — storyDir/gitRoot scan — already covers that violation).
+    if (!leafRel || isAbsolute(leafRel) || leafRel.split('/').includes('..')) continue;
+    try {
+      const result = evaluateStoryMetadataProtection({ metadataLeafPath: leafRel, runner });
+      leaves.push({ storyId, leaf: leafRel, tracked: result.tracked, ignored: result.ignored, unsafe: result.unsafe });
+    } catch {
+      // PROBE: an unprobeable leaf is skipped, never miscounted as unsafe.
+    }
+  }
+
+  const unsafeLeaves = leaves.filter((leaf) => leaf.unsafe);
+  let gitignore: string | null = null;
+  try {
+    gitignore = readFileSync(join(canonicalRepoRoot, '.gitignore'), 'utf-8');
+  } catch {
+    gitignore = null;
+  }
+  const allowlistMissing = runtimeIgnoreMissing(gitignore);
+
+  return {
+    evaluated: true,
+    leaves,
+    unsafeLeaves,
+    allowlistMissing,
+    unsafe: unsafeLeaves.length > 0,
+    // Repair is meaningful whenever a leaf is unsafe OR the managed allowlist is
+    // not yet fully installed (so a fresh project gets the protective allowlist).
+    needsRepair: unsafeLeaves.length > 0 || allowlistMissing.length > 0,
+  };
+}
+
+/**
+ * B-854c CHK-003: neutralize a pre-existing broad `.lattice/` (or `.lattice`)
+ * DIRECTORY-form ignore line that would shadow the managed allowlist.
+ *
+ * Git rule: "it is not possible to re-include a file if a parent directory of
+ * that file is excluded." A bare `.lattice/` directory ignore therefore makes
+ * the `!.lattice/story/actives/**` negation INERT — the managed allowlist
+ * (which uses the re-includable `.lattice/*` file glob) cannot take effect while
+ * the directory-form line is present. We comment out ONLY that exact conflicting
+ * line (appending an explanatory marker), preserving every other user line
+ * byte-for-byte (preMortem #2: no wholesale rewrite / reorder). Idempotent: an
+ * already-neutralized line is left untouched.
+ */
+const MANAGED_SUPERSEDE_MARKER = '# superseded by lattice managed allowlist (lattice doctor --repair)';
+
+function neutralizeConflictingLatticeDirIgnore(content: string): { content: string; changed: boolean } {
+  const lines = content.split('\n');
+  let changed = false;
+  const out = lines.map((line) => {
+    const trimmed = line.trim();
+    // Only the bare directory-form ignore conflicts; the re-includable file glob
+    // `.lattice/*` and any negation `!...` lines are kept as-is.
+    if (trimmed === '.lattice/' || trimmed === '.lattice') {
+      changed = true;
+      return `# ${line} ${MANAGED_SUPERSEDE_MARKER}`;
+    }
+    return line;
+  });
+  return { content: out.join('\n'), changed };
+}
+
+/**
+ * --repair: install the managed ignore-volatile/track-metadata allowlist.
+ *
+ * Two surgical steps, both auditable and idempotent:
+ *   1. Neutralize a conflicting bare `.lattice/` directory-form ignore line so
+ *      the managed allowlist's `!.lattice/story/actives/**` re-inclusion can
+ *      actually take effect (git's parent-directory rule).
+ *   2. Reuse managed-assets `mergeRuntimeGitignore` (append-only inside
+ *      BLOCK_START/END markers, dedupes) to add the allowlist.
+ * Writes only when content changes, so a second --repair run is a no-op.
+ */
+function repairStoryMetadataAllowlist(root: string): { wrote: boolean; repoRoot: string | null; error?: string } {
+  let repoRoot: string;
+  try {
+    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+  } catch (e: any) {
+    return { wrote: false, repoRoot: null, error: e?.message || String(e) };
+  }
+  const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
+  const gitignorePath = join(canonicalRepoRoot, '.gitignore');
+  let existing: string | null = null;
+  try {
+    existing = readFileSync(gitignorePath, 'utf-8');
+  } catch {
+    existing = null;
+  }
+  const neutralized = existing === null
+    ? { content: '', changed: false }
+    : neutralizeConflictingLatticeDirIgnore(existing);
+  const merged = mergeRuntimeGitignore(existing === null ? null : neutralized.content);
+  if (!neutralized.changed && merged === (existing ?? '')) {
+    return { wrote: false, repoRoot: canonicalRepoRoot };
+  }
+  try {
+    writeFileSync(gitignorePath, merged);
+    return { wrote: true, repoRoot: canonicalRepoRoot };
+  } catch (e: any) {
+    return { wrote: false, repoRoot: canonicalRepoRoot, error: e?.message || String(e) };
+  }
+}
+
+/**
+ * Render the story metadata protection scan as doctor text. A clear ✗ block +
+ * `→ lattice doctor --repair` pointer when unsafe; a pass line otherwise.
+ */
+function renderStoryMetadataProtectionScan(
+  scan: StoryMetadataProtectionScan,
+  repair: { requested: boolean; wrote: boolean; error?: string },
+): string[] {
+  const lines: string[] = [];
+  lines.push('Story metadata protection scan:');
+  if (!scan.evaluated) {
+    lines.push('  - not git-backed (cannot evaluate story metadata tracking/ignore state)');
+    return lines;
+  }
+  if (scan.unsafe) {
+    lines.push('  ✗ story metadata is neither git-tracked nor protected by the managed ignore allowlist');
+    for (const leaf of scan.unsafeLeaves) {
+      lines.push(`      ${leaf.storyId}: ${leaf.leaf} (ignored=${leaf.ignored}, tracked=${leaf.tracked})`);
+    }
+    lines.push('      A later `git clean -fdx` or wrong-branch checkout can PERMANENTLY delete this metadata');
+    lines.push('      (this is exactly how ClawCreek lost 19 stories).');
+  } else {
+    lines.push(`  ✓ story metadata is tracked or protected (${scan.leaves.length} active leaf/leaves checked)`);
+  }
+  if (scan.allowlistMissing.length > 0) {
+    lines.push(`  - managed ignore allowlist not fully installed (missing ${scan.allowlistMissing.length} pattern(s))`);
+  }
+  if (repair.requested) {
+    if (repair.error) {
+      lines.push(`  ✗ repair failed: ${repair.error}`);
+    } else if (repair.wrote) {
+      lines.push('  ✓ installed managed ignore-volatile/track-metadata allowlist in .gitignore');
+      lines.push('  → `lattice doctor --repair` will be a no-op now; commit the .gitignore change, then `git add` + commit story metadata.');
+    } else {
+      lines.push('  ✓ managed allowlist already present (repair is a no-op)');
+    }
+  } else if (scan.needsRepair) {
+    lines.push('  → lattice doctor --repair to install the managed allowlist so story metadata stays tracked while runtime stays ignored.');
+  }
+  return lines;
 }

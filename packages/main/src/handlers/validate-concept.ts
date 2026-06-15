@@ -215,6 +215,13 @@ export function grepResiduals(
 
 export interface CheckConceptDeps {
   projectRoot: string;
+  /**
+   * B-2856: cwd for the git diff + repo-wide grep child processes. In a
+   * wrapper-root layout the caller resolves the gitRoot via resolveGitCwd() and
+   * threads it here so both the diff and the grep scan run from the gitRoot.
+   * Defaults to projectRoot, keeping plain repos byte-identical.
+   */
+  gitCwd?: string;
   gitDiffReader?: GitDiffReader;
   grepReader?: GrepReader;
   base?: string;
@@ -233,10 +240,13 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     grepReader,
     base = DEFAULT_BASE,
   } = deps;
+  // B-2856: run git diff + grep from the resolved gitRoot (wrapper-root) or fall
+  // back to projectRoot (plain repo). Default keeps existing behavior identical.
+  const gitCwd = deps.gitCwd ?? projectRoot;
 
   let diff: string;
   try {
-    diff = gitDiffReader({ base, projectRoot });
+    diff = gitDiffReader({ base, projectRoot: gitCwd });
   } catch (e: any) {
     // git diff failure (no base, orphan branch, detached HEAD, etc.): don't
     // silently pass — surface as warn so the preflight log shows the problem,
@@ -264,7 +274,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     };
   }
 
-  const residuals = grepResiduals(symbols, { projectRoot, grepReader });
+  const residuals = grepResiduals(symbols, { projectRoot: gitCwd, grepReader });
 
   if (residuals.length === 0) {
     return {
