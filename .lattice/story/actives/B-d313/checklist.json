@@ -7,7 +7,51 @@
       "userSees": "`npm run test:field-regression-cli-smoke` runs to completion without the assertStaleWarningCooldownCliSurface AssertionError.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run test:field-regression-cli-smoke end-to-end -> assertStaleWarningCooldownCliSurface passes (no AssertionError); WHY: confirms the regex at line 1894 now matches the rebranded Lattice header and the cooldown doesNotMatch at line 1906 also uses the correct brand",
+            "type": "cli"
+          },
+          {
+            "desc": "assert.match(first.stderr, /Lattice stale state warnings/) succeeds on first invocation of session_brief with a stale story -> stderr contains the exact rebranded header; WHY: validates the positive-match assertion uses the new brand string",
+            "type": "cli"
+          },
+          {
+            "desc": "assert.doesNotMatch(second.stderr, /Lattice stale state warnings/) succeeds on the cooldown (second) invocation -> stderr does NOT contain the Lattice stale header; WHY: validates cooldown suppression still works with the rebranded string",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regex is case-sensitive and includes the word Lattice with capital L -> /Lattice stale state warnings/ does NOT match lowercase lattice stale state warnings; WHY: ensures the assertion is brand-exact, not accidentally case-insensitive or overly relaxed",
+            "type": "cli"
+          },
+          {
+            "desc": "No residual /koala stale state warnings/ regex remains in the source file after the fix -> grep for koala stale state warnings in field-regression-cli-smoke.ts returns zero matches; WHY: ensures complete migration with no leftover old-brand references",
+            "type": "cli"
+          },
+          {
+            "desc": "The compiled dist/tasks/field-regression-cli-smoke.js also contains the updated Lattice regex (not stale koala) -> grep confirms Lattice stale state warnings present and koala stale state warnings absent; WHY: the dist file is what actually executes, verifying it is rebuilt correctly",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Replace the regex with a brand-agnostic pattern like /stale state warnings/ (dropping the Lattice prefix) -> test must NOT be accepted because it would match any future rebrand silently and fail to catch header drift; WHY: adversarial check that the fix is brand-specific, not a lazy wildcard",
+            "type": "cli"
+          },
+          {
+            "desc": "Restore the old /koala stale state warnings/ regex after the fix and run the test -> assert.match must throw AssertionError because the CLI now emits Lattice not koala; WHY: confirms the old regex genuinely fails against the new header, proving the fix is necessary",
+            "type": "cli"
+          },
+          {
+            "desc": "Inject a header like Lattice stale state warnings (without the warning emoji prefix) into stderr -> the regex /Lattice stale state warnings/ still matches because the regex does not anchor on the emoji; WHY: adversarial probe that the regex pattern scope is intentionally just the text portion, matching cli-engine output which includes emoji separately",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
