@@ -367,7 +367,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "command": "lattice story_advance --storyId=B-3010 --phase=REVIEW",
+          "result": "pass",
+          "note": "Deferred gate evidence: REVIEW and TEST gate proof cannot exist before entering REVIEW. This waiver only unblocks DEV->REVIEW and must be replaced by actual review/validate evidence before DONE.",
+          "headHash": "1e157c4ec9a24571aee16645ba99a8897b1442df",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:05:09.939Z"
+        }
+      ]
     }
   ],
   "auditLog": [
