@@ -1,0 +1,40 @@
+{
+  "task": "Remove active koala alias compatibility and make lattice the only supported CLI/runtime name.",
+  "outcome": "When the user runs lattice --version or lattice help, the terminal shows only Lattice CLI information with no \"legacy alias: koala\" text; generated local wrappers and Codex guidance point to bin/lattice.js / bin/lattice-codex.js only, and tests fail if koala runtime alias compatibility comes back.",
+  "facts": [
+    "The current help formatter prints `Lattice CLI 0.3.5; legacy alias: koala` from the shared brand/product line.",
+    "The active docs and runtime checks still mention @koala-agent/core fallback, bin/koala.js, bin/koala-codex.js, and .Codex/koala.json compatibility.",
+    "packages/main/package.json already has a migration smoke asserting package bin.koala is absent, but other smokes still preserve legacy alias behavior.",
+    "User explicitly confirmed on 2026-06-15 that historical koala compatibility does not need to be retained."
+  ],
+  "constraints": [
+    "Do not run omx or touch .omx.",
+    "Do not directly read or edit docs/story or tests/fixtures.",
+    "Do not rewrite signed historical story evidence or process lane identifiers just to rename old records.",
+    "Prefer lattice-only runtime behavior and active documentation; tests must assert absence of koala alias compatibility."
+  ],
+  "unknowns": [
+    "Whether any remaining koala references are active compatibility versus immutable historical/process identifiers must be classified during implementation."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/tasks",
+    "scripts/verify-entrypoints.mjs",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "scripts/verify-codex-assets.mjs",
+    "README.md",
+    "docs/guide-hooks.md",
+    "docs/requirements/decisions/project-vision.md",
+    ".Codex",
+    ".codex",
+    "bin"
+  ],
+  "timestamp": "2026-06-15T02:03:44.020Z"
+}

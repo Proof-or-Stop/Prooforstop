@@ -11,7 +11,67 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`lattice --version` prints `Lattice CLI 0.3.5` without `legacy alias: koala`; `lattice help` and command help no longer advertise koala compatibility.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node bin/lattice.js --version -> output is exactly the Lattice product line and contains no `legacy alias` or `koala` text.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run node bin/lattice.js help and node bin/lattice.js story_create --help -> neither output contains `legacy alias`, `Compatible: koala`, or `koala remains a legacy alias`.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Runtime fact registry and doctor scan describe lattice-only global and project-local entrypoints, with no @koala-agent/core or node_modules/.bin/koala fallback text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a stale project-local bin/koala.js exists, doctor/runtime checks do not accept it as a valid active wrapper and report it as stale or irrelevant rather than compatibility evidence.",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "lattice.config.json behavior continues to work; this story does not accidentally remove unrelated project config loading.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search active runtime sources for `legacy alias: koala`, `Compatible: koala`, `@koala-agent/core fallback`, and `node_modules/.bin/koala` -> zero active compatibility hits outside explicitly excluded historical/process text.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempting to use the old koala binary path is not part of validation and no test asserts it remains usable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
