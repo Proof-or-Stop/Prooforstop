@@ -213,9 +213,9 @@
       "title": "Delete the two tracked cruft files (du.exe.stackdump, claude-session.mjs) and scrub residual references",
       "context": "git rm du.exe.stackdump and claude-session.mjs at repo root. (jek.md is user-owned and intentionally NOT touched.) claude-session.mjs has no live import (claude-cli.ts:58 is a coincidental '.tmp-claude-session' string; docs/metadata/task.json only cites it historically) — leaving that historical doc note is acceptable. After deletion `npm run build` and `npm run test:e2e` must still pass.",
       "userSees": "`git ls-files` no longer lists du.exe.stackdump or claude-session.mjs; jek.md is still present and tracked; build and e2e still pass.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T22:30:31.752Z",
-      "endTime": null,
+      "endTime": "2026-06-15T22:32:19.599Z",
       "files": {
         "modify": [
           "du.exe.stackdump",
