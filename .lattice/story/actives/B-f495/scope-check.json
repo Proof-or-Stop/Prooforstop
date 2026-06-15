@@ -1,66 +1,45 @@
 {
   "storyId": "B-f495",
-  "checkedAt": "2026-06-15T14:18:19.364Z",
+  "checkedAt": "2026-06-15T14:21:23.221Z",
   "features": [
     {
-      "feature": "audit-only plan scope",
-      "covered_by": "understanding_get frames B-f495 as formal audit of the slim/fields execution plan; decision_get chooses option A audit-only story with narrow document corrections; checklist_get has CHK-001 source/CLI audit, CHK-002 risk boundary audit, and CHK-003 audit disposition follow-up.",
+      "feature": "Target plan document availability in the B-f495 worktree for docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "covered_by": "CHK-001 files.create docs/requirements/decisions/slim-fields-token-savings-execution-plan.md; CHK-001 relatedDocs includes the same path; understanding fact states CHK-001 creates the target plan document before audit verification.",
       "status": "covered",
       "excluded_by": "",
-      "source": "understanding_get; decision_get; checklist_get"
+      "source": "story description + understanding + CHK-001"
     },
     {
-      "feature": "source and CLI evidence review",
-      "covered_by": "story_get/checklist_get schemas expose opt-in slim and fields while default output remains unchanged when omitted; handlers preserve full defaults and field-filter only when requested; prompt-token-cost-smoke asserts full default compatibility plus slim reductions; live CLI checks showed story_get full/slim bytes 10899/606 and checklist_get full/slim bytes 5824/1302.",
+      "feature": "Audit slim / fields CLI behavior against current story_get and checklist_get surfaces and existing smoke coverage",
+      "covered_by": "CHK-001 verificationIntent happy covers story_get/checklist_get slim and fields support; CHK-001 files.test covers packages/main/src/handlers/story-query.ts, packages/main/src/handlers/checklist.ts, packages/main/src/cli-engine.ts, packages/main/src/tasks/prompt-token-cost-smoke.ts, and packages/main/src/tasks/prompt-registry-smoke.ts.",
       "status": "covered",
       "excluded_by": "",
-      "source": "packages/main/src/cli-engine.ts:355; packages/main/src/cli-engine.ts:425; packages/main/src/handlers/story-query.ts:74; packages/main/src/handlers/story-query.ts:415; packages/main/src/handlers/checklist.ts:24; packages/main/src/handlers/checklist.ts:299; packages/main/src/tasks/prompt-token-cost-smoke.ts:217"
+      "source": "story description + CHK-001"
     },
     {
-      "feature": "risk-boundary review",
-      "covered_by": "CHK-002 requires full-output fallback before evidence-sensitive conclusions and excludes Authority/billing overclaim; decision preMortem calls out provider billing and Authority completion risks; lifecycle requirements distinguish ordinary review from DONE escalation and say local/degraded evidence is not Authority completion.",
+      "feature": "Audit low-risk boundaries, full-output fallback discipline, provider billing limits, and Authority/DONE non-goals",
+      "covered_by": "CHK-002 verificationIntent happy/edge/adversarial covers default full output, provider billing limits, prompt-cache limits, lifecycle gate exclusions, DONE exclusions, and Authority receipt exclusions; CHK-003 adversarial intent covers avoiding unrelated B-acec mutation and avoiding B-META audit-writing reliance.",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist_get CHK-002; decision_get preMortem; docs/audits/lattice-token-cost-and-takeover-audit.md:42; docs/requirements/decisions/story-lifecycle.md:184; docs/requirements/decisions/story-lifecycle.md:190; docs/requirements/decisions/story-lifecycle.md:194"
+      "source": "story description + constraints + CHK-002/CHK-003"
     },
     {
-      "feature": "audit disposition follow-up",
-      "covered_by": "CHK-003 requires final audit disposition with accepted findings, required fixes, verification commands, and separate implementation follow-up; CHK-003 adversarial intent prevents mutating unrelated active story B-acec or relying on B-META audit writes for this document review; decision_get keeps implementation outside this story unless separately requested.",
+      "feature": "Record final audit disposition, required document fixes, verification commands, and separate implementation follow-up guidance",
+      "covered_by": "CHK-003 title/context/userSees and verificationIntent happy/edge cover final audit disposition, required fixes, implementation follow-up, and REVIEW escalation guidance.",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist_get CHK-003; decision_get chosen option A"
-    },
-    {
-      "feature": "target plan document availability in B-f495 worktree",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md is absent from git ls-tree and filesystem in the B-f495 worktree, while understanding_get says it was drafted in the main worktree and must be brought into this story worktree; checklist_get files.modify lists that missing path as a modify target rather than an explicit create/import boundary"
+      "source": "outcome + CHK-003"
     }
   ],
   "summary": {
-    "total": 5,
+    "total": 4,
     "covered": 4,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "50e426db57b84fa3e9736726371093e975b3f1e2e694ba0f1f0e7f8a4fc354ae",
-  "openQuestions": [
-    {
-      "id": "Q-001",
-      "q": "Should DEV explicitly create/import docs/requirements/decisions/slim-fields-token-savings-execution-plan.md into this worktree before audit edits, or should the checklist file boundary be revised from modify to create/import?",
-      "evidence": "The target plan document is absent in the B-f495 worktree, but all checklist items list it under files.modify and the understanding says it was drafted in the main worktree before worktree creation.",
-      "sourcePointers": [
-        "CHK-001",
-        "CHK-002",
-        "CHK-003",
-        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
-      ],
-      "resolution": "Resolved: docs/requirements/decisions/slim-fields-token-savings-execution-plan.md is intentionally created by CHK-001 inside the B-f495 worktree from the drafted main-worktree content before audit verification. CHK-002 and CHK-003 then audit the created plan document as evidence, not as separate pre-existing file modifications.",
-      "resolvedAt": "2026-06-15T14:20:01.713Z"
-    }
-  ]
+  "_hash": "fc4a9ce884f7c9b1f08ee98222a98050a3c437a769342bd540f13bbd961dda25",
+  "openQuestions": []
 }
