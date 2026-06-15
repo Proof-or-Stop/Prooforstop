@@ -16,6 +16,11 @@ import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-resolution.js';
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
+import {
+  evaluateStoryMetadataProtection,
+  renderStoryMetadataProtectionWarning,
+  type StoryMetadataProbe,
+} from '../core/story-metadata-protection.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
 
@@ -313,7 +318,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const head = gitFile(['rev-parse', '--verify', 'HEAD'], repoRoot);
       const env = { GIT_INDEX_FILE: indexFile };
       gitFile(['read-tree', 'HEAD'], repoRoot, env);
-      gitFile(['add', '--', storyRel], repoRoot, env);
+      // B-854c CHK-002: force-add (`-f`) so the scoped bootstrap NEVER hard-fails
+      // with "The following paths are ignored by one of your .gitignore files"
+      // when a project broadly ignores `.lattice/`. Without -f, an ignored
+      // metadata path aborts INIT_CHECK with an opaque error; with -f the
+      // metadata is always committed = tracked = clean-proof. The post-commit
+      // check-ignore guard (in dev_start) separately surfaces the still-unsafe
+      // project default so force-add never silently masks a misconfiguration.
+      gitFile(['add', '-f', '--', storyRel], repoRoot, env);
       const tree = gitFile(['write-tree'], repoRoot, env);
       const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `lattice: story ${storyId} init`], repoRoot);
       gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);
@@ -327,6 +339,47 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
     } catch {
       return root;
+    }
+  }
+
+  /**
+   * B-854c CHK-002: probe one metadata leaf in the resolved repo root for the
+   * data-loss state, then return the loud warning (or '' if safe). Reuses the
+   * shared pure predicate so bootstrap, doctor, and tests agree on the verdict.
+   *
+   * Runs git ls-files / git check-ignore on the ACTUAL leaf path (e.g.
+   * `<storyRel>/index.json`), NOT the `.lattice` prefix — a negation allowlist
+   * re-includes the leaf, so probing the parent would false-positive a safe
+   * repo. check-ignore exit 0 = ignored; exit 1 = not ignored (the safe
+   * negation-allowlist / no-ignore case). Failure to probe (git unavailable)
+   * fails OPEN to no warning rather than blocking a successful bootstrap.
+   */
+  function storyMetadataProtectionWarning(leafPath: string, repoRoot: string): string {
+    const runner = (leaf: string): StoryMetadataProbe => {
+      let tracked = false;
+      try {
+        tracked = gitFile(['ls-files', '--', leaf], repoRoot).trim().length > 0;
+      } catch {
+        tracked = false;
+      }
+      let ignored = false;
+      try {
+        // git check-ignore exits 0 (and echoes the path) when the leaf is
+        // ignored, exit 1 (throws here) when it is not ignored.
+        const out = gitFile(['check-ignore', '--', leaf], repoRoot).trim();
+        ignored = out.length > 0;
+      } catch {
+        ignored = false;
+      }
+      return { tracked, ignored };
+    };
+    try {
+      const result = evaluateStoryMetadataProtection({ metadataLeafPath: leafPath, runner });
+      return result.unsafe ? renderStoryMetadataProtectionWarning(result.leafPath) : '';
+    } catch {
+      // PROBE: an empty/invalid leaf path or runner error must never block a
+      // successful bootstrap; the data-loss state is advisory, not a gate.
+      return '';
     }
   }
 
@@ -806,6 +859,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       // which would otherwise make tsc / lattice validate fail with unresolved deps.
       const nodeModulesWarning = detectMissingNodeModulesWarning(worktreePath);
 
+      // B-854c CHK-002: after the scoped commit, probe the ACTUAL metadata leaf
+      // (index.json). If the project default still leaves it ignored/untracked
+      // (broad `.lattice/` ignore), force-add committed it for THIS story but the
+      // next git clean on an untracked sibling can still lose data — surface a
+      // loud warning pointing at `lattice doctor --repair`. A negation allowlist
+      // (Orchestrate) or a tracked leaf produces no warning (no false positive).
+      const metadataProtectionWarning = storyMetadataProtectionWarning(`${storyRel}/index.json`, repoRoot);
+
       // Dependency check
       let depsWarning = '';
       if (story.depends && story.depends.length > 0) {
@@ -833,6 +894,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `→ After development completes, call dev_finish(${args.storyId}) to merge back to the main branch`,
         nodeModulesWarning || '',
         parallelWarning || '',
+        metadataProtectionWarning || '',
         depsWarning,
       ].filter(Boolean).join('\n');
     },
