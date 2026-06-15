@@ -149,6 +149,17 @@
           "headHash": "a266ecbef29ba99184a8ed17526d67239146a6c8",
           "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
           "timestamp": "2026-06-15T00:39:07.566Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node -e regex-probe (Lattice vs koala/lowercase/no-emoji)",
+          "result": "pass",
+          "note": "/Lattice stale state warnings/.test('Lattice stale state warnings') === true (no emoji) and .test('⚠ Lattice stale state warnings:') === true — the regex matches the text portion and does not anchor on the ⚠ emoji emitted separately by cli-engine.ts:3657.",
+          "headHash": "13ed5e55d708d2f47a05b5e7f068874c941dc216",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:39:08.055Z"
         }
       ]
     }
