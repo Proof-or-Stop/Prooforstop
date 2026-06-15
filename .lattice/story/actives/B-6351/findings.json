@@ -66,7 +66,7 @@
       "desc": "Active docs/prompts still instruct Koala-era usage after legacy koala entrypoint deletion. Examples: CLAUDE.md:1024 says all Story operations use the `koala` CLI; .Codex/agents/koala-review-channel.md:914, .claude/agents/koala-review-channel.md:914, and packages/main/templates/agents/koala-review-channel.md:914 repeat that generated prompt instruction; CLAUDE.md:233-235 and the generated channel prompts still document koala-dev commands; .claude/skills/koala/skill.md:1-3 exposes /koala as the project-management entrypoint; README.md:571, docs/guide-hooks.md:3, packages/main/src/handlers/doctor.ts:390, and packages/main/src/core/runtime-fact-registry.ts:114 still tell users that koala.config.json remains readable as a legacy fallback. These are active docs/prompts/help surfaces, not historical story evidence, and conflict with B-6351 removing the koala alias and compatibility paths.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-15T03:21:14.813Z",
@@ -83,7 +83,9 @@
         "packages/main/templates/agents/koala-review-channel.md",
         "packages/main/src/handlers/doctor.ts",
         "packages/main/src/core/runtime-fact-registry.ts"
-      ]
+      ],
+      "resolvedReason": "Removed active Koala-era docs/prompts: story operations now say lattice, koala-dev examples were replaced with lattice serve, .claude/skills/koala was deleted, and koala.config.json fallback text was removed from README, docs/guide-hooks, doctor, runtime fact registry, hooks, dashboard, and generated prompt templates. Verification passed: build, session-brief command-center, runtime fact contract, entrypoints, codex assets, and lattice-only absence smoke.",
+      "resolvedAt": "2026-06-15T10:16:34.509Z"
     },
     {
       "id": "B-6351:F-005",
