@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-15T21:16:52.028Z",
       "reviewRunId": "B-198c:RR-006",
       "_hash": "48c169b59b9d71ce37ee0b35931a30caae0bc6109c059e15f0875ed21ce58da9"
+    },
+    {
+      "id": "B-198c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept residue check complete. The fix commit (84f7ca9c7) made no concept deletions or replacements. It corrected inaccurate doc comments (PURE: never throws) and added a try/catch to make evaluateStoryDirConfigInsideGitRoot total — these are doc/logic corrections, not concept renames. All new exported symbols (evaluateStoryDirInsideGitRoot, evaluateStoryDirConfigInsideGitRoot, storyDirOutsideGitRootAdvisory, StoryDirInsideGitRootResult) have intact definitions and all import sites resolve correctly. No deleted-symbol residuals, no dangling references.",
+      "createdAt": "2026-06-15T21:18:51.995Z",
+      "reviewRound": "2026-06-15T21:16:52.028Z",
+      "reviewRunId": "B-198c:RR-004",
+      "_hash": "f147f7175a24ea8bc01f7d590a5ff8a3f0f62276a8337d9bbf5be4f87afbcaca"
     }
   ]
 }
