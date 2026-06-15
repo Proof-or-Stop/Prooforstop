@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-15T21:06:28.231Z",
       "reviewRunId": "B-198c:RR-003",
       "_hash": "146c3b8da5f4a05bff4c31476aaa43fd72b290641b5785159c4936a9160c1aa6"
+    },
+    {
+      "id": "B-198c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Round 2 re-check of fixes in commit 84f7ca9. F-002: evaluateStoryDirConfigInsideGitRoot is genuinely total — the entire body is inside a real try/catch (lines 333-379 of story-signed-workspace-resolution.ts), the catch returns a safe non-violation, and the legacy-koala-storydir scenario in the suite exercises this path. storyDirOutsideGitRootAdvisory in story-create.ts also has a defensive try/catch. F-001: doc comment now explicitly states the id-dependent helper throws when story metadata is absent (not a purity guarantee); the smoke test has a real assert.throws absent-story case that exercises this behavior. F-003: as any replaced with Record<string,unknown> (line 124) and a fully typed intersection cast (line 127). No dead code, no new unsafe casts, no new empty-catch issues introduced. lattice validate GREEN.",
+      "createdAt": "2026-06-15T21:18:31.562Z",
+      "reviewRound": "2026-06-15T21:16:52.028Z",
+      "reviewRunId": "B-198c:RR-005",
+      "_hash": "66b7ea330c3dcbcbf57de900ce99dd4bd7169eb6d207325fb5b60ae6adb6c49b"
     }
   ]
 }
