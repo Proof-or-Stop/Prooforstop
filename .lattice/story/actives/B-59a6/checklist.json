@@ -14,9 +14,9 @@
         "packages/main/src/core/verdicts.ts",
         "packages/main/src/handlers/verdict.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T03:31:54.863Z",
       "userSees": "User sees zero-finding decision-doc audit reported as not requiring review escalation quorum, while threshold-triggered stories still block without quorum.",
       "files": {
         "modify": [
@@ -65,7 +65,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "zero-finding-doc-audit-no-quorum",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke check passed: ordinary documentation audit changes do not require escalation by themselves; report required=false and assuranceLevel=ordinary-review.",
+          "headHash": "58129a380b17a7b579c3477a4dcd70cff0f5f79f",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:31:54.964Z"
+        },
+        {
+          "intentRef": "threshold-two-findings-requires-quorum",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke check passed: two first-round verified reviewer problems trigger review escalation and full 3x2 quorum can satisfy it.",
+          "headHash": "58129a380b17a7b579c3477a4dcd70cff0f5f79f",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:31:55.042Z"
+        },
+        {
+          "intentRef": "suspected-disproven-low-not-counted",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke check passed: suspected, disproven, low severity, non-reviewer, and later-round findings do not trigger escalation.",
+          "headHash": "58129a380b17a7b579c3477a4dcd70cff0f5f79f",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:31:55.077Z"
+        },
+        {
+          "intentRef": "stale-duplicate-hosts-do-not-count",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke check passed: stale material, duplicate identity, and non-pass host verdicts fail closed and do not satisfy full quorum.",
+          "headHash": "58129a380b17a7b579c3477a4dcd70cff0f5f79f",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:31:55.106Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
