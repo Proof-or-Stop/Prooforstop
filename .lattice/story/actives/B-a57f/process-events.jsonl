@@ -1,2 +1,23 @@
 {"type":"dispatch","storyId":"B-a57f","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-06-14T16:25:51.915Z"}
 {"type":"dispatch","storyId":"B-a57f","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-14T16:25:59.032Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":1,"issueCount":9,"timestamp":"2026-06-14T16:35:12.828Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":8,"timestamp":"2026-06-14T16:35:39.740Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-14T21:09:51.084Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-14T21:09:51.733Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-14T21:09:52.335Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-14T21:09:52.939Z"}
+{"type":"subagent_result","checklistId":"CHK-005","success":true,"timestamp":"2026-06-14T21:09:53.507Z"}
+{"type":"review_pass","storyId":"B-a57f","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-a57f:RP-001","timestamp":"2026-06-14T21:13:34.719Z"}
+{"type":"review_pass","storyId":"B-a57f","command":"review_pass_set","role":"reviewer","agent":"koala-review-docs","result":"pass","reviewPassId":"B-a57f:RP-002","timestamp":"2026-06-14T21:14:08.484Z"}
+{"type":"reviewer_finding","storyId":"B-a57f","command":"finding_add","role":"reviewer","agent":"koala-review-quality","result":"pass","findingId":"B-a57f:F-001","severity":"low","missingAttribution":false,"timestamp":"2026-06-14T21:19:23.985Z"}
+{"type":"reviewer_finding","storyId":"B-a57f","command":"finding_add","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","findingId":"B-a57f:F-002","severity":"high","missingAttribution":false,"timestamp":"2026-06-14T21:19:35.754Z"}
+{"type":"review_pass","storyId":"B-a57f","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-a57f:RP-003","timestamp":"2026-06-14T21:21:03.587Z"}
+{"type":"review_pass","storyId":"B-a57f","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-a57f:RP-004","timestamp":"2026-06-14T21:42:21.461Z"}
+{"type":"review_pass","storyId":"B-a57f","command":"review_pass_set","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","reviewPassId":"B-a57f:RP-005","timestamp":"2026-06-14T21:44:09.511Z"}
+{"type":"dirty_gate_audit","storyId":"B-a57f","gate":"done-gate","category":"koala_metadata_changes","pathCount":3,"paths":[".lattice/story/actives/B-a57f/index.json",".lattice/story/actives/B-a57f/process-metrics.json",".lattice/story/actives/B-a57f/test-evidence.json"],"reason":"koala-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-14T22:08:04.830Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-b2eacb6a3974c8f0","runId":"quorum-r1","hostId":"host-r1-b","provider":"unknown","decision":"pass","materialDigest":"b62efde7193d7d296b8d20995c8334fb6da1325f6ac9129f0672821ceb68bf33","timestamp":"2026-06-14T23:31:55.436Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-b7665fabd79df23f","runId":"quorum-r2","hostId":"host-r2-b","provider":"unknown","decision":"pass","materialDigest":"b62efde7193d7d296b8d20995c8334fb6da1325f6ac9129f0672821ceb68bf33","timestamp":"2026-06-14T23:32:00.304Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-3821f506b973c576","runId":"quorum-r1","hostId":"host-r1-a","provider":"unknown","decision":"pass","materialDigest":"b62efde7193d7d296b8d20995c8334fb6da1325f6ac9129f0672821ceb68bf33","timestamp":"2026-06-14T23:32:14.603Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-ebec34bec805c170","runId":"quorum-r3","hostId":"host-r3-b","provider":"unknown","decision":"pass","materialDigest":"b62efde7193d7d296b8d20995c8334fb6da1325f6ac9129f0672821ceb68bf33","timestamp":"2026-06-14T23:32:39.496Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-d756232fb57d1d6a","runId":"quorum-r2","hostId":"host-r2-a","provider":"unknown","decision":"pass","materialDigest":"b62efde7193d7d296b8d20995c8334fb6da1325f6ac9129f0672821ceb68bf33","timestamp":"2026-06-14T23:32:39.961Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-1ee41553268b38a8","runId":"quorum-r3","hostId":"host-r3-a","provider":"unknown","decision":"pass","materialDigest":"b62efde7193d7d296b8d20995c8334fb6da1325f6ac9129f0672821ceb68bf33","timestamp":"2026-06-14T23:32:54.611Z"}

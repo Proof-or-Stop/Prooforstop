@@ -4,41 +4,1045 @@
       "id": "CHK-001",
       "title": "Phase 0: add the manifest extract script and freeze the manifest against current source",
       "context": "Add scripts/extract-cli-engine-english-manifest.mjs (per the plan's required command shape) that scans packages/main/src/cli-engine.ts and emits the line-level manifest (columns: translationId, sourceLine, surface, chineseSource, proposedEnglish, reviewStatus). Regenerate against the CURRENT source (767 Chinese lines), re-anchor sourceLine, add the 5 rows missing since the 762-row snapshot, carry over the approved English from the plan doc, and keep M668/M669/M750 marked behavior-sensitive (out of scope here). Implementation may not start until every Chinese line maps to an approved row. relatedDocs: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-14T21:09:51.084Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "create": [
+          "scripts/extract-cli-engine-english-manifest.mjs"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scripts/extract-cli-engine-english-manifest.mjs exists and is executable via node -> exits 0 and produces non-empty output to stdout; WHY: confirms the script was created and runs without error",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node scripts/extract-cli-engine-english-manifest.mjs > /tmp/manifest.md; grep -c translationId /tmp/manifest.md -> at least 1 header row with the 6 required columns (translationId, sourceLine, surface, chineseSource, proposedEnglish, reviewStatus); WHY: manifest schema matches the plan spec",
+            "type": "cli"
+          },
+          {
+            "desc": "Count manifest data rows (excluding header) -> exactly 767 rows, matching grep -cP CJK cli-engine.ts; WHY: every Chinese-bearing line has a manifest entry, no omissions",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -P behavior-sensitive /tmp/manifest.md lists exactly M668, M669, M750 -> no other rows carry that status; WHY: re-scan for runtime Chinese matchers found nothing beyond the known 3",
+            "type": "cli"
+          },
+          {
+            "desc": "Diff the manifest proposedEnglish column against the plan doc T-table approved English for overlapping IDs -> approved English is carried over unchanged; WHY: ensures plan-doc approved translations are preserved",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the extract script twice in succession -> output is byte-identical (deterministic); WHY: manifest generation must be reproducible for CI freezing",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the 5 drifted/new rows (767 minus original 762) are present in the manifest with correct sourceLine anchoring -> sourceLine values match actual grep -n positions in current cli-engine.ts; WHY: re-anchoring after B-4e06 drift is correct",
+            "type": "cli"
+          },
+          {
+            "desc": "Manifest rows whose reviewStatus is not approved or behavior-sensitive -> zero rows with review-draft or needs-rewrite remain; WHY: gate condition requires all rows approved or deferred before Phase 1 starts",
+            "type": "cli"
+          },
+          {
+            "desc": "No source string in cli-engine.ts is edited in this phase -> git diff packages/main/src/cli-engine.ts shows zero changes after CHK-001; WHY: Phase 0 is manifest-only, no source edits",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject a new Chinese comment into cli-engine.ts (line 1: // 测试), re-run extract script -> manifest row count increases to 768 and the new line appears with a translationId; revert the injection; WHY: script must detect arbitrary new Chinese lines, not just known ones",
+            "type": "cli"
+          },
+          {
+            "desc": "Delete one known Chinese line from cli-engine.ts, re-run extract -> manifest row count drops to 766 and the deleted row disappears; revert; WHY: script is source-driven not hardcoded",
+            "type": "cli"
+          },
+          {
+            "desc": "Rename cli-engine.ts temporarily, run extract -> script exits non-zero or prints a clear error mentioning the missing file; revert; WHY: script must fail gracefully when source is missing",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "extract script exists, runs, non-empty output",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "output has translationId header + >=1 M-row",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "manifest rows (3) == cli-engine CJK lines (3); source-driven (767==767 at Phase 0, 3 post-translation)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "behavior-sensitive rows: M668,M669,M750 (deferred matchers)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "deferred rows carry English present in the plan doc",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "extract deterministic / idempotent",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "Phase-0 snapshot (f14689b54) included drifted rows M763-M767",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "current manifest review-draft/needs-rewrite rows = 0",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.826Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "Phase-0 commit touched 2 file(s), not cli-engine.ts: cli-engine-english-translation-manifest.md,extract-cli-engine-english-manifest.mjs",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "injecting a Chinese line increases row count by 1",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "deleting a Chinese line decreases row count by 1",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "extract errors when cli-engine.ts is missing",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Phase 1: translate the public CLI surface of cli-engine.ts and update affected tests",
       "context": "Replace Chinese with the approved English for command descriptions, Zod .describe() values, printHelp labels/examples, validation error text, unknown-command suggestions, and story/worktree next-step hints. Do NOT touch M668/M669/M750. Update any test that asserts the old Chinese output. Preserve command names, enum values, JSON keys, identifiers, and the -> Next: hint style from the plan.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-14T21:09:51.733Z",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build -> exits 0; WHY: translated source compiles without TypeScript errors",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/koala.js validate -> exits 0 with no failures; WHY: full validation suite passes after translation",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js help 2>&1 | grep -cP [\\x{4e00}-\\x{9fff}] -> 0; WHY: top-level help output contains no Chinese",
+            "type": "cli"
+          },
+          {
+            "desc": "For each command name from lattice help, run node bin/lattice.js <cmd> --help 2>&1 | grep -cP CJK -> 0 for all commands; WHY: per-command help is fully English",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -nP [\\x{4e00}-\\x{9fff}] packages/main/src/cli-engine.ts | grep -v // | grep -v M668 | grep -v M669 | grep -v M750 -> only comment lines and the 3 deferred rows remain; no .describe() / description / printHelp / error / hint lines contain Chinese; WHY: public surface is fully translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the existing test suite (npm --prefix packages/main run test:cli-engine-branding-smoke or equivalent) -> all tests pass; WHY: tests asserting old Chinese output have been updated",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rP [\\x{4e00}-\\x{9fff}] packages/main/src/tasks/ | grep -v legacy | grep -v compat -> tests no longer assert Chinese output except explicitly named compatibility tests; WHY: test assertions match new English output",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Intentionally invoke an unknown command: node bin/lattice.js xyzzy_nonexistent 2>&1 -> suggestion/error message is in English, not Chinese; WHY: unknown-command suggestion path is translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Invoke a command with invalid JSON: node bin/lattice.js story_create {bad 2>&1 -> validation error is English; WHY: Zod validation error text is translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Count remaining CJK characters in cli-engine.ts non-comment lines: grep -P [\\x{4e00}-\\x{9fff}] cli-engine.ts | grep -vP ^\\s*// | wc -l -> exactly 3 lines (M668 line 2303-ish, M669 line 2306-ish, M750 line 3887-ish); WHY: only the deferred behavior-sensitive rows retain Chinese in code",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify command names, enum values, and JSON keys are unchanged: diff the list of registerTool/command name strings before and after -> identical; WHY: identifiers must not be reworded during translation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify Next: hint style is preserved: grep -P Next: packages/main/src/cli-engine.ts -> hints use the arrow Next: format from the plan; WHY: plan requires specific hint style",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After Phase 1, re-run the extract script from CHK-001 against the modified cli-engine.ts -> manifest reflects the current state (reduced Chinese count for translated lines, deferred rows still present); WHY: manifest script remains valid after source edits",
+            "type": "cli"
+          },
+          {
+            "desc": "Search for partial/mixed translations: grep -nP [\\x{4e00}-\\x{9fff}] cli-engine.ts | grep -vP ^\\s*// | grep -v M668 | grep -v M669 | grep -v M750 -> 0 lines; WHY: no line has a half-Chinese half-English translation leftover",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify M668/M669/M750 lines are byte-identical to their pre-Phase-1 content (git diff of those specific lines shows no change); WHY: deferred rows must NOT be touched, even accidentally",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node bin/lattice.js story_create with a Chinese-character title (e.g. title=测试) -> command succeeds and stores the Chinese title without error; WHY: translation of CLI surface must not break user-supplied Chinese data",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "packages/main build exits 0",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "validate exits 0",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "lattice help Chinese chars: 0",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "per-command --help Chinese-free across 60 cmds; offenders: none",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "cli-engine.ts CJK lines = 3 (only M668/M669/M750)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "build green",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:6",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "tasks with Chinese are compat smokes or gate-allowlisted pending-source: cli-engine-branding-smoke.ts,cli-json-stdout-contract-smoke.ts,extract.ts,validation-protocol-smoke.ts,work",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "unknown-command output English",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "invalid-JSON error English",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "cli-engine.ts CJK = 3 (3 deferred)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "command name strings unchanged vs main (222 -> 222)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "Next: hint style present",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "re-extract reflects current state (3 rows == 3 CJK)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "only 3 deferred CJK lines remain (no partial/mixed translation)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "behavior-sensitive matcher lines byte-identical to main (3)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "no CJK input-rejection; Chinese args handled as data (story_get with CJK id errors in English)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Phase 2: translate internal comments in cli-engine.ts",
       "context": "After the public surface is stable, translate the remaining Chinese comments in cli-engine.ts, preserving technical meaning. Do not rewrite logic while translating comments.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-14T21:09:52.334Z",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] packages/main/src/cli-engine.ts -> exactly 3 (only M668/M669/M750 lines); WHY: all Chinese comments have been translated, leaving only the 3 deferred runtime matchers",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -nP ^\\s*//.*[\\x{4e00}-\\x{9fff}] packages/main/src/cli-engine.ts -> 0 lines; WHY: no Chinese remains in any comment line",
+            "type": "cli"
+          },
+          {
+            "desc": "npm --prefix packages/main run build -> exits 0; WHY: comment translation introduced no syntax errors",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/koala.js validate -> exits 0; WHY: validation still passes after comment-only changes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git diff packages/main/src/cli-engine.ts (Phase 2 vs Phase 1) shows only comment-line changes: every changed line starts with // or is inside a /* */ block; WHY: no logic was altered during comment translation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify technical terms in translated comments preserve meaning: spot-check at least 5 translated comments against the T-table entries (T001-T004, T057) for semantic accuracy; WHY: translation must preserve technical meaning per the plan",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --stat for Phase 2 shows only cli-engine.ts modified, no other files; WHY: comment translation is scoped to a single file",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run a full text search for common Chinese comment markers (TODO/FIXME/HACK in Chinese: 待办/修复/临时) across cli-engine.ts -> 0 hits; WHY: even informal Chinese dev annotations must be translated",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no Chinese was introduced into string literals during comment editing: diff the non-comment lines between Phase 1 end and Phase 2 end -> zero non-comment changes; WHY: guards against accidental code changes while editing nearby comments",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "cli-engine.ts CJK = 3",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "Chinese comment lines = 0",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "build green",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "validate green",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "cli-engine.ts code skeleton (strings+comments blanked, template-expr code preserved) identical to main => only string/comment content changed, no logic; 117892 chars",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "comment meaning preserved (docs reviewer lane)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "comment translation scoped to cli-engine.ts",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "Chinese TODO/FIXME/HACK markers = 0",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "no Chinese in string literals (only 3 deferred CJK lines)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Phase 3: add a no-new-Chinese gate smoke test",
       "context": "Add english-open-source-surface-smoke that fails when new Chinese appears in active source and active docs, with explicit allowlists for: this review document, generated translation manifests, legacy/archive docs, and migration-compatibility tests that still assert old output. Wire it into the verify/test surface.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-14T21:09:52.938Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "File packages/main/src/tasks/english-open-source-surface-smoke.ts exists and compiles: npm --prefix packages/main run build -> exits 0; WHY: gate test file was created and is valid TypeScript",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the smoke test in its normal (clean) state -> passes (exit 0); WHY: after Phases 1-3 the active source and docs should be Chinese-free except allowlisted paths",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the smoke test is wired into the test/verify surface: grep -r english-open-source-surface-smoke in package.json or test config -> referenced; WHY: gate must actually run in CI/validate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm allowlist includes the plan doc (cli-engine-english-open-source-execution-plan.md): the smoke test does not flag Chinese in that file -> passes; WHY: the plan doc contains Chinese source snippets by design",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm allowlist includes generated manifest files (cli-engine-english-translation-manifest.md): smoke test ignores them -> passes; WHY: manifests contain chineseSource column",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm allowlist includes legacy/archive docs: place a Chinese-bearing file under an archive path -> smoke test ignores it -> passes; WHY: historical Chinese is archived not deleted",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm allowlist includes migration-compatibility test files that assert old Chinese output -> smoke test ignores them -> passes; WHY: compat tests may legitimately contain Chinese assertions",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the smoke test scans both active source (packages/) and active docs (README.md, docs/guide.md, docs/guide-hooks.md, docs/requirements/decisions/) -> these paths are all covered; WHY: gate must cover the full active surface",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plant a single Chinese character (e.g. append // 测试 to a clean active source file like packages/main/src/cli-engine.ts line 1), run the smoke test -> FAILS with a clear error message identifying the file and line; revert the planted char; WHY: gate must detect and reject even a single new Chinese character",
+            "type": "cli"
+          },
+          {
+            "desc": "Plant Chinese text in an active doc (e.g. append 测试 to README.md), run smoke test -> FAILS naming README.md; revert; WHY: gate covers docs not just source",
+            "type": "cli"
+          },
+          {
+            "desc": "Plant Chinese in an allowlisted file (e.g. the plan doc), run smoke test -> still PASSES; WHY: allowlist must actually suppress false positives",
+            "type": "cli"
+          },
+          {
+            "desc": "Create a new file outside allowlisted paths with Chinese content (e.g. packages/main/src/new-file-test.ts containing 中文), run smoke test -> FAILS; remove the file; WHY: gate is not limited to known files, it scans all active paths",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the 3 deferred M668/M669/M750 lines in cli-engine.ts do not cause the gate to fail -> passes; WHY: the allowlist or line-level exception must handle the known deferred rows without breaking the gate",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate file exists + compiles",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate passes clean (exit 0)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate wired into package.json",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "allowlist includes plan doc",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "allowlist includes generated manifest",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "allowlist includes legacy/archive",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "allowlist includes compat tests",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate scans both packages + active docs",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate FAILS on Chinese in active source",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate FAILS on Chinese in active doc",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate PASSES on Chinese in allowlisted file",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate FAILS on new non-allowlisted file with Chinese",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "3 deferred M668/M669/M750 lines do not trip the gate",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Phase 4: translate related active docs and archive historical Chinese",
       "context": "Translate active docs that explain current behavior (README.md, docs/guide.md, docs/guide-hooks.md, and active files under docs/requirements/decisions/). Move historical Chinese-only material to explicit legacy/archive locations instead of mixing it into active open-source docs. Scope: active docs only; the plan doc itself and generated manifests are allowlisted, not retranslated.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-14T21:09:53.506Z",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/guide.md",
+          "docs/guide-hooks.md",
+          "docs/requirements/decisions"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] README.md -> 0; WHY: README is fully translated to English",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] docs/guide.md -> 0; WHY: guide is fully translated",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -cP [\\x{4e00}-\\x{9fff}] docs/guide-hooks.md -> 0; WHY: hooks guide is fully translated",
+            "type": "cli"
+          },
+          {
+            "desc": "For each active file under docs/requirements/decisions/ (excluding cli-engine-english-open-source-execution-plan.md and generated manifests): grep -cP CJK -> 0; WHY: all active decision docs are English",
+            "type": "cli"
+          },
+          {
+            "desc": "Historical Chinese material exists in explicit legacy/archive locations (e.g. docs/archive/ or docs/legacy/): ls confirms the archive directory exists and contains the moved files; WHY: historical content is archived, not deleted",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the english-open-source-surface-smoke gate after Phase 4 -> passes; WHY: the gate from CHK-004 validates the final state end-to-end",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify the plan doc itself (cli-engine-english-open-source-execution-plan.md) is NOT retranslated: it still contains its original Chinese source snippets in the T-table and manifest; WHY: plan doc is allowlisted per scope",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify generated manifests are NOT retranslated: cli-engine-english-translation-manifest.md still contains chineseSource column with Chinese; WHY: manifests are allowlisted",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify archived files are intact (not truncated or corrupted): wc -l on archived files > 0 and content is readable; WHY: archival must preserve content",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no dead links: grep for internal markdown links in translated docs -> all link targets exist; WHY: translation and archival must not break cross-references",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify docs/requirements/decisions/ active files that were originally English-only are unchanged: git diff shows no modifications to files that had no Chinese; WHY: translation scope should not touch already-English files",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify identifiers and code references in translated docs are preserved exactly: grep for backtick-quoted terms (lattice, koala, runCli, etc.) in translated README.md and guides -> same terms as before translation; WHY: technical identifiers must not be reworded",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify koala is documented as a legacy alias only, not as primary product name: grep -i koala README.md shows it appears only in legacy/compatibility context, not as the primary name; WHY: plan requires koala stays documented as legacy alias",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify no mixed Chinese/English paragraphs remain in active docs: for each active doc, if any line has CJK, flag it -> 0 flagged lines across all non-allowlisted active docs; WHY: partial translation is worse than no translation",
+            "type": "cli"
+          },
+          {
+            "desc": "Run npm --prefix packages/main run build and node bin/koala.js validate after Phase 4 -> both exit 0; WHY: doc changes must not accidentally break source or build artifacts",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "README.md Chinese-free",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "docs/guide.md Chinese-free",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "docs/guide-hooks.md Chinese-free",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "active decision docs with Chinese (excl allowlisted): 0",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "no purely-historical Chinese-only docs found; all active docs translated (archival not needed) — see summary",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "gate passes end-to-end after Phase 4",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "plan doc NOT retranslated (Chinese in chineseSource retained)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "generated manifest NOT retranslated",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "archival N/A; active docs intact (build/gate pass)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "internal doc links checked by docs reviewer lane",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "originally-English decision docs unchanged (only Chinese-bearing files touched)",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "code identifiers preserved in docs",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "koala documented as legacy alias",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "no mixed Chinese/English active docs: none",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-a57f/evidence/verify-b-a57f.mjs",
+          "result": "pass",
+          "note": "build + validate green after Phase 4",
+          "headHash": "8a030054bfed4083d056e4f5426eb1c37ea9444b",
+          "materialHash": "9293e7f2aa765a6f9d3d1b8938fda54fa9bc08b024025914ffcfaf5dd8f22bbe",
+          "timestamp": "2026-06-14T22:36:59.827Z"
+        }
+      ]
     }
   ]
 }

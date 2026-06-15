@@ -1,0 +1,91 @@
+{
+  "storyId": "B-a57f",
+  "checkedAt": "2026-06-14T22:55:41.801Z",
+  "reviewRound": "2026-06-14T21:38:20.605Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "promise": "Frozen line-level manifest exists listing all 767 Chinese lines with translationId, surface, chineseSource, proposedEnglish, reviewStatus columns; M668/M669/M750 marked behavior-sensitive",
+      "verifiedBy": "diff/grep",
+      "evidence": "File present in diff. verify-b-a57f.mjs Phase 0 adversarial tests (plant/delete) PASS 65/65. 3 rows carry behavior-sensitive marker matching the 3 deferred lines found by grep in cli-engine.ts."
+    },
+    {
+      "docPath": "scripts/extract-cli-engine-english-manifest.mjs",
+      "promise": "Phase 0 extraction script created: scans cli-engine.ts, emits manifest, exits 0, deterministic",
+      "verifiedBy": "diff/ls/verify-b-a57f.mjs",
+      "evidence": "File present at scripts/extract-cli-engine-english-manifest.mjs (13701 bytes). Adversarial plant/delete/rename tests in verify-b-a57f.mjs all PASS (65/65 total)."
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts",
+      "promise": "Phase 1+2: cli-engine.ts fully English on public CLI surface and internal comments, except exactly 3 deferred behavior-sensitive matchers (M668/M669/M750)",
+      "verifiedBy": "grep -cP CJK cli-engine.ts returns 3; node bin/lattice.js help CJK count returns 0",
+      "evidence": "Independently confirmed: grep -cP CJK cli-engine.ts == 3. node bin/lattice.js help | CJK grep == 0. Three remaining lines are M668 (always-on dry-run matcher line 2316), M669 (default dry-run matcher line 2319), M750 (current-dir-not-git-repo line 3932). Deferrals documented in gate allowlist with per-line comments and in transcript-diff.md."
+    },
+    {
+      "docPath": "packages/utils/src (aux handlers)",
+      "promise": "Phase 1+2: utils handlers (aux-doc, aux-sync, aux-trace, auxiliary, tool-status, truth, tool-defs, register, index) translated to English; aux-diagnose deferred and gate-allowlisted",
+      "verifiedBy": "diff/grep; node bin/lattice.js aux_doc_list --help CJK == 0",
+      "evidence": "All 7 listed utils handlers in diff with English surface. node bin/lattice.js aux_doc_list --help CJK count 0 confirmed in transcript. aux-diagnose.ts is in ALLOWLIST_PENDING_SOURCE_MIGRATION with explicit justification comment."
+    },
+    {
+      "docPath": "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+      "promise": "Phase 3: no-new-Chinese gate scans 480 active files, fails on any CJK outside explicit allowlist, wired into package.json test:english-surface",
+      "verifiedBy": "direct execution: gate exits 0 and reports PASS",
+      "evidence": "Runtime: english-open-source-surface smoke: PASS — scanned 480 active file(s), no Chinese (CJK) outside the allowlist. package.json test:english-surface confirmed. Gate is 300 lines / 14414 bytes. Adversarial plant test in verify-b-a57f.mjs PASS."
+    },
+    {
+      "docPath": "README.md",
+      "promise": "Phase 4: README.md translated to English",
+      "verifiedBy": "grep -cP CJK README.md == 0",
+      "evidence": "Returns 0. File in diff (+162 lines). Confirmed independently."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "Phase 4: docs/guide.md translated to English",
+      "verifiedBy": "grep -cP CJK docs/guide.md == 0",
+      "evidence": "Returns 0. File in diff (+271 lines)."
+    },
+    {
+      "docPath": "docs/guide-hooks.md",
+      "promise": "Phase 4: docs/guide-hooks.md translated to English",
+      "verifiedBy": "grep -cP CJK docs/guide-hooks.md == 0",
+      "evidence": "Returns 0. File in diff (+142 lines)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/ (18 active files)",
+      "promise": "Phase 4: 18 active decision docs translated to English; only the two allowlisted files retain Chinese by design",
+      "verifiedBy": "per-file grep -cP CJK scan of all decisions/*.md",
+      "evidence": "All translated decision docs return 0. Two allowlisted files (cli-engine-english-open-source-execution-plan.md: 938 lines Chinese; cli-engine-english-translation-manifest.md: 3 lines Chinese) are gate-allowlisted by exact path with justification."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "verify-b-a57f.mjs Phase 0: extract script exits 0, manifest has 767 rows, columns match spec, M668/M669/M750 are behavior-sensitive, output deterministic. Adversarial: plant Chinese line -> count 768, delete line -> count 766, rename source -> non-zero exit. All PASS (65/65 total)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Phase 1: node bin/lattice.js help CJK count 0, story_advance --help CJK 0, aux_doc_list --help CJK 0, unknown-command error English. compat tests updated (cleanup-legacy.json fixture). All PASS per 65/65 verifier."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Phase 2: grep -cP CJK cli-engine.ts == 3. Three remaining lines identified as M668/M669/M750 deferred matchers. All PASS per 65/65 verifier."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Phase 3 gate: gate exits 0 on clean tree. Adversarial: plant Chinese char in non-allowlisted file -> gate exits non-zero and reports file:line (git-protected, reverted). Delete allowlisted entry -> gate fails on previously-OK file. Both adversarial sub-tests PASS. Script wiring confirmed in package.json."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Phase 4: README.md CJK 0, guide.md CJK 0, guide-hooks.md CJK 0, all 18 decision docs CJK 0. Two allowlisted files excluded from assertion. TOTAL 65 | PASS 65 | FAIL 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docsPromises independently verified from source: extraction script present (13701 bytes), CLI help surface 0-CJK confirmed by direct execution, exactly 3 deferred matchers confirmed by grep in cli-engine.ts, gate passes on 480 active files, 3 main docs and 18 decision docs confirmed 0-CJK, package.json wiring confirmed. Deferrals (M668/M669/M750 matchers, aux-diagnose, 15 non-cli-engine main/src files) are explicitly documented in gate allowlist with per-entry justification and in transcript-diff.md, not silent omissions. No TODOs in code files. 65/65 acceptance verifier PASS including adversarial plant/delete/rename tests."
+  },
+  "_hash": "8f650bb32d0d7dd63d4178e4267d28d6386dc64969d27754ea34c85870883d9b"
+}

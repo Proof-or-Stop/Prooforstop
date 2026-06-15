@@ -13,6 +13,7 @@
     "package:desktop:host": "node scripts/package-desktop.mjs host",
     "package:desktop:release": "node scripts/package-desktop.mjs release",
     "test": "npm run test:e2e",
+    "test:english-surface": "node packages/main/dist/tasks/english-open-source-surface-smoke.js",
     "test:desktop-package": "node scripts/verify-desktop-package.mjs",
     "test:codex-assets": "node scripts/verify-codex-assets.mjs",
     "test:entrypoints": "node scripts/verify-entrypoints.mjs",

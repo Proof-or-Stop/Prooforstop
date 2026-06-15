@@ -394,7 +394,7 @@ The Python authority's preset/limit/gate details (e.g., `anti-hallucination` as 
 `balanced-basic`, `balanced-heterogeneous`, `strict-ci`) are **external authority constraints**.
 They are not locally-landed facts in this repo unless there is an explicit code/doc reference here.
 Under the current thin-client decision, the CLI does not need to model or mirror Python presets.
-(VCP-DOC §设计决策 / §Server 配合; AUDIT advisory A2 scoping presets as external.)
+(VCP-DOC §Design Decisions / §Server Coordination; AUDIT advisory A2 scoping presets as external.)
 
 ---
 

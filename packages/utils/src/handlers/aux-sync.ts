@@ -31,11 +31,11 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
   };
 
   function doExtract(): string {
-    // 扫描源码提取所有 @task 注释
+    // Scan the source code to extract all @task comments
     const annotations = scan(scanRoot);
     const flows = extractFlows(annotations);
 
-    // 用源码注释作为唯一真相，全量重写 task.json（避免历史 key 格式残留导致重复）
+    // Treat source comments as the single source of truth and fully rewrite task.json (avoids duplicates from leftover legacy key formats)
     const newRecords = annotations.map(ann => MetadataStore.fromAnnotation(ann));
 
     const existingStore = metaStore.readTasks();
@@ -47,12 +47,12 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
 
     metaStore.writeTasks({ ...existingStore, tasks: newRecords });
 
-    // 写入 flow.json
+    // Write flow.json
     const flowStore = metaStore.readFlows();
     flowStore.flows = flows;
     metaStore.writeFlows(flowStore);
 
-    return `extract 完成: ${added} 新增, ${updated} 更新, ${removed} 删除, 共 ${newRecords.length} 条 task, ${flows.length} 条 flow`;
+    return `extract done: ${added} added, ${updated} updated, ${removed} removed, ${newRecords.length} tasks total, ${flows.length} flows`;
   }
 
   function doClean(): string {
@@ -82,15 +82,15 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
       const content = readFileSync(filePath, 'utf-8');
       const blocks = extractBlocks(content);
 
-      // 只删包含 @task 的注释块
+      // Only delete comment blocks that contain @task
       const taskBlocks = blocks.filter(b => /@task\s/.test(b.raw));
       if (taskBlocks.length === 0) continue;
 
       const lines = content.split('\n');
-      // 从后往前删，避免行号偏移
+      // Delete from the end backward to avoid line-number shifts
       const blockRanges: Array<{ start: number; end: number }> = [];
       for (const block of taskBlocks) {
-        // 找注释块的起止行
+        // Find the start and end lines of the comment block
         const blockText = block.raw;
         const startIdx = content.indexOf(blockText);
         if (startIdx === -1) continue;
@@ -98,7 +98,7 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
         const beforeBlock = content.slice(0, startIdx);
         const startLine = beforeBlock.split('\n').length - 1;
 
-        // 找 /** 开头
+        // Find the opening /**
         let actualStart = startLine;
         for (let i = startLine; i >= 0; i--) {
           if (lines[i].trim().startsWith('/**')) {
@@ -107,7 +107,7 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
           }
         }
 
-        // 找 */ 结尾
+        // Find the closing */
         const endLine = actualStart + blockText.split('\n').length;
         let actualEnd = endLine;
         for (let i = actualStart; i < lines.length; i++) {
@@ -122,7 +122,7 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
 
       if (blockRanges.length === 0) continue;
 
-      // 从后往前删
+      // Delete from the end backward
       blockRanges.sort((a, b) => b.start - a.start);
       const newLines = [...lines];
       for (const range of blockRanges) {
@@ -130,13 +130,13 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
         totalBlocks++;
       }
 
-      // 清理连续空行
+      // Collapse consecutive blank lines
       const cleaned = newLines.join('\n').replace(/\n{3,}/g, '\n\n');
       writeFileSync(filePath, cleaned);
       totalFiles++;
     }
 
-    return `clean 完成: 从 ${totalFiles} 个文件中删除了 ${totalBlocks} 个 @task 注释块`;
+    return `clean done: removed ${totalBlocks} @task comment blocks from ${totalFiles} files`;
   }
 
   function doValidate(): string {

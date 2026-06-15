@@ -1,7 +1,7 @@
 /**
- * @lattice-agent/utils 公共入口
+ * @lattice-agent/utils public entry point
  *
- * 用法（在 bootstrap 脚本里）：
+ * Usage (inside a bootstrap script):
  *   import { register, utilsToolDefs } from '@lattice-agent/utils';
  *   register(registry, ctx);
  *   await runCli({ extraTools: utilsToolDefs });
