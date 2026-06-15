@@ -416,6 +416,17 @@
           "headHash": "2fcf296e3387c0ffe0b94f5a70ced25bfc0d6c38",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:32:05.652Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f bin/lattice.js",
+          "result": "pass",
+          "note": "bin/lattice.js survives — core tooling intact after root-file deletion.",
+          "headHash": "01276b1fb7cfe6d30ea14ca1f08535b14e731803",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:06.636Z"
         }
       ]
     }
