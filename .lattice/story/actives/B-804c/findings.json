@@ -41,7 +41,7 @@
       "desc": "quality-cleanup: cli-engine.ts:4078 phaseDetectionFailed is declared and set in the catch block but never read after the F-002 fix removed !phaseDetectionFailed from the guard condition; the variable is dead and should be removed along with its comment reference (line 4067: \"If phase detection failed earlier, fall back to advancing here\" — this now happens unconditionally via the else branch of alreadyInitCheck, not conditioned on phaseDetectionFailed)",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-15T22:54:48.485Z",
@@ -50,7 +50,9 @@
       "_hash": "a64d8826a9aa02c297bcb4a3bbeba962ce2765b5fe29ded5c0e439983d7b8180",
       "files": [
         "packages/main/src/cli-engine.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit db8f1786. Removed the dead local variable phaseDetectionFailed (declaration + the catch-block assignment) from the cli-engine INIT_CHECK block; it became unreachable after the F-002 fix changed the guard pre-check condition to if(!alreadyInitCheck). The story_get try/catch is preserved as a bare catch that simply falls through (story_get failure leaves alreadyInitCheck=false, so the normal guarded path runs — the safe behavior). Updated the three stale comments that referenced a phaseDetectionFailed fallback. grep confirms phaseDetectionFailed no longer appears in cli-engine.ts. No runtime behavior changed; smoke (4 assertions) + lifecycle-registry-contract + validate all green.",
+      "resolvedAt": "2026-06-15T22:59:19.059Z"
     },
     {
       "id": "B-804c:F-004",
