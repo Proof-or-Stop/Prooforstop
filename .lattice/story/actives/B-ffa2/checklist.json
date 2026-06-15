@@ -242,9 +242,9 @@
         "README.md",
         "CLAUDE.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T15:56:30.895Z",
-      "endTime": null,
+      "endTime": "2026-06-15T16:18:41.634Z",
       "userSees": "Active documentation and tests teach Lattice role IDs; any remaining Koala references are explicitly historical, runtime-compatibility, or archive material rather than current role guidance.",
       "files": {
         "modify": [
@@ -281,7 +281,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "rg -n --hidden --glob '!docs/story/**' --glob '!tests/fixtures/**' --glob '!.omx/**' --glob '!.git/**' --glob '!.worktrees/**' --glob '!packages/main/dist/**' --glob '!packages/main/node_modules/**' --glob '!docs/koala/**' --glob '!docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md' '\\bkoala-(implementer|review|evaluator)|koala_metadata|koala-verifier|Koala Smoke|koala-owned|koala-metadata' CLAUDE.md README.md docs/requirements docs/audits packages/main/src/tasks packages/main/templates .claude .Codex",
+          "result": "pass",
+          "note": "Command exited 1 with no output, so active docs, tests, templates, and mirrored host assets no longer teach old koala role IDs or active Koala-branded verifier/metadata vocabulary.",
+          "headHash": "3c6f9bbbd31880c4f499c147e1c114f81b00bdef",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:18:41.706Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Flow stability and validation protocol smokes passed after preserving archive/signed-artifact boundaries while moving active surfaces to Lattice naming.",
+          "headHash": "3c6f9bbbd31880c4f499c147e1c114f81b00bdef",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:18:41.738Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after docs/tests/runtime vocabulary updates, proving active references compile with lattice role IDs, lattice_metadata_changes, and lattice-verifier provider names.",
+          "headHash": "3c6f9bbbd31880c4f499c147e1c114f81b00bdef",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:18:41.767Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
