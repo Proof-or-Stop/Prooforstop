@@ -117,6 +117,17 @@
           "headHash": "a030395b18ff865a9825d34e3abe721cee60ec4a",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:31:51.308Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rIl cli-guess-number (excl node_modules/.git/.worktrees/.lattice/dist)",
+          "result": "pass",
+          "note": "0 residual references to cli-guess-number remain.",
+          "headHash": "74f4d351c5885a49c2755dd78e225c6b19474e45",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:52.047Z"
         }
       ]
     },
