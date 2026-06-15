@@ -109,7 +109,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Lattice CLI help and workflow hints refer to lattice-implementer and lattice-review-* role IDs, and review/finding/runtime checks accept the lattice reviewer prefix as canonical.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/flow-fact-policy.ts",
+          "packages/main/src/core/delivery-check-hash.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI schemas, defaults, help text, dispatch prompts, and review attribution use lattice-* role IDs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical metadata compatibility remains readable only where explicitly documented, without reintroducing active koala-* aliases.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "review_run_start/finding_add/review_pass_set reject stale koala-review-* active role usage once lattice-* is canonical.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
