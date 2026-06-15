@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:76 says provider-reported usage wins over estimates for the same completed call, and lines 223-225 require preflight estimate records to stay separate from final provider-reported records. But the JSONL shape at lines 86-107 only has per-line recordId plus provider.requestIdHash, which is unavailable for blocked preflight refusals or pre-provider estimates. That means ledger readers cannot mechanically correlate an estimate/refusal record with the later provider-reported record for the same call, so the preflight/postflight budget semantics are not implementable as written. Add a required stable call/attempt correlation id shared across estimate, blocked, and final provider records.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-15T14:30:12.990Z",
@@ -14,7 +14,9 @@
       "_hash": "2f6ac03248159603930db877e1847aadd9ca93d4309b1061118f6357fce20e6a",
       "files": [
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Resolved in commit 4d8be6496: document now requires locally generated ledgerCallId, attemptId, sequence, and supersedesRecordIds before provider dispatch; provider.requestIdHash is optional metadata only. Targeted rg check passed.",
+      "resolvedAt": "2026-06-15T14:57:55.014Z"
     },
     {
       "id": "B-1477:F-002",
