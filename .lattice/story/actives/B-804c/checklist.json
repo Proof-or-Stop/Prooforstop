@@ -40,7 +40,11 @@
         "test": [
           "packages/main/src/tasks/init-check-atomicity-smoke.ts"
         ]
-      }
+      },
+      "excludes": [
+        "packages/main/src/core/machine.ts (Option A defer-write fixes atomicity at the cli-engine sequencing layer; no xstate back-edge added, so machine.ts is intentionally NOT modified)",
+        "packages/main/src/tasks/worktree-repair-smoke.ts (CHK-003 adds a NEW smoke file init-check-atomicity-smoke.ts rather than editing the existing worktree-repair-smoke.ts)"
+      ]
     },
     {
       "id": "CHK-002",
