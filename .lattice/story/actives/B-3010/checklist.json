@@ -148,7 +148,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Regression smoke prints PASS and token accounting showing measured prompt/template byte and approximate-token values, while explicitly saying provider billing tokens are unavailable.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runtime-owned-agent-assets-smoke passes and prints the promptRegistryHash plus asset classification coverage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "prompt-token-cost-smoke still preserves B-bfb5 prompt savings and reports approximate token math, not billing tokens.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if output claims exact provider billing token usage or omits the unavailability caveat.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
