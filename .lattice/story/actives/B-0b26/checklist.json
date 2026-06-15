@@ -72,7 +72,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "ls packages/",
+          "result": "pass",
+          "note": "`ls packages/` outputs exactly: lab main utils — sample packages gone, core packages intact.",
+          "headHash": "d52808e4059e3454a00468daf8b4508834612cc0",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:48.463Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
