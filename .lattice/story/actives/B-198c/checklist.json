@@ -68,7 +68,30 @@
       "context": "Warn early so wrapper-root users learn before investing PLAN work. Decide hard-fail vs warn in PLAN: a hard-fail at story_create would retroactively break existing limping wrapper-root projects (e.g. ClawCreek with 19 live stories).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create / session_brief emit the one-line advisory for a wrapper-root violation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "no advisory in the normal case (metadataRoot == gitRoot)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "advisory is warn-only and does NOT block story_create (Option A)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
