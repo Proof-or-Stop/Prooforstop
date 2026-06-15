@@ -394,6 +394,17 @@
           "headHash": "421810cffb1ae45a18add9d06138f0306d91bccb",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:32:03.859Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f packages/lab/package.json",
+          "result": "pass",
+          "note": "packages/lab survives (cross-item over-deletion guard).",
+          "headHash": "90f8ea5ce1951138b476a3f27ec85ba3d232b57c",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:04.508Z"
         }
       ]
     }
