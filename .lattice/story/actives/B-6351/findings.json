@@ -92,7 +92,7 @@
       "desc": "Active Koala compatibility remains outside the allowed historical/negative-test/subagent-name contexts. Evidence: node bin/lattice.js doctor still prints active runtime guidance that koala.config.json is still read as a legacy fallback; CLAUDE.md:1024 still says all Story operations go through the koala CLI; README.md:571-573 and docs/guide-hooks.md:3,45 document koala.config.json as a supported fallback; runtime/config code still actively checks koala.config.json in packages/main/src/core/config.ts, packages/main/src/core/runtime-fact-registry.ts, and .codex/hooks/lattice-scope-pretool.cjs. This contradicts B-6351 stated outcome that Lattice is the only active runtime/documentation name and the review focus to delete Koala compatibility rather than preserve it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-15T03:21:45.900Z",
@@ -106,7 +106,9 @@
         "packages/main/src/core/config.ts",
         "packages/main/src/core/runtime-fact-registry.ts",
         ".codex/hooks/lattice-scope-pretool.cjs"
-      ]
+      ],
+      "resolvedReason": "Removed runtime config compatibility: loadConfig/project-root detection now uses lattice.config.json only; doctor and runtime fact registry no longer advertise koala.config.json or koala binary/package fallbacks; .codex/.claude pretool hooks and dashboard no longer accept koala.config.json as active root evidence. Verification passed: node bin/lattice.js doctor residue check, verify-runtime-fact-contract, verify-entrypoints, and lattice-only absence smoke.",
+      "resolvedAt": "2026-06-15T10:16:42.586Z"
     },
     {
       "id": "B-6351:F-006",
