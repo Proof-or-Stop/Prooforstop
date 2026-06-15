@@ -104,9 +104,9 @@
       "title": "Add a doctor check + scaffolding for the track/ignore invariant",
       "context": "Add a `lattice doctor` check that flags when story metadata is neither tracked nor protected (the data-loss state), and scaffold/repair the correct ignore-volatile/track-metadata allowlist on init or via a repair command, so new projects are safe by default rather than depending on a hand-crafted .gitignore.",
       "userSees": "`lattice doctor` reports a clear warning (and offers a repair) when story metadata is untracked-and-unignored, instead of the silent data-loss trap; a freshly-initialized project has metadata protected by default.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:31:24.860Z",
       "verificationIntent": {
         "happy": [
           {
