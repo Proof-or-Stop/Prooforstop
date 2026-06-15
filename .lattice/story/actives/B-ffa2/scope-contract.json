@@ -75,8 +75,26 @@
         "scripts/verify-runtime-reviewer-contract.mjs",
         "scripts/verify-worktree-baseline-risk.mjs"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Expanded Koala-to-Lattice cleanup needed to remove active old naming from docs, hooks, and verification scripts.",
+      "timestamp": "2026-06-15T16:57:12.565Z",
+      "paths": [
+        ".Codex/lattice.json",
+        ".claude/hooks/lattice-scope-pretool.cjs",
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "scripts/run-story-review-experiment.mjs",
+        "scripts/verify-main-branch-runtime-health.mjs"
+      ]
     }
   ],
   "createdAt": "2026-06-15T16:20:23.171Z",
-  "updatedAt": "2026-06-15T16:22:01.106Z"
+  "updatedAt": "2026-06-15T16:57:12.565Z"
 }
