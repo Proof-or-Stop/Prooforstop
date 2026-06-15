@@ -5,9 +5,9 @@
       "title": "Choose and document the metadata protection model (decision)",
       "context": "Decide between Approach A (git add -f + check-ignore guard), B (scaffold/validate the ignore-volatile/track-metadata .gitignore allowlist on init/doctor), C (relocate volatile vs persistent), or a combination. Capture as a decision with >=3 preMortem since this is a critical data-loss path. The chosen model must make the bootstrap git-add behavior and the data-loss protection stance mutually consistent.",
       "userSees": "A decision record states the chosen protection model and rationale; `lattice story_get` reflects the decision and the PLAN gate passes with >=3 preMortem.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:14:08.915Z",
       "verificationIntent": {
         "happy": [
           {
