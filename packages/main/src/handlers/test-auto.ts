@@ -24,8 +24,6 @@ import {
 } from './test-runner-core.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
-// Legacy compatibility only: old in-repo/self-check installs may still report this package name.
-const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core';
 
 /**
  * @task B-4b17
@@ -84,8 +82,8 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         const pkgPath = join(root, 'packages', 'main', 'package.json');
         if (existsSync(pkgPath)) {
           const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-          if (pkg.name === CANONICAL_CORE_PACKAGE_NAME || pkg.name === LEGACY_CORE_PACKAGE_NAME) {
-            throw new Error('Lattice 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 lattice validate --story=<storyId>（legacy koala validate 仍可作为别名），并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
+          if (pkg.name === CANONICAL_CORE_PACKAGE_NAME) {
+            throw new Error('Lattice 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 lattice validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
           }
         }
       } catch (e: any) {

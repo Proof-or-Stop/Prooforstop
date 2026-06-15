@@ -27,7 +27,7 @@ Lattice initialization merges a Claude Code `UserPromptSubmit` hook into `.claud
 This hook is only a soft reminder: it locates the repository from the hook JSON's `cwd`, `CLAUDE_PROJECT_DIR`, or the current cwd, reads the legacy `.koala/activity.jsonl` mirror, `docs/story/activity.jsonl`, and the story-scoped `docs/story/actives/*/activity.jsonl`, and looks for the most recent `session_brief` heartbeat. By default, anything within 60 minutes is treated as fresh and the hook stays silent; when the most recent heartbeat is older than 60 minutes or there is no fresh record, it prints:
 
 ```text
-Run lattice session_brief first to restore context (koala is still a legacy alias)
+Run lattice session_brief first to restore context
 ```
 
 The threshold can be adjusted with `KOALA_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Lattice init does not create `.Codex/hooks` or `.Codex/settings.json`.

@@ -235,16 +235,16 @@ function assertCodexWrapperSessionFrom(envName) {
     TERM_SESSION_ID: '',
     [envName]: marker,
   };
-  const out = run('node', ['bin/koala-codex.js', 'session_brief'], { env });
+  const out = run('node', ['bin/lattice-codex.js', 'session_brief'], { env });
   assert(
-    /# (?:lattice|koala) session brief/.test(out),
-    `bin/koala-codex.js ${envName} session_brief missing session_brief heading`,
+    /# lattice session brief/.test(out),
+    `bin/lattice-codex.js ${envName} session_brief missing session_brief heading`,
   );
 
   const record = readActivityRecord(marker, 'session_brief');
-  assert(record, `bin/koala-codex.js should derive session from ${envName}`);
-  assert(record.source === 'codex', 'bin/koala-codex.js should force activity source=codex');
-  assert(record.entrypoint === 'local-wrapper', 'bin/koala-codex.js should mark entrypoint=local-wrapper');
+  assert(record, `bin/lattice-codex.js should derive session from ${envName}`);
+  assert(record.source === 'codex', 'bin/lattice-codex.js should force activity source=codex');
+  assert(record.entrypoint === 'local-wrapper', 'bin/lattice-codex.js should mark entrypoint=local-wrapper');
   return marker;
 }
 
@@ -290,23 +290,26 @@ export function createActor(_machine, options = {}) {
 const checks = [];
 
 checks.push(() => {
-  const out = run('node', ['bin/koala.js', 'aux_doc_list', '--format=json']);
-  assertIncludes(out, '"docs"', 'bin/koala.js aux_doc_list');
+  const out = run('node', ['bin/lattice.js', 'aux_doc_list', '--format=json']);
+  assertIncludes(out, '"docs"', 'bin/lattice.js aux_doc_list');
+  assertPathMissing(repoRoot, 'bin/koala.js', 'legacy local koala wrapper');
+  assertPathMissing(repoRoot, 'bin/koala-codex.js', 'legacy local koala Codex wrapper');
+  assertPathMissing(repoRoot, '.Codex/koala.json', 'legacy Codex manifest');
 });
 
 checks.push(() => {
   const coreHelp = run('node', [CORE_ENTRYPOINT, 'init', '--help']);
   assertInitHelpDocumentsStarterAsOptional(coreHelp, 'repo-local core CLI init --help');
 
-  const localWrapperHelp = run('node', ['bin/koala.js', 'init', '--help']);
-  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'repo-local bin/koala.js init --help');
+  const localWrapperHelp = run('node', ['bin/lattice.js', 'init', '--help']);
+  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'repo-local bin/lattice.js init --help');
 });
 
 checks.push(() => {
   const marker = assertCodexWrapperSessionFrom('CODEX_SESSION_ID');
   if (currentStoryId()) {
     const event = readProcessEvent(marker, 'session_brief');
-    assert(event, 'bin/koala-codex.js should write codex_cli process-event in active story');
+    assert(event, 'bin/lattice-codex.js should write codex_cli process-event in active story');
     assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
   }
 });
@@ -426,9 +429,14 @@ checks.push(() => {
     assertIncludes(generatedWrapper, 'lattice init --verify-codex', 'generated Codex wrapper recovery hint');
     assertIncludes(generatedBootstrap, 'coreCliEngineCandidates', 'generated local bootstrap candidate list');
     assertIncludes(generatedBootstrap, "node_modules', '@lattice-agent', 'core'", 'generated local bootstrap should search local @lattice-agent/core first');
-    assertIncludes(generatedBootstrap, "node_modules', '@koala-agent', 'core'", 'generated local bootstrap should keep legacy @koala-agent/core fallback');
+    assertNotIncludes(generatedBootstrap, "@koala-agent", 'generated local bootstrap should not search @koala-agent/core fallback');
+    assertNotIncludes(generatedBootstrap, 'bin/koala.js', 'generated local bootstrap should not mention bin/koala.js');
+    assertNotIncludes(generatedBootstrap, "spawnSync('koala'", 'generated local bootstrap should not delegate to global koala');
     assertIncludes(generatedBootstrap, "typeof mod.runCli", 'generated local bootstrap should execute a local CLI engine');
     assertIncludes(generatedBootstrap, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated local bootstrap should reject stale global fallback');
+    assertPathMissing(tempDir, 'bin/koala.js', 'full init should not generate bin/koala.js');
+    assertPathMissing(tempDir, 'bin/koala-codex.js', 'full init should not generate bin/koala-codex.js');
+    assertPathMissing(tempDir, '.Codex/koala.json', 'full init should not generate .Codex/koala.json');
 
     const verifyInitOut = run('node', [CORE_ENTRYPOINT, 'init', '--asset-mode=full', '--verify-codex', tempDir]);
     assertIncludes(verifyInitOut, 'Codex verification:', 'koala init --verify-codex output');
@@ -859,11 +867,9 @@ checks.push(() => {
   const staleBin = join(tempDir, 'stale-bin');
   try {
     mkdirSync(staleBin);
-    for (const name of ['lattice', 'koala']) {
-      const staleCli = join(staleBin, name);
-      writeFileSync(staleCli, `#!/bin/sh\necho "stale ${name} without verify_codex"\nexit 0\n`);
-      chmodSync(staleCli, 0o755);
-    }
+    const staleCli = join(staleBin, 'lattice');
+    writeFileSync(staleCli, '#!/bin/sh\necho "stale lattice without verify_codex"\nexit 0\n');
+    chmodSync(staleCli, 0o755);
     const out = run(process.execPath, [CORE_ENTRYPOINT, 'init', '--profile=all', '--asset-mode=full', '--verify-codex', tempDir], {
       env: {
         ...process.env,

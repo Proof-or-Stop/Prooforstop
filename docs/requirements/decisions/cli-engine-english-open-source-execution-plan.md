@@ -1156,7 +1156,7 @@ M720	3397	comment	dashboard 走独立长驻模式	dashboard uses standalone long
 M721	3403	comment	如果没指定 roots，用 --root（或自动检测）作为默认	If roots are not specified, use --root (or auto-detection) as the default.	review-draft
 M722	3517	cli-output	未知命令: ${cmd}	Unknown command: ${cmd}	review-draft
 M723	3519	cli-output	你是不是要找:	Did you mean:	review-draft
-M724	3520	cli-output	用 lattice help 查看所有命令（legacy alias: koala）	Use lattice help to view all commands (legacy alias: koala).	review-draft
+M724	3520	cli-output	用 lattice help 查看所有命令	Use lattice help to view all commands.	review-draft
 M725	3526	comment	Phase gate: 有 active story 时，拒绝不在白名单中的命令	Phase gate: When an active story exists, reject commands outside the allowlist.	review-draft
 M726	3539	comment	Parse arguments — 支持三种格式：	Parse arguments — supports three formats:	review-draft
 M727	3540	comment	1. --key=value --flag (标准 flag)	1. --key=value --flag (standard flag)	review-draft

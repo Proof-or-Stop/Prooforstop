@@ -338,7 +338,7 @@ function readPackageVersion(path: string): string | null {
 function packageBinHasLattice(path: string): boolean {
   try {
     const parsed = JSON.parse(readFileSync(path, 'utf8')) as { bin?: Record<string, unknown> };
-    return parsed.bin?.lattice === 'dist/cli.js' && parsed.bin?.koala === 'dist/cli.js';
+    return parsed.bin?.lattice === 'dist/cli.js' && parsed.bin?.koala === undefined;
   } catch {
     return false;
   }
@@ -489,14 +489,14 @@ function buildConfigDoctor(ctx: HandlerContext) {
       detail: 'bin/lattice.js exists as the primary local bootstrap wrapper',
     },
     {
-      id: 'legacy-koala-wrapper',
-      ok: existsSync(join(ctx.root, 'bin', 'koala.js')),
-      detail: 'bin/koala.js remains available as the legacy alias',
+      id: 'no-koala-local-wrapper',
+      ok: !existsSync(join(ctx.root, 'bin', 'koala.js')),
+      detail: 'legacy local wrapper is absent; lattice is the only active local bootstrap wrapper',
     },
     {
       id: 'package-bin-aliases',
       ok: packageBinHasLattice(mainPackagePath),
-      detail: 'packages/main package.json exposes both lattice and koala bins',
+      detail: 'packages/main package.json exposes only the lattice bin',
     },
   ];
   const ok = checks.every(check => check.ok);
@@ -509,7 +509,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
       cliFirst: true as const,
       macAppRequired: false as const,
       macAppRole: 'optional-dashboard-archive' as const,
-      legacyKoalaAliasPreserved: true as const,
+      legacyKoalaAliasPreserved: false as const,
     },
     versions,
     checks,
@@ -526,7 +526,7 @@ function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): s
   return [
     `${formatLatticeProductLine()} config doctor (${result.schemaVersion})`,
     `status: ${result.status}`,
-    `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; legacyKoalaAliasPreserved=${result.migration.legacyKoalaAliasPreserved}`,
+    `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; activeCommand=lattice`,
     `versions: root=${result.versions.root ?? 'unreadable'}; main=${result.versions.main ?? 'unreadable'}; expected=${result.versions.expected}`,
     `authority: productionDone=${result.authority.productionDone}; receiptVerified=${result.authority.receiptVerified}`,
     '',

@@ -18,7 +18,6 @@ import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-reso
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
-const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core';
 
 export interface GlobalKoalaLinkRepairOptions {
   globalPackagePath?: string;
@@ -34,8 +33,7 @@ export interface GlobalKoalaLinkRepairResult {
 
 interface ResolvedGlobalCorePackagePath {
   path: string;
-  packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof LEGACY_CORE_PACKAGE_NAME;
-  isLegacyFallback: boolean;
+  packageName: typeof CANONICAL_CORE_PACKAGE_NAME;
 }
 
 function isPathInside(child: string, parent: string): boolean {
@@ -51,9 +49,7 @@ function packagePathFromName(root: string, packageName: string): string {
 }
 
 function describeGlobalCorePackage(resolved: ResolvedGlobalCorePackagePath): string {
-  return resolved.isLegacyFallback
-    ? `${resolved.packageName} (legacy fallback for ${CANONICAL_CORE_PACKAGE_NAME})`
-    : resolved.packageName;
+  return resolved.packageName;
 }
 
 function entryExists(path: string): boolean {
@@ -67,12 +63,9 @@ function entryExists(path: string): boolean {
 
 function resolveGlobalCorePackagePaths(options: GlobalKoalaLinkRepairOptions = {}): ResolvedGlobalCorePackagePath[] {
   if (options.globalPackagePath) {
-    const normalized = options.globalPackagePath.replace(/\\/g, '/');
-    const isLegacyFallback = normalized.includes('/@koala-agent/core');
     return [{
       path: options.globalPackagePath,
-      packageName: isLegacyFallback ? LEGACY_CORE_PACKAGE_NAME : CANONICAL_CORE_PACKAGE_NAME,
-      isLegacyFallback,
+      packageName: CANONICAL_CORE_PACKAGE_NAME,
     }];
   }
   try {
@@ -81,10 +74,8 @@ function resolveGlobalCorePackagePaths(options: GlobalKoalaLinkRepairOptions = {
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const canonicalPath = packagePathFromName(globalRoot, CANONICAL_CORE_PACKAGE_NAME);
-    const legacyPath = packagePathFromName(globalRoot, LEGACY_CORE_PACKAGE_NAME);
     const candidates: ResolvedGlobalCorePackagePath[] = [
-      { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, isLegacyFallback: false },
-      { path: legacyPath, packageName: LEGACY_CORE_PACKAGE_NAME, isLegacyFallback: true },
+      { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME },
     ];
     const present = candidates.filter(candidate => entryExists(candidate.path));
     return present.length > 0 ? present : [candidates[0]];

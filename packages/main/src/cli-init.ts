@@ -12,10 +12,8 @@ import {
   SUPPORTED_INIT_ASSET_MODES,
   SUPPORTED_INIT_PROFILES,
   listAgentPromptFiles,
-  renderCodexAdapterManifest,
   renderCodexAgentContent,
   renderCodexReadmeTemplate,
-  renderCodexWrapperScript,
   renderLatticeBootstrapScript,
   renderLatticeCodexAdapterManifest,
   renderLatticeCodexWrapperScript,
@@ -42,7 +40,7 @@ import { LATTICE_STORY_DIR } from './core/lattice-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const packageRoot = join(__dirname, '..'); // @koala/main 的根目录
+const packageRoot = join(__dirname, '..'); // @lattice-agent/core package root
 const agentTemplateDir = [
   join(packageRoot, 'templates', 'agents'),
   join(packageRoot, '..', '..', '.claude', 'agents'),
@@ -230,7 +228,7 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-lattice init — 初始化 Lattice/Koala 开发框架
+lattice init — 初始化 Lattice 开发框架
 
 用法:
   lattice init [目标目录]                    在指定目录初始化（默认当前目录）
@@ -243,8 +241,6 @@ lattice init — 初始化 Lattice/Koala 开发框架
   lattice init --upgrade [目标目录]          同步 Lattice 管理资产到当前版本
   lattice init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
   lattice init --help                        显示帮助
-
-Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
 
 默认初始化（global-thin mode）:
   .lattice/Lattice.md           canonical host-neutral Lattice 指南（新目录）
@@ -462,17 +458,12 @@ function removeClaudeSettingsIfManaged() {
 
 function removeCodexWrapperIfManaged() {
   removeWholeFileIfGenerated('bin/lattice-codex.js', 'bin/lattice-codex.js', [renderLatticeCodexWrapperScript()]);
-  removeWholeFileIfGenerated('bin/koala-codex.js', 'bin/koala-codex.js', [renderCodexWrapperScript()]);
 }
 
 function removeCodexManifestIfManaged() {
   removeWholeFileIfGenerated('.Codex/lattice.json', '.Codex/lattice.json', [
     renderLatticeCodexAdapterManifest(),
     renderLatticeCodexAdapterManifest({ promptMode: 'registry' }),
-  ]);
-  removeWholeFileIfGenerated('.Codex/koala.json', '.Codex/koala.json', [
-    renderCodexAdapterManifest(),
-    renderCodexAdapterManifest({ promptMode: 'registry' }),
   ]);
 }
 

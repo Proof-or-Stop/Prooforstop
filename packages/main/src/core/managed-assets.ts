@@ -17,7 +17,6 @@ import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
-  KOALA_MD_TEMPLATE,
   LATTICE_DOT_DIR_MD_TEMPLATE,
   LATTICE_MD_TEMPLATE,
   getCodexHooks,
@@ -28,16 +27,13 @@ import {
   LATTICE_SCOPE_PRETOOL_HOOK_FILE,
   listAgentPromptFiles,
   migrateHookCommandEntries,
-  renderCodexAdapterManifest,
   renderCodexAgentContent,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
   renderCodexReadmeTemplate,
-  renderCodexWrapperScript,
   renderLatticeBootstrapScript,
   renderLatticeCodexAdapterManifest,
   renderLatticeCodexWrapperScript,
-  renderKoalaBootstrapScript,
   renderLatticeProjectConfig,
   type InitAssetMode,
   type InitProfile,
@@ -449,10 +445,8 @@ export function detectManagedAssetProfile(root: string): InitProfile {
   const hasCodex = Boolean(
     (agents && hasManagedMarkers(agents))
       || existsSync(join(root, '.Codex', 'lattice.json'))
-      || existsSync(join(root, '.Codex', 'koala.json'))
       || existsSync(join(root, '.Codex', 'agents'))
       || existsSync(join(root, 'bin', 'lattice-codex.js'))
-      || existsSync(join(root, 'bin', 'koala-codex.js')),
   );
   const hasClaude = Boolean(
     (claude && hasManagedMarkers(claude))
@@ -476,7 +470,7 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
   if (existsSync(join(root, '.Codex', 'lattice.json')) || existsSync(join(root, '.Codex', 'agents'))) {
     return 'full';
   }
-  if (existsSync(join(root, 'bin', 'lattice.js')) || existsSync(join(root, 'bin', 'koala.js'))) {
+  if (existsSync(join(root, 'bin', 'lattice.js'))) {
     return 'full';
   }
   // Legacy full-mode: KOALA.md or LATTICE.md presence (any casing) implies non-global-thin project
@@ -578,10 +572,13 @@ function isExpandedKoalaClaudeGuide(actual: string): boolean {
   return english || legacyChinese;
 }
 
-function useLegacyAssetPath(projectRoot: string, primaryRelPath: string, legacyRelPath: string): boolean {
-  const legacyKind = managedAssetPathKind(projectRoot, legacyRelPath);
-  return managedAssetPathKind(projectRoot, primaryRelPath) === 'missing'
-    && legacyKind !== 'missing';
+function appendLegacyRuntimeExclusions(defs: ManagedAssetDefinition[]): void {
+  defs.push(
+    { id: 'excluded:bin/koala.js', relPath: 'bin/koala.js', kind: 'excluded-path' },
+    { id: 'excluded:bin/koala-codex.js', relPath: 'bin/koala-codex.js', kind: 'excluded-path' },
+    { id: 'excluded:.Codex/koala.json', relPath: '.Codex/koala.json', kind: 'excluded-path' },
+    { id: 'excluded:.codex/koala.json', relPath: '.codex/koala.json', kind: 'excluded-path' },
+  );
 }
 
 export function listManagedAssetDefinitions(
@@ -655,48 +652,29 @@ export function listManagedAssetDefinitions(
         { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
       );
     }
+    appendLegacyRuntimeExclusions(defs);
     return defs;
   }
 
-  const useLegacyGuide = useLegacyAssetPath(projectRoot, 'LATTICE.md', 'KOALA.md');
-  const useLegacyBootstrap = useLegacyAssetPath(projectRoot, 'bin/lattice.js', 'bin/koala.js');
-  const useLegacyCodexWrapper = useLegacyAssetPath(projectRoot, 'bin/lattice-codex.js', 'bin/koala-codex.js');
-  const useLegacyCodexManifest = useLegacyAssetPath(projectRoot, '.Codex/lattice.json', '.Codex/koala.json');
   const defs: ManagedAssetDefinition[] = [
-    useLegacyGuide
-      ? managedDoc(
-        'doc:KOALA.md',
-        'KOALA.md',
-        KOALA_MD_TEMPLATE,
-        actual => actual.includes('canonical, host-neutral') || actual.includes('All init profiles will create or sync this file'),
-        actual => isExpandedKoalaOverview(actual),
-      )
-      : managedDoc(
-        'doc:LATTICE.md',
-        'LATTICE.md',
-        LATTICE_MD_TEMPLATE,
-        actual => actual.includes('canonical, host-neutral') || actual.includes('New init profile'),
-        actual => isExpandedKoalaOverview(actual),
-      ),
-    useLegacyBootstrap
-      ? wholeFile(
-        'bin:koala.js',
-        'bin/koala.js',
-        renderKoalaBootstrapScript(root),
-        actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
-        true,
-        isKoalaSelfRepoBootstrap,
-      )
-      : wholeFile(
-        'bin:lattice.js',
-        'bin/lattice.js',
-        renderLatticeBootstrapScript(root),
-        actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
-        true,
-        isKoalaSelfRepoBootstrap,
-      ),
+    managedDoc(
+      'doc:LATTICE.md',
+      'LATTICE.md',
+      LATTICE_MD_TEMPLATE,
+      actual => actual.includes('canonical, host-neutral') || actual.includes('New init profile'),
+      actual => isExpandedKoalaOverview(actual),
+    ),
+    wholeFile(
+      'bin:lattice.js',
+      'bin/lattice.js',
+      renderLatticeBootstrapScript(root),
+      actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
+      true,
+      isKoalaSelfRepoBootstrap,
+    ),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
+  appendLegacyRuntimeExclusions(defs);
 
   const wantsCodex = profile === 'codex' || profile === 'all';
   const wantsClaude = profile === 'claude' || profile === 'all';
@@ -712,24 +690,22 @@ export function listManagedAssetDefinitions(
         actual => isExpandedKoalaAgentsGuide(actual),
       ),
       wholeFile(
-        useLegacyCodexWrapper ? 'bin:koala-codex.js' : 'bin:lattice-codex.js',
-        useLegacyCodexWrapper ? 'bin/koala-codex.js' : 'bin/lattice-codex.js',
-        useLegacyCodexWrapper ? renderCodexWrapperScript() : renderLatticeCodexWrapperScript(),
+        'bin:lattice-codex.js',
+        'bin/lattice-codex.js',
+        renderLatticeCodexWrapperScript(),
         actual => actual.includes('KOALA_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
       wholeFile(
         '.Codex:README.md',
         '.Codex/README.md',
-        renderCodexReadmeTemplate(assetMode, useLegacyCodexManifest ? 'koala' : 'lattice'),
+        renderCodexReadmeTemplate(assetMode, 'lattice'),
         actual => actual.includes('Codex + Koala') || actual.includes('Codex + Lattice'),
       ),
       wholeFile(
-        useLegacyCodexManifest ? '.Codex:koala.json' : '.Codex:lattice.json',
-        useLegacyCodexManifest ? '.Codex/koala.json' : '.Codex/lattice.json',
-        useLegacyCodexManifest
-          ? renderCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {})
-          : renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
+        '.Codex:lattice.json',
+        '.Codex/lattice.json',
+        renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
       { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
@@ -830,10 +806,10 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (def.kind === 'excluded-path') {
     if (pathKind === 'missing') {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'excluded Codex runtime asset is absent', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'excluded runtime asset is absent', action: 'none' };
     }
     const found = pathKind === 'file' ? 'file' : pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Codex runtime must not use this Claude-only asset path (found ${found})`, action: 'fix manually: remove it if it is not user-owned' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Lattice runtime must not use this excluded asset path (found ${found})`, action: 'fix manually: remove it if it is not user-owned' };
   }
 
   if (def.kind === 'remove-extra') {

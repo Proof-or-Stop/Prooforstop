@@ -2372,7 +2372,7 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   const dryRunLine = dryRunHelpLine(tool, policy);
 
   out(`\n  ${brand.primaryBin} ${tool.name} — ${tool.description}\n`);
-  out(`  ${formatLatticeProductLine(brand)}; legacy alias: ${brand.legacyAlias}\n`);
+  out(`  ${formatLatticeProductLine(brand)}\n`);
 
   // If longHelp exists for a core command, print the full prompt first.
   if (tool.longHelp) {
@@ -2412,7 +2412,6 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
   });
   out(`\n  Usage: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
-  out(`  Compatible: ${brand.legacyAlias} ${tool.name} ...`);
   out('  (* = required)');
   if (dryRunLine) out(dryRunLine);
   const ownerBlock = ownerLeaseHelpBlock(tool.name);
@@ -2437,8 +2436,7 @@ function printValidationFailure(tool: ToolDef, issues: z.ZodIssue[]) {
 function printHelp(activeStory?: ActiveStory | null) {
   const brand = detectLatticeBrand();
   console.log(`\n  ${formatLatticeProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
-  console.log(`  Primary entrypoint: ${brand.primaryBin}`);
-  console.log(`  Legacy alias:       ${brand.legacyAlias}\n`);
+  console.log(`  Entrypoint: ${brand.primaryBin}\n`);
   console.log(`  Usage: ${brand.primaryBin} <command> --key=value         Run command`);
   console.log(`        ${brand.primaryBin} <command> --help              View arguments`);
   console.log(`        ${brand.primaryBin} help                          Show this help`);
@@ -2790,7 +2788,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
 function inferCodexEntrypoint(): string {
   if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
   const invoked = process.argv[1] || '';
-  if (invoked.includes('lattice-codex') || invoked.includes('koala-codex')) return 'local-wrapper';
+  if (invoked.includes('lattice-codex')) return 'local-wrapper';
   if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
   return 'cli';
 }
@@ -3452,8 +3450,7 @@ export async function runCli(opts?: {
   }
 
   // Normalize nested space aliases into the flat underscore commands used by
-  // the registry. Supports both primary invocations (`lattice host list`) and
-  // legacy-prefixed invocations (`koala lattice host list`).
+  // the registry.
   const aliasStart = cmd === 'lattice' ? 1 : 0;
   const aliasMap: Record<string, string> = {
   'host list': 'host_list',
@@ -3562,7 +3559,7 @@ export async function runCli(opts?: {
     console.error(`Unknown command: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
     if (m.length) { console.error('Did you mean:'); for (const t of m) console.error(`  lattice ${t.name}`); }
-    console.error('Use lattice help to view all commands (legacy alias: koala).');
+    console.error('Use lattice help to view all commands.');
     process.exit(1);
   }
 

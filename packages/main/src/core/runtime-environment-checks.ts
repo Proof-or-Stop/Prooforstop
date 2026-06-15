@@ -84,8 +84,6 @@ const MIN_NODE_MAJOR = 20;
 const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
 const LEGACY_ROOT_PACKAGE_NAME = 'koala';
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
-const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core';
-const CORE_PACKAGE_NAMES = [CANONICAL_CORE_PACKAGE_NAME, LEGACY_CORE_PACKAGE_NAME] as const;
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/gi;
 const HOST_PORT_RE = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}:\d{2,5}\b/g;
 const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::\d+)?(?:[/?#]|$)/i;
@@ -94,8 +92,7 @@ const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-o
 
 interface CorePackageCandidate {
   path: string;
-  packageName: typeof CORE_PACKAGE_NAMES[number];
-  isLegacyFallback: boolean;
+  packageName: typeof CANONICAL_CORE_PACKAGE_NAME;
   exists: boolean;
 }
 
@@ -205,8 +202,8 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
     return {
       status: statusForDrift(severity),
       actual: null,
-      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'lattice executable on PATH (falling back to legacy koala)',
-      warnings: ['PATH lookup for `lattice` and legacy `koala` did not resolve a CLI executable'],
+      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'lattice executable on PATH',
+      warnings: ['PATH lookup for `lattice` did not resolve a CLI executable'],
     };
   }
   const commandRealpath = safeRealpath(commandPath);
@@ -235,14 +232,11 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       status: statusForDrift(severity),
       actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName ?? CANONICAL_CORE_PACKAGE_NAME, packagePath: globalPackagePath, realpath: null },
       expected,
-      warnings: [`global ${CANONICAL_CORE_PACKAGE_NAME} could not be resolved from \`npm root -g\` (legacy ${LEGACY_CORE_PACKAGE_NAME} fallback also checked)`],
+      warnings: [`global ${CANONICAL_CORE_PACKAGE_NAME} could not be resolved from \`npm root -g\``],
     };
   }
   const status = samePath(globalRealpath, expected) ? 'pass' : statusForDrift(severity);
-  const warnings = [
-    ...(globalPackage?.isLegacyFallback ? [`global ${LEGACY_CORE_PACKAGE_NAME} is being used as a legacy compatibility fallback; ${CANONICAL_CORE_PACKAGE_NAME} is canonical`] : []),
-    ...(status === 'pass' ? [] : [`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`]),
-  ];
+  const warnings = status === 'pass' ? [] : [`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`];
   return {
     status,
     actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName, packagePath: globalPackagePath, realpath: globalRealpath },
@@ -269,7 +263,7 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
       matchesEntrypoint,
       shadowsEntrypoint,
     },
-    expected: 'project-local lattice or legacy koala should be absent or resolve to the active CLI entrypoint',
+    expected: 'project-local lattice should be absent or resolve to the active CLI entrypoint',
     ...(shadowsEntrypoint ? { warnings: [localBinWarning(localBin, localRealpath, cliRealpath, context.activeCliEntrypoint ?? context.cliEntrypoint)] } : {}),
   };
 }
@@ -285,7 +279,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
       return runtimeModeContract(
         'diagnostic-only',
         'unknown',
-        'project-local CLI bin exists, but the active Lattice/Koala CLI entrypoint could not be resolved',
+          'project-local CLI bin exists, but the active Lattice CLI entrypoint could not be resolved',
       );
     }
     if (!localBinRealpath) {
@@ -300,13 +294,13 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
         return runtimeModeContract(
           'packaged-runtime',
           'packaged-runtime',
-          'packaged runtime detected; project package.json/node_modules are not required for Koala diagnostics',
+          'packaged runtime detected; project package.json/node_modules are not required for Lattice diagnostics',
         );
       }
       return runtimeModeContract(
         'project-local-package',
         'project-node-modules',
-        `active Lattice/Koala CLI is the project-local ${relative(context.projectRoot, localBin)} package`,
+        `active Lattice CLI is the project-local ${relative(context.projectRoot, localBin)} package`,
         true,
       );
     }
@@ -321,7 +315,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'packaged-runtime',
       'packaged-runtime',
-      'packaged runtime detected; project package.json/node_modules are not required for Koala diagnostics',
+      'packaged runtime detected; project package.json/node_modules are not required for Lattice diagnostics',
     );
   }
 
@@ -329,7 +323,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'diagnostic-only',
       'unknown',
-      'active Lattice/Koala CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
+      'active Lattice CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
     );
   }
 
@@ -338,7 +332,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'diagnostic-only',
       'unknown',
-      `active Lattice/Koala CLI ${active.realpath} does not match a known runtime source`,
+      `active Lattice CLI ${active.realpath} does not match a known runtime source`,
     );
   }
 
@@ -403,15 +397,15 @@ function runtimeModeSource(context: RuntimeCheckContext, activeRealpath: string)
 function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
   switch (source) {
     case 'repo-local-dist':
-      return 'compatibility launcher is using the repository-local Lattice/Koala dist runtime; run npm --prefix packages/main run build after core edits';
+      return 'compatibility launcher is using the repository-local Lattice dist runtime; run npm --prefix packages/main run build after core edits';
     case 'project-node-modules':
-      return 'compatibility launcher is using the project node_modules Lattice/Koala package without requiring node_modules/.bin/lattice as the active CLI';
+      return 'compatibility launcher is using the project node_modules Lattice package without requiring node_modules/.bin/lattice as the active CLI';
     case 'packaged-runtime':
-      return 'compatibility launcher is using a packaged Lattice/Koala runtime; project package.json/node_modules are not required';
+      return 'compatibility launcher is using a packaged Lattice runtime; project package.json/node_modules are not required';
     case 'external-development-engine':
-      return 'compatibility launcher is using an external Lattice/Koala development engine; project package.json/node_modules are not required';
+      return 'compatibility launcher is using an external Lattice development engine; project package.json/node_modules are not required';
     case 'global-cli':
-      return 'compatibility launcher is using the global Lattice/Koala CLI fallback; project package.json/node_modules are not required';
+      return 'compatibility launcher is using the global Lattice CLI; project package.json/node_modules are not required';
     case 'unknown':
       return 'runtime source is unknown; classification is diagnostic-only';
   }
@@ -663,10 +657,10 @@ function runCommand(command: string, args: string[], cwd: string, timeoutMs = 2_
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {
-  return resolveCommandOnPath('lattice', projectRoot) ?? resolveCommandOnPath('koala', projectRoot);
+  return resolveCommandOnPath('lattice', projectRoot);
 }
 
-function resolveCommandOnPath(command: 'lattice' | 'koala', projectRoot: string): string | null {
+function resolveCommandOnPath(command: 'lattice', projectRoot: string): string | null {
   const pathEnv = process.platform === 'win32'
     ? process.env.Path ?? process.env.PATH ?? ''
     : process.env.PATH ?? '';
@@ -681,7 +675,7 @@ function resolveCommandOnPath(command: 'lattice' | 'koala', projectRoot: string)
   return null;
 }
 
-function commandPathNames(command: 'lattice' | 'koala'): string[] {
+function commandPathNames(command: 'lattice'): string[] {
   if (process.platform !== 'win32') return [command];
   const extensions = (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
     .split(';')
@@ -710,11 +704,11 @@ function resolveGlobalNpmRoot(projectRoot: string): string | null {
 
 function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string, fallbackEntrypoint: string | null): string | null {
   const invoked = process.argv[1] ? resolve(process.argv[1]) : null;
-  if (invoked && looksLikeKoalaEntrypoint(invoked, projectRoot, corePackageRoot)) return invoked;
+  if (invoked && looksLikeLatticeEntrypoint(invoked, projectRoot, corePackageRoot)) return invoked;
   return fallbackEntrypoint;
 }
 
-function looksLikeKoalaEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
+function looksLikeLatticeEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
   const real = safeRealpath(path) ?? path;
   const name = basename(path);
   if (
@@ -722,16 +716,10 @@ function looksLikeKoalaEntrypoint(path: string, projectRoot: string, corePackage
     || name === 'lattice.cmd'
     || name === 'lattice.js'
     || name === 'lattice-codex.js'
-    || name === 'koala'
-    || name === 'koala.cmd'
-    || name === 'koala.js'
-    || name === 'koala-codex.js'
   ) return true;
   if ((name === 'cli.js' || name === 'cli-engine.js') && pathContains(corePackageRoot, real)) return true;
   if (samePath(real, join(projectRoot, 'bin', 'lattice.js'))) return true;
   if (samePath(real, join(projectRoot, 'bin', 'lattice-codex.js'))) return true;
-  if (samePath(real, join(projectRoot, 'bin', 'koala.js'))) return true;
-  if (samePath(real, join(projectRoot, 'bin', 'koala-codex.js'))) return true;
   return false;
 }
 
@@ -745,7 +733,7 @@ function detectSelfProject(projectRoot: string): boolean {
   const rootName = rootPackage?.name;
   const coreName = corePackage?.name;
   return (rootName === CANONICAL_ROOT_PACKAGE_NAME || rootName === LEGACY_ROOT_PACKAGE_NAME)
-    && (coreName === CANONICAL_CORE_PACKAGE_NAME || coreName === LEGACY_CORE_PACKAGE_NAME);
+    && coreName === CANONICAL_CORE_PACKAGE_NAME;
 }
 
 function packagePathFromName(root: string, packageName: string): string {
@@ -757,19 +745,13 @@ function packagePathFromName(root: string, packageName: string): string {
 function resolveCorePackageCandidate(root: string): CorePackageCandidate {
   const canonicalPath = packagePathFromName(root, CANONICAL_CORE_PACKAGE_NAME);
   if (existsSync(canonicalPath)) {
-    return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, isLegacyFallback: false, exists: true };
+    return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: true };
   }
-  const legacyPath = packagePathFromName(root, LEGACY_CORE_PACKAGE_NAME);
-  if (existsSync(legacyPath)) {
-    return { path: legacyPath, packageName: LEGACY_CORE_PACKAGE_NAME, isLegacyFallback: true, exists: true };
-  }
-  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, isLegacyFallback: false, exists: false };
+  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: false };
 }
 
 function describeCorePackageCandidate(candidate: CorePackageCandidate): string {
-  return candidate.isLegacyFallback
-    ? `${candidate.packageName} (legacy fallback for ${CANONICAL_CORE_PACKAGE_NAME})`
-    : candidate.packageName;
+  return candidate.packageName;
 }
 
 function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {
@@ -857,8 +839,8 @@ function projectLocalBinPath(projectRoot: string): string {
 function projectLocalBinCandidates(projectRoot: string): string[] {
   const binDir = join(projectRoot, 'node_modules', '.bin');
   return process.platform === 'win32'
-    ? [join(binDir, 'lattice.cmd'), join(binDir, 'koala.cmd')]
-    : [join(binDir, 'lattice'), join(binDir, 'koala')];
+    ? [join(binDir, 'lattice.cmd')]
+    : [join(binDir, 'lattice')];
 }
 
 function isPackagedRuntime(): boolean {
@@ -870,13 +852,13 @@ function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return true;
   if (process.env.KOALA_CODEX_ENTRYPOINT === 'global-fallback' || process.env.KOALA_CODEX_ENTRYPOINT === 'local-wrapper') return true;
   const name = activePath ? basename(activePath) : '';
-  return name === 'lattice.js' || name === 'lattice-codex.js' || name === 'koala.js' || name === 'koala-codex.js';
+  return name === 'lattice.js' || name === 'lattice-codex.js';
 }
 
 function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {
   if (!localRealpath) return `${localBin} exists but its realpath could not be resolved`;
-  if (!cliRealpath) return `${localBin} exists but active Lattice/Koala CLI could not be resolved for comparison`;
-  return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'lattice/koala'} resolves to ${cliRealpath}`;
+  if (!cliRealpath) return `${localBin} exists but active Lattice CLI could not be resolved for comparison`;
+  return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'lattice'} resolves to ${cliRealpath}`;
 }
 
 function statusForDrift(severity: RuntimeFactSeverity): RuntimeFactStatus {

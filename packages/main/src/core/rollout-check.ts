@@ -7,7 +7,6 @@ import {
   LATTICE_CLI_VERSION,
   LATTICE_PRODUCT_NAME,
   LATTICE_PRIMARY_BIN,
-  KOALA_LEGACY_ALIAS,
   formatLatticeProductLine,
 } from './lattice-brand.js';
 import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
@@ -63,7 +62,6 @@ export interface RolloutCheckResult {
     name: typeof LATTICE_PRODUCT_NAME;
     version: typeof LATTICE_CLI_VERSION;
     primaryBin: typeof LATTICE_PRIMARY_BIN;
-    legacyAlias: typeof KOALA_LEGACY_ALIAS;
   };
   readOnly: true;
   macAppRequired: false;
@@ -100,7 +98,6 @@ const PRODUCT = {
   name: LATTICE_PRODUCT_NAME,
   version: LATTICE_CLI_VERSION,
   primaryBin: LATTICE_PRIMARY_BIN,
-  legacyAlias: KOALA_LEGACY_ALIAS,
 } as const;
 
 function statusRank(status: RolloutStatus): number {
@@ -165,7 +162,7 @@ function packageBinHasLattice(path: string): boolean {
   const bin = parsed?.bin;
   return !!bin && typeof bin === 'object' &&
     (bin as Record<string, unknown>).lattice === 'dist/cli.js' &&
-    (bin as Record<string, unknown>).koala === 'dist/cli.js';
+    (bin as Record<string, unknown>).koala === undefined;
 }
 
 function parseProjectList(root: string, projects: string | string[] | undefined, maxDepth: number): string[] {
@@ -296,13 +293,13 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', 'lattice.js'));
   const hasLegacyWrapper = existsSync(join(projectRoot, 'bin', 'koala.js'));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
-  const isSelfLayout = mainPackageName === '@lattice-agent/core' && hasBinAliases;
+  const isSelfLayout = mainPackageName === '@lattice-agent/core';
   const ok = isSelfLayout
-    ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && hasLegacyWrapper && hasBinAliases
+    ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && !hasLegacyWrapper && hasBinAliases
     : true;
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
-    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; legacyAlias=${hasLegacyWrapper}; binAliases=${hasBinAliases}`
+    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; legacyWrapper=${hasLegacyWrapper}; bin=lattice-only:${hasBinAliases}`
     : `external project; global ${formatLatticeProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',

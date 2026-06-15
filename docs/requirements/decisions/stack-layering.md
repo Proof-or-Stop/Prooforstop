@@ -131,8 +131,8 @@ The healthiest combination is not "who replaces whom," but:
 
 - **Claude Code / Codex** provides the runtime
 - **Superpowers** provides the workflow
-- **Koala** provides the state substrate
-- **Lattice CLI 0.3.5** is the main product entry point of this substrate; `koala` is a legacy alias
+- **Koala-era state artifacts** provide the historical state substrate
+- **Lattice CLI 0.3.5** is the active product entry point of this substrate
 
 That is:
 
@@ -270,7 +270,7 @@ Looking at the current repository, you can already see this layering starting to
 
 - `.claude/agents/*`
 - `.Codex/agents/*`
-- `bin/koala-codex.js`
+- `bin/lattice-codex.js`
 - runtime tool calling, subagents, interactive entry points
 
 ### Superpowers Layer (external methodology reference)

@@ -83,7 +83,7 @@ export function sample() {
   }, null, 2));
 
   const extractOutput = runNode([
-    join(root, 'bin', 'koala-codex.js'),
+    join(root, 'bin', 'lattice-codex.js'),
     '--root',
     tempProject,
     'aux_sync',

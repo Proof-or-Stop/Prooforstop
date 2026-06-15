@@ -6,8 +6,8 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'koala.js');
-const koala = join(root, 'bin', 'koala-codex.js');
+const cli = join(root, 'bin', 'lattice.js');
+const koala = join(root, 'bin', 'lattice-codex.js');
 const candidateDir = join(root, 'experiments', 'candidates', 'story-review');
 const reportDir = join(root, 'experiments', 'reports');
 const resultPath = join(reportDir, 'story-review-structured-v1.json');

@@ -186,7 +186,7 @@ export async function createApp() {
 
 ```typescript
 // core/debug.ts
-import { devHost } from '@koala-agent/core/dev-host';
+import { devHost } from '@lattice-agent/core/dev-host';
 import { createApp } from './app.js';
 import { GameMachine } from './machines/game/machine.js';
 
@@ -782,11 +782,11 @@ fast / normal channel 的 zero intent 只能显示普通缺失文案，不能显
 常用命令：
 
 ```bash
-koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationIntent":{"happy":[{"desc":"正常输入返回成功","type":"cli","priority":"must"}],"edge":[{"desc":"空输入给出清晰错误","type":"cli","priority":"must"}],"adversarial":[{"desc":"非法状态不会写坏数据","type":"logic","priority":"must"}]}}'
-koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","kind":"integration_test","file":"validate.ts","command":"koala validate --story=B-xxx","result":"pass","note":"integration test 直接覆盖正常输入路径"}'
+lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationIntent":{"happy":[{"desc":"正常输入返回成功","type":"cli","priority":"must"}],"edge":[{"desc":"空输入给出清晰错误","type":"cli","priority":"must"}],"adversarial":[{"desc":"非法状态不会写坏数据","type":"logic","priority":"must"}]}}'
+lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","kind":"integration_test","file":"validate.ts","command":"lattice validate --story=B-xxx","result":"pass","note":"integration test 直接覆盖正常输入路径"}'
 ```
 
-`DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`koala validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
+`DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`lattice validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
 
 ### CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
 
@@ -794,13 +794,13 @@ koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRe
 
 | gate | 命令 | 职责 | 失败处理 |
 |---|---|---|---|
-| channel | `koala validate --channel --story=B-xxx` | 正常通道必须有 dispatch/subagent_result 结构化证据；commit author 仅作 legacy fallback | fail → block REVIEW→TEST |
-| concept | `koala validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
-| lint | `koala validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
+| channel | `lattice validate --channel --story=B-xxx` | 正常通道必须有 dispatch/subagent_result 结构化证据；commit author 仅作 legacy fallback | fail → block REVIEW→TEST |
+| concept | `lattice validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
+| lint | `lattice validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 koala 命令与 registry 对齐 | fail → block REVIEW→TEST |
-| codex-adapter | `node bin/koala-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
+| codex-adapter | `node bin/lattice-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
 
-`koala-review-channel` LLM agent 已退役（S1），由 `koala validate --channel --story=<id>` CLI gate 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
+`koala-review-channel` LLM agent 已退役（S1），由 `lattice validate --channel --story=<id>` CLI gate 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
 
 ### Reviewer opt-in 路由（按 riskSignals 挂载）
 
@@ -974,10 +974,10 @@ pre-push hook 的核心设计约束：**不调用 `koala` 命令**。原因：ho
 - 临时文件用 `mktemp -d` 创建唯一临时目录，`trap '... cleanup' EXIT` 在 hook 退出时清理（避免并发 push 同名互覆盖、`/tmp` 累积）。`mktemp` 失败 → push 被拒
 - 先 `git rev-parse --show-toplevel` 拿 REPO_ROOT
 - **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非 `.lattice/tmp/remote-push-approval.json` 的 schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。Lattice 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
-- **koala 自举仓检测**：
-  1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 koala 仓，立即 `exit 0`（对非 koala 仓零摩擦）
-  2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 koala 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
-  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@koala-agent/core` 才继续；否则非 koala 自身，立即 `exit 0`
+- **Lattice 自举仓检测**：
+  1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Lattice 仓，立即 `exit 0`（对非 Lattice 仓零摩擦）
+  2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Lattice 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
+  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@lattice-agent/core` 才继续；否则非 Lattice 自身，立即 `exit 0`
   注意本仓是扁平布局 `packages/main`，不是嵌套布局
 - **先构建 `packages/main`**：`npm --prefix packages/main run build`。原因是 `packages/utils` 的源码 import `packages/main/dist` 的编译产物，若 `dist` 不存在，递归 tsc 跑到 `packages/utils` 会因找不到模块而 FAIL。`npm run build` 即 tsc（非 koala 命令，符合约束）。构建失败 → push 被拒
 - **递归 tsc**：`find` REPO_ROOT 下所有 `tsconfig.json`（排除黑名单目录 `node_modules / dist / build / .worktrees / .git`），对每个所在目录跑 `npx tsc --noEmit -p <dir>`。覆盖面与 `validate --lint` 递归扫子包对齐，消除 B-9bd9 的单根 tsconfig 子包盲区
