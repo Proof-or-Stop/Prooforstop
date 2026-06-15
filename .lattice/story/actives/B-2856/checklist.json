@@ -238,6 +238,58 @@
         "test": [
           "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveGitCwd helper: pass storyCtx with resolver returning {resolved:true, authoritativeCwd:/repo/gitRoot} -> resolveGitCwd returns /repo/gitRoot; WHY: proves the helper extracts and returns the resolved authoritativeCwd",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveGitCwd helper null-fallback: pass storyCtx with resolver returning {resolved:false, authoritativeCwd:null} -> resolveGitCwd returns projectRoot; WHY: proves the fallback to projectRoot when gitRoot is not configured",
+            "type": "cli"
+          },
+          {
+            "desc": "wrapper-root smoke test fixture: set up metadataRoot that is NOT a git repo + gitRoot subdir that IS a git repo; run all rerouted operations (validate-channel readers, validate-concept readers, readCommitsSinceMain, worktree git helpers) -> every git operation runs with cwd=gitRoot and succeeds (no fatal: not a git repository); WHY: integration test proving all ~14 sites are rerouted",
+            "type": "cli"
+          },
+          {
+            "desc": "plain-repo smoke test fixture: set up repo where metadataRoot IS a git repo, no gitRoot configured; run all rerouted operations -> every git operation runs with cwd=metadataRoot (projectRoot) and produces byte-identical results to pre-change behavior; WHY: regression guard for the majority of users who do not use wrapper-root",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveGitCwd with authoritativeCwd set but resolved=false -> returns projectRoot (fallback), not the authoritativeCwd; WHY: resolved=false means the resolution is unreliable even if authoritativeCwd is non-null",
+            "type": "cli"
+          },
+          {
+            "desc": "all ~14 git call sites are covered by the smoke test: grep the modified source files for cwd: or execFileSync git or execSync git -> every site appears in the test coverage list; WHY: partial coverage is a regression risk — all sites must be tested",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveGitCwd called with no storyId (e.g., during global validate) -> falls back to projectRoot without throwing; WHY: some validate paths may not have a story context",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrong-tree FALSE PASS comprehensive: wrapper-root fixture where metadataRoot accidentally has a .git dir (stale/leftover) AND gitRoot has the real repo -> assert all operations use gitRoot not metadataRoot, even though metadataRoot would succeed as a git command target; WHY: if the fallback triggers incorrectly when both dirs have .git, gates could pass against the wrong commit history",
+            "type": "cli"
+          },
+          {
+            "desc": "no git command text changed: diff the modified files and assert that no git command string (the arguments to git log/diff/grep/merge/branch/rev-parse/show/status) is altered — only the cwd parameter changes; WHY: scope constraint is cwd-only, any command text change is a scope violation",
+            "type": "cli"
+          },
+          {
+            "desc": "no gate semantics changed: run the same validate scenario before and after the change on a plain repo -> JSON output is byte-identical (same pass/fail/skipped, same offenders, same residuals); WHY: the fix must be transparent to gate consumers",
+            "type": "cli"
+          },
+          {
+            "desc": "function signatures back-compatible: checkCommitAuthor, runConceptGateCli, readCommitsSinceMain, syncClusterResolves, git(), gitFile(), branchExists() -> all accept their pre-change parameter signatures (no required new params that break callers); build must pass; WHY: signature breakage would fail downstream callers",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
