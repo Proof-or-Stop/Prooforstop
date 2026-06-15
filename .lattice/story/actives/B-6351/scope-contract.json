@@ -101,8 +101,28 @@
       "paths": [
         "packages/main/templates/agents"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer follow-up removed remaining active koala command guidance from runtime handlers, docs, task smokes, verifier output, and contract scripts so the CLI is lattice-only rather than compatibility-preserving.",
+      "timestamp": "2026-06-15T03:18:16.206Z",
+      "paths": [
+        "docs/metadata/task.json",
+        "docs/requirements/decisions",
+        "packages/main/src/core",
+        "packages/main/src/handlers",
+        "packages/main/src/registry.ts",
+        "packages/main/src/tasks",
+        "packages/main/src/verifier",
+        "scripts"
+      ],
+      "anchors": [
+        "remove_koala_runtime_alias",
+        "active_guidance_lattice_only",
+        "review_findings_resolved"
+      ]
     }
   ],
   "createdAt": "2026-06-15T02:13:25.562Z",
-  "updatedAt": "2026-06-15T03:06:43.746Z"
+  "updatedAt": "2026-06-15T03:18:16.206Z"
 }
