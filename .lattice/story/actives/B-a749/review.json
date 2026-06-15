@@ -17,6 +17,37 @@
         }
       ],
       "_hash": "c41ad7436a5e2d7ba0f92e35cd44b7cd62374dae1c587c9d5769d5c862b63a21"
+    },
+    {
+      "timestamp": "2026-06-15T22:18:13.297Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add an optional change-scope filter to validate --lint + Skip-with-warning for out-of-scope packages missing node_modules are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/ (new smoke test) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        }
+      ],
+      "_hash": "6811811fc8592f2106c27f7bcf04961028cfbff2b2f26796b5f0498b2f9dc404"
+    },
+    {
+      "timestamp": "2026-06-15T22:18:39.761Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add an optional change-scope filter to validate --lint + Skip-with-warning for out-of-scope packages missing node_modules are performed simultaneously?)"
+        }
+      ],
+      "_hash": "612a440d9eecf21a3c6a2d4dff1aff6cce42c96f0b2fdec2e621b750a2280de2"
     }
   ]
 }

@@ -4,7 +4,7 @@
   "title": "Scope validate --lint to changed packages so backend-only changes do not fail on unrelated missing deps",
   "description": "Bug 4 from the 2026-06-15 ClawCreek bug report (Lattice 0.3.5), verified in source. validate --lint (a REVIEW->TEST CLI gate) runs tsc --noEmit recursively over EVERY tsconfig in the repo (validate-lint.ts findTsconfigs/runTsc) with NO change-scope filter. In a freshly-bootstrapped story worktree, node_modules is not installed, so a backend-only change hard-fails the lint gate on unrelated frontend TS2307 'Cannot find module' errors (echarts/react-markdown/vitest/etc). runSingleTsc correctly distinguishes a missing tsc binary (ENOENT -> skip) from a non-zero tsc exit (missing deps -> kind:'fail'), so missing deps is a hard fail, not a skip. Outcome: a backend-only change is not blocked by an unrelated, uninstalled frontend package — add an optional change-scope filter (only tsc the tsconfigs covering changed files/packages) and/or skip-with-warning when an out-of-scope package has no node_modules, while still type-checking in-scope packages. Note: installing deps (CLAUDE.md F-003 npm install) is the immediate operational fix; this story is the framework-side scoping improvement. Scope: lint change-scoping only; not gitRoot cwd (B-2856).",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "validate",
@@ -40,6 +40,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-15T22:07:16.825Z",
+      "branch": "story/B-a749",
+      "user": "Harmonygo",
+      "sessionId": "lattice-bug4",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:18:47.186Z",
       "branch": "story/B-a749",
       "user": "Harmonygo",
       "sessionId": "lattice-bug4",

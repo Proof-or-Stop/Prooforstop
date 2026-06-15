@@ -46,7 +46,20 @@
         "test": [
           "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (a): backend-only changedFiles -> only backend tsconfig required, frontend scoped out (CommandRunner invoked for backend, frontend reported out-of-scope). Build+smoke green.",
+          "headHash": "799dfca0ab93016422272e708062416436b97584",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:36.445Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
