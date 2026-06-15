@@ -78,6 +78,22 @@
       ],
       "resolvedReason": "Resolved in commits 758c57a/c967454: active docs now identify lattice.config.json as canonical, legacy koala.config.json as ignored by active loader, and test-fixture-spec examples use lattice.config.json. Verification scan for koala.config.json as usable/read/configure active docs returned no hits.",
       "resolvedAt": "2026-06-15T16:58:47.691Z"
+    },
+    {
+      "id": "B-ffa2:F-005",
+      "desc": "Stale CHK-003 verification evidence remains: evidence_inspect reports stale refs CHK-003:runtime-contract, CHK-003:cli-help, and CHK-003:dispatch-compat-boundary bound to old head/material hashes even though validate is green. Remove or refresh these stale legacy evidence refs before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T17:03:07.206Z",
+      "reviewRound": "2026-06-15T16:57:36.607Z",
+      "reviewRunId": "B-ffa2:RR-008",
+      "_hash": "f0ee2a3e1ae28e40a3cb4a4a88a7cbc4a8d01c8f4d717b03268794087e29c6a5",
+      "files": [
+        ".lattice/story/actives/B-ffa2/checklist.json"
+      ]
     }
   ]
 }
