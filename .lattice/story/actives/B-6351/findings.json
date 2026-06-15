@@ -5,7 +5,7 @@
       "desc": "Active docs/prompts still advertise koala CLI commands after the lattice-only alias-removal story. Examples: CLAUDE.md:6 says first command is `koala session_brief`, CLAUDE.md:44-63 keeps a `koala` CLI cheatsheet, .Codex/agents/koala-review-docs.md:12-21 and :50-69 tell reviewers to run `koala session_brief`, `koala validate`, and other `koala` commands, .Codex/agents/koala-review-story-init.md:8-10 and :18-27 require `koala init_check_set` / `koala session_brief`, and .claude/agents/koala-review-test-coverage.md:16 and :27-45 use `koala review_run_start`, `koala story_get`, `koala validate`, and `koala finding_add`. These are active guidance/prompt assets, not historical notes, so CHK-001/CHK-002 docs acceptance is not met until the active command examples are migrated to `lattice` or explicitly marked non-active history.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-15T02:57:22.603Z",
@@ -17,7 +17,9 @@
         ".Codex/agents/koala-review-docs.md",
         ".Codex/agents/koala-review-story-init.md",
         ".claude/agents/koala-review-test-coverage.md"
-      ]
+      ],
+      "resolvedReason": "Active command guidance in CLAUDE.md, .claude/agents, .Codex/agents, lower-case .codex agent surfaces, and packages/main/templates/agents now uses lattice commands. Targeted rg scan found no koala session_brief, koala validate, koala story/checklist/finding/review/init/scope/config guidance.",
+      "resolvedAt": "2026-06-15T03:07:10.451Z"
     },
     {
       "id": "B-6351:F-002",
