@@ -13,7 +13,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Created docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md with a concrete Lattice LLM usage ledger execution plan, including true-usage vs estimate boundaries, local Non-authority handling, Authority receipt path, implementation phases, and validation checklist.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution document exists at docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and contains the agreed implementation plan for a per-story LLM usage ledger.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document explicitly distinguishes provider-reported true usage, approximate prompt-size estimates, and unavailable provider usage so estimates cannot be mistaken for billing evidence.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim Authority Server receipt-backed completion, productionDone, receiptVerified, authorityDone, or fullAuthorityDone from local ledger records alone.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
