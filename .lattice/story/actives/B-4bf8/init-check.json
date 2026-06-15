@@ -1,0 +1,37 @@
+{
+  "storyId": "B-4bf8",
+  "checkedAt": "2026-06-15T23:38:52.078Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "CHK-001 context uses the abbreviation \"CMA\" (\"Reference that CMA’s span.model_request_end.model_usage already uses these four fields\") without defining it. background.md uses the expanded form \"Managed Agents\" but the checklist context never expands CMA. An implementer reading the checklist independently will not know what CMA stands for."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T23:38:15.650Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 should also update the Required record constraints section (lines 226-246) to clarify whether all four cache-token fields are required on every provider-reported record or only when non-zero, since the current constraint says only one provider-returned usage unit is needed."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-15T23:38:52.078Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "CHK-001 context uses the abbreviation \"CMA\" (\"Reference that CMA’s span.model_request_end.model_usage already uses these four fields\") without defining it. background.md uses the expanded form \"Managed Agents\" but the checklist context never expands CMA. An implementer reading the checklist independently will not know what CMA stands for."
+        }
+      ]
+    }
+  ],
+  "_hash": "1a4b425e1e713e14e0f0ec3cc8a5c4da514c4161ecc29d6a10986e2de7900422"
+}

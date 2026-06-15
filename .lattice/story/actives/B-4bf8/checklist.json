@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Adopt the four-field token model (cache tokens) in usage shape + JSON example",
+      "context": "In the 'JSON Ledger Record Shape' section and its example, replace inputTokens/outputTokens/totalTokens with the full Anthropic shape: inputTokens (uncached remainder), outputTokens, cacheCreationInputTokens, cacheReadInputTokens — as first-class fields (or mandate them as required billableUnits[] entries). Add a sentence stating input_tokens is the uncached remainder, not total. Reference that CMA's span.model_request_end.model_usage already uses these four fields.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Remove derived totalTokens as a stored field; define the identity in the summary layer",
+      "context": "Delete totalTokens from the append record (derived fields drift and are ambiguous once cache tokens exist). State the identity total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens, and require totals to be computed in the ledger summary layer, not stored per-record.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Estimate accuracy: prefer provider count_tokens; rank estimator confidence; bind to model ID",
+      "context": "In 'Usage Source Semantics' and the Estimate path, require prompt-size-estimate to prefer the provider's count_tokens endpoint (model-version-specific — counts differ across model versions), falling back to local tokenizer then bytes/chars only when offline. Record estimator confidence high|medium|low accordingly and require the estimate to be tied to the exact provider.model.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Call-time story/phase attribution rules",
+      "context": "Specify that storyId/phase are captured from the active lease/session context at preflight (call time). Non-story calls (global validate, daemon) record storyId=null and are NOT dropped. Subagent/nested calls propagate the parent storyId plus a subagent/thread id. Add a role/agentType field (implementer|reviewer|main|...) so per-story breakdowns by role are possible.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Completeness guarantee: single writer choke-point + reconciliation",
+      "context": "Add a section requiring all provider dispatch to flow through a single ledger-writing choke-point, plus a periodic reconciliation check (count of provider dispatch events vs count of ledger final records per ledgerCallId+attemptId) that surfaces gaps. Accuracy = completeness, not just per-record correctness; a bypassed writer silently under-counts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Streaming and failure usage capture",
+      "context": "Clarify that for streaming responses, final usage must be read from the terminal stream event (message_delta / final message), not assumed from a non-streaming shape; and a call that errors/times out mid-stream still records the partial output usage it consumed. usage.source=unavailable only when truly no count exists.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Multi-provider: raw fidelity + normalized canonical view",
+      "context": "Resolve the tension between 'preserve provider-specific units' and 'cross-source summaries' by requiring BOTH: keep the raw provider units/payload digest AND a normalized canonical {input, output, cacheCreation, cacheRead} view, with explicit mapping rules for how each provider's cache/cached-token fields map to the canonical cache fields.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Cost derivability: price/pricingRef snapshot",
+      "context": "Add that cost is derived only in a layer that pins model+date to a price table (per-model $/MTok + cache multipliers, which change over time). Record a pricingVersion/pricingRef (not a hardcoded price) on the record or specify the snapshot mechanism; do not bake absolute prices into the append-only record beyond a reference.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Update Validation/Smoke Plan, Acceptance Criteria, and Rollout to cover the new fields",
+      "context": "Extend the Validation/Smoke Plan, Acceptance Criteria, and Rollout Phases sections so they assert: four-field cache-token recording, no stored totalTokens, estimator confidence + count_tokens preference, call-time attribution incl. null/subagent, completeness reconciliation, streaming/failure usage, canonical normalization, and pricingRef. Keep cross-references consistent throughout the doc.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

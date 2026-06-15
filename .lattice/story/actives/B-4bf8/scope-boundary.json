@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4bf8",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Edit docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md: four-field cache-token usage model, remove stored totalTokens, count_tokens estimate preference + confidence, call-time story/phase attribution (null + subagent + role), completeness choke-point + reconciliation, streaming/failure usage capture, multi-provider raw+canonical view, pricingRef snapshot, and update Validation/Acceptance/Rollout + cross-refs (incl. expand CMA, clarify Required record constraints for the four fields)"
+  ],
+  "excluded": [
+    "Any source code, provider adapter, runtime artifact registry, or gate change (documentation-only story)",
+    "Implementing the usage ledger itself (deferred to a later story)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked (2026-06-16) to fix token-accuracy gaps in the B-1477 usage-ledger plan doc via the Lattice flow; scope is the single decisions/ doc only.",
+  "createdAt": "2026-06-15T23:40:11.500Z",
+  "updatedAt": "2026-06-15T23:40:11.500Z",
+  "_hash": "db8faf2ee55282559e43509eaaa0da5d02d99e50b09fd21df718c23adc5da095"
+}
