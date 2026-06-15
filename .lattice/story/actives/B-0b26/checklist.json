@@ -405,6 +405,17 @@
           "headHash": "90f8ea5ce1951138b476a3f27ec85ba3d232b57c",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:32:04.508Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -d experiments",
+          "result": "pass",
+          "note": "experiments/ survives (out-of-scope guard).",
+          "headHash": "2fcf296e3387c0ffe0b94f5a70ced25bfc0d6c38",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:05.652Z"
         }
       ]
     }
