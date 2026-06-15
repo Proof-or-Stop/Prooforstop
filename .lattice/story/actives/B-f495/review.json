@@ -65,6 +65,62 @@
         }
       ],
       "_hash": "d649c759bde254e69bb02f206dd1ab8768df0c9a5f8a768fa6c238347ccfb930"
+    },
+    {
+      "timestamp": "2026-06-15T14:18:30.760Z",
+      "issueCount": 9,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Audit the plan against current Lattice CLI surfaces + Audit risk boundaries and verification discipline are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the current document needs edits after formal audit findings are applied.; Whether REVIEW will require additional evidence beyond local smoke commands for this audit-only document story."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"target plan document availability in B-f495 worktree\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: Q-001 unresolved — \"Should DEV explicitly create/import docs/requirements/decisions/slim-fields-t...\". Please run `lattice scope_question_resolve --storyId=B-f495 --oqId=Q-001 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "69347c722dcf7d34619cc6532a42d5bedee50596d6f7ae34024279d1b715460d"
     }
   ]
 }
