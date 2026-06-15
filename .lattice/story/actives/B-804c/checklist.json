@@ -30,6 +30,16 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ]
       }
     },
     {
