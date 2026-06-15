@@ -119,6 +119,16 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
+        ],
+        "test": []
       }
     }
   ]
