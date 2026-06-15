@@ -15,6 +15,15 @@
  *       prints its Path. Idempotent: a second run returns the existing path.
  *   (c) Guard refusals: `lattice dev_start` is refused in a terminal phase (DONE)
  *       and in REVIEW, and refused for an unfrozen INIT story (freeze gate).
+ *   (d) Clean-INIT success path (B-804c:F-001): a genuine, fully-gated INIT story
+ *       — frozen AND carrying a valid signed init-check.json (the
+ *       lattice-review-story-init evidence, here via the controlled
+ *       init_check_repair fallback) — advances through the REAL
+ *       `story_advance --phase=INIT_CHECK` success path: phase ends at INIT_CHECK
+ *       (advanced exactly once), the worktree exists on disk, and the story index
+ *       records story.worktree.path. This directly guards the happy-path sequencing
+ *       (bootstrap -> persist phase -> record worktree) that the failure/recovery
+ *       tests above never exercise.
  *
  * Pattern mirrors worktree-repair-smoke.ts (self-contained node script, mkdtemp
  * git repo, execFileSync/spawn of dist/cli.js, koala.config.json + .gitignore,
@@ -137,7 +146,15 @@ function freezeStory(store: StoryStore, storyId: string): void {
     storyId,
     scopeBoundary: store.readScopeBoundary(storyId),
     executionBoundary: store.readExecutionBoundary(storyId),
-    story: { title: store.readStory(storyId).title, description: store.readStory(storyId).description },
+    // Mirror the gate's projectScopeFreezeStory projection EXACTLY (title +
+    // description + background). Omitting background here makes freshnessHash
+    // diverge from the gate's recompute for any story that has a background.md
+    // (e.g. a real story_create envelope), tripping [scope_freeze_check_stale].
+    story: {
+      title: store.readStory(storyId).title,
+      description: store.readStory(storyId).description,
+      background: store.readStoryBackground(storyId) ?? undefined,
+    },
     checklist: store.readChecklist(storyId).items.map(item => ({
       id: item.id,
       title: item.title ?? '',
@@ -266,8 +283,84 @@ function assertDevStartRefusedInWrongPhases(): void {
   }
 }
 
+// ── (d): clean-INIT success path — a fully-gated INIT story advances via the REAL
+//        story_advance INIT_CHECK happy path (phase advanced once + worktree recorded) ──
+function assertCleanInitCheckAdvanceSucceeds(): void {
+  const root = initRepo('koala-initcheck-atomic-success-');
+  try {
+    // Use the real story_create CLI so the story has a genuine signed envelope
+    // (background.md + index.json + checklist.json). init_check_repair signs over
+    // that envelope, so the full INIT_CHECK transition gate (which the synthetic
+    // StoryStore.writeStory seeding cannot satisfy — no valid init-check.json) is
+    // actually passable here. This is the REAL story_advance INIT_CHECK success
+    // path, not the dev_start recovery shortcut.
+    const background = [
+      '## Trigger Event',
+      '2026-06-15 B-0000 smoke needs enough trigger detail to satisfy background validation for the clean-INIT success path.',
+      '## Key Insights',
+      'A fully-gated INIT story (frozen + signed init-check) must advance through story_advance INIT_CHECK and record its worktree.',
+      '## Tradeoffs',
+      'The smoke drives the controlled init_check_repair fallback to obtain a signed init-check rather than spawning a reviewer subagent.',
+      '## Conversation Texture',
+      'A maintainer sees the story advance to INIT_CHECK exactly once with a worktree created on disk and recorded in the index.',
+    ].join('\n\n');
+    const created = runKoala(root, 'story_create', {
+      name: 'clean-init-success',
+      title: 'Clean INIT success path',
+      description: 'Verify a fully-gated INIT story advances through the real story_advance INIT_CHECK happy path.',
+      type: 'chore',
+      priority: 'medium',
+      background,
+      checklist: [{ title: 'Verify clean INIT_CHECK advance', context: 'A frozen, init-checked INIT story must advance and record its worktree.' }],
+    });
+    assert.equal(created.code, 0, `story_create should succeed: ${created.stderr}`);
+    const storyId = created.stdout.match(/B-[a-f0-9]+/)?.[0];
+    assert.ok(storyId, 'story_create should return a story id');
+
+    // Satisfy the scope-anti-expansion freeze gate (dev_start refuses an unfrozen
+    // INIT story) using the same store-driven helper as the recovery/refusal tests.
+    const store = new StoryStore(root);
+    freezeStory(store, storyId!);
+
+    // Satisfy the INIT_CHECK transition gate's init-check.json requirement via the
+    // controlled, signed fallback (covers both required reviewers as <required>@fallback).
+    const repaired = runKoala(root, 'init_check_repair', {
+      storyId,
+      acknowledge: true,
+      fallbackReason: 'No init reviewer subagent can be spawned in this smoke; manually attested background + checklist + product value for the clean-INIT success path.',
+      evidenceRefs: ['init-check-atomicity-smoke-clean-init'],
+    });
+    assert.equal(repaired.code, 0, `init_check_repair should succeed: ${repaired.stderr}`);
+
+    // Commit the story metadata to main BEFORE advancing (mirrors both the real
+    // workflow — where story metadata is committed before INIT_CHECK — and the
+    // recovery test's commitStories). If it stays uncommitted, dev_start commits
+    // index.json onto the new story branch while commitInitCheckMetadataAndMergeMain
+    // commits a divergent index.json on main, producing an add/add merge conflict.
+    commitStories(root);
+
+    // THE happy path: the real story_advance INIT_CHECK must SUCCEED.
+    const advanced = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    assert.equal(advanced.code, 0, `clean-INIT story_advance INIT_CHECK should succeed: ${advanced.stderr}`);
+
+    // Phase advanced exactly once: story_get detail reports INIT_CHECK.
+    const detail = JSON.parse(runKoala(root, 'story_get', { storyId, detail: true }).stdout);
+    assert.equal(detail.index.phase, 'INIT_CHECK', 'clean-INIT success path must leave the story at INIT_CHECK');
+
+    // The worktree directory exists on disk.
+    assert.equal(existsSync(join(root, '.worktrees', storyId!)), true, 'a successful INIT_CHECK advance must create the worktree on disk');
+
+    // The story index records the worktree path.
+    const persisted = new StoryStore(root).readStory(storyId!);
+    assert.ok(persisted.worktree?.path, 'the story index must record story.worktree.path after a successful INIT_CHECK advance');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertFailedBootstrapLeavesPhaseAtInit();
 assertDevStartRecoversStuckInitCheckStory();
 assertDevStartRefusedInWrongPhases();
+assertCleanInitCheckAdvanceSucceeds();
 
 console.log('✓ init-check atomicity smoke passed');

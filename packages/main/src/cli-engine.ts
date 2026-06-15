@@ -4094,10 +4094,16 @@ export async function runCli(opts?: {
       // scope-freeze but missing init-check could create a worktree (and the exact
       // failure diagnostic would regress from [missing_init_check] to a scope
       // message). getGuardFailureReason returns null for a non-INIT story, so this
-      // is a no-op for the already-INIT_CHECK retry path. On the legacy fallback
-      // (phase detection failed) we skip the pre-check and let story_advance's own
-      // guard speak, preserving the historical behavior.
-      if (!alreadyInitCheck && !phaseDetectionFailed) {
+      // is a no-op for the already-INIT_CHECK retry path. The gate now ALSO runs on
+      // the phase-detection-failed fallback (closing B-804c:F-002): the fallback
+      // previously skipped this pre-check and ran dev_start FIRST with no gate, so a
+      // succeeding bootstrap followed by a story_advance that failed its own gate
+      // could leave a worktree on disk while the phase stayed INIT — a partial
+      // bootstrap. Running the full INIT_CHECK transition guard here (for both the
+      // normal case AND the fallback) means dev_start never bootstraps ahead of the
+      // INIT_CHECK gate, so there is no path that creates a worktree without the
+      // phase advancing.
+      if (!alreadyInitCheck) {
         const guardFailure = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
         if (guardFailure) {
           throw new Error(
