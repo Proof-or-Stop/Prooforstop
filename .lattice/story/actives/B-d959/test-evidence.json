@@ -1,0 +1,142 @@
+{
+  "command": "koala validate --story=B-d959 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-XyVRjl; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-RUtv7C; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ degraded-default-preserved [happy/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md) — The document preserves 3x2 as the default and introduces 3x1 only as an explicitly degraded fallback for unavailable second hosts.\",\"  ✓ fallback-reasons [happy/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md) — The document lists acceptable second-host unavailable reasons such as credit exhausted, auth missing, runtime unavailable, provider outage, and rate limited.\",\"  ✓ degraded-not-equivalent [edge/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md) — The document states degraded 3x1 is not equivalent to two-host independence and must be shown as a lower assurance level.\",\"  ✓ high-risk-limits [edge/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md) — The document defines limits or extra approval expectations for high-risk or decision-doc changes using degraded review.\",\"  ✓ no-silent-downgrade [adversarial/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md) — The document requires negative controls so the gate cannot silently downgrade or treat fabricated host unavailability as valid.\",\"  ✓ no-authority-overclaim [adversarial/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md) — The document keeps degraded local review separate from Authority receipt completion and full 3x2 claims.\"],\"warnings\":[],\"timestamp\":\"2026-06-15T02:13:31.495Z\",\"headSha\":\"90796fe192f7576cd969a95420859d2afe073b5b\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-XyVRjl; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-RUtv7C; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2238}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"degraded-default-preserved\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The document preserves 3x2 as the default and introduces 3x1 only as an explicitly degraded fallback for unavailable second hosts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"degraded-default-preserved\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"command\":\"rg -q --fixed-strings \\\"Full 3x2 remains the default and preferred quorum\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"3 quorum rounds x 1 PASS host\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"assuranceLevel = degraded-single-host\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document preserves full 3x2 as default and introduces 3x1 only as degraded single-host review.\",\"headHash\":\"e2b60031bb487cda12bd48dd05c51410a9b3d304\",\"materialHash\":\"8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d\",\"timestamp\":\"2026-06-15T02:13:07.711Z\"}},{\"intentRef\":\"fallback-reasons\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The document lists acceptable second-host unavailable reasons such as credit exhausted, auth missing, runtime unavailable, provider outage, and rate limited.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"fallback-reasons\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"command\":\"rg -q --fixed-strings \\\"second-host-credit-exhausted\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"second-host-auth-missing\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"second-host-runtime-unavailable\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"second-host-provider-outage\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"second-host-rate-limited\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"user-approved-single-host-local-mode\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document lists concrete allowed fallback reason codes for unavailable or credit-limited second hosts.\",\"headHash\":\"e2b60031bb487cda12bd48dd05c51410a9b3d304\",\"materialHash\":\"8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d\",\"timestamp\":\"2026-06-15T02:13:07.711Z\"}},{\"intentRef\":\"degraded-not-equivalent\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The document states degraded 3x1 is not equivalent to two-host independence and must be shown as a lower assurance level.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"degraded-not-equivalent\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"command\":\"rg -q --fixed-strings \\\"not full-3x2\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"two-host independence\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"lower assurance\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document says degraded review is lower assurance and must not be treated as full independent two-host review.\",\"headHash\":\"e2b60031bb487cda12bd48dd05c51410a9b3d304\",\"materialHash\":\"8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d\",\"timestamp\":\"2026-06-15T02:13:07.711Z\"}},{\"intentRef\":\"high-risk-limits\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The document defines limits or extra approval expectations for high-risk or decision-doc changes using degraded review.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"high-risk-limits\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"command\":\"rg -q --fixed-strings \\\"High-risk changes may require stricter project policy\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"explicit user approval for the degraded\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document sets stricter policy or explicit approval expectations for high-risk and decision-doc degraded fallback use.\",\"headHash\":\"e2b60031bb487cda12bd48dd05c51410a9b3d304\",\"materialHash\":\"8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d\",\"timestamp\":\"2026-06-15T02:13:07.711Z\"}},{\"intentRef\":\"no-silent-downgrade\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The document requires negative controls so the gate cannot silently downgrade or treat fabricated host unavailability as valid.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"no-silent-downgrade\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"command\":\"rg -q --fixed-strings \\\"silently downgrade full 3x2 to 3x1\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"Fabricated unavailability, silent downgrade, and Authority overclaim all\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"must not be inferred from a missing verdict\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document includes negative controls against silent downgrade, fabricated unavailability, and missing-verdict fallback.\",\"headHash\":\"e2b60031bb487cda12bd48dd05c51410a9b3d304\",\"materialHash\":\"8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d\",\"timestamp\":\"2026-06-15T02:13:07.711Z\"}},{\"intentRef\":\"no-authority-overclaim\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The document keeps degraded local review separate from Authority receipt completion and full 3x2 claims.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"no-authority-overclaim\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"command\":\"rg -q --fixed-strings \\\"set `authorityDone`, `fullAuthorityDone`, `receiptVerified`, or\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \\\"not Authority receipt completion\\\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md\",\"result\":\"pass\",\"note\":\"The document keeps degraded local review separate from Authority receipt completion and full Authority/DONE claims.\",\"headHash\":\"e2b60031bb487cda12bd48dd05c51410a9b3d304\",\"materialHash\":\"8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d\",\"timestamp\":\"2026-06-15T02:13:07.711Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-15T02:13:32.015Z",
+  "headHash": "90796fe192f7576cd969a95420859d2afe073b5b",
+  "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "degraded-default-preserved",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The document preserves 3x2 as the default and introduces 3x1 only as an explicitly degraded fallback for unavailable second hosts.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "degraded-default-preserved",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"Full 3x2 remains the default and preferred quorum\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"3 quorum rounds x 1 PASS host\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"assuranceLevel = degraded-single-host\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves full 3x2 as default and introduces 3x1 only as degraded single-host review.",
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
+        }
+      },
+      {
+        "intentRef": "fallback-reasons",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The document lists acceptable second-host unavailable reasons such as credit exhausted, auth missing, runtime unavailable, provider outage, and rate limited.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "fallback-reasons",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"second-host-credit-exhausted\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-auth-missing\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-runtime-unavailable\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-provider-outage\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"second-host-rate-limited\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"user-approved-single-host-local-mode\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document lists concrete allowed fallback reason codes for unavailable or credit-limited second hosts.",
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
+        }
+      },
+      {
+        "intentRef": "degraded-not-equivalent",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The document states degraded 3x1 is not equivalent to two-host independence and must be shown as a lower assurance level.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "degraded-not-equivalent",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"not full-3x2\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"two-host independence\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"lower assurance\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document says degraded review is lower assurance and must not be treated as full independent two-host review.",
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
+        }
+      },
+      {
+        "intentRef": "high-risk-limits",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The document defines limits or extra approval expectations for high-risk or decision-doc changes using degraded review.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "high-risk-limits",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"High-risk changes may require stricter project policy\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"explicit user approval for the degraded\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document sets stricter policy or explicit approval expectations for high-risk and decision-doc degraded fallback use.",
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
+        }
+      },
+      {
+        "intentRef": "no-silent-downgrade",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The document requires negative controls so the gate cannot silently downgrade or treat fabricated host unavailability as valid.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "no-silent-downgrade",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"silently downgrade full 3x2 to 3x1\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"Fabricated unavailability, silent downgrade, and Authority overclaim all\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"must not be inferred from a missing verdict\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document includes negative controls against silent downgrade, fabricated unavailability, and missing-verdict fallback.",
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
+        }
+      },
+      {
+        "intentRef": "no-authority-overclaim",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The document keeps degraded local review separate from Authority receipt completion and full 3x2 claims.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "no-authority-overclaim",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "command": "rg -q --fixed-strings \"set `authorityDone`, `fullAuthorityDone`, `receiptVerified`, or\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md && rg -q --fixed-strings \"not Authority receipt completion\" docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "result": "pass",
+          "note": "The document keeps degraded local review separate from Authority receipt completion and full Authority/DONE claims.",
+          "headHash": "e2b60031bb487cda12bd48dd05c51410a9b3d304",
+          "materialHash": "8b994a91bd38746a05f1a2fe2480db6d52b033e46de449acf59f6963a7acfe3d",
+          "timestamp": "2026-06-15T02:13:07.711Z"
+        }
+      }
+    ]
+  }
+}
