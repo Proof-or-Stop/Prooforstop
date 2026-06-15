@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-16, while reviewing the LLM usage ledger execution plan delivered by story B-1477 (docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md — a plan-only document, no source code implements it yet), the usage record was found to model token counts as only inputTokens / outputTokens / totalTokens.
+
+## Key Insight
+Every Anthropic Messages API response returns FOUR token counts — input_tokens (the UNCACHED remainder only, not the total input), output_tokens, cache_creation_input_tokens, and cache_read_input_tokens — and Managed Agents' span.model_request_end.model_usage already records all four. A two-field model systematically under-counts (it omits both cache categories) and makes cost accounting impossible, because cache reads cost ~0.1x and cache writes 1.25x (5min) / 2x (1h) of base input. In Lattice's long agent loops, cache tokens are the dominant cost driver, so this is not a rounding error.
+
+## Tradeoff
+Fixing the spec now, before implementation, is cheap; fixing it after a writer ships is not. The schema's billableUnits[] array can technically hold cache tokens, but because the JSON example omits them an implementer will faithfully reproduce the wrong two-field shape — so the example (the de-facto spec) must change, not just the prose. We accept a documentation-only change with no code in this story, deferring the actual ledger implementation to a later story. Over-specifying could constrain provider adapters; this is mitigated by keeping raw provider units alongside a normalized canonical view rather than forcing one shape.
+
+## Conversation Texture
+The review surfaced eight accuracy gaps beyond cache tokens: derived totalTokens drift, estimators using bytes/chars instead of the model-version-specific count_tokens endpoint, call-time per-story attribution (including storyId=null for non-story calls, subagent propagation, and a role/agentType field), completeness via a single writer choke-point plus dispatch-vs-ledger reconciliation, reading streaming/failure usage from the terminal stream event, multi-provider canonical normalization, and a price/pricingRef snapshot for cost derivation. The user's framing was specifically about accurately recording per-story ('每个 Store') token usage.
