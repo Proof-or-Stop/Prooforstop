@@ -1,0 +1,42 @@
+{
+  "storyId": "B-15d2",
+  "name": "remove-dead-sample-packages-and-cruft",
+  "title": "Remove dead sample packages and committed cruft for the open-source release",
+  "description": "Pre-open-source cleanup. Three sample/dogfood projects under packages/ (cli-guess-number, python-demo, python-rps) and three tracked junk/dead files at the repo root (du.exe.stackdump, jek.md, claude-session.mjs) are not part of the Lattice tool and have zero live references. They should be removed so the open-source repo ships only the actual product. The lab benchmark subsystem and experiments/ are intentionally OUT of scope for this story (separate follow-up).",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "low",
+  "keywords": [
+    "open-source-cleanup",
+    "dead-code",
+    "sample-packages",
+    "cruft-removal",
+    "concept-deletion"
+  ],
+  "createdAt": "2026-06-15T21:55:24.481Z",
+  "startedAt": "2026-06-15T21:55:24.481Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T21:55:24.491Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T21:57:41.517Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-15d2",
+    "branch": "story/B-15d2",
+    "createdAt": "2026-06-15T21:57:41.686Z"
+  }
+}

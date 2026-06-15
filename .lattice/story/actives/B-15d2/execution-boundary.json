@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-15d2",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git rm *",
+    "git status*",
+    "grep *",
+    "ls *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/* run *",
+    "npm run build",
+    "npm run test:e2e"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "claude-session.mjs",
+    "docs/metadata/task.json",
+    "du.exe.stackdump",
+    "jek.md",
+    "package.json",
+    "packages/cli-guess-number",
+    "packages/python-demo",
+    "packages/python-rps",
+    "tsconfig.json"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments",
+    "packages/lab",
+    "packages/main/src",
+    "packages/utils/src"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Deletion-only chore: remove 6 confirmed-dead paths + scrub residual refs. lab/experiments and main/utils source are blocked.",
+  "createdAt": "2026-06-15T21:57:35.184Z",
+  "updatedAt": "2026-06-15T21:57:35.184Z",
+  "_hash": "f1160694b2cf53b925f6b773e0290859dae3c87ff539b1aacd19a68832fd4228"
+}
