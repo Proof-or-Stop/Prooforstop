@@ -380,7 +380,7 @@ Fix goal: before each koala command runs, first print a warning to stderr (non-b
 6. **title**: runCli calls detectStaleState before dispatching the command
    **context**: Output each warning to stderr. Note: only detect when there is an active story, to avoid commands like lattice help being bothered.
 
-7. **title**: thresholds are configurable via koala.config.json
+7. **title**: thresholds are configurable via lattice.config.json
    **context**: config adds `staleThresholds: { phaseStale: 30, itemStale: 30, idleKoala: 60, bugStale: 1440 }` (unit: minutes)
 
 8. **title**: fixture verifies the trigger condition of each rule
@@ -421,7 +421,7 @@ This is also the key infrastructure for connecting the observer to koala — the
 
 ### Checklist
 
-1. **title**: Add a hooks field definition to koala.config.json
+1. **title**: Add a hooks field definition to lattice.config.json
    **context**: The KoalaConfig in core/config.ts adds:
    ```ts
    hooks?: {
@@ -454,7 +454,7 @@ This is also the key infrastructure for connecting the observer to koala — the
    **context**: Add a section "Hooks" to docs/guide.md, containing a full configuration example and several common use cases (auto sync, telegram notify, auto backup)
 
 9. **title**: fixture verifies hook dispatch
-   **context**: Construct a temporary koala.config.json containing an echo hook, run a koala command, and assert the hook was executed (by checking the echo output)
+   **context**: Construct a temporary lattice.config.json containing an echo hook, run a koala command, and assert the hook was executed (by checking the echo output)
 
 ### Test directions
 

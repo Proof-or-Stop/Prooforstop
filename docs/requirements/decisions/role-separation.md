@@ -461,7 +461,7 @@ Refactor: turn test_auto into an action that is **triggered automatically** when
 
 **Description**
 
-Create `.claude/agents/koala-test-analyst.md`. Responsibility: when the testResult.fail of story_advance --phase TEST is > 0, the main agent calls `Agent(subagent_type: "koala-test-analyst", prompt: contains the failing case name and stdout tail + the list of changed files)`, and the analyst judges the root cause.
+Create `.claude/agents/lattice-test-analyst.md`. Responsibility: when the testResult.fail of story_advance --phase TEST is > 0, the main agent calls `Agent(subagent_type: "lattice-test-analyst", prompt: contains the failing case name and stdout tail + the list of changed files)`, and the analyst judges the root cause.
 
 The analyst's output:
 1. Root-cause classification: `code-bug` / `test-bug` / `environment` / `flaky` / `unknown`
@@ -477,14 +477,14 @@ The analyst's tightened permissions:
 
 **Checklist**
 
-1. **title**: Create `.claude/agents/koala-test-analyst.md`
+1. **title**: Create `.claude/agents/lattice-test-analyst.md`
    **context**: frontmatter: name, whenToUse="Use when koala test phase fails and needs root cause analysis", tools (Read/Glob/Grep/Bash allowlist), disallowedTools (Edit/Write/NotebookEdit), permissionMode: acceptEdits, isolation: worktree (reuse the story worktree)
 
 2. **title**: Write the diagnosis workflow in the system prompt
    **context**: 5 steps: (1) read testResult.firstFailure.stdoutTail (2) git diff HEAD to see recent changes (3) read the source files of the failing cases (4) classify the root cause (5) write bug.json or return a decision. Particularly emphasize: cannot touch code/tests, can only write bug.json
 
 3. **title**: Add an analyst delegate hint to the story_advance TEST fail branch
-   **context**: Add a passage to the hint text: "on fail, please call Agent(subagent_type='koala-test-analyst', prompt='storyId + testResult JSON + recent diff hint')". Include a concrete prompt template
+   **context**: Add a passage to the hint text: "on fail, please call Agent(subagent_type='lattice-test-analyst', prompt='storyId + testResult JSON + recent diff hint')". Include a concrete prompt template
 
 4. **title**: Real-machine smoke: construct a deliberately-failing story and run the full analyst flow
    **context**: A scratch story with a deliberately wrong fixture → story_advance TEST fails → call the analyst per the hint → observe whether the analyst classifies correctly and writes bug.json
@@ -498,12 +498,12 @@ The analyst's tightened permissions:
 - adversarial: when the analyst attempts Edit it is rejected by tool permissions
 
 **Acceptance**
-- `.claude/agents/koala-test-analyst.md` exists
+- `.claude/agents/lattice-test-analyst.md` exists
 - The real-machine smoke proves the diagnosis closed loop
 - That the analyst cannot Edit is provable
 
 **Touchpoints**
-- Create: `.claude/agents/koala-test-analyst.md`
+- Create: `.claude/agents/lattice-test-analyst.md`
 - Modify: `packages/koala/packages/main/src/handlers/hints.ts`
 - Create: `docs/story/actives/B-xxxx/smoke/analyst-smoke.md`
 
@@ -836,7 +836,7 @@ Isomorphic to S-04 / S-08. Key metrics:
 
 **Description** (skeleton; details to be expanded when we actually reach this step)
 
-If the Wave 2 data proves the limitation of self-critique (the same mind has a hard time truly finding faults in itself), then create `.claude/agents/koala-red-team.md`:
+If the Wave 2 data proves the limitation of self-critique (the same mind has a hard time truly finding faults in itself), then create `.claude/agents/lattice-red-team.md`:
 
 - dedicated to the PLAN_REVIEW phase
 - independent context (fresh agent), seeing only checklist.json + decision.json, not the main agent's thought trace
@@ -950,7 +950,7 @@ git revert <S-02 commit>   # the CLAUDE.md + hints.ts changes
 
 **Wave 1 rollback**:
 ```bash
-rm .claude/agents/koala-test-analyst.md
+rm .claude/agents/lattice-test-analyst.md
 git revert <S-05 commit>   # the story_advance auto test_auto change
 # the new fields in test-evidence.json / bug.json are additive, kept
 ```

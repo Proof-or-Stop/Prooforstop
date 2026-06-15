@@ -11,7 +11,7 @@ import { loadConfig } from '../core/config.js';
 // ── Configuration loading ──
 
 /**
- * Load user override config (from koala.config.json's flows.defaults), supports grouping by flow name.
+ * Load user override config (from lattice.config.json's flows.defaults), supports grouping by flow name.
  */
 let _userOverrides: Record<string, unknown> | null = null;
 
@@ -143,7 +143,7 @@ export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> 
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(dir, 'packages', 'main', 'src'), { recursive: true });
   writeFileSync(
-    join(dir, 'koala.config.json'),
+    join(dir, 'lattice.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
