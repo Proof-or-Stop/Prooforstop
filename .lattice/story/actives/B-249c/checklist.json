@@ -51,9 +51,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "done-preflight-smoke now creates an isolated DONE story snapshot, commits a later unrelated material change, and asserts evidence-freshness remains pass for the completed story.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.108Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "The regression uses temporary git fixture roots; it does not mutate completed production stories B-a57f or B-22b0.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.108Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "The new regression specifically protects against the previous current-HEAD materialHash comparison; under that old behavior the post-DONE later material commit would make the DONE evidence-freshness row fail.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.108Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         }
       ]
     },
@@ -132,9 +132,9 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "done-oracle checks story.phase === DONE and compares evidence.materialHash to currentMaterialHash(root, evidence.headHash), producing pass when the recorded snapshot matches.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.109Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,9 +144,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "Smoke output includes active TEST evidence freshness coverage: a later material commit still makes active TEST evidence-freshness fail.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.109Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -156,9 +156,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "Smoke includes fail-closed DONE snapshot cases for uninspectable or mismatched recorded evidence snapshots.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.109Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         }
       ]
     },
@@ -213,9 +213,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "done-preflight-smoke passed and prints the completed-story regression line: DONE evidence freshness PASS after later material commit.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.109Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -225,9 +225,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "done-preflight-smoke also asserts active TEST evidence freshness still fails after material changes, so pre-DONE strictness is preserved.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.109Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -237,9 +237,9 @@
           "command": "node packages/main/dist/tasks/done-preflight-smoke.js",
           "result": "pass",
           "note": "The fix and smoke only affect local DONE projection freshness; no Authority receipt, productionDone, fullAuthorityDone, or receiptVerified semantics are changed or claimed.",
-          "headHash": "405c3825d216289268f3c3d13e38434b27a6bde1",
-          "materialHash": "7a6874939559e93bf67868ec31d44865a78479d851dbe3839d63bc467cada9fe",
-          "timestamp": "2026-06-15T03:09:03.109Z"
+          "headHash": "0800c819f901f2875fa40eb12af2d0b1b7dc9252",
+          "materialHash": "ba0898e55ec23aa6e3ec8797818ec0a211bc3c395ebf0c4c3f46c2082d687aae",
+          "timestamp": "2026-06-15T03:14:19.818Z"
         }
       ]
     }
