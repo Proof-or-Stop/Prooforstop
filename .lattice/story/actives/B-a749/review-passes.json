@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-a749:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified all 10 verificationIntents (CHK-001 happy/edge x2/adversarial, CHK-002 happy/edge/adversarial, CHK-003 happy/edge/adversarial) against validate-lint-change-scope-smoke.ts. Each intent is exercised by a concrete, named smoke case with specific assert statements — no rubber-stamping. The in-scope tsc-error case (CHK-002:edge:0, case b) asserts result.status === fail, confirming the gate bites. The no-real-tsc assertion (CHK-003:adversarial:0) is structural: only injected CommandRunner and ChangedFilesReader are used, never real child_process.spawnSync. Fail-closed case (CHK-001:adversarial:0) asserts computeOutOfScopeTsconfigs returns empty set when changed file maps to no tsconfig subtree. No blocker found.",
+      "createdAt": "2026-06-15T22:32:36.670Z",
+      "reviewRound": "2026-06-15T22:31:12.937Z",
+      "reviewRunId": "B-a749:RR-003",
+      "_hash": "1d78222b2d8e9d2fa8c422e92944a250aaf4a30ac6a1271658559f289e88ff67"
+    },
+    {
+      "id": "B-a749:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This is a purely additive change: five new exports (resolveChangedFiles, computeOutOfScopeTsconfigs, isPathUnderDir, packageHasNodeModules, ChangedFilesReader) added to validate-lint.ts; all original exports preserved with identical signatures. All callers (verifier.ts, review-preflight.ts, smoke test) import from their correct source. No exported symbol was removed or renamed. No dangling references to old concept words. No collision with existing GitChangedFilesReader in validate-channel.ts. No blocker found.",
+      "createdAt": "2026-06-15T22:32:44.986Z",
+      "reviewRound": "2026-06-15T22:31:12.937Z",
+      "reviewRunId": "B-a749:RR-001",
+      "_hash": "b99fe9ff114895a416da9d8a2c630db30c0451532b9cb6259f2b258f8d4d8e45"
+    },
+    {
+      "id": "B-a749:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed validate-lint.ts change-scope additions, verifier.ts and review-preflight.ts call sites, and smoke test. Backward compat verified: changedFiles=undefined keeps identical legacy output. Fail-closed semantics verified: ambiguous/unmapped changed files return empty outOfScope set; packageHasNodeModules probe failure defaults to true (treat deps present). I/O isolation correct: defaultChangedFilesReader uses execSync only as internal default with hardcoded DEFAULT_BASE; injectable seam cleanly separable. No dead code, no as-any introduced, no unchecked casts in diff. No blocking quality issue.",
+      "createdAt": "2026-06-15T22:37:49.838Z",
+      "reviewRound": "2026-06-15T22:31:12.937Z",
+      "reviewRunId": "B-a749:RR-002",
+      "_hash": "1c753e8adb1326eee535c7dfdcfac7278b4f9cb0fe15783f82f2967979ded372"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-2856:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/deletion residue check complete. Change is purely additive: new resolveGitCwd helper exported from story-signed-workspace-resolution.ts, imported in cluster-sync.ts, verifier.ts, review-preflight.ts, and the smoke-test task. No existing symbol or concept name was removed — only function signatures gained optional cwd/gitCwd parameters. The git() helper in worktree.ts already accepts optional cwd; resolveStoryGitRoot is a new private helper (no deletion). No orphaned references. No concept deletion/replacement residue. No doc-promise-undelivered issues found.",
+      "createdAt": "2026-06-15T22:08:42.273Z",
+      "reviewRound": "2026-06-15T22:06:59.723Z",
+      "reviewRunId": "B-2856:RR-001",
+      "_hash": "27fb9976a71a09ffddbea0cac1f521249af1c8b87bc0f7f34ac78bb6b1b3cfad"
+    },
+    {
+      "id": "B-2856:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 3 check items clear. (1) Truly cwd-only: diff confirms only a cwd argument added/threaded across all 14 sites in the 4 focused files; no git command text, flags, or control flow changed, no identifier breakage. (2) resolveGitCwd helper: correct — authoritativeCwd when resolved, projectRoot fallback on unresolved/throw; resolveStoryGitRoot in worktree.ts correctly prefers repoRoot (not authoritativeCwd) for top-of-repo ops so they never run from inside the story worktree. try/catch on resolver present and tested. (3) Build passes (tsc exit 0). Smoke test passes 5/5. Verifier 40/40. (4) No missed sites: all remaining bare cwd:projectRoot/root usages are in default reader implementations that receive the already-routed gitCwd as their projectRoot parameter, or in out-of-scope bootstrap helpers (getRepoRoot/resolveBootstrapGitRoot predating B-2856). No dead imports. No dead code introduced.",
+      "createdAt": "2026-06-15T22:09:52.070Z",
+      "reviewRound": "2026-06-15T22:06:59.723Z",
+      "reviewRunId": "B-2856:RR-002",
+      "_hash": "747e2ec310725dc05eb0a8cb02ed2050a0e9fc4fc362481b3e0a592a758e3688"
+    },
+    {
+      "id": "B-2856:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Verifier ran 40/40 PASS (buildOk=true smokePass=true cwdOnly=true cmdTextChanged=0). Smoke ran 5/5 checks with 29 assertions, all passed. cwd-only argument is sound: git diff main...HEAD against the 4 modified files produces cmdTextChanged=0 lines matching the command-text filter, proving all runtime behaviors (maxBuffer, NUL/RS parsing, retry logic, gate semantics, signatures) are inherited unchanged. Exact-cwd assertions in the smoke (assert.equal + assert.notEqual per site) serve as genuine wrong-tree FALSE-PASS guards — a regression in routing would cause an assertion failure, not a silent pass. Three intents (CHK-001:adversarial:0, CHK-002:adversarial:0, CHK-003:adversarial:0) are covered by the exact-cwd routing assertion rather than a separate inject-wrong-data test; this is appropriate for a cwd-routing PR where the attack surface is routing correctness, not data-validation logic. CHK-003:edge:0 (F-023 error path) and CHK-004:happy:1 (story_advance merge path) are not independently exercised in the smoke but are validly covered: the error catch block and merge command text are both unchanged per cwd-only diff, and the resolver repoRoot assertion proves the correct gitRoot is threaded into both paths. No hollow or missing coverage found.",
+      "createdAt": "2026-06-15T22:12:33.980Z",
+      "reviewRound": "2026-06-15T22:06:59.723Z",
+      "reviewRunId": "B-2856:RR-003",
+      "_hash": "9bbe8560b01259350d08fc1daad31acac7f2e377113f57882fed89d3616b4d90"
+    }
+  ]
+}

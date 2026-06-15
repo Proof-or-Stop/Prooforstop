@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Reuse the existing resolveStorySignedWorkspace() — no new resolver",
+    "cwd-only: never change git command text, gate semantics, or bootstrap",
+    "Null/unresolved gitRoot falls back to projectRoot so plain repos are byte-identical",
+    "Reroute via the existing dependency-injection seams (default readers / git call sites), keeping signatures back-compatible",
+    "Prove correctness with a wrapper-root vs plain-repo test pair (a wrong-tree pass is worse than a block)"
+  ],
+  "drivers": [
+    "Wrapper-root projects (metadataRoot not a git repo) are blocked from story_discard / validate --channel / validate --concept",
+    "A cwd regression could make a gate FALSELY PASS by running git against the wrong tree — must be test-guarded",
+    "The resolver already knows the right root; the consumers just don't ask it"
+  ],
+  "options": [
+    {
+      "name": "A: resolve authoritativeCwd at handler entry, thread into readers + worktree git sites, null-fallback to projectRoot",
+      "pros": [
+        "Single source of truth (the existing resolver)",
+        "cwd-only, minimal blast radius",
+        "plain repos byte-identical via fallback"
+      ],
+      "cons": [
+        "Must touch ~14 sites across 4 files; needs careful threading through DI seams"
+      ]
+    },
+    {
+      "name": "B: per-call git -C <root>",
+      "pros": [
+        "Local, no threading"
+      ],
+      "cons": [
+        "Scatters root logic, risks drift from the single resolver — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: resolve authoritativeCwd at handler entry, thread into readers + worktree git sites, null-fallback to projectRoot",
+  "rationale": "The resolver already computes the configured gitRoot; rerouting the consumers through it is mechanical and keeps one source of truth. The null-fallback preserves byte-identical behavior for non-wrapper-root repos, and a wrapper-root vs plain-repo test pair guards against both the original block and a wrong-tree false pass.",
+  "preMortem": [
+    {
+      "scenario": "A rerouted git op runs against the wrong tree and a gate FALSELY PASSES",
+      "trigger": "cwd resolved to an unintended path or fallback applied when a real gitRoot exists",
+      "consequence": "validate --channel/--concept passes against the wrong repo, hiding real problems",
+      "mitigation": "Wrapper-root test asserts each rerouted site runs in the resolved gitRoot; plain-repo test asserts projectRoot; assert exact cwd, not just success"
+    },
+    {
+      "scenario": "Plain (non-wrapper) repos break because the fallback didn't trigger",
+      "trigger": "resolver returns null/unresolved but code doesn't fall back to projectRoot",
+      "consequence": "Previously-working plain repos start failing",
+      "mitigation": "Explicit null/unresolved -> projectRoot fallback; plain-repo test asserts byte-identical behavior and cwd==projectRoot"
+    },
+    {
+      "scenario": "A git site is missed (not all ~14 rerouted)",
+      "trigger": "Incomplete enumeration of cwd:projectRoot/root usages",
+      "consequence": "Wrapper-root projects still partially fail (e.g. discard fixed but validate not)",
+      "mitigation": "Grep all four files for cwd:/projectRoot/root + execFileSync/git() call sites; reroute each; tests cover channel + concept + cluster-sync + discard + merge"
+    },
+    {
+      "scenario": "Threading authoritativeCwd changes a reader/helper signature and breaks other callers",
+      "trigger": "Non-back-compatible signature change",
+      "consequence": "Compile errors or behavior change for unrelated callers",
+      "mitigation": "Thread via existing default-reader injection / optional cwd param defaulting to projectRoot; build + full validate before advancing"
+    },
+    {
+      "scenario": "A call site lacks the story context needed to call the resolver",
+      "trigger": "Helper invoked without storyId/workspace info",
+      "consequence": "Cannot resolve gitRoot there",
+      "mitigation": "Resolve at the handler entry where story context exists and pass cwd down; where unavailable, fall back to projectRoot (documented)"
+    }
+  ],
+  "timestamp": "2026-06-15T21:39:01.918Z"
+}

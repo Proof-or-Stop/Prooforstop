@@ -1,0 +1,87 @@
+{
+  "storyId": "B-2856",
+  "checkedAt": "2026-06-15T21:41:31.616Z",
+  "features": [
+    {
+      "feature": "Route validate-channel git readers (defaultGitLogReader, defaultGitChangedFilesReader — git rev-parse/merge-base/log/show) through authoritativeCwd from resolveStorySignedWorkspace()",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Route validate-concept git readers (defaultGitDiffReader — git diff base...HEAD; defaultGrepReader — grep -rnF) through authoritativeCwd",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Route cluster-sync readCommitsSinceMain (git log main..HEAD) through authoritativeCwd instead of projectRoot",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Route worktree.ts git operations for story_discard (status --porcelain, branch -D), story_advance merge (rev-parse --abbrev-ref HEAD, merge --no-ff), worktreeRemoveWithRetry, and branchExists through authoritativeCwd",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Null/unresolved gitRoot fallback: when resolveStorySignedWorkspace() returns null/unresolved, all rerouted sites fall back to current projectRoot so non-wrapper-root repos are byte-identical",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Wrapper-root test fixture: metadataRoot != gitRoot (gitRoot is a subdirectory), asserting each rerouted git site runs from gitRoot and succeeds",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Plain-repo test fixture: resolver returns null, asserting each rerouted site runs from projectRoot and output is byte-identical to before",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Reuse existing resolveStorySignedWorkspace() — do not add a second resolver",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: excluded — Adding a new resolver (reuse the existing resolveStorySignedWorkspace)",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "cwd-only constraint: no change to git command text, gate semantics, or bootstrap",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: excluded — Any change to git command text, gate semantics, or bootstrap",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Bugs 2/3/4 (atomic bootstrap; .lattice track/ignore data-loss; lint change-scope) from the ClawCreek report",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: excluded — Bugs 2/3/4 from the ClawCreek report (atomic bootstrap; .lattice track/ignore data-loss; lint change-scope) — separate stories",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 7,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0ca81c91159382969e4cf9bdb79fd68378564c090c3d3039ee5e64b9fbfdbf5e",
+  "openQuestions": []
+}

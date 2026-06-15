@@ -1,0 +1,122 @@
+{
+  "storyId": "B-a749",
+  "checkedAt": "2026-06-15T22:17:33.092Z",
+  "features": [
+    {
+      "feature": "checkLint/runTsc accept optional changedFiles; tsconfigs out of change scope are soft-skipped when changedFiles is provided",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "no changedFiles (plain --lint, no story) runs full recursive tsc unchanged (backward compatible)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "diff reader throws (no merge-base/detached HEAD) falls back to full recursive tsc, never skip-all",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "changed file under no tsconfig subtree or ambiguous mapping treated in-scope (fail-closed)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "verifier.ts call site: thread args.story -> changedFiles when --lint --story (validate --lint path)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "review-preflight.ts call site: REVIEW->TEST preflight checkLint also threads story changedFiles; falls back to full recursive tsc when scope unresolvable",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "out-of-scope tsconfig whose package has no node_modules is skipped-with-warning (out of scope, deps absent) instead of hard fail",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "in-scope tsconfig with real tsc error still surfaces as kind:fail (gate bites)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "out-of-scope tsconfig WITH node_modules present is still type-checked (not skipped)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "node_modules presence probe is injectable (FileExists DI) so smoke test needs no real fs install",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "regression tests: backend-only change scopes out frontend (skipped), in-scope error still kind:fail, no-scope full recursive, diff-throw fallback all-pass",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "smoke test never spawns real tsc (uses injected CommandRunner + injected diff reader only)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B-2856 gitRoot cwd fix",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "separate story B-2856; not in scope of B-a749",
+      "source": "description"
+    },
+    {
+      "feature": "B-804c bootstrap atomicity",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "separate story B-804c; not in scope of B-a749",
+      "source": "description"
+    },
+    {
+      "feature": "B-854c .lattice data-loss fix",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "separate story B-854c; not in scope of B-a749",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9d08baed42f484d2e4ab4da121ae46932100f3b7f0de75d88658bbb8290ad4f7",
+  "openQuestions": []
+}

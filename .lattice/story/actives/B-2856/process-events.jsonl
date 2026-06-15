@@ -1,2 +1,12 @@
 {"type":"dispatch","storyId":"B-2856","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-06-15T21:00:46.116Z"}
 {"type":"dispatch","storyId":"B-2856","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-15T21:00:48.868Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":0,"issueCount":3,"timestamp":"2026-06-15T21:44:36.261Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-15T22:06:23.660Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-15T22:06:24.461Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-15T22:06:25.101Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-15T22:06:25.863Z"}
+{"type":"subagent_result","checklistId":"CHK-005","success":true,"timestamp":"2026-06-15T22:06:27.343Z"}
+{"type":"review_pass","storyId":"B-2856","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-2856:RP-001","timestamp":"2026-06-15T22:08:42.273Z"}
+{"type":"review_pass","storyId":"B-2856","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-2856:RP-002","timestamp":"2026-06-15T22:09:52.071Z"}
+{"type":"review_pass","storyId":"B-2856","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-2856:RP-003","timestamp":"2026-06-15T22:12:33.981Z"}
+{"type":"dirty_gate_audit","storyId":"B-2856","gate":"done-gate","category":"lattice_metadata_changes","pathCount":3,"paths":[".lattice/story/actives/B-2856/index.json",".lattice/story/actives/B-2856/process-metrics.json",".lattice/story/actives/B-2856/test-evidence.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-15T22:14:05.902Z"}

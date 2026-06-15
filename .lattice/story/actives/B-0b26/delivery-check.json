@@ -1,0 +1,49 @@
+{
+  "storyId": "B-0b26",
+  "checkedAt": "2026-06-15T22:38:20.626Z",
+  "reviewRound": "2026-06-15T22:32:44.744Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-0b26/plan.md#CHK-001",
+      "promise": "packages/cli-guess-number, packages/python-demo, packages/python-rps deleted from disk and git index; packages/ contains only lab, main, utils; zero stale references remain",
+      "verifiedBy": "diff/grep/ls",
+      "evidence": "git diff main...HEAD shows all three dirs as deletions; ls packages/ returns lab main utils; grep for all three names returns 0 matches; git ls-files returns empty for all three paths"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0b26/plan.md#CHK-002",
+      "promise": "du.exe.stackdump and claude-session.mjs deleted from disk and git index",
+      "verifiedBy": "diff/git-ls-files",
+      "evidence": "git diff main...HEAD shows both as deleted file mode 100644; test -f confirms neither exists on disk; git ls-files returns empty for both"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0b26/plan.md#out-of-scope",
+      "promise": "jek.md is KEPT (user-owned, not a deletion target) and remains git-tracked",
+      "verifiedBy": "git-ls-files/diff",
+      "evidence": "git ls-files jek.md returns jek.md; file present on disk at worktree root; git diff main...HEAD -- jek.md returns empty (not touched)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0b26/plan.md#CHK-001+CHK-002",
+      "promise": "npm run build and npm run test:e2e both exit 0 after all deletions; product packages lab/main/utils and experiments/ unharmed",
+      "verifiedBy": "transcript-diff.md + filesystem check",
+      "evidence": "transcript-diff.md documents build=exit 0, e2e=exit 0 (story-lifecycle 5 steps + gap-convergence 4 steps ALL PASS), lattice validate=25/25; independently confirmed packages/lab, main, utils package.json all present on disk; experiments/ directory present"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "ls packages/ = lab main utils; git ls-files for all 3 deleted dirs = empty; grep for cli-guess-number/python-demo/python-rps = 0 matches across repo; npm run build exit 0; npm run test:e2e exit 0 (ALL PASS story-lifecycle + gap-convergence); packages/lab, main, utils survive with package.json; experiments/ survives; root markdown files survive"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "git ls-files du.exe.stackdump = empty; git ls-files claude-session.mjs = empty; test -f confirms neither exists on disk; jek.md still git-tracked (git ls-files jek.md = jek.md, no diff touching it); npm run build exit 0; npm run test:e2e exit 0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified from diff and current filesystem state. The 5 dead paths (3 sample packages + 2 cruft files) are absent from disk and git index with 0 stale references. jek.md is present and git-tracked with no diff touching it. npm build and e2e passed per transcript evidence; over-deletion guards (lab, main, utils, experiments/, root markdown files) independently confirmed present. No source code changes introduced — pure deletion story — so no new TODO or FIXME markers exist."
+  },
+  "_hash": "47c9466beec1b21f848ab856cc3f92d0791a9e3ce720c3fcfff096c979e4e963"
+}

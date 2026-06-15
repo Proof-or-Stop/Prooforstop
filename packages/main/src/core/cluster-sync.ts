@@ -16,6 +16,7 @@ import { execSync } from 'child_process';
 import type { StoryStore } from './store.js';
 import type { Finding } from './types.js';
 import type { ClusterRecord } from './cluster-types.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 
 export interface CommitMeta {
   /** Full commit sha (40 char) */
@@ -134,11 +135,17 @@ export function applyCommitResolves(
  * F-023: errors like `fatal: bad revision 'main..HEAD'` / `unknown revision` are not silently swallowed,
  * but exposed to syncClusterResolves via return value, and the outer shell converts them into warnings output via ctx.log.
  */
-export function readCommitsSinceMain(projectRoot: string): { commits: CommitMeta[]; error?: string } {
+export function readCommitsSinceMain(
+  projectRoot: string,
+  // B-2856: optional cwd for the git log child process. Defaults to projectRoot
+  // so plain-repo callers are byte-identical; wrapper-root callers thread the
+  // resolved gitRoot here.
+  gitCwd: string = projectRoot,
+): { commits: CommitMeta[]; error?: string } {
   let raw: string;
   try {
     raw = execSync('git log --format=%H%x00%B%x1e main..HEAD', {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       // capture stderr so callers can surface fatal: bad revision / unknown revision
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -183,7 +190,10 @@ export function syncClusterResolves(
   log?: (msg: string) => void,
 ): ClusterSyncResult {
   const clustersData = store.readClusters(storyId);
-  const { commits, error } = readCommitsSinceMain(projectRoot);
+  // B-2856: resolve the gitRoot for this story so `git log main..HEAD` runs from
+  // the real repo in wrapper-root layouts; falls back to projectRoot otherwise.
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  const { commits, error } = readCommitsSinceMain(projectRoot, gitCwd);
   if (error) {
     // F-023: git fatal (bad revision / main branch missing / non-git directory) converted to warning exposed to user.
     const short = summarizeGitError(error);
