@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6351",
+  "mode": "feature",
+  "allowed": [
+    "Remove @koala-agent/core and node_modules/.bin/koala fallback behavior from runtime checks and generated bootstraps",
+    "Remove active koala and koala-codex CLI entrypoints and generated wrapper compatibility",
+    "Remove help/version/docs wording that presents koala as a legacy alias",
+    "Update Codex adapter checks/templates to prefer and require lattice/lattice-codex active assets",
+    "Update smoke tests and verification scripts to assert koala runtime compatibility is absent"
+  ],
+  "excluded": [
+    "Do not remove unrelated legacy data-read fallbacks such as historical .koala dev-memory unless directly required by entrypoint compatibility tests",
+    "Do not rewrite immutable signed historical story evidence solely to rename stored agent or lane identifiers",
+    "Do not touch .omx or use OMX cleanup paths"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User confirmed on 2026-06-15: delete koala binary/history compatibility because this local product has only one owner and does not need legacy alias retention.",
+  "createdAt": "2026-06-15T01:59:15.400Z",
+  "updatedAt": "2026-06-15T01:59:15.400Z",
+  "_hash": "df2eef69dc17cf6639439d79568756e65b754af001a4c4a80c108e35d7959166"
+}
