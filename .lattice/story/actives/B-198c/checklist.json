@@ -38,9 +38,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario1.inside: helper returns ok=true when storyDir resolves inside gitRoot",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -49,9 +49,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario2.sibling: helper flags violation when storyDir is a .. sibling of gitRoot (ClawCreek case)",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -60,9 +60,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario3.symlink: realpath both sides => no false violation under /var->/private/var-style symlink",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         }
       ]
     },
@@ -104,9 +104,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario2: doctor handler emits the flagged violation block with both abs paths + remediation",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -115,9 +115,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario1: doctor shows healthy pass line when storyDir inside gitRoot",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -126,9 +126,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario4.no-gitRoot: doctor reports gitroot-unresolved as a SEPARATE line, not a violation, never throws",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         }
       ]
     },
@@ -170,9 +170,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario2: story_create + session_brief advisory helpers return the one-line advisory on violation",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -181,9 +181,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "scenario1: no advisory in the normal case (metadataRoot==gitRoot inside)",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -192,9 +192,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "advisory is warn-only: helper returns a string but does not block; confirmed behaviorally story_create EXIT=0 with advisory on stderr",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         }
       ]
     },
@@ -236,9 +236,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "suite scenario1 covers the inside-gitRoot ok case (19/19 checks pass)",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -247,9 +247,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "suite scenario2 (.. sibling) + scenario4 (no-gitRoot) edge cases pass",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -258,9 +258,9 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "suite scenario3 covers symlinked roots resolved via realpath",
-          "headHash": "ca6dffd525541ed4a1879b097eb9137aed06633a",
-          "materialHash": "0dd85314b69176316469fdbaa189c43bb9e7a9a23d13f5ff314e27cdfd7f7358",
-          "timestamp": "2026-06-15T21:17:06.580Z"
+          "headHash": "ef0382dddd5a09683e58bdfa5f8fd710a51436b1",
+          "materialHash": "9936940a73d8de275d6e79d4845871c04912afe632e3ec76c40ec663517d886e",
+          "timestamp": "2026-06-15T21:24:30.985Z"
         }
       ]
     }
