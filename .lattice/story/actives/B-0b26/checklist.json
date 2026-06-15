@@ -194,6 +194,17 @@
           "headHash": "d86741f568bad0563080d2561158e3af5e651c55",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:31:56.246Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c cli-guess-number package.json",
+          "result": "pass",
+          "note": "Root package.json has 0 references to cli-guess-number (no workspace entry).",
+          "headHash": "b928fa9eeee29ddba1ec089f58223f4de7a3cf9b",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:31:56.917Z"
         }
       ]
     },
