@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-59a6:RP-001",
+      "agent": "koala-review-concept",
+      "note": "PASS concept: threshold escalation is mechanical and local-only. Direct decision-doc edits are diagnostic only; first REVIEW round with >=2 countable verified/legacy medium+ reviewer findings triggers DONE review escalation; full path requires 3 rounds x 2 independent PASS hosts, explicit degraded fallback is 3 rounds x 1 host with assuranceLevel=degraded-single-host, and authorityDone/fullAuthorityDone/productionDone remain false. Commands: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/review-escalation-smoke.js; npm --prefix packages/main run test:decision-doc-quorum-smoke; node bin/lattice.js review_escalation_status; node bin/lattice.js decision_doc_quorum_check.",
+      "createdAt": "2026-06-15T10:14:43.229Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-001",
+      "_hash": "9208d2ac794cd13d905da4469ff10c3286481082ab5acce194a8ebc04c4b7fc7"
+    }
+  ]
+}
