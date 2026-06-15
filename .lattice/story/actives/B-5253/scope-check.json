@@ -1,0 +1,80 @@
+{
+  "storyId": "B-5253",
+  "checkedAt": "2026-06-15T15:17:15.658Z",
+  "features": [
+    {
+      "feature": "Agent prompt templates add compact read-only story_get/checklist_get guidance for routine status refreshes, with shared prompt-registry wording where practical.",
+      "covered_by": "CHK-001, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "koala-review-scope-plan: B-f495 Step 1 and Step 2"
+    },
+    {
+      "feature": "Claude and Codex generated agent mirrors remain consistent with package templates after prompt guidance changes.",
+      "covered_by": "CHK-001, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "koala-review-scope-plan: B-f495 Step 2 and acceptance criteria"
+    },
+    {
+      "feature": "Routine documentation examples prefer slim / fields forms only where full data is not required.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "koala-review-scope-plan: B-f495 Step 3"
+    },
+    {
+      "feature": "Full-output fallback stays explicit before evidence-sensitive conclusions, mutations, delivery, TEST, DONE, or audit decisions.",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "koala-review-scope-plan: B-f495 Behavior Rule and risk mitigation"
+    },
+    {
+      "feature": "Regression smoke coverage guards compact guidance, full-output fallback wording, mirror consistency, default compatibility, and slim output staying smaller than full output.",
+      "covered_by": "CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "koala-review-scope-plan: B-f495 Step 4"
+    },
+    {
+      "feature": "Verification remains limited to build, prompt-token-cost-smoke, prompt-registry-smoke, and verify_codex when Codex-facing assets change.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "koala-review-scope-plan: B-f495 acceptance criteria"
+    },
+    {
+      "feature": "Changing default story_get/checklist_get output or removing fields from full output.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-f495 out of scope; no handler, CLI schema, or lifecycle semantic file is declared.",
+      "source": "koala-review-scope-plan: B-f495 out-of-scope list"
+    },
+    {
+      "feature": "Making lifecycle gates consume slim output or changing DONE / Authority receipt semantics.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-f495 out of scope; checklist declares prompt/docs/smoke/adapter verification only.",
+      "source": "koala-review-scope-plan: B-f495 out-of-scope list"
+    },
+    {
+      "feature": "Claiming provider billing savings, Authority Server completion, or production/full Authority verification.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-f495 formal audit disposition limits claims to approximate local context-size evidence.",
+      "source": "koala-review-scope-plan: B-f495 formal audit disposition"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 6,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b116e165e4bcff8d6a5836249d5d724d2f4e5bcd094839145eafa4310c92813d",
+  "openQuestions": []
+}
