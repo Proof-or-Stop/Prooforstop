@@ -25,6 +25,7 @@ import {
   renderAuxiliaryClassification,
   scanAuxiliaryWorktreeResidues,
 } from '../core/auxiliary-worktree-cleanup.js';
+import { summarizeChecklist } from './checklist.js';
 
 /** B-45ed CHK-008: Returns true if the story's background.md file exists. */
 function hasBackground(store: StoryStore, storyId: string): boolean {
@@ -70,6 +71,19 @@ const INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS = new Set([
 
 const STORY_LEVEL_SCOPE_FIELDS = ['title', 'description', 'source', 'depends'] as const;
 type StoryLevelScopeField = typeof STORY_LEVEL_SCOPE_FIELDS[number];
+type StoryGetArgs = { storyId: string; detail?: boolean; slim?: boolean; fields?: string[] };
+
+function pickTopLevelFields<T extends Record<string, unknown>>(value: T, fields?: string[]): Partial<T> {
+  const requested = (fields || []).map(field => field.trim()).filter(Boolean);
+  if (requested.length === 0) return value;
+  const selected: Partial<T> = {};
+  for (const field of requested) {
+    if (Object.prototype.hasOwnProperty.call(value, field)) {
+      selected[field as keyof T] = value[field as keyof T];
+    }
+  }
+  return selected;
+}
 
 function isLegacyIntentRef(ref: string): boolean {
   return /^CHK-\d+:(happy|edge|adversarial):\d+$/.test(ref);
@@ -398,7 +412,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       return `Story ${args.storyId} updated`;
     },
 
-    story_get(args: { storyId: string; detail?: boolean }): object {
+    story_get(args: StoryGetArgs): object {
       const cl = (() => {
         try { return store.readChecklist(args.storyId); } catch { return { items: [] }; }
       })();
@@ -407,14 +421,19 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         try { return store.readReview(args.storyId); } catch { return null; }
       })();
 
+      const story = (() => {
+        try { return store.readStory(args.storyId); } catch { return null; }
+      })();
+
       const result: Record<string, unknown> = { checklist: cl, review };
 
       // B-95d8 CHK-001: surface the INIT_CHECK attestation so callers / dashboard can
       // distinguish an independent reviewer run from a manual fallback/repair.
       const initCheck = store.readInitCheck(args.storyId);
+      const initCheckAttestation = initCheck ? initCheckAttestationMode(initCheck) : null;
       if (initCheck) {
         result.initCheck = initCheck;
-        const attestation = initCheckAttestationMode(initCheck);
+        const attestation = initCheckAttestation;
         result.initCheckAttestation = attestation;
         if (initCheck.fallback) result.initCheckFallback = initCheck.fallback;
         // B-6894: human-readable warning for fallback stories only; independent
@@ -428,9 +447,42 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       }
 
       if (args.detail) {
-        try { result.index = store.readStory(args.storyId); } catch { result.index = null; }
+        result.index = story;
       }
-      return result;
+      if (!args.slim && !args.fields) return result;
+
+      const slimResult = args.slim ? {
+        story: story ? {
+          storyId: story.storyId,
+          name: story.name,
+          title: story.title,
+          phase: story.phase,
+          priority: story.priority,
+          type: story.type,
+          currentReviewRound: story.currentReviewRound ?? null,
+          riskSignals: story.riskSignals ?? [],
+        } : null,
+        checklist: summarizeChecklist(cl),
+        review: review ? {
+          reviewCount: review.reviews.length,
+          latest: review.reviews.length > 0
+            ? {
+              timestamp: review.reviews[review.reviews.length - 1].timestamp,
+              issueCount: review.reviews[review.reviews.length - 1].issueCount,
+              blockerCount: review.reviews[review.reviews.length - 1].blockerCount,
+            }
+            : null,
+        } : null,
+        initCheck: initCheck ? {
+          checkedAt: initCheck.checkedAt,
+          agentId: initCheck.agentId,
+          issueCount: initCheck.issues?.length ?? 0,
+          attestation: initCheckAttestation,
+          fallback: initCheck.fallback ?? null,
+        } : null,
+      } : result;
+
+      return pickTopLevelFields(slimResult as Record<string, unknown>, args.fields);
     },
 
     story_list(args?: { phase?: StoryPhase; active?: boolean }) {

@@ -346,7 +346,12 @@ export const MAIN_TOOLS: ToolDef[] = [
     agent: z.string().optional().describe('Actor; INIT reviewer lanes may not directly change story-level scope fields.'),
     actor: z.string().optional().describe('Actor alias; INIT reviewer lanes may not directly change story-level scope fields.'),
   }},
-  { name: 'story_get', description: 'Read Story details; include all index.json fields in result.index', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('Attach all index.json fields (phase/priority/name/description/...) to result.index.') }},
+  { name: 'story_get', description: 'Read Story details; include all index.json fields in result.index', schema: {
+    storyId: z.string().describe('Story ID'),
+    detail: z.boolean().optional().describe('Attach all index.json fields (phase/priority/name/description/...) to result.index.'),
+    slim: z.boolean().optional().describe('Opt-in compact status view. Default output is unchanged when omitted.'),
+    fields: z.array(z.string()).optional().describe('Opt-in top-level field filter. With slim=true, filter the compact story/checklist/review/initCheck fields.'),
+  }},
   { name: 'story_list', description: 'List all Stories', schema: {
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('Filter by phase (mutually exclusive with active).'),
     active: z.boolean().optional().describe('List only non-terminal stories (exclude DONE/DISCARDED/IDEA). Added by B-89c7 CHK-016.'),
@@ -411,7 +416,11 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // Checklist
-  { name: 'checklist_get', description: 'Read the checklist', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'checklist_get', description: 'Read the checklist', schema: {
+    storyId: z.string().describe('Story ID'),
+    slim: z.boolean().optional().describe('Opt-in compact checklist view. Default output is unchanged when omitted.'),
+    fields: z.array(z.string()).optional().describe('Opt-in top-level field filter. With slim=true, filter storyId/counts/items.'),
+  }},
   { name: 'checklist_add', description: 'Append a checklist item to an existing story', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().describe('What to do, in one sentence.'),
     context: z.string().optional().describe('Root cause or reference approach.'),
