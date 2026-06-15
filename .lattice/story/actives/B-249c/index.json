@@ -4,7 +4,7 @@
   "title": "Fix post-DONE evidence freshness projection",
   "description": "Fix Lattice DONE oracle behavior where done_closure for already DONE stories compares historical test evidence against current main HEAD/materialHash, causing post-DONE unrelated material commits to appear as evidence-freshness failures. DONE stories should project freshness against the recorded evidence snapshot while active TEST/DONE entry gates still compare against current workspace state.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-15T02:51:39.041Z",
   "startedAt": "2026-06-15T02:51:39.041Z",
@@ -41,11 +41,20 @@
       "branch": "story/B-249c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:02:57.136Z",
+      "branch": "story/B-249c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-249c",
     "branch": "story/B-249c",
     "createdAt": "2026-06-15T02:52:23.215Z"
-  }
+  },
+  "currentReviewRound": "2026-06-15T03:02:57.136Z"
 }
