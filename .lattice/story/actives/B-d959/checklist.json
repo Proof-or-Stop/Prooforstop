@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define degraded one-host fallback for unavailable second hosts",
+      "context": "The execution plan should avoid blocking development when only one host can run. The fallback must not pretend to provide two-host independence; it should require an explicit reason, artifact marker, stronger local evidence, and clear limits for high-risk changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/handlers/verdict.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

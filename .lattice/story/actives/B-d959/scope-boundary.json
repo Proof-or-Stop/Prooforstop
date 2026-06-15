@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d959",
+  "mode": "feature",
+  "allowed": [
+    ".lattice/story/actives/B-d959/**",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "excluded": [
+    ".omx/**",
+    "Authority server behavior changes",
+    "packages/main/src/** implementation changes",
+    "runtime gate implementation"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "User asked on 2026-06-15 to optimize the 3x2 review mechanism so development can degrade to 3 rounds x 1 host when a second host is unavailable or out of credits.",
+  "createdAt": "2026-06-15T01:58:53.751Z",
+  "updatedAt": "2026-06-15T01:58:53.751Z",
+  "_hash": "c8a1b707cb437a47622a0a93a06d29336b6919e2f96e4a8c2bee1f3c95e5b3dd"
+}
