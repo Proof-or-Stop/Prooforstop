@@ -740,7 +740,7 @@ interface StoryMetadataLeafScan {
   unsafe: boolean;
 }
 
-export interface StoryMetadataProtectionScan {
+interface StoryMetadataProtectionScan {
   /** false when git is unavailable / metadata not under a git root (cannot judge). */
   evaluated: boolean;
   leaves: StoryMetadataLeafScan[];
@@ -956,7 +956,7 @@ function renderStoryMetadataProtectionScan(
       lines.push(`  ✗ repair failed: ${repair.error}`);
     } else if (repair.wrote) {
       lines.push('  ✓ installed managed ignore-volatile/track-metadata allowlist in .gitignore');
-      lines.push('  → run `lattice doctor --repair` will be a no-op now; commit the .gitignore change, then `git add` + commit story metadata.');
+      lines.push('  → `lattice doctor --repair` will be a no-op now; commit the .gitignore change, then `git add` + commit story metadata.');
     } else {
       lines.push('  ✓ managed allowlist already present (repair is a no-op)');
     }
