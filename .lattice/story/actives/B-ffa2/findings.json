@@ -160,7 +160,7 @@
       "desc": "Active Lattice smoke tests still use koala.config.json as normal config outside the fixed F-007 files. lattice-evidence-smoke.ts and lattice-parallel-wave-smoke.ts write koala.config.json in normal active Lattice-named smokes that are exposed by package scripts, keeping current test surfaces teaching the legacy config name after lattice.config.json became canonical.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-15T17:14:47.415Z",
@@ -171,7 +171,9 @@
         "packages/main/src/tasks/lattice-evidence-smoke.ts",
         "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
         "packages/main/package.json"
-      ]
+      ],
+      "resolvedReason": "Resolved in implementer commit 0a180522e by changing active Lattice-named smoke setup in packages/main/src/tasks/lattice-evidence-smoke.ts and packages/main/src/tasks/lattice-parallel-wave-smoke.ts from koala.config.json to lattice.config.json. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:lattice-evidence-smoke, npm --prefix packages/main run test:lattice-parallel-wave-smoke, and targeted rg over changed files returning no koala.config.json matches.",
+      "resolvedAt": "2026-06-15T17:19:45.115Z"
     }
   ]
 }
