@@ -171,9 +171,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T14:26:35.574Z",
-      "endTime": null,
+      "endTime": "2026-06-15T14:26:45.290Z",
       "files": {
         "modify": [],
         "create": [],
@@ -206,7 +206,41 @@
           }
         ]
       },
-      "userSees": "User sees a concise B-f495 audit disposition stating accepted claims, required document fixes, verification commands, and whether implementation should proceed separately."
+      "userSees": "User sees a concise B-f495 audit disposition stating accepted claims, required document fixes, verification commands, and whether implementation should proceed separately.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"Formal Audit Disposition|accepted after the corrections|Build-before-dist-smoke|Execution discipline\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document records the B-f495 audit disposition, accepted corrections, and verification expectations.",
+          "headHash": "c52126c48523f7dea5f02bac5b7122232ce5b5f7",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:45.379Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"dedicated Lattice story|session_brief|aux_doc_list|3x2|3x1|ordinary REVIEW\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document states implementation should run separately and follow ordinary REVIEW plus automatic 3x2/degraded 3x1 escalation when triggered.",
+          "headHash": "c52126c48523f7dea5f02bac5b7122232ce5b5f7",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:45.436Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js session_brief && git status --short",
+          "result": "pass",
+          "note": "B-f495 audit stayed in its own worktree, did not mutate B-acec, and did not use lattice audit to write B-META findings for this document review.",
+          "headHash": "c52126c48523f7dea5f02bac5b7122232ce5b5f7",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:45.488Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -254,6 +288,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording audit disposition and follow-up evidence."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:45.290Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Audit disposition and follow-up evidence recorded after commit 516fb568."
     }
   ]
 }
