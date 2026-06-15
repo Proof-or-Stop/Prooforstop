@@ -171,9 +171,9 @@
       "title": "Add regression tests for the data-loss invariant",
       "context": "Cover: metadata path is tracked (or protected) after bootstrap under both an ignoring and non-ignoring .gitignore; the doctor check detects the unsafe state; bootstrap does not silently leave metadata untracked. Use existing test seams; simulate .gitignore states with fixtures.",
       "userSees": "`lattice validate` runs the new tests green, proving story metadata cannot end up in the neither-tracked-nor-protected state after bootstrap.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:31:25.245Z",
       "verificationIntent": {
         "happy": [
           {
