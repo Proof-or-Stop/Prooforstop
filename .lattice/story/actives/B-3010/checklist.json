@@ -173,9 +173,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T12:02:33.978Z",
-      "endTime": null,
+      "endTime": "2026-06-15T12:02:34.337Z",
       "userSees": "Terminal shows \"projectPromptAssets: .claude/agents/koala-review-docs.md=stale action=review manually; file left unchanged\".",
       "files": {
         "modify": [
@@ -209,7 +209,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke seeds matching .claude/agents and .Codex/agents files and verifies they classify as matches-runtime",
+          "headHash": "c68b7268d6c3a86107659ea344ea6c079b9129d6",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:34.369Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke verifies missing prompt asset directories classify as absent and are accepted for runtime-owned default",
+          "headHash": "c68b7268d6c3a86107659ea344ea6c079b9129d6",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:34.398Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke changes a local prompt file, detects stale status, then confirms the file content remains unchanged after projection and rollout diagnostics",
+          "headHash": "c68b7268d6c3a86107659ea344ea6c079b9129d6",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:34.425Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
