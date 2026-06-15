@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bfb5",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".claude/agents",
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "docs/requirements/decisions",
+    "packages/main/src",
+    "packages/main/templates",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Execution is limited to prompt/token-cost implementation and verification; no Authority Server or destructive git operations.",
+  "createdAt": "2026-06-15T10:28:55.990Z",
+  "updatedAt": "2026-06-15T10:28:55.990Z",
+  "_hash": "caf5b5cc3b2078971801e5f1ba824ded21083c117e48e162b1de15c7b93b7ee4"
+}
