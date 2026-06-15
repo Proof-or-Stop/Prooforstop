@@ -73,9 +73,9 @@ function readRepo(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function extractKoalaBlock(content: string): string {
-  const match = content.match(/<!-- koala:start -->[\s\S]*?<!-- koala:end -->/);
-  assert.ok(match, 'expected koala managed block');
+function extractLatticeBlock(content: string): string {
+  const match = content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
+  assert.ok(match, 'expected lattice managed block');
   return match[0];
 }
 
@@ -102,7 +102,7 @@ function assertPromptReductions(): void {
     currentTotal += current;
 
     assert.equal(
-      extractKoalaBlock(content),
+      extractLatticeBlock(content),
       LOAD_BEARING_LATTICE_PROMPT_SLICE,
       `${file} uses canonical load-bearing prompt slice`,
     );

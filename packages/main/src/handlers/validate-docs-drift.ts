@@ -119,7 +119,7 @@ export interface DocsDriftGateResult {
  */
 export const DOCS_DRIFT_ALLOWLIST = new Set<string>([
   'audit_config_set',
-  // utils/bootstrap-only aux command: documented for local Koala dev env, not core registry.
+  // utils/bootstrap-only aux command: documented for the local Lattice dev env, not core registry.
   'aux_scan',
   // legacy human-resume command referenced by historical flow docs; not part of current core registry.
   'testintent_resume',

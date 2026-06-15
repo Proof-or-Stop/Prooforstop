@@ -4,7 +4,7 @@ description: REVIEW review: documentation-code consistency (narrowed input: only
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
-<!-- koala:start -->
+<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -86,7 +86,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->
+<!-- lattice:end -->
 ## Closing Self-Check (Mandatory after completing first-stage check)
 
 After completing all Steps 1-3 below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?**

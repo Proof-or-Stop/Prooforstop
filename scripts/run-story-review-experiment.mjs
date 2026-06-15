@@ -88,7 +88,7 @@ function buildCandidates(baseline) {
     sample('r03-fix-command-first', 'Fix Command First', `
 Fix first:
 1. lattice checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
-2. koala decision_set '{...preMortem...}'
+2. lattice decision_set '{...preMortem...}'
 3. lattice story_review '{"storyId":"B-x"}'
 
 Review data:

@@ -1059,7 +1059,7 @@ try {
 
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- koala:start -->\n# Local Lattice Notes\ncustom text\n<!-- koala:end -->\n');
+    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Lattice Notes\ncustom text\n<!-- lattice:end -->\n');
     const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,

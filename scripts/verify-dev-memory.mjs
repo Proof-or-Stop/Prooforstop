@@ -952,7 +952,7 @@ check('dev_memory_finish in active story defaults to story candidate file', () =
   const capture = runKoala(['dev_memory_capture', JSON.stringify({
     category: 'workflow',
     summary: 'Active story default finish writes candidate evidence refs',
-    trigger: 'finishing an active Koala story session',
+    trigger: 'finishing an active Lattice story session',
     lesson: 'Bare dev_memory_finish should target the active story branch',
     reusePrompt: 'When in story branch, finish should write story candidates',
     evidenceRefs: ['evidence/transcript.md', 'command:node scripts/verify-dev-memory.mjs'],

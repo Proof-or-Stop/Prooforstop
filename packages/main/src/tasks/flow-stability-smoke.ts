@@ -1061,7 +1061,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   ): void => {
     const badRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-drift-'));
     try {
-      const badSection = '<!-- koala:start -->\n# Locally edited guide\nThis is not a Lattice-owned alternate contract.\n<!-- koala:end -->\n';
+      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Lattice-owned alternate contract.\n<!-- lattice:end -->\n';
       for (const doc of docs) write(badRoot, doc.relPath, badSection);
       const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
       const driftById = new Map(drift.items.map(item => [item.id, item]));
@@ -1567,6 +1567,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     const story = store.readStory(storyId);
     story.phase = 'DEV';
     story.currentReviewRound = undefined;
+    story.events = [{ phase: 'DEV', action: 'advance', timestamp: '2026-04-27T12:02:00.000Z' }];
     store.writeStory(storyId, story);
 
     process.chdir(root);

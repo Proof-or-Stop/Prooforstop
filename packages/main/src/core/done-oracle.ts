@@ -691,7 +691,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         detail: requireEval
           ? 'No evaluator score (browser projects must run the evaluator)'
           : 'No evaluator score (advisory — not required by profile)',
-        hint: `koala evaluate '{"storyId":"${storyId}"}'`,
+        hint: `lattice evaluate '{"storyId":"${storyId}"}'`,
         source: 'eval-evidence.json',
         blocking: requireEval,
       }));
@@ -701,7 +701,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: requireEval ? 'fail' : 'warn',
         label: 'Evaluator',
         detail: `Did not pass: functionality=${evalEvidence.scores.functionality} usability=${evalEvidence.scores.usability} total=${evalEvidence.total}`,
-        hint: 'Re-run koala evaluate after fixing the issues found by evaluator',
+        hint: 'Re-run lattice evaluate after fixing the issues found by evaluator',
         source: 'eval-evidence.json',
         blocking: requireEval,
       }));
@@ -729,7 +729,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         detail: summaryReq === 'full'
           ? 'No summary.json'
           : 'No summary.json (advisory — profile requires minimal)',
-        hint: `koala summary_set '{"storyId":"${storyId}","changes":"What changed (≥10 chars)","usage":"How to use (≥10 chars)","expectedOutcome":"What the user expects to see","actualTranscript":"What was actually observed when run","outcomeDiff":"expected vs actual diff","acceptanceVerdict":"accepted","limitations":"Known limitations or \\"none — fully covered\\"","pitfalls":"Pitfall notes (≥10 chars, mandatory section)"}'`,
+        hint: `lattice summary_set '{"storyId":"${storyId}","changes":"What changed (≥10 chars)","usage":"How to use (≥10 chars)","expectedOutcome":"What the user expects to see","actualTranscript":"What was actually observed when run","outcomeDiff":"expected vs actual diff","acceptanceVerdict":"accepted","limitations":"Known limitations or \\"none — fully covered\\"","pitfalls":"Pitfall notes (≥10 chars, mandatory section)"}'`,
         source: 'summary.json',
         blocking: summaryReq === 'full',
       }));
@@ -749,7 +749,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: summaryReq === 'full' ? 'fail' : 'warn',
           label: 'Story summary',
           detail: `Missing/too short fields: ${missing.join(', ')}`,
-          hint: `Re-invoke koala summary_set to fill in ${missing.join(', ')}`,
+          hint: `Re-invoke lattice summary_set to fill in ${missing.join(', ')}`,
           source: 'summary.json',
           blocking: summaryReq === 'full',
         }));

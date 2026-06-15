@@ -779,7 +779,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * @type feature
      * @priority high
      * @description
-     *   Story artifacts and activity logs are Koala machine state, not human
+     *   Story artifacts and activity logs are Lattice machine state, not human
      *   documentation. This command migrates legacy docs/story/actives data
      *   into the configured storyDir and legacy docs/story/activity.jsonl into
      *   .lattice/activity.jsonl, backing up removed legacy files under .lattice.
@@ -951,7 +951,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const out = gitOutput(cwd, `-c commit.gpgsign=false merge ${shellQuote(mainRef)} --no-ff -m ${shellQuote(`sync main into ${args.storyId}`)}`);
         lines.push(out || '✓ main already merged');
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ Please rerun: koala test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: lattice test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       } catch {
         const unmerged = gitUnmergedPaths(cwd);
@@ -970,7 +970,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
               ? `Story metadata conflicts auto-resolved with --ours:\n${protectedConflicts.map(path => `  - ${path}`).join('\n')}\n`
               : '') +
             `Unresolved conflicts:\n${unresolved.map(path => `  - ${path}`).join('\n')}\n\n` +
-            `Please manually resolve the above real conflicts then git add + git commit, then rerun koala test_story '{"storyId":"${args.storyId}"}'.`,
+            `Please manually resolve the above real conflicts then git add + git commit, then rerun lattice test_story '{"storyId":"${args.storyId}"}'.`,
           );
         }
 
@@ -981,7 +981,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         lines.push('Story metadata conflicts auto-resolved with --ours:');
         for (const path of protectedConflicts) lines.push(`  - ${path}`);
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ Please rerun: koala test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: lattice test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       }
     },

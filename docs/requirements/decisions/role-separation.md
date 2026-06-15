@@ -980,7 +980,7 @@ Every wave has a mandatory gate story and a rollback playbook. The gate's data d
 ## Advisory Read-Only Reviewer Mode (`KOALA_REVIEWER_READONLY=1`)
 
 Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
-**not** a normal Koala gate reviewer. These advisory reviewers should not be able to call
+**not** a normal Lattice gate reviewer. These advisory reviewers should not be able to call
 mutating Koala commands — they are expected to return structured text or JSON findings to the
 owner session, which then records evidence through the normal gate.
 
@@ -988,7 +988,7 @@ owner session, which then records evidence through the normal gate.
 
 When an **owner session** launches an advisory external reviewer (Claude/Codex/Gemini), it
 **must** set `KOALA_REVIEWER_READONLY=1` on that spawned process only — not on the owner
-session itself or on any normal Koala gate reviewer subagent.
+session itself or on any normal Lattice gate reviewer subagent.
 
 ```bash
 # Correct: sandbox only the advisory process
@@ -1044,7 +1044,7 @@ scrutiny before recording any evidence:
 3. **Discard any gate artifacts** (finding hashes, review pass records) that appear to have
    been written by the advisory reviewer directly — re-run or re-record them through the owner.
 
-### Normal Koala gate reviewers must NOT set this mode
+### Normal Lattice gate reviewers must NOT set this mode
 
 Standard reviewers (`lattice-review-*` subagents in REVIEW phase) need to call `review_run_start`,
 `finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and

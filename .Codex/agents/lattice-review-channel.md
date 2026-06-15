@@ -4,7 +4,7 @@ description: REVIEW review: channel constraints (normal channel dispatch coverag
 model: sonnet
 tools: Bash, Grep, Read
 ---
-<!-- koala:start -->
+<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -86,7 +86,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->
+<!-- lattice:end -->
 ## Closing Self-Check (mandatory after completing the first-stage check)
 
 After completing the entire check process below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** New `lattice <cmd>` examples, handler schema fields, ENV variables, behavior sections added to CLAUDE.md / README — all must be cross-checked against the code for corresponding implementations. If you find "promised but undelivered" → **critical finding** (category=`missing`, prefix the desc with `doc-promise-undelivered:`).

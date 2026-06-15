@@ -196,7 +196,7 @@ export const LIFECYCLE_TRANSITIONS = [
     to: 'TEST',
     event: 'REVIEW_PASS',
     kind: 'forward',
-    gates: ['reviewer-pass', 'review-cli-preflight', 'koala-validate'],
+    gates: ['reviewer-pass', 'review-cli-preflight', 'lattice-validate'],
     effects: ['test-evidence-write'],
     oracleRows: ['reviewer-evidence', 'validation-status'],
     rendererRow: 'REVIEW->TEST gate',
@@ -572,7 +572,7 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // ── B-b9d0 CHK-001/002: lifecycle artifact scope classifier ──
 //
 // Narrow trust policy for command-generated story metadata. A path is
-// recognized as a Koala-owned lifecycle artifact only when it lives under a
+// recognized as a Lattice-owned lifecycle artifact only when it lives under a
 // known story directory prefix, the segment after that prefix is a valid
 // storyId, AND either the top-level terminal filename or relative story-dir
 // path is in a closed set below. Arbitrary JSON / unknown files under active docs/story/
@@ -686,7 +686,7 @@ export function classifyLifecycleArtifact(
       storyId,
       fileName,
       storyDir: stripTrailingSlash(prefix),
-      label: 'Koala lifecycle artifact (command-generated metadata)',
+      label: 'Lattice lifecycle artifact (command-generated metadata)',
     };
   }
 
@@ -712,7 +712,7 @@ export function classifyLifecycleArtifact(
       storyId: candidateStoryId,
       fileName,
       storyDir,
-      label: 'Koala lifecycle artifact (legacy story-tree metadata)',
+      label: 'Lattice lifecycle artifact (legacy story-tree metadata)',
     };
   }
 

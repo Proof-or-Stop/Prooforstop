@@ -5,9 +5,9 @@
 Rename active Koala role identifiers to Lattice role identifiers across the
 agent, reviewer, runtime, and documentation surfaces that teach or consume
 role IDs. While doing that cleanup, also rename active user-visible verifier
-and dirty-gate vocabulary that would otherwise keep teaching Koala as the
-current product surface. This is not a global removal of every historical
-`Koala` or `koala` token.
+dirty-gate vocabulary plus generated managed-block markers that would otherwise
+keep teaching Koala as the current product surface. This is not a global
+removal of every historical `Koala` or `koala` token.
 
 This file is the handoff document for story `B-ffa2`. It intentionally contains
 the old role IDs as the canonical rename map; post-migration searches should
@@ -19,6 +19,9 @@ Clean up these active categories:
 
 - Agent templates: `packages/main/templates/agents/koala-*.md`, frontmatter
   `name`, prompt body, examples, author strings, and prompt-registry tests.
+- Generated managed-block markers: active templates and mirrored assets should
+  emit `<!-- lattice:start -->` / `<!-- lattice:end -->` while the parser
+  continues accepting legacy `koala` markers for existing projects.
 - Mirrored host assets: materialized `.claude/agents/koala-*.md` and
   `.Codex/agents/koala-*.md` full-mode mirrors when present.
 - CLI dispatch/help/schema: `lattice dispatch` defaults, `agentType` examples,
@@ -37,8 +40,9 @@ Clean up these active categories:
   and CLI text expectations.
 - Active validation surfaces: dirty-gate category text should use
   `lattice_metadata_changes`, verifier provider/log names should use
-  `lattice-verifier-*`, and canonical config docs/tests should teach
-  `lattice.config.json` as the only active project config.
+  `lattice-verifier-*`, new managed docs should use `lattice:start/end`, and
+  canonical config docs/tests should teach `lattice.config.json` as the only
+  active project config.
 - Historical/runtime compatibility leftovers: archived docs, `.koala` runtime
   paths, `KOALA_*` environment variables, old hash salts, and migration
   compatibility notes. These are classified, not blindly renamed.
@@ -104,6 +108,9 @@ Do not leave an unlabelled active instruction such as "spawn
 - Do not change hash salts or signed artifact domains solely because a salt
   contains `koala`, unless the corresponding verifier and migration path are
   deliberately updated in the runtime contract work.
+- Do not remove legacy managed-block parsing for existing `koala:start/end`
+  sections. New generated assets should use `lattice:start/end`; old projects
+  should remain readable and safely upgradeable.
 - Do not touch `docs/story/**` or `tests/fixtures/**` directly. Story and
   fixture changes must go through Lattice commands when needed.
 

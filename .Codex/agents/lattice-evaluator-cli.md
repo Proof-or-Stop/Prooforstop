@@ -4,7 +4,7 @@ model: sonnet
 tools: Read, Bash
 ---
 
-<!-- koala:start-slot -->
+<!-- lattice:start-slot -->
 
 ## 0. Project context
 The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.

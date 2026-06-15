@@ -4,7 +4,7 @@ description: REVIEW review: concept deletion completeness (grep scan for residua
 model: sonnet
 tools: Grep, Glob, Bash
 ---
-<!-- koala:start -->
+<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -86,7 +86,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->
+<!-- lattice:end -->
 ## Closing Self-Check (Mandatory after completing first-pass check)
 
 After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `lattice <cmd>` examples newly added to CLAUDE.md / README, handler schema fields, ENV variables, or behavior paragraphs — all must be cross-checked against the code to verify corresponding implementations exist. If "promised but undelivered" is found → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).

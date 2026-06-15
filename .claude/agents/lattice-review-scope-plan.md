@@ -4,7 +4,7 @@ model: sonnet
 description: PLAN scope review - checks checklist coverage against the full decisions/ spec directory (B-ed3e S2: renamed from the legacy scope reviewer)
 tools: Read, Grep, Glob, Bash
 ---
-<!-- koala:start -->
+<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -86,7 +86,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->
+<!-- lattice:end -->
 ## 0. Project context
 The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.
 
@@ -100,7 +100,7 @@ Your input only includes the following, not the main agent's full conversation h
 - story description (from index.json)
 - checklist items (title + excludes only)
 - **All .md files under `<requirementsDir>/decisions/`** (the objective spec truth source)
-  - Read `requirementsDir` from lattice config (`lattice config` or read `.koala/config.json`); defaults to `docs/requirements`
+  - Read `requirementsDir` from lattice config (`lattice config` or read `lattice.config.json`); defaults to `docs/requirements`
   - decisions directory = `<requirementsDir>/decisions/`
   - **You must Read every .md file under this directory** (not a subset of relatedDocs, but the entire directory)
 

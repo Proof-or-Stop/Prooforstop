@@ -328,7 +328,7 @@ const evidenceBoundaryDocPaths = [
 const requiredEvidenceBoundaryPhrases = [
   'prompt-only worker claims are not mechanical evidence',
   'dispatch/process-event/commit evidence',
-  'Koala cannot mechanically prove true subagent context isolation',
+  'Lattice cannot mechanically prove true subagent context isolation',
   'transcript/delivery evidence is required; prompt-only user-value claims are not enough',
   'non-mechanical user approval',
 ];

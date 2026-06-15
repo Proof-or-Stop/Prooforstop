@@ -3,7 +3,7 @@ name: lattice-evaluator
 model: sonnet
 tools: Read, Bash
 ---
-<!-- koala:start -->
+<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -85,7 +85,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->
+<!-- lattice:end -->
 ## 0. Project Context
 The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.
 

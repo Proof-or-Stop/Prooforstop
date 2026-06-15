@@ -1,5 +1,5 @@
 /**
- * dev-memory — lightweight experience capture outside Koala story gates
+ * dev-memory — lightweight experience capture outside Lattice story gates
  *
  * Design constraints (B-ad2c):
  *   - Storage: file-backed JSONL, never SQLite or binary blobs
@@ -7,9 +7,9 @@
  *            global   → ~/.lattice/dev-memory/experience.jsonl
  *            story    → <storyDir>/<storyId>/dev-memory-candidates.jsonl
  *            legacy   → read-only fallback from matching .koala/dev-memory files
- *   - Non-authoritative: entries CANNOT satisfy Koala gate evidence
+ *   - Non-authoritative: entries CANNOT satisfy Lattice gate evidence
  *   - No .omx, no structured schema that looks like gate artifacts
- *   - Deterministic: path resolution works without Koala daemon running
+ *   - Deterministic: path resolution works without a Lattice daemon running
  */
 
 import {
@@ -68,7 +68,7 @@ export interface DevMemoryEntry {
   /** Optional evidence references (file paths, commit shas) */
   evidenceRefs?: string[];
   /**
-   * NON-AUTHORITATIVE marker — this entry cannot satisfy Koala DONE gates.
+   * NON-AUTHORITATIVE marker — this entry cannot satisfy Lattice DONE gates.
    * Always written as false. Presence of this field is a reminder to consumers.
    */
   gateEvidence: false;
@@ -140,7 +140,7 @@ export function validateEntry(raw: unknown): { ok: true; entry: DevMemoryEntry }
 /**
  * Resolve the project-scoped experience file path.
  * Uses LATTICE_PROJECT_ROOT env or walks upward to find lattice.config.json.
- * Deterministic — no Koala daemon required.
+ * Deterministic — no Lattice daemon required.
  */
 export function resolveProjectMemoryPath(projectRoot?: string): string {
   const root = projectRoot || resolveProjectRoot();
@@ -196,7 +196,7 @@ export function resolveGlobalMemoryReadPaths(): string[] {
 
 /**
  * Resolve the story-scoped candidate path.
- * Only valid when storyDir is known (i.e. inside a Koala project).
+ * Only valid when storyDir is known (i.e. inside a Lattice project).
  */
 export function resolveStoryCandidatePath(storyDir: string, storyId: string): string {
   return join(storyDir, storyId, 'dev-memory-candidates.jsonl');

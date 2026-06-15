@@ -4,7 +4,7 @@ description: REVIEW review: functional correctness (userSees vs actual behavior 
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
-<!-- koala:start -->
+<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -86,7 +86,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->
+<!-- lattice:end -->
 ## Closing Self-Check (Mandatory after completing first-stage checks)
 
 After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but not delivered" parts?** Newly added `lattice <cmd>` examples in CLAUDE.md / README, handler schema fields, ENV variables, behavior paragraphs—all must be cross-referenced against the code to verify a corresponding implementation exists. If you find "promised but not delivered" → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).

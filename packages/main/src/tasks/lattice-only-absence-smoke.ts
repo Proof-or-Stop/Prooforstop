@@ -7,7 +7,7 @@
  * @priority high
  * @description
  * Proves active runtime, Codex adapter, and generated bootstrap surfaces no
- * longer accept or advertise legacy Koala CLI alias compatibility.
+ * longer accept or advertise legacy CLI alias compatibility.
  */
 
 import assert from 'node:assert/strict';

@@ -22,7 +22,7 @@ function defaultBackground(): string {
     'This background is deliberately written as complete context rather than a short placeholder, to avoid e2e bypassing the real four-part gate of story_create.',
     '',
     '## Key Insights',
-    'The current Koala story_create already requires background to be a source-of-truth input; old e2e passing only title and description would falsely report process failures.',
+    'The current Lattice story_create already requires background to be a source-of-truth input; old e2e passing only title and description would falsely report process failures.',
     'So the auto-default values must simulate context provided by a real user, rather than relying on the handler relaxing validation.',
     '',
     '## Solution Tradeoffs',

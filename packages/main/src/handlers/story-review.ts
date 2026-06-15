@@ -201,7 +201,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             type: 'missing_decision',
             severity: isHighRisk ? 'blocker' : 'advisory',
             message: isHighRisk
-              ? `High-risk story must fill decision.json (principles/drivers/options/chosen/>= 3 preMortem). Call: koala decision_set '{...}'`
+              ? `High-risk story must fill decision.json (principles/drivers/options/chosen/>= 3 preMortem). Call: lattice decision_set '{...}'`
               : 'decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale.',
           });
         } else {

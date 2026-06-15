@@ -22,7 +22,7 @@ import {
   renderCodexPretoolScopeHookScript,
   codexHookCommand,
   getCodexHooks,
-  getKoalaHooks,
+  getClaudeHooks,
   hookCommand,
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
   LATTICE_SCOPE_PRETOOL_HOOK_FILE,
@@ -48,9 +48,9 @@ const agentTemplateDir = [
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
 const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
 
-// 通过 lattice init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
+// 通过 lattice init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
-const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
+const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
   `${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_END)}`,
 );
@@ -311,13 +311,13 @@ function writeExecutable(relPath: string, content: string): boolean {
   return created;
 }
 
-function extractKoalaSection(content: string): string {
+function extractManagedSection(content: string): string {
   const match = content.match(INIT_DOC_SECTION_RE);
   if (!match) return content;
   return match[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
 }
 
-function hasKoalaMarkers(content: string): boolean {
+function hasManagedMarkers(content: string): boolean {
   return INIT_DOC_SECTION_RE.test(content);
 }
 
@@ -333,16 +333,16 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
 
   const existing = readFileSync(full, 'utf-8');
   if (!INIT_DOC_SECTION_RE.test(existing)) {
-    console.log(`  - ${label} (exists, no koala markers, skip)`);
+    console.log(`  - ${label} (exists, no Lattice managed markers, skip)`);
     return;
   }
 
-  const updated = existing.replace(INIT_DOC_SECTION_RE, extractKoalaSection(desiredContent));
+  const updated = existing.replace(INIT_DOC_SECTION_RE, extractManagedSection(desiredContent));
   if (updated !== existing) {
     writeFileSync(full, updated);
-    console.log(`  ✓ ${label} (koala section synced)`);
+    console.log(`  ✓ ${label} (Lattice section synced)`);
   } else {
-    console.log(`  - ${label} (koala section up to date)`);
+    console.log(`  - ${label} (Lattice section up to date)`);
   }
 }
 
@@ -352,7 +352,7 @@ function hasHookCommand(entries: any, command: string): boolean {
 }
 
 function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incompatible: string[] } {
-  const koalaHooks = getCodexHooks();
+  const codexHooks = getCodexHooks();
   const updated = existing && typeof existing === 'object' && !Array.isArray(existing) ? { ...existing } : {};
   const hooks = updated.hooks && typeof updated.hooks === 'object' && !Array.isArray(updated.hooks)
     ? { ...updated.hooks }
@@ -360,7 +360,7 @@ function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incom
   const incompatible: string[] = [];
   let changed = !updated.hooks;
 
-  for (const [event, eventHooks] of Object.entries(koalaHooks)) {
+  for (const [event, eventHooks] of Object.entries(codexHooks)) {
     const command = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
@@ -394,7 +394,7 @@ function removeIfManagedDoc(relPath: string, label: string) {
   const full = join(targetDir, relPath);
   if (!existsSync(full)) return;
   const content = readFileSync(full, 'utf-8');
-  if (!hasKoalaMarkers(content)) return;
+  if (!hasManagedMarkers(content)) return;
   unlinkSync(full);
   console.log(`  ↻ ${label} (removed managed doc for profile cleanup)`);
 }
@@ -434,10 +434,10 @@ function removeClaudeSettingsIfManaged() {
   if (!existsSync(settingsPath)) return;
   try {
     const parsed = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-    const legacyHooks = JSON.parse(JSON.stringify(getKoalaHooks()));
+    const legacyHooks = JSON.parse(JSON.stringify(getClaudeHooks()));
     legacyHooks.PreToolUse[0].hooks[0].command = hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE);
     const managedSettings = [
-      { hooks: getKoalaHooks() },
+      { hooks: getClaudeHooks() },
       { hooks: legacyHooks },
     ];
     if (!managedSettings.some(settings => JSON.stringify(parsed) === JSON.stringify(settings))) return;
@@ -521,13 +521,13 @@ for (const d of dirs) {
   }
 }
 
-// 1.5 .gitignore（从 koala 项目复制）
+// 1.5 .gitignore（同步 Lattice runtime ignore 模板）
 const giPath = join(targetDir, '.gitignore');
 const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
   if (existsSync(giSrc)) {
     cpSync(giSrc, giPath);
-    console.log('  ✓ .gitignore (copied from koala)');
+    console.log('  ✓ .gitignore (copied from Lattice template)');
   } else {
     const minimalGitignore = [
       'node_modules',
@@ -549,7 +549,7 @@ if (!existsSync(giPath)) {
   const mergeResult = mergeKoalaRuntimeIgnores(readFileSync(giPath, 'utf8'));
   if (mergeResult.changed) {
     writeFileSync(giPath, mergeResult.content);
-    console.log('  ✓ .gitignore (merged koala runtime ignores)');
+    console.log('  ✓ .gitignore (merged Lattice runtime ignores)');
   } else {
     console.log('  - .gitignore (runtime ignores already present)');
   }
@@ -831,7 +831,7 @@ if (isGlobalThin) {
 }
 
 // 4. Claude slash-command skills
-console.log('\n[4/6] 跳过 legacy /koala skill...');
+console.log('\n[4/6] 清理 legacy Claude skill...');
 if (wantsClaude) {
   removePathIfExists('.claude/skills/koala', '.claude/skills/koala');
   console.log('  - .claude/skills/koala (removed if managed legacy asset existed)');
@@ -951,13 +951,13 @@ if (wantsClaude) {
   
   // 合并 settings.json（不覆盖已有配置）
   const settingsPath = join(targetDir, '.claude', 'settings.json');
-  const koalaHooks = getKoalaHooks();
+  const claudeHooks = getClaudeHooks();
   if (existsSync(settingsPath)) {
     try {
       const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       if (!existing.hooks) existing.hooks = {};
-      // 只添加缺失的 koala hook，不覆盖用户已有配置。
-      for (const [event, hooks] of Object.entries(koalaHooks)) {
+      // 只添加缺失的 Lattice hook，不覆盖用户已有配置。
+      for (const [event, hooks] of Object.entries(claudeHooks)) {
         const command = hooks[0]?.hooks?.[0]?.command;
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
@@ -979,7 +979,7 @@ if (wantsClaude) {
         }
         if (command && !hasHookCommand(existing.hooks[event], command)) {
           existing.hooks[event].push(...hooks);
-          console.log(`  ✓ settings.json: 合并 ${event} koala hook`);
+          console.log(`  ✓ settings.json: 合并 ${event} Lattice hook`);
         } else {
           console.log(`  - settings.json: ${event} hook 已存在, skip`);
         }
@@ -989,7 +989,7 @@ if (wantsClaude) {
       console.log(`  ⚠ settings.json 合并失败: ${e.message}`);
     }
   } else {
-    writeFileSync(settingsPath, JSON.stringify({ hooks: koalaHooks }, null, 2) + '\n');
+    writeFileSync(settingsPath, JSON.stringify({ hooks: claudeHooks }, null, 2) + '\n');
     console.log('  ✓ .claude/settings.json (created)');
   }
 } else {

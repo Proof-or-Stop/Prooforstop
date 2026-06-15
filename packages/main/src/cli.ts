@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * koala bin entry (main standalone mode)
+ * Lattice bin entry (main standalone mode)
  *
  * This script only loads tools bundled with main (process category). If you also want to enable @lattice-agent/utils
  * helper tools, use the generated bin/lattice.js bootstrap script.

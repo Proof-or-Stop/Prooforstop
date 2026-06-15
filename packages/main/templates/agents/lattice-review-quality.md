@@ -4,7 +4,7 @@ description: REVIEW audit: code quality (dead code / type safety / I/O isolation
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
-<!-- koala:start -->
+<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -86,7 +86,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->
+<!-- lattice:end -->
 ## Closing Self-Check (Mandatory after completing the first-pass checks)
 
 After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `lattice <cmd>` examples, handler schema fields, ENV variables, or behavior paragraphs newly added in CLAUDE.md / README — all must be cross-checked against the code for corresponding implementations. If you find "promised but undelivered" → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).
