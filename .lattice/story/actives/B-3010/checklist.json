@@ -8,9 +8,9 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T11:57:09.713Z",
-      "endTime": null,
+      "endTime": "2026-06-15T12:02:13.737Z",
       "userSees": "Terminal shows \"agentAssetResolution: mode=runtime-owned promptRegistryHash=<sha256> .claude/agents=absent .Codex/agents=absent authority=localNonAuthority\".",
       "files": {
         "modify": [
@@ -51,6 +51,38 @@
         "packages/main/src/core/managed-assets.ts: read for inventory context only; no managed asset repair/apply behavior changes in this story",
         "packages/main/src/init-assets.ts: read for init behavior context only; no init asset generation behavior changes in this story",
         "packages/main/src/cli-init.ts: read for init behavior context only; no init command behavior changes in this story"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "commit 015a00903 adds read-only AgentAssetResolution; smoke proves absent prompt assets classify as runtime-owned with promptRegistryHash",
+          "headHash": "015a0090337ec63276fd5cc0aaea78d75900d63b",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:13.798Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke proves local matching prompt assets are listed individually and explicit full/local mode is distinguishable",
+          "headHash": "015a0090337ec63276fd5cc0aaea78d75900d63b",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:13.839Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts AgentAssetResolution JSON does not report receiptVerified, productionDone, authorityDone, or fullAuthorityDone",
+          "headHash": "015a0090337ec63276fd5cc0aaea78d75900d63b",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:13.872Z"
+        }
       ]
     },
     {
