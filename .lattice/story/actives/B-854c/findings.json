@@ -5,7 +5,7 @@
       "desc": "dead code: StoryMetadataProtectionScan interface is exported from doctor.ts (line 743) but has no external consumers — no file outside doctor.ts imports it. Either remove the export or add a comment explaining why it is pre-exported for future use.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-15T22:36:04.942Z",
@@ -14,14 +14,16 @@
       "_hash": "0cc067be09eb0767a62725fd93eacb55115ea0e122e0425ba08f289772f058c2",
       "files": [
         "packages/main/src/handlers/doctor.ts"
-      ]
+      ],
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@1166a47"
     },
     {
       "id": "B-854c:F-002",
       "desc": "quality: grammatically malformed user-facing string at doctor.ts:959 — \"  → run `lattice doctor --repair` will be a no-op now\" mixes an imperative (\"run\") with a declarative clause (\"will be a no-op now\"). Should read \"  → `lattice doctor --repair` will be a no-op now\" (drop \"run\") or \"  → Running `lattice doctor --repair` will be a no-op now\".",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-15T22:36:10.684Z",
@@ -30,7 +32,9 @@
       "_hash": "e6f9aed0730c2e4b79c0dd128268ff4a769a94a8d9629066d72582b466d807f5",
       "files": [
         "packages/main/src/handlers/doctor.ts"
-      ]
+      ],
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@1166a47"
     }
   ]
 }
