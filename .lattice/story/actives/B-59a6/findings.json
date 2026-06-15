@@ -36,6 +36,25 @@
         "packages/main/src/cli-engine.ts"
       ],
       "resolvedAt": "2026-06-15T10:29:07.918Z"
+    },
+    {
+      "id": "B-59a6:F-003",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:265-268 still says the current runtime may evaluate `changedDirectDecisionDocs || firstReviewRoundCountableProblems >= 2` until the implementation story migrates the existing decision-doc gate. WHY: the implementation is already migrated: machine.ts:420 and machine.ts:850 call evaluateReviewEscalation for DONE, done-oracle.ts:626 documents the first REVIEW round countable-problem trigger, and decision-doc-quorum.ts:44 reports classification-only diagnostics. This stale transition note contradicts current runtime behavior and can mislead operators into believing direct decision-doc edits still trigger an always-on DONE 3x2 quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T10:31:30.423Z",
+      "reviewRound": "2026-06-15T10:28:56.312Z",
+      "reviewRunId": "B-59a6:RR-006",
+      "_hash": "788f51d8d97e9efe3da80595171d4d3e98c1c355ce6819c7ba9ba52c75c5e442",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/decision-doc-quorum.ts"
+      ]
     }
   ]
 }
