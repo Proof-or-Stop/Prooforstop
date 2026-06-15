@@ -129,7 +129,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: doctor on broad-ignore-untracked fixture -> unsafe + remediation text + JSON unsafe flag",
+          "headHash": "95b878d75e5777806ef2672ff39f85a436f9c2d5",
+          "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
+          "timestamp": "2026-06-15T22:31:16.847Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
