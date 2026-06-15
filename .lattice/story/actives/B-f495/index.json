@@ -4,7 +4,7 @@
   "title": "Audit slim fields token savings plan",
   "description": "Audit the slim / fields token savings execution plan against current Lattice CLI behavior, existing smoke coverage, and documented low-risk boundaries before implementation.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "slim-fields",
@@ -20,7 +20,7 @@
   ],
   "createdAt": "2026-06-15T14:07:42.704Z",
   "startedAt": "2026-06-15T14:07:42.704Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T14:59:48.391Z",
   "events": [
     {
       "phase": "INIT",
@@ -69,6 +69,14 @@
       "branch": "story/B-f495",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T14:59:48.392Z",
+      "branch": "story/B-f495",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -78,10 +86,5 @@
       "at": "2026-06-15T14:07:56.996Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f495",
-    "branch": "story/B-f495",
-    "createdAt": "2026-06-15T14:11:40.133Z"
-  },
   "currentReviewRound": "2026-06-15T14:27:00.681Z"
 }
