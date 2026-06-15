@@ -1,0 +1,32 @@
+{
+  "storyId": "B-1637",
+  "checkedAt": "2026-06-15T23:54:06.826Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights claims doctor.ts:760/:773 (git ls-files / git check-ignore) \"run with cwd=root (metadataRoot)\" but those calls use cwd:repoRoot (a variable). The actual cwd=root problem for that section is the git rev-parse --show-toplevel at :800 that discovers repoRoot. The four affected sites listed (:505/:554/:760/:773) are correct in net effect but the :760/:773 mechanism is indirect (they fail because :800 fails first). Low precision issue; the fix approach in CHK-001 is correct and unambiguous."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T23:53:12.359Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-15T23:54:06.826Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights claims doctor.ts:760/:773 (git ls-files / git check-ignore) \"run with cwd=root (metadataRoot)\" but those calls use cwd:repoRoot (a variable). The actual cwd=root problem for that section is the git rev-parse --show-toplevel at :800 that discovers repoRoot. The four affected sites listed (:505/:554/:760/:773) are correct in net effect but the :760/:773 mechanism is indirect (they fail because :800 fails first). Low precision issue; the fix approach in CHK-001 is correct and unambiguous."
+        }
+      ]
+    }
+  ],
+  "_hash": "59ac1a01495ea57315e5006ac1a8de1084599b2b8265c78f7e0e38bc282f3512"
+}
