@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Preserve honest assurance semantics.",
+    "Prefer developer continuity when host capacity is unavailable.",
+    "Make degraded review visible to users, gates, and audits.",
+    "Keep this story documentation-only."
+  ],
+  "drivers": [
+    "Second host credit/auth/runtime failures should not indefinitely block ordinary development.",
+    "The fallback must not be misrepresented as independent two-host review.",
+    "Follow-up implementation needs precise artifacts, commands, and tests."
+  ],
+  "options": [
+    {
+      "name": "A: Strict 3x2 only",
+      "pros": [
+        "Strongest independence semantics",
+        "Simple gate behavior"
+      ],
+      "cons": [
+        "Can block development when another host is out of credits, unauthenticated, or unavailable",
+        "Poor practical fallback for solo/local users"
+      ]
+    },
+    {
+      "name": "B: Silent downgrade to 3x1",
+      "pros": [
+        "Keeps development moving with minimal UX friction"
+      ],
+      "cons": [
+        "Misrepresents assurance level",
+        "Can make audit evidence misleading",
+        "Undermines the purpose of two-host review"
+      ]
+    },
+    {
+      "name": "C: Explicit degraded 3x1 fallback",
+      "pros": [
+        "Keeps 3x2 as default",
+        "Allows progress when a second host cannot run",
+        "Records degraded reason and assurance level",
+        "Supports stricter tests and audit visibility"
+      ],
+      "cons": [
+        "More policy and gate complexity",
+        "Still weaker than true two-host independence"
+      ]
+    }
+  ],
+  "chosen": "C: Explicit degraded 3x1 fallback",
+  "rationale": "Choose explicit degraded 3x1 fallback because it solves the user capacity problem without claiming false two-host independence. The plan should require unavailable-host reason codes, degraded artifacts, stronger local evidence, and clear limits.",
+  "preMortem": [
+    {
+      "scenario": "Teams start using degraded 3x1 as the normal path.",
+      "trigger": "The fallback is automatic and invisible.",
+      "consequence": "The project loses the independent-review guarantee while reports still look like strong review.",
+      "mitigation": "Require explicit unavailable-host reason codes, degradedQuorum=true, and separate status text that never says full 3x2 passed."
+    },
+    {
+      "scenario": "High-risk changes ship with weak review.",
+      "trigger": "A second host is unavailable during a risky gate or decision-doc change.",
+      "consequence": "Important process or safety changes receive only single-host scrutiny.",
+      "mitigation": "Document policy limits: default remains 3x2, degraded path must be visible and can require user/project approval for high-risk classes."
+    },
+    {
+      "scenario": "Implementation treats any host error as fallback eligibility.",
+      "trigger": "The code accepts vague failure text instead of structured host availability evidence.",
+      "consequence": "Developers can bypass two-host review for convenience.",
+      "mitigation": "Require structured reason codes and recent host_runtime/credit/auth evidence, plus negative controls for fabricated unavailability."
+    }
+  ],
+  "timestamp": "2026-06-15T02:03:11.250Z"
+}

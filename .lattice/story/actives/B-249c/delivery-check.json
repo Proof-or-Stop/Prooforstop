@@ -1,0 +1,43 @@
+{
+  "storyId": "B-249c",
+  "checkedAt": "2026-06-15T03:12:55.342Z",
+  "reviewRound": "2026-06-15T03:02:57.136Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "DONE entry remains gated by validate PASS, bug fixed, fresh active evidence, summary/delivery gates, and branch sync; active non-DONE evidence freshness remains strict against the current story branch.",
+      "status": "verified",
+      "verifiedBy": "manual review + session_brief + scoped diff",
+      "evidence": "Read story-lifecycle.md. Scoped diff keeps phase !== DONE on checkEvidenceFreshnessForGit current material freshness; session_brief shows evidence freshness and branch sync as separate DONE rows. B-249c changes only completed DONE projections, not TEST->DONE entry gate semantics."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "Lifecycle artifacts and test-evidence metadata are provenance/gate inputs, not material drift input and not receipt-backed Authority completion.",
+      "status": "verified",
+      "verifiedBy": "manual review + smoke output",
+      "evidence": "Read lifecycle-artifact-scope.md. validate updated test-evidence as koala_metadata_changes only; done-preflight smoke asserts done_closure read-only non-Authority defaults, missing Authority receipt blocks, and eligible receipt does not set mayClaimAuthorityDone."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "BUILD",
+      "transcript": "npm --prefix packages/main run build -> PASS; @lattice-agent/core tsc completed successfully."
+    },
+    {
+      "featureId": "CHK-001/CHK-002/CHK-003",
+      "transcript": "node packages/main/dist/tasks/done-preflight-smoke.js -> PASS; output included DONE evidence freshness PASS after later material commit, active TEST evidence freshness PASS for stale blocking, done_closure read-only non-Authority defaults, Authority enforce missing receipt blocks, and eligible receipt verified without mayClaimAuthorityDone."
+    },
+    {
+      "featureId": "VALIDATE",
+      "transcript": "lattice validate --story=B-249c --json -> PASS; allPass true, warnings empty, verification intent coverage 9/9 covered and 0 required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review inspected main...HEAD scoped diff, transcript, checklist evidence, review passes/findings, related docs, and current session state. Real machine tests passed for build, done-preflight smoke, and validate. Edge coverage includes completed DONE snapshot after later material commit, active TEST stale evidence after material change, uninspectable recorded head, mismatched materialHash, and the Non-authority/Authority boundary. No unresolved TODO/FIXME markers were found in scoped files. Main advanced after review began; HEAD..main has no commits touching the scoped files, so branch sync remains a normal DONE lifecycle step rather than a delivery correctness blocker."
+  },
+  "_hash": "13c91ec66bbb7f5bb3fc188597b61f7414c127d779be53566ca673efe36da304"
+}

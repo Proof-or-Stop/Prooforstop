@@ -14,14 +14,26 @@ Default: ordinary stories use the existing REVIEW flow.
 Escalation: if the first REVIEW round records >=2 countable problems,
             the story requires 3 quorum rounds x 2 independent PASS hosts
             before DONE.
-Always-on: direct decision-doc changes still require 3 quorum rounds x
-           2 independent PASS hosts before DONE.
+Documentation audit: documentation and decision-doc changes use the same
+                     default REVIEW path and the same automatic escalation
+                     trigger as ordinary development.
+Fallback: if 3x2 is required but a second host is unavailable, unauthenticated,
+          rate-limited, provider-down, or out of credits, policy may allow
+          3 quorum rounds x 1 PASS host as degraded single-host review.
+Runtime transition: current implementation may still enforce the legacy direct
+                    decision-doc 3x2 gate until a follow-up implementation
+                    story migrates that gate to this unified policy.
 ```
 
 The plan also fixes the current weakness in the decision-doc quorum evaluator:
 counting distinct `hostId` strings is not enough to prove host independence.
 Future implementation must prove independence from durable host, session, key,
 and material-binding facts.
+
+This plan also defines an honest availability fallback. Degraded single-host
+review keeps development moving when only one host can run, but it is not
+equivalent to two-host independence and must be labeled as lower assurance in
+status output, artifacts, and final summaries.
 
 This document is a planning artifact. It does not implement source-code changes,
 does not satisfy any future gate by itself, and does not claim Authority Server
@@ -35,9 +47,11 @@ Lattice currently has these pieces:
 | --- | --- |
 | Ordinary REVIEW | A story enters REVIEW, reviewer lanes call `review_run_start`, then write `finding_add` or `review_pass_set`. If blockers are resolved, the story can proceed. One clean REVIEW round is usually enough. |
 | Finding evidence state | `finding_add` defaults to `evidenceState=verified`; `suspected` and `disproven` findings are advisory and should not trigger escalation. |
-| Decision-doc quorum | Direct changes to `docs/requirements/decisions/*.md` require 3 distinct quorum rounds, each with 2 PASS host verdicts, before DONE. |
+| Decision-doc quorum | Current implementation still requires 3 distinct quorum rounds, each with 2 PASS host verdicts, for direct changes to `docs/requirements/decisions/*.md` before DONE. This is legacy current behavior, not the target policy after this plan is implemented. |
 | Host verdicts | `autopilot_review_submit` records local `host_verdict` process events consumed by the local decision-doc quorum gate. |
 | Known gap | The current decision-doc quorum counts distinct normalized `hostId` strings, but does not prove independent host, session, or key identity. |
+| Host availability gap | If only one host can run because of credits, auth, runtime, rate limits, or provider outage, strict 3x2 can block otherwise ready local development. |
+| Documentation audit policy gap | The desired policy is now unified automatic escalation. Documentation and decision-doc changes should not require 3x2 solely because a documentation file changed. |
 
 ## Required Rule
 
@@ -65,18 +79,70 @@ clean follow-up review rounds do not remove the 3x2 requirement. The point of
 the trigger is not whether the first-round findings still block; it is that the
 first review exposed enough risk to require stronger final review.
 
-### Decision-Doc Always-On Rule
+### Documentation Audit Unified Rule
 
-Any direct change to:
+Documentation and decision-doc audit changes follow the Default Rule and the
+Automatic Escalation Trigger. A direct change to:
 
 ```text
 docs/requirements/decisions/*.md
 ```
 
-continues to require 3x2 before DONE, regardless of first-round finding count.
+should be classified as governance documentation for diagnostics, reviewer
+context, and migration checks, but it should not require 3x2 by itself under the
+target policy.
 
-This preserves the existing decision-doc quorum policy while strengthening the
-host-independence predicate it uses.
+Current implementation may still enforce legacy direct decision-doc 3x2 until a
+follow-up implementation story removes `changedDirectDecisionDocs` from the hard
+escalation predicate and updates the related tests. Operators must treat that as
+current transitional behavior, not as the desired policy after rollout.
+
+### Degraded Single-Host Fallback Rule
+
+Full 3x2 remains the default and preferred quorum. A story that requires 3x2 may
+use degraded single-host review only through one of two explicit eligibility
+paths:
+
+1. `unavailable-second-host`: a second host was attempted or probed and is
+   unavailable because of credits, auth, runtime, outage, or rate limits.
+2. `approved-single-host-local`: the user or project policy explicitly approves
+   single-host local review for this story even though it does not prove
+   second-host unavailability.
+
+Both paths require project policy to allow degraded review for the story's risk
+class. Neither path is equivalent to two-host independence.
+
+The degraded fallback is:
+
+```text
+3 quorum rounds x 1 PASS host
+assuranceLevel = degraded-single-host
+```
+
+Allowed fallback reasons are:
+
+- `second-host-credit-exhausted`;
+- `second-host-auth-missing`;
+- `second-host-runtime-unavailable`;
+- `second-host-provider-outage`;
+- `second-host-rate-limited`;
+- `user-approved-single-host-local-mode`.
+
+The fallback must be explicit. It must not be inferred from a missing verdict,
+timeout, or convenience preference alone. The evaluator must record the fallback
+reason, the eligibility path, the attempted host or provider when the path is
+`unavailable-second-host`, the observed unavailable condition for that path, and
+the user/project policy that permits single-host degraded review.
+
+Degraded single-host review must never be reported as "3x2 passed", "two-host
+independent", or Authority receipt completion. It may unblock local lifecycle
+progress only with a visible lower-assurance marker.
+
+High-risk changes may require stricter project policy before using the fallback.
+For gate, authority, process-fact, or escalated documentation changes, the
+initial implementation should require either explicit user approval for the
+degraded fallback or a project configuration that opts into degraded review for
+that risk class.
 
 ## Definitions
 
@@ -146,6 +212,26 @@ For stories created after rollout, missing `sessionId` or missing key identity
 must fail closed for the 3x2 gate. Provider diversity is useful diagnostic
 context, but provider name alone is not a proof of independence.
 
+### Degraded Quorum
+
+A degraded quorum is a final review quorum that has enough rounds but not enough
+independent hosts.
+
+Version 1 allows degraded quorum only as:
+
+```text
+3 quorum rounds
+AND each quorum round has at least 1 PASS host verdict
+AND every counted verdict is bound to current head/material/validation evidence
+AND fallback eligibility is either unavailable-second-host or
+    approved-single-host-local
+AND the result is reported as degraded-single-host
+```
+
+Three PASS rounds from one host can catch repeated reasoning mistakes and stale
+material, but they do not prove host independence. The gate must preserve that
+difference in machine-readable fields and human-readable output.
+
 ## Gate Placement
 
 ### REVIEW Gate
@@ -176,10 +262,14 @@ DONE is the hard enforcement point.
 Before DONE, Lattice must evaluate:
 
 ```text
-requires3x2 =
-  changedDirectDecisionDocs
-  || firstReviewRoundCountableProblems >= 2
+requires3x2 = firstReviewRoundCountableProblems >= 2
 ```
+
+Transition note: current runtime may still evaluate
+`changedDirectDecisionDocs || firstReviewRoundCountableProblems >= 2` until the
+implementation story migrates the existing decision-doc gate. That expression is
+legacy current behavior. The target policy in this plan is that a direct
+decision-doc or documentation change does not trigger 3x2 by itself.
 
 If `requires3x2` is true, DONE must fail closed unless current material has:
 
@@ -188,6 +278,22 @@ If `requires3x2` is true, DONE must fail closed unless current material has:
 AND each quorum round has 2 independent PASS hosts
 AND every counted verdict is bound to current head/material/validation evidence
 ```
+
+If `requires3x2` is true and the story cannot obtain a second host, DONE may
+accept degraded single-host review only when all of the following are true:
+
+```text
+degradedFallback.allowed = true
+AND degradedFallback.reason is one of the allowed fallback reasons
+AND degradedFallback.evidence is present
+AND current material has 3 quorum rounds
+AND each quorum round has at least 1 PASS host verdict
+AND every counted verdict is bound to current head/material/validation evidence
+AND output reports assuranceLevel=degraded-single-host
+```
+
+The degraded path is an explicit weaker DONE path. It must not satisfy checks
+that specifically require independent two-host review.
 
 ## Proposed Artifacts
 
@@ -212,6 +318,9 @@ writing files.
   "storyId": "B-xxxx",
   "policyVersion": "2026-06-14.v1",
   "requires3x2": true,
+  "requiredAssurance": "two-host",
+  "assuranceLevel": "missing",
+  "quorumMode": "full-3x2",
   "triggers": [
     {
       "kind": "first-review-round-findings",
@@ -225,6 +334,14 @@ writing files.
     "rounds": 3,
     "passingIndependentHostsPerRound": 2
   },
+  "degradedFallback": {
+    "allowed": false,
+    "reason": null,
+    "evidenceRefs": [],
+    "approvalRef": null,
+    "requiredRounds": 3,
+    "passingHostsPerRound": 1
+  },
   "materialBinding": {
     "headHash": "abc123",
     "materialDigest": "sha256:...",
@@ -237,6 +354,30 @@ writing files.
 The gate can compute this on demand, but a persisted gate/snapshot artifact
 improves diagnostics, handoff, and session recovery. If persisted, it must
 include enough hashes to detect staleness.
+
+When degraded review is used, the artifact must set:
+
+```json
+{
+  "requiredAssurance": "two-host",
+  "effectiveAssurance": "degraded-single-host",
+  "achievedAssurance": "degraded-single-host",
+  "quorumMode": "degraded-3x1",
+  "degradedFallback": {
+    "allowed": true,
+    "eligibilityPath": "unavailable-second-host",
+    "reason": "second-host-credit-exhausted",
+    "evidenceRefs": ["host_runtime_probe:claude-code:credit-exhausted"],
+    "approvalRef": "user-approved:B-xxxx:2026-06-15"
+  }
+}
+```
+
+The words `full-3x2`, `two-host`, and `degraded-single-host` should be stable
+machine-readable values so downstream status commands and delivery summaries do
+not blur the assurance level. `requiredAssurance` records the original policy
+target; `effectiveAssurance` records the gate path actually accepted for this
+story; `achievedAssurance` records what the evidence proves.
 
 ### Host Verdict Process Event
 
@@ -348,7 +489,7 @@ The same predicate must be used by:
 
 ## Evaluation Algorithm
 
-### Step 1. Detect Direct Decision-Doc Changes
+### Step 1. Classify Documentation and Decision-Doc Changes
 
 Reuse the existing decision-doc changed-file detector:
 
@@ -356,9 +497,11 @@ Reuse the existing decision-doc changed-file detector:
 docs/requirements/decisions/*.md
 ```
 
-This trigger is always applicable for direct files only. Nested directories or
-alternate project-specific decision paths remain out of scope unless a later
-story explicitly adds configuration.
+This classification is for diagnostics, reviewer context, migration reporting,
+and documentation-audit labeling. It must not set `requires3x2=true` by itself
+under the target policy. Nested directories or alternate project-specific
+decision paths remain out of scope unless a later story explicitly adds
+configuration.
 
 ### Step 2. Count First-Round Problems
 
@@ -397,7 +540,7 @@ Each quorum round is valid only if it contains at least two mutually independent
 PASS verdicts after filtering stale, duplicate, failed, blocked, missing, or
 non-independent entries.
 
-### Step 5. Evaluate 3x2
+### Step 5. Evaluate Full 3x2 Or Degraded 3x1
 
 Pass only when:
 
@@ -406,10 +549,50 @@ validQuorumRounds.length >= 3
 AND every counted quorum round has >=2 independent PASS hosts
 ```
 
+If full 3x2 fails only because a second independent host is unavailable, evaluate
+the degraded fallback:
+
+```text
+degradedAllowed = projectPolicy.allowsDegradedSingleHost
+                  OR explicitUserApprovalForThisStory
+
+fallbackEligibility =
+  unavailableSecondHostEvidencePresent
+  OR explicitSingleHostLocalApprovalPresent
+
+degradedPass =
+  degradedAllowed
+  AND allowedFallbackReason
+  AND fallbackEligibility
+  AND validSingleHostRounds.length >= 3
+  AND every counted single-host round has >=1 PASS host
+  AND every counted verdict is fresh for current material
+```
+
+`unavailableSecondHostEvidencePresent` is required only for the
+`unavailable-second-host` path. `explicitSingleHostLocalApprovalPresent` is the
+required evidence for the `approved-single-host-local` path. The two paths must
+be reported separately so implementation cannot silently treat user approval as
+proof that a second host was unavailable.
+
+The evaluator result must distinguish:
+
+```text
+quorumResult=pass-full-3x2
+quorumResult=pass-degraded-3x1
+quorumResult=blocked
+```
+
+`pass-degraded-3x1` is allowed only for local lifecycle progress where policy
+permits it. It must not be consumed by any claim that specifically requires
+independent two-host proof.
+
 Fail output must include:
 
 - whether 3x2 is required;
 - which trigger caused it;
+- whether degraded fallback was considered;
+- fallback reason and evidence refs when degraded fallback is used;
 - current material digest;
 - valid rounds count;
 - missing rounds count;
@@ -441,6 +624,18 @@ trigger: first REVIEW round countable problems 2/2
 quorum: 1/3 rounds valid
 materialDigest: sha256:...
 next: collect 2 independent PASS host verdicts for round-2 and round-3
+```
+
+If degraded fallback is active, expected text:
+
+```text
+Review escalation: required
+trigger: first REVIEW round countable problems 2/2
+quorum: degraded-single-host
+valid single-host rounds: 3/3
+fallback reason: second-host-credit-exhausted
+assurance: degraded-single-host, not full-3x2
+next: continue only if project policy accepts degraded review for this story
 ```
 
 ### `autopilot_review_submit`
@@ -485,9 +680,9 @@ signature key mismatch
 | --- | --- |
 | `packages/main/src/core/host-independence.ts` | New shared independence predicate and ignored-verdict reason model. |
 | `packages/main/src/core/review-escalation.ts` | New trigger evaluator, quorum evaluator, report formatter, and derived artifact model. |
-| `packages/main/src/core/decision-doc-quorum.ts` | Replace hostId-only counting with shared independence predicate; keep direct decision-doc change detection. |
+| `packages/main/src/core/decision-doc-quorum.ts` | Replace hostId-only counting with shared independence predicate; keep direct decision-doc change detection for diagnostics and migration reporting; remove direct decision-doc change as a target escalation trigger after migration; evaluate degraded single-host fallback only when policy and evidence allow it. |
 | `packages/main/src/handlers/verdict.ts` | Persist `sessionId`, `keyId`, `reviewWaveId`, `validationDigest`, `promptDigest`, `artifactDigest`, and signature metadata into `host_verdict` process events. |
-| `packages/main/src/core/machine.ts` | Add review-escalation DONE gate alongside decision-doc quorum; keep REVIEW gate behavior unchanged except diagnostics. |
+| `packages/main/src/core/machine.ts` | Add review-escalation DONE gate based on the first-round threshold; migrate the legacy direct decision-doc gate to the unified documentation-audit policy; keep REVIEW gate behavior unchanged except diagnostics; report degraded DONE separately from full 3x2. |
 | `packages/main/src/handlers/decision-doc-quorum.ts` | Surface new ignored reasons in existing read-only diagnostics. |
 | `packages/main/src/handlers/review-escalation.ts` | Add read-only status handler and, if needed, a separate mutating snapshot handler. |
 | `packages/main/src/cli-engine.ts` | Add `review_escalation_status` schema and update `autopilot_review_submit` descriptions to require identity fields for new-policy 3x2. |
@@ -497,7 +692,7 @@ signature key mismatch
 | `scripts/verify-process-fact-contract.mjs` | Fail if docs mention the new gate but registry/handler/gate entries are missing. |
 | `packages/main/src/tasks/decision-doc-quorum-smoke.ts` | Add same-session, same-key, missing-identity, stale-material negative controls. |
 | `packages/main/src/tasks/review-escalation-smoke.ts` | New smoke test for trigger and non-trigger stories. |
-| `docs/requirements/decisions/story-lifecycle.md` | Update after implementation to describe threshold-triggered 3x2 in DONE gate rules. |
+| `docs/requirements/decisions/story-lifecycle.md` | Update after implementation to describe threshold-triggered 3x2 or approved degraded 3x1 in DONE gate rules for both code and documentation audit. |
 | `docs/requirements/decisions/lifecycle-gate-receipt-consumption.md` | Update after implementation to describe local review-escalation quorum as local workflow evidence, not Authority receipt completion. |
 
 ## Test Matrix
@@ -506,8 +701,8 @@ signature key mismatch
 
 | Case | Expected |
 | --- | --- |
-| First REVIEW round has 0 countable findings | `requires3x2=false` unless decision docs changed. |
-| First REVIEW round has 1 countable finding | `requires3x2=false` unless decision docs changed. |
+| First REVIEW round has 0 countable findings | `requires3x2=false`. |
+| First REVIEW round has 1 countable finding | `requires3x2=false`. |
 | First REVIEW round has 2 countable findings | `requires3x2=true`. |
 | First REVIEW round has 3 countable findings | `requires3x2=true`. |
 | First REVIEW round has 2 suspected findings | `requires3x2=false`. |
@@ -521,10 +716,12 @@ signature key mismatch
 
 | Case | Expected |
 | --- | --- |
-| Direct `docs/requirements/decisions/foo.md` changed | `requires3x2=true`. |
-| Nested `docs/requirements/decisions/sub/foo.md` changed | Not applicable in version 1 unless separately configured. |
-| Non-decision doc changed | No decision-doc trigger. |
-| Decision doc changed and first round has 0 findings | `requires3x2=true`. |
+| Direct `docs/requirements/decisions/foo.md` changed and first round has 0 countable findings | `requires3x2=false` under the target policy; before migration, current implementation may still report legacy decision-doc quorum. |
+| Nested `docs/requirements/decisions/sub/foo.md` changed | No special 3x2 trigger in version 1 unless separately configured. |
+| Non-decision documentation changed and first round has 0 countable findings | `requires3x2=false`. |
+| Decision doc changed and first round has 2 countable findings | `requires3x2=true` because the ordinary escalation threshold fired. |
+| Escalated decision-doc audit has approved degraded 3x1 evidence | DONE may pass only with `assuranceLevel=degraded-single-host`. |
+| Current implementation still blocks a zero-finding decision-doc change before migration | Report as `legacy-direct-decision-doc-quorum`, not as the target policy. |
 
 ### Independence Negative Controls
 
@@ -544,6 +741,19 @@ signature key mismatch
 | Verdict validation digest is stale after TEST | Verdict ignored. |
 | Three quorum rounds exist but one round has only one independent PASS host | Gate fails. |
 
+### Degraded Fallback Tests
+
+| Case | Expected |
+| --- | --- |
+| Full 3x2 available | `quorumResult=pass-full-3x2`; degraded fallback is not used. |
+| Second host credit exhausted with evidence and approval | `quorumResult=pass-degraded-3x1` after 3 fresh PASS rounds from the available host. |
+| Second host unauthenticated with host-runtime evidence and approval | `quorumResult=pass-degraded-3x1` after 3 fresh PASS rounds from the available host. |
+| Provider outage or rate limit is recorded but no approval exists | Gate blocks and reports missing degraded approval. |
+| No second host verdict and no unavailable-host evidence | Gate blocks; missing verdict alone is not fallback eligibility. |
+| Fabricated unavailable reason without host/runtime/provider evidence | Gate blocks with invalid fallback evidence. |
+| Degraded 3x1 tries to set `quorumResult=pass-full-3x2` | Gate blocks or contract test fails. |
+| Degraded 3x1 tries to set Authority receipt completion fields | Gate blocks and reports Authority overclaim. |
+
 ### Gate Tests
 
 | Case | Expected |
@@ -552,7 +762,9 @@ signature key mismatch
 | Escalated story has 3x2 over stale material | DONE blocks with stale-material reasons. |
 | Escalated story has valid 3x2 over current material | DONE gate passes this requirement. |
 | Clean non-decision story without trigger | DONE does not require 3x2. |
-| Decision-doc story has old hostId-only 3x2 but missing session/key | New-policy gate blocks after rollout. |
+| Decision-doc story with zero countable first-round findings | DONE does not require 3x2 after migration; before migration, current code may still report legacy decision-doc quorum. |
+| Escalated decision-doc story has old hostId-only 3x2 but missing session/key | New-policy gate blocks after rollout. |
+| Escalated decision-doc story uses approved degraded 3x1 | DONE may pass only with `assuranceLevel=degraded-single-host`. |
 
 ## Rollout Plan
 
@@ -563,6 +775,10 @@ Land this document and confirm the version 1 trigger:
 ```text
 first REVIEW round countable verified critical/high/medium findings >= 2
 ```
+
+Confirm documentation and decision-doc audit use the same target trigger. A
+documentation file change can affect reviewer context and diagnostics, but it is
+not a standalone 3x2 trigger under the target policy.
 
 Do not add a `critical >= 1` shortcut in version 1. That can be a later policy
 if product review wants it.
@@ -579,7 +795,10 @@ new DONE gate yet.
 
 ### Phase 2. Add Shared Independence Predicate
 
-Implement the shared predicate and refactor decision-doc quorum to use it.
+Implement the shared predicate and refactor decision-doc quorum to use it. During
+the same migration, remove direct decision-doc file changes as a target
+escalation trigger and retain the detector only for diagnostics, compatibility
+reporting, and migration warnings.
 
 The B-2c0c spoof reproduction must flip from pass to fail:
 
@@ -595,6 +814,20 @@ Add the first-round trigger evaluator and read-only status output.
 
 Do not wire DONE yet. First, make diagnostics visible and testable.
 
+### Phase 3b. Add Degraded Fallback Policy Evaluator
+
+Add degraded single-host policy evaluation before DONE wiring. This evaluator
+must require:
+
+- one allowed fallback reason;
+- recent second-host unavailable evidence or explicit user-approved local mode;
+- project policy or story-level user approval;
+- three fresh single-host PASS rounds;
+- `assuranceLevel=degraded-single-host` in every report path.
+
+Do not allow the fallback evaluator to set full-3x2 status or Authority receipt
+status.
+
 ### Phase 4. Wire DONE Gate
 
 Add the hard DONE predicate:
@@ -605,12 +838,13 @@ if requires3x2 then require valid 3x2 quorum
 
 The failure reason must tell the operator whether the blocker came from:
 
-- decision-doc change;
+- legacy decision-doc change during the migration window;
 - first-round finding threshold;
 - missing quorum rounds;
 - missing independent hosts;
 - stale material;
 - missing identity fields.
+- degraded fallback reason, approval, and assurance level when fallback is used.
 
 ### Phase 5. Registry and Contract Verification
 
@@ -623,6 +857,9 @@ Update lifecycle docs after code lands.
 
 Rollout policy:
 
+- The implementation story must explicitly migrate existing direct decision-doc
+  quorum behavior from an always-on trigger to the unified documentation-audit
+  trigger.
 - Active stories created before the implementation may use compatibility mode
   only if they already have legacy local host-verdict evidence.
 - New stories after rollout must fail closed on missing identity fields.
@@ -635,20 +872,30 @@ Implementation is complete only when all are true:
 1. A clean ordinary story with no first-round findings does not require 3x2.
 2. A story with exactly one countable first-round finding does not require 3x2.
 3. A story with exactly two countable first-round findings requires 3x2.
-4. A story with direct decision-doc changes requires 3x2 even with zero
-   findings.
+4. A story with direct decision-doc or documentation changes and zero countable
+   first-round findings does not require 3x2 after migration.
 5. Same-session or same-key host-verdict spoofing fails.
 6. Missing session/key identity fails for new-policy 3x2 evidence.
 7. Missing, invalid, mismatched, or material-weak local verdict signatures fail.
 8. Stale head/material/validation digest fails.
 9. Three rounds with two independent PASS hosts each passes the local 3x2
    requirement.
-10. `decision_doc_quorum_check` and `review_escalation_status` report the same
+10. When a second host is unavailable, approved degraded single-host review can
+    pass only after 3 fresh PASS rounds from the available host.
+11. Degraded review reports `assuranceLevel=degraded-single-host` and never
+    reports `pass-full-3x2`.
+12. Degraded review requires an allowed fallback reason and evidence or explicit
+    user-approved single-host local mode.
+13. Fabricated unavailability, silent downgrade, and Authority overclaim all
+    fail closed.
+14. `decision_doc_quorum_check` and `review_escalation_status` report the same
    ignored-verdict reasons used by DONE.
-11. Process fact registry and contract verification cover every new
+15. Process fact registry and contract verification cover every new
     gate-consumed fact.
-12. Documentation states clearly that local host verdict quorum is not Authority
+16. Documentation states clearly that local host verdict quorum is not Authority
     Server receipt completion.
+17. Documentation states clearly that any current direct decision-doc 3x2 gate
+    is legacy transitional behavior until the implementation story migrates it.
 
 ## Operator Transcript
 
@@ -663,6 +910,17 @@ round-2: missing 2 independent PASS hosts
 round-3: missing 2 independent PASS hosts
 materialDigest: sha256:...
 next: collect 2 independent PASS host verdicts for each missing quorum round
+```
+
+Expected status output after implementation for a documentation-only audit that
+does not trigger escalation:
+
+```text
+Review escalation: not required
+classification: documentation-audit
+trigger: none
+first REVIEW round countable problems 0/2
+next: continue through the normal REVIEW -> TEST -> DONE path
 ```
 
 Expected DONE failure:
@@ -685,11 +943,27 @@ rounds: 3/3
 independent PASS hosts per round: 2/2
 ```
 
+Expected degraded DONE pre-check row:
+
+```text
+review_escalation_quorum: PASS (degraded)
+trigger: first-review-round-findings
+rounds: 3/3
+PASS hosts per round: 1/1
+fallback reason: second-host-credit-exhausted
+assuranceLevel: degraded-single-host
+note: degraded review is not full 3x2 and not Authority receipt completion
+```
+
 ## Non-Goals
 
 This plan does not:
 
 - make every ordinary story always require 3x2;
+- keep documentation or decision-doc changes as permanent always-on 3x2 target
+  policy;
+- silently downgrade full 3x2 to 3x1;
+- report degraded single-host review as independent two-host review;
 - change the current REVIEW blocker decay policy;
 - count suspected or disproven findings as escalation triggers;
 - treat local host verdicts as Authority Server receipts;

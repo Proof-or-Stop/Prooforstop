@@ -1,0 +1,34 @@
+{
+  "storyId": "B-b663",
+  "checkedAt": "2026-06-15T02:44:10.264Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-15T02:44:10.264Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-15T02:44:10.264Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Subagent INIT reviewers are not being spawned for this tiny follow-up policy documentation change. I manually verified scope_boundary, execution_boundary, and scope_freeze_check constrain material changes to the single execution-plan decision document plus B-b663 metadata; runtime implementation is explicitly excluded.",
+    "evidenceRefs": [
+      "scope_boundary_set hash ff0f346b8822442591e6be0640349468ae746aa4dcd20b785a50ff7082e8ea3f",
+      "execution_boundary_set hash f31f03df371271b8c3e6d58145f9fee04ab59009a1b7e082f84d682177a0f416",
+      "scope_freeze_check PASS for B-b663"
+    ],
+    "actor": "codex-main-agent",
+    "session": "sess-09dfcbf6d89aeef3",
+    "attestedAt": "2026-06-15T02:44:10.264Z",
+    "headHash": "c088a91d15cd70b3df855e028396dc0f354f77d1",
+    "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4"
+  },
+  "_hash": "805fe7bc4128356cfdab10483daf1d82b8ede519504fd7813f8dca01eaf6a2f3"
+}

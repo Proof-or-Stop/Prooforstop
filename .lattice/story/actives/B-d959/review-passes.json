@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-d959:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test-coverage: CHK-001 verificationIntent is covered one-to-one by docs_check evidence; document lines 92-125 preserve default full 3x2, allowed fallback reasons, degraded/lower assurance, high-risk approval limits, explicit no silent/missing-verdict fallback, and no Authority overclaim; lines 705-712 add degraded fallback tests/negative controls for full-3x2 default, evidence+approval, missing approval/evidence, fabricated unavailability, pass-full-3x2 overclaim, and Authority overclaim.",
+      "createdAt": "2026-06-15T02:15:32.353Z",
+      "reviewRound": "2026-06-15T02:14:06.912Z",
+      "reviewRunId": "B-d959:RR-001",
+      "_hash": "28883fdcdc5d677500917b43d62b722c0cc8b7a9b8f91719267dc00667a188b0"
+    },
+    {
+      "id": "B-d959:RP-002",
+      "agent": "koala-review-concept",
+      "note": "PASS: degraded 3x1 is documented as an explicit lower-assurance fallback only when full 3x2 cannot obtain a second host and policy/approval plus evidence allow it. The plan preserves full 3x2 as default, forbids reporting degraded review as two-host independence or Authority receipt completion, and requires distinct degraded result/assurance markers.",
+      "createdAt": "2026-06-15T02:15:36.458Z",
+      "reviewRound": "2026-06-15T02:14:06.912Z",
+      "reviewRunId": "B-d959:RR-003",
+      "_hash": "178fa9362ec15e11f535f4aa1ce1f761c86ad2c6a651d4eedcab683d54cfd88b"
+    },
+    {
+      "id": "B-d959:RP-003",
+      "agent": "koala-review-docs",
+      "note": "PASS docs review: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md is ASCII English, open-source ready, and clearly labels 3x1 as degraded lower-assurance fallback rather than full 3x2 or Authority receipt completion. Related docs can remain untouched because this story updates the execution plan only; the plan itself says lifecycle/receipt docs update after implementation/code lands.",
+      "createdAt": "2026-06-15T02:16:07.817Z",
+      "reviewRound": "2026-06-15T02:14:06.912Z",
+      "reviewRunId": "B-d959:RR-002",
+      "_hash": "49de0904e2db0a7faf6376fd6703e0e874cdedd8e20b72ef631e955309ea9fd4"
+    },
+    {
+      "id": "B-d959:RP-004",
+      "agent": "koala-review-quality",
+      "note": "B-d959:F-001 fixed. The doc now separates unavailable-second-host and approved-single-host-local eligibility paths; unavailableSecondHostEvidencePresent is required only for unavailable-second-host while explicitSingleHostLocalApprovalPresent is the evidence for approved-single-host-local. requiredAssurance remains the two-host policy target and effectiveAssurance/achievedAssurance are separated for degraded single-host results. The policy is precise and implementable.",
+      "createdAt": "2026-06-15T02:20:14.637Z",
+      "reviewRound": "2026-06-15T02:18:31.855Z",
+      "reviewRunId": "B-d959:RR-008",
+      "_hash": "06466ccdd8f9b7ea493b5049e26adefc57a09b7b7c45ffe432bbd8ae6f2e6893"
+    },
+    {
+      "id": "B-d959:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed: changed execution plan is ASCII English, open-source ready, separates unavailable-second-host from approved-single-host-local fallback eligibility, marks degraded review as lower assurance, and leaves no stale related-doc obligation blocker.",
+      "createdAt": "2026-06-15T02:20:29.990Z",
+      "reviewRound": "2026-06-15T02:18:31.855Z",
+      "reviewRunId": "B-d959:RR-006",
+      "_hash": "957f0f198f280489b5faa4c3efe022724cd08c01f72639266c08d71243493c3d"
+    },
+    {
+      "id": "B-d959:RP-006",
+      "agent": "koala-review-concept",
+      "note": "PASS concept review after f1581955f: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:92 preserves full 3x2 as the default; :96-103 separates unavailable-second-host from approved-single-host-local and states neither proves two-host independence; :127-129, :348-365, and :556-560 keep degraded 3x1 lower-assurance and separate required/effective/achieved assurance; :424-426, :736-737, and :920-927 prevent Authority/full-3x2 overclaim. No blocker.",
+      "createdAt": "2026-06-15T02:20:34.087Z",
+      "reviewRound": "2026-06-15T02:18:31.855Z",
+      "reviewRunId": "B-d959:RR-005",
+      "_hash": "127878737b36a079c63e6de32e79ab84cfafc1aabbd7085e41975470d20a7abd"
+    },
+    {
+      "id": "B-d959:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: verification coverage remains complete after B-d959:F-001. lattice validate reports 6/6 verificationIntent covered and npm test passed. The decision doc covers both degraded eligibility paths (unavailable-second-host and approved-single-host-local), allowed reason codes, lower assurance/degraded-single-host reporting, no silent downgrade or fabricated unavailability, and separation from Authority receipt/full 3x2 claims via artifact fields, evaluator rules, completion criteria, transcript expectations, and degraded fallback negative tests.",
+      "createdAt": "2026-06-15T02:20:46.952Z",
+      "reviewRound": "2026-06-15T02:18:31.855Z",
+      "reviewRunId": "B-d959:RR-007",
+      "_hash": "e658f661d3405a6fcf4d42330e07f072f0272a15b4b55f6ac0e77336a9b570c3"
+    }
+  ]
+}

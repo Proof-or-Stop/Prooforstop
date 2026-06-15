@@ -15,7 +15,7 @@
  */
 
 import { execFileSync, execSync } from 'child_process';
-import type { ChecklistData } from './types.js';
+import type { ChecklistData, StoryPhase, TestEvidenceData } from './types.js';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -33,7 +33,7 @@ import {
   renderDirtyWorktreeGroups,
 } from './dirty-worktree.js';
 import { defaultAuditWriter, evaluateDirtyGate, type AuditWriter, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { checkEvidenceFreshnessForGit } from './evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash } from './evidence-freshness.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import {
   summarizeCodexEvidence,
@@ -135,10 +135,44 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
   return true;
 }
 
-// B-c622 CHK-009: evidence freshness check — DONE gate verifies whether test-evidence corresponds to current HEAD
-function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string): { fresh: boolean; message: string } {
+function checkCompletedEvidenceSnapshotFreshness(
+  projectRoot: string,
+  evidence: TestEvidenceData,
+): { fresh: boolean; message: string } {
+  if (!evidence.headHash) {
+    return { fresh: false, message: 'DONE test-evidence is missing headHash; cannot inspect recorded evidence snapshot' };
+  }
+  if (!evidence.materialHash) {
+    return { fresh: false, message: 'DONE test-evidence is missing materialHash; cannot validate recorded evidence snapshot' };
+  }
+
+  const recordedMaterialHash = currentMaterialHash(projectRoot, evidence.headHash);
+  if (!recordedMaterialHash) {
+    return {
+      fresh: false,
+      message: `recorded evidence head ${evidence.headHash.slice(0, 7)} cannot be inspected`,
+    };
+  }
+  if (recordedMaterialHash !== evidence.materialHash) {
+    return {
+      fresh: false,
+      message: `recorded evidence materialHash does not match material tree at ${evidence.headHash.slice(0, 7)}`,
+    };
+  }
+
+  return {
+    fresh: true,
+    message: `evidence materialHash matches recorded evidence snapshot @ ${evidence.headHash.slice(0, 7)}`,
+  };
+}
+
+// B-c622 CHK-009: active DONE-entry verifies current HEAD; completed DONE projections verify recorded snapshot.
+function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string, phase?: StoryPhase): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json does not exist' };
+  if (phase === 'DONE') {
+    return checkCompletedEvidenceSnapshotFreshness(projectRoot, evidence);
+  }
   const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash, evidence.materialHash);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
@@ -236,7 +270,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 1b. evidence freshness (B-c622 CHK-009)
-  const freshness = checkEvidenceFreshness(store, storyId, root);
+  const freshness = checkEvidenceFreshness(store, storyId, root, storyForPolicy.phase);
   if (!freshness.fresh) {
     rows.push(doneCheckRow({
       id: 'evidence-freshness',

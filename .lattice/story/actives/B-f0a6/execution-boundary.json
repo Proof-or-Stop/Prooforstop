@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f0a6",
+  "allowedCommands": [
+    "git rm -r packages/game",
+    "git status --short",
+    "node bin/lattice.js checklist_update",
+    "node bin/lattice.js delivery_check_set",
+    "node bin/lattice.js finding_*",
+    "node bin/lattice.js review_*",
+    "node bin/lattice.js session_brief",
+    "node bin/lattice.js story_advance",
+    "node bin/lattice.js summary_set",
+    "node bin/lattice.js validate --story=B-f0a6 --json",
+    "npm test",
+    "rg @lattice/game residual references",
+    "rg packages/game residual references"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent reviewer lanes"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-f0a6",
+    "docs/requirements/decisions/test-fixture-spec.md",
+    "packages/game"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "omx",
+    "rm -rf .omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    ".worktrees",
+    "docs/story",
+    "packages/cli-guess-number",
+    "packages/lab",
+    "packages/main/dist",
+    "packages/main/src",
+    "packages/python-demo",
+    "packages/python-rps",
+    "packages/utils",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Maintenance deletion story. Material edits are limited to removing packages/game and replacing direct documentation references in test-fixture-spec.md. Verification may read broader repo paths with rg but must not edit them.",
+  "createdAt": "2026-06-15T02:52:57.556Z",
+  "updatedAt": "2026-06-15T02:52:57.556Z",
+  "_hash": "5308e83ca93eb1065c113b30e2490c294dc50f19243d0986bfb14be78e7a5c37"
+}
