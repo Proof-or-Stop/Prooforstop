@@ -92,9 +92,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T12:02:25.713Z",
-      "endTime": null,
+      "endTime": "2026-06-15T12:02:26.088Z",
       "userSees": "Terminal shows \"Codex agent asset resolution: pass runtime-owned registry=<sha256>; local prompt assets: absent; authorityBoundary=localNonAuthority\".",
       "files": {
         "modify": [
@@ -132,6 +132,38 @@
       "excludes": [
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md: source-of-truth reference only unless implementation discovers a factual doc correction",
         "docs/audits/lattice-token-cost-and-takeover-audit.md: source-of-truth reference only unless token accounting numbers change"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "smoke inspects runCodexAdapterChecks output and confirms the agent-asset-resolution check reports runtime-owned mode, promptRegistryHash, and localNonAuthorityAudit boundary",
+          "headHash": "fa17b26db49be357a6c7e19d2a307fe156e4ce2c",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:26.163Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js && node packages/main/dist/tasks/rollout-check-smoke.js",
+          "result": "pass",
+          "note": "runtime-owned smoke verifies rollout probe warns on stale local prompt assets with manual review guidance; rollout-check-smoke preserves read-only rollout command contract",
+          "headHash": "fa17b26db49be357a6c7e19d2a307fe156e4ce2c",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:26.202Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/rollout-check-smoke.js",
+          "result": "pass",
+          "note": "existing rollout smoke verifies rollout_check records no apply/upgrade/repair/fix commands; implementation adds only an in-process read-only probe",
+          "headHash": "fa17b26db49be357a6c7e19d2a307fe156e4ce2c",
+          "materialHash": "22a61652d089b957631d2d18b2d097755ead96db87d5a64629ebdbdd1295c72e",
+          "timestamp": "2026-06-15T12:02:26.230Z"
+        }
       ]
     },
     {
