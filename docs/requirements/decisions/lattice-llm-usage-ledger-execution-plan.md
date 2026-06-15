@@ -364,7 +364,8 @@ comparable without discarding provider fidelity.
       }
     ],
     "estimator": null,
-    "unavailableReason": null
+    "unavailableReason": null,
+    "pricingRef": "price-table@2026-06-15"
   },
   "privacy": {
     "promptStored": false,
@@ -423,6 +424,9 @@ Required record constraints:
 - Every provider-reported record must carry both the raw provider digest
   (`usage.raw`) and the normalized `usage.canonical`
   `{input, output, cacheCreation, cacheRead}` view.
+- Records may carry `usage.pricingRef` / `pricingVersion` referencing a versioned
+  price-table snapshot, but must never store an absolute dollar amount or
+  hardcoded per-token price (see Cost Derivability).
 - `decision.kind=blocked` records fail-closed budget behavior and must not send
   a provider request after the block decision.
 - Hashes are for correlation and tamper evidence; they do not make a local
@@ -485,6 +489,29 @@ Mapping rules (provider cache/cached-token fields to canonical cache fields):
   still mapping `input` and `output`.
 - `canonical.input` follows the same uncached-remainder semantics as
   `inputTokens`: it is the uncached input only, not the gross input.
+
+## Cost Derivability
+
+Per-token prices change over time, and cache reads/writes are priced differently
+from base input (cache reads cost roughly a small fraction of base input; cache
+writes cost more than base input, with different multipliers for different cache
+TTLs). A dollar amount baked into an append-only record therefore goes stale and
+becomes wrong the next time pricing changes, and an append-only record cannot be
+corrected. Cost is consequently never stored as an absolute amount on the record.
+
+Rules:
+
+- Cost is derived only in a dedicated layer that pins `provider.model` plus a
+  date to a versioned price table (per-model $/MTok plus cache-read and
+  cache-write multipliers). The four-field/canonical token counts feed that
+  derivation.
+- The record carries a `pricingRef` / `pricingVersion` reference (a pointer to
+  the versioned price-table snapshot in effect at `recordedAt`), not absolute
+  prices. The price-table snapshot mechanism is what maps a `pricingRef` to the
+  concrete per-model rates and cache multipliers.
+- No absolute dollar amount or hardcoded per-token price may be baked into the
+  append-only record beyond the `pricingRef` reference. The append-only record
+  stays a token-and-reference record; money is computed downstream.
 
 ## Local Non-authority Boundary
 
@@ -574,6 +601,10 @@ Future implementation should be split into narrow slices:
    - make postflight provider-reported overages visible and auditable.
 5. Status and diagnostics:
    - read ledger summaries without changing gates;
+   - derive totals via the summary identity rather than reading a stored total;
+   - derive cost only in a layer that pins model+date to a versioned price table
+     via `pricingRef`, never from a per-record dollar amount (see Cost
+     Derivability);
    - surface unknown or unavailable usage as unknown, not zero;
    - exclude superseded estimates from final usage totals;
    - avoid model-routing or optimization advice in the first slice.
