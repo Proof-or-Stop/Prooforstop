@@ -8,8 +8,8 @@
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T14:26:03.913Z",
       "endTime": null,
       "files": {
         "modify": [],
@@ -138,6 +138,17 @@
         ]
       },
       "userSees": "User sees a concise B-f495 audit disposition stating accepted claims, required document fixes, verification commands, and whether implementation should proceed separately."
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-15T14:26:03.913Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Recording audit evidence for CLI surface checks."
     }
   ]
 }
