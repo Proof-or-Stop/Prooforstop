@@ -105,8 +105,9 @@ identifier.
 4. **User-visible output** (hints, errors, `cli-output`): short, actionable, no
    internal jargon. Prefer plain English over abbreviations.
 5. **Preserve identifiers exactly**: command names, enum values, JSON keys, IDs,
-   filenames, and legacy aliases (`lattice` / `koala`) are never reworded, and
-   template tokens such as `${e.message}` are kept verbatim.
+   filenames, historical/process identifiers, and template tokens such as
+   `${e.message}` are kept verbatim. Active executable command guidance uses
+   `lattice`.
 6. **Apply the glossary**: use `blocked` vs `excluded` per the glossary, and use
    `source of truth` and `iteration` consistently.
 
@@ -219,8 +220,8 @@ Reviewer checks:
 - Phase-aware next-step hints are English.
 - Tests no longer require Chinese output except in explicitly named legacy
   compatibility assertions.
-- `koala` remains documented only as a legacy alias, not as the primary product
-  name.
+- Active user-facing command guidance documents `lattice` only; historical
+  process names remain only as identifiers.
 
 ## Translation Review Table
 

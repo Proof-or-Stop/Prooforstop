@@ -181,7 +181,7 @@ export function getGuardFailureReason(
       try {
         const findings = store.readFindings(storyId);
         if (!findings.findings || findings.findings.length === 0) {
-          return `Cannot enter TEST: reviewer has not run (findings.json is empty)\n→ Launch reviewer per opt-in results (see koala reviewer_list)`;
+          return `Cannot enter TEST: reviewer has not run (findings.json is empty)\n→ Launch reviewer per opt-in results (see lattice reviewer_list)`;
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
@@ -238,7 +238,7 @@ export function getGuardFailureReason(
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing run finding_resolve, or to confirm not fixing run finding_dismiss (reason must be ≥10 characters)`;
         }
       } catch {
-        return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see koala reviewer_list)`;
+        return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see lattice reviewer_list)`;
       }
     }
   }
@@ -246,7 +246,7 @@ export function getGuardFailureReason(
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
-      return 'Cannot enter DONE: no test evidence (run koala validate first)';
+      return 'Cannot enter DONE: no test evidence (run lattice validate first)';
     }
     if (evidence.result !== 'PASS') {
       return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;

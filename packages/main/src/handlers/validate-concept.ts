@@ -295,7 +295,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
 }
 
 /**
- * B-9d95 CHK-006: CLI entry for `koala validate --concept`.
+ * B-9d95 CHK-006: CLI entry for `lattice validate --concept`.
  *
  * Does not spawn pytest / does not run full validate.ts — directly calls checkConcept, outputs
  * structured results + human-readable rendering. Used for independent REVIEW→TEST preflight routing.

@@ -87,9 +87,9 @@ function buildCandidates(baseline) {
 }`),
     sample('r03-fix-command-first', 'Fix Command First', `
 Fix first:
-1. koala checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
+1. lattice checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
 2. koala decision_set '{...preMortem...}'
-3. koala story_review '{"storyId":"B-x"}'
+3. lattice story_review '{"storyId":"B-x"}'
 
 Review data:
 issueCount=4

@@ -14,14 +14,14 @@
  *   - [CHK-001] Bind no-validator warn/skip requirement to verifier implementation
  *   - [CHK-002] Cover no-entry warn/skip and configured-command hard-fail behavior
  *
- * Verifier handlers — koala validate / status / serve
+ * Verifier handlers — lattice validate / status / serve
  *
  * These commands prefer the project's validate.ts file when present (D/M/F verifier
  * pattern), then fall back to configured or auto-discovered language test commands.
  *
- * koala validate   → validate.ts/js/mts or configured/discovered project tests
- * koala status     → spawn `npx tsx validate.ts --status` in project root
- * koala serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
+ * lattice validate   → validate.ts/js/mts or configured/discovered project tests
+ * lattice status     → spawn `npx tsx validate.ts --status` in project root
+ * lattice serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
  */
 
 import { execSync, spawn } from 'node:child_process';
@@ -557,7 +557,7 @@ function renderExternalResult(result: any): string {
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     /**
-     * koala validate [--full[=filter]] [--story=B-xxx] [--json]
+     * lattice validate [--full[=filter]] [--story=B-xxx] [--json]
      *
      * Runs the project's validate.ts with appropriate flags.
      * Returns human-readable output by default, or ExternalVerifierResult with --json.
@@ -665,7 +665,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             headSha: currentHead(projectRoot),
           });
           const decorated = args.story ? decorateStoryVerification(ctx, args.story, base) : base;
-          if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
+          if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
           if (args.json) return JSON.stringify(decorated);
           return renderExternalResult(decorated);
         }
@@ -700,7 +700,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           commands: base.commands,
         });
         const decorated = args.story ? decorateStoryVerification(ctx, args.story, result) : result;
-        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
+        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
         if (args.json) return JSON.stringify(decorated);
         return renderExternalResult(decorated);
       }
@@ -765,7 +765,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           commands: [commandResult],
         });
         const decorated = args.story ? decorateStoryVerification(ctx, args.story, polluted) : polluted;
-        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
+        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
         if (args.json) return JSON.stringify(decorated);
         return renderExternalResult(decorated);
       }
@@ -778,7 +778,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
           const decorated = args.story ? decorateStoryVerification(ctx, args.story, parsed) : parsed;
-          if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
+          if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
           return JSON.stringify(decorated);
         }
         // If validate.ts doesn't support --json yet, wrap the output
@@ -799,7 +799,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           commands: [commandResult],
         };
         const decorated = args.story ? decorateStoryVerification(ctx, args.story, wrapped) : wrapped;
-        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
+        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
         return JSON.stringify(decorated);
       }
 
@@ -825,7 +825,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * koala status [--concise]
+     * lattice status [--concise]
      *
      * Unified project status: story progress + Machine code status.
      * Two sections run in parallel (Promise.all).
@@ -849,7 +849,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const validateFile = findValidateFile(projectRoot);
         if (!validateFile) return '';
 
-        // Try serve cache first (if koala serve is running, result is instant)
+        // Try serve cache first (if lattice serve is running, result is instant)
         try {
           const { stablePort } = await import('../verifier/browser-executor.js');
           const httpPort = stablePort(projectRoot, 1);
@@ -867,7 +867,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const cmd = `npx tsx ${validateFile} --status`;
           const body = [
             `✗ ${cmd} timed out after ${Math.round(STATUS_FALLBACK_TIMEOUT_MS / 1000)}s.`,
-            '  Run `koala validate` for full diagnostics, or start `koala serve` to use cached status.',
+            '  Run `lattice validate` for full diagnostics, or start `lattice serve` to use cached status.',
           ];
           if (output.trim()) body.push(...output.trim().split('\n').map(line => `  ${line}`));
           return '\n── Code Verification ──\n' + body.join('\n');
@@ -885,7 +885,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * koala serve [--dev="..."] [--port=N]
+     * lattice serve [--dev="..."] [--port=N]
      *
      * Start HTTP API server for real-time debugging.
      * This is a long-running process, so we spawn it and return the startup info.

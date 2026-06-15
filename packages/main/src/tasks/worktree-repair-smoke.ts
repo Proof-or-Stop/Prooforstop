@@ -250,7 +250,7 @@ async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> 
 
     const text = await runKoala(root, 'doctor', {});
     assert.match(text, /Partial-DONE scan:/);
-    assert.match(text, new RegExp(`koala done_recover --storyId=${storyId}`));
+    assert.match(text, new RegExp(`lattice done_recover --storyId=${storyId}`));
 
     const recovered = await runKoala(root, 'done_recover', { storyId });
     assert.match(recovered, new RegExp(`partial-DONE recovered: ${storyId}`));

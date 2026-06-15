@@ -65,7 +65,7 @@ const HIGH_RISK_PATTERNS: Array<{ pattern: RegExp; category: string }> = [
   { pattern: /\b(auth|authn|authz|security|password|token|secret|credential)\b|(?:\u5bc6\u7801|\u53e3\u4ee4|\u51ed\u636e|\u79d8\u94a5|\u5bc6\u94a5|\u9274\u6743|\u8ba4\u8bc1|\u6388\u6743|\u6743\u9650|\u5b89\u5168)/iu, category: 'Security/Credentials' },
   { pattern: /\b(migration|schema migration|destructive|drop\s+table|truncate)\b|(?:\u6570\u636e\u8fc1\u79fb|\u6570\u636e\u5e93\u8fc1\u79fb|\u8fc1\u79fb|\u8868\u7ed3\u6784|\u7834\u574f\u6027|\u5220\u5e93|\u5220\u8868|\u6e05\u8868|\u6e05\u7a7a\u6570\u636e|\u6e05\u7a7a\u8868|\u622a\u65ad)/iu, category: 'Data Migration/Destructive' },
   { pattern: /\b(machine\.ts|state machine|phase flow|story_advance|DONE gate|TEST gate|guard logic)\b|(?:\u72b6\u6001\u673a|\u72b6\u6001\u6d41|\u9636\u6bb5\u6d41|\u9636\u6bb5\u6d41\u8f6c|\u5b88\u536b\u903b\u8f91|\u95e8\u7981|\u95e8\u69db|\u95e8\u63a7|\u95f8\u95e8)/iu, category: 'State Machine/Gate' },
-  { pattern: /\b(validate\.ts|koala validate|lattice validate|validation protocol|verifier|fixture runner|test\s*runner|test_auto)\b|(?:\u9a8c\u8bc1\u6846\u67b6|\u6821\u9a8c\u6846\u67b6|\u9a8c\u8bc1\u534f\u8bae|\u9a8c\u8bc1\u95e8\u7981|\u9a8c\u8bc1\u95e8\u69db|\u6d4b\u8bd5\u8fd0\u884c\u5668|fixture\s*\u8fd0\u884c\u5668|\u81ea\u52a8\u6d4b\u8bd5)/iu, category: 'Validation Framework' },
+  { pattern: /\b(validate\.ts|lattice validate|lattice validate|validation protocol|verifier|fixture runner|test\s*runner|test_auto)\b|(?:\u9a8c\u8bc1\u6846\u67b6|\u6821\u9a8c\u6846\u67b6|\u9a8c\u8bc1\u534f\u8bae|\u9a8c\u8bc1\u95e8\u7981|\u9a8c\u8bc1\u95e8\u69db|\u6d4b\u8bd5\u8fd0\u884c\u5668|fixture\s*\u8fd0\u884c\u5668|\u81ea\u52a8\u6d4b\u8bd5)/iu, category: 'Validation Framework' },
   { pattern: /\b(git\s+(restore|reset|clean|push --force))\b|(?:git\s*(?:\u6062\u590d|\u91cd\u7f6e|\u6e05\u7406|\u5f3a\u63a8)|\u5f3a\u5236\u63a8\u9001|\u7834\u574f\u6027\s*git)/iu, category: 'git Destructive Operation' },
   { pattern: /\b(production|incident|hotfix|p0|p1)\b|(?:\u751f\u4ea7\u73af\u5883|\u751f\u4ea7\u4e8b\u6545|\u751f\u4ea7|\u7ebf\u4e0a|\u4e8b\u6545|\u7d27\u6025|\u7d27\u6025\u4fee\u590d|\u70ed\u4fee|\u70ed\u4fee\u590d)/iu, category: 'Production/Emergency' },
   { pattern: /\b(PII|personally identifiable|GDPR|compliance)\b|(?:\u9690\u79c1|\u5408\u89c4|\u4e2a\u4eba\u4fe1\u606f|\u654f\u611f\u4fe1\u606f|\u7528\u6237\u6570\u636e|\u6570\u636e\u4fdd\u62a4)/iu, category: 'Compliance/Privacy' },
@@ -134,7 +134,7 @@ const RECENT_CONCURRENT_WINDOW_MS = 30 * 60 * 1000;
  * created within the last 30 minutes that are still active (phase ∉
  * DONE/DISCARDED). If any exist, the operator likely has a parallel agent
  * working the same backlog — surface the list on stderr so it is visible even
- * under a `koala story_create | tail` pipe. Returns '' when nothing matches so
+ * under a `lattice story_create | tail` pipe. Returns '' when nothing matches so
  * the caller never emits a false-positive line.
  *
  * `justCreatedId` is excluded so the freshly minted story does not list
@@ -503,7 +503,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // B-6812 CHK-003 (G3): advisory text — riskHint, keyword-overlap
       // dupWarning — is collected here but written to STDERR right before the
       // create result is returned, never spliced into the stdout return value.
-      // Rationale: `koala story_create | tail` silently swallows stdout tail
+      // Rationale: `lattice story_create | tail` silently swallows stdout tail
       // lines; the create conclusion (`Story B-xxxx created ...`) must stay on
       // stdout as the command's return value, while duplicate / concurrency
       // warnings must survive pipes by going to stderr (matches the existing

@@ -43,12 +43,12 @@ const targetDocs = [
 ];
 
 const staleFirstSessionPhrases = [
-  'Run `koala status` at the start of every new session',
-  'Run `koala status` before taking action',
-  'koala status — check for existing active story',
-  'koala status — see current phase',
-  'Not sure what to do now? Run koala status',
-  'koala status                # one-screen view of project status',
+  'Run `lattice status` at the start of every new session',
+  'Run `lattice status` before taking action',
+  'lattice status — check for existing active story',
+  'lattice status — see current phase',
+  'Not sure what to do now? Run lattice status',
+  'lattice status                # one-screen view of project status',
 ];
 
 for (const file of targetDocs) {
@@ -154,8 +154,8 @@ function tmpRoot(prefix: string): string {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
-      detail: 'koala session_brief',
-      args: { command: 'koala session_brief' },
+      detail: 'lattice session_brief',
+      args: { command: 'lattice session_brief' },
       endTime: new Date().toISOString(),
     }) + '\n');
     const result = runHook(root, JSON.stringify({ cwd: root }));
@@ -190,8 +190,8 @@ function tmpRoot(prefix: string): string {
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'actives', 'B-demo', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
-      detail: 'koala session_brief',
-      args: { command: 'koala session_brief' },
+      detail: 'lattice session_brief',
+      args: { command: 'lattice session_brief' },
       endTime: new Date().toISOString(),
     }) + '\n');
     const result = runHook(root, JSON.stringify({ cwd: root }));

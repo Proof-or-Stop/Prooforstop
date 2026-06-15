@@ -1,7 +1,7 @@
 /**
  * B-c55d CHK-005: doctor stale story-owner-lease check.
  *
- * `koala doctor` scans every active story's `owner-lease.json`
+ * `lattice doctor` scans every active story's `owner-lease.json`
  * (`.lattice/story/actives/<storyId>/owner-lease.json`, with legacy `.koala`
  * story directories still scanned when present) and reports whether any
  * of them is STALE — i.e. its `heartbeatAt` has not advanced for at least
@@ -143,7 +143,7 @@ export function scanStoryOwnerLeases(
 }
 
 /**
- * Render the owner-lease scan as `koala doctor` text-report lines.
+ * Render the owner-lease scan as `lattice doctor` text-report lines.
  *
  * Returns the lines for the "Story owner leases:" section body. The style
  * mirrors `renderMainWriteLockScan`: a `✓` healthy line when there is nothing

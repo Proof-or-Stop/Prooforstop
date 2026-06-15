@@ -96,7 +96,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
 
       // CHK-004: storyId 已废弃
       if (args.storyId) {
-        warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。当前 story 验证请用 koala validate --story=<storyId> 并记录 verificationEvidence');
+        warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。当前 story 验证请用 lattice validate --story=<storyId> 并记录 verificationEvidence');
       }
       progress(`[DEBUG] root=${root}`);
       progress(`[DEBUG] config.fixturesDir=${config.fixturesDir}`);
@@ -275,7 +275,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         }
       }
 
-      // CHK-004: test_auto 全量回归不写 bug/evidence（当前流程用 koala validate + verificationEvidence）
+      // CHK-004: test_auto 全量回归不写 bug/evidence（当前流程用 lattice validate + verificationEvidence）
       const totalCases = fixtureResults.reduce((sum, r) => sum + r.cases.length, 0);
       const passedCases = fixtureResults.reduce((sum, r) => sum + r.cases.filter(c => c.passed).length, 0);
       const browserAllPassed = browserResults.every(r => r.passed);

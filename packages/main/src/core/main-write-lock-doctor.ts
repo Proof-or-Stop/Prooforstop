@@ -1,7 +1,7 @@
 /**
  * B-f60c CHK-004: doctor stuck-lock check for the unified main write lock.
  *
- * `koala doctor` scans `.lattice/locks/main-write.lock/` and reports whether it is
+ * `lattice doctor` scans `.lattice/locks/main-write.lock/` and reports whether it is
  * currently held, and — critically — whether the held lock is STUCK (mtime
  * older than the lock primitive's own stale-reclaim window) versus a normal
  * ACTIVE holder still inside its critical section.
@@ -87,7 +87,7 @@ export function scanMainWriteLock(root: string, staleMs?: number): MainWriteLock
 }
 
 /**
- * Render the main write lock scan as `koala doctor` text-report lines.
+ * Render the main write lock scan as `lattice doctor` text-report lines.
  * Returns the lines for the "Main write lock:" section body.
  */
 export function renderMainWriteLockScan(scan: MainWriteLockScan): string[] {

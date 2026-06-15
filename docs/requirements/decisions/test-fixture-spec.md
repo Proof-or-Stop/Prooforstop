@@ -380,7 +380,7 @@ When `test_auto` runs, it creates a temporary store to isolate the test data, an
 
 ### Configuration
 
-Add a `browser` config to `koala.config.json` (`koala init` will auto-detect a browser project):
+Add a `browser` config to `koala.config.json` (`lattice init` will auto-detect a browser project):
 
 ```json
 {

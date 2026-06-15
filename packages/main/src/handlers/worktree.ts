@@ -157,7 +157,7 @@ export function repairGlobalKoalaLinkBeforeWorktreeDelete(
 /**
  * B-9e4a CHK-001 (F-003): A freshly created git worktree does NOT inherit the
  * main repo's `node_modules` (git worktree only checks out tracked files, and
- * `node_modules` is gitignored). Without it, `tsc` / `koala validate` fail with
+ * `node_modules` is gitignored). Without it, `tsc` / `lattice validate` fail with
  * unresolved-dependency errors. Detect the gap so worktree creation never reports
  * "development environment is ready" alone while dependencies are actually missing.
  *
@@ -213,7 +213,7 @@ export function detectMissingNodeModulesWarning(worktreePath: string): string | 
 
     return [
       `⚠ worktree missing node_modules: ${missing.join(', ')}`,
-      `  Missing dependencies will cause tsc / koala validate to fail to resolve modules.`,
+      `  Missing dependencies will cause tsc / lattice validate to fail to resolve modules.`,
       `  → Remediation (recommended): cd ${worktreePath} && npm install`,
       `  → Advanced optional: manually symlink main repo node_modules to this worktree`,
     ].join('\n');
@@ -799,7 +799,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const parallelWarning = checkParallelSafety(args.storyId);
 
       // B-9e4a CHK-001 (F-003): warn when the fresh worktree lacks node_modules,
-      // which would otherwise make tsc / koala validate fail with unresolved deps.
+      // which would otherwise make tsc / lattice validate fail with unresolved deps.
       const nodeModulesWarning = detectMissingNodeModulesWarning(worktreePath);
 
       // Dependency check
@@ -1021,7 +1021,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             throw new Error(
               `Worktree git metadata is corrupted, cannot safely check for uncommitted changes:\n` +
               `${wtPath}\n` +
-              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: koala story_discard '{"storyId":"${args.storyId}","force":true}'`,
+              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`,
             );
           }
 
@@ -1049,7 +1049,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
               const wtStatus = git('status --porcelain', wtPath);
               if (wtStatus) {
                 throw new Error(
-                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: koala story_discard '{"storyId":"${args.storyId}","force":true}'`
+                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`
                 );
               }
             }

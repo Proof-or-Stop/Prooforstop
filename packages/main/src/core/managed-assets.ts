@@ -528,12 +528,12 @@ function isExpandedKoalaAgentsGuide(actual: string): boolean {
     && actual.includes('Fail-fast policy');
   const english = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('Two-Layer Process Fact Contract')
     && actual.includes('Story Phase Transitions')
     && actual.includes('Fail-fast policy');
   const legacyChinese = actual.includes('# AGENTS.md')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
     && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
     && actual.includes('Fail-fast policy');
@@ -558,13 +558,13 @@ function isExpandedKoalaOverview(actual: string): boolean {
 
 function isExpandedKoalaClaudeGuide(actual: string): boolean {
   const english = actual.includes('# CLAUDE.md')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('REVIEW→TEST')
     && actual.includes('Claude Prompt Hook')
     && actual.includes('Reviewer opt-in')
     && actual.includes('Framework Introspection audit Configuration');
   const legacyChinese = actual.includes('# CLAUDE.md')
-    && actual.includes('koala session_brief')
+    && actual.includes('lattice session_brief')
     && actual.includes('REVIEW→TEST')
     && actual.includes('Claude Prompt Hook')
     && actual.includes('Reviewer opt-in')

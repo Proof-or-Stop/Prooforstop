@@ -42,7 +42,7 @@ export interface Transition {
   description: string;
   /** Input structure description (optional, used by Dashboard to generate forms, does not affect API) */
   inputSchema?: Record<string, InputFieldSchema>;
-  /** Circuit cross-endpoint routing declaration (optional, used for koala serve --circuit multi-machine joint debugging) */
+  /** Circuit cross-endpoint routing declaration (optional, used for lattice serve --circuit multi-machine joint debugging) */
   circuit?: CircuitRef;
 }
 
@@ -167,7 +167,7 @@ export interface ValidateResult {
   allPass: boolean;
 }
 
-/** koala validate --json structured output (consumed by gate) */
+/** lattice validate --json structured output (consumed by gate) */
 export interface ExternalVerifierResult {
   provider: 'koala-verifier';
   status: 'pass' | 'fail' | 'warn';

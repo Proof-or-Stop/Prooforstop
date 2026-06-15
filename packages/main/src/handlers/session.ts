@@ -674,7 +674,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
         // Dashboard: reuse story_list handler output's _dashboard field.
         // We call the same handler via ctx-level helpers so the exact
-        // same numbers show up in brief and in `koala story_list`.
+        // same numbers show up in brief and in `lattice story_list`.
         let dashboardText: string | null = null;
         const worktrees = listActiveWorktrees(ctx.root);
         const zombiesForBrief = detectZombieStories(ctx.store, ctx.root);

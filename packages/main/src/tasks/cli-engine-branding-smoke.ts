@@ -62,7 +62,7 @@ function stripContextualLegacyTokens(line: string): string {
     stripped = stripped.replace(/Lattice\/Koala/g, 'Lattice');
   }
 
-  if (/koala <|koala lattice/i.test(stripped)) {
+  if (/koala <|lattice lattice/i.test(stripped)) {
     stripped = stripped.replace(/koala (?=<|lattice)/gi, '');
   }
 

@@ -8,7 +8,7 @@
  * Design principles:
  *   - Never throw (PROBE class). An error in any single rule only affects that rule; the overall fallback is return [].
  *   - Do not write health (warnings are soft reminders, not health issues)
- *   - When there is no active story, return [] directly to avoid disturbing koala help / koala doctor
+ *   - When there is no active story, return [] directly to avoid disturbing lattice help / lattice doctor
  */
 
 import { execSync } from 'child_process';

@@ -182,7 +182,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Test evidence',
       detail: 'no test evidence',
-      hint: `koala validate --json`,
+      hint: `lattice validate --json`,
       source: 'test-evidence.json',
     }));
   } else if (evidence.result !== 'PASS') {
@@ -191,7 +191,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Test evidence',
       detail: `${evidence.result}: ${evidence.output.slice(0, 120)}`,
-      hint: 'rerun koala validate after fixing failures',
+      hint: 'rerun lattice validate after fixing failures',
       source: 'test-evidence.json',
     }));
   } else {
@@ -205,7 +205,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'Test evidence',
           detail: `allPassed=${parsed.allPass ?? parsed.allPassed}`,
-          hint: 'rerun koala validate after fixing failures',
+          hint: 'rerun lattice validate after fixing failures',
           source: 'test-evidence.json',
         }));
       }
@@ -243,7 +243,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Evidence freshness',
       detail: freshness.message,
-      hint: 'koala validate --json',
+      hint: 'lattice validate --json',
       source: 'test-evidence.json',
     }));
   } else {
@@ -266,7 +266,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Bugs fixed',
       detail: `${openBugs.length} open / ${total} total: ${openBugs.map(b => b.id).join(', ')}`,
-      hint: 'rerun koala validate after fixing all open bugs',
+      hint: 'rerun lattice validate after fixing all open bugs',
       source: 'bugs.json',
     }));
   } else {
@@ -315,7 +315,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     ];
     if (!result.allPass) {
-      hintLines.push('If these files come from koala validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. KOALA_WRITE_*_REPORT=1) to explicitly enable report writing.');
+      hintLines.push('If these files come from lattice validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. KOALA_WRITE_*_REPORT=1) to explicitly enable report writing.');
     }
     const hint = hintLines.join('\n');
     rows.push(doneCheckRow({
@@ -348,7 +348,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'warn',
           label: 'Branch synced with main',
           detail: `${branch} does not exist (may have been manually merged and cleaned up)`,
-          hint: `if story is still stuck at TEST/DONE boundary, use koala story_reconcile '{"dryRun":false}' to repair phase/worktree metadata`,
+          hint: `if story is still stuck at TEST/DONE boundary, use lattice story_reconcile '{"dryRun":false}' to repair phase/worktree metadata`,
           source: 'git worktree metadata',
           blocking: false,
         });

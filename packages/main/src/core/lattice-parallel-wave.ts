@@ -553,7 +553,7 @@ function dispatchAgentRole(recommendation: ParallelWaveRecommendation): Parallel
 
 function dispatchNextCommand(ref: ParallelWaveStoryRef): string {
   if (ref.recommendation === 'parallel_dev') {
-    return `koala dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=koala-implementer`;
+    return `lattice dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=koala-implementer`;
   }
   if (ref.recommendation === 'plan_only') {
     return `koala parallel_plan --storyIds='["${ref.storyId}"]'`;

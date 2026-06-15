@@ -363,16 +363,16 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.Codex', 'agents', 'reviewer.md'), 'old codex-only prompt\n');
 
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
-    assertIncludes(initOut, 'Selected init profile: all', 'koala init explicit all profile selection');
-    assertIncludes(initOut, 'explicit --profile=all', 'koala init explicit all reason');
-    assertIncludes(initOut, '.Codex/README.md', 'koala init output');
+    assertIncludes(initOut, 'Selected init profile: all', 'lattice init explicit all profile selection');
+    assertIncludes(initOut, 'explicit --profile=all', 'lattice init explicit all reason');
+    assertIncludes(initOut, '.Codex/README.md', 'lattice init output');
     assertProfileAssets(tempDir, 'all');
 
     const defaultConfig = readJson(tempDir, 'lattice.config.json');
-    assert(defaultConfig.scanRoot === '.', 'default koala init without preexisting src should set scanRoot=.');
-    assertPathMissing(tempDir, 'src/core', 'default koala init src/core');
-    assertPathMissing(tempDir, 'src/shells', 'default koala init src/shells');
-    assertPathMissing(tempDir, 'tests', 'default koala init tests');
+    assert(defaultConfig.scanRoot === '.', 'default lattice init without preexisting src should set scanRoot=.');
+    assertPathMissing(tempDir, 'src/core', 'default lattice init src/core');
+    assertPathMissing(tempDir, 'src/shells', 'default lattice init src/shells');
+    assertPathMissing(tempDir, 'tests', 'default lattice init tests');
     assertManagedMarkerSync(readFileSync(join(tempDir, 'LATTICE.md'), 'utf8'), 'host-neutral', null, 'LATTICE.md');
     const generatedClaude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
     assertIncludes(generatedClaude, 'LATTICE.md', 'all profile CLAUDE.md should point to LATTICE.md');
@@ -415,11 +415,11 @@ checks.push(() => {
     assert(codexManifest.excludedRuntimeAssets.includes('.Codex/settings.json'), 'adapter manifest should exclude .Codex/settings.json');
     assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
     assertPathExists(tempDir, '.codex/hooks.json', 'lattice init .codex/hooks.json');
-    assertPathMissing(tempDir, '.Codex/settings.json', 'koala init .Codex/settings.json');
+    assertPathMissing(tempDir, '.Codex/settings.json', 'lattice init .Codex/settings.json');
 
     const codexAgents = readdirSync(join(tempDir, '.Codex', 'agents'));
-    assert(!codexAgents.includes('implementer.md'), 'koala init should not keep stale Codex-only implementer.md');
-    assert(!codexAgents.includes('reviewer.md'), 'koala init should not keep stale Codex-only reviewer.md');
+    assert(!codexAgents.includes('implementer.md'), 'lattice init should not keep stale Codex-only implementer.md');
+    assert(!codexAgents.includes('reviewer.md'), 'lattice init should not keep stale Codex-only reviewer.md');
 
     const generatedWrapper = readFileSync(join(tempDir, 'bin', 'lattice-codex.js'), 'utf8');
     const generatedBootstrap = readFileSync(join(tempDir, 'bin', 'lattice.js'), 'utf8');
@@ -439,11 +439,11 @@ checks.push(() => {
     assertPathMissing(tempDir, '.Codex/koala.json', 'full init should not generate .Codex/koala.json');
 
     const verifyInitOut = run('node', [CORE_ENTRYPOINT, 'init', '--asset-mode=full', '--verify-codex', tempDir]);
-    assertIncludes(verifyInitOut, 'Codex verification:', 'koala init --verify-codex output');
-    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'koala init --verify-codex checks');
-    assertPathMissing(tempDir, 'src/core', 'koala init --verify-codex src/core');
-    assertPathMissing(tempDir, 'src/shells', 'koala init --verify-codex src/shells');
-    assertPathMissing(tempDir, 'tests', 'koala init --verify-codex tests');
+    assertIncludes(verifyInitOut, 'Codex verification:', 'lattice init --verify-codex output');
+    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'lattice init --verify-codex checks');
+    assertPathMissing(tempDir, 'src/core', 'lattice init --verify-codex src/core');
+    assertPathMissing(tempDir, 'src/shells', 'lattice init --verify-codex src/shells');
+    assertPathMissing(tempDir, 'tests', 'lattice init --verify-codex tests');
 
     const staleBin = join(tempDir, 'stale-bin');
     mkdirSync(staleBin);
@@ -590,11 +590,11 @@ checks.push(() => {
     assertGlobalThinAssets(tempDir, 'core');
 
     const config = readJson(tempDir, 'lattice.config.json');
-    assert(config.scanRoot === 'src', 'default koala init with preexisting src should keep scanRoot=src');
+    assert(config.scanRoot === 'src', 'default lattice init with preexisting src should keep scanRoot=src');
     assertPathExists(tempDir, 'src/index.ts', 'preexisting src/index.ts');
-    assertPathMissing(tempDir, 'src/core/app.ts', 'default koala init with preexisting src src/core/app.ts');
-    assertPathMissing(tempDir, 'src/shells/cli/main.ts', 'default koala init with preexisting src cli shell');
-    assertPathMissing(tempDir, 'tests', 'default koala init with preexisting src tests');
+    assertPathMissing(tempDir, 'src/core/app.ts', 'default lattice init with preexisting src src/core/app.ts');
+    assertPathMissing(tempDir, 'src/shells/cli/main.ts', 'default lattice init with preexisting src cli shell');
+    assertPathMissing(tempDir, 'tests', 'default lattice init with preexisting src tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -612,7 +612,7 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), existingGitignoreLines.join('\n'));
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (merged koala runtime ignores)', 'koala init existing .gitignore merge output');
+    assertIncludes(initOut, '.gitignore (merged koala runtime ignores)', 'lattice init existing .gitignore merge output');
 
     const gitignore = readFileSync(join(tempDir, '.gitignore'), 'utf8');
     assertIncludes(gitignore, 'custom-cache/', 'existing .gitignore merge should preserve user content');
@@ -629,9 +629,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), gitignoreBefore);
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (runtime ignores already present)', 'koala init existing .gitignore no-churn output');
+    assertIncludes(initOut, '.gitignore (runtime ignores already present)', 'lattice init existing .gitignore no-churn output');
     const gitignoreAfter = readFileSync(join(tempDir, '.gitignore'), 'utf8');
-    assert(gitignoreAfter === gitignoreBefore, 'koala init should not churn .gitignore when runtime ignores are already present');
+    assert(gitignoreAfter === gitignoreBefore, 'lattice init should not churn .gitignore when runtime ignores are already present');
     assertNotIncludes(gitignoreAfter, MANAGED_GITIGNORE_BLOCK_START, 'no-churn .gitignore should not add a managed block');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -643,17 +643,17 @@ checks.push(() => {
     const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-starter-'));
     try {
       const initOut = run('node', [INIT_ENTRYPOINT, flag, tempDir]);
-      assertIncludes(initOut, 'src/core/app.ts', `koala init ${flag} output`);
+      assertIncludes(initOut, 'src/core/app.ts', `lattice init ${flag} output`);
       assertGlobalThinAssets(tempDir, 'core');
 
       const config = readJson(tempDir, 'lattice.config.json');
-      assert(config.scanRoot === 'src', `koala init ${flag} should set scanRoot=src`);
-      assertPathExists(tempDir, 'src/core/app.ts', `koala init ${flag} src/core/app.ts`);
-      assertPathExists(tempDir, 'src/core/debug.ts', `koala init ${flag} src/core/debug.ts`);
-      assertPathExists(tempDir, 'src/core/machines/game/bridge.ts', `koala init ${flag} bridge.ts`);
-      assertPathExists(tempDir, 'src/shells/cli/main.ts', `koala init ${flag} cli shell`);
-      assertPathExists(tempDir, 'src/shells/web', `koala init ${flag} web shell dir`);
-      assertPathExists(tempDir, 'tests', `koala init ${flag} tests dir`);
+      assert(config.scanRoot === 'src', `lattice init ${flag} should set scanRoot=src`);
+      assertPathExists(tempDir, 'src/core/app.ts', `lattice init ${flag} src/core/app.ts`);
+      assertPathExists(tempDir, 'src/core/debug.ts', `lattice init ${flag} src/core/debug.ts`);
+      assertPathExists(tempDir, 'src/core/machines/game/bridge.ts', `lattice init ${flag} bridge.ts`);
+      assertPathExists(tempDir, 'src/shells/cli/main.ts', `lattice init ${flag} cli shell`);
+      assertPathExists(tempDir, 'src/shells/web', `lattice init ${flag} web shell dir`);
+      assertPathExists(tempDir, 'tests', `lattice init ${flag} tests dir`);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -837,14 +837,14 @@ checks.push(() => {
   try {
     writeFileSync(join(tempDir, 'pyproject.toml'), '[project]\nname = "koala-smoke"\nversion = "0.0.0"\n');
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '检测到 Python 项目', 'python no-src koala init output');
+    assertIncludes(initOut, '检测到 Python 项目', 'python no-src lattice init output');
     assertGlobalThinAssets(tempDir, 'core');
 
     const config = readJson(tempDir, 'lattice.config.json');
-    assert(config.language === 'python', 'python no-src koala init should set language=python');
-    assert(config.scanRoot === '.', 'python no-src koala init should set scanRoot=.');
-    assertPathMissing(tempDir, 'src', 'python no-src koala init src');
-    assertPathMissing(tempDir, 'tests', 'python no-src koala init tests');
+    assert(config.language === 'python', 'python no-src lattice init should set language=python');
+    assert(config.scanRoot === '.', 'python no-src lattice init should set scanRoot=.');
+    assertPathMissing(tempDir, 'src', 'python no-src lattice init src');
+    assertPathMissing(tempDir, 'tests', 'python no-src lattice init tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -876,9 +876,9 @@ checks.push(() => {
         PATH: `${staleBin}:/usr/bin:/bin`,
       },
     });
-    assertIncludes(out, 'Codex verification:', 'fresh koala init --verify-codex minimal PATH output');
-    assertIncludes(out, 'Local wrapper heartbeat: source=codex', 'fresh koala init --verify-codex should execute generated wrapper heartbeat');
-    assertIncludes(out, 'Codex adapter checks passed', 'fresh koala init --verify-codex should pass via generated local bootstrap');
+    assertIncludes(out, 'Codex verification:', 'fresh lattice init --verify-codex minimal PATH output');
+    assertIncludes(out, 'Local wrapper heartbeat: source=codex', 'fresh lattice init --verify-codex should execute generated wrapper heartbeat');
+    assertIncludes(out, 'Codex adapter checks passed', 'fresh lattice init --verify-codex should pass via generated local bootstrap');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

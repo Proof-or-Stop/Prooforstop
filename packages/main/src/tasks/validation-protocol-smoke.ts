@@ -1331,7 +1331,7 @@ try {
   }
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
-  // The DEV->TEST koala validate gate was extracted into handlers/phase-gates.ts
+  // The DEV->TEST lattice validate gate was extracted into handlers/phase-gates.ts
   // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
   // transition-orchestrator.ts. The gate must still fail-closed: a failing
   // validate run must throw "Cannot enter TEST" and persist a FAIL
@@ -1362,8 +1362,8 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: koala validate did not pass/,
-      'runValidateGate must block TEST when koala validate fails',
+      /Cannot enter TEST: lattice validate did not pass/,
+      'runValidateGate must block TEST when lattice validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');

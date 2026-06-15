@@ -215,7 +215,7 @@ const validateHint: HintFn = (ctx) => {
   // B-7fc2: text-mode validate emits "✓ ALL PASS" (cli-e2e) or "✓ Project
   // validation commands passed" (renderExternalResult) when all checks succeed.
   // Without these markers the text-mode hint was silently dropped, so the hint
-  // contract promised by `koala validate` was only honoured for JSON callers.
+  // contract promised by `lattice validate` was only honoured for JSON callers.
   const textModePass = !parsed && (
     result.includes('✓ ALL PASS')
     || result.includes('✓ Project validation commands passed')

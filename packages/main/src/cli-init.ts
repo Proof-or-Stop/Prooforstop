@@ -55,7 +55,7 @@ const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
 详细用法参考 @koala/main 文档。
 `;
 
-// 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
+// 通过 lattice init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
 const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(

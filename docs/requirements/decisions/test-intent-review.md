@@ -23,9 +23,9 @@ The `story_review` command outputs `_reviewPrompt`, which contains truth + check
 
 ### testintent_handoff handoff package
 
-In the PLAN phase you can run `koala testintent_handoff --storyId=B-xxx` to have the CLI generate a structured handoff package for the test-intent agent. The handoff package contains the story summary, the target worktree, the checklist items still to be filled in, the count of existing verificationIntent/testIntent, and an example `checklist_update` command.
+In the PLAN phase you can run `lattice testintent_handoff --storyId=B-xxx` to have the CLI generate a structured handoff package for the test-intent agent. The handoff package contains the story summary, the target worktree, the checklist items still to be filled in, the count of existing verificationIntent/testIntent, and an example `checklist_update` command.
 
-`testintent_handoff` is a formal CLI command, and should satisfy all three layers of consistency: discoverable via `koala help` / `koala testintent_handoff --help`, callable through the handler registry, and allowed to execute on the PLAN phase allowlist. It is not an adapter for a specific story, nor a hidden replacement for `dispatch`; its sole responsibility is to clearly package the context the test-intent agent needs during the PLAN phase.
+`testintent_handoff` is a formal CLI command, and should satisfy all three layers of consistency: discoverable via `lattice help` / `lattice testintent_handoff --help`, callable through the handler registry, and allowed to execute on the PLAN phase allowlist. It is not an adapter for a specific story, nor a hidden replacement for `dispatch`; its sole responsibility is to clearly package the context the test-intent agent needs during the PLAN phase.
 
 ## Decision 3: division of labor between white-box fixtures and browser tests
 

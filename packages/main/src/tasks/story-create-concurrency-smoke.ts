@@ -2,7 +2,7 @@
 /**
  * B-6812 CHK-001: concurrency smoke for story_create's directory lock.
  *
- * Verifies the G1 fix: concurrent `koala story_create` calls with the SAME
+ * Verifies the G1 fix: concurrent `lattice story_create` calls with the SAME
  * `name` must not slip past the idempotency check and materialize two stories.
  *
  * Anti-fake-concurrency design (decision explicitly requires this):
@@ -38,7 +38,7 @@
  *  - G3: keyword-overlap dupWarning + riskHint advisory text must land on
  *    STDERR; STDOUT must carry only the `Story B-xxxx created ...` conclusion
  *    (plus non-advisory guidance like the INIT reviewer hint). The classic
- *    failure mode is `koala story_create | tail` swallowing the warning — we
+ *    failure mode is `lattice story_create | tail` swallowing the warning — we
  *    explicitly read STDOUT alone and assert the warning is NOT there, then
  *    read STDERR and assert it IS.
  *  - G4: a second story created within 30 minutes of the first triggers the
@@ -82,7 +82,7 @@ function writeFile(root: string, relPath: string, content: string): void {
   writeFileSync(abs, content);
 }
 
-/** Spawn one real `koala story_create` child; resolves with its exit info. */
+/** Spawn one real `lattice story_create` child; resolves with its exit info. */
 function spawnCreate(
   root: string,
   storyName: string,
@@ -220,7 +220,7 @@ async function runScenario(cfg: RoundConfig): Promise<void> {
 }
 
 /**
- * Run one synchronous `koala story_create` child with arbitrary args; returns
+ * Run one synchronous `lattice story_create` child with arbitrary args; returns
  * exit code + merged stdout/stderr. Used by the CHK-002 dedup scenario where
  * we need control over name / keywords / phase / forceNew per call.
  */
@@ -396,7 +396,7 @@ async function runDedupScenario(): Promise<void> {
 }
 
 /**
- * Run one synchronous `koala story_create` child returning STDOUT and STDERR
+ * Run one synchronous `lattice story_create` child returning STDOUT and STDERR
  * SEPARATELY (unlike `createStorySync` which merges them). The CHK-003 stderr
  * scenario must assert which stream a line landed on, so the streams cannot be
  * merged.
@@ -434,7 +434,7 @@ function backdateStory(storyDirAbs: string, storyId: string, minutesAgo: number)
 /**
  * B-6812 CHK-003: advisory text (duplicate + concurrency warnings) must travel
  * on STDERR, leaving STDOUT to carry only the create conclusion so a
- * `koala story_create | tail` pipe never silently eats the warning.
+ * `lattice story_create | tail` pipe never silently eats the warning.
  */
 async function runStderrChannelScenario(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'koala-story-stderr-'));
