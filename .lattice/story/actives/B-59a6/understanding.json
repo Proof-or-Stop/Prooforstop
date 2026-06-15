@@ -1,0 +1,38 @@
+{
+  "task": "Implement runtime support for documentation and decision-doc audit using ordinary automatic review escalation with explicit degraded 3x1 fallback.",
+  "outcome": "User runs a zero-finding decision-doc story and DONE no longer says \"changed decision docs require host_verdict quorum\"; a threshold-triggered story says \"Review escalation: required\" and degraded fallback says \"assuranceLevel=degraded-single-host\".",
+  "facts": [
+    "B-b663 updated the execution plan: direct decision-doc changes are no longer the target always-on 3x2 trigger.",
+    "Current machine.canFinish and DONE guard failure reason unconditionally consume evaluateDecisionDocQuorum, so direct decision-doc diffs still block DONE today.",
+    "Existing host verdict storage already captures hostId, sessionId, keyId, materialDigest, validationDigest, and promptDigest in verdict files, but process-events currently persist only a subset.",
+    "Process-fact contract rules require gate-consumed facts to be registered in registry, levels, command policy, CLI schema, and verifier script.",
+    "The runtime must not claim Authority receipt completion from local host verdicts or degraded single-host review."
+  ],
+  "constraints": [
+    "Do not run omx or read/write/use .omx.",
+    "Do not directly edit docs/story or tests/fixtures.",
+    "Keep operator-facing text in English for open-source readiness.",
+    "Do not silently downgrade 3x2 to 3x1; degraded fallback needs explicit eligibility, reason, evidence or approval, and lower-assurance output.",
+    "Keep implementation scoped to local Lattice runtime; no remote push or Authority Server implementation."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/decision-doc-quorum.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/decision-doc-quorum.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+  ],
+  "timestamp": "2026-06-15T03:07:57.050Z"
+}

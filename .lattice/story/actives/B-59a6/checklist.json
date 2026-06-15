@@ -47,7 +47,48 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees English diagnostics that explain whether review escalation is not required, full 3x2 is required, or degraded 3x1 was accepted.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/decision-doc-quorum.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/review-escalation.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "status-command-clear-output",
+            "desc": "review_escalation_status reports not-required, required full-3x2, blocked, pass-full-3x2, and pass-degraded-3x1 states in English.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "decision-doc-check-classification",
+            "desc": "decision_doc_quorum_check reports documentation-audit classification without claiming every decision-doc edit requires quorum.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-authority-overclaim",
+            "desc": "Diagnostics never set or imply authorityDone, fullAuthorityDone, receiptVerified, productionDone, or full-3x2 for degraded review.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
