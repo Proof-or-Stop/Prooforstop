@@ -6,7 +6,14 @@
       "context": "In the 'JSON Ledger Record Shape' section and its example, replace inputTokens/outputTokens/totalTokens with the full Anthropic shape: inputTokens (uncached remainder), outputTokens, cacheCreationInputTokens, cacheReadInputTokens — as first-class fields (or mandate them as required billableUnits[] entries). Add a sentence stating input_tokens is the uncached remainder, not total. Reference that CMA's span.model_request_end.model_usage already uses these four fields.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
