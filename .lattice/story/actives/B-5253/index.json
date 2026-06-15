@@ -1,0 +1,49 @@
+{
+  "storyId": "B-5253",
+  "name": "implement-slim-fields-query-guidance",
+  "title": "Implement slim fields query guidance",
+  "description": "Implement the B-f495 follow-up by updating Lattice agent prompts and documentation examples so routine story_get/checklist_get status polling prefers slim and fields, while full output remains required before evidence-sensitive conclusions or mutations.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "slim-fields",
+    "prompt-guidance",
+    "story-get",
+    "checklist-get",
+    "query-output"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-15T15:11:24.277Z",
+  "startedAt": "2026-06-15T15:11:24.277Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T15:11:24.292Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:13:08.352Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5253",
+    "branch": "story/B-5253",
+    "createdAt": "2026-06-15T15:13:08.632Z"
+  }
+}

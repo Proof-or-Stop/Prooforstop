@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5253",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "node ../../bin/lattice.js *",
+    "node bin/lattice.js *",
+    "node bin/lattice.js verify_codex --json",
+    "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:prompt-registry-smoke",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".claude/agents",
+    ".Codex/agents",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/templates/agents",
+    "README.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation is limited to prompt guidance, docs examples, smoke coverage, and Lattice metadata via CLI.",
+  "createdAt": "2026-06-15T15:11:24.277Z",
+  "updatedAt": "2026-06-15T15:11:24.277Z",
+  "_hash": "62603c063929d46d1a7bcb0221750ddb3d432d6cb6246ae58182fc15138fa163"
+}
