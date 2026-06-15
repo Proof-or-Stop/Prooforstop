@@ -1,7 +1,7 @@
 /**
  * story_dispatch — B-45ed CHK-005
  *
- * Generate the standard koala-implementer prompt string (the main agent copy-pastes it into Agent({subagent_type, prompt})).
+ * Generate the standard lattice-implementer prompt string (the main agent copy-pastes it into Agent({subagent_type, prompt})).
  *
  * Core goals:
  *   - Unify the prompt structure the main agent uses to dispatch implementers, avoiding paraphrased pastes of plan.md by the main agent
@@ -9,14 +9,14 @@
  *   - Does not spawn the subagent; only outputs the string, preserving the main agent's dispatch decision authority
  *
  * agent-type tiered injection (full matrix see CLAUDE.md "background.md tiered injection"):
- *   - required: koala-implementer / koala-review-scope-plan / koala-review-behavior / koala-review-concept
+ *   - required: lattice-implementer / lattice-review-scope-plan / lattice-review-behavior / lattice-review-concept
  *     → first line of prompt labeled "must read", forcing the subagent to read background to understand intent
- *   - advisory: koala-review-quality / koala-review-docs
+ *   - advisory: lattice-review-quality / lattice-review-docs
  *     → prompt labeled "optional reference", does not disrupt mechanical check logic
- *   - none: koala-review-channel
+ *   - none: lattice-review-channel
  *     → not injected at all, to avoid mechanical commit author checks being polluted by background noise
  *   - unknown agentType → downgraded to required (safest; better to over-read than miss reading)
- *   - agentType not passed → defaults to koala-implementer semantics (required)
+ *   - agentType not passed → defaults to lattice-implementer semantics (required)
  */
 
 import { existsSync, readFileSync } from 'fs';
@@ -30,52 +30,37 @@ import { reportHealthIssue } from '../core/health.js';
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
 type BackgroundPolicy = 'required' | 'advisory' | 'none';
 const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
-  'koala-implementer': 'required',
-  // B-ed3e CHK-001: scope reviewer renamed to koala-review-scope-plan (old name koala-review-scope kept as legacy alias)
-  'koala-review-scope-plan': 'required',
-  'koala-review-behavior': 'required',
-  'koala-review-concept': 'required',
-  'koala-review-quality': 'advisory',
-  'koala-review-docs': 'advisory',
-  'koala-review-channel': 'none',
+  'lattice-implementer': 'required',
+  'lattice-review-scope-plan': 'required',
+  'lattice-review-behavior': 'required',
+  'lattice-review-concept': 'required',
+  'lattice-review-quality': 'advisory',
+  'lattice-review-docs': 'advisory',
+  'lattice-review-channel': 'none',
 };
 
-/**
- * B-ed3e CHK-001: old name → new name mapping (legacy alias)
- * When callers pass the old agentType, console.warn alerts then internally renames to the new agentType to continue execution.
- */
-const AGENT_TYPE_ALIASES: Record<string, string> = {
-  'koala-review-scope': 'koala-review-scope-plan',
-};
+const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
 
-const IMPLEMENTER_COMMIT_AUTHOR = 'koala-implementer <koala-implementer@noreply.local>';
-
-/** Normalize agentType: old name → new name; if alias matches, console.warn. If no match, return as-is. */
 function normalizeAgentType(agentType: string | undefined): string | undefined {
-  if (!agentType) return agentType;
-  const renamed = AGENT_TYPE_ALIASES[agentType];
-  if (renamed) {
-    console.warn(
-      `warn: ${agentType} has been renamed to ${renamed} (B-ed3e S2). Automatically redirected; please update the caller.`,
-    );
-    return renamed;
+  if (agentType?.startsWith('koala-')) {
+    throw new Error('dispatch no longer accepts legacy Koala role IDs; use the canonical lattice-* role ID');
   }
   return agentType;
 }
 
 /** Resolve agentType → injection strategy; unknown agentType downgrades to required (safest). */
 function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolicy {
-  if (!agentType) return 'required'; // default koala-implementer behavior
+  if (!agentType) return 'required'; // default lattice-implementer behavior
   return AGENT_BG_POLICY[agentType] ?? 'required';
 }
 
 function isReviewAgent(agentType: string | undefined): boolean {
-  return !!agentType && agentType.startsWith('koala-review-');
+  return !!agentType && agentType.startsWith('lattice-review-');
 }
 
 function appendImplementerCommitSteps(lines: string[], message: string): void {
   lines.push(`- git commit --author="${IMPLEMENTER_COMMIT_AUTHOR}" -m "${message.replace(/"/g, "'")}"`);
-  lines.push('- Do not omit `--author`; normal-channel author fallback only accepts author=koala-implementer.');
+  lines.push('- Do not omit `--author`; normal-channel author fallback only accepts author=lattice-implementer.');
 }
 
 /**
@@ -98,7 +83,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   }): void {
     try {
       const story = store.readStory(args.storyId);
-      const agentType = normalizeAgentType(args.agentType) || 'koala-implementer';
+      const agentType = normalizeAgentType(args.agentType) || 'lattice-implementer';
       store.appendProcessEvent(args.storyId, {
         type: 'dispatch',
         storyId: args.storyId,
@@ -147,7 +132,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       prompt: [
         `Review the initial background + checklist for story ${args.storyId}.`,
         '',
-        'You are the koala-review-story-init reviewer; please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        'You are the lattice-review-story-init reviewer; please review in a fresh context, do not carry over the main agent\'s conclusions.',
         `Must read: ${bgPath}`,
         `Must read: ${checklistPath}`,
         '',
@@ -163,9 +148,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '',
         'Hard requirements:',
         `- Regardless of whether the conclusion is pass or fail, you must call init_check_set once to record the result; merely outputting a textual conclusion does not count as complete.`,
-        `- When issues are found, also call: lattice init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"koala-review-story-init"}'`,
-        `- If there are no issues, pass an empty array for issues: lattice init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"koala-review-story-init"}'`,
-        '- The INIT_CHECK gate also requires product-reviewer to call init_check_set; you are only responsible for the koala-review-story-init record.',
+        `- When issues are found, also call: lattice init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"lattice-review-story-init"}'`,
+        `- If there are no issues, pass an empty array for issues: lattice init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"lattice-review-story-init"}'`,
+        '- The INIT_CHECK gate also requires product-reviewer to call init_check_set; you are only responsible for the lattice-review-story-init record.',
         '- Do not directly edit story files.',
       ].join('\n'),
     };
@@ -187,7 +172,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       prompt: [
         `Review whether the INIT of story ${args.storyId} is ready to advance, from a user value perspective.`,
         '',
-        'You are product-reviewer, not koala-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        'You are product-reviewer, not lattice-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
         `Must read: ${bgPath}`,
         `Required reading: ${checklistPath}`,
         '',
@@ -198,7 +183,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '',
         'Hard requirements:',
         '- Whether the conclusion is pass or fail, you must call init_check_set once to record the result; outputting only a text conclusion does not count as complete.',
-        `- agentId must be passed exactly as "product-reviewer". Do not pass "koala-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing product-reviewer.`,
+        `- agentId must be passed exactly as "product-reviewer". Do not pass "lattice-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing product-reviewer.`,
         `- When issues are found, also call: lattice init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
         `- If there are no issues, pass an empty array for issues: lattice init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
         '- critical/high issues will hard-block INIT_CHECK; medium/low will be recorded as advisory.',
@@ -244,7 +229,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       // 4. agent-type tiered injection decision (fully reuses story_dispatch's AGENT_BG_POLICY)
       const bgPolicy = resolveBackgroundPolicy(agentType);
-      const displayAgent = agentType || 'koala-implementer';
+      const displayAgent = agentType || 'lattice-implementer';
 
       // 5. finding field fallback. Note: Finding schema has no separate location/suggestion fields—
       //    reviewer writes file:line and fix suggestions directly in the desc body (by convention), so they are no longer rendered separately here.
@@ -398,7 +383,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       // 8. Assemble implementer prompt
       const lines: string[] = [];
-      lines.push(`As koala-implementer implementing ${args.storyId} ${args.itemId}: ${item.title}`);
+      lines.push(`As lattice-implementer implementing ${args.storyId} ${args.itemId}: ${item.title}`);
       lines.push('');
       // B-9d95 CHK-001: inject worktree absolute path. Root cause retrospective (B-ed3e F-001): subagent inherits parent process cwd
       // which does not necessarily land in the worktree (especially cross-repo scenarios), causing reviewer/handler to read docs/story/... in the main repo cwd
@@ -406,7 +391,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // and is currently the most reliable absolute path source (better than process.cwd()—the latter depends on the caller's shell current directory).
       lines.push(`Working directory (subagent must cd here): ${root}`);
       lines.push('');
-      appendDispatchLivenessGuidance(lines, `${agentType || 'koala-implementer'}/${args.itemId}`);
+      appendDispatchLivenessGuidance(lines, `${agentType || 'lattice-implementer'}/${args.itemId}`);
       lines.push('Required reading (in order):');
       let idx = 1;
       if (bgPolicy === 'required') {
@@ -490,7 +475,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
      * dispatch — B-9d95 CHK-004 unified entry
      *
      * Dispatch by exactly one of itemId / findingId / clusterId; if only
-     * agentType=koala-review-story-init is passed, generate the INIT reviewer prompt.
+     * agentType=lattice-review-story-init is passed, generate the INIT reviewer prompt.
      *
      * Mutual exclusion validation: exactly one of the three must be provided; more / fewer both throw Error.
      * Returns: { prompt: string } — byte-identical to the old entry (clusterId branch reuses cluster.ts text).
@@ -510,7 +495,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         args.clusterId ? 'clusterId' : null,
       ].filter(Boolean);
       const normalizedAgentType = normalizeAgentType(args.agentType);
-      if (provided.length === 0 && normalizedAgentType === 'koala-review-story-init') {
+      if (provided.length === 0 && normalizedAgentType === 'lattice-review-story-init') {
         const result = buildInitReviewPrompt({
           storyId: args.storyId,
           agentType: args.agentType,
@@ -535,7 +520,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         return result;
       }
       if (provided.length !== 1) {
-        throw new Error('dispatch requires exactly one of itemId / findingId / clusterId; INIT reviewer may pass only agentType=koala-review-story-init or product-reviewer');
+        throw new Error('dispatch requires exactly one of itemId / findingId / clusterId; INIT reviewer may pass only agentType=lattice-review-story-init or product-reviewer');
       }
 
       if (args.itemId) {

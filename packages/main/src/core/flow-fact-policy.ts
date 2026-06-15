@@ -105,7 +105,7 @@ export const FLOW_FACT_POLICIES = [
 ] as const satisfies readonly FlowFactPolicyDefinition[];
 
 export const PASS_ONLY_REVIEW_FINDING_POLICY = {
-  reviewerAgentPrefix: 'koala-review-',
+  reviewerAgentPrefix: 'lattice-review-',
   severity: 'low',
   passPatterns: [
     /\b(no blocking issues?|no blocking issue found|no blockers?|0 blocking)\b/i,

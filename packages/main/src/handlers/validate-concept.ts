@@ -6,7 +6,7 @@
  *
  * - residuals.length == 0     → status=pass, recommendation="skip concept LLM reviewer"
  * - 1 ≤ residuals.length < 5  → status=warn, recommendation="skip concept LLM reviewer"
- * - residuals.length ≥ 5      → status=warn, recommendation="dispatch koala-review-concept"
+ * - residuals.length ≥ 5      → status=warn, recommendation="dispatch lattice-review-concept"
  *
  * Output structure:
  *   {
@@ -15,7 +15,7 @@
  *     summary: string,
  *     deletedSymbols: string[],
  *     residuals: Array<{ symbol, file, line, snippet }>,
- *     recommendation: "skip concept LLM reviewer" | "dispatch koala-review-concept"
+ *     recommendation: "skip concept LLM reviewer" | "dispatch lattice-review-concept"
  *   }
  *
  * See docs/koala/reviewer-redesign.md §III S1 item 2.
@@ -39,7 +39,7 @@ export interface ConceptCheckResult {
   summary: string;
   deletedSymbols: string[];
   residuals: ConceptResidual[];
-  recommendation: 'skip concept LLM reviewer' | 'dispatch koala-review-concept';
+  recommendation: 'skip concept LLM reviewer' | 'dispatch lattice-review-concept';
 }
 
 /** Readers can be injected for tests. Default uses `git diff main...HEAD`. */
@@ -278,7 +278,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   }
 
   const recommendation: ConceptCheckResult['recommendation'] =
-    residuals.length >= 5 ? 'dispatch koala-review-concept' : 'skip concept LLM reviewer';
+    residuals.length >= 5 ? 'dispatch lattice-review-concept' : 'skip concept LLM reviewer';
 
   // F-017: residuals ≥ 5 → status=fail (blocks CLI gate and renders ✗ fail),
   // residuals 1..4 → status=warn (preserves original semantics, suggests skip reviewer, non-blocking)
@@ -348,7 +348,7 @@ export function renderConceptResult(r: ConceptCheckResult): string {
   }
   lines.push(`  recommendation: ${r.recommendation}`);
   if (r.status === 'fail') {
-    lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after koala-review-concept records a finding or review_pass_set in the current review round.');
+    lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after lattice-review-concept records a finding or review_pass_set in the current review round.');
   }
   return lines.join('\n');
 }

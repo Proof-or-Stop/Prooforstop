@@ -23,8 +23,8 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
      * koala evaluate --story=B-xxx [--port=3456]
      *
      * 检查项目 shells 配置，按声明决定 spawn 哪个 evaluator：
-     * - 有 browser.devCommand → spawn koala-evaluator（browser）
-     * - 有 cli.command → spawn koala-evaluator-cli（bridge API + CLI spawn）
+     * - 有 browser.devCommand → spawn lattice-evaluator（browser）
+     * - 有 cli.command → spawn lattice-evaluator-cli（bridge API + CLI spawn）
      * - 都有 → 都跑
      * - 都没有 → 尝试读 .koala-serve.json 判断是否有活跃 serve 进程，有则跑 CLI evaluator
      *
@@ -59,18 +59,18 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       }
 
       const evaluators: string[] = [];
-      if (hasBrowser) evaluators.push('koala-evaluator');
-      if (hasCli) evaluators.push('koala-evaluator-cli');
+      if (hasBrowser) evaluators.push('lattice-evaluator');
+      if (hasCli) evaluators.push('lattice-evaluator-cli');
 
       const instructions: string[] = [];
       if (hasBrowser) {
         instructions.push(`1. 确保 lattice serve --dev="${config.browser!.devCommand}" 正在运行（端口 ${port}）`);
-        instructions.push(`2. 用 Agent tool 调 koala-evaluator agent，传入 serveUrl="${serveUrl}" 和 checklist`);
+        instructions.push(`2. 用 Agent tool 调 lattice-evaluator agent，传入 serveUrl="${serveUrl}" 和 checklist`);
       }
       if (hasCli) {
         const step = hasBrowser ? 3 : 1;
         instructions.push(`${step}. 确保 lattice serve 正在运行（端口 ${port}）`);
-        instructions.push(`${step + 1}. 用 Agent tool 调 koala-evaluator-cli agent，传入 serveUrl="${serveUrl}", checklist, hasCliShell=true`);
+        instructions.push(`${step + 1}. 用 Agent tool 调 lattice-evaluator-cli agent，传入 serveUrl="${serveUrl}", checklist, hasCliShell=true`);
       }
       const lastStep = instructions.length + 1;
       instructions.push(`${lastStep}. 解析 evaluator 返回的 JSON`);

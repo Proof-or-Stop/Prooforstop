@@ -65,7 +65,7 @@ interface IntentFixtureLocation {
 }
 
 const INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS = new Set([
-  'koala-review-story-init',
+  'lattice-review-story-init',
   'product-reviewer',
 ]);
 

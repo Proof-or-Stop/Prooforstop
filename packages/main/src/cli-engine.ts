@@ -597,14 +597,14 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example koala-review-quality; defaults to KOALA_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.'),
     lane: z.enum([
-      'koala-review-concept',
-      'koala-review-quality',
-      'koala-review-test-coverage',
-      'koala-review-behavior',
-      'koala-review-docs',
-      'koala-review-channel',
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+      'lattice-review-behavior',
+      'lattice-review-docs',
+      'lattice-review-channel',
     ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
     prompt: z.string().optional().describe('Prompt text actually received by the reviewer; promptHash is computed automatically when provided.'),
     promptHash: z.string().optional().describe('SHA-256 of the reviewer prompt; if prompt is also provided, it must match the actual prompt hash.'),
@@ -612,7 +612,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example koala-review-quality; defaults to KOALA_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
   }},
@@ -1595,8 +1595,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     result: z.string().describe('JSON string output by evaluator.'),
   }},
 
-  // Finding (koala-reviewer finding).
-  { name: 'finding_add', description: 'Add a finding (koala-reviewer finding)', schema: {
+  // Finding (Lattice reviewer finding).
+  { name: 'finding_add', description: 'Add a finding (Lattice reviewer finding)', schema: {
     storyId: z.string().describe('Story ID'),
     desc: z.string().describe('Finding description.'),
     severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Severity.'),
@@ -1611,7 +1611,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       'spec-boundary',
     ]).describe('Category (legacy category is normalized to missing).'),
     agent: z.string().optional().describe('Caller identity (optional, defaults from KOALA_AGENT environment variable).'),
-    reviewRunId: z.string().optional().describe('Current koala-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
+    reviewRunId: z.string().optional().describe('Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
     files: z.array(z.string()).optional().describe('Related file paths (for reviewer finding clustering and traceability).'),
     // B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.
     // suspected requires uncertaintyReason; disproven requires disprovenEvidence.summary (runtime applies the same standard validation).
@@ -1664,7 +1664,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
     })).describe('List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.'),
     agent: z.string().optional().describe('Reviewer self-reported agent name; product-reviewer must pass product-reviewer.'),
-    agentId: z.string().optional().describe('Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass koala-review-story-init.'),
+    agentId: z.string().optional().describe('Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass lattice-review-story-init.'),
   }},
 
   // Init Check fallback/repair (B-95d8 CHK-001: explicit, auditable INIT_CHECK exit
@@ -1685,9 +1685,9 @@ export const MAIN_TOOLS: ToolDef[] = [
     actor: z.string().optional().describe('Optional actor identifier; defaults to git user.name.'),
   }},
 
-  // Delivery Check (B-35ed: koala-review-delivery reviewer writes signed delivery-check.json)
+  // Delivery Check (B-35ed: lattice-review-delivery reviewer writes signed delivery-check.json)
   // TEST to DONE hard-gate artifact. Signature domain: storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound.
-  { name: 'delivery_check_set', description: 'Save delivery check results (called by koala-review-delivery reviewer)', schema: {
+  { name: 'delivery_check_set', description: 'Save delivery check results (called by lattice-review-delivery reviewer)', schema: {
     storyId: z.string().describe('Story ID'),
     docsPromises: z.array(z.object({
       docPath: z.string().describe('Document path.'),
@@ -1719,7 +1719,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // Scope Check (B-d4d1: scope agent writes signed scope-check.json)
-  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for koala-review-scope-plan/scope-plan reviewers.', schema: {
+  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for lattice-review-scope-plan/scope-plan reviewers.', schema: {
     storyId: z.string().describe('Story ID'),
     features: z.array(z.object({
       feature: z.string(),
@@ -1762,7 +1762,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_dispatch', description: 'Generate a standard implementer prompt string (main agent dispatches CHK-xxx)', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().describe('Checklist item ID, for example CHK-001.'),
-    agentType: z.string().optional().describe('subagent type, for example koala-implementer / koala-review-channel; CHK-008 will expand matrix.'),
+    agentType: z.string().optional().describe('subagent type, for example lattice-implementer / lattice-review-channel; CHK-008 will expand matrix.'),
   }},
 
   // Finding dispatch (B-45ed CHK-010: reviewer-finding repair prompt generator, isomorphic with story_dispatch).
@@ -1770,7 +1770,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'finding_dispatch', description: '[deprecated: use lattice dispatch] Generate reviewer-finding repair prompt', schema: {
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID, for example F-001 or the full B-xxx:F-xxx form.'),
-    agentType: z.string().optional().describe('subagent type, for example koala-implementer / koala-review-channel; reuses the CHK-008 grading matrix.'),
+    agentType: z.string().optional().describe('subagent type, for example lattice-implementer / lattice-review-channel; reuses the CHK-008 grading matrix.'),
   }},
 
   // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases).
@@ -1779,7 +1779,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId/clusterId.'),
     clusterId: z.string().optional().describe('Cluster ID (CL-xxx); mutually exclusive with itemId/findingId.'),
-    agentType: z.string().optional().describe('subagent type; INIT reviewer may pass only koala-review-story-init, other cases pair it with itemId/findingId/clusterId.'),
+    agentType: z.string().optional().describe('subagent type; INIT reviewer may pass only lattice-review-story-init, other cases pair it with itemId/findingId/clusterId.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).
@@ -2172,7 +2172,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     lesson: z.string().describe('Reusable lesson (at least 10 characters).'),
     reusePrompt: z.string().describe('How to retrieve this lesson in a later session (at least 5 characters).'),
     tags: z.union([z.array(z.string()), z.string()]).optional().describe('Keyword tags, as a comma-separated string or array.'),
-    sourceAgent: z.string().optional().describe('Source agent (default: koala-implementer).'),
+    sourceAgent: z.string().optional().describe('Source agent (default: lattice-implementer).'),
     sourceStoryId: z.string().optional().describe('Source story ID.'),
     evidenceRefs: z.array(z.string()).optional().describe('Evidence references (file paths or commit SHAs).'),
   }},
@@ -2889,7 +2889,7 @@ function storyIdFromArgs(
  *     then writes story TEST/DONE gate evidence). A diagnostic `validate` with
  *     no `--story` mutates no story state → downgraded to `readOnly`.
  *  3. `delivery_check_set` — `reviewerWrite` only when the resolved actor is
- *     `koala-review-delivery`; any other caller is treated as
+ *     `lattice-review-delivery`; any other caller is treated as
  *     `storyScopedMutating` so a main agent cannot borrow it to bypass the
  *     owner lease.
  *  4. `dev_memory_finish --scope=global` with no explicit story target is
@@ -2945,12 +2945,12 @@ export function resolveEffectiveOwnershipClass(
 
 /**
  * B-c55d CHK-002: whether a `delivery_check_set` invocation is acting AS the
- * delivery reviewer (`koala-review-delivery`).
+ * delivery reviewer (`lattice-review-delivery`).
  *
  * The actor is resolved from the explicit `agentId` argument first, then the
  * `KOALA_AGENT` environment variable — the same precedence the
  * `delivery_check_set` handler records into `delivery-check.json`. Only the
- * exact `koala-review-delivery` lane qualifies for the reviewerWrite exemption;
+ * exact `lattice-review-delivery` lane qualifies for the reviewerWrite exemption;
  * a main agent (or any other agent id) does NOT, so it cannot borrow
  * `delivery_check_set` to bypass the owner lease.
  *
@@ -2963,7 +2963,7 @@ export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean 
   const explicit = typeof args.agentId === 'string' ? args.agentId.trim() : '';
   const env = typeof process.env.KOALA_AGENT === 'string' ? process.env.KOALA_AGENT.trim() : '';
   const actor = explicit || env;
-  return actor === 'koala-review-delivery';
+  return actor === 'lattice-review-delivery';
 }
 
 /**

@@ -57,7 +57,7 @@ export type CommandDestructiveRisk =
  *  2. `validate` is `storyScopedMutating` only with `--story=...` (it writes
  *     story evidence); a diagnostic `validate` without `--story` is `readOnly`.
  *  3. `delivery_check_set` is `reviewerWrite` only when the resolved actor is
- *     `koala-review-delivery`; otherwise it is treated as `storyScopedMutating`.
+ *     `lattice-review-delivery`; otherwise it is treated as `storyScopedMutating`.
  *
  * UNCLASSIFIED IS FAIL-CLOSED: a command without an `ownershipClass` is rejected
  * by the gate, never default-allowed. The `command-ownership-contract` task
@@ -285,7 +285,7 @@ export const COMMAND_POLICIES = {
   finding_cluster: { status: 'maintenance', ownershipClass: 'storyScopedMutating', allowedPhases: ['DEV', 'REVIEW', 'TEST'], destructiveRisk: 'metadata-write', reason: 'Maintains a single story’s finding clusters; story-scoped metadata mutation.' },
   init_check_set: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'reviewerWrite', allowedPhases: ['INIT'], destructiveRisk: 'metadata-write', reason: 'Writes INIT check evidence consumed before INIT_CHECK; a reviewer-lane write exempt from the owner lease but bound by its INIT signature gate.' },
   init_check_repair: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'storyScopedMutating', allowedPhases: ['INIT'], destructiveRisk: 'metadata-write', reason: 'B-95d8: explicit, auditable INIT_CHECK fallback for environments that cannot spawn the init reviewer subagent. Owner-gated (NOT a reviewer-lane write) — a deliberate human attestation in lieu of the independent reviewer, recorded with a fallback audit block and bound by the same INIT signature gate.' },
-  delivery_check_set: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'reviewerWrite', allowedPhases: ['REVIEW', 'TEST'], destructiveRisk: 'metadata-write', reason: 'Writes delivery evidence consumed by DONE — reviewerWrite only when the resolved actor is koala-review-delivery; the gate reclassifies a non-delivery-reviewer caller to storyScopedMutating (boundary rule 3).' },
+  delivery_check_set: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'reviewerWrite', allowedPhases: ['REVIEW', 'TEST'], destructiveRisk: 'metadata-write', reason: 'Writes delivery evidence consumed by DONE — reviewerWrite only when the resolved actor is lattice-review-delivery; the gate reclassifies a non-delivery-reviewer caller to storyScopedMutating (boundary rule 3).' },
   delivery_waiver_add: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'storyScopedMutating', allowedPhases: ['REVIEW', 'TEST'], destructiveRisk: 'metadata-write', reason: 'Adds a delivery waiver to a story’s delivery-check.json; an owner-side authoring action, not a reviewer-lane write.' },
   scope_check_save: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'reviewerWrite', allowedPhases: ['PLAN'], destructiveRisk: 'metadata-write', reason: 'Writes scope review evidence consumed by PLAN review; a reviewer-lane write exempt from the owner lease but bound by its PLAN signature gate.' },
   scope_question_resolve: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'reviewerWrite', allowedPhases: ['PLAN'], destructiveRisk: 'metadata-write', reason: 'Resolves open scope questions consumed by PLAN review; a reviewer-lane write exempt from the owner lease but bound by its PLAN gate.' },

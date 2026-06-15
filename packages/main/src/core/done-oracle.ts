@@ -496,8 +496,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       id: 'delivery-check',
       status: 'fail',
       label: 'delivery-check',
-      detail: 'Missing delivery-check.json (requires koala-review-delivery reviewer signature)',
-      hint: 'Run the koala-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with koala-review-delivery provenance / agentId=koala-review-delivery; the main agent must not self-sign.',
+      detail: 'Missing delivery-check.json (requires lattice-review-delivery reviewer signature)',
+      hint: 'Run the lattice-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign.',
       source: 'delivery-check.json',
     }));
   } else {
@@ -508,7 +508,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: 'fail',
         label: 'delivery-check',
         detail: 'delivery-check.json _hash mismatch',
-        hint: 'Re-run the koala-review-delivery reviewer to generate a new delivery-check.json',
+        hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json',
         source: 'delivery-check.json._hash',
       }));
     } else {
@@ -521,7 +521,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'delivery-check',
           detail: `${unverified.length} docsPromise entries are unverified and not waived`,
-          hint: 'Use delivery_waiver_add to write a waiver, or re-run the koala-review-delivery reviewer to add verification evidence',
+          hint: 'Use delivery_waiver_add to write a waiver, or re-run the lattice-review-delivery reviewer to add verification evidence',
           source: 'delivery-check.json.docsPromises',
         }));
       } else {

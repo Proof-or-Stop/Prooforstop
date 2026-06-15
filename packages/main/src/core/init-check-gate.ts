@@ -29,7 +29,7 @@ import { StoryStore } from './store.js';
 import type { InitCheckData, InitCheckIssue } from './types.js';
 
 export const INIT_CHECK_SALT = 'koala-init-check-integrity-v1';
-export const REQUIRED_INIT_CHECK_AGENTS = ['koala-review-story-init', 'product-reviewer'] as const;
+export const REQUIRED_INIT_CHECK_AGENTS = ['lattice-review-story-init', 'product-reviewer'] as const;
 
 /**
  * B-95d8 CHK-001: suffix appended to required-agent ids when init-check.json is
