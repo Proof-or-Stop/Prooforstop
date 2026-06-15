@@ -1,0 +1,302 @@
+{
+  "command": "lattice validate --story=B-bfb5 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 3 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/15 covered (3 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — A mechanical audit check reports current template snapshot sizes and confirms the audit document remains executable against current source paths.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via docs_check (docs/audits/lattice-token-cost-and-takeover-audit.md) — The audit evidence reports prompt-cache billing uncertainty as a caveat rather than an exact cost-saving claim.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — If a cited implementation path drifts, the verification must fail or report the drift instead of silently treating the audit as executable.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — Affected package and project agent prompts no longer carry repeated full 50KB+ guide snapshots and instead retain compact load-bearing guidance.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — Fresh-context fence, review-run/finding/pass flow facts, and lifecycle safety instructions remain present after slimming.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Prompt slimming must not change Authority Server receipt claims, handoff authority boundaries, reviewer independence, or signed artifact validation semantics.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — story_get/checklist_get provide explicit opt-in slim output that removes repeated heavy payload while preserving enough status information for quick inspection.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — Default story_get and checklist_get output remains byte-shape compatible for existing callers unless slim/fields is requested.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Slim output must not hide lifecycle-blocking facts such as phase, checklist status counts, init fallback, review status, or required reviewer evidence when those facts are requested.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — A dedicated smoke prints before/after prompt bytes or approximate token deltas and exits successfully only when reductions and safety invariants hold.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — Existing prompt registry and managed asset smoke coverage still passes after template slimming.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — The smoke fails if a required load-bearing phrase is removed, default output compatibility regresses, or slim output is not actually smaller.\",\"  ~ CHK-005:happy:0 [happy/must/cli] deferred via waiver verdict=waived — REVIEW/TEST/DONE evidence distinguishes local Non-authority token-cost optimization from Authority Server receipt-backed completion.\",\"  ~ CHK-005:edge:0 [edge/must/cli] deferred via waiver verdict=waived — Related audit documentation records what was measured, what was only estimated, and why prompt-cache billing remains a caveat.\",\"  ~ CHK-005:adversarial:0 [adversarial/must/cli] deferred via waiver verdict=waived — Delivery review must reject any claim that this story changed Authority Server, handoff authority, productionDone, receiptVerified, or fullAuthorityDone semantics.\"],\"warnings\":[],\"timestamp\":\"2026-06-15T11:07:33.345Z\",\"headSha\":\"4335977ae3f79d3e89f9b4461c29fa2d2fc6016a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1075}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":12,\"missingRequired\":3,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A mechanical audit check reports current template snapshot sizes and confirms the audit document remains executable against current source paths.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke reported baseline and current package template bytes/tokens and confirmed audit source paths are executable.\",\"headHash\":\"d2f22dd44068d6fd992f175f7ca5c03db2db6c6d\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T10:59:25.946Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The audit evidence reports prompt-cache billing uncertainty as a caveat rather than an exact cost-saving claim.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/audits/lattice-token-cost-and-takeover-audit.md\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js\",\"result\":\"pass\",\"note\":\"Audit doc and smoke explicitly keep prompt-cache billing as a caveat, not an exact cost-saving claim.\",\"headHash\":\"d2f22dd44068d6fd992f175f7ca5c03db2db6c6d\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T10:59:25.973Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"If a cited implementation path drifts, the verification must fail or report the drift instead of silently treating the audit as executable.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke stat-checks required audit source paths and fails if cited implementation paths drift.\",\"headHash\":\"d2f22dd44068d6fd992f175f7ca5c03db2db6c6d\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T10:59:26.000Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Affected package and project agent prompts no longer carry repeated full 50KB+ guide snapshots and instead retain compact load-bearing guidance.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js\",\"result\":\"pass\",\"note\":\"Affected package templates and .claude/.Codex mirrors no longer carry repeated 50KB+ guide snapshots; total package prompt bytes dropped from 632687 to 115317.\",\"headHash\":\"e822f4d0a88576659fc7f4f61bb83304bd96b939\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T10:59:58.118Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Fresh-context fence, review-run/finding/pass flow facts, and lifecycle safety instructions remain present after slimming.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-registry-smoke.js\",\"result\":\"pass\",\"note\":\"Fresh-context fence, review_run_start, review_pass_set, finding_add, reviewRunId, verificationEvidence, and Authority boundary phrases remain present in load-bearing prompt slices.\",\"headHash\":\"e822f4d0a88576659fc7f4f61bb83304bd96b939\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T10:59:58.149Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Prompt slimming must not change Authority Server receipt claims, handoff authority boundaries, reviewer independence, or signed artifact validation semantics.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/prompt-registry-smoke.js\",\"result\":\"pass\",\"note\":\"Smokes assert no Authority overclaim: receiptVerified, productionDone, authorityDone, and fullAuthorityDone remain boundary terms, not local completion claims.\",\"headHash\":\"e822f4d0a88576659fc7f4f61bb83304bd96b939\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T10:59:58.177Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"story_get/checklist_get provide explicit opt-in slim output that removes repeated heavy payload while preserving enough status information for quick inspection.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\\\"[\\\\\\\"story\\\\\\\",\\\\\\\"checklist\\\\\\\"]\\\" --json && node packages/main/dist/cli.js checklist_get --storyId=B-bfb5 --slim --fields=\\\"[\\\\\\\"counts\\\\\\\"]\\\" --json\",\"result\":\"pass\",\"note\":\"Explicit slim output returns compact status-focused JSON for story_get and checklist_get.\",\"headHash\":\"6688dd4cf70c45eedbe8af49298d230b364d3a5f\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:00:26.151Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Default story_get and checklist_get output remains byte-shape compatible for existing callers unless slim/fields is requested.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke deep-equals default handler output to seeded full checklist/story data, proving default output remains backward compatible unless slim/fields is requested.\",\"headHash\":\"6688dd4cf70c45eedbe8af49298d230b364d3a5f\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:00:26.180Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Slim output must not hide lifecycle-blocking facts such as phase, checklist status counts, init fallback, review status, or required reviewer evidence when those facts are requested.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js story_get --storyId=B-bfb5 --json | wc -c; node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\\\"[\\\\\\\"story\\\\\\\",\\\\\\\"checklist\\\\\\\"]\\\" --json | wc -c\",\"result\":\"pass\",\"note\":\"Slim story_get retained phase/checklist counts/review-round status while reducing actual B-bfb5 output from about 25839 bytes to 463 bytes.\",\"headHash\":\"6688dd4cf70c45eedbe8af49298d230b364d3a5f\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:00:26.211Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"A dedicated smoke prints before/after prompt bytes or approximate token deltas and exits successfully only when reductions and safety invariants hold.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-token-cost-smoke.js\",\"result\":\"pass\",\"note\":\"Dedicated smoke prints before/after bytes and approximate token deltas, and passes only when prompt reduction plus safety invariants hold.\",\"headHash\":\"429dcb19cdf4966cb30cf2aff70d57e76ef6100d\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:00:55.816Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Existing prompt registry and managed asset smoke coverage still passes after template slimming.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-registry-smoke.js && node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json\",\"result\":\"pass\",\"note\":\"Prompt registry smoke and Codex adapter verification passed; package, .claude, and .Codex prompt mirrors remain consistent.\",\"headHash\":\"429dcb19cdf4966cb30cf2aff70d57e76ef6100d\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:00:55.844Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"The smoke fails if a required load-bearing phrase is removed, default output compatibility regresses, or slim output is not actually smaller.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/prompt-token-cost-smoke.js && lattice scope_contract_check --storyId=B-bfb5 --json\",\"result\":\"pass\",\"note\":\"Smoke asserts required prompt-safety phrases, default output compatibility, and slim output reduction; scope gate passed for changed files.\",\"headHash\":\"429dcb19cdf4966cb30cf2aff70d57e76ef6100d\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:00:55.871Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"REVIEW/TEST/DONE evidence distinguishes local Non-authority token-cost optimization from Authority Server receipt-backed completion.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"deferred\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"deferred_gate_evidence\",\"note\":\"Deferred until REVIEW/TEST/DONE: local Non-authority completion evidence cannot exist before entering those phases; this waiver must be replaced by real lifecycle evidence before final completion.\",\"headHash\":\"60ddfc793ac84bbeb970c07bbc44e327f75365e5\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:01:32.275Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Related audit documentation records what was measured, what was only estimated, and why prompt-cache billing remains a caveat.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"deferred\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"deferred_gate_evidence\",\"note\":\"Deferred until delivery documentation is reviewed after REVIEW/TEST; audit doc already records measured vs estimated token savings and prompt-cache caveat, but final closure evidence is not claimed yet.\",\"headHash\":\"60ddfc793ac84bbeb970c07bbc44e327f75365e5\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:01:32.307Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Delivery review must reject any claim that this story changed Authority Server, handoff authority, productionDone, receiptVerified, or fullAuthorityDone semantics.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"deferred\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"deferred_gate_evidence\",\"note\":\"Deferred until delivery review can verify no Authority Server, receiptVerified, productionDone, authorityDone, or fullAuthorityDone overclaim; no Authority completion is claimed by this waiver.\",\"headHash\":\"60ddfc793ac84bbeb970c07bbc44e327f75365e5\",\"materialHash\":\"53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784\",\"timestamp\":\"2026-06-15T11:01:32.350Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-15T11:07:33.782Z",
+  "headHash": "4335977ae3f79d3e89f9b4461c29fa2d2fc6016a",
+  "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 12,
+    "missingRequired": 3,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A mechanical audit check reports current template snapshot sizes and confirms the audit document remains executable against current source paths.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke reported baseline and current package template bytes/tokens and confirmed audit source paths are executable.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:25.946Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The audit evidence reports prompt-cache billing uncertainty as a caveat rather than an exact cost-saving claim.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Audit doc and smoke explicitly keep prompt-cache billing as a caveat, not an exact cost-saving claim.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:25.973Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "If a cited implementation path drifts, the verification must fail or report the drift instead of silently treating the audit as executable.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke stat-checks required audit source paths and fails if cited implementation paths drift.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:26.000Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Affected package and project agent prompts no longer carry repeated full 50KB+ guide snapshots and instead retain compact load-bearing guidance.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Affected package templates and .claude/.Codex mirrors no longer carry repeated 50KB+ guide snapshots; total package prompt bytes dropped from 632687 to 115317.",
+          "headHash": "e822f4d0a88576659fc7f4f61bb83304bd96b939",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:58.118Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Fresh-context fence, review-run/finding/pass flow facts, and lifecycle safety instructions remain present after slimming.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Fresh-context fence, review_run_start, review_pass_set, finding_add, reviewRunId, verificationEvidence, and Authority boundary phrases remain present in load-bearing prompt slices.",
+          "headHash": "e822f4d0a88576659fc7f4f61bb83304bd96b939",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:58.149Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Prompt slimming must not change Authority Server receipt claims, handoff authority boundaries, reviewer independence, or signed artifact validation semantics.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Smokes assert no Authority overclaim: receiptVerified, productionDone, authorityDone, and fullAuthorityDone remain boundary terms, not local completion claims.",
+          "headHash": "e822f4d0a88576659fc7f4f61bb83304bd96b939",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:58.177Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "story_get/checklist_get provide explicit opt-in slim output that removes repeated heavy payload while preserving enough status information for quick inspection.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\"[\\\"story\\\",\\\"checklist\\\"]\" --json && node packages/main/dist/cli.js checklist_get --storyId=B-bfb5 --slim --fields=\"[\\\"counts\\\"]\" --json",
+          "result": "pass",
+          "note": "Explicit slim output returns compact status-focused JSON for story_get and checklist_get.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.151Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Default story_get and checklist_get output remains byte-shape compatible for existing callers unless slim/fields is requested.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke deep-equals default handler output to seeded full checklist/story data, proving default output remains backward compatible unless slim/fields is requested.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.180Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Slim output must not hide lifecycle-blocking facts such as phase, checklist status counts, init fallback, review status, or required reviewer evidence when those facts are requested.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js story_get --storyId=B-bfb5 --json | wc -c; node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\"[\\\"story\\\",\\\"checklist\\\"]\" --json | wc -c",
+          "result": "pass",
+          "note": "Slim story_get retained phase/checklist counts/review-round status while reducing actual B-bfb5 output from about 25839 bytes to 463 bytes.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.211Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "A dedicated smoke prints before/after prompt bytes or approximate token deltas and exits successfully only when reductions and safety invariants hold.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke prints before/after bytes and approximate token deltas, and passes only when prompt reduction plus safety invariants hold.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.816Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Existing prompt registry and managed asset smoke coverage still passes after template slimming.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js && node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json",
+          "result": "pass",
+          "note": "Prompt registry smoke and Codex adapter verification passed; package, .claude, and .Codex prompt mirrors remain consistent.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.844Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "The smoke fails if a required load-bearing phrase is removed, default output compatibility regresses, or slim output is not actually smaller.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && lattice scope_contract_check --storyId=B-bfb5 --json",
+          "result": "pass",
+          "note": "Smoke asserts required prompt-safety phrases, default output compatibility, and slim output reduction; scope gate passed for changed files.",
+          "headHash": "429dcb19cdf4966cb30cf2aff70d57e76ef6100d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:55.871Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "REVIEW/TEST/DONE evidence distinguishes local Non-authority token-cost optimization from Authority Server receipt-backed completion.",
+        "type": "cli",
+        "priority": "must",
+        "status": "deferred",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until REVIEW/TEST/DONE: local Non-authority completion evidence cannot exist before entering those phases; this waiver must be replaced by real lifecycle evidence before final completion.",
+          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:01:32.275Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Related audit documentation records what was measured, what was only estimated, and why prompt-cache billing remains a caveat.",
+        "type": "cli",
+        "priority": "must",
+        "status": "deferred",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until delivery documentation is reviewed after REVIEW/TEST; audit doc already records measured vs estimated token savings and prompt-cache caveat, but final closure evidence is not claimed yet.",
+          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:01:32.307Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Delivery review must reject any claim that this story changed Authority Server, handoff authority, productionDone, receiptVerified, or fullAuthorityDone semantics.",
+        "type": "cli",
+        "priority": "must",
+        "status": "deferred",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until delivery review can verify no Authority Server, receiptVerified, productionDone, authorityDone, or fullAuthorityDone overclaim; no Authority completion is claimed by this waiver.",
+          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:01:32.350Z"
+        }
+      }
+    ]
+  }
+}
