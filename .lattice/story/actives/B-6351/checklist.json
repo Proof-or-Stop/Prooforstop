@@ -222,9 +222,69 @@
           "command": "node scripts/verify-entrypoints.mjs; node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "verify-entrypoints passed 26/26 and thin-init-assets-smoke passed, covering that generated init preserves user-owned legacy files while avoiding regenerated koala compatibility assets.",
-          "headHash": "057736b2667e49a4e62f3f642eb9addf68f92bcc",
-          "materialHash": "fa86b5c9f5dfde13eca03a4c2b3eda8f064a5b67984886bcdf15c12573846d35",
-          "timestamp": "2026-06-15T03:03:20.772Z"
+          "headHash": "81ad7df3a3ae566141d70e956ae54ee7dbfa264b",
+          "materialHash": "9f273da659911d5f9fd7079e7654125a743f9deba0a7abd0695085e23304c97c",
+          "timestamp": "2026-06-15T03:06:24.671Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice-codex.js session_brief",
+          "result": "pass",
+          "note": "Local lattice-codex wrapper session_brief passed at current HEAD without requiring bin/koala-codex.js.",
+          "headHash": "81ad7df3a3ae566141d70e956ae54ee7dbfa264b",
+          "materialHash": "9f273da659911d5f9fd7079e7654125a743f9deba0a7abd0695085e23304c97c",
+          "timestamp": "2026-06-15T03:06:24.671Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js verify_codex",
+          "result": "pass",
+          "note": "Codex adapter verification passed 7/7 using lattice and lattice-codex active paths.",
+          "headHash": "81ad7df3a3ae566141d70e956ae54ee7dbfa264b",
+          "materialHash": "9f273da659911d5f9fd7079e7654125a743f9deba0a7abd0695085e23304c97c",
+          "timestamp": "2026-06-15T03:06:24.671Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "docs_check",
+          "command": "node scripts/verify-codex-assets.mjs",
+          "result": "pass",
+          "note": "Codex asset verifier passed and checks README, manifest, wrapper resolver, and generated assets for lattice-only active command guidance.",
+          "headHash": "81ad7df3a3ae566141d70e956ae54ee7dbfa264b",
+          "materialHash": "9f273da659911d5f9fd7079e7654125a743f9deba0a7abd0695085e23304c97c",
+          "timestamp": "2026-06-15T03:06:24.671Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Entrypoint verification passed 26/26 and confirms generated init creates lattice wrappers without bin/koala.js or bin/koala-codex.js compatibility files.",
+          "headHash": "81ad7df3a3ae566141d70e956ae54ee7dbfa264b",
+          "materialHash": "9f273da659911d5f9fd7079e7654125a743f9deba0a7abd0695085e23304c97c",
+          "timestamp": "2026-06-15T03:06:24.671Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/codex-registry-mode-smoke.js",
+          "result": "pass",
+          "note": "Codex registry mode smoke passed, confirming legacy-only .Codex/koala.json or bin/koala-codex.js fixture paths do not satisfy active Codex adapter verification.",
+          "headHash": "81ad7df3a3ae566141d70e956ae54ee7dbfa264b",
+          "materialHash": "9f273da659911d5f9fd7079e7654125a743f9deba0a7abd0695085e23304c97c",
+          "timestamp": "2026-06-15T03:06:24.671Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "command": "rg -n \"koala-codex|\\.Codex/koala\\.json\" .Codex .codex README.md docs/guide-hooks.md",
+          "result": "pass",
+          "note": "Active Codex/generated asset docs scan produced no koala-codex or .Codex/koala.json guidance hits.",
+          "headHash": "81ad7df3a3ae566141d70e956ae54ee7dbfa264b",
+          "materialHash": "9f273da659911d5f9fd7079e7654125a743f9deba0a7abd0695085e23304c97c",
+          "timestamp": "2026-06-15T03:06:24.671Z"
         }
       ]
     },
