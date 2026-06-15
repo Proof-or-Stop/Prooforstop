@@ -30,7 +30,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+          "command": "npm run test:bare-gate-gitroot-cwd",
+          "result": "pass",
+          "note": "scenario1: wrapper-root no-story gitCwd resolves to the configured gitRoot subdir",
+          "headHash": "f0ba1e3a7a5bdc35e10826d9dd890657c1bc60b9",
+          "materialHash": "7b3effa66e745a07f312239a2772e7fd285c407dfaa55a1764b15110229bbdf8",
+          "timestamp": "2026-06-15T23:35:57.690Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+          "command": "npm run test:bare-gate-gitroot-cwd",
+          "result": "pass",
+          "note": "scenario2: plain repo resolves to projectRoot (byte-identical)",
+          "headHash": "f0ba1e3a7a5bdc35e10826d9dd890657c1bc60b9",
+          "materialHash": "7b3effa66e745a07f312239a2772e7fd285c407dfaa55a1764b15110229bbdf8",
+          "timestamp": "2026-06-15T23:35:57.690Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+          "command": "npm run test:bare-gate-gitroot-cwd",
+          "result": "pass",
+          "note": "scenario3: null gitRootAbs falls back to projectRoot, no crash",
+          "headHash": "f0ba1e3a7a5bdc35e10826d9dd890657c1bc60b9",
+          "materialHash": "7b3effa66e745a07f312239a2772e7fd285c407dfaa55a1764b15110229bbdf8",
+          "timestamp": "2026-06-15T23:35:57.690Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -62,7 +97,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+          "command": "npm run test:bare-gate-gitroot-cwd",
+          "result": "pass",
+          "note": "test asserts wrapper-root gitCwd == gitRoot (and != non-git metadataRoot)",
+          "headHash": "f0ba1e3a7a5bdc35e10826d9dd890657c1bc60b9",
+          "materialHash": "7b3effa66e745a07f312239a2772e7fd285c407dfaa55a1764b15110229bbdf8",
+          "timestamp": "2026-06-15T23:35:57.690Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+          "command": "npm run test:bare-gate-gitroot-cwd",
+          "result": "pass",
+          "note": "test asserts plain repo gitCwd == projectRoot",
+          "headHash": "f0ba1e3a7a5bdc35e10826d9dd890657c1bc60b9",
+          "materialHash": "7b3effa66e745a07f312239a2772e7fd285c407dfaa55a1764b15110229bbdf8",
+          "timestamp": "2026-06-15T23:35:57.690Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+          "command": "npm run test:bare-gate-gitroot-cwd",
+          "result": "pass",
+          "note": "test asserts null gitRootAbs -> projectRoot fallback; negative-check confirms it catches the old projectRoot behavior",
+          "headHash": "f0ba1e3a7a5bdc35e10826d9dd890657c1bc60b9",
+          "materialHash": "7b3effa66e745a07f312239a2772e7fd285c407dfaa55a1764b15110229bbdf8",
+          "timestamp": "2026-06-15T23:35:57.690Z"
+        }
+      ]
     }
   ]
 }
