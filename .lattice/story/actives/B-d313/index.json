@@ -4,7 +4,7 @@
   "title": "Fix stale koala→Lattice assertion that reds the field-regression-cli-smoke suite",
   "description": "The koala→Lattice rebrand changed the stale-state warning header emitted by cli-engine.ts to '⚠ Lattice stale state warnings:', but the cooldown regression test in field-regression-cli-smoke.ts still asserts the old /koala stale state warnings/ string at lines 1894 and 1906. assertStaleWarningCooldownCliSurface therefore throws and reds the entire field-regression-cli-smoke suite on main. Update the two assertions to match the current Lattice wording so the suite goes green again.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "low",
   "keywords": [
     "field-regression-cli-smoke",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-15T00:22:25.733Z",
   "startedAt": "2026-06-15T00:22:25.733Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T00:46:52.748Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T00:26:22.158Z",
+      "branch": "story/B-d313",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T00:34:52.742Z",
+      "branch": "story/B-d313",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T00:39:19.494Z",
+      "branch": "story/B-d313",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T00:41:44.569Z",
+      "branch": "story/B-d313",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T00:46:52.748Z",
+      "branch": "story/B-d313",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d313",
-    "branch": "story/B-d313",
-    "createdAt": "2026-06-15T00:25:17.895Z"
-  }
+  "currentReviewRound": "2026-06-15T00:39:19.494Z"
 }

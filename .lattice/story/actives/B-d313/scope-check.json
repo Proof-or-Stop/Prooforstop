@@ -1,0 +1,73 @@
+{
+  "storyId": "B-d313",
+  "checkedAt": "2026-06-15T00:33:44.069Z",
+  "features": [
+    {
+      "feature": "Update assert.match at :1894 from /koala stale state warnings/ to /Lattice stale state warnings/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update assert.doesNotMatch at :1906 from /koala stale state warnings/ to /Lattice stale state warnings/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "assertStaleWarningCooldownCliSurface test must pass end-to-end after fix",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke-test assertions that lock user-visible CLI text must use current Lattice branding (not legacy koala)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "lattice is the 0.3.5 primary product entry point; koala is a legacy alias — CLI text surfaces should reflect Lattice branding",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:project-vision.md"
+    },
+    {
+      "feature": "Do not change the CLI emit string in cli-engine.ts (blocked/out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Understanding constraints: blocked path; only edit field-regression-cli-smoke.ts",
+      "source": "description"
+    },
+    {
+      "feature": "Do not alter the cooldown suppression behavior the test exercises",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Understanding constraints: do not alter the cooldown behavior",
+      "source": "description"
+    },
+    {
+      "feature": "Stale koala refs at :609 (re-run hint) and :1871 (temp-dir prefix) are not updated",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Understanding facts: :609 and :1871 are unrelated and out of scope",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5301894d89bbdd916e816173d59bd027d36411ed14ac621d84e17dc59e3c23e0",
+  "openQuestions": []
+}

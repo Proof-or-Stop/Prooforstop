@@ -1,0 +1,33 @@
+{
+  "storyId": "B-d313",
+  "checkedAt": "2026-06-15T00:45:16.626Z",
+  "reviewRound": "2026-06-15T00:39:19.494Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-d313/evidence/transcript-diff.md",
+      "promise": "npm run test:field-regression-cli-smoke runs to completion with exit 0 and prints field regression CLI smoke passed after the two regex fixes",
+      "verifiedBy": "independent source/dist grep + regex probe",
+      "evidence": "Source: grep -n confirms line 1894 assert.match(/Lattice stale state warnings/) and line 1906 assert.doesNotMatch(/Lattice stale state warnings/). Zero legacy koala stale state warnings in src/. Dist has 2x Lattice and 0x koala. Regex probe: /Lattice stale state warnings/.test(koala...) === false; .test(Lattice...) === true; .test(emoji+Lattice...) === true. All claims in transcript-diff.md independently confirmed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d313/plan.md",
+      "promise": "Only field-regression-cli-smoke.ts modified at lines 1894 and 1906; cli-engine.ts untouched; unrelated refs at :609 and :1871 excluded",
+      "verifiedBy": "diff --name-only + grep",
+      "evidence": "git diff main...HEAD --name-only shows exactly one non-metadata file changed: packages/main/src/tasks/field-regression-cli-smoke.ts. cli-engine.ts not in diff. grep confirms :609 and :1871 koala refs are unchanged and out of scope."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Integration test: npm run test:field-regression-cli-smoke ran to exit 0 printing field regression CLI smoke passed. assertStaleWarningCooldownCliSurface no longer throws. Independently verified: source lines 1894 and 1906 use /Lattice stale state warnings/; zero legacy koala stale state warnings in source; dist has 2 Lattice and 0 koala occurrences; regex probes confirm brand-exact case-sensitive match, emoji-anchor safe, rejects old koala brand."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Single-file 2-line brand rename. Both assertions updated from /koala stale state warnings/ to /Lattice stale state warnings/ matching cli-engine.ts:3657. All 9 verification intents (3 happy/3 edge/3 adversarial) covered. Source clean, dist rebuilt, regex behavior independently re-verified. No doc promises beyond story process artifacts; no CLAUDE.md or user-facing docs changed. Delivery is complete and consistent with stated goal."
+  },
+  "_hash": "10badc3f46dc6b21c334a4bedc1cdf8190b90931a3702a129b569c512d09a126"
+}

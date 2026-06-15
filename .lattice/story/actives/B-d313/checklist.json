@@ -5,9 +5,163 @@
       "title": "Update the two stale-warning assertions from 'koala' to 'Lattice' so the cooldown test matches the rebranded CLI header",
       "context": "packages/main/src/tasks/field-regression-cli-smoke.ts:1894 (assert.match) and :1906 (assert.doesNotMatch) both use /koala stale state warnings/; cli-engine.ts:3657 now emits '⚠ Lattice stale state warnings:'. After the change, `npm run test:field-regression-cli-smoke` must reach completion (the assertStaleWarningCooldownCliSurface failure is gone).",
       "userSees": "`npm run test:field-regression-cli-smoke` runs to completion without the assertStaleWarningCooldownCliSurface AssertionError.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T00:35:02.654Z",
+      "endTime": "2026-06-15T00:37:57.521Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run test:field-regression-cli-smoke end-to-end -> assertStaleWarningCooldownCliSurface passes (no AssertionError); WHY: confirms the regex at line 1894 now matches the rebranded Lattice header and the cooldown doesNotMatch at line 1906 also uses the correct brand",
+            "type": "cli"
+          },
+          {
+            "desc": "assert.match(first.stderr, /Lattice stale state warnings/) succeeds on first invocation of session_brief with a stale story -> stderr contains the exact rebranded header; WHY: validates the positive-match assertion uses the new brand string",
+            "type": "cli"
+          },
+          {
+            "desc": "assert.doesNotMatch(second.stderr, /Lattice stale state warnings/) succeeds on the cooldown (second) invocation -> stderr does NOT contain the Lattice stale header; WHY: validates cooldown suppression still works with the rebranded string",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regex is case-sensitive and includes the word Lattice with capital L -> /Lattice stale state warnings/ does NOT match lowercase lattice stale state warnings; WHY: ensures the assertion is brand-exact, not accidentally case-insensitive or overly relaxed",
+            "type": "cli"
+          },
+          {
+            "desc": "No residual /koala stale state warnings/ regex remains in the source file after the fix -> grep for koala stale state warnings in field-regression-cli-smoke.ts returns zero matches; WHY: ensures complete migration with no leftover old-brand references",
+            "type": "cli"
+          },
+          {
+            "desc": "The compiled dist/tasks/field-regression-cli-smoke.js also contains the updated Lattice regex (not stale koala) -> grep confirms Lattice stale state warnings present and koala stale state warnings absent; WHY: the dist file is what actually executes, verifying it is rebuilt correctly",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Replace the regex with a brand-agnostic pattern like /stale state warnings/ (dropping the Lattice prefix) -> test must NOT be accepted because it would match any future rebrand silently and fail to catch header drift; WHY: adversarial check that the fix is brand-specific, not a lazy wildcard",
+            "type": "cli"
+          },
+          {
+            "desc": "Restore the old /koala stale state warnings/ regex after the fix and run the test -> assert.match must throw AssertionError because the CLI now emits Lattice not koala; WHY: confirms the old regex genuinely fails against the new header, proving the fix is necessary",
+            "type": "cli"
+          },
+          {
+            "desc": "Inject a header like Lattice stale state warnings (without the warning emoji prefix) into stderr -> the regex /Lattice stale state warnings/ still matches because the regex does not anchor on the emoji; WHY: adversarial probe that the regex pattern scope is intentionally just the text portion, matching cli-engine output which includes emoji separately",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Suite runs end-to-end with exit 0 and prints '✓ field regression CLI smoke passed'; assertStaleWarningCooldownCliSurface no longer throws.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.839Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "First session_brief invocation: assert.match(first.stderr, /Lattice stale state warnings/) passes against the rebranded header.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.870Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Second (cooldown) invocation: assert.doesNotMatch(second.stderr, /Lattice stale state warnings/) passes, proving the warning is suppressed on the cooldown run.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.898Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "grep -c 'koala stale state warnings' packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "result": "pass",
+          "note": "Returns 0 — no residual legacy /koala stale state warnings/ regex remains in source.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.927Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "docs_check",
+          "file": "packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "command": "grep -c 'Lattice stale state warnings' / 'koala stale state warnings' in dist",
+          "result": "pass",
+          "note": "Compiled dist has 2 'Lattice stale state warnings' and 0 'koala stale state warnings' after rebuild.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.957Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm run test:field-regression-cli-smoke (with old /koala/ regex)",
+          "result": "pass",
+          "note": "Observed at session start: with the old /koala stale state warnings/ regex the suite threw 'AssertionError ... did not match /koala stale state warnings/', confirming the fix is necessary and the assertion still guards the header.",
+          "headHash": "54937a4397c858ac41387775350bee83fbc8fef2",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:37:47.984Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node -e regex-probe (Lattice vs koala/lowercase/no-emoji)",
+          "result": "pass",
+          "note": "/Lattice stale state warnings/.test('lattice stale state warnings') === false and .test('Lattice stale state warnings') === true — assertion is brand-exact and case-sensitive, not relaxed.",
+          "headHash": "fda4f758babea83ca3c2c85d76783cabb035bb03",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:39:06.903Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node -e regex-probe (Lattice vs koala/lowercase/no-emoji)",
+          "result": "pass",
+          "note": "Brand-specific /Lattice stale state warnings/.test('koala stale state warnings') === false (catches header drift), whereas a brand-agnostic /stale state warnings/ === true would silently pass any future rebrand. Confirms the fix is intentionally brand-specific, not a lazy wildcard.",
+          "headHash": "a266ecbef29ba99184a8ed17526d67239146a6c8",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:39:07.566Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node -e regex-probe (Lattice vs koala/lowercase/no-emoji)",
+          "result": "pass",
+          "note": "/Lattice stale state warnings/.test('Lattice stale state warnings') === true (no emoji) and .test('⚠ Lattice stale state warnings:') === true — the regex matches the text portion and does not anchor on the ⚠ emoji emitted separately by cli-engine.ts:3657.",
+          "headHash": "13ed5e55d708d2f47a05b5e7f068874c941dc216",
+          "materialHash": "2136420d95af3f734be840b3117b05b07f2fdff6d31c4541199e2c6c1bfedc7d",
+          "timestamp": "2026-06-15T00:39:08.055Z"
+        }
+      ]
     }
   ]
 }
