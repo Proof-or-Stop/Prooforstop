@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-15T22:40:11.984Z",
       "reviewRunId": "B-804c:RR-004",
       "_hash": "40e3d59d923c92e0084cf1f4bf8778c5bf2422ea391daf7d1fa0b21e64da995a"
+    },
+    {
+      "id": "B-804c:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior check: (1) getGuardFailureReason returns null for non-INIT stories (machine.ts:592 'if (story.phase !== INIT) return null'), so the phaseDetectionFailed path never wrongly blocks a legitimate advance — it only adds the guard for the INIT case, which is correct. (2) Bootstrap-first-then-advance ordering confirmed intact: guard gate at 4106-4113, dev_start at 4124, story_advance at 4144, commitInitCheckMetadata at 4155. (3) All 4 smoke assertions pass including new assertCleanInitCheckAdvanceSucceeds. No regression from F-002 fix.",
+      "createdAt": "2026-06-15T22:56:05.329Z",
+      "reviewRound": "2026-06-15T22:53:23.221Z",
+      "reviewRunId": "B-804c:RR-005",
+      "_hash": "083b3f5af414f3bc6819338c77c7f71662df076e3a9e836e04b8c6d5495fcf2a"
     }
   ]
 }
