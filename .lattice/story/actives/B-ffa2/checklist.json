@@ -110,8 +110,8 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T15:42:50.995Z",
       "endTime": null,
       "userSees": "Lattice CLI help and workflow hints refer to lattice-implementer and lattice-review-* role IDs, and review/finding/runtime checks accept the lattice reviewer prefix as canonical.",
       "files": {
@@ -271,6 +271,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start agent template and mirrored asset rename."
+    },
+    {
+      "timestamp": "2026-06-15T15:42:50.995Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start runtime role dispatch/schema/gate naming migration."
     }
   ]
 }
