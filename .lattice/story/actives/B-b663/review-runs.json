@@ -137,6 +137,52 @@
         "bindingHash": "8478cb10c8f8481129f69a9e4a780269fddbd02c093d9050e8b89447fb27cfbc"
       },
       "_hash": "925d34dcb1795a14d09d5bc078ab540287f130b1b4f5f6350275c21362d8cc93"
+    },
+    {
+      "reviewRunId": "B-b663:RR-004",
+      "storyId": "B-b663",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-15T02:49:36.048Z",
+      "startedAt": "2026-06-15T02:51:04.216Z",
+      "headHash": "0ef70d46a8646286c8421951351d8613aefcb74d",
+      "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+      "promptHash": "0a71634b1c636b83db8afbf64d125111dc2db88ecdae33104ad42a8906e7ec3b",
+      "scopeBinding": {
+        "scopeContractHash": "0f8e958994d272f3e8a3e3238a1039b59f2d4d49e96c43cee3a878e7ee6691fb",
+        "diffPackHash": "585ba505a95671d1d655210e4413aa276bd5c0737888f14cf4eed9d7cf2b86d2",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [
+          "doc-audit-degraded-3x1",
+          "doc-audit-threshold",
+          "doc-audit-unified-default",
+          "legacy-gate-transition",
+          "no-doc-special-case",
+          "no-false-runtime-claim"
+        ],
+        "reviewedHunkDigests": [
+          "75627aa812e62a6dace8a8198814f15b04095014e24c95aae8d8ab18b03cd6df",
+          "8cb46751787e1802d50d646f5f453fde260cc1a435f22f56700b757a7c39632a",
+          "8d547352b4a8cf4ef16f4046bc17f493b810ee273f68f7b8b728e469ecfebf60",
+          "e42f64d7820774f166f0232397b5a4a2b9b2f45887159e3a378e0f5980196299",
+          "fc7b97d16db43b3fed6814d28333c1be7b4a15095f59cd6801b6a17ae9edf68c"
+        ],
+        "bindingHash": "2187aa1e2c3dbc2c230ba62cec182ae7e85cb38cf21255a083d5d55a8042738f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b663",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b663",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-b663",
+        "workspaceMode": "story-worktree",
+        "headHash": "0ef70d46a8646286c8421951351d8613aefcb74d",
+        "materialHash": "6a4fe1662717505111a455e3ea14f0bb4156e941b74324a4860574848fc47a1e",
+        "bindingHash": "f80b2d0318321e912aec64938aa8febdf782d979d13c3ae0f3d8709128016a31"
+      },
+      "_hash": "ee7412ff975c914cc8a5fe3111bb65c7158fd5c517e44b70a6b0fe33733a6829"
     }
   ]
 }
