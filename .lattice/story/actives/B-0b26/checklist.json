@@ -350,6 +350,17 @@
           "headHash": "f6da11776e76d4df05e34ee2d54a2a0e5bc98c34",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:32:01.133Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rIl du.exe.stackdump (excl ...)",
+          "result": "pass",
+          "note": "0 references to du.exe.stackdump remain.",
+          "headHash": "689cfe0fdc4c23b74c58eda5e03b3efbf0cf5eb1",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:01.816Z"
         }
       ]
     }
