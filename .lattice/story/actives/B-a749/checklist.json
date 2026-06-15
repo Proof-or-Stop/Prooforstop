@@ -145,6 +145,17 @@
           "headHash": "7a5bf2f18dda3715998367700e16ab7424e5b302",
           "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
           "timestamp": "2026-06-15T22:30:48.922Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (b): in-scope tsconfig with injected real tsc error -> still kind:fail; in-scope tsconfigs never deps-absent-skipped (gate bites).",
+          "headHash": "f0b3c9ad64b23b5fc40d0635340ede124f0d5fdc",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:49.701Z"
         }
       ]
     },
