@@ -14,8 +14,10 @@
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
+  LOAD_BEARING_LATTICE_PROMPT_SLICE,
   PROMPT_REGISTRY_SOURCE,
   PROMPT_REGISTRY_VERSION,
   listPromptTemplateFiles,
@@ -26,6 +28,36 @@ import { renderCodexAgentContent } from '../init-assets.js';
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
+const projectRoot = join(registry.root, '..', '..', '..', '..');
+const loadBearingPromptFiles = new Set([
+  'koala-evaluator.md',
+  'koala-implementer.md',
+  'koala-review-behavior.md',
+  'koala-review-channel.md',
+  'koala-review-concept.md',
+  'koala-review-delivery.md',
+  'koala-review-docs.md',
+  'koala-review-quality.md',
+  'koala-review-scope-plan.md',
+  'koala-review-story-init.md',
+]);
+const requiredSafetyPhrases = [
+  'Fresh-Context Fence',
+  'Process Fact Contract',
+  'review_run_start',
+  'review_pass_set',
+  'finding_add',
+  'reviewRunId',
+  'verificationEvidence',
+  'receiptVerified',
+  'productionDone',
+  'authorityDone',
+  'fullAuthorityDone',
+];
+
+function extractKoalaBlock(content: string): string | null {
+  return content.match(/<!-- koala:start -->[\s\S]*?<!-- koala:end -->/)?.[0] ?? null;
+}
 
 assert.equal(registry.schemaVersion, PROMPT_REGISTRY_VERSION);
 assert.equal(registry.source, PROMPT_REGISTRY_SOURCE);
@@ -45,6 +77,20 @@ for (const entry of registry.agents) {
     renderCodexAgentContent(source),
     `${entry.file} codex render matches legacy transform`,
   );
+  if (loadBearingPromptFiles.has(entry.file)) {
+    assert.equal(extractKoalaBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
+    for (const phrase of requiredSafetyPhrases) {
+      assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
+    }
+  }
+  const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
+  if (existsSync(claudeMirrorPath)) {
+    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), source, `${entry.file} .claude mirror matches package template`);
+  }
+  const codexMirrorPath = join(projectRoot, '.Codex', 'agents', entry.file);
+  if (existsSync(codexMirrorPath)) {
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), renderCodexAgentContent(source), `${entry.file} .Codex mirror matches codex render`);
+  }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }
 assert.equal(registry.materialHash, material.digest('hex'), 'registry material hash is deterministic');
