@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-15 a ClawCreek user (Lattice 0.3.5) had a backend-only change blocked at REVIEW->TEST: lattice validate --lint failed with TS2307 'Cannot find module echarts / react-markdown / vitest / @testing-library/react / @vitejs/plugin-react' from clawcreek/frontend/tsconfig.json, because the fresh story worktree had no frontend node_modules. Verified in source: validate-lint.ts runs tsc over all tsconfigs with no change-scope filter, and treats a non-zero tsc exit (missing deps) as a hard fail (distinct from ENOENT binary-missing -> skip).
+
+## Key Insights
+The gate's blast radius is the whole repo regardless of the change set, so a single uninstalled or unrelated package can block an otherwise-correct change. The recursive scan is intentional (catches cross-package breakage), so the fix is not to weaken it globally but to make it change-aware: only hard-require tsc for packages actually touched by the change, and degrade gracefully (skip + warn) for out-of-scope packages whose deps are absent. The git material/changed-files set should be resolved via the same signed-workspace resolution the other gates use.
+
+## Solution Tradeoffs
+Option A (change-scope filter): compute changed files (vs main) and only run tsc for tsconfigs whose package contains a changed file; out-of-scope tsconfigs are skipped (warned). Pros: precise; Cons: needs reliable changed-file resolution. Option B (deps-aware skip): if a tsconfig's package has no node_modules, skip-with-warning rather than fail. Pros: simplest; Cons: could mask a genuinely-in-scope package missing deps. Likely A as the primary mechanism with B as a guard, keeping full recursive tsc when no change-scope is available (e.g. explicit --lint without a story). Risk: must not silently pass a change that DOES break an in-scope package.
+
+## Conversational Texture
+One of four sibling Lattice bugs from a ClawCreek wrapper-root report; the user asked to open a story per bug and dispatch a driver agent each. This is the lowest-severity of the four (a workflow-friction/false-block issue, not data loss or a hard lifecycle break), scoped to lint change-awareness and kept separate from the gitRoot cwd fix (B-2856) which it may reuse for resolving the git material root.

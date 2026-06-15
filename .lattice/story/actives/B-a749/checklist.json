@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add an optional change-scope filter to validate --lint",
+      "context": "validate-lint.ts findTsconfigs/runTsc currently tsc every tsconfig with no change-scope. Add an optional changedFiles/change-scope input so that, when available (e.g. validate --lint --story=B-xxx), only tsconfigs whose package contains a changed file (vs main) are hard-required; resolve the changed-file set via the existing signed-workspace/git resolution. Preserve full recursive tsc when no change-scope is provided.",
+      "userSees": "`lattice validate --lint --story=B-xxx` for a backend-only change runs tsc on the backend package and reports the frontend tsconfig as skipped (out of change scope), instead of failing on frontend TS2307 errors.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Skip-with-warning for out-of-scope packages missing node_modules",
+      "context": "When a tsconfig's package has no node_modules and is NOT in the change scope, treat it as skipped-with-warning rather than a hard fail (distinct from the in-scope case, which still fails if deps are genuinely missing). Keep the existing ENOENT(binary)->skip vs non-zero-exit->fail distinction for in-scope packages.",
+      "userSees": "When a fresh worktree lacks frontend node_modules and the change is backend-only, validate --lint prints '[lint] skipped: <frontend tsconfig> (out of scope, deps absent)' instead of '[lint] fail: tsc ... Cannot find module'.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression tests for lint change-scoping",
+      "context": "Cover: (a) backend-only change scopes out the frontend tsconfig (skipped); (b) an in-scope frontend change still type-checks (and still fails on real errors); (c) no-change-scope mode keeps full recursive tsc. Use validate-lint.ts's CommandRunner dependency-injection seam; do not spawn real tsc.",
+      "userSees": "`lattice validate` runs the new tests green, proving lint scopes out unrelated packages for a backend-only change while still catching real in-scope type errors.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
