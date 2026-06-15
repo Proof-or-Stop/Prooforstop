@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2856",
+  "checkedAt": "2026-06-15T21:34:54.117Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "a4679efecb30726ed35a61321027b940f35cb8279a67e857f8becf2dbe5d3482",
+  "executionBoundaryHash": "5a1b0d5fa6c70a77100f49b1989508e4b3a4ff893a9e40869938590c6172b0e4",
+  "freshnessHash": "07d1f3be8cc8bb678d9a3e06b93baa29eae45f05bcb15345043af30868fec578",
+  "effectiveExcludedKeywords": [
+    "Adding a new resolver (reuse the existing resolveStorySignedWorkspace)",
+    "Any change to git command text, gate semantics, or bootstrap",
+    "Authority",
+    "Bugs 2/3/4 from the ClawCreek report (atomic bootstrap; .lattice track/ignore data-loss; lint change-scope) — separate stories",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding a new resolver (reuse the existing resolveStorySignedWorkspace)",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding a new resolver (reuse the existing resolveStorySignedWorkspace)",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to git command text, gate semantics, or bootstrap",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to git command text, gate semantics, or bootstrap",
+      "excluded": true
+    },
+    {
+      "keyword": "Bugs 2/3/4 from the ClawCreek report (atomic bootstrap; .lattice track/ignore data-loss; lint change-scope) — separate stories",
+      "source": "scopeBoundary.excluded",
+      "text": "Bugs 2/3/4 from the ClawCreek report (atomic bootstrap; .lattice track/ignore data-loss; lint change-scope) — separate stories",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "860c5cf46024dfaa29cebbe1e40edd978fbc6725af7b58cdbb13fe1ff5652079"
+}

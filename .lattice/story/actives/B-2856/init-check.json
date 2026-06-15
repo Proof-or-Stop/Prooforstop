@@ -1,0 +1,58 @@
+{
+  "storyId": "B-2856",
+  "checkedAt": "2026-06-15T21:36:47.492Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Conversational Texture: \"B-bfb5 mis-report\" is unexplained — B-bfb5 is a token-cost story with no visible connection to the gitRoot bug; a standalone reader cannot infer what the mis-report was or how it corroborates the trigger event, without conversation history."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "checklist.json CHK-003 context: \"(F-023 path)\" is a code-level finding label that is not expanded inline; the surrounding phrase \"error-surfaced-as-warning behavior\" provides enough inferrable context for an implementer, but the label itself is opaque to a first-time reader. Recommend adding a one-clause expansion such as \"(F-023: errors surfaced as warnings, not swallowed)\"."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-15T21:01:13.931Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-15T21:02:18.905Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "CHK-003 context references \"(F-023 path)\" without any expansion or cross-reference. A new implementer cannot infer what F-023 is (a finding code? a feature code? from which story?) without searching the codebase. The behavior to preserve is stated in words (\"error-surfaced-as-warning\") but the F-023 pointer adds confusion rather than clarity. Consider replacing with the function name or file:line, or expanding to \"finding F-023 from B-xxxx\" with a brief inline description."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "Background Conversational Texture says \"B-bfb5s earlier mis-report\" without explaining what was mis-reported. A fresh reader cannot infer the referenced incident. This is purely contextual texture and does not affect the checklist, but reduces standalone readability of the background."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-15T21:36:47.492Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Conversational Texture: \"B-bfb5 mis-report\" is unexplained — B-bfb5 is a token-cost story with no visible connection to the gitRoot bug; a standalone reader cannot infer what the mis-report was or how it corroborates the trigger event, without conversation history."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "checklist.json CHK-003 context: \"(F-023 path)\" is a code-level finding label that is not expanded inline; the surrounding phrase \"error-surfaced-as-warning behavior\" provides enough inferrable context for an implementer, but the label itself is opaque to a first-time reader. Recommend adding a one-clause expansion such as \"(F-023: errors surfaced as warnings, not swallowed)\"."
+        }
+      ]
+    }
+  ],
+  "_hash": "ecdd61b63d21b877f7937775a7228b8a4044638db3bb11b12639927c240d7253"
+}
