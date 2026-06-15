@@ -421,6 +421,66 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validation/Smoke Plan section asserts four-field cache-token recording -> grep Validation section for cacheCreation or cacheRead or cache token; WHY: Validation must cover all CHK-001 through CHK-008 changes",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria section mentions no stored totalTokens or derived totals -> grep Acceptance Criteria for totalTokens or derived or summary; WHY: Acceptance must reflect CHK-002 change",
+            "type": "cli"
+          },
+          {
+            "desc": "Validation section mentions estimator confidence and count_tokens preference -> grep for confidence or count_tokens; WHY: must reflect CHK-003",
+            "type": "cli"
+          },
+          {
+            "desc": "Validation section mentions call-time attribution including null storyId and subagent -> grep for null or subagent in Validation; WHY: must reflect CHK-004",
+            "type": "cli"
+          },
+          {
+            "desc": "CMA expanded on first use in the document (Claude Managed Agents or similar) -> grep for first occurrence of CMA with expansion; WHY: acronym must be defined for readers",
+            "type": "cli"
+          },
+          {
+            "desc": "Rollout Phases section updated to reference new fields (cache tokens, reconciliation, pricing, streaming) -> grep Rollout for cache or reconciliation or pricing; WHY: Rollout must be consistent with the amended spec",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "internal cross-references are consistent: no section references a field name that was removed (e.g., totalTokens as required) -> grep for totalTokens in Required record constraints, Acceptance Criteria, Rollout -> must be absent or only in derived context; WHY: catch stale cross-references",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria includes reconciliation and completeness -> grep for reconciliation in Acceptance; WHY: CHK-005 requirement must appear in acceptance",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria includes streaming/failure usage -> grep for streaming or partial in Acceptance; WHY: CHK-006 requirement must appear in acceptance",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff --name-only main...HEAD shows ONLY docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice/ metadata files changed; no .ts/.js/.json source files -> WHY: this is a doc-only story, any source code change is scope creep",
+            "type": "cli"
+          },
+          {
+            "desc": "doc contains no new CJK characters (stays English) -> grep for Unicode CJK range in the doc; WHY: background mentions Chinese user framing but doc must stay English",
+            "type": "cli"
+          },
+          {
+            "desc": "Validation/Smoke Plan does not still assert totalTokens presence (stale assertion) -> grep Validation for totalTokens -> must not assert its presence; WHY: catch stale validation that contradicts CHK-002",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria includes canonical normalization (CHK-007) and pricingRef (CHK-008) -> grep Acceptance for canonical and pricing; WHY: catch incomplete Acceptance update that omits later CHK items",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
