@@ -1,0 +1,20 @@
+{
+  "task": "Document that decision-doc/documentation audits use the same automatic 3x2 or degraded 3x1 escalation policy as ordinary development.",
+  "outcome": "User sees: “Documentation audit no longer has a permanent always-on 3x2 special case in the plan; it starts with normal REVIEW and escalates to full 3x2 or degraded 3x1 under the same automatic rules as development.”",
+  "facts": [
+    "The current plan still says direct decision-doc changes continue to require always-on 3x2 before DONE.",
+    "The user now wants document audit to follow ordinary development automatic 3x2/3x1 rules.",
+    "Runtime code still enforces the current gate until a separate implementation story changes it."
+  ],
+  "constraints": [
+    "Do not run omx or use .omx.",
+    "Keep added content in English.",
+    "Keep this story documentation-only.",
+    "Be explicit that current implementation may still enforce legacy decision-doc 3x2 until code is updated."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-15T02:44:36.236Z"
+}
