@@ -225,7 +225,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-15T03:32:39.686Z",
+      "endTime": "2026-06-15T10:50:14.459Z",
       "userSees": "User sees English diagnostics that explain whether review escalation is not required, full 3x2 is required, or degraded 3x1 was accepted.",
       "files": {
         "modify": [
@@ -275,12 +275,12 @@
         {
           "intentRef": "status-command-clear-output",
           "kind": "manual_transcript",
-          "command": "node bin/lattice.js review_escalation_status --storyId=B-59a6",
+          "command": "node bin/lattice.js review_escalation_status --storyId=B-59a6 && node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "CLI output reports required:false, ok:true, assuranceLevel: ordinary-review, and authorityDone/fullAuthorityDone/productionDone all false for the current zero-finding documentation-audit story.",
-          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "note": "Current CLI output now correctly reports required:true, ok:false, countableProblems 2/2, and review_escalation_missing because first-round verified findings F-001 and F-002 triggered sticky escalation. The smoke also covers ordinary not-required, full-3x2 pass, degraded-3x1 pass, and degraded fail-closed states.",
+          "headHash": "407fc2d842c27105fc79953e3f14f71371b21d8a",
           "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
-          "timestamp": "2026-06-15T10:42:29.265Z"
+          "timestamp": "2026-06-15T10:50:14.507Z"
         },
         {
           "intentRef": "decision-doc-check-classification",
@@ -288,19 +288,19 @@
           "command": "node bin/lattice.js decision_doc_quorum_check --storyId=B-59a6",
           "result": "pass",
           "note": "CLI output says changed decision docs do not by themselves require DONE quorum and points operators to review_escalation_status for the actual DONE requirement.",
-          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "headHash": "407fc2d842c27105fc79953e3f14f71371b21d8a",
           "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
-          "timestamp": "2026-06-15T10:42:29.265Z"
+          "timestamp": "2026-06-15T10:50:14.541Z"
         },
         {
           "intentRef": "no-authority-overclaim",
           "kind": "docs_check",
           "command": "authority-overclaim-docs-scan",
           "result": "pass",
-          "note": "A narrow docs scan for authorityDone true, fullAuthorityDone true, productionDone true, and receiptVerified true returned no matches in the changed decision docs.",
-          "headHash": "44fa06917c566e46274a0c189b78caebbcb150c4",
+          "note": "A narrow docs scan for authorityDone true, fullAuthorityDone true, productionDone true, and receiptVerified true returned no matches in the changed decision docs; live review_escalation_status also reports all Authority completion flags false.",
+          "headHash": "407fc2d842c27105fc79953e3f14f71371b21d8a",
           "materialHash": "2f2564f5e34af45063daca0f7290718a495432753dec62a7bc6e0b2902d8bb5d",
-          "timestamp": "2026-06-15T10:42:29.265Z"
+          "timestamp": "2026-06-15T10:50:14.570Z"
         }
       ]
     },
