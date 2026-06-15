@@ -664,11 +664,39 @@ Targeted future tests:
   locally generated `ledgerCallId` and `attemptId`;
 - provider-reported usage writes `usage.source=provider-reported` and keeps
   provider counts distinct from estimates;
+- provider-reported usage records all four token fields (`inputTokens`,
+  `outputTokens`, `cacheCreationInputTokens`, `cacheReadInputTokens`) with
+  `inputTokens` as the uncached remainder, and never infers a missing field as
+  `0`;
+- no record stores `totalTokens`; the summary layer derives totals via the
+  identity `inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens`;
+- every provider-reported record carries both the raw provider digest
+  (`usage.raw`) and the normalized canonical
+  `{input, output, cacheCreation, cacheRead}` view, and each provider's cache
+  mapping is exercised;
 - provider-reported final usage supersedes same-attempt estimates, and summary
   totals do not double count the estimate;
 - blocked refusals remain correlated without `provider.requestIdHash`;
+- prompt estimate prefers the provider `count_tokens` endpoint, records
+  `usage.estimator.confidence` (high|medium|low), and binds to the exact
+  `provider.model`; the bytes/chars heuristic only appears as the lowest-confidence
+  offline fallback;
 - prompt estimate writes `usage.source=prompt-size-estimate` and cannot satisfy
   final usage assertions;
+- attribution is captured at call time: non-story calls record `storyId=null`
+  and are still summarized (not dropped), subagent/nested calls propagate the
+  parent `storyId` with a `subagentId`/`threadId`, and each record carries
+  `agentType`/`role`;
+- a single ledger-writing choke-point handles all provider dispatch, and a
+  reconciliation check (provider-dispatch events vs ledger final records per
+  `ledgerCallId` + `attemptId`) surfaces completeness gaps from a bypassed
+  writer;
+- streaming responses read final usage from the terminal stream event
+  (`message_delta`/final message), and a mid-stream error/timeout still records
+  the partial output usage consumed as `provider-reported`;
+- cost is derived only via a `pricingRef`/`pricingVersion` snapshot pinning
+  model+date to a versioned price table, and no absolute dollar amount is stored
+  on the record;
 - absent provider usage writes `usage.source=unavailable` with a reason;
 - preflight hard-budget excess writes `decision.kind=blocked` and does not call
   the provider;
@@ -698,19 +726,33 @@ npm --prefix packages/main run test:llm-usage-ledger-authority-boundary
 
 1. Documentation and schema freeze:
    - approve this execution plan;
-   - freeze the JSONL discriminator semantics;
-   - identify every current LLM call surface.
+   - freeze the JSONL discriminator semantics and the four-field cache-token
+     model (`inputTokens`, `outputTokens`, `cacheCreationInputTokens`,
+     `cacheReadInputTokens`) with derived totals and no stored `totalTokens`;
+   - freeze the canonical normalization shape and `pricingRef` reference rule;
+   - identify every current LLM call surface and route them through the single
+     ledger-writing choke-point.
 2. Local writer behind opt-in flag:
-   - append local records in dry-run or shadow mode;
+   - append local records in dry-run or shadow mode through the single
+     choke-point;
+   - capture call-time attribution (`storyId`/`phase`, null-story, subagent ids,
+     `agentType`);
    - run privacy and raw-content rejection tests;
-   - keep summaries informational.
+   - run the dispatch-vs-record reconciliation check;
+   - keep summaries informational and derive totals/cost rather than storing
+     them.
 3. Local budget enforcement:
    - enable fail-closed preflight behavior for explicit hard budgets;
    - keep provider-reported postflight usage visible;
    - preserve local workflow when no budget is configured.
 4. Provider coverage:
-   - add provider-reported mappings one provider at a time;
-   - record unavailable usage explicitly for unsupported providers;
+   - add provider-reported mappings one provider at a time, emitting both the raw
+     provider digest and the canonical view with explicit cache-field mapping;
+   - capture cache tokens (`cacheCreationInputTokens`, `cacheReadInputTokens`)
+     and streaming/terminal-event usage per provider;
+   - record unavailable usage explicitly for unsupported providers and for
+     cache dimensions a provider does not report (never a silent `0`);
+   - prefer the provider `count_tokens` endpoint for estimates where available;
    - avoid arbitrary estimator tuning unless it fixes a real correctness issue.
 5. Authority receipt-backed path:
    - submit privacy-preserving usage evidence envelopes;
@@ -730,6 +772,25 @@ npm --prefix packages/main run test:llm-usage-ledger-authority-boundary
 - JSONL records include stable call and attempt ids, sequence,
   `supersedesRecordIds`, budget decision, usage source, privacy flags, local
   Authority boundary fields, and integrity hashes.
+- Provider-reported usage records the four-field cache-token model
+  (`inputTokens` uncached remainder, `outputTokens`, `cacheCreationInputTokens`,
+  `cacheReadInputTokens`); no `totalTokens` is stored, and totals are derived in
+  the summary layer.
+- Estimates prefer the provider `count_tokens` endpoint, record an estimator
+  confidence (high|medium|low), and are bound to the exact `provider.model`.
+- Attribution is captured at call time: non-story calls record `storyId=null`
+  without being dropped, subagent/nested calls propagate the parent story with a
+  subagent/thread id, and a `role`/`agentType` field supports per-role breakdowns.
+- Completeness is guaranteed by a single ledger-writing choke-point plus a
+  reconciliation check (dispatch events vs ledger final records per
+  `ledgerCallId` + `attemptId`) that surfaces gaps.
+- Streaming usage is read from the terminal stream event, and mid-stream
+  errors/timeouts still record the partial output usage consumed.
+- Each provider-reported record carries both the raw provider digest and the
+  normalized canonical `{input, output, cacheCreation, cacheRead}` view with
+  explicit per-provider cache mapping rules.
+- Cost is derived only via a versioned `pricingRef`/`pricingVersion` snapshot; no
+  absolute price is baked into the append-only record.
 - Summaries do not double count preflight estimates after provider-reported
   final usage exists for the same attempt.
 - Local Non-authority mode remains diagnostic and does not claim receipt
