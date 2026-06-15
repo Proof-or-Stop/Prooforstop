@@ -103,10 +103,43 @@
       "relatedDocs": [
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
       ],
-      "userSees": "Verification fails if compact guidance or full-output fallback drifts.",
+      "userSees": "prompt-token-cost-smoke fails if compact query guidance or the evidence-sensitive full-output fallback is missing from load-bearing templates or mirrors.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "prompt-token-cost-smoke asserts compact-query guidance exists in every load-bearing package template.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "prompt-token-cost-smoke asserts the full-output fallback exists with evidence-sensitive wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke still verifies default story_get/checklist_get compatibility and slim output remains smaller than full output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
