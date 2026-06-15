@@ -32,6 +32,7 @@ import {
   takeOverOwnerLease,
 } from './core/story-owner-lease.js';
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from './core/command-policy.js';
+import { getGuardFailureReason } from './core/machine.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
 import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from './core/background-validator.js';
 import {
@@ -375,6 +376,35 @@ export const MAIN_TOOLS: ToolDef[] = [
     reason: z.string().optional().describe('Discard reason (written to event log).'),
     force: z.boolean().optional().describe('Force-discard uncommitted changes.'),
     purge: z.boolean().optional().describe('Temporary-story only: delete story metadata and safely revert metadata-only init commit when safe.'),
+  }},
+  // B-804c CHK-002: expose the idempotent dev_start handler as a recovery command
+  // for a story stuck in INIT_CHECK with no worktree on disk (or after an atomic
+  // bootstrap-failure left it at INIT). The generic dispatcher routes name ->
+  // handlers.dev_start automatically. Idempotent: returns the existing path when a
+  // worktree already exists; enforces the INIT scope-anti-expansion freeze gate.
+  { name: 'dev_start', description: '(Re-)bootstrap a Story worktree; recovery command for a story stuck without a worktree', longHelp:
+`lattice dev_start '{"storyId":"B-xxxx"}'
+
+Recovery / (re-)bootstrap command for the worktree of a single story.
+
+When to use:
+  - A story is stuck in INIT_CHECK with no worktree on disk (e.g. a prior
+    INIT_CHECK bootstrap failed before B-804c made the phase write atomic), and
+    the forward-only machine has no INIT_CHECK->INIT back-edge to retry.
+  - A story is at INIT after an atomic story_advance INIT_CHECK bootstrap-failure
+    and you want to bootstrap directly after fixing the cause.
+
+Behavior:
+  - Creates the story/<storyId> branch (if missing) and the worktree under the
+    configured worktreeDir, then prints its Path.
+  - Idempotent: if the worktree already exists it returns the existing path
+    without error.
+  - Enforces the INIT scope-anti-expansion freeze gate: an unfrozen INIT story is
+    refused (dev_start cannot bypass the freeze gate).
+  - Allowed only in INIT / INIT_CHECK / PLAN / DEV; refused in REVIEW / TEST / DONE.
+  - Owner-lease gated (storyScopedMutating): a non-owner session is refused.`,
+    schema: {
+    storyId: z.string().describe('Story ID'),
   }},
 
   // Draft (B-9975: iterate on story shape before formal story_create)
@@ -4028,37 +4058,98 @@ export async function runCli(opts?: {
           `- no phase, branch, commit, or worktree changes were made`,
         ].join('\n');
       }
-      // Detect current phase; if already INIT_CHECK, skip advance and retry dev_start directly.
-      // story_get returns {checklist, review} by default; phase requires detail:true to appear at result.index.phase.
-      let advanceResult = '';
+      // B-804c CHK-001: make the INIT_CHECK phase write ATOMIC with the worktree
+      // bootstrap (Option A — defer the write). The old order persisted
+      // phase=INIT_CHECK FIRST and only then ran dev_start; a failed bootstrap
+      // left phase=INIT_CHECK with no worktree and no INIT_CHECK->INIT back-edge
+      // (unrecoverable). New order: bootstrap FIRST against the still-INIT story,
+      // and persist phase=INIT_CHECK ONLY after dev_start succeeds. On bootstrap
+      // failure we do NOT advance, so the story stays at its prior phase (INIT).
+      //
+      // Detect the current phase to choose the branch:
+      //   - currentPhase === INIT_CHECK (B-5246 legacy victim retry): the phase is
+      //     ALREADY persisted, so we never re-advance (no INIT_CHECK->INIT_CHECK);
+      //     just (re)run dev_start to bootstrap the missing worktree.
+      //   - currentPhase === INIT (the normal case): run dev_start against the
+      //     still-INIT story; only advance the phase AFTER bootstrap succeeds.
+      // story_get returns {checklist, review} by default; phase requires
+      // detail:true to appear at result.index.phase.
+      let alreadyInitCheck = false;
+      let phaseDetectionFailed = false;
       try {
         const story: any = handlers.story_get({ storyId, detail: true });
-        const currentPhase = story?.index?.phase;
-        if (currentPhase === 'INIT_CHECK') {
-          advanceResult = `Story ${storyId} is already in INIT_CHECK; retrying worktree creation`;
-        } else {
-          advanceResult = await handlers.story_advance(v.data);
-        }
+        alreadyInitCheck = story?.index?.phase === 'INIT_CHECK';
       } catch {
-        // Fall back to original behavior when story_get fails.
+        // story_get failed; fall back to the legacy advance-then-bootstrap order
+        // (we cannot prove the phase, so we keep the historical behavior path).
+        phaseDetectionFailed = true;
+      }
+
+      // B-804c CHK-001: validate the FULL INIT→INIT_CHECK transition guard BEFORE
+      // bootstrapping. Deferring the phase write must not also defer (or weaken)
+      // the gate: dev_start only enforces the scope-anti-expansion freeze gate,
+      // which is a STRICT SUBSET of the INIT_CHECK transition gate (it also
+      // requires a valid init-check.json — the lattice-review-story-init evidence).
+      // If we bootstrapped on dev_start's subset gate alone, a story with passing
+      // scope-freeze but missing init-check could create a worktree (and the exact
+      // failure diagnostic would regress from [missing_init_check] to a scope
+      // message). getGuardFailureReason returns null for a non-INIT story, so this
+      // is a no-op for the already-INIT_CHECK retry path. On the legacy fallback
+      // (phase detection failed) we skip the pre-check and let story_advance's own
+      // guard speak, preserving the historical behavior.
+      if (!alreadyInitCheck && !phaseDetectionFailed) {
+        const guardFailure = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
+        if (guardFailure) {
+          throw new Error(
+            `${guardFailure}\n\n` +
+            `INIT_CHECK aborted: Story ${storyId} stays at INIT (phase not advanced; no worktree created).`,
+          );
+        }
+      }
+
+      // Gate passed. Bootstrap FIRST (against the still-INIT story for the normal
+      // case, or the already-INIT_CHECK story for the retry case). If this throws,
+      // the phase is NOT advanced and the story stays put — no partial advance. We
+      // RE-THROW the abort (rather than returning a warning string) so the command
+      // exits non-zero: a failed bootstrap is a real failure, and the old exit-0
+      // "advanced + ⚠ warning" output is exactly what masked this bug.
+      let wtResult: string;
+      try {
+        wtResult = handlers.dev_start({ storyId });
+      } catch (e: any) {
+        throw new Error(
+          `INIT_CHECK aborted: ${e.message}\n` +
+          `Story ${storyId} stays at ${alreadyInitCheck ? 'INIT_CHECK' : 'INIT'} (phase not advanced; no worktree created).\n` +
+          `Next: fix the cause, then re-run lattice story_advance --phase=INIT_CHECK, ` +
+          `or run lattice dev_start '{"storyId":"${storyId}"}' to bootstrap directly.`,
+        );
+      }
+
+      // Bootstrap succeeded. Persist phase=INIT_CHECK now (only for the normal
+      // INIT case; an already-INIT_CHECK retry must never re-advance). If phase
+      // detection failed earlier, fall back to advancing here so the legacy
+      // contract (story ends in INIT_CHECK after a successful bootstrap) holds.
+      let advanceResult: string;
+      if (alreadyInitCheck) {
+        advanceResult = `Story ${storyId} is already in INIT_CHECK; bootstrapped worktree`;
+      } else {
+        // Normal case (and the phase-detection-failed fallback): persist the phase
+        // via the real story_advance handler, which re-runs the same guard.
         advanceResult = await handlers.story_advance(v.data);
       }
-      try {
-        const wtResult = handlers.dev_start({ storyId });
-        // B-f60c CHK-002: close F-008. dev_start leaves an uncommitted
-        // story-metadata mirror in the main checkout that blocks the DONE
-        // `git merge story/<id>`. Commit it on the base branch (mirroring the
-        // metadata-commit part of the from-draft path) so DONE has nothing
-        // uncommitted to collide with.
-        let syncResult = '';
-        if (gitReady) {
-          syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);
-        }
-        const syncSegment = syncResult ? `\n\n${syncResult}` : '';
-        return `${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN`;
-      } catch (e: any) {
-        return `${advanceResult}\n⚠ Failed to create worktree: ${e.message}\nNext: After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'`;
+
+      // B-f60c CHK-002: close F-008. dev_start leaves an uncommitted
+      // story-metadata mirror in the main checkout that blocks the DONE
+      // `git merge story/<id>`. Commit it on the base branch (mirroring the
+      // metadata-commit part of the from-draft path) so DONE has nothing
+      // uncommitted to collide with. Final order (B-804c): dev_start (success)
+      // -> story_advance (persist phase) -> commitInitCheckMetadata.
+      let syncResult = '';
+      if (gitReady) {
+        syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);
       }
+      const syncSegment = syncResult ? `\n\n${syncResult}` : '';
+      return `${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN`;
     });
     return;
   }

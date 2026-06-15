@@ -721,11 +721,18 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       // INIT_CHECK is the standard entry for creating worktrees; PLAN/DEV also allowed (backward compat / manual recovery)
-      const allowedPhases: StoryPhase[] = ['INIT_CHECK', 'PLAN', 'DEV'];
+      // B-804c CHK-001: INIT is now also a valid bootstrap entry. The atomic
+      // story_advance INIT_CHECK flow runs dev_start FIRST while the story is
+      // still at INIT (deferring the phase write until bootstrap succeeds), so
+      // dev_start must accept INIT for the bootstrap call.
+      const allowedPhases: StoryPhase[] = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV'];
       if (!allowedPhases.includes(story.phase)) {
-        throw new Error(`Story ${args.storyId} is currently in phase ${story.phase}, requires INIT_CHECK / PLAN / DEV to create worktree`);
+        throw new Error(`Story ${args.storyId} is currently in phase ${story.phase}, requires INIT / INIT_CHECK / PLAN / DEV to create worktree`);
       }
-      if (story.phase === 'INIT_CHECK' && !story.worktree) {
+      // B-804c CHK-001 (preMortem #2): the scope-anti-expansion freeze gate must
+      // also fire for the INIT bootstrap entry, otherwise relaxing the allowed
+      // phase to INIT would let an unfrozen story bootstrap and bypass the gate.
+      if ((story.phase === 'INIT_CHECK' || story.phase === 'INIT') && !story.worktree) {
         const scopeFreezeFailure = getScopeAntiExpansionGuardFailureReason(args.storyId, store, root);
         if (scopeFreezeFailure) {
           throw new Error(

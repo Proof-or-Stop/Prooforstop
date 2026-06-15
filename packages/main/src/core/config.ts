@@ -195,8 +195,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   INIT_CHECK: [
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
+    'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
+    'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
     'checklist_add', 'checklist_update', 'checklist_remove',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill (refused in INIT/INIT_CHECK/terminal)
