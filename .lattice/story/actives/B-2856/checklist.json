@@ -131,9 +131,9 @@
       "title": "Route validate-concept git diff and grep scan through the resolved gitRoot",
       "context": "validate-concept.ts:78-91 defaultGitDiffReader (git diff base...HEAD) and defaultGrepReader (grep -rnF .) run with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd and pass it so both the diff and the repo-wide grep run from the gitRoot. Keep IGNORED_DIRS / residual threshold logic unchanged.",
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate --concept` computes deleted symbols and residual references against the gitRoot and reports residuals normally instead of failing with 'fatal: not a git repository'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:06:24.455Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/validate-concept.ts"
