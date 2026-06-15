@@ -55,7 +55,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document explicitly preserves default full story_get/checklist_get output and requires full output before evidence-sensitive conclusions or mutations.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes approximate context-token estimates from provider billing receipts and does not claim prompt-cache savings are proven.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document excludes lifecycle gate, DONE, Authority receipt, and provider billing semantic changes from this low-risk plan.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
