@@ -1,0 +1,41 @@
+{
+  "storyId": "B-1477",
+  "name": "llm-usage-ledger-execution-plan",
+  "title": "Lattice LLM usage ledger execution plan",
+  "description": "Create an executable decision document for a Lattice LLM usage ledger that records real provider-reported token usage per story while preserving host-neutral local Non-authority and Authority Server receipt boundaries.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-15T14:17:52.636Z",
+  "startedAt": "2026-06-15T14:17:52.636Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T14:17:52.637Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T14:20:25.775Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-1477",
+    "branch": "story/B-1477",
+    "createdAt": "2026-06-15T14:20:25.860Z"
+  }
+}
