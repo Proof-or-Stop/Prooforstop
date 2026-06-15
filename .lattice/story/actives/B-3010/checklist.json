@@ -10,7 +10,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Diagnostic inventory lists runtime prompt registry hash and classifies agent prompt assets without changing project files.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "create": [
+          "packages/main/src/core/agent-asset-resolution.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A project with no .claude/agents and no .Codex/agents is classified as runtime-owned with prompt assets absent and a current promptRegistryHash.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A project with explicit full/local prompt assets is not misclassified as absent runtime-owned; local assets are listed individually.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The inventory never reports receiptVerified, authorityDone, productionDone, or fullAuthorityDone from local prompt registry facts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

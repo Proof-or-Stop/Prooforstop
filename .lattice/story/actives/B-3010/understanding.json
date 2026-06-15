@@ -1,0 +1,32 @@
+{
+  "task": "Implement a read-only runtime-owned agent asset resolution projection for Lattice CLI so projects can rely on local CLI-owned templates without copying prompt assets by default.",
+  "outcome": "After completion, running the Lattice diagnostic smoke prints that runtime-owned agent asset projection passed, reports the prompt registry hash, classifies project-local .claude/.Codex prompt assets as absent/matches-runtime/stale/override, and states actual provider billing tokens are unavailable rather than claimed.",
+  "facts": [
+    "B-bfb5 already reduced package prompt templates from 632,687 B to 115,317 B, about 129,343 approximate tokens saved at bytes/4.",
+    "prompt-registry.ts provides package-owned prompt registry hashes and host-specific rendering.",
+    "verify_codex already supports registry-backed thin mode without .Codex/agents when the manifest is present.",
+    "global-thin init currently writes .lattice/lattice.json assetMode=global-thin; the new plan says prompt-only thin config should not be required by default.",
+    "managed-assets can detect and apply managed asset drift, but this story must not add automatic repair/deletion/migration of project prompt assets."
+  ],
+  "constraints": [
+    "Do not optimize for optimization or arbitrarily broaden scope.",
+    "Only fix real correctness issues: stale project prompt assets can shadow runtime-owned prompts and should be mechanically visible.",
+    "Follow consistency of logic across Claude CLI, Codex CLI, local Non-authority execution, and Authority Server boundaries.",
+    "Do not claim receiptVerified, productionDone, authorityDone, or fullAuthorityDone without receipt-backed Authority Server proof.",
+    "Do not touch docs/story or tests/fixtures directly; all story evidence must go through Lattice CLI."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+    "docs/audits/lattice-token-cost-and-takeover-audit.md"
+  ],
+  "timestamp": "2026-06-15T11:51:33.095Z"
+}

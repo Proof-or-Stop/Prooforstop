@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Runtime-owned by default: local Lattice CLI owns agent prompt templates unless a project explicitly opts into local prompt assets.",
+    "Read-only first: diagnostics may classify stale assets but must not delete, repair, or migrate them in this story.",
+    "Host-neutral evidence: Claude/Codex local checks remain Non-authority and Authority completion requires verified receipts.",
+    "Consistency of logic: one projection should feed doctor/adapter/rollout surfaces instead of divergent path checks."
+  ],
+  "drivers": [
+    "Existing projects may contain stale .claude/agents or .Codex/agents that shadow runtime prompts.",
+    "Default projects should not need prompt-only thin config just to use the local installed CLI.",
+    "Regression coverage must preserve B-bfb5 prompt token savings and avoid provider billing claims."
+  ],
+  "options": [
+    {
+      "name": "A: read-only AgentAssetResolution projection consumed by existing diagnostics",
+      "pros": [
+        "Fixes the real visibility gap without mutating projects",
+        "Can classify absent/matches-runtime/stale/override consistently",
+        "Fits doctor/verify/rollout surfaces without arbitrary new workflow"
+      ],
+      "cons": [
+        "Does not automatically clean stale files; operator still needs a future explicit repair story"
+      ]
+    },
+    {
+      "name": "B: automatic migration to runtime-owned mode",
+      "pros": [
+        "Would remove stale local prompt assets immediately",
+        "Could reduce project footprint faster"
+      ],
+      "cons": [
+        "Out of scope for current user boundary",
+        "Risky because it deletes or rewrites project-owned files",
+        "Would mix diagnostics with repair and increase correctness risk"
+      ]
+    },
+    {
+      "name": "C: keep current behavior and only document it",
+      "pros": [
+        "Lowest code change",
+        "No runtime behavior risk"
+      ],
+      "cons": [
+        "Does not solve stale project-local prompt assets shadowing runtime prompts",
+        "Does not make token/copy risk mechanically visible",
+        "Leaves default semantics inconsistent with the runtime-owned plan"
+      ]
+    }
+  ],
+  "chosen": "A: read-only AgentAssetResolution projection consumed by existing diagnostics",
+  "rationale": "Choose the narrow read-only projection because it addresses the real correctness gap while preserving explicit repair and Authority boundaries.",
+  "preMortem": [
+    {
+      "scenario": "Projection incorrectly treats stale local prompts as safe runtime-owned assets",
+      "trigger": "Hash comparison only checks file existence or names, not rendered runtime content",
+      "consequence": "A project can silently keep old high-token or stale authority wording",
+      "mitigation": "Compare project-local agent files against package registry renderings for each host and mark mismatches as stale or override."
+    },
+    {
+      "scenario": "Diagnostic starts implying Authority completion from local prompt registry checks",
+      "trigger": "Fields or prose reuse receipt/fullAuthorityDone language",
+      "consequence": "Local Non-authority evidence is overclaimed as Authority Server proof",
+      "mitigation": "Keep authority fields absent/false and include explicit boundary text in diagnostics, tests, and summary."
+    },
+    {
+      "scenario": "Implementation becomes an arbitrary asset framework rewrite",
+      "trigger": "Adding repair/migration/deletion or broad artifact isolation beyond prompt assets",
+      "consequence": "Higher risk changes and possible user-owned file loss",
+      "mitigation": "Limit this story to read-only projection, doctor/verify/rollout display, stale detection, smokes, and token accounting."
+    }
+  ],
+  "timestamp": "2026-06-15T11:51:49.988Z"
+}
