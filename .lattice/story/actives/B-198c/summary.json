@@ -1,0 +1,55 @@
+{
+  "storyId": "B-198c",
+  "changes": "Added an early storyDir-inside-gitRoot detection helper (id-dependent evaluateStoryDirInsideGitRoot + id-independent TOTAL evaluateStoryDirConfigInsideGitRoot) in core/story-signed-workspace-resolution.ts, a lattice doctor storyDir/gitRoot scan, and a warn-only advisory at story_create + session_brief. Purely additive; the two late guards (worktree.ts:754, cli-engine.ts:3367) left untouched.",
+  "usage": "Run lattice doctor (or story_create / session_brief) on a project; if storyDir resolves outside the resolved gitRoot you now get an early flagged check + remediation instead of failing late at INIT_CHECK worktree bootstrap.",
+  "expectedOutcome": "doctor prints a ✗ storyDir resolves OUTSIDE the resolved gitRoot block with both absolute paths + remediation on a wrapper-root project; a ✓ healthy line in the normal case; the advisory is warn-only and never blocks story_create.",
+  "actualTranscript": "On a synthetic wrapper-root fixture, node dist/cli.js doctor printed the ✗ block (storyDir=/private/tmp/wrfix-b198c/.lattice/story/actives, gitRoot=/private/tmp/wrfix-b198c/repo) + remediation; on this repo it printed ✓ resolves inside. Full capture in evidence/transcript-diff.md; lattice validate GREEN with the 20-check suite.",
+  "outcomeDiff": "Match — actual output equals the PLAN outcome verbatim, and the normal case shows no false positive.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Detection + advisory only (decision Option A: warn, not hard-fail); the two late guards remain the hard backstop. Does not auto-relocate storyDir.",
+  "pitfalls": "The global lattice binary runs the MAIN-repo dist, so to observe worktree changes you must build + run the worktree dist (node packages/main/dist/cli.js). The id-dependent helper throws if the story id metadata is absent — id-less callers must use the total config variant.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2256520
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 87466
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 8177072
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1968267
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 382220
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 313125
+    }
+  },
+  "totalDurationMs": 13184671,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T21:24:23.683Z",
+  "updatedAt": "2026-06-15T21:24:23.683Z"
+}

@@ -1,0 +1,43 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-198c:F-001"
+      ],
+      "files": [
+        "packages/main/src/core/story-signed-workspace-resolution.ts",
+        "packages/main/src/tasks/storydir-inside-gitroot-smoke.ts",
+        "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-06-15T21:10:31.636Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-198c:F-002"
+      ],
+      "files": [
+        "packages/main/src/core/story-signed-workspace-resolution.ts",
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-06-15T21:10:31.636Z"
+    },
+    {
+      "clusterId": "CL-003",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-198c:F-003"
+      ],
+      "files": [
+        "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+      ],
+      "severity": "low",
+      "createdAt": "2026-06-15T21:10:31.636Z"
+    }
+  ]
+}

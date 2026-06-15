@@ -32,6 +32,10 @@ import {
   type AuxiliaryCleanupResult,
 } from '../core/auxiliary-worktree-cleanup.js';
 import { LATTICE_REPAIR_IGNORE, LEGACY_KOALA_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import {
+  evaluateStoryDirConfigInsideGitRoot,
+  type StoryDirInsideGitRootResult,
+} from '../core/story-signed-workspace-resolution.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -72,6 +76,16 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // Guard session scan: report prewrite scope guard status for active stories
       // and check whether the Claude Code PreToolUse hook is installed.
       const guardSessionScan = scanGuardSessions(store, root);
+      // B-198c CHK-002: EARLY detection of the wrapper-root violation where the
+      // configured storyDir resolves OUTSIDE the resolved gitRoot. The
+      // git-backed lifecycle commits story metadata (scoped story branch + DONE
+      // merge to main), which is impossible when story metadata lives outside
+      // the gitRoot. The only other detectors are two LATE guards that fire at
+      // INIT_CHECK bootstrap — by then INIT/PLAN effort is already invested.
+      // This is id-independent: it depends only on configured storyDir base vs
+      // resolved gitRoot, never throws, and a no-gitRoot condition is reported
+      // separately (not as the violation).
+      const storyDirGitRoot = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
       let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
@@ -179,6 +193,15 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             activeMissingHook: guardSessionScan.activeMissingHook,
             hasMisconfigured: guardSessionScan.activeMissingHook.length > 0,
             hasViolations: guardSessionScan.withViolations.length > 0,
+          },
+          storyDirGitRoot: {
+            ok: storyDirGitRoot.ok,
+            storyDirAbs: storyDirGitRoot.storyDirAbs,
+            gitRootAbs: storyDirGitRoot.gitRootAbs,
+            rel: storyDirGitRoot.rel,
+            reason: storyDirGitRoot.reason ?? null,
+            violation: storyDirGitRoot.reason === 'outside-gitroot',
+            gitRootUnresolved: storyDirGitRoot.reason === 'gitroot-unresolved',
           },
           codex,
           validation,
@@ -335,6 +358,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       for (const line of renderGuardSessionDoctorSection(guardSessionScan)) lines.push(line);
 
       lines.push('');
+      for (const line of renderStoryDirGitRootScan(storyDirGitRoot)) lines.push(line);
+
+      lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
       lines.push('');
       lines.push(renderValidationScan(validation));
@@ -345,6 +371,34 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       return lines.join('\n');
     },
   };
+}
+
+/**
+ * B-198c CHK-002: render the storyDir-inside-gitRoot check.
+ *
+ * - violation (reason 'outside-gitroot') → distinct flagged check with the
+ *   storyDir + gitRoot abs paths and the remediation pointer.
+ * - gitRoot unresolvable (reason 'gitroot-unresolved') → informational, NOT
+ *   treated as the violation.
+ * - healthy → silent pass line.
+ */
+function renderStoryDirGitRootScan(result: StoryDirInsideGitRootResult): string[] {
+  const lines: string[] = [];
+  lines.push('storyDir / gitRoot scan:');
+  if (result.reason === 'outside-gitroot') {
+    lines.push('  ✗ storyDir resolves OUTSIDE the resolved gitRoot');
+    lines.push(`      storyDir: ${result.storyDirAbs}`);
+    lines.push(`      gitRoot:  ${result.gitRootAbs}`);
+    lines.push('      The git-backed lifecycle cannot commit story metadata from here.');
+    lines.push('      → configure storyDir so story metadata lives inside the gitRoot.');
+  } else if (result.reason === 'gitroot-unresolved') {
+    lines.push('  - gitRoot unresolved (no configured gitRoot and metadataRoot is not git-backed)');
+    lines.push(`      storyDir: ${result.storyDirAbs}`);
+    lines.push('      → storyDir-inside-gitRoot cannot be checked until a gitRoot resolves.');
+  } else {
+    lines.push('  ✓ storyDir resolves inside the resolved gitRoot');
+  }
+  return lines;
 }
 
 function renderValidationScan(scan: ValidationSetupScan): string {

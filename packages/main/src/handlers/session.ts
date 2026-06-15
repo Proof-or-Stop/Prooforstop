@@ -44,6 +44,7 @@ import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import type { ReviewLoopIteration } from '../core/types.js';
 import { renderScopeAntiExpansionSummary } from '../core/machine.js';
+import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -202,6 +203,39 @@ function renderNonGitProjectNotice(status: ConfiguredGitRootSessionStatus | null
     return 'Note: Metadata root is not a git repo; configured gitRoot supplies the signed workspace for git-backed operations.';
   }
   return initCheckText;
+}
+
+/**
+ * B-198c CHK-003: render the one-line "storyDir resolves outside the resolved
+ * gitRoot" advisory for session_brief, or [] when there is nothing to surface.
+ *
+ * Reuses the id-independent CHK-002 helper {@link evaluateStoryDirConfigInsideGitRoot}
+ * (DO NOT re-derive the check). Surfaces the same dead-end early-warning that
+ * story_create emits to stderr, here in the brief so users see it at session
+ * start — the git-backed worktree/DONE lifecycle hard-fails at INIT_CHECK when
+ * story metadata cannot be committed inside the gitRoot.
+ *
+ * Only the `outside-gitroot` violation produces a line. `ok=true` (inside) and
+ * `reason='gitroot-unresolved'` (no/invalid gitRoot — the normal non-git
+ * metadata-root case already shown by the Signed-workspace section) both stay
+ * silent so the brief never nags healthy or not-yet-git-backed setups. Never
+ * throws — the underlying helper is pure and total.
+ */
+function renderStoryDirOutsideGitRootAdvisory(metadataRoot: string): string[] {
+  try {
+    const result = evaluateStoryDirConfigInsideGitRoot({ metadataRoot });
+    if (result.ok || result.reason !== 'outside-gitroot') return [];
+    return [
+      '',
+      `⚠ storyDir resolves outside the resolved gitRoot ` +
+        `(${result.storyDirAbs} not inside ${result.gitRootAbs}); ` +
+        `the worktree/DONE git lifecycle will fail at INIT_CHECK. ` +
+        `→ configure storyDir so story metadata lives inside the gitRoot.`,
+    ];
+  } catch {
+    // Defensive: never block session_brief on advisory-render failure.
+    return [];
+  }
 }
 
 function canonicalPath(path: string): string {
@@ -656,6 +690,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push('Start with `lattice story_create` to create your first story.');
           for (const l of renderConfiguredGitRootSessionStatus(configuredGitRootStatus)) lines.push(l);
+          for (const l of renderStoryDirOutsideGitRootAdvisory(ctx.root)) lines.push(l);
           if (!gitReady) {
             lines.push('');
             lines.push(renderNonGitProjectNotice(
@@ -850,6 +885,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push(`Working tree dirty (${gitMain.porcelain.length} files).`);
         }
         for (const l of renderConfiguredGitRootSessionStatus(configuredGitRootStatus)) lines.push(l);
+        for (const l of renderStoryDirOutsideGitRootAdvisory(ctx.root)) lines.push(l);
         if (!gitReady) {
           lines.push('');
           lines.push(renderNonGitProjectNotice(
@@ -911,6 +947,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
       const { storyId, story } = detected;
       lines.push(`**Story**: ${storyId} — ${story.title}`);
       lines.push(`**Phase**: ${story.phase}`);
+
+      // B-198c CHK-003: early storyDir-outside-gitRoot advisory — surface in the
+      // active-story brief too so the dead end is visible at session start.
+      for (const l of renderStoryDirOutsideGitRootAdvisory(ctx.root)) lines.push(l);
 
       // B-6894: INIT fallback warning — surface when this story passed INIT_CHECK
       // via manual fallback attestation rather than an independent reviewer.
