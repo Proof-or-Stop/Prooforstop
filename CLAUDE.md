@@ -32,7 +32,7 @@
 | **INIT_CHECK** | `story_advance INIT_CHECK` 创建 worktree，提示 cd |
 | **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
-| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`koala-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
+| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`lattice-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
 | **TEST** | `lattice validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
 | **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.koala/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
 
@@ -400,7 +400,7 @@ project/
 
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。DONE 必须在期望的 `story/<storyId>` 分支对应 worktree 中执行；若 linked worktree 当前分支不匹配或不是 story 分支，CLI 会在写入 DONE 状态、merge、删除分支或清理 worktree 前拒绝。有冲突在 worktree 里 `git merge main` 解决。
 
-**Sub agent 工作目录约定**：sub agent（koala-implementer 等）在主 agent 的 worktree 中工作，通过 `lattice validate` 验证后提交。
+**Sub agent 工作目录约定**：sub agent（lattice-implementer 等）在主 agent 的 worktree 中工作，通过 `lattice validate` 验证后提交。
 
 ### 多 session 写协调（设计真相源）
 
@@ -473,7 +473,7 @@ Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分�
 
 ## CHK-001: <checklist item title>
 
-**Owner**: koala-implementer | main-agent
+**Owner**: lattice-implementer | main-agent
 **DependsOn**: none | CHK-002, CHK-003
 **Files**:
 - Modify: src/foo.ts, src/bar.ts
@@ -495,7 +495,7 @@ Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分�
 
 | 字段 | 必填 | 含义 |
 |---|---|---|
-| Owner | 是 | 谁执行：koala-implementer（正常通道）或 main-agent（快速通道/文档类） |
+| Owner | 是 | 谁执行：lattice-implementer（正常通道）或 main-agent（快速通道/文档类） |
 | DependsOn | 是 | 依赖哪些 CHK-xxx 先完成，none 表示无依赖 |
 | Files | 是 | 要改/建/测的文件路径 |
 | Verify | 是 | 验证命令和期望输出 |
@@ -513,7 +513,7 @@ Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分�
 
 **触发**：所有 INIT → INIT_CHECK 转换（`story_advance INIT_CHECK`）。其他来源（IDEA→INIT_CHECK 等）不门禁。
 
-**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "koala-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `lattice init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
+**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "lattice-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `lattice init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
 
 **签名域**（[init-check.ts](packages/koala/packages/main/src/handlers/init-check.ts) `signInitCheck`）：
 
@@ -539,7 +539,7 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 lattice init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[{"severity":"medium","desc":"..."}]}'
 
 # 失配后强制重跑：reviewer 没有 itemId/findingId/clusterId，主 agent 直接 spawn
-# Agent({ subagent_type: "koala-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
+# Agent({ subagent_type: "lattice-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
 ```
 
 **无 subagent 环境的受控 fallback（B-95d8 CHK-001）**：
@@ -595,7 +595,7 @@ see story/B-9975
 
 ### scope-plan reviewer PLAN→DEV 硬门槛
 
-正常通道 PLAN 阶段必须跑 `koala-review-scope-plan` 产出 `scope-check.json`。`story_review` 规则（[story-review.ts:274-279](packages/koala/packages/main/src/handlers/story-review.ts#L274-L279)）：
+正常通道 PLAN 阶段必须跑 `lattice-review-scope-plan` 产出 `scope-check.json`。`story_review` 规则（[story-review.ts:274-279](packages/koala/packages/main/src/handlers/story-review.ts#L274-L279)）：
 
 - `understanding` 存在 + checklist 非空 + `scope-check.json` 缺失 → `missing_scope_check` **blocker**，直接卡 PLAN→DEV
 - 已有 scope-check.json 但签名失效 / review round 过期 → 要求重跑
@@ -638,7 +638,7 @@ lattice scope_question_resolve '{
 
 ### TEST→DONE 硬门槛（delivery-check）
 
-TEST 阶段自动 spawn `koala-review-delivery` 产出 `delivery-check.json`。`story_advance DONE` 校验：
+TEST 阶段自动 spawn `lattice-review-delivery` 产出 `delivery-check.json`。`story_advance DONE` 校验：
 
 - delivery-check.json 缺失 → `missing_delivery_check` blocker
 - `_hash` 重算不匹配 → `delivery_check_tampered` blocker
@@ -732,10 +732,10 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 | 角色 | 职责 | 写代码 |
 |---|---|---|
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
-| **koala-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
-| **koala-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
-| **koala-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
-| **koala-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
+| **lattice-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
+| **lattice-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
+| **lattice-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
+| **lattice-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
 ### 两条通道的角色约束
 
@@ -745,15 +745,15 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 **正常通道**（> 2 项 或 有 riskSignals）：
 - **主 agent 不写业务代码**，只做 PLAN + plan.md + 分配 + 验收
-- 代码由 koala-implementer subagent 写（在主 agent 的 worktree 里，不额外开 worktree）
+- 代码由 lattice-implementer subagent 写（在主 agent 的 worktree 里，不额外开 worktree）
 - REVIEW 阶段 reviewer 检查 commit author——正常通道全是主 agent 写的 → critical finding → 卡住 REVIEW→TEST
 
 **通道实时计算**：不存储，每次进 DEV 时从 checklist.items.length + story.riskSignals 实时判定。checklist_add/remove 改变 items 数量后自动生效。PLAN 阶段新增 item 必须提供 `reason`（≥10 字符）作为 replan/scope audit 信号，避免用 remove+add 静默绕过 title/context 冻结。
 
 ### 主 agent 行为准则
 
-- **正常通道必须分配**：用 `Agent({ subagent_type: "koala-implementer", prompt: "..." })` 分配
-- **fresh worker per item**：每个 CHK-xxx 派一个新的 koala-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
+- **正常通道必须分配**：用 `Agent({ subagent_type: "lattice-implementer", prompt: "..." })` 分配
+- **fresh worker per item**：每个 CHK-xxx 派一个新的 lattice-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
 - **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `lattice dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
 - **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条 resolve 或回 DEV 修复，不允许跳过 medium finding 留给下一个 story
@@ -800,7 +800,7 @@ lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intent
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 koala 命令与 registry 对齐 | fail → block REVIEW→TEST |
 | codex-adapter | `node bin/lattice-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
 
-`koala-review-channel` LLM agent 已退役（S1），由 `lattice validate --channel --story=<id>` CLI gate 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
+`lattice-review-channel` LLM agent 已退役（S1），由 `lattice validate --channel --story=<id>` CLI gate 接管；`lattice-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`lattice-review-quality` 假设 lint 已绿只审主观项。
 
 ### Reviewer opt-in 路由（按 riskSignals 挂载）
 
@@ -828,7 +828,7 @@ lattice reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # �
 
 **story_review 轮次命名**：`story_review.planReviewRound: number (PLAN review round count)` 是 PLAN 阶段 `review.json.reviews.length` 的 1-based 数字计数。`story_review.reviewRound` 只作为 legacy numeric PLAN review alias 保留给旧调用方；它不是 finding / review pass / delivery check 里的签名 `reviewRound`。签名 artifact 的 `reviewRound` 仍必须是 `reviewRound: string (ISO 8601 review round id)`。
 
-**pass-only finding_add 归一化**：low severity 且 agent 为 `koala-review-*` 的 pass-only `finding_add`（如 no findings / PASS / 检查通过）由 `core/flow-fact-policy.ts` 的 `flow-policy:pass-only-normalization` 机械转成 `review_pass_set`，写 `review-passes.json`，不写 open finding。含 pass 但同时含 failure / blocker / 缺少 / 失败 等矛盾语义的记录仍是真 finding；非 reviewer 或非 low severity 也不能当作 pass。
+**pass-only finding_add 归一化**：low severity 且 agent 为 `lattice-review-*` 的 pass-only `finding_add`（如 no findings / PASS / 检查通过）由 `core/flow-fact-policy.ts` 的 `flow-policy:pass-only-normalization` 机械转成 `review_pass_set`，写 `review-passes.json`，不写 open finding。含 pass 但同时含 failure / blocker / 缺少 / 失败 等矛盾语义的记录仍是真 finding；非 reviewer 或非 low severity 也不能当作 pass。
 
 ### Cluster 聚簇（finding 批量处理）
 

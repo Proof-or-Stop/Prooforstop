@@ -124,8 +124,8 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
       '.Codex/lattice.json',
       '.Codex/agents/test-intent.md',
       '.Codex/agents/test-case-reviewer.md',
-      '.Codex/agents/koala-review-quality.md',
-      '.Codex/agents/koala-implementer.md',
+      '.Codex/agents/lattice-review-quality.md',
+      '.Codex/agents/lattice-implementer.md',
     );
   } else if (!opts.allowExistingCodex) {
     absent.push('AGENTS.md', 'bin/lattice-codex.js', '.Codex');
@@ -134,7 +134,7 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
   if (profile === 'claude' || profile === 'all') {
     present.push(
       'CLAUDE.md',
-      '.claude/agents/koala-implementer.md',
+      '.claude/agents/lattice-implementer.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',
@@ -165,7 +165,7 @@ function assertGlobalThinAssets(tempDir, profile, opts = {}) {
   if (profile === 'claude' || profile === 'all') {
     present.push(
       'CLAUDE.md',
-      '.claude/agents/koala-implementer.md',
+      '.claude/agents/lattice-implementer.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',

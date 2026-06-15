@@ -117,7 +117,7 @@ function recordInitCheck(projectRoot, storyId) {
   run(projectRoot, 'init_check_set', {
     storyId,
     issues: [],
-    agentId: 'koala-review-story-init',
+    agentId: 'lattice-review-story-init',
   });
   run(projectRoot, 'init_check_set', {
     storyId,
@@ -388,7 +388,7 @@ function verifyInvalidGitRootFailsClosed() {
       priority: 'high',
       checklist: [{ title: 'bootstrap worktree', context: 'invalid gitRoot regression case' }],
     }));
-    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
+    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
     run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
     setupInitCheckGates(wrapper, storyId);
 

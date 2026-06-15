@@ -69,7 +69,7 @@ const legacyAliasDocContextPattern = /\blegacy\b|\balias\b|\bcompat\b|\bmaintena
 const coverageReviewerLaneName = 'lattice-review-test-coverage';
 const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
 const coverageReviewerCliCommandPatterns = [
-  { label: 'CLI invocation', pattern: /\bkoala\s+lattice-review-test-coverage\b/i },
+  { label: 'CLI invocation', pattern: /\blattice\s+lattice-review-test-coverage\b/i },
   { label: 'tool table row', pattern: /^\s*\|\s*`?lattice-review-test-coverage`?\s*\|/ },
   { label: 'tool bullet', pattern: /^\s*[-*]\s*`?lattice-review-test-coverage`?\s*(?:[:：-]|$)/ },
 ];

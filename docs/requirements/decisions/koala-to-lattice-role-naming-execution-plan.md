@@ -4,8 +4,10 @@
 
 Rename active Koala role identifiers to Lattice role identifiers across the
 agent, reviewer, runtime, and documentation surfaces that teach or consume
-role IDs. This is a contract migration for role names, not a global removal of
-every historical `Koala` or `koala` token.
+role IDs. While doing that cleanup, also rename active user-visible verifier
+and dirty-gate vocabulary that would otherwise keep teaching Koala as the
+current product surface. This is not a global removal of every historical
+`Koala` or `koala` token.
 
 This file is the handoff document for story `B-ffa2`. It intentionally contains
 the old role IDs as the canonical rename map; post-migration searches should
@@ -33,6 +35,10 @@ Clean up these active categories:
 - Tests and smoke tasks: source-agent fixtures, reviewer lane assertions,
   prompt registry expectations, Codex/Claude asset checks, flow and gate smokes,
   and CLI text expectations.
+- Active validation surfaces: dirty-gate category text should use
+  `lattice_metadata_changes`, verifier provider/log names should use
+  `lattice-verifier-*`, and canonical config docs/tests should teach
+  `lattice.config.json` as the only active project config.
 - Historical/runtime compatibility leftovers: archived docs, `.koala` runtime
   paths, `KOALA_*` environment variables, old hash salts, and migration
   compatibility notes. These are classified, not blindly renamed.
@@ -92,6 +98,9 @@ Do not leave an unlabelled active instruction such as "spawn
   project.
 - Do not rewrite archive docs simply to erase the word Koala. Archive material
   should remain truthful and may be labelled legacy where needed.
+- Do not re-enable `koala.config.json` as an active config fallback. Current
+  active config behavior is Lattice-only: `lattice.config.json` is canonical and
+  legacy config files are ignored by the active loader.
 - Do not change hash salts or signed artifact domains solely because a salt
   contains `koala`, unless the corresponding verifier and migration path are
   deliberately updated in the runtime contract work.
@@ -124,16 +133,17 @@ specific read-only legacy migration path requires explicit normalization.
 
 ### CHK-004 - active docs, audits, and tests
 
-Update active docs and tests that still teach or assert Koala role IDs. Preserve
-or label historical/archive references instead of performing a blind repository
-rename. Keep runtime compatibility docs accurate for `KOALA_*`, `.koala`, and
-old data migration paths.
+Update active docs and tests that still teach or assert Koala role IDs or active
+Koala-branded validation vocabulary. Preserve or label historical/archive
+references instead of performing a blind repository rename. Keep runtime
+compatibility docs accurate for `KOALA_*`, `.koala`, old signed salts, and old
+data migration paths.
 
 ### CHK-005 - verification and final validation
 
 Run focused searches first, then build/test/runtime verifiers. Any remaining
-`koala-*` role-ID hit must be either fixed or documented as a legacy/archive
-exception.
+`koala-*` role-ID, `koala_metadata`, or `koala-verifier` hit must be either
+fixed or documented as a legacy/archive/signed-artifact exception.
 
 ## Verification Commands
 
@@ -151,7 +161,7 @@ rg -n --hidden \
   CLAUDE.md README.md docs/requirements docs/audits scripts bin
 ```
 
-Post-cleanup active-role search, excluding this execution plan and archive
+Post-cleanup active-surface search, excluding this execution plan and archive
 trees:
 
 ```bash
@@ -163,7 +173,7 @@ rg -n --hidden \
   --glob '!.worktrees/**' \
   --glob '!docs/koala/**' \
   --glob '!docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md' \
-  '\bkoala-(implementer|review|evaluator)' \
+  '\bkoala-(implementer|review|evaluator)|koala_metadata|koala-verifier' \
   packages/main/src packages/main/templates .claude .Codex \
   CLAUDE.md README.md docs/requirements docs/audits scripts bin
 ```

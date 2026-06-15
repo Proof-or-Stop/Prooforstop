@@ -242,7 +242,7 @@ layers on top of the `CommandPolicy` / owner-lease architecture:
   side-effect that requires mutating access.
 - Only `ownershipClass === 'readOnly'` commands (e.g. `session_brief`, `story_get`,
   `checklist_get`, `finding_list`) proceed. All other classes fail closed.
-- This mode does **not** change how normal Koala gate reviewers (`koala-review-*`) work.
+- This mode does **not** change how normal Koala gate reviewers (`lattice-review-*`) work.
   Those reviewers operate without `KOALA_REVIEWER_READONLY=1` set and must be able to call
   `review_pass_set`, `finding_add`, `delivery_check_set`, etc.
 

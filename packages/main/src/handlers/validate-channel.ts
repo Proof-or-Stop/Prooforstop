@@ -161,7 +161,7 @@ export function isNormalChannelWithStory(
 /**
  * Determine whether a single commit can serve as legacy fallback.
  * - author == "lattice-implementer" passes
- * - subject prefixed with "koala:" and only touches story metadata passes
+ * - subject prefixed with "lattice:" and only touches story metadata passes
  * - otherwise cannot serve as fallback; but if dispatch/subagent_result structured evidence is complete, author no longer hard-blocks
  */
 export function isStoryMetadataPath(file: string): boolean {
@@ -169,7 +169,7 @@ export function isStoryMetadataPath(file: string): boolean {
 }
 
 export function isMetadataOnlyKoalaCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
-  return /^\s*koala:/.test(c.subject)
+  return /^\s*lattice:/.test(c.subject)
     && Array.isArray(c.files)
     && c.files.length > 0
     && c.files.every(isStoryMetadataPath);
@@ -557,7 +557,7 @@ export function checkCommitAuthor(
   if (!authorFallbackOk) {
     summaryParts.push(`${offenders.length}/${commits.length} commits cannot be used as author fallback`);
     failDetails.push('commit author is only a legacy fallback; normal channel primary evidence must be dispatch/subagent_result process-events');
-    failDetails.push('author fallback only accepts author="lattice-implementer" or metadata-only subject="koala:*" commits');
+    failDetails.push('author fallback only accepts author="lattice-implementer" or metadata-only subject="lattice:*" commits');
     failDetails.push('offenders:');
     for (const c of offenders) {
       failDetails.push(`  ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`);

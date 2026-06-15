@@ -43,7 +43,7 @@ export interface DirtyGatePolicyEntry {
 /**
  * One-row-per-category allowlist. material_source_changes / fixture_changes /
  * unexpected_dirty_files stay blocking everywhere they used to block;
- * koala_metadata / runtime_artifact / declared_artifact are the only three
+ * lattice_metadata / runtime_artifact / declared_artifact are the only three
  * categories explicitly handled by upstream channels (B-3506 auto-commit,
  * B-6326 classifier, B-cf60 artifact_declare) and therefore get the pass.
  *
@@ -51,9 +51,9 @@ export interface DirtyGatePolicyEntry {
  * DIRTY_WORKTREE_CATEGORIES — `assertPolicyCovers` will throw otherwise.
  */
 export const DIRTY_GATE_POLICY: Readonly<Record<DirtyWorktreeCategory, DirtyGatePolicyEntry>> = {
-  koala_metadata_changes: {
+  lattice_metadata_changes: {
     blocking: false,
-    auditReason: 'koala-owned story metadata; auto-committed by B-3506 helper',
+    auditReason: 'lattice-owned story metadata; auto-committed by B-3506 helper',
   },
   runtime_artifact_changes: {
     blocking: false,
@@ -134,7 +134,7 @@ export interface EvaluateDirtyGateResult {
   blockingCounts: Partial<Record<DirtyWorktreeCategory, number>>;
   passingCounts: Partial<Record<DirtyWorktreeCategory, number>>;
   auditEvents: AuditEvent[];
-  /** Single-line summary, e.g. "blocking=2 (material_source_changes=1,fixture_changes=1); passed=1 (koala_metadata_changes=1)". */
+  /** Single-line summary, e.g. "blocking=2 (material_source_changes=1,fixture_changes=1); passed=1 (lattice_metadata_changes=1)". */
   summary: string;
   /** "AUDIT WRITE FAILED: <msg>" when writer threw; null otherwise. */
   auditFailure: string | null;

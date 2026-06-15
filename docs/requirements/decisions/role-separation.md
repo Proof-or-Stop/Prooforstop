@@ -126,7 +126,7 @@ Organized by wave; each wave is independently verifiable, with data gates betwee
 | Wave | Story | Effort | Goal | Priority |
 |---|---|---|---|---|
 | **Wave 0 — verify the ROI of an independent implementer** | | | | |
-| S-01 | implementer agent definition (`.claude/agents/koala-implementer.md`) | 1 day | Write a runnable agent definition | P0 |
+| S-01 | implementer agent definition (`.claude/agents/lattice-implementer.md`) | 1 day | Write a runnable agent definition | P0 |
 | S-02 | DEV / TEST_CASE phase dispatches the implementer | 2 days | phase transition automatically spins up the sub-agent | P0 |
 | S-03 | activity.jsonl telemetry tagged by role | 1 day | Be able to compare before/after with data | P0 |
 | S-04 | Wave 0 data review (after a 2-week observation window) | 0 days | Decide whether to proceed to Wave 1 | P0 gate |
@@ -188,7 +188,7 @@ Wave 3: (conditional on S-12 outcome) S-13
 
 **Description**
 
-Create `.claude/agents/koala-implementer.md`, defining a CC sub-agent dedicated to the "implementation" role. This agent is invoked by the main agent via `Agent(subagent_type: "koala-implementer", ...)`, and is responsible for the concrete coding work of the DEV and TEST_CASE phases.
+Create `.claude/agents/lattice-implementer.md`, defining a CC sub-agent dedicated to the "implementation" role. This agent is invoked by the main agent via `Agent(subagent_type: "lattice-implementer", ...)`, and is responsible for the concrete coding work of the DEV and TEST_CASE phases.
 
 Key design:
 - Tightened permissions: only a subset of Read / Edit / Write / Glob / Grep / Bash. Bash allowlist: `koala:*`, `node:*`, `npm:*`, `pnpm:*`, `git:(status|diff|log|add|commit)`. Blocklist: `rm`, `git reset --hard`, `git push`, `curl | sh`
@@ -206,7 +206,7 @@ The agent's input prompt is constructed by the main agent and must contain:
 
 **Checklist**
 
-1. **title**: Create the `.claude/agents/koala-implementer.md` file and its frontmatter
+1. **title**: Create the `.claude/agents/lattice-implementer.md` file and its frontmatter
    **context**: The frontmatter contains `name`, `description`, `whenToUse`, `tools`, `disallowedTools`, `permissionMode: acceptEdits`, `isolation: worktree`, `model: inherit`. whenToUse must make clear "only invoked by the main agent during the DEV / TEST_CASE phase of a koala story, not responding to the user directly"
 
 2. **title**: Write the body of the system prompt
@@ -218,7 +218,7 @@ The agent's input prompt is constructed by the main agent and must contain:
    - "Completion conditions and return format" (return a 2-5 line summary, do not be verbose)
 
 3. **title**: Verify CC can load this agent
-   **context**: Launch CC in the koala-agent repo root, run `/agents` or have the main agent call `Agent(subagent_type: "koala-implementer", description: "smoke", prompt: "echo hello")`, and confirm the agent is recognized and can run
+   **context**: Launch CC in the koala-agent repo root, run `/agents` or have the main agent call `Agent(subagent_type: "lattice-implementer", description: "smoke", prompt: "echo hello")`, and confirm the agent is recognized and can run
 
 4. **title**: Real-machine smoke: have the implementer make a trivial change
    **context**: On a scratch story, have the implementer create a hello.txt and call update_task_state. Confirm: (a) the file was actually created (b) the checklist item was actually marked done (c) there was no story_advance call (d) the returned summary is concise
@@ -232,12 +232,12 @@ The agent's input prompt is constructed by the main agent and must contain:
 - adversarial: when the implementer attempts an overreaching operation (story_advance / rm / push) it must fail
 
 **Acceptance**
-- `.claude/agents/koala-implementer.md` exists and its frontmatter is valid
+- `.claude/agents/lattice-implementer.md` exists and its frontmatter is valid
 - The smoke proves the agent can be recognized and executed by CC
 - The permission tightening is provable
 
 **Touchpoints**
-- Create: `.claude/agents/koala-implementer.md`
+- Create: `.claude/agents/lattice-implementer.md`
 - (optional) Create: `docs/story/actives/B-xxxx/smoke/implementer-smoke.md` as a real-machine verification record
 
 ---
@@ -249,8 +249,8 @@ The agent's input prompt is constructed by the main agent and must contain:
 Make the main agent **naturally inclined to** delegate to the implementer when it enters the DEV or TEST_CASE phase. This story is a refactor of prompts + flow; it **does not modify koala's core code**.
 
 Two points are changed:
-1. **Add a section about role separation at the top of CLAUDE.md**: tell the main agent that "the code-writing work of DEV and TEST_CASE should be delegated to the koala-implementer sub-agent"
-2. **Add a line to the nextStepHint when story_advance enters DEV or TEST_CASE**: "Recommend calling Agent(subagent_type='koala-implementer', ...) to do the coding work of this phase"
+1. **Add a section about role separation at the top of CLAUDE.md**: tell the main agent that "the code-writing work of DEV and TEST_CASE should be delegated to the lattice-implementer sub-agent"
+2. **Add a line to the nextStepHint when story_advance enters DEV or TEST_CASE**: "Recommend calling Agent(subagent_type='lattice-implementer', ...) to do the coding work of this phase"
 
 Note: **not mandatory**. The main agent may choose not to delegate, because some stories are extremely fine-grained (chore / docs type), where delegating to a sub-agent is more expensive than doing it yourself. Let the main agent judge for itself based on the story's type and priority.
 
@@ -265,7 +265,7 @@ Note: **not mandatory**. The main agent may choose not to delegate, because some
    **context**: Explain that koala supports the implementer sub-agent, and give the trigger conditions: delegate is recommended when story.type is in `[feature, bug, refactor]` and priority >= medium and the checklist item count >= 2. When type is in `[chore, docs]` or the item count < 2, it is faster for the main agent to do it itself
 
 2. **title**: Add a delegate suggestion to the hint when story_advance enters DEV
-   **context**: In the `story_advance.DEV` hint in `handlers/hints.ts`, append a line: "Recommend Agent(subagent_type='koala-implementer', description='execute DEV', prompt='story id + pending checklist items + allowed tools')". Only append when story.type/priority/size meets the conditions
+   **context**: In the `story_advance.DEV` hint in `handlers/hints.ts`, append a line: "Recommend Agent(subagent_type='lattice-implementer', description='execute DEV', prompt='story id + pending checklist items + allowed tools')". Only append when story.type/priority/size meets the conditions
 
 3. **title**: Same for the hint when story_advance enters TEST_CASE
    **context**: Same idea, but the prompt template is slightly different (emphasizing writing fixtures rather than writing implementation code)
@@ -378,7 +378,7 @@ The review result is written into this story's `decision.json`, as the basis for
    **context**: Fill in the decision per the decision tree above, `{decision: "proceed-wave-1" | "observe-more" | "rollback"}`, with detailed reasoning
 
 5. **title**: Execute according to the decision
-   **context**: proceed → create the Wave 1 stories. observe-more → do not enter a new wave, extend the observation window. rollback → delete .claude/agents/koala-implementer.md and the related sections of CLAUDE.md, and restore the main agent holding both roles
+   **context**: proceed → create the Wave 1 stories. observe-more → do not enter a new wave, extend the observation window. rollback → delete .claude/agents/lattice-implementer.md and the related sections of CLAUDE.md, and restore the main agent holding both roles
 
 **Test directions**
 - This story has no code tests, only a data review
@@ -391,7 +391,7 @@ The review result is written into this story's `decision.json`, as the basis for
 **Touchpoints**
 - Create: `docs/story/actives/B-xxxx/review.md`
 - Fill: `docs/story/actives/B-xxxx/decision.json`
-- (if rollback) Modify: `packages/koala/CLAUDE.md`, delete `.claude/agents/koala-implementer.md`
+- (if rollback) Modify: `packages/koala/CLAUDE.md`, delete `.claude/agents/lattice-implementer.md`
 
 ---
 
@@ -943,7 +943,7 @@ Every wave has a rollbackable point. Concrete operations:
 
 **Wave 0 rollback**:
 ```bash
-rm .claude/agents/koala-implementer.md
+rm .claude/agents/lattice-implementer.md
 git revert <S-02 commit>   # the CLAUDE.md + hints.ts changes
 # the role field in activity.jsonl is additive and can be kept
 ```
@@ -995,7 +995,7 @@ session itself or on any normal Koala gate reviewer subagent.
 KOALA_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and return JSON findings"
 
 # Wrong: do NOT set this on normal gate reviewers
-# koala-review-concept, koala-review-quality, etc. must NOT have this env set
+# lattice-review-concept, lattice-review-quality, etc. must NOT have this env set
 ```
 
 The owner instructs the advisory reviewer to return structured JSON or plain-text findings and
@@ -1046,7 +1046,7 @@ scrutiny before recording any evidence:
 
 ### Normal Koala gate reviewers must NOT set this mode
 
-Standard reviewers (`koala-review-*` subagents in REVIEW phase) need to call `review_run_start`,
+Standard reviewers (`lattice-review-*` subagents in REVIEW phase) need to call `review_run_start`,
 `finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and
 `delivery_check_set`. Setting `KOALA_REVIEWER_READONLY=1` on a normal gate reviewer will block
 all of those calls and break the review lifecycle.
@@ -1056,8 +1056,8 @@ all of those calls and break the review lifecycle.
 | Situation | Use KOALA_REVIEWER_READONLY=1? |
 |---|---|
 | External Claude/Codex/Gemini asked to inspect code and return text/JSON findings | **Yes** — owner must set it on the spawned process |
-| Normal `koala-review-concept` / `koala-review-quality` in REVIEW phase | **No** — reviewer must write gate artifacts |
-| `koala-evaluator` or `koala-evaluator-cli` scoring product quality | **No** — evaluator uses normal write path |
+| Normal `lattice-review-concept` / `lattice-review-quality` in REVIEW phase | **No** — reviewer must write gate artifacts |
+| `lattice-evaluator` or `lattice-evaluator-cli` scoring product quality | **No** — evaluator uses normal write path |
 | CI runner doing a read-only docs audit before reporting to owner | **Yes** |
 | Advisory reviewer launched without KOALA_REVIEWER_READONLY set | N/A — treat output as non-sandboxed, verify all claims manually |
 

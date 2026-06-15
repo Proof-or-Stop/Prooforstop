@@ -74,7 +74,7 @@ try {
   resetConfigCache();
   git(['init']);
   git(['config', 'user.email', 'koala-smoke@example.invalid']);
-  git(['config', 'user.name', 'Koala Smoke']);
+  git(['config', 'user.name', 'Lattice Smoke']);
   git(['add', 'koala.config.json', 'packages/main/src/empty.ts']);
   git(['commit', '-m', 'initial smoke project']);
 

@@ -30,16 +30,16 @@ const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
-  'koala-evaluator.md',
-  'koala-implementer.md',
-  'koala-review-behavior.md',
-  'koala-review-channel.md',
-  'koala-review-concept.md',
-  'koala-review-delivery.md',
-  'koala-review-docs.md',
-  'koala-review-quality.md',
-  'koala-review-scope-plan.md',
-  'koala-review-story-init.md',
+  'lattice-evaluator.md',
+  'lattice-implementer.md',
+  'lattice-review-behavior.md',
+  'lattice-review-channel.md',
+  'lattice-review-concept.md',
+  'lattice-review-delivery.md',
+  'lattice-review-docs.md',
+  'lattice-review-quality.md',
+  'lattice-review-scope-plan.md',
+  'lattice-review-story-init.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',

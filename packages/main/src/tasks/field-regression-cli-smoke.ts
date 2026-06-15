@@ -45,7 +45,7 @@ function canonicalPath(path: string): string {
   }
 }
 
-function commit(cwd: string, message: string, author = 'Koala Smoke'): string {
+function commit(cwd: string, message: string, author = 'Lattice Smoke'): string {
   git(cwd, ['add', '.']);
   git(cwd, [
     '-c', `user.name=${author}`,
@@ -57,7 +57,7 @@ function commit(cwd: string, message: string, author = 'Koala Smoke'): string {
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
-function allowEmptyCommit(cwd: string, message: string, author = 'koala-implementer'): string {
+function allowEmptyCommit(cwd: string, message: string, author = 'lattice-implementer'): string {
   git(cwd, [
     '-c', `user.name=${author}`,
     '-c', 'user.email=smoke@example.test',
@@ -84,8 +84,8 @@ function initRepo(prefix: string, storyDir = '.lattice/story/actives'): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir,
@@ -109,7 +109,7 @@ function initRepo(prefix: string, storyDir = '.lattice/story/actives'): string {
 
 function initProjectWithoutGit(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -129,7 +129,7 @@ function addImmediateChildGitRepo(root: string, name: string): string {
   git(gitRoot, ['init']);
   git(gitRoot, ['checkout', '-B', 'main']);
   git(gitRoot, ['config', 'user.email', 'smoke@example.test']);
-  git(gitRoot, ['config', 'user.name', 'Koala Smoke']);
+  git(gitRoot, ['config', 'user.name', 'Lattice Smoke']);
   write(gitRoot, 'README.md', `${name} nested git material root\n`);
   write(gitRoot, 'packages/main/src/base.ts', `export const ${name.replace(/[^a-zA-Z0-9_$]/g, '_')} = true;\n`);
   commit(gitRoot, `${name} nested git material base`);
@@ -140,7 +140,7 @@ function addImmediateChildGitRepo(root: string, name: string): string {
 function initWrapperProjectWithNestedGitRepo(
   prefix: string,
   configGitRoot?: string,
-  configFilename = 'koala.config.json',
+  configFilename = 'lattice.config.json',
 ): { root: string; gitRoot: string } {
   const root = mkdtempSync(join(tmpdir(), prefix));
   write(root, configFilename, JSON.stringify({
@@ -163,7 +163,7 @@ function initRepoWithoutCommit(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   resetConfigCache();
   return root;
 }
@@ -173,8 +173,8 @@ function initRepoWithMetadataOnlyHead(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
-  write(root, 'koala.config.json', JSON.stringify({
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -183,7 +183,7 @@ function initRepoWithMetadataOnlyHead(prefix: string): string {
     workflow: { profile: 'balanced' },
   }, null, 2));
   git(root, [
-    '-c', 'user.name=Koala Smoke',
+    '-c', 'user.name=Lattice Smoke',
     '-c', 'user.email=smoke@example.test',
     '-c', 'commit.gpgsign=false',
     'commit',
@@ -351,7 +351,7 @@ function writeLegacyReviewStoryWithoutRound(store: StoryStore, storyId: string):
 }
 
 async function assertPlanRemoveIsHardBlocked(): Promise<void> {
-  const root = initRepo('koala-field-plan-freeze-');
+  const root = initRepo('lattice-field-plan-freeze-');
   try {
     const storyId = 'B-freeze';
     const store = new StoryStore(root);
@@ -395,12 +395,12 @@ async function assertPlanRemoveIsHardBlocked(): Promise<void> {
 }
 
 async function assertClusterAutoResolveCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-cluster-sync-');
+  const root = initRepo('lattice-field-cluster-sync-');
   try {
     const storyId = 'B-clsync';
     git(root, ['checkout', '-b', `story/${storyId}`]);
     write(root, 'packages/main/src/clustered.ts', 'export const clustered = true;\n');
-    commit(root, 'implement cluster fix\n\nResolves: CL-001 CL-002', 'koala-implementer');
+    commit(root, 'implement cluster fix\n\nResolves: CL-001 CL-002', 'lattice-implementer');
 
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
@@ -411,7 +411,7 @@ async function assertClusterAutoResolveCliSurface(): Promise<void> {
         severity: 'high',
         category: 'happy',
         status: 'open',
-        agent: 'koala-review-quality',
+        agent: 'lattice-review-quality',
         createdAt: now(),
         reviewRound: now(),
       }, {
@@ -420,7 +420,7 @@ async function assertClusterAutoResolveCliSurface(): Promise<void> {
         severity: 'medium',
         category: 'edge',
         status: 'open',
-        agent: 'koala-review-concept',
+        agent: 'lattice-review-concept',
         createdAt: now(),
         reviewRound: now(),
       }],
@@ -454,20 +454,20 @@ async function assertClusterAutoResolveCliSurface(): Promise<void> {
 }
 
 async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-finding-sync-');
+  const root = initRepo('lattice-field-finding-sync-');
   try {
     const storyId = 'B-fsync';
     git(root, ['checkout', '-b', `story/${storyId}`]);
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
 
-    const qualityRunId = await startReviewRun(root, storyId, 'koala-review-quality');
+    const qualityRunId = await startReviewRun(root, storyId, 'lattice-review-quality');
     await runKoala(root, 'finding_add', {
       storyId,
       desc: 'direct finding should resolve from commit tag',
       severity: 'high',
       category: 'happy',
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       reviewRunId: qualityRunId,
     });
     allowEmptyCommit(root, `resolve direct finding\n\nResolves: ${storyId}:F-001`);
@@ -476,13 +476,13 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
     assert.match(output, /"status":\s*"resolved"/);
     assert.match(output, /"resolvedBy":\s*"B-fsync:F-001@/);
 
-    const conceptRunId = await startReviewRun(root, storyId, 'koala-review-concept');
+    const conceptRunId = await startReviewRun(root, storyId, 'lattice-review-concept');
     await runKoala(root, 'finding_add', {
       storyId,
       desc: 'validate entry should also resolve direct finding',
       severity: 'medium',
       category: 'edge',
-      agent: 'koala-review-concept',
+      agent: 'lattice-review-concept',
       reviewRunId: conceptRunId,
     });
     allowEmptyCommit(root, 'resolve short direct finding\n\nResolves: F-002');
@@ -499,7 +499,7 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
 }
 
 async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise<void> {
-  const root = initRepo('koala-field-direct-review-create-');
+  const root = initRepo('lattice-field-direct-review-create-');
   try {
     const store = new StoryStore(root);
     const directCreated = await runKoala(root, 'story_create', {
@@ -532,7 +532,7 @@ async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise
 
     const directRun = await runKoala(root, 'review_run_start', {
       storyId: directStoryId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       prompt: 'direct REVIEW creation smoke',
     });
     assert.match(directRun, /Review run .* started/);
@@ -573,7 +573,7 @@ async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise
 }
 
 async function assertReviewRunStartCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-review-run-');
+  const root = initRepo('lattice-field-review-run-');
   try {
     const storyId = 'B-runcli';
     git(root, ['checkout', '-b', `story/${storyId}`]);
@@ -582,24 +582,24 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
 
     const output = await runKoala(root, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       prompt: 'Inspect current diff for REVIEW blockers.',
     });
-    assert.match(output, /Review run B-runcli:RR-001 started for koala-review-quality/);
+    assert.match(output, /Review run B-runcli:RR-001 started for lattice-review-quality/);
     const runs = store.readReviewRuns(storyId).runs;
     assert.equal(runs.length, 1);
-    assert.equal(runs[0].lane, 'koala-review-quality');
-    assert.equal(runs[0].agent, 'koala-review-quality');
+    assert.equal(runs[0].lane, 'lattice-review-quality');
+    assert.equal(runs[0].agent, 'lattice-review-quality');
     assert.equal(runs[0].storyId, storyId);
     assert.ok(runs[0].headHash);
     assert.ok(runs[0].materialHash);
     assert.ok(runs[0].promptHash);
 
     write(root, 'packages/main/src/review-run-fresh.ts', 'export const reviewRunFresh = true;\n');
-    commit(root, 'change after review run', 'koala-implementer');
+    commit(root, 'change after review run', 'lattice-implementer');
     const stalePass = await runKoalaRaw(root, 'review_pass_set', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       reviewRunId: runs[0].reviewRunId,
       note: 'stale run should be rejected after material change.',
     });
@@ -610,7 +610,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
 
     const unsupported = await runKoalaRaw(root, 'review_run_start', {
       storyId,
-      lane: 'koala-review-delivery',
+      lane: 'lattice-review-delivery',
     });
     assert.notEqual(unsupported.code, 0);
     assert.match(unsupported.stderr, /Invalid enum value|Invalid option: expected one of|not in supported REVIEW reviewer lane/);
@@ -620,7 +620,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     git(root, ['checkout', '-b', `story/${mainStoryId}`]);
     const missingRound = await runKoalaRaw(root, 'review_run_start', {
       storyId: mainStoryId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.equal(missingRound.code, 0);
     assert.match(missingRound.stdout + missingRound.stderr, /Review run B-main:RR-001 started/);
@@ -640,14 +640,14 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
 }
 
 async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
-  const nonGitRoot = initProjectWithoutGit('koala-field-review-run-nongit-');
+  const nonGitRoot = initProjectWithoutGit('lattice-field-review-run-nongit-');
   try {
     const storyId = 'B-nongit';
     const store = new StoryStore(nonGitRoot);
     writeLegacyReviewStoryWithoutRound(store, storyId);
     const failed = await runKoalaRaw(nonGitRoot, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.notEqual(failed.code, 0);
     assert.match(failed.stderr, /cannot resolve a git-backed signed workspace/);
@@ -659,14 +659,14 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     rmSync(nonGitRoot, { recursive: true, force: true });
   }
 
-  const unbornRoot = initRepoWithoutCommit('koala-field-review-run-unborn-');
+  const unbornRoot = initRepoWithoutCommit('lattice-field-review-run-unborn-');
   try {
     const storyId = 'B-unborn';
     const store = new StoryStore(unbornRoot);
     writeLegacyReviewStoryWithoutRound(store, storyId);
     const failed = await runKoalaRaw(unbornRoot, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.notEqual(failed.code, 0);
     assert.match(failed.stderr, /missing_head/);
@@ -677,14 +677,14 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     rmSync(unbornRoot, { recursive: true, force: true });
   }
 
-  const missingMaterialRoot = initRepoWithMetadataOnlyHead('koala-field-review-run-no-material-');
+  const missingMaterialRoot = initRepoWithMetadataOnlyHead('lattice-field-review-run-no-material-');
   try {
     const storyId = 'B-nomat';
     const store = new StoryStore(missingMaterialRoot);
     writeLegacyReviewStoryWithoutRound(store, storyId);
     const failed = await runKoalaRaw(missingMaterialRoot, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.notEqual(failed.code, 0);
     assert.match(failed.stderr, /missing_material_hash/);
@@ -695,7 +695,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     rmSync(missingMaterialRoot, { recursive: true, force: true });
   }
 
-  const worktreeRoot = initRepo('koala-field-review-run-worktree-');
+  const worktreeRoot = initRepo('lattice-field-review-run-worktree-');
   try {
     const storyId = 'B-wt';
     const worktree = join(worktreeRoot, '.worktrees', storyId);
@@ -724,7 +724,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
 
     const wrongCwd = await runKoalaRaw(worktreeRoot, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.notEqual(wrongCwd.code, 0);
     assert.match(wrongCwd.stderr, /Expected cwd/);
@@ -750,7 +750,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
 
     const splitRootRun = await runKoalaRaw(worktree, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     }, { LATTICE_PROJECT_ROOT: worktreeRoot });
     assert.equal(splitRootRun.code, 0, splitRootRun.stderr);
     assert.match(splitRootRun.stdout + splitRootRun.stderr, /Review run B-wt:RR-001 started/);
@@ -764,7 +764,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
 }
 
 async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
-  const unbound = initWrapperProjectWithNestedGitRepo('koala-field-review-run-wrapper-unbound-');
+  const unbound = initWrapperProjectWithNestedGitRepo('lattice-field-review-run-wrapper-unbound-');
   try {
     const storyId = 'B-wrapno';
     const store = new StoryStore(unbound.root);
@@ -786,7 +786,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
 
     const failed = await runKoalaRaw(unbound.root, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.notEqual(failed.code, 0);
     assert.match(failed.stderr, /cannot resolve a git-backed signed workspace/);
@@ -797,7 +797,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     rmSync(unbound.root, { recursive: true, force: true });
   }
 
-  const bound = initWrapperProjectWithNestedGitRepo('koala-field-review-run-wrapper-bound-', 'clawcreek');
+  const bound = initWrapperProjectWithNestedGitRepo('lattice-field-review-run-wrapper-bound-', 'clawcreek');
   try {
     const storyId = 'B-wrapok';
     const store = new StoryStore(bound.root);
@@ -815,7 +815,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     assert.equal(resolved.authoritativeCwd, canonicalPath(bound.gitRoot));
     assert.equal(resolved.resolutionSource, 'configured-git-root');
 
-    const reviewRunId = await startReviewRun(bound.root, storyId, 'koala-review-quality');
+    const reviewRunId = await startReviewRun(bound.root, storyId, 'lattice-review-quality');
     const runs = store.readReviewRuns(storyId).runs;
     assert.equal(runs.length, 1);
     assert.equal(runs[0].workspaceBinding?.metadataRoot, canonicalPath(bound.root));
@@ -829,7 +829,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
 
     const pass = await runKoalaRaw(bound.root, 'review_pass_set', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       reviewRunId,
       note: 'split-root review pass should validate against configured gitRoot.',
     });
@@ -840,11 +840,11 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     git(otherGitRoot, ['init']);
     git(otherGitRoot, ['checkout', '-B', 'main']);
     git(otherGitRoot, ['config', 'user.email', 'smoke@example.test']);
-    git(otherGitRoot, ['config', 'user.name', 'Koala Smoke']);
+    git(otherGitRoot, ['config', 'user.name', 'Lattice Smoke']);
     write(otherGitRoot, 'README.md', 'alternate git material root\n');
     write(otherGitRoot, 'packages/main/src/base.ts', 'export const alternate = true;\n');
     commit(otherGitRoot, 'alternate git material base');
-    write(bound.root, 'koala.config.json', JSON.stringify({
+    write(bound.root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -855,14 +855,14 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     }, null, 2));
     const driftRejected = await runKoalaRaw(bound.root, 'review_pass_set', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       reviewRunId,
       note: 'old split-root review pass must be rejected after gitRoot changes.',
     });
     assert.notEqual(driftRejected.code, 0);
     assert.match(driftRejected.stderr, /workspace binding|signed workspace resolution|stale/i);
     assert.match(driftRejected.stderr, /signedWorkspaceRoot|workspaceBinding/i);
-    write(bound.root, 'koala.config.json', JSON.stringify({
+    write(bound.root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.lattice/story/actives',
@@ -877,7 +877,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     store.writeReviewRuns(storyId, tampered);
     const rejected = await runKoalaRaw(bound.root, 'review_pass_set', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       reviewRunId,
       note: 'tampered workspace binding should be rejected before pass evidence.',
     });
@@ -889,9 +889,9 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
 }
 
 async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<void> {
-  const configured = initWrapperProjectWithNestedGitRepo('koala-field-session-brief-wrapper-bound-', 'clawcreek');
+  const configured = initWrapperProjectWithNestedGitRepo('lattice-field-session-brief-wrapper-bound-', 'clawcreek');
   try {
-    const configPath = join(configured.root, 'koala.config.json');
+    const configPath = join(configured.root, 'lattice.config.json');
     const beforeConfig = readFileSync(configPath, 'utf-8');
     const result = await runKoalaRaw(configured.root, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
@@ -907,9 +907,9 @@ async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<voi
     rmSync(configured.root, { recursive: true, force: true });
   }
 
-  const unconfigured = initWrapperProjectWithNestedGitRepo('koala-field-session-brief-wrapper-unbound-');
+  const unconfigured = initWrapperProjectWithNestedGitRepo('lattice-field-session-brief-wrapper-unbound-');
   try {
-    const configPath = join(unconfigured.root, 'koala.config.json');
+    const configPath = join(unconfigured.root, 'lattice.config.json');
     const beforeConfig = readFileSync(configPath, 'utf-8');
     const result = await runKoalaRaw(unconfigured.root, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
@@ -923,11 +923,11 @@ async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<voi
   }
 
   const missingGitRoot = initWrapperProjectWithNestedGitRepo(
-    'koala-field-session-brief-wrapper-missing-',
+    'lattice-field-session-brief-wrapper-missing-',
     'missing-creek',
   );
   try {
-    const configPath = join(missingGitRoot.root, 'koala.config.json');
+    const configPath = join(missingGitRoot.root, 'lattice.config.json');
     const beforeConfig = readFileSync(configPath, 'utf-8');
     const result = await runKoalaRaw(missingGitRoot.root, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
@@ -940,7 +940,7 @@ async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<voi
     rmSync(missingGitRoot.root, { recursive: true, force: true });
   }
 
-  const gitBacked = initRepo('koala-field-session-brief-git-backed-');
+  const gitBacked = initRepo('lattice-field-session-brief-git-backed-');
   try {
     const result = await runKoalaRaw(gitBacked, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
@@ -974,7 +974,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     confirmCommand?: string;
   };
 
-  const noCandidatesRoot = initProjectWithoutGit('koala-field-config-doctor-none-');
+  const noCandidatesRoot = initProjectWithoutGit('lattice-field-config-doctor-none-');
   try {
     const doctor = await runKoalaJson<ConfigDoctor>(noCandidatesRoot, 'lattice_config_doctor');
     assert.equal(doctor.wrapperGitRoot.metadataRootGitBacked, false);
@@ -987,7 +987,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     rmSync(noCandidatesRoot, { recursive: true, force: true });
   }
 
-  const ambiguous = initWrapperProjectWithNestedGitRepo('koala-field-config-doctor-ambiguous-');
+  const ambiguous = initWrapperProjectWithNestedGitRepo('lattice-field-config-doctor-ambiguous-');
   try {
     addImmediateChildGitRepo(ambiguous.root, 'othercreek');
     const doctor = await runKoalaJson<ConfigDoctor>(ambiguous.root, 'lattice_config_doctor');
@@ -1012,7 +1012,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.match(resolved.unresolvedReason || '', /no_worktree_or_gitRoot|requires_git_signed_workspace/);
     const failed = await runKoalaRaw(ambiguous.root, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.notEqual(failed.code, 0);
     assert.match(failed.stderr, /cannot resolve a git-backed signed workspace/);
@@ -1022,7 +1022,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
   }
 
   const repairable = initWrapperProjectWithNestedGitRepo(
-    'koala-field-config-repair-',
+    'lattice-field-config-repair-',
     undefined,
     'lattice.config.json',
   );
@@ -1059,7 +1059,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.equal(before.signedWorkspaceRoot, null);
     const beforeRun = await runKoalaRaw(repairable.root, 'review_run_start', {
       storyId,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
     });
     assert.notEqual(beforeRun.code, 0);
     assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'unrepaired wrapper root must not create review runs');
@@ -1133,7 +1133,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.equal(after.authoritativeCwd, canonicalPath(repairable.gitRoot));
     assert.equal(after.resolutionSource, 'configured-git-root');
 
-    const reviewRunId = await startReviewRun(repairable.root, storyId, 'koala-review-quality');
+    const reviewRunId = await startReviewRun(repairable.root, storyId, 'lattice-review-quality');
     assert.match(reviewRunId, /^B-wrapfix:RR-001$/);
     const runs = store.readReviewRuns(storyId).runs;
     assert.equal(runs.length, 1);
@@ -1147,7 +1147,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
 }
 
 async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
-  const root = initRepo('koala-field-force-reviewer-');
+  const root = initRepo('lattice-field-force-reviewer-');
   try {
     const storyId = 'B-force';
     const store = new StoryStore(root);
@@ -1156,7 +1156,7 @@ async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
     const output = await runKoala(root, 'reviewer_list', {
       storyId,
       json: true,
-      forceReviewer: 'koala-review-docs, behavior, channel',
+      forceReviewer: 'lattice-review-docs, behavior, channel',
     });
     type ReviewerListEntry = { name: string; forced?: boolean };
     const parsed = JSON.parse(output) as { reviewers: ReviewerListEntry[] };
@@ -1164,29 +1164,29 @@ async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
     assert.equal(reviewers.get('docs')?.forced, true, 'full built-in lane should normalize to a forced short reviewer name');
     assert.equal(reviewers.get('behavior')?.forced, true, 'built-in short reviewer name should remain supported');
     assert.equal(reviewers.get('channel')?.forced, true, 'retired compatibility lane should remain forceable while review_run_start supports it');
-    assert.equal(reviewers.has('koala-review-docs'), false, 'forced reviewer output should not mix full lane names into opt-in names');
+    assert.equal(reviewers.has('lattice-review-docs'), false, 'forced reviewer output should not mix full lane names into opt-in names');
 
     const invalid = await runKoalaRaw(root, 'reviewer_list', {
       storyId,
       json: true,
-      forceReviewer: 'koala-review-delivery',
+      forceReviewer: 'lattice-review-delivery',
     });
     assert.notEqual(invalid.code, 0);
     assert.match(invalid.stderr, /not supported by review_run_start/);
-    assert.match(invalid.stderr, /koala-review-quality/);
+    assert.match(invalid.stderr, /lattice-review-quality/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
 async function assertReviewPassConcurrentCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-review-pass-');
+  const root = initRepo('lattice-field-review-pass-');
   try {
     const storyId = 'B-rpcli';
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs', 'behavior']
-      .map(name => `koala-review-${name}`);
+      .map(name => `lattice-review-${name}`);
     const starts = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRunWithOutput(root, storyId, agent)] as const)));
     const outputs = await Promise.all(agents.map(agent => runKoala(root, 'review_pass_set', {
       storyId,
@@ -1212,31 +1212,31 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
 }
 
 async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-pass-only-finding-');
+  const root = initRepo('lattice-field-pass-only-finding-');
   try {
     const storyId = 'B-passonly';
     git(root, ['checkout', '-b', `story/${storyId}`]);
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
-    const docsRunId = await startReviewRun(root, storyId, 'koala-review-docs');
-    const conceptRunId = await startReviewRun(root, storyId, 'koala-review-concept');
-    const channelRunId = await startReviewRun(root, storyId, 'koala-review-channel');
-    const qualityRunId = await startReviewRun(root, storyId, 'koala-review-quality');
-    const behaviorRunId = await startReviewRun(root, storyId, 'koala-review-behavior');
+    const docsRunId = await startReviewRun(root, storyId, 'lattice-review-docs');
+    const conceptRunId = await startReviewRun(root, storyId, 'lattice-review-concept');
+    const channelRunId = await startReviewRun(root, storyId, 'lattice-review-channel');
+    const qualityRunId = await startReviewRun(root, storyId, 'lattice-review-quality');
+    const behaviorRunId = await startReviewRun(root, storyId, 'lattice-review-behavior');
 
     const passOutput = await runKoala(root, 'finding_add', {
       storyId,
       desc: 'Docs consistency check passed: Step 1 extracted 2 symbols, Step 2 compared 3 sections; consistency check PASSED.',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
     });
-    assert.match(passOutput, /Review pass B-passonly:RP-001 recorded by koala-review-docs/);
+    assert.match(passOutput, /Review pass B-passonly:RP-001 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'pass-only finding_add should not write findings.json');
     const passes = store.readReviewPasses(storyId).passes;
     assert.equal(passes.length, 1);
-    assert.equal(passes[0].agent, 'koala-review-docs');
+    assert.equal(passes[0].agent, 'lattice-review-docs');
     assert.match(passes[0].note, /Docs consistency check passed/);
     assertIsoReviewRound(passes[0].reviewRound, now(), 'pass-only converted review pass reviewRound');
     const emptyFindingList = await runKoala(root, 'finding_list', { storyId });
@@ -1247,10 +1247,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'Docs consistency check passed: no inconsistencies found.',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
     });
-    assert.match(noDriftOutput, /Review pass B-passonly:RP-002 recorded by koala-review-docs/);
+    assert.match(noDriftOutput, /Review pass B-passonly:RP-002 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'negated no-drift wording should remain a review pass');
 
     const conceptPassOutput = await runKoala(root, 'finding_add', {
@@ -1258,10 +1258,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'No concept changes this round',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-concept',
+      agent: 'lattice-review-concept',
       reviewRunId: conceptRunId,
     });
-    assert.match(conceptPassOutput, /Review pass B-passonly:RP-003 recorded by koala-review-concept/);
+    assert.match(conceptPassOutput, /Review pass B-passonly:RP-003 recorded by lattice-review-concept/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'concept pass-only finding_add should not write findings.json');
 
     const channelPassOutput = await runKoala(root, 'finding_add', {
@@ -1269,10 +1269,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'Express channel (≤2 items, no riskSignals), main agent self-write compliant',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-channel',
+      agent: 'lattice-review-channel',
       reviewRunId: channelRunId,
     });
-    assert.match(channelPassOutput, /Review pass B-passonly:RP-004 recorded by koala-review-channel/);
+    assert.match(channelPassOutput, /Review pass B-passonly:RP-004 recorded by lattice-review-channel/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'channel pass-only finding_add should not write findings.json');
 
     const noFindingsOutput = await runKoala(root, 'finding_add', {
@@ -1280,10 +1280,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'No findings after checking process facts.',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       reviewRunId: qualityRunId,
     });
-    assert.match(noFindingsOutput, /Review pass B-passonly:RP-005 recorded by koala-review-quality/);
+    assert.match(noFindingsOutput, /Review pass B-passonly:RP-005 recorded by lattice-review-quality/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'no findings wording should convert to review pass');
 
     const genericPassOutput = await runKoala(root, 'finding_add', {
@@ -1291,10 +1291,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'Check passed: all flow fact entry points have hardcoded fallback.',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-behavior',
+      agent: 'lattice-review-behavior',
       reviewRunId: behaviorRunId,
     });
-    assert.match(genericPassOutput, /Review pass B-passonly:RP-006 recorded by koala-review-behavior/);
+    assert.match(genericPassOutput, /Review pass B-passonly:RP-006 recorded by lattice-review-behavior/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'generic check-pass wording should convert to review pass');
 
     const explicitPassOutput = await runKoala(root, 'finding_add', {
@@ -1302,10 +1302,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'PASS: schema and handler fallback are aligned.',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
     });
-    assert.match(explicitPassOutput, /Review pass B-passonly:RP-007 recorded by koala-review-docs/);
+    assert.match(explicitPassOutput, /Review pass B-passonly:RP-007 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'explicit PASS wording should convert to review pass');
 
     const localizedPassOutput = await runKoala(root, 'finding_add', {
@@ -1313,10 +1313,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: '\u5ba1\u67e5\u901a\u8fc7\uff1a\u5df2\u68c0\u67e5\u8303\u56f4\uff0c\u65e0\u963b\u585e\u95ee\u9898\u3002',
       severity: 'low',
       category: 'happy',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
     });
-    assert.match(localizedPassOutput, /Review pass B-passonly:RP-008 recorded by koala-review-docs/);
+    assert.match(localizedPassOutput, /Review pass B-passonly:RP-008 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'localized pass-only finding_add should convert to review pass');
 
     const findingOutput = await runKoala(root, 'finding_add', {
@@ -1324,10 +1324,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'Docs consistency check passed but README example command failed; docs need fixing.',
       severity: 'low',
       category: 'edge',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
     });
-    assert.match(findingOutput, /Finding B-passonly:F-001 created by koala-review-docs/);
+    assert.match(findingOutput, /Finding B-passonly:F-001 created by lattice-review-docs/);
     const findings = store.readFindings(storyId).findings;
     assert.equal(findings.length, 1);
     assert.equal(findings[0].status, 'open');
@@ -1337,10 +1337,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'concept-cleanup: concept X deletion incomplete, Y file still has 2 references.',
       severity: 'critical',
       category: 'cleanup',
-      agent: 'koala-review-concept',
+      agent: 'lattice-review-concept',
       reviewRunId: conceptRunId,
     });
-    assert.match(cleanupOutput, /Finding B-passonly:F-002 created by koala-review-concept: \[critical\/missing\]/);
+    assert.match(cleanupOutput, /Finding B-passonly:F-002 created by lattice-review-concept: \[critical\/missing\]/);
     const cleanupFindings = store.readFindings(storyId).findings;
     assert.equal(cleanupFindings.length, 2);
     assert.equal(cleanupFindings[1].category, 'missing');
@@ -1350,10 +1350,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'doc-promise-undelivered: README promised koala foo command but it does not exist in registry.',
       severity: 'critical',
       category: 'doc-promise-undelivered',
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       reviewRunId: qualityRunId,
     });
-    assert.match(docPromiseOutput, /Finding B-passonly:F-003 created by koala-review-quality: \[critical\/missing\]/);
+    assert.match(docPromiseOutput, /Finding B-passonly:F-003 created by lattice-review-quality: \[critical\/missing\]/);
     const docPromiseFindings = store.readFindings(storyId).findings;
     assert.equal(docPromiseFindings.length, 3);
     assert.equal(docPromiseFindings[2].category, 'missing');
@@ -1363,10 +1363,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       desc: 'PASS: docs consistency check PASSED with reviewer approval.',
       severity: 'medium',
       category: 'happy',
-      agent: 'koala-review-docs',
+      agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
     });
-    assert.match(nonLowPassOutput, /Finding B-passonly:F-004 created by koala-review-docs/);
+    assert.match(nonLowPassOutput, /Finding B-passonly:F-004 created by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 4, 'non-low pass-like finding_add should remain a finding');
 
     const nonReviewerPassOutput = await runKoala(root, 'finding_add', {
@@ -1385,7 +1385,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
         desc: 'novel category should be rejected by handler fallback.',
         severity: 'medium',
         category: 'docs',
-        agent: 'koala-review-quality',
+        agent: 'lattice-review-quality',
         reviewRunId: qualityRunId,
       }),
       /category must be one of happy\|edge\|adversarial\|missing/,
@@ -1397,7 +1397,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
         desc: 'PASS: schema and handler fallback are aligned.',
         severity: 'low',
         category: 'docs',
-        agent: 'koala-review-quality',
+        agent: 'lattice-review-quality',
         reviewRunId: qualityRunId,
       }),
       /category must be one of happy\|edge\|adversarial\|missing/,
@@ -1409,7 +1409,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 }
 
 async function assertDecisionSetAcceptsLocalizedExclusionRationale(): Promise<void> {
-  const root = initRepo('koala-field-decision-localized-');
+  const root = initRepo('lattice-field-decision-localized-');
   try {
     const storyId = 'B-decision';
     const store = new StoryStore(root);
@@ -1453,7 +1453,7 @@ async function assertDecisionSetAcceptsLocalizedExclusionRationale(): Promise<vo
 }
 
 async function assertChannelGateAcceptsSubagentResultCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-channel-');
+  const root = initRepo('lattice-field-channel-');
   try {
     const storyId = 'B-channel';
     const store = new StoryStore(root);
@@ -1481,7 +1481,7 @@ async function assertChannelGateAcceptsSubagentResultCliSurface(): Promise<void>
 }
 
 async function assertEvidenceFreshAfterMetadataOnlyCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-evidence-', 'Docs/story/actives');
+  const root = initRepo('lattice-field-evidence-', 'Docs/story/actives');
   try {
     const storyId = 'B-evidence';
     const store = new StoryStore(root);
@@ -1526,7 +1526,7 @@ async function assertEvidenceFreshAfterMetadataOnlyCliSurface(): Promise<void> {
 }
 
 async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-evidence-alias-');
+  const root = initRepo('lattice-field-evidence-alias-');
   try {
     const storyId = 'B-evalias';
     const store = new StoryStore(root);
@@ -1590,7 +1590,7 @@ async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> 
 }
 
 async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-hotfix-priority-');
+  const root = initRepo('lattice-field-hotfix-priority-');
   try {
     const background = [
       '## Trigger Event',
@@ -1792,7 +1792,7 @@ function writeDoneReadyStory(worktree: string, storyId: string): void {
   store.writeReviewPasses(storyId, {
     passes: [{
       id: `${storyId}:RP-001`,
-      agent: 'koala-review-quality',
+      agent: 'lattice-review-quality',
       note: 'Synthetic review pass tracked on story branch.',
       createdAt: timestamp,
       reviewRound: timestamp,
@@ -1835,7 +1835,7 @@ function writeDoneReadyStory(worktree: string, storyId: string): void {
     storyId,
     checkedAt: timestamp,
     reviewRound: timestamp,
-    agentId: 'koala-review-delivery',
+    agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -1845,14 +1845,14 @@ function writeDoneReadyStory(worktree: string, storyId: string): void {
 }
 
 async function assertDoneMergeCleansMainUntrackedReviewPasses(): Promise<void> {
-  const root = initRepo('koala-field-done-stray-');
+  const root = initRepo('lattice-field-done-stray-');
   try {
     const storyId = 'B-done';
     git(root, ['branch', `story/${storyId}`]);
     const worktree = join(root, '.worktrees', storyId);
     git(root, ['worktree', 'add', worktree, `story/${storyId}`]);
     writeDoneReadyStory(worktree, storyId);
-    commit(worktree, 'prepare done story', 'koala-implementer');
+    commit(worktree, 'prepare done story', 'lattice-implementer');
 
     write(root, `.lattice/story/actives/${storyId}/review-passes.json`, '{"passes":[]}\n');
     const output = await runKoala(worktree, 'story_advance', { storyId, phase: 'DONE' });
@@ -1868,7 +1868,7 @@ async function assertDoneMergeCleansMainUntrackedReviewPasses(): Promise<void> {
 }
 
 async function assertStaleWarningCooldownCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-stale-warning-');
+  const root = initRepo('lattice-field-stale-warning-');
   try {
     const storyId = 'B-stale';
     git(root, ['checkout', '-b', `story/${storyId}`]);

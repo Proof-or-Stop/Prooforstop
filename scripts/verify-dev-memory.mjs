@@ -92,7 +92,7 @@ check('valid entry passes validation', () => {
     lesson: 'The tsc gate only runs if dist exists; always build first',
     reusePrompt: 'Did you run build before validate?',
     tags: ['build', 'lint'],
-    sourceAgent: 'koala-implementer',
+    sourceAgent: 'lattice-implementer',
   });
   const result = dm.validateEntry(entry);
   if (!result.ok) throw new Error(result.error);
@@ -1130,7 +1130,7 @@ check('token-aware search: "authority reviewer" finds reviewer entries (B-1148 R
       scope: 'project',
       summary: 'Reviewer calling finding_add with pass-only body is auto-normalized to review_pass_set',
       trigger: 'Reviewer reports PASS via finding_add and it becomes an open finding',
-      lesson: 'flow-policy:pass-only-normalization converts low-severity koala-review-* finding_add to review_pass_set',
+      lesson: 'flow-policy:pass-only-normalization converts low-severity lattice-review-* finding_add to review_pass_set',
       reusePrompt: 'reviewer pass-only finding_add normalized review_pass_set',
       tags: ['reviewer', 'finding-add', 'review-pass', 'normalization'],
       sourceStoryId: 'B-9b8f',

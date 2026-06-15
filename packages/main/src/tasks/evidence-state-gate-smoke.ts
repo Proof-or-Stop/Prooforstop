@@ -51,7 +51,7 @@ function git(cwd: string, args: string[]): string {
 
 const REVIEW_ROUND = '2026-05-17T12:01:00.000Z';
 const STORY_ID = 'B-evst';
-const REVIEWERS = ['koala-review-concept', 'koala-review-quality', 'koala-review-test-coverage'];
+const REVIEWERS = ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'];
 
 /**
  * Build a tmp repo with a story already in REVIEW phase, checklist done,
@@ -74,7 +74,7 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const store = new StoryStore(root);
@@ -186,8 +186,8 @@ function seedWithSubject(store: StoryStore, runIds: Map<string, string>, subject
   store.writeFindings(STORY_ID, {
     findings: [
       subject,
-      makeFinding({ idSuffix: '101', agent: 'koala-review-quality', reviewRunId: runIds.get('koala-review-quality')!, severity: 'low', status: 'resolved' }),
-      makeFinding({ idSuffix: '102', agent: 'koala-review-test-coverage', reviewRunId: runIds.get('koala-review-test-coverage')!, severity: 'low', status: 'resolved' }),
+      makeFinding({ idSuffix: '101', agent: 'lattice-review-quality', reviewRunId: runIds.get('lattice-review-quality')!, severity: 'low', status: 'resolved' }),
+      makeFinding({ idSuffix: '102', agent: 'lattice-review-test-coverage', reviewRunId: runIds.get('lattice-review-test-coverage')!, severity: 'low', status: 'resolved' }),
     ],
   });
 }
@@ -197,7 +197,7 @@ function assertLegacyMissingEvidenceStateStillBlocks(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const legacy = makeFinding({
-      idSuffix: '001', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+      idSuffix: '001', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
       severity: 'critical', status: 'open',
       // intentionally NO evidenceState field -> legacy finding
     });
@@ -221,7 +221,7 @@ function assertVerifiedOpenStillBlocks(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const verified = makeFinding({
-      idSuffix: '002', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+      idSuffix: '002', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
       severity: 'high', status: 'open', evidenceState: 'verified',
     });
     seedWithSubject(store, runIds, verified);
@@ -240,7 +240,7 @@ function assertSuspectedDoesNotBlockAndIsAdvisory(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const suspected = makeFinding({
-      idSuffix: '003', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+      idSuffix: '003', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
       severity: 'critical', status: 'open', evidenceState: 'suspected',
       uncertaintyReason: 'no repro yet, only static reading of the code path',
     });
@@ -268,7 +268,7 @@ function assertResolvedAndDismissedDoNotBlock(): void {
     const { root, store, runIds } = createReviewRepo();
     try {
       const closed = makeFinding({
-        idSuffix: '004', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+        idSuffix: '004', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
         severity: 'critical', status, evidenceState: 'verified',
       });
       seedWithSubject(store, runIds, closed);
@@ -288,7 +288,7 @@ function assertDisprovenOpenDoesNotBlock(): void {
   try {
     const disproven: Finding = {
       ...makeFinding({
-        idSuffix: '005', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+        idSuffix: '005', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
         severity: 'critical', status: 'open',
       }),
       evidenceState: 'disproven',
@@ -320,15 +320,15 @@ function assertFindingListRendersEvidenceState(): void {
   try {
     // mix: legacy (no field), explicit verified, explicit suspected.
     const legacy = makeFinding({
-      idSuffix: '006', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+      idSuffix: '006', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
       severity: 'low', status: 'resolved',
     });
     const verified = makeFinding({
-      idSuffix: '007', agent: 'koala-review-quality', reviewRunId: runIds.get('koala-review-quality')!,
+      idSuffix: '007', agent: 'lattice-review-quality', reviewRunId: runIds.get('lattice-review-quality')!,
       severity: 'medium', status: 'open', evidenceState: 'verified',
     });
     const suspected = makeFinding({
-      idSuffix: '008', agent: 'koala-review-test-coverage', reviewRunId: runIds.get('koala-review-test-coverage')!,
+      idSuffix: '008', agent: 'lattice-review-test-coverage', reviewRunId: runIds.get('lattice-review-test-coverage')!,
       severity: 'high', status: 'open', evidenceState: 'suspected',
       uncertaintyReason: 'flagged by static read, repro still pending',
     });
@@ -364,7 +364,7 @@ function assertSuspectedWithoutReasonRejected(): void {
     const worktreePath = join(root, '.worktrees', STORY_ID);
     mkdirSync(dirname(worktreePath), { recursive: true });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', `story/${STORY_ID}`]);
     git(root, ['worktree', 'add', worktreePath, `story/${STORY_ID}`]);
     resetConfigCache();
@@ -388,7 +388,7 @@ function assertSuspectedWithoutReasonRejected(): void {
       };
     });
     wstore.writeReviewRuns(STORY_ID, { runs: freshRuns });
-    const reviewRunId = runIds.get('koala-review-concept')!;
+    const reviewRunId = runIds.get('lattice-review-concept')!;
 
     let threw = '';
     try {
@@ -397,7 +397,7 @@ function assertSuspectedWithoutReasonRejected(): void {
         desc: 'suspected without a reason should be rejected',
         severity: 'high',
         category: 'edge',
-        agent: 'koala-review-concept',
+        agent: 'lattice-review-concept',
         reviewRunId,
         evidenceState: 'suspected',
       })], { cwd: worktreePath, env: { ...process.env }, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
@@ -415,7 +415,7 @@ function assertSuspectedWithoutReasonRejected(): void {
       desc: 'suspected with a clear reason is accepted',
       severity: 'high',
       category: 'edge',
-      agent: 'koala-review-concept',
+      agent: 'lattice-review-concept',
       reviewRunId,
       evidenceState: 'suspected',
       uncertaintyReason: 'no repro yet, suspicion comes from static reading only',
@@ -438,7 +438,7 @@ function assertHandlerRejectionCases(): void {
     const worktreePath = join(root, '.worktrees', STORY_ID);
     mkdirSync(dirname(worktreePath), { recursive: true });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', `story/${STORY_ID}`]);
     git(root, ['worktree', 'add', worktreePath, `story/${STORY_ID}`]);
     resetConfigCache();
@@ -460,13 +460,13 @@ function assertHandlerRejectionCases(): void {
       };
     });
     wstore.writeReviewRuns(STORY_ID, { runs: freshRuns });
-    const reviewRunId = runIds.get('koala-review-concept')!;
+    const reviewRunId = runIds.get('lattice-review-concept')!;
 
     const callFindingAdd = (extra: Record<string, unknown>): string => {
       try {
         execFileSync(process.execPath, [cliPath, 'finding_add', JSON.stringify({
           storyId: STORY_ID, desc: 'rejection case', severity: 'high', category: 'edge',
-          agent: 'koala-review-concept', reviewRunId, ...extra,
+          agent: 'lattice-review-concept', reviewRunId, ...extra,
         })], { cwd: worktreePath, env: { ...process.env }, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
       } catch (e: any) {
         return [e?.stdout?.toString?.() ?? '', e?.stderr?.toString?.() ?? '', e?.message ?? ''].join('\n');
@@ -500,11 +500,11 @@ function assertPartialSuspectedDoesNotMaskRealBlocker(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
     const verifiedBlocker = makeFinding({
-      idSuffix: '201', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+      idSuffix: '201', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
       severity: 'critical', status: 'open', evidenceState: 'verified',
     });
     const suspectedSibling = makeFinding({
-      idSuffix: '202', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+      idSuffix: '202', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
       severity: 'critical', status: 'open', evidenceState: 'suspected',
       uncertaintyReason: 'sibling finding still unverified, only suspected at this point',
     });
@@ -512,8 +512,8 @@ function assertPartialSuspectedDoesNotMaskRealBlocker(): void {
       findings: [
         verifiedBlocker,
         suspectedSibling,
-        makeFinding({ idSuffix: '203', agent: 'koala-review-quality', reviewRunId: runIds.get('koala-review-quality')!, severity: 'low', status: 'resolved' }),
-        makeFinding({ idSuffix: '204', agent: 'koala-review-test-coverage', reviewRunId: runIds.get('koala-review-test-coverage')!, severity: 'low', status: 'resolved' }),
+        makeFinding({ idSuffix: '203', agent: 'lattice-review-quality', reviewRunId: runIds.get('lattice-review-quality')!, severity: 'low', status: 'resolved' }),
+        makeFinding({ idSuffix: '204', agent: 'lattice-review-test-coverage', reviewRunId: runIds.get('lattice-review-test-coverage')!, severity: 'low', status: 'resolved' }),
       ],
     });
     const reason = getGuardFailureReason(STORY_ID, store, 'TEST', root);
@@ -539,7 +539,7 @@ function assertReviewerStatusAgreesWithGate(): void {
     const { root, store, runIds } = createReviewRepo();
     try {
       const suspected = makeFinding({
-        idSuffix: '301', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+        idSuffix: '301', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
         severity: 'critical', status: 'open', evidenceState: 'suspected',
         uncertaintyReason: 'static read only, no mechanical repro of the suspected gap yet',
       });
@@ -564,7 +564,7 @@ function assertReviewerStatusAgreesWithGate(): void {
     const { root, store, runIds } = createReviewRepo();
     try {
       const verified = makeFinding({
-        idSuffix: '302', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+        idSuffix: '302', agent: 'lattice-review-concept', reviewRunId: runIds.get('lattice-review-concept')!,
         severity: 'critical', status: 'open', evidenceState: 'verified',
       });
       seedWithSubject(store, runIds, verified);

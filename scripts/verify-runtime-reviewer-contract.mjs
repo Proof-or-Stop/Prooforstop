@@ -295,7 +295,7 @@ try {
   for (const reviewer of reviewerList.reviewers) {
     const name = String(reviewer.name || '');
     assert(name.length > 0, `reviewer_list returned reviewer without name\n--- reviewer ---\n${JSON.stringify(reviewer, null, 2)}`);
-    const agent = `koala-review-${name}`;
+    const agent = `lattice-review-${name}`;
     const runOutput = run(absLivePath, [
       cli,
       '--root',

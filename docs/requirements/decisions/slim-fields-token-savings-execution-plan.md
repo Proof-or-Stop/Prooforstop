@@ -126,15 +126,15 @@ The wording must be advisory, not a hard replacement for full output.
 
 Update the templates that routinely query story state:
 
-- `packages/main/templates/agents/koala-implementer.md`
-- `packages/main/templates/agents/koala-review-concept.md`
-- `packages/main/templates/agents/koala-review-quality.md`
-- `packages/main/templates/agents/koala-review-docs.md`
-- `packages/main/templates/agents/koala-review-behavior.md`
-- `packages/main/templates/agents/koala-review-delivery.md`
-- `packages/main/templates/agents/koala-review-story-init.md`
-- `packages/main/templates/agents/koala-review-scope-plan.md`
-- `packages/main/templates/agents/koala-review-test-coverage.md`
+- `packages/main/templates/agents/lattice-implementer.md`
+- `packages/main/templates/agents/lattice-review-concept.md`
+- `packages/main/templates/agents/lattice-review-quality.md`
+- `packages/main/templates/agents/lattice-review-docs.md`
+- `packages/main/templates/agents/lattice-review-behavior.md`
+- `packages/main/templates/agents/lattice-review-delivery.md`
+- `packages/main/templates/agents/lattice-review-story-init.md`
+- `packages/main/templates/agents/lattice-review-scope-plan.md`
+- `packages/main/templates/agents/lattice-review-test-coverage.md`
 
 If the repository is in full-asset mode, regenerate or synchronize:
 

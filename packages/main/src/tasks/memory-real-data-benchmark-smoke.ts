@@ -153,7 +153,7 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
   writeJson(join(storyDir, 'review-passes.json'), {
     passes: [
       {
-        lane: 'koala-review-quality',
+        lane: 'lattice-review-quality',
         reviewRunId: 'B-real:RR-001',
         storyId: 'B-real',
         note: 'Reviewer pass evidence uses the current plural artifact filename.',
@@ -165,7 +165,7 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
     {
       id: 'devreal1',
       createdAt: '2026-06-09T00:05:00.000Z',
-      sourceAgent: 'koala-implementer',
+      sourceAgent: 'lattice-implementer',
       category: 'workflow',
       scope: 'project',
       summary: 'Keep real-data benchmark advisory boundaries explicit.',
@@ -368,7 +368,7 @@ assertConfiguredStoryDirWorks('docs/story/actives');
       {
         id: 'devonly1',
         createdAt: '2026-06-09T00:05:00.000Z',
-        sourceAgent: 'koala-implementer',
+        sourceAgent: 'lattice-implementer',
         category: 'workflow',
         scope: 'project',
         summary: 'Advisory memory cannot make a benchmark pass.',

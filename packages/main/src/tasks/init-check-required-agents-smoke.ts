@@ -37,7 +37,7 @@ const root = mkdtempSync(join(tmpdir(), 'koala-init-required-agents-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -70,7 +70,7 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
 
-  run(root, 'init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
+  run(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(missingProduct, /missing_init_check_agent/);
   assert.match(missingProduct, /product-reviewer/);
@@ -105,7 +105,7 @@ try {
   const tamperStoryId = tamperCreated.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(tamperStoryId, 'story_create should return tamper story id');
 
-  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'koala-review-story-init' });
+  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'lattice-review-story-init' });
   run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'product-reviewer' });
   run(root, 'story_update', { storyId: tamperStoryId, title: 'Init tamper gate changed after review' });
   const tampered = run(root, 'story_advance', { storyId: tamperStoryId, phase: 'INIT_CHECK' }, true);

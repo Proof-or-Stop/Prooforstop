@@ -388,7 +388,7 @@ function ensureSandboxReady(
         note: 'E2E sandbox scope and execution boundaries are fixed before INIT_CHECK.',
         actor: 'flow-e2e',
       });
-      handlers.init_check_set({ storyId, issues: [], agentId: 'koala-review-story-init' });
+      handlers.init_check_set({ storyId, issues: [], agentId: 'lattice-review-story-init' });
       handlers.init_check_set({ storyId, issues: [], agentId: 'product-reviewer' });
     }
   } catch {

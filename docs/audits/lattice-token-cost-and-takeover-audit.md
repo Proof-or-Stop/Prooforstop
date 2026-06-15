@@ -128,16 +128,16 @@ lattice handoff_resume  --file=accept.json --output=resume.json
 
 | 模板 | baseline 总大小 | after 总大小 | delta | after koala block |
 |---|---:|---:|---:|---:|
-| koala-evaluator.md | 57,931 B | 8,258 B | -49,673 B | 4,376 B |
-| koala-implementer.md | 63,463 B | 13,973 B | -49,490 B | 4,376 B |
-| koala-review-behavior.md | 63,499 B | 11,362 B | -52,137 B | 4,376 B |
-| koala-review-channel.md | 63,587 B | 11,450 B | -52,137 B | 4,376 B |
-| koala-review-concept.md | 61,085 B | 8,948 B | -52,137 B | 4,376 B |
-| koala-review-delivery.md | 64,505 B | 12,368 B | -52,137 B | 4,376 B |
-| koala-review-docs.md | 63,591 B | 11,454 B | -52,137 B | 4,376 B |
-| koala-review-quality.md | 60,804 B | 8,667 B | -52,137 B | 4,376 B |
-| koala-review-scope-plan.md | 63,354 B | 11,217 B | -52,137 B | 4,376 B |
-| koala-review-story-init.md | 70,868 B | 17,620 B | -53,248 B | 4,376 B |
+| lattice-evaluator.md | 57,931 B | 8,258 B | -49,673 B | 4,376 B |
+| lattice-implementer.md | 63,463 B | 13,973 B | -49,490 B | 4,376 B |
+| lattice-review-behavior.md | 63,499 B | 11,362 B | -52,137 B | 4,376 B |
+| lattice-review-channel.md | 63,587 B | 11,450 B | -52,137 B | 4,376 B |
+| lattice-review-concept.md | 61,085 B | 8,948 B | -52,137 B | 4,376 B |
+| lattice-review-delivery.md | 64,505 B | 12,368 B | -52,137 B | 4,376 B |
+| lattice-review-docs.md | 63,591 B | 11,454 B | -52,137 B | 4,376 B |
+| lattice-review-quality.md | 60,804 B | 8,667 B | -52,137 B | 4,376 B |
+| lattice-review-scope-plan.md | 63,354 B | 11,217 B | -52,137 B | 4,376 B |
+| lattice-review-story-init.md | 70,868 B | 17,620 B | -53,248 B | 4,376 B |
 | **合计** | **632,687 B（~158,172 tok）** | **115,317 B（~28,830 tok）** | **-517,370 B（~-129,343 tok）** | — |
 
 - **10 份 package 模板曾各嵌一份**全量快照，package 层 ~517KB 重复已移除；同步 `.claude` / `.Codex` mirrors 后，tracked 三份合计减少 ~1.55MB。
@@ -243,7 +243,7 @@ docs reviewer 见任何 `.md` touchpoint 即挂载。**安全边界**：不要�
 | handoff 权限边界 | core/lattice-handoff.ts:42-53, 381-400 |
 | handoff worktree 仅投影 | core/lattice-handoff.ts:1019-1051 |
 | authority/mirror 渲染 | handlers/session.ts:770, 687-735 |
-| 模板内嵌快照 fence | .claude/agents/koala-implementer.md:12, 909 |
+| 模板内嵌快照 fence | .claude/agents/lattice-implementer.md:12, 909 |
 | init-check 签名域（只签 story 数据） | handlers/init-check.ts:149 |
 | 模板 hash 仅 doc-drift 同步 | core/managed-assets.ts:55-57, 474 |
 | story_get 内嵌 checklist | handlers/story-query.ts:401-434 |

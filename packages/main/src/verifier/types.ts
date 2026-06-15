@@ -169,7 +169,7 @@ export interface ValidateResult {
 
 /** lattice validate --json structured output (consumed by gate) */
 export interface ExternalVerifierResult {
-  provider: 'koala-verifier';
+  provider: 'lattice-verifier';
   status: 'pass' | 'fail' | 'warn';
   allPass: boolean;
   summary: string;

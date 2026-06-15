@@ -30,7 +30,7 @@ assert.equal(result.residuals[0].file, 'src/live.ts');
 const rendered = renderConceptResult({
   ...result,
   status: 'fail',
-  recommendation: 'dispatch koala-review-concept',
+  recommendation: 'dispatch lattice-review-concept',
 });
 assert.match(rendered, /standalone validate --concept only reports raw residuals/);
 
