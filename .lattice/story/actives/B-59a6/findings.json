@@ -76,6 +76,22 @@
         "packages/main/src/core/machine.ts"
       ],
       "resolvedAt": "2026-06-15T10:42:13.847Z"
+    },
+    {
+      "id": "B-59a6:F-005",
+      "desc": "CHK-003 verificationEvidence for status-command-clear-output is semantically stale and contradicts the current CLI output. checklist_get shows the stored manual_transcript note for command `node bin/lattice.js review_escalation_status --storyId=B-59a6` says `required:false, ok:true, assuranceLevel: ordinary-review` for the current story. Re-running `node bin/lattice.js review_escalation_status --storyId=B-59a6 --json` in this review returns `required:true`, `ok:false`, `assuranceLevel: ordinary-review`, with countable first-round problems B-59a6:F-001 and B-59a6:F-002. WHY: verificationEvidence is a gate-consumed process fact in this repo; after the docs findings triggered sticky review escalation, the old transcript can no longer prove CHK-003 CLI behavior and makes the story appear to have no stale evidence when the live command says the opposite. Refresh or replace the CHK-003 evidence with a current transcript, or use a dedicated smoke that proves not-required/required/full/degraded CLI states without depending on B-59a6 changing review history.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T10:49:12.809Z",
+      "reviewRound": "2026-06-15T10:42:06.356Z",
+      "reviewRunId": "B-59a6:RR-010",
+      "_hash": "20dd516883522bcc745d2c7897b61b7013e2928533edbae55d8e197e59abacfd",
+      "files": [
+        ".lattice/story/actives/B-59a6/checklist.json"
+      ]
     }
   ]
 }
