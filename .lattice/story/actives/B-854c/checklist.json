@@ -39,9 +39,9 @@
           "command": "lattice story_get --storyId=B-854c",
           "result": "pass",
           "note": "decision.json records chosen=OptAB-combination with rationale making bootstrap git-add (force-add) and the protection stance (scaffold allowlist) mutually consistent; story_get reflects the decision and PLAN advanced to DEV",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "lattice story_review --storyId=B-854c",
           "result": "pass",
           "note": "decision has 4 preMortem (>=3 required for high-risk); story_review Round 1 passed (0 blocker) and the PLAN->DEV high-risk gate accepted the decision",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         }
       ]
     },
@@ -95,9 +95,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke check: bootstrap non-ignoring .gitignore -> tracked leaf, no warning",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -106,9 +106,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke check: broad .lattice/ ignore -> dev_start succeeds via git add -f (no paths-are-ignored), leaf tracked, warning present pointing at lattice doctor --repair",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -117,9 +117,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke check: negation allowlist -> bootstrap succeeds, no false-positive warning (guard probes the leaf not the .lattice prefix)",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         }
       ]
     },
@@ -162,9 +162,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke check: doctor on broad-ignore-untracked fixture -> unsafe + remediation text + JSON unsafe flag",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -173,9 +173,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke check: doctor --repair writes managed allowlist (neutralizes bare .lattice/ + mergeRuntimeGitignore) -> re-scan safe; second --repair no-op",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -184,9 +184,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke check: safe project (negation allowlist) -> doctor reports OK, no false-positive data-loss warning",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         }
       ]
     },
@@ -229,9 +229,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "10-check smoke green; covers tracked/protected after bootstrap under ignoring + non-ignoring .gitignore",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -240,9 +240,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke asserts doctor predicate flags broad-ignore-untracked unsafe state and clears after repair",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -251,9 +251,9 @@
           "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
           "result": "pass",
           "note": "smoke + predicate unit (empty-leaf rejection) asserts bootstrap never silently leaves metadata in neither-tracked-nor-protected state: force-add yields tracked leaf or loud warning",
-          "headHash": "04f58ae77191cc2f64b07916dfb74b47140b9447",
-          "materialHash": "6325cce22bea46e2252d2c6c6bc1996c0443939b8f4bb1d3e2fb74f046ff0450",
-          "timestamp": "2026-06-15T22:40:22.805Z"
+          "headHash": "26dd201ec8f6c305a024480a29cc886929a69f31",
+          "materialHash": "783820991495b5a965fddacf05a3651559cb4999537c626440e521b263c3ecd0",
+          "timestamp": "2026-06-15T22:49:42.406Z"
         }
       ]
     }
