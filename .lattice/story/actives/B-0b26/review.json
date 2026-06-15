@@ -1,0 +1,32 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-15T22:28:07.057Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Delete the three unused sample/dogfood packages (cli-guess-number, python-demo, python-rps) and scrub residual references + Delete the two tracked cruft files (du.exe.stackdump, claude-session.mjs) and scrub residual references are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Data Migration/Destructive"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "27f56c1dc9b550927969234689579f419b935ae33d668f962c38c2a9ed4c0992"
+    }
+  ]
+}
