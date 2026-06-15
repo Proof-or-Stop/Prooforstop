@@ -16,6 +16,62 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After git rm -r, ls packages/ lists exactly lab, main, utils and nothing else → exit 0; WHY: confirms all three sample dirs removed and only product packages remain",
+            "type": "cli"
+          },
+          {
+            "desc": "git ls-files --error-unmatch packages/cli-guess-number packages/python-demo packages/python-rps each returns exit 1 → all three dirs fully untracked from git index; WHY: confirms deletion is committed to git, not just rm on disk",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build exits 0 after deletion → no broken references in TypeScript compilation; WHY: confirms no tsconfig paths or import references depended on deleted packages",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e exits 0 after deletion → end-to-end tests unaffected; WHY: confirms test:authority-live-python* use tmpdir, not the deleted sample dirs",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep -r cli-guess-number across repo (excluding node_modules/.git/.worktrees/.lattice/dist) returns zero matches → no stale references in tsconfig, root package.json, scripts, or docs; WHY: catches partial cleanup where dirs deleted but references left behind",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -r python-demo and grep -r python-rps across repo (same exclusions) each return zero matches → no stale references to either python sample; WHY: python samples had koala.config.json that might be referenced somewhere",
+            "type": "cli"
+          },
+          {
+            "desc": "Deleted dirs do not exist on disk even as empty directories: test -d packages/cli-guess-number and test -d packages/python-demo and test -d packages/python-rps all return false; WHY: git rm -r should remove from disk too, but a partial git rm might leave empty parent dirs",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "packages/lab directory still exists and contains expected files (package.json) → over-deletion guard; WHY: glob-based deletion (rm -r packages/p*) could accidentally catch packages/lab if mistyped pattern",
+            "type": "cli"
+          },
+          {
+            "desc": "packages/main and packages/utils still exist with their package.json → over-deletion guard for product packages; WHY: a broad packages/* glob or faulty script could delete product packages alongside samples",
+            "type": "cli"
+          },
+          {
+            "desc": "experiments/ directory still exists and is git-tracked → out-of-scope deletion guard; WHY: story explicitly defers experiments/ cleanup to separate story; overzealous cleanup agent might delete it",
+            "type": "cli"
+          },
+          {
+            "desc": "CLAUDE.md, README.md, AGENTS.md, CHANGELOG.md still exist at repo root → root file survival guard; WHY: a glob-based rm at root (rm *.md or similar) could accidentally nuke critical documentation",
+            "type": "cli"
+          },
+          {
+            "desc": "Root package.json does not reference cli-guess-number as a workspace entry → workspace/tsconfig reference guard; WHY: if root package.json had a workspaces entry for deleted package, npm install would fail or produce warnings post-deletion",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
