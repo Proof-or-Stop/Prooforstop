@@ -15,6 +15,25 @@
       "files": [
         "docs/requirements/decisions/decision-doc-promotion-execution-plan.md"
       ]
+    },
+    {
+      "id": "B-59a6:F-002",
+      "desc": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:101,112 says degraded fallback has two/both eligibility paths even though packages/main/src/core/review-escalation.ts:16-20 and packages/main/src/cli-engine.ts:245-249 implement three eligibility values. The same doc at 282,806,871 describes an allowed fallback reason as the enum, but packages/main/src/handlers/review-escalation.ts:56-66 validates enum eligibility plus a free-form reason and evidenceRefs/approvalRef. WHY: operator docs do not match the implemented eligibility contract and can tell operators to supply the wrong degraded 3x1 evidence shape.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-15T10:24:15.053Z",
+      "reviewRound": "2026-06-15T03:33:10.540Z",
+      "reviewRunId": "B-59a6:RR-005",
+      "_hash": "cbcdc60c78d31e516cfbbe024bec4a2c02286a8f22c0302dbb22b247072141d2",
+      "files": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
