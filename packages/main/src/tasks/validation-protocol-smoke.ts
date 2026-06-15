@@ -1098,8 +1098,8 @@ try {
 
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'KOALA.md'), '<!-- koala:start -->\n# Local Koala Notes\ncustom text\n<!-- koala:end -->\n');
-    const before = readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8');
+    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- koala:start -->\n# Local Lattice Notes\ncustom text\n<!-- koala:end -->\n');
+    const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
       scanRoot: staleLocalAssetRoot,
@@ -1119,16 +1119,16 @@ try {
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
     assert.match(staleLocalCheckText, /Lattice managed asset check: DRIFT/);
-    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT KOALA\.md|STALE_LOCAL_EDIT[\s\S]*KOALA\.md/);
+    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT LATTICE\.md|STALE_LOCAL_EDIT[\s\S]*LATTICE\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
     assert.equal(item?.status, 'STALE_LOCAL_EDIT');
     assert.equal(item?.applied, undefined);
-    assert.equal(readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
-    assert.equal(result.applied.includes('KOALA.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
+    assert.equal(readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
+    assert.equal(result.applied.includes('LATTICE.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
     assert.equal(managedAssetNextAction(result), 'review unsafe managed assets manually');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /STALE_LOCAL_EDIT KOALA\.md/);
+    assert.match(rendered, /STALE_LOCAL_EDIT LATTICE\.md/);
     assert.match(rendered, /action: review local edits before overwriting|action: review local doc edits before replacing the section/);
   } finally {
     rmSync(staleLocalAssetRoot, { recursive: true, force: true });
@@ -1136,14 +1136,14 @@ try {
 
   const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-case-mismatch-'));
   try {
-    writeFileSync(join(caseMismatchAssetRoot, 'koala.md'), 'case mismatch\n');
+    writeFileSync(join(caseMismatchAssetRoot, 'lattice.md'), 'case mismatch\n');
     const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
     assert.equal(item?.status, 'CASE_MISMATCH');
     assert.equal(item?.applied, undefined);
-    assert.equal(result.applied.includes('KOALA.md'), false, 'CASE_MISMATCH must not be counted as applied');
+    assert.equal(result.applied.includes('LATTICE.md'), false, 'CASE_MISMATCH must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /CASE_MISMATCH KOALA\.md/);
+    assert.match(rendered, /CASE_MISMATCH LATTICE\.md/);
     assert.match(rendered, /action: rename the path with exact casing/);
   } finally {
     rmSync(caseMismatchAssetRoot, { recursive: true, force: true });
