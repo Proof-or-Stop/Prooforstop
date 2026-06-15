@@ -60,13 +60,15 @@
         "modify": [
           "packages/main/templates/agents/*.md",
           ".claude/agents/*.md",
+          ".Codex/agents/*.md",
           "packages/main/src/core/prompt-registry.ts",
           "packages/main/src/core/managed-assets.ts"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/prompt-token-cost-smoke.ts",
-          "packages/main/src/tasks/prompt-registry-smoke.ts"
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          ".Codex/agents/*.md"
         ]
       },
       "verificationIntent": {
