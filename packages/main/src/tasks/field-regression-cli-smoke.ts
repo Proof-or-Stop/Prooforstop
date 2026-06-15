@@ -1891,7 +1891,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
 
     const first = await runKoalaRaw(root, 'session_brief');
     assert.equal(first.code, 0);
-    assert.match(first.stderr, /koala stale state warnings/);
+    assert.match(first.stderr, /Lattice stale state warnings/);
     const logPath = getRuntimeActivityLogPath(root);
     const lines = readFileSync(logPath, 'utf-8').trim().split('\n');
     const last = JSON.parse(lines[lines.length - 1]);
@@ -1903,7 +1903,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
     writeFileSync(logPath, `${lines.join('\n')}\n`);
     const second = await runKoalaRaw(root, 'session_brief');
     assert.equal(second.code, 0);
-    assert.doesNotMatch(second.stderr, /koala stale state warnings/);
+    assert.doesNotMatch(second.stderr, /Lattice stale state warnings/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
