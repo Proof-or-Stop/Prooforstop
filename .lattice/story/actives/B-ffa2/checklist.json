@@ -50,9 +50,9 @@
           "command": "rg -n 'Active vs Legacy Boundary|Explicit Non-Goals|KOALA_\\*|\\.koala|hash salts|signed artifact' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
           "result": "pass",
           "note": "Execution plan explicitly separates active role cleanup from legacy runtime/archive compatibility, .koala paths, KOALA_* envs, and signed salts.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "rg -n 'not a global removal|documented exception|legacy/archive/signed-artifact exception|Do not rewrite archive docs' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
           "result": "pass",
           "note": "Execution plan says the story is not a blind removal of every Koala token and documents permitted historical/runtime/signed-artifact exceptions.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-001:happy:0",
@@ -72,9 +72,9 @@
           "command": "rg -n 'koala-implementer|lattice-implementer|koala-review-quality|lattice-review-quality|koala-evaluator|lattice-evaluator' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
           "result": "pass",
           "note": "Execution plan contains the canonical old-to-new role map for implementer, reviewer, and evaluator IDs.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         }
       ]
     },
@@ -142,9 +142,9 @@
           "command": "find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg koala-",
           "result": "pass",
           "note": "Command exited 1 with no output, so active agent filenames no longer use koala-* in the template or mirrored host asset directories.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,9 +152,9 @@
           "command": "find packages/main/templates/agents .claude/agents .Codex/agents -maxdepth 1 -type f | rg \"/(product-reviewer|implementation-reviewer|test-intent|test-case-reviewer)\\.md$\"",
           "result": "pass",
           "note": "All 12 unrelated agent asset filenames remain present across packages/main/templates/agents, .claude/agents, and .Codex/agents.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -162,9 +162,9 @@
           "command": "rg \"\\bkoala-(implementer|review|evaluator)\" packages/main/templates/agents .claude/agents .Codex/agents",
           "result": "pass",
           "note": "Command exited 1 with no output, so active koala implementer/review/evaluator role IDs are absent from active agent prompt directories.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         }
       ]
     },
@@ -232,9 +232,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs && node packages/main/dist/cli.js help | rg 'lattice-(implementer|review|evaluator)'",
           "result": "pass",
           "note": "Process fact contract passed and local CLI help exposes canonical lattice role lanes without koala role guidance.",
-          "headHash": "22dba5022f9542895c8d1466e593d671b363d829",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T17:08:13.194Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -243,9 +243,9 @@
           "command": "rg focused scan with execution-plan and signed-salt exceptions",
           "result": "pass",
           "note": "Focused scan shows active surfaces are clean; remaining koala-review matches are signed artifact salts or the execution-plan old-to-new map documented as exceptions.",
-          "headHash": "22dba5022f9542895c8d1466e593d671b363d829",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T17:08:13.234Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -253,9 +253,9 @@
           "command": "node bin/lattice.js dispatch with agentType=koala-implementer",
           "result": "pass",
           "note": "Legacy koala role dispatch fails fast with a legacy-role rejection, so stale koala active role usage is not accepted as canonical evidence.",
-          "headHash": "22dba5022f9542895c8d1466e593d671b363d829",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T17:08:13.273Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         }
       ]
     },
@@ -316,9 +316,9 @@
           "command": "rg -n --hidden --glob '!docs/story/**' --glob '!tests/fixtures/**' --glob '!.omx/**' --glob '!.git/**' --glob '!.worktrees/**' --glob '!packages/main/dist/**' --glob '!packages/main/node_modules/**' --glob '!docs/koala/**' --glob '!docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md' '\\bkoala-(implementer|review|evaluator)|koala_metadata|koala-verifier|Koala Smoke|koala-owned|koala-metadata' CLAUDE.md README.md docs/requirements docs/audits packages/main/src/tasks packages/main/templates .claude .Codex",
           "result": "pass",
           "note": "Command exited 1 with no output, so active docs, tests, templates, and mirrored host assets no longer teach old koala role IDs or active Koala-branded verifier/metadata vocabulary.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -326,9 +326,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Flow stability and validation protocol smokes passed after preserving archive/signed-artifact boundaries while moving active surfaces to Lattice naming.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -336,9 +336,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed after docs/tests/runtime vocabulary updates, proving active references compile with lattice role IDs, lattice_metadata_changes, and lattice-verifier provider names.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         }
       ]
     },
@@ -391,9 +391,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs && node bin/lattice.js verify_codex",
           "result": "pass",
           "note": "Build, process/runtime fact contracts, and Codex adapter verification passed; verify_codex reported 8/8 checks passing after host asset rename.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -401,9 +401,9 @@
           "command": "rg focused active-surface scan plus signed-salt review",
           "result": "pass",
           "note": "Targeted active scan found no active koala role IDs, koala_metadata, koala-verifier, Koala Smoke, koala-owned, or koala-metadata in docs/templates/tasks/verifier/help surfaces. Remaining focused hits are old signed artifact salts and this execution plan old-to-new map, both documented exceptions.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -411,9 +411,9 @@
           "command": "node packages/main/dist/cli.js help | rg 'koala-(implementer|review|evaluator)|koala-verifier|koala_metadata' && node bin/lattice.js validate --channel --story=B-ffa2",
           "result": "pass",
           "note": "Help scan exited 1 with no output for old role/verifier/metadata guidance, and channel validation passed with all CHK covered by structured dispatch/subagent_result evidence.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
-          "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "headHash": "d555af1329fc0be83e3ecbff7b80789e104789b0",
+          "materialHash": "de2fe5d49683b7d7abd761f0172d304e1b07a2ae1a6c68264cbc63b28f96b6b9",
+          "timestamp": "2026-06-15T17:09:19.831Z"
         }
       ]
     }
