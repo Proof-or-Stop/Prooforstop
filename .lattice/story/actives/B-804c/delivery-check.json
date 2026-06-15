@@ -1,0 +1,59 @@
+{
+  "storyId": "B-804c",
+  "checkedAt": "2026-06-15T23:03:42.506Z",
+  "reviewRound": "2026-06-15T22:59:07.976Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist.json#CHK-001.userSees",
+      "promise": "When worktree bootstrap fails, story_advance --phase=INIT_CHECK reports failure and the story stays at its prior phase (story_get shows INIT, not INIT_CHECK) instead of claiming advancement",
+      "verifiedBy": "diff/grep + smoke run",
+      "evidence": "cli-engine.ts INIT_CHECK block (B-804c CHK-001): guard runs before dev_start, bootstrap throws -> re-thrown with INIT_CHECK aborted message, phase write deferred until after dev_start succeeds. assertFailedBootstrapLeavesPhaseAtInit() in smoke asserts exit non-zero + phase===INIT + no worktree on disk. Smoke exits 0 (machine-verified)."
+    },
+    {
+      "docPath": "checklist.json#CHK-002.userSees",
+      "promise": "For a story stuck in INIT_CHECK with no worktree, lattice dev_start {storyId} recreates the worktree and prints its path (Path: line), instead of an unrecoverable error",
+      "verifiedBy": "diff/grep + smoke run",
+      "evidence": "dev_start registered in MAIN_TOOLS (cli-engine.ts), command-policy.ts allowedPhases=[INIT,INIT_CHECK,PLAN,DEV] storyScopedMutating, config.ts DEFAULT_PHASE_TOOLS INIT_CHECK+PLAN entries, process-fact-levels.ts L1 entry. assertDevStartRecoversStuckInitCheckStory() seeds a stuck INIT_CHECK story with no worktree, runs dev_start, asserts exit 0 + Path: line + existsSync true + idempotent second run. Smoke exits 0."
+    },
+    {
+      "docPath": "checklist.json#CHK-003.userSees",
+      "promise": "lattice validate runs the new init-check-atomicity-smoke tests green, proving bootstrap-failure leaves phase unchanged and the recovery path re-bootstraps a stuck story",
+      "verifiedBy": "diff/grep + smoke run",
+      "evidence": "packages/main/src/tasks/init-check-atomicity-smoke.ts created (4 assertion functions). Registered as npm test:init-check-atomicity-smoke in packages/main/package.json diff. Built from source and executed: node packages/main/dist/tasks/init-check-atomicity-smoke.js exits 0 with output: init-check atomicity smoke passed."
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts#INIT_CHECK-block",
+      "promise": "Bootstrap failure throws and leaves the story at its prior phase — Option A atomic ordering: guard pre-check, then dev_start (bootstrap), then story_advance (phase write). dev_start throw is re-thrown so the command exits non-zero.",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli-engine.ts diff: removed old story_advance-before-dev_start ordering. New flow: (1) getGuardFailureReason pre-check, (2) handlers.dev_start (throw re-thrown), (3) handlers.story_advance. On bootstrap throw story_advance is never called. alreadyInitCheck path skips story_advance for INIT_CHECK retry (no double-advance). Both paths verified by smoke assertFailedBootstrapLeavesPhaseAtInit and assertCleanInitCheckAdvanceSucceeds."
+    },
+    {
+      "docPath": "packages/main/src/handlers/worktree.ts#allowedPhases",
+      "promise": "dev_start accepts INIT phase so the atomic flow can bootstrap while the story is still at INIT; scope-anti-expansion freeze gate also fires for INIT so unfrozen stories are refused",
+      "verifiedBy": "diff/grep",
+      "evidence": "worktree.ts diff: allowedPhases extended from [INIT_CHECK, PLAN, DEV] to [INIT, INIT_CHECK, PLAN, DEV]. Freeze gate condition extended from story.phase===INIT_CHECK to (story.phase===INIT_CHECK || story.phase===INIT). Exercised by assertDevStartRefusedInWrongPhases (unfrozen INIT rejected) and assertCleanInitCheckAdvanceSucceeds (frozen INIT bootstraps cleanly) in smoke."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Built: npm --prefix packages/main run build (exit 0, tsc clean). Ran: node packages/main/dist/tasks/init-check-atomicity-smoke.js. assertFailedBootstrapLeavesPhaseAtInit: unfrozen INIT story, story_advance INIT_CHECK exits non-zero, output matches INIT_CHECK aborted/scope/freeze, does NOT match advanced to INIT_CHECK, story_get detail.index.phase===INIT (no partial advance), .worktrees/B-atomic absent. assertCleanInitCheckAdvanceSucceeds: frozen + init-check-repaired INIT story, story_advance INIT_CHECK exits 0, detail.index.phase===INIT_CHECK, worktree exists, story.worktree.path recorded. Final output: init-check atomicity smoke passed. Exit: 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Built: npm --prefix packages/main run build (exit 0). Ran: node packages/main/dist/tasks/init-check-atomicity-smoke.js. assertDevStartRecoversStuckInitCheckStory: B-stuck at INIT_CHECK with no worktree, dev_start exits 0, stdout matches Path:, existsSync(.worktrees/B-stuck)===true. Second dev_start: exit 0, stdout matches already exists|Path:, worktree still present (idempotent). assertDevStartRefusedInWrongPhases: DONE refused (non-zero, phase gate message), REVIEW refused (non-zero), unfrozen INIT refused (non-zero, matches scope/freeze/anti-expansion), no worktree created for unfrozen. Final output: init-check atomicity smoke passed. Exit: 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Built packages/main with tsc (exit 0, clean). Ran: node packages/main/dist/tasks/init-check-atomicity-smoke.js. All 4 assertion functions executed: assertFailedBootstrapLeavesPhaseAtInit, assertDevStartRecoversStuckInitCheckStory, assertDevStartRefusedInWrongPhases, assertCleanInitCheckAdvanceSucceeds. Output: init-check atomicity smoke passed. Exit: 0. npm test:init-check-atomicity-smoke registered in packages/main/package.json (confirmed in diff)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises independently verified from the diff and source. The smoke (4 assertion functions) was built from source and executed to exit 0 on this machine, covering: no-partial-advance (failed bootstrap leaves phase at INIT), happy-path advance (frozen + signed story advances to INIT_CHECK with worktree recorded), dev_start recovery of a stuck INIT_CHECK story (worktree recreated + idempotent), and guard refusals (DONE/REVIEW/unfrozen-INIT all rejected). No unresolved TODOs found in changed non-test files."
+  },
+  "_hash": "30cd85a78d6499f74f337c9aa829c03fea21aa80a0033f493e975fcd5207e151"
+}
