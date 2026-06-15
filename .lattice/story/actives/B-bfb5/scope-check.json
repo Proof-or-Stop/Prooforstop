@@ -1,80 +1,129 @@
 {
   "storyId": "B-bfb5",
-  "checkedAt": "2026-06-15T10:43:21.932Z",
+  "checkedAt": "2026-06-15T10:46:14.534Z",
   "features": [
     {
-      "feature": "Executable token-cost audit baseline, prompt-size measurement, and prompt-cache billing caveat",
-      "covered_by": "CHK-001, CHK-004, CHK-005; understanding.outcome; plan CHK-001/CHK-004/CHK-005",
+      "feature": "Audit document remains the implementation source for measured token-cost work",
+      "covered_by": "CHK-001 relatedDocs/files.modify docs/audits/lattice-token-cost-and-takeover-audit.md; CHK-005 documentation/summary verification",
       "status": "covered",
-      "excluded_by": null,
-      "source": "docs/audits/lattice-token-cost-and-takeover-audit.md §2.4, §3; checklist"
+      "excluded_by": "",
+      "source": "docs/audits/lattice-token-cost-and-takeover-audit.md"
     },
     {
-      "feature": "Package and Claude project agent template slimming through prompt registry / managed-assets while preserving load-bearing prompt guidance",
-      "covered_by": "CHK-002 and CHK-004; plan CHK-002; touchpoints packages/main/templates/agents/*.md, .claude/agents/*.md, prompt-registry.ts, managed-assets.ts",
+      "feature": "Package agent templates are in prompt-slimming scope",
+      "covered_by": "CHK-002 files.modify packages/main/templates/agents/*.md; CHK-004 prompt-safety/token-reduction smokes",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-002/CHK-004; managed-assets.ts:681-751; prompt-registry.ts:1-130"
+      "excluded_by": "",
+      "source": "checklist CHK-002/CHK-004"
     },
     {
-      "feature": "Opt-in slim story_get/checklist_get output with unchanged default behavior",
-      "covered_by": "CHK-003 and CHK-004; plan CHK-003",
+      "feature": "Claude project prompt mirrors are in prompt-slimming scope",
+      "covered_by": "CHK-002 files.modify .claude/agents/*.md; plan CHK-002 updates .claude/agents mirrors consistently",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-003; handlers/story-query.ts:401-434; handlers/checklist.ts:228-232; cli-engine.ts:349,414"
+      "excluded_by": "",
+      "source": "checklist CHK-002 and plan CHK-002"
     },
     {
-      "feature": "Regression smokes for prompt-safety phrases, token reduction, managed asset/process-fact stability, and default-output compatibility",
-      "covered_by": "CHK-004 plus CHK-001/CHK-003 verificationIntent",
+      "feature": "Codex project prompt mirrors are in prompt-slimming scope",
+      "covered_by": "CHK-002 files.modify .Codex/agents/*.md; CHK-002 files.test .Codex/agents/*.md; plan Scope Boundaries tracks .Codex/agents mirrors; plan CHK-002 says Codex prompt mirrors must be present and verified",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-001/CHK-003/CHK-004; plan CHK-004"
+      "excluded_by": "",
+      "source": "checklist CHK-002 and plan Scope Boundaries/CHK-002"
     },
     {
-      "feature": "Audit document final measurement update and local Non-authority delivery summary",
-      "covered_by": "CHK-001 and CHK-005; plan scope boundaries and CHK-005",
+      "feature": "Prompt registry and managed asset generation path is in scope",
+      "covered_by": "CHK-002 files.modify packages/main/src/core/prompt-registry.ts and managed-assets.ts; CHK-004 prompt-registry-smoke coverage",
       "status": "covered",
-      "excluded_by": null,
-      "source": "checklist CHK-001/CHK-005; plan Scope Boundaries"
+      "excluded_by": "",
+      "source": "checklist CHK-002/CHK-004"
     },
     {
-      "feature": "Authority Server receipt semantics, receiptVerified/fullAuthorityDone/productionDone claims",
-      "covered_by": null,
+      "feature": "Opt-in slim story inspection output is in scope for story_get/checklist_get/CLI schema",
+      "covered_by": "CHK-003 files.modify packages/main/src/handlers/story-query.ts, packages/main/src/handlers/checklist.ts, packages/main/src/cli-engine.ts; CHK-003 compatibility and slim-output verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-003"
+    },
+    {
+      "feature": "Prompt-token-cost smoke is required for measurement and safety invariants",
+      "covered_by": "CHK-001 and CHK-004 files.create/test packages/main/src/tasks/prompt-token-cost-smoke.ts; plan CHK-004 dedicated prompt-token-cost-smoke task",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-001/CHK-004 and plan CHK-004"
+    },
+    {
+      "feature": "Existing prompt-registry smoke remains part of regression coverage",
+      "covered_by": "CHK-002 files.test and CHK-004 files.modify/test packages/main/src/tasks/prompt-registry-smoke.ts; plan CHK-004 existing prompt registry smoke remains valid",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-002/CHK-004 and plan CHK-004"
+    },
+    {
+      "feature": "Codex adapter verification is mandatory after prompt mirror changes",
+      "covered_by": "plan Scope Boundaries requires node bin/lattice.js verify_codex or canonical equivalent; plan CHK-004 says run Codex adapter verification after prompt mirror changes; CHK-004 files.test bin/lattice-codex.js and .Codex/agents/*.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan Scope Boundaries/CHK-004 and checklist CHK-004"
+    },
+    {
+      "feature": "Fresh-context fence, reviewer independence, signed artifact validation, and flow-fact/process-gate semantics are preserved while slimming",
+      "covered_by": "CHK-002 context plus edge/adversarial verificationIntent; CHK-004 adversarial verificationIntent; plan Scope Boundaries and CHK-002 safety phrase verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-002/CHK-004 and plan Scope Boundaries"
+    },
+    {
+      "feature": "Authority Server receipt semantics",
+      "covered_by": "",
       "status": "excluded",
-      "excluded_by": "Understanding constraints, decision principles, plan Scope Boundaries, and CHK-005 adversarial intent explicitly keep Authority Server receipt-backed claims out of scope",
-      "source": "understanding.constraints; decision.principles; plan Scope Boundaries; checklist CHK-005"
+      "excluded_by": "plan Scope Boundaries: must not change Authority Server receipt semantics; CHK-005 local Non-authority evidence only",
+      "source": "plan Scope Boundaries and CHK-005"
     },
     {
-      "feature": "Handoff authority boundaries, ownership transfer, merge authority, and DONE authority behavior",
-      "covered_by": null,
+      "feature": "Handoff authority boundaries",
+      "covered_by": "",
       "status": "excluded",
-      "excluded_by": "INIT reviewer issue was incorporated into PLAN/decision constraints; this story is local token-cost work only",
-      "source": "story_get.initCheck; understanding.constraints; decision.preMortem[3]; plan Scope Boundaries"
+      "excluded_by": "plan Scope Boundaries excludes handoff authority boundaries; CHK-005 adversarial rejects handoff semantic overclaim",
+      "source": "plan Scope Boundaries and checklist CHK-005"
     },
     {
-      "feature": "Reviewer/finding gate weakening or removal of fresh-context fence / process-fact semantics",
-      "covered_by": null,
+      "feature": "Ownership transfer",
+      "covered_by": "",
       "status": "excluded",
-      "excluded_by": "CHK-002 and CHK-004 require preserving fresh-context, review-run/finding/pass, signed artifact, and process-fact semantics; implementation must not weaken them",
-      "source": "checklist CHK-002/CHK-004; decision.preMortem[0]; plan Scope Boundaries"
+      "excluded_by": "plan Scope Boundaries excludes ownership transfer",
+      "source": "plan Scope Boundaries"
     },
     {
-      "feature": "Tracked Codex project prompt mirrors and mandatory Codex adapter verification when agent prompts change",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "AGENTS.md:123; .Codex/README.md:29,37; .Codex/lattice.json notes; managed-assets.ts:721-728; git ls-files .Codex/agents"
+      "feature": "Merge authority",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Scope Boundaries excludes merge authority",
+      "source": "plan Scope Boundaries"
+    },
+    {
+      "feature": "DONE authority, productionDone, receiptVerified, and fullAuthorityDone claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Scope Boundaries excludes DONE authority claims, productionDone, receiptVerified, and fullAuthorityDone; CHK-005 adversarial rejects those claims",
+      "source": "plan Scope Boundaries and checklist CHK-005"
+    },
+    {
+      "feature": "Reviewer/finding gate weakening",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Scope Boundaries excludes review_run_start, review_pass_set, finding_add changes; CHK-002 context says do not weaken reviewer independence or signed artifact validation",
+      "source": "plan Scope Boundaries and checklist CHK-002"
     }
   ],
   "summary": {
-    "total": 9,
-    "covered": 5,
-    "excluded": 3,
-    "gaps": 1,
+    "total": 16,
+    "covered": 10,
+    "excluded": 6,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "57e68220bc888c032c29d2829175c5ae6ec3d58fd9138803f95929c0a266a776",
+  "_hash": "347435786f3944d3f52ceee1323100af8a93a06b40e80b036d122d91f3151682",
   "openQuestions": []
 }

@@ -6,6 +6,8 @@ This story implements local Lattice CLI token-cost reduction only. It must not c
 
 The implementation must keep the fresh-context fence and flow-fact/process-gate semantics that prevent reviewer self-absolution and protect lifecycle evidence. The user-visible result must include measurable before/after prompt-size evidence and an explicit prompt-cache billing caveat.
 
+Tracked prompt surfaces include package prompt templates, `.claude/agents`, and `.Codex/agents` mirrors. Because `.Codex/agents` and Codex adapter assets are tracked, final verification must include Codex adapter verification (`node bin/lattice.js verify_codex` or the canonical equivalent available in this repo) in addition to prompt-size/safety smokes.
+
 ## CHK-001 — Validate the token-cost audit document as an executable implementation source
 
 Actions:
@@ -20,13 +22,14 @@ Verification:
 ## CHK-002 — Replace repeated full agent prompt snapshots with registry-generated load-bearing prompt slices
 
 Actions:
-- Use package prompt templates as the managed source; update generated project prompts consistently.
+- Use package prompt templates as the managed source; update `.claude/agents` and `.Codex/agents` mirrors consistently.
 - Replace repeated full guide snapshots with a compact load-bearing Lattice section that preserves fresh-context, lifecycle flow facts, review-run/finding/pass contract, dispatch evidence discipline, and Authority/handoff non-claim boundaries.
 - Prefer a mechanical generation/update helper or registry-backed invariant over manual prose divergence.
 
 Verification:
 - Prompt-size smoke must show affected prompt templates no longer contain 50KB+ repeated snapshots.
 - Prompt-safety checks must fail if required load-bearing phrases are absent.
+- Codex prompt mirrors must be present and verified; prompt changes are incomplete without Codex adapter evidence.
 
 ## CHK-003 — Add additive slim read output for high-frequency story inspection commands
 
@@ -44,11 +47,13 @@ Verification:
 Actions:
 - Add a dedicated `prompt-token-cost-smoke` task that verifies before/after size delta, required prompt-safety phrases, default output compatibility, slim output reduction, and non-Authority caveats.
 - Run existing prompt registry/managed asset/process-fact relevant smokes as needed.
+- Run Codex adapter verification after prompt mirror changes.
 
 Verification:
 - Build passes.
 - New smoke passes.
 - Existing prompt registry smoke remains valid.
+- Codex adapter verification passes.
 - Validate covers all verificationIntent entries.
 
 ## CHK-005 — Run full Lattice review and delivery closure without Authority overclaim
