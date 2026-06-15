@@ -361,6 +361,17 @@
           "headHash": "689cfe0fdc4c23b74c58eda5e03b3efbf0cf5eb1",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:32:01.816Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git status --porcelain | grep du.exe.stackdump|claude-session.mjs",
+          "result": "pass",
+          "note": "No untracked remnants — files fully removed from index and disk.",
+          "headHash": "ca0689b413323d4013dbcdb3b9509457ad1d38f5",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:02.477Z"
         }
       ]
     }
