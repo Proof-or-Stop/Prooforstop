@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-15T22:40:12.696Z",
       "reviewRunId": "B-854c:RR-007",
       "_hash": "b7ad91b6acd35135a1d0d781b9f4c0195906e8f7ad8a6965afe721146efd377f"
+    },
+    {
+      "id": "B-854c:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all must-priority verificationIntents across CHK-001..CHK-004 have valid passing verificationEvidence at HEAD 4ff012904. Smoke test story-metadata-protection-smoke.ts executed 10/10 checks green at current HEAD. CHK-001 must-intents covered by docs_check on decision.json (appropriate for decision artifacts); CHK-002/CHK-003/CHK-004 must-intents covered by integration_test on the smoke (confirmed passing). Only source-code-touching commits precede evidence; post-evidence commits are process metadata only. No coverage gaps found.",
+      "createdAt": "2026-06-15T22:42:47.710Z",
+      "reviewRound": "2026-06-15T22:40:12.696Z",
+      "reviewRunId": "B-854c:RR-008",
+      "_hash": "83544583f47d21c5e6b70d1b799f4d35cdb32996f6a76bde05ee16b0734539ed"
     }
   ]
 }
