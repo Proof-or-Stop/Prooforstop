@@ -4,7 +4,7 @@
   "title": "Implement documentation audit automatic 3x2/3x1 runtime gate",
   "description": "Implement the runtime behavior described by the 3x2 review escalation execution plan: documentation and decision-doc audit changes should follow the ordinary REVIEW default, escalate to full 3x2 only when the first REVIEW round records at least two countable problems, and preserve explicit degraded 3x1 lower-assurance fallback semantics. Remove the direct decision-doc file-change always-on 3x2 trigger from the target DONE policy while keeping diagnostics honest.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -115,6 +115,14 @@
       "branch": "story/B-59a6",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:50:18.925Z",
+      "branch": "story/B-59a6",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -122,5 +130,5 @@
     "branch": "story/B-59a6",
     "createdAt": "2026-06-15T03:06:10.496Z"
   },
-  "currentReviewRound": "2026-06-15T10:42:06.356Z"
+  "currentReviewRound": "2026-06-15T10:50:18.925Z"
 }
