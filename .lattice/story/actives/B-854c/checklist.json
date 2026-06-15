@@ -152,6 +152,17 @@
           "headHash": "aadcd0ed7b9f6cf72b0955c8d58a889c6253ae54",
           "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
           "timestamp": "2026-06-15T22:31:17.243Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: safe project (negation allowlist) -> doctor reports OK, no false-positive data-loss warning",
+          "headHash": "ea7803d3b7557a23c4ab73b469fce47f80d31dff",
+          "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
+          "timestamp": "2026-06-15T22:31:17.610Z"
         }
       ]
     },
