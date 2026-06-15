@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-2856:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/deletion residue check complete. Change is purely additive: new resolveGitCwd helper exported from story-signed-workspace-resolution.ts, imported in cluster-sync.ts, verifier.ts, review-preflight.ts, and the smoke-test task. No existing symbol or concept name was removed — only function signatures gained optional cwd/gitCwd parameters. The git() helper in worktree.ts already accepts optional cwd; resolveStoryGitRoot is a new private helper (no deletion). No orphaned references. No concept deletion/replacement residue. No doc-promise-undelivered issues found.",
+      "createdAt": "2026-06-15T22:08:42.273Z",
+      "reviewRound": "2026-06-15T22:06:59.723Z",
+      "reviewRunId": "B-2856:RR-001",
+      "_hash": "27fb9976a71a09ffddbea0cac1f521249af1c8b87bc0f7f34ac78bb6b1b3cfad"
+    }
+  ]
+}
