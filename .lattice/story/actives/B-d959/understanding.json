@@ -1,0 +1,22 @@
+{
+  "task": "Document degraded one-host fallback for the 3x2 review escalation plan.",
+  "outcome": "User sees: “The 3x2 review plan now keeps 3x2 as the default, but explicitly allows a marked 3-round x 1-host degraded fallback when no second host is usable because of credits, auth, runtime, or rate limits.”",
+  "facts": [
+    "B-1550 added the authoritative execution plan at docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md.",
+    "The user wants development not to be blocked when a second host cannot run because of credit or availability limits.",
+    "A one-host fallback improves continuity but does not prove independent-host assurance.",
+    "This story is documentation-only and must not implement runtime gate code."
+  ],
+  "constraints": [
+    "Do not run omx or use .omx.",
+    "Keep all added open-source-facing content in English.",
+    "Do not pretend 3x1 is equivalent to 3x2.",
+    "Record degraded fallback as an explicit assurance level with reason codes and negative controls.",
+    "Keep the scope to the decision doc and Lattice metadata."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-15T02:02:56.824Z"
+}
