@@ -13,7 +13,53 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees: The execution plan now says 3x2 remains the default, but when a second host is unavailable or out of credits, Lattice may use a clearly marked 3-round x 1-host degraded fallback with reason codes and stronger evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "degraded-default-preserved",
+            "desc": "The document preserves 3x2 as the default and introduces 3x1 only as an explicitly degraded fallback for unavailable second hosts.",
+            "type": "docs"
+          },
+          {
+            "id": "fallback-reasons",
+            "desc": "The document lists acceptable second-host unavailable reasons such as credit exhausted, auth missing, runtime unavailable, provider outage, and rate limited.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "degraded-not-equivalent",
+            "desc": "The document states degraded 3x1 is not equivalent to two-host independence and must be shown as a lower assurance level.",
+            "type": "docs"
+          },
+          {
+            "id": "high-risk-limits",
+            "desc": "The document defines limits or extra approval expectations for high-risk or decision-doc changes using degraded review.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-silent-downgrade",
+            "desc": "The document requires negative controls so the gate cannot silently downgrade or treat fabricated host unavailability as valid.",
+            "type": "docs"
+          },
+          {
+            "id": "no-authority-overclaim",
+            "desc": "The document keeps degraded local review separate from Authority receipt completion and full 3x2 claims.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
