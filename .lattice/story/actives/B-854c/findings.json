@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-854c:F-001",
+      "desc": "dead code: StoryMetadataProtectionScan interface is exported from doctor.ts (line 743) but has no external consumers — no file outside doctor.ts imports it. Either remove the export or add a comment explaining why it is pre-exported for future use.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-15T22:36:04.942Z",
+      "reviewRound": "2026-06-15T22:31:56.255Z",
+      "reviewRunId": "B-854c:RR-002",
+      "_hash": "0cc067be09eb0767a62725fd93eacb55115ea0e122e0425ba08f289772f058c2",
+      "files": [
+        "packages/main/src/handlers/doctor.ts"
+      ]
+    }
+  ]
+}
