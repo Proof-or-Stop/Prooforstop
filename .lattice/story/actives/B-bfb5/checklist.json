@@ -168,9 +168,9 @@
       "relatedDocs": [
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T11:00:14.814Z",
-      "endTime": null,
+      "endTime": "2026-06-15T11:00:26.051Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-query.ts",
@@ -205,7 +205,39 @@
           }
         ]
       },
-      "userSees": "User sees story_get/checklist_get default output remain unchanged, and explicit slim output return smaller status-focused JSON."
+      "userSees": "User sees story_get/checklist_get default output remain unchanged, and explicit slim output return smaller status-focused JSON.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\"[\\\"story\\\",\\\"checklist\\\"]\" --json && node packages/main/dist/cli.js checklist_get --storyId=B-bfb5 --slim --fields=\"[\\\"counts\\\"]\" --json",
+          "result": "pass",
+          "note": "Explicit slim output returns compact status-focused JSON for story_get and checklist_get.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.151Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke deep-equals default handler output to seeded full checklist/story data, proving default output remains backward compatible unless slim/fields is requested.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.180Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js story_get --storyId=B-bfb5 --json | wc -c; node packages/main/dist/cli.js story_get --storyId=B-bfb5 --slim --fields=\"[\\\"story\\\",\\\"checklist\\\"]\" --json | wc -c",
+          "result": "pass",
+          "note": "Slim story_get retained phase/checklist counts/review-round status while reducing actual B-bfb5 output from about 25839 bytes to 463 bytes.",
+          "headHash": "6688dd4cf70c45eedbe8af49298d230b364d3a5f",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T11:00:26.211Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
