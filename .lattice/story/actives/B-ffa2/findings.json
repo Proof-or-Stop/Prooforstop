@@ -5,7 +5,7 @@
       "desc": "Verification coverage is not fresh at the current REVIEW head: session_brief reports materialHash drift after 5dc6684 with 7 stale verification intent entries. The active Koala role surface scans are clean, but TEST is likely to reject stale evidence unless verification_evidence_refresh_stale and validation are rerun against the current material hash.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-15T16:24:14.730Z",
@@ -14,7 +14,9 @@
       "_hash": "98c15471e70deecbdeae83147e2b513872c2cf3f9ca9734a97c0fe86a756b9f2",
       "files": [
         ".lattice/story/actives/B-ffa2/checklist.json"
-      ]
+      ],
+      "resolvedReason": "Resolved by refreshing evidence and rerunning node bin/lattice.js validate --story=B-ffa2 --json at REVIEW head dcf1c2d/3c83020; validation passed with allPass=true and verification coverage 15/15 covered, 0 required missing.",
+      "resolvedAt": "2026-06-15T16:58:28.313Z"
     },
     {
       "id": "B-ffa2:F-002",
