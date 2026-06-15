@@ -18,6 +18,23 @@
         ".Codex/agents/koala-review-story-init.md",
         ".claude/agents/koala-review-test-coverage.md"
       ]
+    },
+    {
+      "id": "B-6351:F-002",
+      "desc": "CHK-002:edge:1 has no verificationEvidence entry. The intent asks to prove existing user-owned legacy files are not overwritten; scripts/verify-entrypoints.mjs and thin-init-assets-smoke exercise that behavior, and I reran both successfully, but no evidence is bound to CHK-002:edge:1, so TEST coverage has no exact intentRef for this accepted edge case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-15T02:58:11.391Z",
+      "reviewRound": "2026-06-15T02:55:28.853Z",
+      "reviewRunId": "B-6351:RR-001",
+      "_hash": "05114d2af751cff43a5c09eb24db1d501d2953856b2575df843c486f4267f37d",
+      "files": [
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/src/tasks/thin-init-assets-smoke.ts"
+      ]
     }
   ]
 }
