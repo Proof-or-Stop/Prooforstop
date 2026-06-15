@@ -242,8 +242,8 @@
         "README.md",
         "CLAUDE.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-15T15:56:30.895Z",
       "endTime": null,
       "userSees": "Active documentation and tests teach Lattice role IDs; any remaining Koala references are explicitly historical, runtime-compatibility, or archive material rather than current role guidance.",
       "files": {
@@ -354,6 +354,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start runtime role dispatch/schema/gate naming migration."
+    },
+    {
+      "timestamp": "2026-06-15T15:56:30.895Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start active docs and smoke/test role naming update."
     }
   ]
 }
