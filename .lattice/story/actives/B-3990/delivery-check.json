@@ -1,0 +1,24 @@
+{
+  "storyId": "B-3990",
+  "checkedAt": "2026-06-15T23:43:18.655Z",
+  "reviewRound": "2026-06-15T23:36:08.742Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "BEFORE: bare validate --concept (no --story) on wrapper-root printed: warning: Not a git repository / [concept] warn: git diff failed. AFTER: [concept] pass: 1 symbol(s) deleted, no residual references. Not a git repository marker: GONE. Smoke test scenarios: (1) wrapper-root gitCwd resolves to configured gitRoot subdir (not non-git metadataRoot); (2) plain-repo gitCwd resolves to projectRoot (byte-identical); (3) null gitRootAbs falls back to projectRoot verbatim (no crash). All 3 asserted via npm run test:bare-gate-gitroot-cwd."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke file packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts exercises the resolver at function-level: test asserts wrapper-root gitCwd == gitRoot AND != non-git metadataRoot (negative check catches the old bug); plain repo gitCwd == projectRoot; null gitRootAbs -> projectRoot fallback. All 3 scenarios pass via npm run test:bare-gate-gitroot-cwd. Note: F-001 (smoke not in validate battery) dismissed as out-of-scope pattern-wide infra gap shared with B-198c/B-2856."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both checklist items delivered and tested. CHK-001 fix is a one-line cwd-only change in verifier.ts (no gate semantics altered, story-signed-workspace-resolution.ts not modified). CHK-002 adds a 3-scenario smoke covering wrapper-root (happy), plain-repo (edge), and null-gitRootAbs (adversarial/fallback). Real machine transcript in transcript-diff.md confirms the bug symptom (warning: Not a git repository) is eliminated AFTER the fix. Dismissed F-001 is correctly scoped out as a cross-story infra gap and is honest part of the record."
+  },
+  "_hash": "a6bb848c5864dda6d353086c445d2150557617b30ec79cd73ed7a2daad50af2c"
+}

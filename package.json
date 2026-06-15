@@ -15,6 +15,7 @@
     "test": "npm run test:e2e",
     "test:english-surface": "node packages/main/dist/tasks/english-open-source-surface-smoke.js",
     "test:gitroot-cwd-routing": "node packages/main/dist/tasks/gitroot-cwd-routing-smoke.js",
+    "test:bare-gate-gitroot-cwd": "node packages/main/dist/tasks/bare-gate-gitroot-cwd-smoke.js",
     "test:desktop-package": "node scripts/verify-desktop-package.mjs",
     "test:codex-assets": "node scripts/verify-codex-assets.mjs",
     "test:entrypoints": "node scripts/verify-entrypoints.mjs",

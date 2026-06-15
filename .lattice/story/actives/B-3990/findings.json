@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-3990:F-001",
+      "desc": "CHK-001/CHK-002 evidence command npm run test:bare-gate-gitroot-cwd is not wired into any lattice validate aggregator path (same gap as B-2856 gitroot-cwd-routing). The smoke runs correctly when invoked directly and all 6 must intents have passing logic_test evidence. However, the test is invisible to the default validate battery (test:e2e does not include it), meaning a future refactor of verifier.ts or evaluateStoryDirConfigInsideGitRoot could silently break the fix without lattice validate catching it. Recommend adding the smoke to a validate-run aggregator (or at minimum documenting the manual run requirement in a waiver note on the evidence records) so regression is caught automatically. This is a systemic pattern across wrapper-root smokes in this codebase; this finding is scoped to B-3990 but a broader wiring story would close the pattern-wide gap.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T23:38:06.969Z",
+      "reviewRound": "2026-06-15T23:36:08.742Z",
+      "reviewRunId": "B-3990:RR-003",
+      "_hash": "6cb3621e5e5537bf05b2c2f7f402489c5089c3a3d6cea3a0d05fc173a2aa8a76",
+      "files": [
+        "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+        "packages/main/package.json"
+      ],
+      "dismissReason": "Out-of-scope systemic gap, not a B-3990 defect. The smoke is real and passing (with a negative-check that catches the old projectRoot behavior); all 6 must intents have passing logic_test evidence. Wiring smokes into the validate battery requires editing the ROOT package.json test script (test=npm run test:e2e only) — outside B-3990 execution boundary (packages/main only) and a pattern-wide concern: every wrapper-root smoke (B-198c storydir suite, B-2856 gitroot-cwd-routing, plus authority/evidence smokes) shares this exact gap, and both B-198c and B-2856 reached DONE with it. Closing it belongs in a dedicated infra story that aggregates all such smokes into the validate run; tracked as follow-up, not forced into this narrow cwd fix.",
+      "dismissedAt": "2026-06-15T23:41:27.141Z"
+    }
+  ]
+}
