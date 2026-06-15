@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Align decision-doc audits with automatic escalation policy",
+      "context": "Replace the always-on decision-doc 3x2 rule in the execution plan with a unified audit policy: documentation/decision-doc changes start with ordinary REVIEW, escalate to full 3x2 only when first REVIEW round has at least two countable problems, and can use explicit degraded 3x1 under the same fallback rules.",
+      "relatedDocs": [
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "packages/main/src/core/decision-doc-quorum.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

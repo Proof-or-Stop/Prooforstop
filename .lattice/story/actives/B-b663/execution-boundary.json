@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b663",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "grep *",
+    "lattice autopilot_review_submit *",
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice decision_doc_quorum_check *",
+    "lattice session_brief",
+    "lattice story_advance *",
+    "lattice story_review *",
+    "lattice understanding_*",
+    "lattice validate *",
+    "lattice verification_evidence_*",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "claude-cli-readonly",
+    "exec_command",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-b663",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "packages/main"
+  ],
+  "excludedCommands": [
+    "omx",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "packages/main/src"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "Documentation-only policy alignment: decision-doc/documentation audits should use the same automatic 3x2/3x1 escalation policy as ordinary development; runtime implementation is out of scope.",
+  "createdAt": "2026-06-15T02:43:55.382Z",
+  "updatedAt": "2026-06-15T02:43:55.382Z",
+  "_hash": "f31f03df371271b8c3e6d58145f9fee04ab59009a1b7e082f84d682177a0f416"
+}

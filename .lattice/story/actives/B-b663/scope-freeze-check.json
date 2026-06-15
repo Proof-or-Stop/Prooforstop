@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-b663",
+  "checkedAt": "2026-06-15T02:44:01.442Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "ff0f346b8822442591e6be0640349468ae746aa4dcd20b785a50ff7082e8ea3f",
+  "executionBoundaryHash": "f31f03df371271b8c3e6d58145f9fee04ab59009a1b7e082f84d682177a0f416",
+  "freshnessHash": "51abef31b0b9626adefdfe0546c27ed4c54525fbbcdecd20b96fe6a4b3908651",
+  "effectiveExcludedKeywords": [
+    ".omx/**",
+    "Authority server behavior changes",
+    "packages/main/src/** runtime implementation",
+    "unrelated documentation rewrites"
+  ],
+  "keywordHits": [
+    {
+      "keyword": ".omx/**",
+      "source": "scopeBoundary.excluded",
+      "text": ".omx/**",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority server behavior changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority server behavior changes",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/** runtime implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/** runtime implementation",
+      "excluded": true
+    },
+    {
+      "keyword": "unrelated documentation rewrites",
+      "source": "scopeBoundary.excluded",
+      "text": "unrelated documentation rewrites",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "0c421b97ec1fb13b5e8d32b160309e1751b243272f5b1b862bfa02196e74c940"
+}
