@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f0a6",
+  "checkedAt": "2026-06-15T02:53:12.184Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "c365b18066aa385251767632fd2e0069defe2e74f14b989f5abd979f1a4698b5",
+  "executionBoundaryHash": "5308e83ca93eb1065c113b30e2490c294dc50f19243d0986bfb14be78e7a5c37",
+  "freshnessHash": "471c2ceabe2148d2dbd249ad36e3011ceeb0d5981028d0e51583864fe640a27f",
+  "effectiveExcludedKeywords": [
+    "Do not change docs/story/** or tests/fixtures/** directly",
+    "Do not modify packages/main runtime behavior",
+    "Do not modify packages/utils, packages/lab, packages/cli-guess-number, python demos, or active story worktrees",
+    "Do not perform broad package/workspace refactors",
+    "Do not remove unrelated game wording that is generic example text rather than packages/game package references"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change docs/story/** or tests/fixtures/** directly",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change docs/story/** or tests/fixtures/** directly",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify packages/main runtime behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify packages/main runtime behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify packages/utils, packages/lab, packages/cli-guess-number, python demos, or active story worktrees",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify packages/utils, packages/lab, packages/cli-guess-number, python demos, or active story worktrees",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not perform broad package/workspace refactors",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not perform broad package/workspace refactors",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not remove unrelated game wording that is generic example text rather than packages/game package references",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not remove unrelated game wording that is generic example text rather than packages/game package references",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "41c7acb19544cee22a825eb77115efe3a6435885c701bca6e052586271ea0cd5"
+}

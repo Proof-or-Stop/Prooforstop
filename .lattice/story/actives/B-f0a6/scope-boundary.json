@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f0a6",
+  "mode": "maintenance",
+  "allowed": [
+    "Delete packages/game/** legacy demo package files",
+    "Run repository scans for packages/game and @lattice/game residual references",
+    "Run validation sufficient to show current Lattice CLI product path is unaffected",
+    "Update docs/requirements/decisions/test-fixture-spec.md examples that reference packages/game"
+  ],
+  "excluded": [
+    "Do not change docs/story/** or tests/fixtures/** directly",
+    "Do not modify packages/main runtime behavior",
+    "Do not modify packages/utils, packages/lab, packages/cli-guess-number, python demos, or active story worktrees",
+    "Do not perform broad package/workspace refactors",
+    "Do not remove unrelated game wording that is generic example text rather than packages/game package references"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly said keeping packages/game has no value and is not the Lattice direction; read-only scan found it is a standalone demo with only test-fixture-spec.md references outside itself.",
+  "createdAt": "2026-06-15T02:52:40.747Z",
+  "updatedAt": "2026-06-15T02:52:40.747Z",
+  "_hash": "c365b18066aa385251767632fd2e0069defe2e74f14b989f5abd979f1a4698b5"
+}
