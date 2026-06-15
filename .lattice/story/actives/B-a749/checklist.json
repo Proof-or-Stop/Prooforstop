@@ -44,7 +44,30 @@
       "userSees": "When a fresh worktree lacks frontend node_modules and the change is backend-only, validate --lint prints '[lint] skipped: <frontend tsconfig> (out of scope, deps absent)' instead of '[lint] fail: tsc ... Cannot find module'.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "an out-of-scope tsconfig whose package lacks node_modules is reported skipped-with-warning (out of scope, deps absent) instead of hard fail on TS2307",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "an in-scope tsconfig with genuinely missing deps / real tsc error still surfaces as kind:fail (gate still bites)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "out-of-scope skip-with-warning only triggers when node_modules is actually absent AND package is out of change scope; an out-of-scope package WITH deps present is still checked",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
