@@ -226,55 +226,15 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-003:runtime-contract",
-          "kind": "logic_test",
-          "command": "node scripts/verify-process-fact-contract.mjs",
-          "result": "pass",
-          "note": "Process fact registry and reviewer-lane contract verified with lattice-* reviewer lanes.",
-          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
-          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
-          "timestamp": "2026-06-15T15:54:36.986Z"
-        },
-        {
-          "intentRef": "CHK-003:runtime-contract",
-          "kind": "logic_test",
-          "command": "node scripts/verify-runtime-fact-contract.mjs",
-          "result": "pass",
-          "note": "Runtime fact contract verified after rebuilding packages/main and packages/utils dist artifacts.",
-          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
-          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
-          "timestamp": "2026-06-15T15:54:37.055Z"
-        },
-        {
-          "intentRef": "CHK-003:cli-help",
-          "kind": "manual_transcript",
-          "command": "node packages/main/dist/cli.js help | rg koala role pattern",
-          "result": "pass",
-          "note": "No koala role matches from the freshly built local core CLI help.",
-          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
-          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
-          "timestamp": "2026-06-15T15:54:37.133Z"
-        },
-        {
-          "intentRef": "CHK-003:dispatch-compat-boundary",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice.js dispatch with agentType=koala-implementer",
-          "result": "pass",
-          "note": "Legacy koala role dispatch now fails fast with a legacy-role rejection instead of aliasing.",
-          "headHash": "a8f903c1c0c2f973a7e72f087e1a625662027c36",
-          "materialHash": "6a8a6c3f1ae1054fa1a0c2015ce4d10a3651fd148bfe1c264d25ae7cbb55b385",
-          "timestamp": "2026-06-15T15:54:37.216Z"
-        },
-        {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs && node packages/main/dist/cli.js help | rg 'lattice-(implementer|review|evaluator)'",
           "result": "pass",
           "note": "Process fact contract passed and local CLI help exposes canonical lattice role lanes without koala role guidance.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
+          "headHash": "22dba5022f9542895c8d1466e593d671b363d829",
           "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "timestamp": "2026-06-15T17:08:13.194Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -283,9 +243,9 @@
           "command": "rg focused scan with execution-plan and signed-salt exceptions",
           "result": "pass",
           "note": "Focused scan shows active surfaces are clean; remaining koala-review matches are signed artifact salts or the execution-plan old-to-new map documented as exceptions.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
+          "headHash": "22dba5022f9542895c8d1466e593d671b363d829",
           "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "timestamp": "2026-06-15T17:08:13.234Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -293,9 +253,9 @@
           "command": "node bin/lattice.js dispatch with agentType=koala-implementer",
           "result": "pass",
           "note": "Legacy koala role dispatch fails fast with a legacy-role rejection, so stale koala active role usage is not accepted as canonical evidence.",
-          "headHash": "c967454abfdb4b151aaa9b602aa881bb93385d7b",
+          "headHash": "22dba5022f9542895c8d1466e593d671b363d829",
           "materialHash": "3759248e606ca09865798ff167cab87489830ab55fd27ca5cd6e5004eab8170c",
-          "timestamp": "2026-06-15T16:56:03.696Z"
+          "timestamp": "2026-06-15T17:08:13.273Z"
         }
       ]
     },
