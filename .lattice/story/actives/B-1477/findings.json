@@ -33,6 +33,22 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
       ]
+    },
+    {
+      "id": "B-1477:F-003",
+      "desc": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:76 says provider-reported usage wins over estimates for the same completed call, and lines 223-225 require estimate records to stay separate from final provider-reported records, but the proposed JSONL shape at lines 90-145 only has a per-record recordId and provider.requestIdHash. There is no stable callAttemptId, parentRecordId, or supersedes link that exists across preflight estimate, blocked refusal, and postflight provider usage records. Because requestIdHash is unavailable before a provider call and absent for blocked refusals, ledger readers cannot mechanically identify the same call, so summaries can double count estimates or fail to replace an estimate with final provider usage. This breaks the plan’s own usage-source semantics and schema-freeze goal; define explicit attempt/correlation/link semantics before freezing the ledger record contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-15T14:31:07.191Z",
+      "reviewRound": "2026-06-15T14:27:41.310Z",
+      "reviewRunId": "B-1477:RR-007",
+      "_hash": "9322743c24d734a2ce1412f226d3e84bbbeb35cb3e003189aba9a309c2db8a25",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ]
     }
   ]
 }
