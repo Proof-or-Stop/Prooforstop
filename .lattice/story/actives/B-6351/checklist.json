@@ -74,64 +74,14 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-001:happy:0",
-          "kind": "manual_transcript",
-          "command": "node --input-type=module -e version/help alias absence check",
-          "result": "pass",
-          "note": "Verified node bin/lattice.js --version outputs exactly Lattice CLI 0.3.5 and contains no legacy alias or koala text.",
-          "headHash": "46688adfac23ba023920105255e64341501995bf",
-          "materialHash": "58090ad9f49129dfc620e8f089ea3a05e9d5cf97b0519b5c4d9fb77c1a57633b",
-          "timestamp": "2026-06-15T03:15:35.545Z"
-        },
-        {
-          "intentRef": "CHK-001:happy:1",
-          "kind": "manual_transcript",
-          "command": "node --input-type=module -e version/help alias absence check",
-          "result": "pass",
-          "note": "Checked node bin/lattice.js help and story_create --help for absence of legacy alias: koala and Compatible: koala.",
-          "headHash": "46688adfac23ba023920105255e64341501995bf",
-          "materialHash": "58090ad9f49129dfc620e8f089ea3a05e9d5cf97b0519b5c4d9fb77c1a57633b",
-          "timestamp": "2026-06-15T03:15:35.545Z"
-        },
-        {
-          "intentRef": "CHK-001:happy:2",
-          "kind": "manual_transcript",
-          "command": "node scripts/verify-runtime-fact-contract.mjs",
-          "result": "pass",
-          "note": "Runtime fact registry and runtime checks reject @koala-agent/core, command -v koala, and node_modules/.bin/koala fallback guidance.",
-          "headHash": "46688adfac23ba023920105255e64341501995bf",
-          "materialHash": "58090ad9f49129dfc620e8f089ea3a05e9d5cf97b0519b5c4d9fb77c1a57633b",
-          "timestamp": "2026-06-15T03:15:35.545Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "rg targeted active-runtime legacy string scan",
-          "result": "pass",
-          "note": "Remaining hits for legacy strings are negative assertions, preserved process tokens, or user-owned legacy-file tests, not active runtime compatibility.",
-          "headHash": "46688adfac23ba023920105255e64341501995bf",
-          "materialHash": "58090ad9f49129dfc620e8f089ea3a05e9d5cf97b0519b5c4d9fb77c1a57633b",
-          "timestamp": "2026-06-15T03:15:35.545Z"
-        },
-        {
-          "intentRef": "CHK-001:edge:0",
+          "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/lattice-only-absence-smoke.js",
+          "command": "node scripts/verify-runtime-fact-contract.mjs; node packages/main/dist/tasks/lattice-only-absence-smoke.js",
           "result": "pass",
-          "note": "Absence smoke plants legacy-only koala assets and confirms runtime/Codex checks do not accept them as active compatibility.",
-          "headHash": "46688adfac23ba023920105255e64341501995bf",
-          "materialHash": "58090ad9f49129dfc620e8f089ea3a05e9d5cf97b0519b5c4d9fb77c1a57633b",
-          "timestamp": "2026-06-15T03:15:35.545Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:1",
-          "kind": "logic_test",
-          "command": "test ! -e bin/koala.js && test ! -e bin/koala-codex.js && node -e package legacy script absence check",
-          "result": "pass",
-          "note": "Confirmed legacy koala executable paths are absent and package scripts no longer expose test:legacy-koala-compatibility-smoke, so validation does not assert the old binary remains usable.",
-          "headHash": "46688adfac23ba023920105255e64341501995bf",
-          "materialHash": "58090ad9f49129dfc620e8f089ea3a05e9d5cf97b0519b5c4d9fb77c1a57633b",
-          "timestamp": "2026-06-15T03:15:35.545Z"
+          "note": "Runtime fact contract and lattice-only absence smoke passed at current HEAD: canonical lattice.config.json remains the active config path, while a legacy-only koala.config.json fixture is not loaded as active config or validation commands.",
+          "headHash": "da8f7c00ac495f40eaa60439c91f07cdda01073e",
+          "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
+          "timestamp": "2026-06-15T10:13:29.287Z"
         }
       ]
     },
