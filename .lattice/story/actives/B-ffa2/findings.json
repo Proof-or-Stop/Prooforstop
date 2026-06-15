@@ -65,7 +65,7 @@
       "desc": "Active docs still instruct or imply koala.config.json is a usable configuration surface after this story defines lattice.config.json as the only active project config. docs/requirements/decisions/testing-infra.md:39 says legacy koala.config.json is ignored, but lines 41 and 101 still say validate/doctor can use or read legacy koala.config.json. docs/requirements/decisions/test-fixture-spec.md:52,377,383 still tells users to configure fixtures/browser/testRuntime via koala.config.json. This contradicts the B-ffa2 execution plan non-goal at docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md:101 and can cause operators to rely on an ignored fallback.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-15T16:25:48.380Z",
@@ -75,7 +75,9 @@
       "files": [
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/test-fixture-spec.md"
-      ]
+      ],
+      "resolvedReason": "Resolved in commits 758c57a/c967454: active docs now identify lattice.config.json as canonical, legacy koala.config.json as ignored by active loader, and test-fixture-spec examples use lattice.config.json. Verification scan for koala.config.json as usable/read/configure active docs returned no hits.",
+      "resolvedAt": "2026-06-15T16:58:47.691Z"
     }
   ]
 }
