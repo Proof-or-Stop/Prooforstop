@@ -74,14 +74,74 @@
       },
       "verificationEvidence": [
         {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js --version",
+          "result": "pass",
+          "note": "Output is exactly Lattice CLI 0.3.5 and contains no legacy alias or koala text.",
+          "headHash": "3929d75be8119a6d976aeb603f87ba427bf5c7d4",
+          "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
+          "timestamp": "2026-06-15T10:15:50.442Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js help; node bin/lattice.js story_create --help",
+          "result": "pass",
+          "note": "Help output contains no legacy alias: koala, Compatible: koala, or koala remains a legacy alias text.",
+          "headHash": "3929d75be8119a6d976aeb603f87ba427bf5c7d4",
+          "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
+          "timestamp": "2026-06-15T10:15:50.473Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js doctor; node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Doctor output and runtime fact contract describe lattice-only active entrypoints and do not advertise @koala-agent/core, node_modules/.bin/koala, bin/koala, or koala.config.json fallback.",
+          "headHash": "3929d75be8119a6d976aeb603f87ba427bf5c7d4",
+          "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
+          "timestamp": "2026-06-15T10:15:50.503Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Absence smoke plants legacy-only koala assets and confirms runtime/Codex checks do not accept them as active compatibility.",
+          "headHash": "3929d75be8119a6d976aeb603f87ba427bf5c7d4",
+          "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
+          "timestamp": "2026-06-15T10:15:50.531Z"
+        },
+        {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
           "command": "node scripts/verify-runtime-fact-contract.mjs; node packages/main/dist/tasks/lattice-only-absence-smoke.js",
           "result": "pass",
-          "note": "Runtime fact contract and lattice-only absence smoke passed at current HEAD: canonical lattice.config.json remains the active config path, while a legacy-only koala.config.json fixture is not loaded as active config or validation commands.",
-          "headHash": "da8f7c00ac495f40eaa60439c91f07cdda01073e",
+          "note": "Canonical lattice.config.json remains active, while a legacy-only koala.config.json fixture is not loaded as active config or validation commands.",
+          "headHash": "3929d75be8119a6d976aeb603f87ba427bf5c7d4",
           "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
-          "timestamp": "2026-06-15T10:13:29.287Z"
+          "timestamp": "2026-06-15T10:15:50.557Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "targeted active-runtime legacy string scan plus doctor residue check",
+          "result": "pass",
+          "note": "Remaining koala hits are negative assertions, historical/path identifiers, env-variable naming debt, or reviewer lane names; active runtime compatibility claims for legacy alias, @koala-agent/core fallback, node_modules/.bin/koala, and koala.config.json fallback are absent.",
+          "headHash": "3929d75be8119a6d976aeb603f87ba427bf5c7d4",
+          "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
+          "timestamp": "2026-06-15T10:15:50.584Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "test ! -e bin/koala.js && test ! -e bin/koala-codex.js && package script absence check",
+          "result": "pass",
+          "note": "Legacy koala executable paths are absent and package scripts no longer expose test:legacy-koala-compatibility-smoke, so validation does not assert the old binary remains usable.",
+          "headHash": "3929d75be8119a6d976aeb603f87ba427bf5c7d4",
+          "materialHash": "1257a9dc18781a82640e6f7003aa0162d6a361f2e67aa313d6d9ca3e58643a4a",
+          "timestamp": "2026-06-15T10:15:50.611Z"
         }
       ]
     },
