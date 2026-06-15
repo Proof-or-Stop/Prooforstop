@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Delete the three unused sample/dogfood packages (cli-guess-number, python-demo, python-rps) and scrub residual references",
+      "context": "Remove packages/cli-guess-number, packages/python-demo, packages/python-rps entirely (git rm -r). Verify nothing else references them: grep for each name across the repo (excluding node_modules/.git/.worktrees/.lattice/dist) returns only matches inside the deleted dirs (zero after deletion); confirm no tsconfig references[] / path mapping and no root package.json entry. After deletion `npm run build` and `npm run test:e2e` must still pass.",
+      "userSees": "packages/ contains only lab, main, utils; `npm run build` and `npm run test:e2e` still pass with the sample packages gone.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Delete the two tracked cruft files (du.exe.stackdump, claude-session.mjs) and scrub residual references",
+      "context": "git rm du.exe.stackdump and claude-session.mjs at repo root. (jek.md is user-owned and intentionally NOT touched.) claude-session.mjs has no live import (claude-cli.ts:58 is a coincidental '.tmp-claude-session' string; docs/metadata/task.json only cites it historically) — leaving that historical doc note is acceptable. After deletion `npm run build` and `npm run test:e2e` must still pass.",
+      "userSees": "`git ls-files` no longer lists du.exe.stackdump or claude-session.mjs; jek.md is still present and tracked; build and e2e still pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0b26",
+  "name": "remove-dead-sample-packages-and-cruft-v2",
+  "title": "Remove dead sample packages and committed cruft for the open-source release",
+  "description": "Pre-open-source cleanup. Three sample/dogfood projects under packages/ (cli-guess-number, python-demo, python-rps) and two tracked junk/dead files at the repo root (du.exe.stackdump, claude-session.mjs) are not part of the Lattice tool and have zero live references; delete them so the OSS repo ships only the actual product. jek.md is deliberately KEPT (user-owned per decisions/root-markdown-migration-execution-solution.md; the user confirmed keeping it). packages/lab and experiments/ are also out of scope (separate follow-up).",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "low",
+  "keywords": [
+    "open-source-cleanup",
+    "dead-code",
+    "sample-packages",
+    "cruft-removal",
+    "concept-deletion"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-15T22:21:27.675Z",
+  "startedAt": "2026-06-15T22:21:27.675Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-15T22:21:27.684Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-15T22:24:32.040Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Data Migration/Destructive",
+      "reason": "False positive: the keyword migration only appears as part of a cited decision-doc filename (decisions/root-markdown-migration-execution-solution.md) and the phrase migration story, not because this story performs any data migration. This story only deletes confirmed-dead, unreferenced sample packages and two cruft files; there is no data migration or schema/state migration involved.",
+      "at": "2026-06-15T22:22:03.313Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0b26",
+    "branch": "story/B-0b26",
+    "createdAt": "2026-06-15T22:24:32.151Z"
+  }
+}
