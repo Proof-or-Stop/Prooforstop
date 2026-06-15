@@ -1,98 +1,73 @@
 {
   "storyId": "B-ffa2",
-  "checkedAt": "2026-06-15T15:37:46.437Z",
+  "checkedAt": "2026-06-15T15:40:42.567Z",
   "features": [
     {
-      "feature": "Rename Koala agent role IDs to Lattice across active role surfaces",
-      "covered_by": "CHK-002, CHK-003, CHK-004, CHK-005",
+      "feature": "Execution document captures inventory, canonical koala-* to lattice-* role map, compatibility boundary, rollout steps, and verification commands",
+      "covered_by": "CHK-001; plan.md#CHK-001; decision option A",
       "status": "covered",
-      "excluded_by": null,
-      "source": "description"
+      "excluded_by": "",
+      "source": "background.md trigger + plan objective require execution doc before implementation"
     },
     {
-      "feature": "Package registry prompt templates under packages/main/templates/agents/*.md are the canonical prompt bodies",
-      "covered_by": "CHK-002",
+      "feature": "Canonical agent templates and mirrored .claude/.Codex host assets are renamed from koala-* to lattice-* without converting unrelated agents",
+      "covered_by": "CHK-002; plan.md#CHK-002; CHK-002 edge/adversarial verificationIntent",
       "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:lifecycle-artifact-scope.md"
+      "excluded_by": "",
+      "source": "plan acceptance includes filename and active role-id searches"
     },
     {
-      "feature": "Materialized .claude/agents/*.md and .Codex/agents/*.md mirrors are compatibility prompt surfaces that must stay aligned with package templates when used",
-      "covered_by": "CHK-002, CHK-005",
+      "feature": "Runtime dispatch, reviewer lanes, schemas, process-fact registry, guard/help text, and attribution use lattice-* as canonical active reviewer/subagent IDs",
+      "covered_by": "CHK-003; plan.md#CHK-003; understanding touchpoints",
       "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:lifecycle-artifact-scope.md"
+      "excluded_by": "",
+      "source": "decision premortem calls out review gate breakage risk and mitigation"
     },
     {
-      "feature": "Runtime-owned agent asset checks must detect stale project-local .claude/.Codex agent assets and report prompt source through doctor/codex/verify surfaces",
-      "covered_by": "CHK-005",
+      "feature": "Active documentation, audits, and tests stop teaching koala-* role IDs while preserving explicitly historical/archive context",
+      "covered_by": "CHK-004; plan.md#CHK-004; CHK-004 edge/adversarial verificationIntent",
       "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:lattice-runtime-owned-agent-assets-execution-plan.md"
+      "excluded_by": "",
+      "source": "plan acceptance separates active docs from archived legacy paths"
     },
     {
-      "feature": "Active INIT and REVIEW reviewer lanes currently include koala-review-story-init and koala-review-test-coverage and must be renamed consistently if active role IDs migrate",
-      "covered_by": "CHK-003, CHK-004",
+      "feature": "Final verification proves active CLI/template/runtime surfaces no longer emit koala role IDs and build/test/Codex adapter checks pass",
+      "covered_by": "CHK-005; plan.md#CHK-005; verificationIntent CHK-005 happy/edge/adversarial",
       "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:story-lifecycle.md"
+      "excluded_by": "",
+      "source": "plan lists targeted rg, lattice help, npm build/test, verify_codex, and lattice validate"
     },
     {
-      "feature": "Reviewer run, finding, pass, and process-fact registry semantics bind reviewer lane names and must remain mechanically consistent with contract verifiers",
-      "covered_by": "CHK-003, CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:story-lifecycle.md"
+      "feature": "Runtime/archive compatibility tokens such as KOALA_*, .koala migration paths, old salts, and old schema strings are not part of this active role-ID rename unless they emit active koala-* role guidance",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md compatibility boundary; decision option A compatibility boundary; CHK-001 edge/adversarial; CHK-005 edge",
+      "source": "plan explicitly says migration targets role IDs, not every historical/runtime compatibility token containing Koala"
     },
     {
-      "feature": "CLI help, schemas, dispatch prompts, and attribution examples contain koala role identifiers that must be updated on active user-facing surfaces",
-      "covered_by": "CHK-003, CHK-004",
+      "feature": "Unrelated non-koala role assets such as product-reviewer, implementation-reviewer, test-intent, and test-case-reviewer remain correctly named",
+      "covered_by": "CHK-002 edge verificationIntent; plan.md#CHK-002 step 4",
       "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:cli-engine-english-open-source-execution-plan.md"
+      "excluded_by": "",
+      "source": "checklist and plan explicitly protect unrelated agents from blind conversion"
     },
     {
-      "feature": "Existing agent template update plans list koala-implementer and koala-review-* templates plus .claude/.Codex mirrors as synchronized prompt surfaces",
-      "covered_by": "CHK-002, CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:slim-fields-token-savings-execution-plan.md"
-    },
-    {
-      "feature": "Evaluator role IDs koala-evaluator and koala-evaluator-cli are normal write-path agent roles and must be included in the canonical role rename inventory",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:role-separation.md"
-    },
-    {
-      "feature": "Non-koala role IDs such as product-reviewer, test-intent, test-case-reviewer, and implementation-reviewer remain separate role names rather than koala-* rename targets",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:test-intent-review.md"
+      "feature": "Legacy archived Koala docs under historical paths are not blindly rewritten but must be labeled/preserved as historical when relevant",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-004 edge verificationIntent; plan.md#CHK-004 step 3; decision option A",
+      "source": "scope is active role guidance, not full archive rewrite"
     }
   ],
   "summary": {
-    "total": 10,
-    "covered": 10,
-    "excluded": 0,
+    "total": 8,
+    "covered": 6,
+    "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "4b87aaaf0bad7f28f0091f2aeb436795070a266f9824e9a28137e3b4ffb4ba95",
-  "openQuestions": [
-    {
-      "id": "OQ-001",
-      "q": "Do legacy compatibility tokens such as KOALA_AGENT, KOALA_SESSION_ID, .koala paths, and archived Koala-named assets remain intentionally preserved compatibility identifiers, or should any of them be treated as active Koala naming to rename in this story? The checklist titles cover role IDs and active surfaces but do not explicitly exclude or preserve these compatibility tokens.",
-      "evidence": "decisions mention KOALA_AGENT/KOALA_SESSION_ID defaults and legacy .koala/runtime artifact paths, while lifecycle-artifact-scope says the Lattice naming migration is a managed-asset naming contract and legacy Koala-named assets may remain archived or user-owned.",
-      "sourcePointers": [
-        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:913",
-        "docs/requirements/decisions/session-ownership-and-write-leases.md:19",
-        "docs/requirements/decisions/lifecycle-artifact-scope.md:154"
-      ]
-    }
-  ]
+  "_hash": "28e84379f22a31e7e1f32bb32a5c81010ffb54e4a797789460d1542f8b6bfc7e",
+  "openQuestions": []
 }
