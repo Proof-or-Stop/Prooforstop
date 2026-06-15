@@ -1,0 +1,22 @@
+{
+  "task": "Remove the unused packages/game demo package and direct documentation references.",
+  "outcome": "Terminal shows B-f0a6 DONE; packages/game no longer exists, rg packages/game and rg @lattice/game only return no tracked product references, docs use a neutral browser-test example path, and validate reports PASS.",
+  "facts": [
+    "packages/game is a standalone private Vite demo package with its own lockfile, fixtures, screenshots, and CLAUDE.md.",
+    "Root package.json has no workspace entry and no build/test script for packages/game.",
+    "Read-only scans found external references only in docs/requirements/decisions/test-fixture-spec.md browser_test examples.",
+    "Keeping packages/game under packages/ implies a maintained Lattice product package that is not aligned with current CLI direction."
+  ],
+  "constraints": [
+    "Do not touch active story worktrees or unrelated packages.",
+    "Do not edit docs/story/** or tests/fixtures/** directly.",
+    "Do not perform broad package/workspace refactors.",
+    "Only remove real packages/game artifacts and direct documentation references."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/game",
+    "docs/requirements/decisions/test-fixture-spec.md"
+  ],
+  "timestamp": "2026-06-15T02:54:24.950Z"
+}

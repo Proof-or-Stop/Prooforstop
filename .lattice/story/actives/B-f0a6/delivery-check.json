@@ -1,0 +1,36 @@
+{
+  "storyId": "B-f0a6",
+  "checkedAt": "2026-06-15T03:06:59.588Z",
+  "reviewRound": "2026-06-15T03:01:34.039Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/test-fixture-spec.md",
+      "promise": "browser_test examples should use neutral browser app paths instead of the removed packages/game or game-browser demo references.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg showed neutral examples at lines 428 and 431: /path/to/browser-app and browser-case; repo scan for packages/game|@lattice/game outside excluded metadata paths returned no matches."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: test ! -d packages/game confirmed the legacy demo package directory is absent."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS: rg on docs/requirements/decisions/test-fixture-spec.md found /path/to/browser-app and browser-case, and no packages/game or game-browser hits."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS: rg for packages/game|@lattice/game excluding .git/.worktrees/.lattice/docs/story/tests/fixtures/node_modules/.omx returned no current product/docs matches; test_list shows validate PASS and 9/9 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer independently verified package removal, neutral fixture documentation, repository reference cleanup, and latest validate evidence before signing."
+  },
+  "_hash": "57069ae3255ae94303084bddc73397849126c9463dc2e4a90297b23b58dba634"
+}
