@@ -37,9 +37,9 @@
       "title": "Make worktree bootstrap robust to an ignored story metadata path",
       "context": "worktree.ts:316 runs `git add .lattice/story/actives/<id>` without -f, which fails with 'paths are ignored' when .lattice is ignored. Implement the chosen model so bootstrap either force-adds with a validated guard or fails with a clear, actionable error/repair instead of an opaque git error.",
       "userSees": "On a project whose .gitignore would ignore story metadata, worktree bootstrap either succeeds (metadata tracked) or prints a clear remediation message, instead of 'The following paths are ignored by one of your .gitignore files: .lattice'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:31:24.431Z",
       "verificationIntent": {
         "happy": [
           {
