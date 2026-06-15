@@ -48,7 +48,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "test-fixture-spec.md no longer tells readers to use packages/game and instead uses a neutral browser fixture example path.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/test-fixture-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test-fixture-spec.md browser_test examples no longer contain projectRoot: packages/game.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The replacement examples still demonstrate browser_test projectRoot and fixture usage clearly.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No docs outside this intended spec change are edited for this removal.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
