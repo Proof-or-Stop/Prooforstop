@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-198c:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 12 must intents (happy/edge/adversarial x 4 checklist items) are covered by logic_test evidence pointing to packages/main/src/tasks/storydir-inside-gitroot-suite.ts. Suite contains 19 distinct named checks across 4 real-git-fixture scenarios (inside-ok, sibling-violation, symlink-realpath, no-gitRoot). Each evidence note names the exact scenario and assertion, not a generic claim. The advisory warn-only behavior (CHK-003:adversarial:0) is confirmed: storyDirOutsideGitRootAdvisory returns a string and never blocks; the suite asserts EXIT=0 behavior via direct function call returning empty/non-empty. lattice validate reports 12/12 covered with 0 missing required.",
+      "createdAt": "2026-06-15T21:08:19.541Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-001",
+      "_hash": "b47f427366d9a71af51afd080e724af81ee39f3ab8e49c5ed9d80eef3079db5d"
+    }
+  ]
+}

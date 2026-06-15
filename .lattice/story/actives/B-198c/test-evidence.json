@@ -1,0 +1,256 @@
+{
+  "command": "lattice validate --story=B-198c --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:e2e\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — helper returns ok when storyDir resolves inside the gitRoot\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — helper flags a violation when storyDir is a .. sibling of gitRoot (the ClawCreek case)\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — symlinked roots (/var -> /private/var) do not produce a false violation (realpath both sides)\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — lattice doctor reports the violation + remediation when storyDir is outside gitRoot\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — doctor stays clean when storyDir is inside gitRoot or no gitRoot is configured\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — doctor does not throw when configured gitRoot is unresolvable; reports that condition separately\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — story_create / session_brief emit the one-line advisory for a wrapper-root violation\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — no advisory in the normal case (metadataRoot == gitRoot)\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — advisory is warn-only and does NOT block story_create (Option A)\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — tests cover the storyDir-inside-gitRoot ok case\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — tests cover the .. sibling violation (ClawCreek) and the no-gitRoot case\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/storydir-inside-gitroot-suite.ts) — tests cover symlinked roots resolved via realpath\"],\"warnings\":[],\"timestamp\":\"2026-06-15T21:07:46.502Z\",\"headSha\":\"cfc342b58f89d8c4878167690b63f17dd22c34dd\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":972}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"helper returns ok when storyDir resolves inside the gitRoot\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario1.inside: helper returns ok=true when storyDir resolves inside gitRoot\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"helper flags a violation when storyDir is a .. sibling of gitRoot (the ClawCreek case)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario2.sibling: helper flags violation when storyDir is a .. sibling of gitRoot (ClawCreek case)\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"symlinked roots (/var -> /private/var) do not produce a false violation (realpath both sides)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario3.symlink: realpath both sides => no false violation under /var->/private/var-style symlink\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice doctor reports the violation + remediation when storyDir is outside gitRoot\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario2: doctor handler emits the flagged violation block with both abs paths + remediation\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"doctor stays clean when storyDir is inside gitRoot or no gitRoot is configured\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario1: doctor shows healthy pass line when storyDir inside gitRoot\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"doctor does not throw when configured gitRoot is unresolvable; reports that condition separately\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario4.no-gitRoot: doctor reports gitroot-unresolved as a SEPARATE line, not a violation, never throws\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"story_create / session_brief emit the one-line advisory for a wrapper-root violation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario2: story_create + session_brief advisory helpers return the one-line advisory on violation\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"no advisory in the normal case (metadataRoot == gitRoot)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"scenario1: no advisory in the normal case (metadataRoot==gitRoot inside)\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"advisory is warn-only and does NOT block story_create (Option A)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"advisory is warn-only: helper returns a string but does not block; confirmed behaviorally story_create EXIT=0 with advisory on stderr\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"tests cover the storyDir-inside-gitRoot ok case\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"suite scenario1 covers the inside-gitRoot ok case (19/19 checks pass)\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"tests cover the .. sibling violation (ClawCreek) and the no-gitRoot case\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"suite scenario2 (.. sibling) + scenario4 (no-gitRoot) edge cases pass\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"tests cover symlinked roots resolved via realpath\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/storydir-inside-gitroot-suite.ts\",\"command\":\"lattice validate\",\"result\":\"pass\",\"note\":\"suite scenario3 covers symlinked roots resolved via realpath\",\"headHash\":\"3ba41bfb6c69d756909f72ce543eeb45acc163e0\",\"materialHash\":\"1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829\",\"timestamp\":\"2026-06-15T21:05:45.373Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-15T21:07:47.087Z",
+  "headHash": "cfc342b58f89d8c4878167690b63f17dd22c34dd",
+  "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "helper returns ok when storyDir resolves inside the gitRoot",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario1.inside: helper returns ok=true when storyDir resolves inside gitRoot",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "helper flags a violation when storyDir is a .. sibling of gitRoot (the ClawCreek case)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario2.sibling: helper flags violation when storyDir is a .. sibling of gitRoot (ClawCreek case)",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "symlinked roots (/var -> /private/var) do not produce a false violation (realpath both sides)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario3.symlink: realpath both sides => no false violation under /var->/private/var-style symlink",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "lattice doctor reports the violation + remediation when storyDir is outside gitRoot",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario2: doctor handler emits the flagged violation block with both abs paths + remediation",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "doctor stays clean when storyDir is inside gitRoot or no gitRoot is configured",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario1: doctor shows healthy pass line when storyDir inside gitRoot",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "doctor does not throw when configured gitRoot is unresolvable; reports that condition separately",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario4.no-gitRoot: doctor reports gitroot-unresolved as a SEPARATE line, not a violation, never throws",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "story_create / session_brief emit the one-line advisory for a wrapper-root violation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario2: story_create + session_brief advisory helpers return the one-line advisory on violation",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "no advisory in the normal case (metadataRoot == gitRoot)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "scenario1: no advisory in the normal case (metadataRoot==gitRoot inside)",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "advisory is warn-only and does NOT block story_create (Option A)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "advisory is warn-only: helper returns a string but does not block; confirmed behaviorally story_create EXIT=0 with advisory on stderr",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "tests cover the storyDir-inside-gitRoot ok case",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "suite scenario1 covers the inside-gitRoot ok case (19/19 checks pass)",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "tests cover the .. sibling violation (ClawCreek) and the no-gitRoot case",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "suite scenario2 (.. sibling) + scenario4 (no-gitRoot) edge cases pass",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "tests cover symlinked roots resolved via realpath",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "suite scenario3 covers symlinked roots resolved via realpath",
+          "headHash": "3ba41bfb6c69d756909f72ce543eeb45acc163e0",
+          "materialHash": "1903025f830c4343f3bf51b877b7c41aa3ef0fa15f0a23ff6ea5fe2464106829",
+          "timestamp": "2026-06-15T21:05:45.373Z"
+        }
+      }
+    ]
+  }
+}
