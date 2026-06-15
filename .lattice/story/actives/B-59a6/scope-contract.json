@@ -1,0 +1,43 @@
+{
+  "storyId": "B-59a6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/decision-doc-quorum.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+    "packages/main/src/handlers/decision-doc-quorum.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/config.ts",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+    "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/types.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/review-escalation.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/host-independence.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/handlers/review-escalation.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T03:29:40.753Z",
+  "updatedAt": "2026-06-15T03:29:40.753Z"
+}
