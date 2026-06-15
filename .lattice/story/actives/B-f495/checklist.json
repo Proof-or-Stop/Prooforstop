@@ -8,9 +8,9 @@
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T14:26:03.913Z",
-      "endTime": null,
+      "endTime": "2026-06-15T14:26:14.279Z",
       "files": {
         "modify": [],
         "create": [
@@ -48,7 +48,41 @@
           }
         ]
       },
-      "userSees": "User sees B-f495 audit evidence confirming the slim / fields CLI surfaces and smoke coverage either match the plan or list exact corrections."
+      "userSees": "User sees B-f495 audit evidence confirming the slim / fields CLI surfaces and smoke coverage either match the plan or list exact corrections.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-token-cost-smoke.js && npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Build, prompt-token-cost smoke, and prompt-registry smoke passed, confirming the documented slim/fields CLI surfaces and existing smoke coverage remain executable.",
+          "headHash": "2b1cb7c52c468fd54ec6c1dd30aae3f6df34e9a2",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:14.378Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"npm --prefix packages/main run build|prompt-token-cost-smoke|Execution Discipline\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document now places build before dist smoke execution and adds execution discipline, addressing the stale-build audit finding.",
+          "headHash": "2b1cb7c52c468fd54ec6c1dd30aae3f6df34e9a2",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:14.440Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"provider billing|Authority Server|Formal Audit Disposition\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document keeps provider billing and Authority completion claims explicitly out of scope unless backed by receipts or executable evidence.",
+          "headHash": "2b1cb7c52c468fd54ec6c1dd30aae3f6df34e9a2",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:14.496Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -149,6 +183,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording audit evidence for CLI surface checks."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:14.279Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CLI surface audit completed and evidence recorded after commit 516fb568."
     }
   ]
 }
