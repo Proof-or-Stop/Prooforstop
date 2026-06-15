@@ -383,6 +383,17 @@
           "headHash": "8fdebae1c05d0638e25000811e93b8129c525c40",
           "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
           "timestamp": "2026-06-15T22:32:03.129Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f CLAUDE.md README.md AGENTS.md CHANGELOG.md",
+          "result": "pass",
+          "note": "All four important root markdown files survive — no glob over-deletion.",
+          "headHash": "421810cffb1ae45a18add9d06138f0306d91bccb",
+          "materialHash": "e3c99418256df709519795033f6a016f39a3a3b8c696b8676542a5b313e72caa",
+          "timestamp": "2026-06-15T22:32:03.859Z"
         }
       ]
     }
