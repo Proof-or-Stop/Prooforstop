@@ -1,0 +1,27 @@
+{
+  "storyId": "B-1477",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "Document-only B-1477 scope: create the LLM usage ledger execution plan without modifying implementation code, existing related docs, story JSON directly, fixtures, or OMX paths.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T14:27:28.634Z",
+  "updatedAt": "2026-06-15T14:27:28.634Z"
+}
