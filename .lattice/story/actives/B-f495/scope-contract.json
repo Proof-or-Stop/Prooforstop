@@ -1,0 +1,24 @@
+{
+  "storyId": "B-f495",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+  ],
+  "allowedTest": [
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T14:23:02.194Z",
+  "updatedAt": "2026-06-15T14:23:02.194Z"
+}

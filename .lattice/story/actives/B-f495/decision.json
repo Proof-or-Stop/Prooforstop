@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Audit claims against executable CLI behavior, not prose alone.",
+    "Keep command defaults and lifecycle semantics unchanged.",
+    "Prefer narrow documentation fixes over implementation changes in this audit story."
+  ],
+  "drivers": [
+    "The user requested formal Lattice CLI audit rather than immediate implementation.",
+    "The target document is an execution plan, so correctness depends on verifiable commands and safe boundaries.",
+    "B-f495 must not interfere with active story B-acec."
+  ],
+  "options": [
+    {
+      "name": "A: Audit-only story with narrow document corrections",
+      "pros": [
+        "Matches the user request for formal audit",
+        "Keeps blast radius small",
+        "Can produce clear findings and evidence quickly"
+      ],
+      "cons": [
+        "Does not implement the slim / fields prompt changes yet"
+      ]
+    },
+    {
+      "name": "B: Combine audit and implementation in one story",
+      "pros": [
+        "Could finish the optimization immediately if audit passes"
+      ],
+      "cons": [
+        "Expands scope beyond the requested audit",
+        "Increases REVIEW risk and could touch prompt mirrors unnecessarily"
+      ]
+    }
+  ],
+  "chosen": "A: Audit-only story with narrow document corrections",
+  "rationale": "Choose the audit-only path because the user asked for formal audit, and implementation should proceed only after the plan is accepted.",
+  "preMortem": [
+    {
+      "scenario": "The audit edits the plan without proving CLI support.",
+      "trigger": "Relying only on prose claims instead of source and smoke commands.",
+      "consequence": "The plan could look rigorous while containing stale or invalid instructions.",
+      "mitigation": "Cite story-query/checklist handlers and run prompt-token-cost and prompt-registry smokes."
+    },
+    {
+      "scenario": "The plan over-encourages slim output.",
+      "trigger": "Prompt guidance omits the full-output fallback before evidence-sensitive decisions.",
+      "consequence": "Agents may miss detailed evidence and submit weak conclusions.",
+      "mitigation": "Keep the full-output fallback as an acceptance criterion and audit it directly."
+    },
+    {
+      "scenario": "The audit story absorbs implementation work.",
+      "trigger": "Fixing templates or CLI behavior while reviewing the document.",
+      "consequence": "Scope expands and may interfere with other active work.",
+      "mitigation": "Limit this story to audit disposition and document corrections only."
+    }
+  ],
+  "timestamp": "2026-06-15T14:14:59.570Z"
+}

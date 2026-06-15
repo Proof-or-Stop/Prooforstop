@@ -1,0 +1,68 @@
+{
+  "storyId": "B-f495",
+  "checkedAt": "2026-06-15T14:58:16.805Z",
+  "reviewRound": "2026-06-15T14:27:00.681Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "promise": "The plan is an audit and future execution plan, not an implementation in B-f495; implementation must run as a separate dedicated Lattice story.",
+      "status": "verified",
+      "verifiedBy": "doc read + committed diff",
+      "evidence": "Document lines 92-102 and 253-259 say implementation proceeds separately with ordinary review discipline; git diff --name-status main...HEAD shows the only non-metadata artifact is this decision document."
+    },
+    {
+      "docPath": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "promise": "The compact query surface already exists for story_get/checklist_get slim and top-level fields, with CLI schema exposure and smoke coverage.",
+      "status": "verified",
+      "verifiedBy": "source rg + validation transcript",
+      "evidence": "rg found StoryGetArgs/ChecklistGetArgs slim and fields support in packages/main/src/handlers/story-query.ts and packages/main/src/handlers/checklist.ts, schema entries in packages/main/src/cli-engine.ts, and prompt-token-cost-smoke assertions for full defaults, slimmer slim output, and fields filtering."
+    },
+    {
+      "docPath": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "promise": "Default full output and lifecycle semantics remain unchanged; slim/fields is opt-in and full output is required before evidence-sensitive conclusions or mutations.",
+      "status": "verified",
+      "verifiedBy": "doc read + diff scope + checklist evidence",
+      "evidence": "Document lines 18-19, 57-63, 65-90, 218-238, and 239-251 preserve full output and exclude lifecycle gates, Authority receipt fields, and DONE semantics. git diff --name-status main...HEAD shows no product/source implementation files changed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "promise": "Token savings are approximate context-size estimates only, not provider billing receipts or prompt-cache proof, and Authority completion is not claimed.",
+      "status": "verified",
+      "verifiedBy": "doc rg + checklist evidence",
+      "evidence": "rg confirmed provider billing, prompt-cache, Authority Server, and Formal Audit Disposition language at lines 43-45, 57-64, and 253-259. checklist_get shows CHK-001 adversarial and CHK-002 edge/adversarial evidence passing for the no-overclaim boundary."
+    },
+    {
+      "docPath": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "promise": "Verification discipline requires build before built dist smoke tasks, prompt-token-cost smoke, prompt-registry smoke, and verify_codex when Codex adapter assets are touched.",
+      "status": "verified",
+      "verifiedBy": "doc read + formal validation transcript",
+      "evidence": "Document lines 165-190 and 239-251 list the build-before-smoke sequence and conditional verify_codex. test_list reports validate PASS and CHK-001 happy evidence ran npm --prefix packages/main run build, prompt-token-cost smoke, and prompt-registry smoke successfully."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "formal-validation",
+      "transcript": "node ../../bin/lattice.js test_list --storyId=B-f495 reports the latest formal transcript command lattice validate --story=B-f495 --json as PASS at 2026-06-15T14:55:50.345Z on head fa90e3006bfb715ecfd57bca85b95c8bc7065681. It includes npm test passing, cli-e2e ALL PASS, and verification intent coverage 9/9 covered with 0 required missing."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "Direct read-only rg over packages/main/src/handlers/story-query.ts, packages/main/src/handlers/checklist.ts, packages/main/src/cli-engine.ts, and packages/main/src/tasks/prompt-token-cost-smoke.ts confirmed slim/fields handler support, CLI schema exposure, and smoke assertions for default compatibility, smaller slim output, and top-level fields filtering."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Direct read-only rg over docs/requirements/decisions/slim-fields-token-savings-execution-plan.md confirmed full-output fallback, no default output changes, no lifecycle gate consumption of slim output, no Authority Server completion claim, and no provider billing or prompt-cache proof claim. git diff --name-status main...HEAD confirmed no product/source implementation files changed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node ../../bin/lattice.js checklist_get with slim fields returned 3 total checklist items, 3 done, and each item had 3 passing verificationEvidence records covering happy, edge, and adversarial intent. git diff --check main...HEAD returned clean."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check accepts B-f495 as a documentation-audit story. The decision document is bounded, the current CLI surface claims are backed by source and smoke evidence, the formal validate transcript passed with npm test and 9/9 verification intent coverage, and no critical delivery blocker was found."
+  },
+  "_hash": "60293f005502c811f73c130f69080561136809d00b4984176764bdb44e6e0541"
+}
