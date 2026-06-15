@@ -323,9 +323,9 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "CLAUDE.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T16:18:52.169Z",
-      "endTime": null,
+      "endTime": "2026-06-15T16:20:00.881Z",
       "userSees": "Verification output shows build/test/Codex adapter checks passing and targeted rg scans show no active koala-* role IDs in CLI help, templates, mirrored host assets, or active documentation.",
       "files": {
         "modify": [],
@@ -356,7 +356,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-runtime-fact-contract.mjs && node bin/lattice.js verify_codex",
+          "result": "pass",
+          "note": "Build, process/runtime fact contracts, and Codex adapter verification passed; verify_codex reported 8/8 checks passing after host asset rename.",
+          "headHash": "5d742a961b758d533e53b962baaba76f46d19d58",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:20:00.935Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg focused active-surface scan plus signed-salt review",
+          "result": "pass",
+          "note": "Targeted active scan found no active koala role IDs, koala_metadata, koala-verifier, Koala Smoke, koala-owned, or koala-metadata in docs/templates/tasks/verifier/help surfaces. Remaining focused hits are old signed artifact salts and this execution plan old-to-new map, both documented exceptions.",
+          "headHash": "5d742a961b758d533e53b962baaba76f46d19d58",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:20:00.966Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/cli.js help | rg 'koala-(implementer|review|evaluator)|koala-verifier|koala_metadata' && node bin/lattice.js validate --channel --story=B-ffa2",
+          "result": "pass",
+          "note": "Help scan exited 1 with no output for old role/verifier/metadata guidance, and channel validation passed with all CHK covered by structured dispatch/subagent_result evidence.",
+          "headHash": "5d742a961b758d533e53b962baaba76f46d19d58",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:20:00.999Z"
+        }
+      ]
     }
   ],
   "auditLog": [
