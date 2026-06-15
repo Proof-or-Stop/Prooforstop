@@ -415,6 +415,30 @@ function removeWholeFileIfGenerated(relPath: string, label: string, expectedCont
   console.log(`  ↻ ${label} (removed generated file for profile cleanup)`);
 }
 
+function isGeneratedLegacyKoalaAgentPrompt(file: string, actual: string): boolean {
+  return /^koala-[^/\\]+\.md$/.test(file)
+    && (actual.includes('<!-- lattice:start -->')
+      || actual.includes('<!-- lattice:start-slot -->')
+      || /^\s*name:\s*koala-/m.test(actual));
+}
+
+function cleanupGeneratedLegacyKoalaAgentPrompts(agentDir: string) {
+  if (!existsSync(agentDir)) return;
+  for (const file of listAgentPromptFiles(agentDir)) {
+    if (!/^koala-[^/\\]+\.md$/.test(file)) continue;
+    const full = join(agentDir, file);
+    let actual = '';
+    try {
+      actual = readFileSync(full, 'utf-8');
+    } catch {
+      continue;
+    }
+    if (!isGeneratedLegacyKoalaAgentPrompt(file, actual)) continue;
+    unlinkSync(full);
+    console.log(`  - .claude/agents/${file} (removed generated legacy Koala prompt)`);
+  }
+}
+
 function cleanupEmptyDirChain(relDir: string) {
   let current = relDir;
   while (current && current !== '.') {
@@ -843,6 +867,7 @@ if (wantsClaude) {
 console.log('\n[5/6] 同步 agent 模板...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
+  cleanupGeneratedLegacyKoalaAgentPrompts(agentDstDir);
   for (const file of readdirSync(agentTemplateDir)) {
     if (!file.endsWith('.md')) continue;
     const src = join(agentTemplateDir, file);

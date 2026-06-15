@@ -41,7 +41,7 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'koala.config.json', JSON.stringify({
+  write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
@@ -214,7 +214,7 @@ try {
   writeConfig(root);
   git(root, ['init']);
   write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
-  const headHash = commitPaths(root, 'base', ['koala.config.json', 'packages/main/src/base.ts']);
+  const headHash = commitPaths(root, 'base', ['lattice.config.json', 'packages/main/src/base.ts']);
   const materialHash = currentMaterialHash(root);
   assert.ok(materialHash, 'material hash should be available in git repo');
 
