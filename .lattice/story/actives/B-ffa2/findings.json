@@ -43,7 +43,7 @@
       "desc": "packages/main/src/handlers/validate-docs-drift.ts:51 still matches `koala <cmd>` even though the gate now claims to extract `lattice <cmd>`, so active Lattice command docs can be missed by docs-drift validation. The same active validation surface still emits Koala provider/schema names such as `koala-channel` at packages/main/src/handlers/validate-channel.ts:41 and user-visible summaries with `metadata-only koala CLI` at packages/main/src/handlers/validate-channel.ts:522-527, plus `koala-concept`/`koala-docs-drift`/`koala-lint`/`koala-serve-validator` provider values. These are not signed-salt or archive exceptions; they are active gates/schemas, so the migration is incomplete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-15T16:25:21.420Z",
@@ -56,7 +56,9 @@
         "packages/main/src/handlers/validate-concept.ts",
         "packages/main/src/handlers/validate-lint.ts",
         "packages/main/src/verifier/serve.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved in commits 758c57a/c967454: validate-docs-drift now extracts lattice commands, active validation providers use lattice-channel/lattice-concept/lattice-docs-drift/lattice-lint/lattice-serve-validator, and metadata summary uses lattice_metadata_changes. Verification scan for koala provider/vocab returned no hits.",
+      "resolvedAt": "2026-06-15T16:58:41.848Z"
     },
     {
       "id": "B-ffa2:F-004",
