@@ -156,6 +156,17 @@
           "headHash": "f0b3c9ad64b23b5fc40d0635340ede124f0d5fdc",
           "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
           "timestamp": "2026-06-15T22:30:49.701Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke adversarial: out-of-scope tsconfig WITH node_modules present -> still type-checked (not skipped); deps-absent skip only when both out-of-scope AND node_modules absent.",
+          "headHash": "0f1a7bf78885d2fa8aad99cd43aaafc0e05edb53",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:50.566Z"
         }
       ]
     },
