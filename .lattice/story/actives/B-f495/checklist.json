@@ -92,9 +92,9 @@
         "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T14:26:20.017Z",
-      "endTime": null,
+      "endTime": "2026-06-15T14:26:29.766Z",
       "files": {
         "modify": [],
         "create": [],
@@ -127,7 +127,42 @@
           }
         ]
       },
-      "userSees": "User sees B-f495 audit evidence confirming the plan preserves full-output fallback, local-only evidence boundaries, and no Authority or billing overclaim."
+      "userSees": "User sees B-f495 audit evidence confirming the plan preserves full-output fallback, local-only evidence boundaries, and no Authority or billing overclaim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"Do not change default|Use full output before evidence-sensitive|full-output fallback\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document preserves default full output and requires full output before evidence-sensitive conclusions or mutations.",
+          "headHash": "57a26102d9729d5f8ec5aa3fee83fdb43f3b9ca3",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:29.833Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"approximate context-token|not provider billing receipts|Provider prompt-cache behavior is not proven|Provider billing savings are not proven\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document distinguishes approximate context-token savings from provider billing and prompt-cache behavior.",
+          "headHash": "57a26102d9729d5f8ec5aa3fee83fdb43f3b9ca3",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:29.892Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "command": "rg -n \"Do not make lifecycle gates consume slim output|Authority receipt|DONE semantic|no lifecycle gate\" docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+          "result": "pass",
+          "note": "Document explicitly excludes lifecycle gate, DONE, Authority receipt, and provider billing semantic changes.",
+          "headHash": "57a26102d9729d5f8ec5aa3fee83fdb43f3b9ca3",
+          "materialHash": "8f10ad2a88e3ca643340c2f1108625ff7339f4546c53c0b555ab791141e06419",
+          "timestamp": "2026-06-15T14:26:29.947Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -201,6 +236,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording audit evidence for risk-boundary checks."
+    },
+    {
+      "timestamp": "2026-06-15T14:26:29.766Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Risk-boundary audit completed and evidence recorded after commit 516fb568."
     }
   ]
 }
