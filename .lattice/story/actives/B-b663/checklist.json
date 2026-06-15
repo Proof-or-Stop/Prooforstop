@@ -12,7 +12,53 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees: The plan now says documentation and decision-doc audit follow normal REVIEW first, then automatic full 3x2 or degraded 3x1 only when the same escalation rules trigger.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "doc-audit-unified-default",
+            "desc": "The document says documentation and decision-doc audit use the same ordinary REVIEW default as other development work.",
+            "type": "docs"
+          },
+          {
+            "id": "doc-audit-threshold",
+            "desc": "The document says documentation and decision-doc audit escalate to 3x2 only when the first REVIEW round records at least two countable problems.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "legacy-gate-transition",
+            "desc": "The document states current code may still enforce legacy decision-doc 3x2 until the implementation story updates the gate.",
+            "type": "docs"
+          },
+          {
+            "id": "doc-audit-degraded-3x1",
+            "desc": "The document says documentation audit can use the same explicit degraded 3x1 fallback when allowed by policy or approval.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-doc-special-case",
+            "desc": "The document no longer preserves always-on decision-doc 3x2 as the desired target policy.",
+            "type": "docs"
+          },
+          {
+            "id": "no-false-runtime-claim",
+            "desc": "The document does not claim the automatic document-audit policy is already implemented in runtime code.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
