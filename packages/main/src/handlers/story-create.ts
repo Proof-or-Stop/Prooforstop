@@ -223,17 +223,24 @@ function terminalKeywordOverlapNote(
  * normal case) and `reason='gitroot-unresolved'` (no/invalid gitRoot — e.g. a
  * non-git metadata root with no configured gitRoot) both stay silent so the
  * advisory never nags healthy or not-yet-git-backed setups. Never throws — the
- * underlying helper is pure and total.
+ * underlying helper is total, and a defensive try/catch here matches the
+ * session_brief advisory's parity guard so story_create can never fail on
+ * advisory-render error.
  */
 export function storyDirOutsideGitRootAdvisory(metadataRoot: string): string {
-  const result = evaluateStoryDirConfigInsideGitRoot({ metadataRoot });
-  if (result.ok || result.reason !== 'outside-gitroot') return '';
-  return (
-    `⚠ storyDir resolves outside the resolved gitRoot ` +
-    `(${result.storyDirAbs} not inside ${result.gitRootAbs}); ` +
-    `the worktree/DONE git lifecycle will fail at INIT_CHECK. ` +
-    `→ configure storyDir so story metadata lives inside the gitRoot.`
-  );
+  try {
+    const result = evaluateStoryDirConfigInsideGitRoot({ metadataRoot });
+    if (result.ok || result.reason !== 'outside-gitroot') return '';
+    return (
+      `⚠ storyDir resolves outside the resolved gitRoot ` +
+      `(${result.storyDirAbs} not inside ${result.gitRootAbs}); ` +
+      `the worktree/DONE git lifecycle will fail at INIT_CHECK. ` +
+      `→ configure storyDir so story metadata lives inside the gitRoot.`
+    );
+  } catch {
+    // Defensive: never block story_create on advisory-render failure.
+    return '';
+  }
 }
 
 export function createStoryCreateHandlers(ctx: HandlerContext) {

@@ -1,20 +1,23 @@
 #!/usr/bin/env node
 
 /**
- * B-198c CHK-001 smoke: pure detection helper
+ * B-198c CHK-001 smoke: id-dependent detection helper
  * `evaluateStoryDirInsideGitRoot` (core/story-signed-workspace-resolution.ts).
  *
  * The git-backed lifecycle must git-commit story metadata, which requires the
  * story metadata dir to resolve INSIDE the resolved git root. The two late
  * guards (worktree.ts:754 + cli-engine reconcile) detect this only at
- * INIT_CHECK bootstrap. This helper is the early, pure detector consumed by the
- * doctor check (CHK-002) and the early advisory (CHK-003).
+ * INIT_CHECK bootstrap. This helper is the early detector; the id-independent
+ * sibling `evaluateStoryDirConfigInsideGitRoot` is consumed by the doctor check
+ * (CHK-002) and the early advisory (CHK-003).
  *
  * Coverage (mirrors the EXACT escape condition at worktree.ts:754):
- *  - ok       : storyDir inside gitRoot (metadataRoot == gitRoot)            → ok
- *  - violation: storyDir as a `..` sibling of gitRoot (the ClawCreek case)   → ok=false
- *  - symlink  : symlinked roots resolved via realpath                        → no false violation
+ *  - ok        : storyDir inside gitRoot (metadataRoot == gitRoot)           → ok
+ *  - violation : storyDir as a `..` sibling of gitRoot (the ClawCreek case)  → ok=false
+ *  - symlink   : symlinked roots resolved via realpath                       → no false violation
  *  - no-gitRoot: no resolvable/configured gitRoot                            → ok=true, gitroot-unresolved
+ *  - absent    : story metadata missing → THROWS (delegates to readStory);
+ *                NOT a purity guarantee — id-less callers use the id-independent helper.
  *
  * Builds real temp git repos (deterministic; helper itself spawns no process —
  * the spawn happens inside resolveStorySignedWorkspace's git probe).
@@ -157,17 +160,22 @@ try {
     assert.equal(result.rel, null, 'rel is null when gitRoot is unresolved');
   }
 
-  // ── purity: helper never throws even when the story metadata is absent ──────
+  // ── absent story: id-dependent helper THROWS (honest behavior) ──────────────
+  // The id-dependent helper delegates to resolveStorySignedWorkspace →
+  // store.readStory(), which raises StoryArtifactMissingError when the story
+  // metadata does not exist. This is NOT a purity guarantee: project-level
+  // callers with no story id must use the id-independent helper instead. Assert
+  // the real throwing behavior so the doc comment and the test agree.
   {
-    const root = join(base, 'no-git'); // reuse; story exists, no git
+    const root = join(base, 'absent-story');
+    initGitRepo(root);
+    writeConfig(root); // config present, but NO writeStoryIndex → story absent
     const store = new StoryStore(root);
-    let threw = false;
-    try {
-      evaluateStoryDirInsideGitRoot({ store, storyId: STORY_ID, metadataRoot: root });
-    } catch {
-      threw = true;
-    }
-    assert.equal(threw, false, 'helper must never throw');
+    assert.throws(
+      () => evaluateStoryDirInsideGitRoot({ store, storyId: 'B-missing', metadataRoot: root }),
+      /not found|missing/i,
+      'id-dependent helper must throw when the story metadata is absent',
+    );
   }
 } finally {
   rmSync(base, { recursive: true, force: true });

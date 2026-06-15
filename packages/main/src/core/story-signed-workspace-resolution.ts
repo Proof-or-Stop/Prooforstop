@@ -185,7 +185,14 @@ export function resolveStorySignedWorkspace(
  * the raw path when it does not exist on disk (mirrors the guards'
  * `existsSync ? realpathSync : path` pattern).
  *
- * PURE: never throws, no console output. Callers own presentation.
+ * THROWS only if the story id's metadata is absent: it delegates to
+ * resolveStorySignedWorkspace, which calls store.readStory(storyId) and that
+ * raises StoryArtifactMissingError when the story index.json does not exist.
+ * Callers with a real story id in hand never hit this; project-level callers
+ * that have NO story id must use the id-independent
+ * {@link evaluateStoryDirConfigInsideGitRoot} instead (which is total). Aside
+ * from the absent-story case the helper does not throw and emits no console
+ * output; callers own presentation.
  *
  * When signed-workspace resolution is unresolved (no/invalid gitRoot), returns
  * a DISTINCT non-violation result (`ok: true`, `reason: 'gitroot-unresolved'`)
@@ -295,7 +302,14 @@ export function evaluateStoryDirInsideGitRoot(
  * When no gitRoot can be resolved (no configured gitRoot and metadataRoot is not
  * git-backed), returns a DISTINCT non-violation result
  * (`ok: true`, `reason: 'gitroot-unresolved'`) so callers can report the
- * unresolvable condition separately. PURE: never throws, no console output.
+ * unresolvable condition separately.
+ *
+ * TOTAL: never throws, no console output. Its throwing internals — notably
+ * loadConfig() which calls assertNoLegacyKoalaWritePath() and THROWS for a
+ * legacy KOALA_DIR storyDir — are wrapped in an internal try/catch that
+ * degrades to the same safe non-violation (`ok: true`,
+ * `reason: 'gitroot-unresolved'`) on any internal error, so the advisory
+ * callers (story_create, session_brief) can rely on the guarantee.
  */
 export interface EvaluateStoryDirConfigInsideGitRootOptions {
   metadataRoot: string;
@@ -307,40 +321,62 @@ export function evaluateStoryDirConfigInsideGitRoot(
   opts: EvaluateStoryDirConfigInsideGitRootOptions,
 ): StoryDirInsideGitRootResult {
   const metadataRoot = canonicalPath(opts.metadataRoot);
-  const config = opts.config ?? loadConfig(metadataRoot);
-  // storyDir BASE (no story id appended): the directory that holds every
-  // story's metadata. mirrors StoryStore: join(projectRoot, config.storyDir).
-  const storyDirBase = join(metadataRoot, config.storyDir.replace(/\/$/, ''));
-  const storyDirAbs = canonicalPath(storyDirBase);
+  // Everything that can throw lives inside this try: loadConfig() calls
+  // assertNoLegacyKoalaWritePath(config.storyDir) (lattice-paths.ts), which
+  // THROWS for a legacy KOALA_DIR storyDir; git probing / path math can also
+  // surface unexpected errors. The advisory callers (story_create stderr,
+  // session_brief) treat this helper as never-throwing, so on ANY internal
+  // error fall back to a safe non-violation result (the same shape an
+  // unresolvable gitRoot returns) rather than propagate. This keeps the
+  // "never throws" guarantee accurate without silently fabricating a
+  // false outside-gitRoot violation.
+  try {
+    const config = opts.config ?? loadConfig(metadataRoot);
+    // storyDir BASE (no story id appended): the directory that holds every
+    // story's metadata. mirrors StoryStore: join(projectRoot, config.storyDir).
+    const storyDirBase = join(metadataRoot, config.storyDir.replace(/\/$/, ''));
+    const storyDirAbs = canonicalPath(storyDirBase);
 
-  const gitRootAbs = resolveProjectGitRoot(metadataRoot, config.gitRoot);
+    const gitRootAbs = resolveProjectGitRoot(metadataRoot, config.gitRoot);
 
-  // Unresolved gitRoot → distinct non-violation result; never throw.
-  if (!gitRootAbs) {
+    // Unresolved gitRoot → distinct non-violation result; never throw.
+    if (!gitRootAbs) {
+      return {
+        ok: true,
+        storyDirAbs,
+        gitRootAbs: null,
+        rel: null,
+        reason: 'gitroot-unresolved',
+      };
+    }
+
+    const rel = relative(gitRootAbs, storyDirAbs).replace(/\\/g, '/');
+
+    // EXACT escape condition mirrored from worktree.ts:754 / the id-dependent helper.
+    const violation = !rel || isAbsolute(rel) || rel.split('/').includes('..');
+    if (violation) {
+      return {
+        ok: false,
+        storyDirAbs,
+        gitRootAbs,
+        rel,
+        reason: 'outside-gitroot',
+      };
+    }
+
+    return { ok: true, storyDirAbs, gitRootAbs, rel };
+  } catch {
+    // Internal error (e.g. loadConfig threw on a legacy KOALA_DIR storyDir):
+    // degrade to a safe non-violation. storyDirAbs falls back to metadataRoot
+    // since the configured storyDir base could not be computed.
     return {
       ok: true,
-      storyDirAbs,
+      storyDirAbs: metadataRoot,
       gitRootAbs: null,
       rel: null,
       reason: 'gitroot-unresolved',
     };
   }
-
-  const rel = relative(gitRootAbs, storyDirAbs).replace(/\\/g, '/');
-
-  // EXACT escape condition mirrored from worktree.ts:754 / the id-dependent helper.
-  const violation = !rel || isAbsolute(rel) || rel.split('/').includes('..');
-  if (violation) {
-    return {
-      ok: false,
-      storyDirAbs,
-      gitRootAbs,
-      rel,
-      reason: 'outside-gitroot',
-    };
-  }
-
-  return { ok: true, storyDirAbs, gitRootAbs, rel };
 }
 
 /**

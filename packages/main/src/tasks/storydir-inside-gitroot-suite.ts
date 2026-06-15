@@ -53,6 +53,7 @@ import { StoryStore } from '../core/store.js';
 import {
   evaluateStoryDirConfigInsideGitRoot,
   evaluateStoryDirInsideGitRoot,
+  type StoryDirInsideGitRootResult,
 } from '../core/story-signed-workspace-resolution.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
 import { storyDirOutsideGitRootAdvisory } from '../handlers/story-create.js';
@@ -122,7 +123,14 @@ function runDoctor(root: string): {
   const handlers = createDoctorHandlers({ store, root, scanRoot: root });
   const json = handlers.doctor({ format: 'json' }) as Record<string, unknown>;
   const text = String(handlers.doctor({ format: 'text' }));
-  return { json: json.storyDirGitRoot as any, text };
+  return {
+    json: json.storyDirGitRoot as StoryDirInsideGitRootResult & {
+      violation: boolean;
+      gitRootUnresolved: boolean;
+      reason: string | null;
+    },
+    text,
+  };
 }
 
 /** Drive the REAL session_brief handler and return its rendered text. */
@@ -343,6 +351,31 @@ try {
         threw = true;
       }
       assert.equal(threw, false);
+    });
+
+    check('scenario4.no-gitRoot: id-independent helper stays TOTAL when loadConfig throws (legacy .koala storyDir)', () => {
+      // CL-002 / F-002: loadConfig() calls assertNoLegacyKoalaWritePath(storyDir)
+      // which THROWS for a legacy `.koala` storyDir. The helper wraps its
+      // throwing internals so it degrades to a safe non-violation instead of
+      // propagating; the story_create advisory must likewise stay silent.
+      const legacyRoot = join(base, 'legacy-koala-storydir');
+      mkdirSync(legacyRoot, { recursive: true });
+      writeFileSync(
+        join(legacyRoot, 'lattice.config.json'),
+        JSON.stringify({ storyDir: '.koala/story/actives' }, null, 2),
+      );
+      let threw = false;
+      let result: StoryDirInsideGitRootResult | null = null;
+      try {
+        result = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: legacyRoot });
+        assert.equal(storyDirOutsideGitRootAdvisory(legacyRoot), '');
+      } catch {
+        threw = true;
+      }
+      assert.equal(threw, false, 'helper must not propagate loadConfig throw');
+      assert.equal(result?.ok, true, 'internal error degrades to a non-violation');
+      assert.equal(result?.reason, 'gitroot-unresolved', 'safe fallback reason');
+      assert.equal(result?.gitRootAbs, null, 'no gitRoot on safe fallback');
     });
   }
 } finally {
