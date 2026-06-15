@@ -9,7 +9,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "packages/game is removed from the repository, so the packages directory no longer presents the old browser demo as a maintained Lattice package.",
+      "files": {
+        "modify": [
+          "packages/game/**"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git diff shows packages/game tracked files deleted.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No package manager root configuration references @lattice/game or packages/game after deletion.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The deletion does not touch unrelated packages or active story worktrees.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

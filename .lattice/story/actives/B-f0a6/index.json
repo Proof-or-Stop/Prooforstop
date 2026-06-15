@@ -4,7 +4,7 @@
   "title": "Remove unused packages/game demo package",
   "description": "Remove the legacy packages/game demo because it is not part of the current Lattice CLI direction, is not referenced by root build/test/workspace configuration, and only remains as a fixture documentation example. Update the fixture specification so it no longer points to a real in-repo demo package that should not be maintained as core product surface.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "createdAt": "2026-06-15T02:50:56.610Z",
   "startedAt": "2026-06-15T02:50:56.610Z",
@@ -23,6 +23,14 @@
       "action": "advance",
       "timestamp": "2026-06-15T02:53:17.317Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:54:02.243Z",
+      "branch": "story/B-f0a6",
       "user": "Harmonygo",
       "agent": "main"
     }

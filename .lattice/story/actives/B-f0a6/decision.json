@@ -1,0 +1,46 @@
+{
+  "principles": [
+    "Only remove real unused surface area.",
+    "Keep Lattice CLI product path focused.",
+    "Preserve documentation accuracy after deletion."
+  ],
+  "drivers": [
+    "packages/game is not used by root build/test/runtime paths.",
+    "User explicitly rejected keeping non-directional package clutter.",
+    "Direct docs references must not point to a deleted in-repo path."
+  ],
+  "options": [
+    {
+      "name": "Delete packages/game and update docs references",
+      "pros": [
+        "Removes misleading package surface",
+        "Matches CLI-first direction",
+        "Leaves docs accurate"
+      ],
+      "cons": [
+        "Removes the old browser demo from the working tree"
+      ]
+    },
+    {
+      "name": "Archive packages/game in place as legacy",
+      "pros": [
+        "Keeps demo files available in current tree"
+      ],
+      "cons": [
+        "Still leaves misleading package under packages/",
+        "Continues maintenance ambiguity"
+      ]
+    }
+  ],
+  "chosen": "Delete packages/game and update docs references",
+  "rationale": "Deletion is the narrow correctness fix because the package is not part of the maintained Lattice direction and the only external references are documentation examples that can be made neutral.",
+  "preMortem": [
+    {
+      "scenario": "Docs still reference deleted package",
+      "trigger": "Only package tree is removed",
+      "consequence": "Readers follow broken browser_test examples",
+      "mitigation": "Replace packages/game examples and scan for packages/game residuals before review."
+    }
+  ],
+  "timestamp": "2026-06-15T02:54:25.402Z"
+}
