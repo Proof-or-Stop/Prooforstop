@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6351",
+  "checkedAt": "2026-06-15T02:02:31.999Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "df2eef69dc17cf6639439d79568756e65b754af001a4c4a80c108e35d7959166",
+  "executionBoundaryHash": "3d3ea2bd30ef40eac015f690cfff2e7a0feb32f7e5eb19eaa4c116370eec8a90",
+  "freshnessHash": "0a1b88d8dbfb5f28aff952ec4f44cb722beda8907648caa094b68e775565ae98",
+  "effectiveExcludedKeywords": [
+    "Do not remove unrelated legacy data-read fallbacks such as historical .koala dev-memory unless directly required by entrypoint compatibility tests",
+    "Do not rewrite immutable signed historical story evidence solely to rename stored agent or lane identifiers",
+    "Do not touch .omx or use OMX cleanup paths"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not remove unrelated legacy data-read fallbacks such as historical .koala dev-memory unless directly required by entrypoint compatibility tests",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not remove unrelated legacy data-read fallbacks such as historical .koala dev-memory unless directly required by entrypoint compatibility tests",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rewrite immutable signed historical story evidence solely to rename stored agent or lane identifiers",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rewrite immutable signed historical story evidence solely to rename stored agent or lane identifiers",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not touch .omx or use OMX cleanup paths",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not touch .omx or use OMX cleanup paths",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "923ed7252f6b58224e33c62cc9022fca32ec226b7b193c20e827cb0a309d6cc4"
+}
