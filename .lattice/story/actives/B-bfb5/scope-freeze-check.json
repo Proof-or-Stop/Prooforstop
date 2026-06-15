@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-bfb5",
+  "checkedAt": "2026-06-15T10:36:50.615Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "e37e4a66719cf33f624d5ca0647e5f05a28e7b6c4a644452514862a0411a4202",
+  "executionBoundaryHash": "caf5b5cc3b2078971801e5f1ba824ded21083c117e48e162b1de15c7b93b7ee4",
+  "freshnessHash": "6b0564caf613ff91023a05852cdf2170665fdd89be06a17a65d06d2ad2e7a944",
+  "effectiveExcludedKeywords": [
+    "Do not change Authority Server receipt semantics",
+    "Do not change handoff authority boundaries",
+    "Do not make slim output the default unless explicitly proven backward compatible",
+    "Do not remove fresh-context fence or process-fact semantics",
+    "Do not weaken review_run_start/review_pass/finding gates"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change Authority Server receipt semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change Authority Server receipt semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not change handoff authority boundaries",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change handoff authority boundaries",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not make slim output the default unless explicitly proven backward compatible",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not make slim output the default unless explicitly proven backward compatible",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not remove fresh-context fence or process-fact semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not remove fresh-context fence or process-fact semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not weaken review_run_start/review_pass/finding gates",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not weaken review_run_start/review_pass/finding gates",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7267b4a83ff345f4415c0e1bf16da746cd3d7e3f5fc90c75ef1ee154fc608ebe"
+}
