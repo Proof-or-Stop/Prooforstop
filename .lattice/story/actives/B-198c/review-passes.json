@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-15T21:16:52.028Z",
       "reviewRunId": "B-198c:RR-005",
       "_hash": "66b7ea330c3dcbcbf57de900ce99dd4bd7169eb6d207325fb5b60ae6adb6c49b"
+    },
+    {
+      "id": "B-198c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: all 12 must-intents verified against concrete, non-hollow test code in storydir-inside-gitroot-suite.ts; scenario1-4 each use real git fixtures and assert specific values; new totality checks (lines 335-378) honestly test throw-on-absent-story smoke and legacy .koala storyDir degradation; refreshed evidence headHash ca6dffd matches current HEAD; lattice validate GREEN 12/12 covered.",
+      "createdAt": "2026-06-15T21:18:32.883Z",
+      "reviewRound": "2026-06-15T21:16:52.028Z",
+      "reviewRunId": "B-198c:RR-006",
+      "_hash": "48c169b59b9d71ce37ee0b35931a30caae0bc6109c059e15f0875ed21ce58da9"
     }
   ]
 }
