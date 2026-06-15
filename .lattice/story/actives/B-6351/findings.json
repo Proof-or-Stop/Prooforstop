@@ -84,6 +84,27 @@
         "packages/main/src/handlers/doctor.ts",
         "packages/main/src/core/runtime-fact-registry.ts"
       ]
+    },
+    {
+      "id": "B-6351:F-005",
+      "desc": "Active Koala compatibility remains outside the allowed historical/negative-test/subagent-name contexts. Evidence: node bin/lattice.js doctor still prints active runtime guidance that koala.config.json is still read as a legacy fallback; CLAUDE.md:1024 still says all Story operations go through the koala CLI; README.md:571-573 and docs/guide-hooks.md:3,45 document koala.config.json as a supported fallback; runtime/config code still actively checks koala.config.json in packages/main/src/core/config.ts, packages/main/src/core/runtime-fact-registry.ts, and .codex/hooks/lattice-scope-pretool.cjs. This contradicts B-6351 stated outcome that Lattice is the only active runtime/documentation name and the review focus to delete Koala compatibility rather than preserve it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-15T03:21:45.900Z",
+      "reviewRound": "2026-06-15T03:18:38.436Z",
+      "reviewRunId": "B-6351:RR-008",
+      "_hash": "b4ce33a70d4a2894d9de6f1646fbaa559e9672c88628f5a8f110a81da711f51e",
+      "files": [
+        "CLAUDE.md",
+        "README.md",
+        "docs/guide-hooks.md",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/runtime-fact-registry.ts",
+        ".codex/hooks/lattice-scope-pretool.cjs"
+      ]
     }
   ]
 }
