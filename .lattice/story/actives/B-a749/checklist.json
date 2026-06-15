@@ -99,9 +99,9 @@
       "title": "Skip-with-warning for out-of-scope packages missing node_modules",
       "context": "When a tsconfig's package has no node_modules and is NOT in the change scope, treat it as skipped-with-warning rather than a hard fail (distinct from the in-scope case, which still fails if deps are genuinely missing). Keep the existing ENOENT(binary)->skip vs non-zero-exit->fail distinction for in-scope packages.",
       "userSees": "When a fresh worktree lacks frontend node_modules and the change is backend-only, validate --lint prints '[lint] skipped: <frontend tsconfig> (out of scope, deps absent)' instead of '[lint] fail: tsc ... Cannot find module'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:30:57.287Z",
       "verificationIntent": {
         "happy": [
           {
