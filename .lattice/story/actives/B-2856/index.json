@@ -4,7 +4,7 @@
   "title": "Honor configured gitRoot in all git invocations that currently run from metadataRoot",
   "description": "Bug 1 from the 2026-06-15 ClawCreek bug report (Lattice 0.3.5), verified real in this source. The canonical gitRoot resolver is resolveStorySignedWorkspace() in core/story-signed-workspace-resolution.ts, whose authoritativeCwd is the resolved git root (story_resolve already uses it, resolutionSource=configured-git-root). But multiple git child-process sites bypass the resolver and run git with cwd=projectRoot/root (the metadataRoot). When gitRoot is configured to a subdirectory (wrapper-root layout, metadataRoot != gitRoot), those commands fail with 'fatal: not a git repository', hard-blocking REVIEW->TEST (validate --channel / --concept), cluster-sync auto-resolve, and the DONE merge + story_discard lifecycle. Outcome: every offending site resolves authoritativeCwd via resolveStorySignedWorkspace() (with a defined null/unresolved fallback to today's projectRoot/root so plain repos stay byte-identical) and runs git from the correct gitRoot. Scope is strictly cwd resolution: do NOT change git command text, gate pass/fail logic, or worktree bootstrap behavior.\n\nVerified offending sites (file:line):\n- validate-channel.ts:75,78-79,83,89-91,96-98 (defaultGitLogReader + defaultGitChangedFilesReader: rev-parse/merge-base/log/show, cwd: projectRoot)\n- validate-concept.ts:78-79,90-91 (defaultGitDiffReader git diff base...HEAD + defaultGrepReader grep -rnF, cwd: projectRoot)\n- cluster-sync.ts:140-141 (readCommitsSinceMain git log main..HEAD, cwd: projectRoot)\n- worktree.ts:229-235 git() default cwd=root; :258-259 worktree remove; :373-376 branchExists; :958,969 story_advance merge (rev-parse/merge --no-ff); :1049,1164 story_discard (status --porcelain / branch -D)\n\nExplicitly OUT OF SCOPE: worktree.ts:316 git add (already uses repoRoot; its real defect is the missing -f flag = Bug 3); plus Bugs 2 (atomic INIT_CHECK bootstrap), 3 (.lattice track/ignore data-loss), 4 (lint change-scope) are tracked as separate stories.\n\nRelation to B-198c (INIT_CHECK, detection-only): B-198c extracts the storyDir-inside-gitRoot invariant into a reusable fn + early advisory (doctor / story_create / session_brief) and explicitly does NOT change git cwd resolution. This story is the orthogonal execution-side fix: it CONSUMES the existing resolver's authoritativeCwd at the git call sites. No file/symbol overlap; they compose (B-198c detects misconfig early; this story executes correctly when gitRoot is legitimately a subdirectory).",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "gitRoot",
@@ -37,6 +37,14 @@
       "action": "advance",
       "timestamp": "2026-06-15T21:37:20.588Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T21:37:43.656Z",
+      "branch": "story/B-2856",
       "user": "Harmonygo",
       "agent": "main"
     }

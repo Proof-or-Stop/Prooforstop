@@ -7,7 +7,16 @@
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate --channel --story=B-xxx` runs the channel gate from the gitRoot and returns its normal pass/fail/skipped result instead of failing with 'fatal: not a git repository'.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
+      }
     },
     {
       "id": "CHK-002",
