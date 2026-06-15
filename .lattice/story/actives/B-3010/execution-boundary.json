@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3010",
+  "allowedCommands": [
+    "claude --print *",
+    "codex *",
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git merge main",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "node packages/main/src/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test*"
+  ],
+  "allowedTools": [
+    "Claude CLI",
+    "Codex CLI",
+    "Lattice CLI",
+    "local shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-3010",
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+    "packages/main/dist",
+    "packages/main/scripts",
+    "packages/main/src",
+    "packages/main/src/tasks",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "*/.omx/*",
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "omx *",
+    "rm -rf .claude/agents*",
+    "rm -rf .Codex/agents*"
+  ],
+  "excludedTools": [
+    "Authority completion without receipt-backed proof",
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".claude/agents",
+    ".Codex/agents",
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-auditor",
+  "confirmationNote": "Host-neutral local Non-authority implementation. Detect and report project-local prompt assets only; do not repair/delete/migrate them. Authority Server completion remains receipt-backed future path only.",
+  "createdAt": "2026-06-15T11:48:37.119Z",
+  "updatedAt": "2026-06-15T11:48:37.119Z",
+  "_hash": "9bfeebcaa4edb6d7706e29d5e0f8cc82bfc6d7e335547f672e126ae93e1e0ccc"
+}

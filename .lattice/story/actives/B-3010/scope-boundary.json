@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3010",
+  "mode": "feature",
+  "allowed": [
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md and docs/audits/lattice-token-cost-and-takeover-audit.md if factual implementation notes are needed",
+    "Lattice process evidence via CLI commands only",
+    "packages/main/src/** doctor, verify_codex, config or rollout diagnostics surfaces",
+    "packages/main/src/** runtime asset/prompt registry/managed asset resolution code",
+    "packages/main/tests/** and packages/main/src/tasks/** regression smokes for runtime-owned asset detection and token accounting"
+  ],
+  "excluded": [
+    "Do not add Authority Server completion claims or receiptVerified/authorityDone/fullAuthorityDone without receipt-backed proof",
+    "Do not auto-delete or auto-migrate existing .claude/agents or .Codex/agents files",
+    "Do not copy full agent prompt templates into business projects by default",
+    "Do not implement broad artifact isolation or unrelated optimization",
+    "Do not modify unrelated active stories or user worktrees"
+  ],
+  "confirmedBy": "codex-auditor",
+  "confirmationNote": "User requested executing the runtime-owned agent assets plan: templates should live in local Lattice CLI runtime, not in other projects; offline remains local CLI-owned; record token usage; fix only real correctness issues and follow consistency of logic.",
+  "createdAt": "2026-06-15T11:48:21.518Z",
+  "updatedAt": "2026-06-15T11:48:21.518Z",
+  "_hash": "4e091c66f8d262ed9a1232bd4e17b3506692bc4ebf12ad9f46000828664bfaee"
+}
