@@ -141,6 +141,17 @@
           "headHash": "95b878d75e5777806ef2672ff39f85a436f9c2d5",
           "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
           "timestamp": "2026-06-15T22:31:16.847Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-metadata-protection-smoke",
+          "result": "pass",
+          "note": "smoke check: doctor --repair writes managed allowlist (neutralizes bare .lattice/ + mergeRuntimeGitignore) -> re-scan safe; second --repair no-op",
+          "headHash": "aadcd0ed7b9f6cf72b0955c8d58a889c6253ae54",
+          "materialHash": "f17222cbdf54053fe8b709e33a16071208ea284aa53663d4801f7ed85b3aed7b",
+          "timestamp": "2026-06-15T22:31:17.243Z"
         }
       ]
     },
