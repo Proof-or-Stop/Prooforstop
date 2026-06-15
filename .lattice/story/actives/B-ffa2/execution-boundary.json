@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ffa2",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git status",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_create",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "node bin/lattice.js verify_codex",
+    "npm run build",
+    "npm run typecheck",
+    "npm test",
+    "rg"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".Codex",
+    "AGENTS.md",
+    "bin",
+    "CLAUDE.md",
+    "docs/audits",
+    "docs/guide-hooks.md",
+    "docs/guide-scope-guard.md",
+    "docs/guide.md",
+    "docs/requirements/decisions",
+    "packages/main",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Execution is limited to Lattice naming migration and verification; no OMX, no direct story or fixture file edits.",
+  "createdAt": "2026-06-15T15:28:34.904Z",
+  "updatedAt": "2026-06-15T15:28:34.904Z",
+  "_hash": "d4a1252c84d764857f0dec8e4baca25a57b8cb8037e726fa94a232ecc05c3aa4"
+}
