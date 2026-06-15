@@ -159,8 +159,12 @@ export function createVerdictHandlers(ctx: HandlerContext) {
         runId: verdict.runId,
         hostId: verdict.hostId,
         provider: verdict.provider,
+        sessionId: verdict.sessionId,
+        keyId: verdict.keyId,
         decision: verdict.decision,
         materialDigest: verdict.materialDigest,
+        validationDigest: verdict.validationDigest,
+        promptDigest: verdict.promptDigest,
       });
     }
     return verdict;

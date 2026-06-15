@@ -242,6 +242,12 @@ const serverAuthorityReceiptSchema = z.union([
   }).passthrough(),
 ]);
 
+const reviewEscalationFallbackEligibilitySchema = z.enum([
+  'single-host-environment',
+  'temporary-host-unavailability',
+  'explicit-human-approval',
+]);
+
 const capsuleEvidenceRefSchema = z.object({
   kind: z.string().optional(),
   path: z.string().optional(),
@@ -815,8 +821,24 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'decision_doc_quorum_check', description: 'Read-only decision-doc local quorum diagnostics for the DONE gate; not Authority receipt completion. Alias: lattice decision doc quorum check', schema: {
+  { name: 'decision_doc_quorum_check', description: 'Read-only decision-doc local quorum diagnostic; decision-doc edits are classification-only unless review_escalation_status requires quorum. Alias: lattice decision doc quorum check', schema: {
     storyId: z.string().describe('Story ID'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'review_escalation_status', description: 'Read-only REVIEW escalation status for DONE; reports ordinary, full 3x2, or degraded 3x1 assurance without Authority completion. Alias: lattice review escalation status', schema: {
+    storyId: z.string().describe('Story ID'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'review_escalation_fallback_set', description: 'Record explicit degraded 3x1 review escalation fallback evidence bound to the current material hash. Alias: lattice review escalation fallback set', schema: {
+    storyId: z.string().describe('Story ID'),
+    eligibility: reviewEscalationFallbackEligibilitySchema.describe('Allowed degraded fallback eligibility'),
+    reason: z.string().min(20).describe('Why full 3x2 host quorum is unavailable'),
+    evidenceRefs: z.array(z.string().min(1)).optional().describe('Local evidence references supporting degraded fallback'),
+    approvalRef: z.string().optional().describe('Explicit approval reference; required when evidenceRefs is empty'),
+    materialHash: z.string().optional().describe('Optional expected current material hash; stale values are rejected'),
+    actor: z.string().optional().describe('Operator or reviewer recording the fallback'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
@@ -2045,7 +2067,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'autopilot_review_submit', description: 'Submit a local non-authority independent host verdict. Alias: lattice autopilot review submit', schema: {
+  { name: 'autopilot_review_submit', description: 'Submit a local non-authority host verdict with identity/material bindings for review escalation. Alias: lattice autopilot review submit', schema: {
     verdictFile: z.string().optional().describe('Verdict JSON file'),
     storyId: z.string().optional().describe('Story id'),
     runId: z.string().optional().describe('Local run id'),
@@ -3518,6 +3540,8 @@ export async function runCli(opts?: {
   'autopilot review submit': 'autopilot_review_submit',
   'autopilot review status': 'autopilot_review_status',
   'decision doc quorum check': 'decision_doc_quorum_check',
+  'review escalation status': 'review_escalation_status',
+  'review escalation fallback set': 'review_escalation_fallback_set',
   'planner draft': 'planner_draft',
   'planner review': 'planner_review',
   'planner create-story': 'planner_create_story',

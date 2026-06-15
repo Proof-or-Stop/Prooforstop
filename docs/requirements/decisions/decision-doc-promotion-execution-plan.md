@@ -18,9 +18,10 @@ mechanical path for an operator, reviewer, or agent to say: this story decision
 is no longer just local story evidence; it is now a durable project rule.
 
 Once a decision document is created or updated under
-`docs/requirements/decisions/*.md`, the existing decision-doc quorum DONE gate
-applies. That means the story cannot complete without the local 3-round,
-2-host fresh `host_verdict` quorum.
+`docs/requirements/decisions/*.md`, the change is governance/documentation
+material for diagnostics and reviewer context. It does not by itself trigger the
+local 3-round, 2-host DONE quorum; review escalation is required only when the
+first lifecycle REVIEW round records at least two countable reviewer problems.
 
 This is a planning artifact only. It does not implement the CLI change, add
 commands, or authorize this story to edit source-code surfaces outside its
@@ -94,7 +95,8 @@ The future implementation must not:
 - let `decision_doc_save` expand the story scope during DEV without prior PLAN
   scope coverage or an explicit scope-extension path;
 - create or update decision docs outside `docs/requirements/decisions/*.md`;
-- bypass the existing decision-doc quorum DONE gate;
+- bypass the review escalation DONE gate when the first-round problem threshold
+  actually fires;
 - weaken `story_review`, REVIEW, TEST, delivery-check, or DONE gates;
 - let INIT reviewers expand story scope by writing decision docs;
 - use prose-only review comments as decision-doc quorum evidence;
@@ -453,8 +455,8 @@ Required registry updates in the implementation story:
 - `PROCESS_FACT_LEVELS`
   - proposal: L4 if `decision_doc_save` consumes it to write durable project
     policy; otherwise the save handler must not trust it as gate evidence.
-  - save: L4, category `decision-doc-promotion`, consumed by the existing
-    decision-doc quorum DONE gate through the changed file.
+  - save: L4, category `decision-doc-promotion`, visible to diagnostics and
+    reviewers; it must not make the changed file an always-on quorum trigger.
 - `process-fact-registry`
   - register proposal artifact if introduced, including digest/freshness
     semantics and the save-command consumer.
@@ -655,7 +657,8 @@ The future implementation is complete when:
 - invalid paths and accidental overwrites are refused;
 - target paths outside PLAN scope or accepted scope extension are refused;
 - stale proposal/source-decision digests are refused;
-- saved decision docs trigger the existing decision-doc quorum DONE gate;
+- saved decision docs remain diagnostic/governance material; DONE escalation
+  still depends on the first-round countable reviewer problem threshold;
 - process fact registry and contract verifier cover the new commands;
 - tests cover happy, edge, adversarial, and gate integration cases;
 - docs explain when to promote a decision and when not to;

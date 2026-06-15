@@ -89,7 +89,7 @@ try {
   const changedFiles = listChangedDecisionDocs(root);
   const materialDigest = computeDecisionDocMaterialDigest(root, changedFiles);
 
-  check('valid three-round two-host fresh-digest quorum passes', () => {
+  check('valid three-round two-host fresh-digest diagnostic quorum passes', () => {
     const report = evaluateDecisionDocQuorum({ projectRoot: root, processEvents: validEvents(materialDigest) });
     assert.equal(report.applicable, true);
     assert.equal(report.ok, true);
@@ -97,6 +97,14 @@ try {
     assert.deepEqual(report.changedFiles.map(f => f.path), ['docs/requirements/decisions/quorum.md']);
     assert.equal(report.validRounds.length, 3);
     assert.equal(report.validRounds.every(round => round.passingHostIds.length === 2), true);
+  });
+
+  check('decision-doc diagnostic wording does not claim DONE is blocked', () => {
+    const report = evaluateDecisionDocQuorum({ projectRoot: root, processEvents: [] });
+    const text = formatDecisionDocQuorumFailure(report);
+    assert.equal(text.includes('Cannot enter DONE'), false);
+    assert.equal(text.includes('classification/diagnostic only') || text.includes('diagnostic only'), true);
+    assert.equal(text.includes('review_escalation_status'), true);
   });
 
   check('duplicate hosts do not satisfy a round', () => {
