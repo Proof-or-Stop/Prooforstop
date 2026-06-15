@@ -5,9 +5,9 @@
       "title": "Update the two stale-warning assertions from 'koala' to 'Lattice' so the cooldown test matches the rebranded CLI header",
       "context": "packages/main/src/tasks/field-regression-cli-smoke.ts:1894 (assert.match) and :1906 (assert.doesNotMatch) both use /koala stale state warnings/; cli-engine.ts:3657 now emits '⚠ Lattice stale state warnings:'. After the change, `npm run test:field-regression-cli-smoke` must reach completion (the assertStaleWarningCooldownCliSurface failure is gone).",
       "userSees": "`npm run test:field-regression-cli-smoke` runs to completion without the assertStaleWarningCooldownCliSurface AssertionError.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T00:35:02.654Z",
-      "endTime": null,
+      "endTime": "2026-06-15T00:37:57.521Z",
       "verificationIntent": {
         "happy": [
           {
