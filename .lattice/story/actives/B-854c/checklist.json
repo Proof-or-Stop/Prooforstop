@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Choose and document the metadata protection model (decision)",
+      "context": "Decide between Approach A (git add -f + check-ignore guard), B (scaffold/validate the ignore-volatile/track-metadata .gitignore allowlist on init/doctor), C (relocate volatile vs persistent), or a combination. Capture as a decision with >=3 preMortem since this is a critical data-loss path. The chosen model must make the bootstrap git-add behavior and the data-loss protection stance mutually consistent.",
+      "userSees": "A decision record states the chosen protection model and rationale; `lattice story_get` reflects the decision and the PLAN gate passes with >=3 preMortem.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make worktree bootstrap robust to an ignored story metadata path",
+      "context": "worktree.ts:316 runs `git add .lattice/story/actives/<id>` without -f, which fails with 'paths are ignored' when .lattice is ignored. Implement the chosen model so bootstrap either force-adds with a validated guard or fails with a clear, actionable error/repair instead of an opaque git error.",
+      "userSees": "On a project whose .gitignore would ignore story metadata, worktree bootstrap either succeeds (metadata tracked) or prints a clear remediation message, instead of 'The following paths are ignored by one of your .gitignore files: .lattice'.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a doctor check + scaffolding for the track/ignore invariant",
+      "context": "Add a `lattice doctor` check that flags when story metadata is neither tracked nor protected (the data-loss state), and scaffold/repair the correct ignore-volatile/track-metadata allowlist on init or via a repair command, so new projects are safe by default rather than depending on a hand-crafted .gitignore.",
+      "userSees": "`lattice doctor` reports a clear warning (and offers a repair) when story metadata is untracked-and-unignored, instead of the silent data-loss trap; a freshly-initialized project has metadata protected by default.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression tests for the data-loss invariant",
+      "context": "Cover: metadata path is tracked (or protected) after bootstrap under both an ignoring and non-ignoring .gitignore; the doctor check detects the unsafe state; bootstrap does not silently leave metadata untracked. Use existing test seams; simulate .gitignore states with fixtures.",
+      "userSees": "`lattice validate` runs the new tests green, proving story metadata cannot end up in the neither-tracked-nor-protected state after bootstrap.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

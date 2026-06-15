@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-854c",
+  "allowedCommands": [
+    "git",
+    "git add",
+    "git check-ignore",
+    "lattice",
+    "lattice validate",
+    "node packages/main/dist",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".gitignore",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bug 3: story-metadata data-loss protection; decision-led (>=3 preMortem).",
+  "createdAt": "2026-06-15T22:01:51.242Z",
+  "updatedAt": "2026-06-15T22:01:51.242Z",
+  "_hash": "a118b1d25235c0b6b6fa2e7748a77f41332e80a5c00ad86ad44952fb4c749efa"
+}
