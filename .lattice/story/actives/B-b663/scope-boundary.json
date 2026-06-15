@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b663",
+  "mode": "feature",
+  "allowed": [
+    ".lattice/story/actives/B-b663/**",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+  ],
+  "excluded": [
+    ".omx/**",
+    "Authority server behavior changes",
+    "packages/main/src/** runtime implementation",
+    "unrelated documentation rewrites"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "User clarified on 2026-06-15 that documentation audit should also use ordinary-development automatic 3x2/3x1 rules rather than always-on decision-doc 3x2.",
+  "createdAt": "2026-06-15T02:43:54.975Z",
+  "updatedAt": "2026-06-15T02:43:54.975Z",
+  "_hash": "ff0f346b8822442591e6be0640349468ae746aa4dcd20b785a50ff7082e8ea3f"
+}
