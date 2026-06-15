@@ -257,9 +257,9 @@
       "title": "Route cluster-sync commit scan through the resolved gitRoot",
       "context": "cluster-sync.ts:137-150 readCommitsSinceMain(projectRoot) runs git log main..HEAD with cwd: projectRoot (metadataRoot). Resolve authoritativeCwd and pass it instead so Resolves: CL-xxx commit scanning works under wrapper-root. Preserve the existing error-surfaced-as-warning behavior (F-023 path).",
       "userSees": "With gitRoot configured to a subdirectory, `lattice validate` auto-resolves Resolves: CL-xxx clusters from main..HEAD commits (or prints the git error as a warning) instead of silently finding no commits because git ran from the wrong root.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:06:25.100Z",
       "files": {
         "modify": [
           "packages/main/src/core/cluster-sync.ts"
