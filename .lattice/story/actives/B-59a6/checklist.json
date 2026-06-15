@@ -223,9 +223,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/command-policy.ts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T03:32:39.686Z",
       "userSees": "User sees English diagnostics that explain whether review escalation is not required, full 3x2 is required, or degraded 3x1 was accepted.",
       "files": {
         "modify": [
@@ -270,7 +270,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "status-command-clear-output",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js review_escalation_status --storyId=B-59a6",
+          "result": "pass",
+          "note": "CLI output reports required:false, ok:true, assuranceLevel: ordinary-review, and authorityDone/fullAuthorityDone/productionDone all false for the current zero-finding documentation-audit story.",
+          "headHash": "a1f085e60abd84f789235f3cd336de78dba9a30a",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:39.762Z"
+        },
+        {
+          "intentRef": "decision-doc-check-classification",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js decision_doc_quorum_check --storyId=B-59a6",
+          "result": "pass",
+          "note": "CLI output says changed decision docs do not by themselves require DONE quorum and points operators to review_escalation_status for the actual DONE requirement.",
+          "headHash": "a1f085e60abd84f789235f3cd336de78dba9a30a",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:39.800Z"
+        },
+        {
+          "intentRef": "no-authority-overclaim",
+          "kind": "docs_check",
+          "command": "authority-overclaim-docs-scan",
+          "result": "pass",
+          "note": "A narrow docs scan for authorityDone true, fullAuthorityDone true, productionDone true, and receiptVerified true returned no matches in the changed decision docs.",
+          "headHash": "a1f085e60abd84f789235f3cd336de78dba9a30a",
+          "materialHash": "2cd85d7d6d5c78d902ac306c805fb9b3dafd1d42767e3d9a0249f1126102ae30",
+          "timestamp": "2026-06-15T03:32:39.850Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
