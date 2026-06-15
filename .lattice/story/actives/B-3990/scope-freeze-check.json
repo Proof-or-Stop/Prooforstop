@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3990",
+  "checkedAt": "2026-06-15T23:22:28.474Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "94c4683c63bb2ebcfcecb6e310c66a3a3bf355cec46e276d48897175fb28097a",
+  "executionBoundaryHash": "6ebf696feb945941f3893e7b80547013dc122c792d3eedc6fad60ba448898dd3",
+  "freshnessHash": "87b521f1410d74c5b3684ba50a562c55fabd80a64fdb2444dfa0673221d1578f",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changing gate pass/fail semantics or git command text",
+    "customerKeyRef",
+    "Layer4",
+    "Modifying evaluateStoryDirConfigInsideGitRoot itself",
+    "Modifying the --story / resolveGitCwd path (B-2856, already works)",
+    "repair UX",
+    "Repo-wide git invocation rework"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing gate pass/fail semantics or git command text",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing gate pass/fail semantics or git command text",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying evaluateStoryDirConfigInsideGitRoot itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying evaluateStoryDirConfigInsideGitRoot itself",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying the --story / resolveGitCwd path (B-2856, already works)",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying the --story / resolveGitCwd path (B-2856, already works)",
+      "excluded": true
+    },
+    {
+      "keyword": "Repo-wide git invocation rework",
+      "source": "scopeBoundary.excluded",
+      "text": "Repo-wide git invocation rework",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9fff2acc2923276305c85a81b0cceedc7811b2ccc2cf3d0f580ba88b26a8ebc9"
+}

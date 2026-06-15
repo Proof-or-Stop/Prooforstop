@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3990",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-3990/",
+    "packages/main/src/handlers/",
+    "packages/main/src/tasks/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "cwd-only fix at the verifier.ts no-story gitCwd fallback; reuse the exported evaluateStoryDirConfigInsideGitRoot; do not change gate semantics or git command text.",
+  "createdAt": "2026-06-15T23:22:28.223Z",
+  "updatedAt": "2026-06-15T23:22:28.223Z",
+  "_hash": "6ebf696feb945941f3893e7b80547013dc122c792d3eedc6fad60ba448898dd3"
+}
