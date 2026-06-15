@@ -121,7 +121,7 @@
       "desc": "Active test/config surfaces still depend on koala.config.json: test:gap-coverage-smoke locates only koala.config.json and fails in a lattice.config.json-only repo, and test-flow-e2e still documents/creates koala.config.json as normal sandbox config. These are active tests, not legacy docs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-15T17:03:36.921Z",
@@ -132,7 +132,9 @@
         "packages/main/src/tasks/gap-coverage-smoke.ts",
         "packages/main/src/tasks/test-flow-e2e.ts",
         "packages/main/package.json"
-      ]
+      ],
+      "resolvedReason": "Resolved by making gap-coverage-smoke locate lattice.config.json and making test-flow-e2e document/create lattice.config.json in its sandbox. npm --prefix packages/main run build, npm --prefix packages/main run test:gap-coverage-smoke, and npm --prefix packages/main run test:flow-stability-smoke passed; the targeted rg scan for koala.config.json in these changed files returns no matches.",
+      "resolvedAt": "2026-06-15T17:10:54.482Z"
     }
   ]
 }
