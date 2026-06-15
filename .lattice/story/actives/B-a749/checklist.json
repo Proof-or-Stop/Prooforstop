@@ -58,6 +58,17 @@
           "headHash": "799dfca0ab93016422272e708062416436b97584",
           "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
           "timestamp": "2026-06-15T22:30:36.445Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (c): undefined changedFiles -> full recursive tsc unchanged, CommandRunner invoked for every tsconfig, legacy 'tsc: checked N tsconfigs' preserved.",
+          "headHash": "e237f4a745f1df9c0fdb343f54f332ed3830614b",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:36.893Z"
         }
       ]
     },
