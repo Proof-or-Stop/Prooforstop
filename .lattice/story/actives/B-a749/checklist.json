@@ -35,6 +35,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-lint.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/review-preflight.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-lint-change-scope-smoke.ts"
+        ]
       }
     },
     {
