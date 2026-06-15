@@ -37,7 +37,30 @@
       "context": "doctor should detect the violation using the shared fn and print the same remediation text (configure storyDir so story metadata lives inside the gitRoot), so users see it before INIT_CHECK.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice doctor reports the violation + remediation when storyDir is outside gitRoot",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "doctor stays clean when storyDir is inside gitRoot or no gitRoot is configured",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "doctor does not throw when configured gitRoot is unresolvable; reports that condition separately",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
