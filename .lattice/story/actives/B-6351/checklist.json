@@ -84,7 +84,72 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Codex-facing docs and verification output tell the user to run `node bin/lattice-codex.js ...`; legacy `bin/koala-codex.js`, `.Codex/koala.json`, and `.codex/koala.json` are not accepted as active compatibility assets.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-init.ts",
+          ".Codex/README.md",
+          ".codex/README.md",
+          ".Codex/lattice.json",
+          ".codex/lattice.json",
+          "README.md",
+          "docs/guide-hooks.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-truth-cli-commands.mjs",
+          "scripts/verify-session-brief-command-center.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node bin/lattice-codex.js session_brief -> succeeds and records source=codex/local-wrapper without requiring bin/koala-codex.js.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run node bin/lattice.js verify_codex -> adapter checks pass using lattice-codex/lattice wrapper paths only.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Codex README and manifest guidance mention bin/lattice-codex.js and bin/lattice.js only for active commands.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Managed asset generation for new projects creates lattice wrappers and does not create bin/koala.js or bin/koala-codex.js compatibility files.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Existing user-owned legacy files are not overwritten by this story unless they are generated compatibility assets in this repo.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plant only legacy .Codex/koala.json or bin/koala-codex.js in a fixture root -> Codex adapter verification fails or ignores it, never counts it as a passing active asset.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "rg over active Codex/generated asset docs for `koala-codex` and `.Codex/koala.json` -> zero active compatibility guidance remains outside historical archived notes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
