@@ -2,7 +2,7 @@
 //
 // Authority boundary smoke (B-ec09 / Milestone 1).
 //
-// Purpose: prove mechanically that Koala CLI authority submissions cannot be
+// Purpose: prove mechanically that Lattice CLI authority submissions cannot be
 // mistaken for receipt-backed L2+ production authority. Even a forged "transport
 // accepted" path on a CLI-shaped envelope must classify as `thin-client-*`,
 // never as `receipt-backed-l2-plus`.
@@ -288,7 +288,7 @@ function caseRequirementsFrozenList(): void {
 
 function caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission(): void {
   // PD-2 hardening (B-7e38 CHK-002): even if future docs describe a
-  // "koala authority enforce" subsystem, normal workflow CLI submissions that
+  // "lattice authority enforce" subsystem, normal workflow CLI submissions that
   // go through the existing transport path must remain thin-client.
   //
   // This case simulates the scenario where a workflow evidence handler calls

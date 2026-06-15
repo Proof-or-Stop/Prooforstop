@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- * Package-owned registry for Koala/Lattice agent prompt templates. Project
+ * Package-owned registry for Lattice agent prompt templates. Project
  * assets can point at this registry instead of materializing every prompt file.
  * @changes
  * - [CHK-002] Add stable prompt metadata, hashes, and host-specific rendering.
@@ -16,10 +16,10 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const PROMPT_REGISTRY_VERSION = 'koala.prompt-registry.v1';
+export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
 export const PROMPT_REGISTRY_SOURCE = '@lattice-agent/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
-export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- koala:start -->
+export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -118,7 +118,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- koala:end -->`;
+<!-- lattice:end -->`;
 
 export type PromptHost = typeof SUPPORTED_PROMPT_HOSTS[number];
 

@@ -3,7 +3,7 @@
  *
  * Trigger flow (B-a2f1 CHK-003):
  *   1. classifyDirtyWorktree(projectRoot) uses the B-6326 shared classifier.
- *   2. **Allowlist** check (not a blocklist): only koala_metadata_changes /
+ *   2. **Allowlist** check (not a blocklist): only lattice_metadata_changes /
  *      runtime_artifact_changes / declared_artifact_changes are allowed through; any
  *      other category (including future additions) → immediately refused.
  *      (preMortem #1: when classifier adds a new category, it must default to refused rather than allowed)
@@ -38,7 +38,7 @@ import { createVerifierHandlers } from './verifier.js';
  * category, the new value will be silently allowed through (preMortem #1).
  */
 export const RECOVER_EVIDENCE_ALLOWED_CATEGORIES: ReadonlySet<DirtyWorktreeCategory> = new Set<DirtyWorktreeCategory>([
-  'koala_metadata_changes',
+  'lattice_metadata_changes',
   'runtime_artifact_changes',
   'declared_artifact_changes',
 ]);
@@ -171,7 +171,7 @@ export function createRecoverEvidenceHandlers(ctx: HandlerContext): Record<strin
           try {
             const parsed = JSON.parse(validateOutput);
             if (parsed && typeof parsed === 'object') {
-              // koala-verifier* JSON has either `allPass: boolean` (verifier output)
+              // lattice-verifier* JSON has either `allPass: boolean` (verifier output)
               // or `status: 'pass' | 'fail' | 'warn'`.
               if (typeof parsed.allPass === 'boolean') {
                 validateOk = parsed.allPass;

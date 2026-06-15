@@ -33,7 +33,7 @@ function initRepo(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -166,11 +166,11 @@ async function runKoalaFromCwd(cwd: string, command: string, args: Record<string
 }
 
 async function assertReviewPassConcurrentWrites(): Promise<void> {
-  const root = initRepo('koala-review-pass-');
+  const root = initRepo('lattice-review-pass-');
   try {
     const storyId = 'B-pass';
     writeReviewStory(root, storyId);
-    const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `koala-review-${name}`);
+    const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `lattice-review-${name}`);
     const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
     await Promise.all(agents.map(agent => runKoala(root, 'review_pass_set', {
       storyId,
@@ -418,7 +418,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
     });
     store.writeChecklist(storyId, { items: [] });
     git(root, ['add', '.lattice/story/actives']);
-    git(root, ['commit', '-m', `koala: story ${storyId} init`]);
+    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
     git(root, ['branch', `story/${storyId}`]);
     const worktreePath = join(root, '.worktrees', storyId);
     git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
@@ -488,7 +488,7 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
     const storyId = 'B-purge';
     writeReviewStory(root, storyId);
     git(root, ['add', '.lattice/story/actives/B-purge']);
-    git(root, ['commit', '-m', `koala: story ${storyId} init`]);
+    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
@@ -514,7 +514,7 @@ function assertDocsDriftAllowsBootstrapAndLegacyCommands(): void {
 }
 
 function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
-  const root = initRepo('koala-channel-main-owner-');
+  const root = initRepo('lattice-channel-main-owner-');
   try {
     const storyId = 'B-channel';
     const store = new StoryStore(root);
@@ -592,7 +592,7 @@ async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
       events: [],
     });
 
-    const output = await runKoala(root, 'dispatch', { storyId, agentType: 'koala-review-story-init' });
+    const output = await runKoala(root, 'dispatch', { storyId, agentType: 'lattice-review-story-init' });
     assert.match(output, /INIT_REVIEW_START/, 'init dispatch should ask reviewer to emit start heartbeat');
     assert.match(output, /INIT_REVIEW_READ_DONE/, 'init dispatch should ask reviewer to emit read heartbeat');
     assert.match(output, /5 minutes/, 'init dispatch should include an upper time bound');
@@ -601,7 +601,7 @@ async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch');
     assert.equal(dispatchEvent?.targetKind, 'init-review', 'init dispatch should write an init-review dispatch event');
-    assert.equal(dispatchEvent?.agentType, 'koala-review-story-init', 'init dispatch should preserve reviewer agentType');
+    assert.equal(dispatchEvent?.agentType, 'lattice-review-story-init', 'init dispatch should preserve reviewer agentType');
     assert.equal(dispatchEvent?.phase, 'INIT', 'init dispatch event should include story phase');
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -617,10 +617,10 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     const output = await runKoala(root, 'dispatch', {
       storyId,
       itemId: 'CHK-001',
-      agentType: 'koala-implementer',
+      agentType: 'lattice-implementer',
     });
     assert.match(output, /CHK-001/, 'item dispatch should still return the item prompt');
-    assert.match(output, /DISPATCH_START:koala-implementer\/CHK-001/, 'item dispatch should ask worker to emit a liveness heartbeat');
+    assert.match(output, /DISPATCH_START:lattice-implementer\/CHK-001/, 'item dispatch should ask worker to emit a liveness heartbeat');
     assert.match(output, /4 minutes/, 'item dispatch should include status-check timing');
     assert.match(output, /10 minutes\/600s/, 'item dispatch should include stalled retry timing');
 
@@ -628,7 +628,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
     assert.equal(dispatchEvent?.targetKind, 'checklist', 'item dispatch should write checklist targetKind');
     assert.equal(dispatchEvent?.checklistId, 'CHK-001', 'item dispatch should write checklistId for channel gate');
-    assert.equal(dispatchEvent?.agentType, 'koala-implementer', 'item dispatch should write agentType');
+    assert.equal(dispatchEvent?.agentType, 'lattice-implementer', 'item dispatch should write agentType');
     assert.equal(dispatchEvent?.phase, 'DEV', 'item dispatch event should include story phase');
     assert.equal(dispatchEvent?.source, 'lattice dispatch', 'item dispatch event should name source');
   } finally {
@@ -637,7 +637,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
 }
 
 async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
-  const root = initRepo('koala-reviewer-item-dispatch-');
+  const root = initRepo('lattice-reviewer-item-dispatch-');
   try {
     const storyId = 'B-review-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'REVIEW');
@@ -645,23 +645,23 @@ async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
     const output = await runKoala(root, 'dispatch', {
       storyId,
       itemId: 'CHK-001',
-      agentType: 'koala-review-quality',
+      agentType: 'lattice-review-quality',
     });
-    assert.match(output, /as koala-review-quality reviewer/, 'reviewer item dispatch should identify reviewer role');
+    assert.match(output, /as lattice-review-quality reviewer/, 'reviewer item dispatch should identify reviewer role');
     assert.match(output, /only review/, 'reviewer item dispatch should constrain the role to review only');
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
     assert.match(output, /<reviewRunId from review_run_start>/, 'reviewer item dispatch should use the fresh returned reviewRunId placeholder');
     assert.doesNotMatch(output, /:RR-001/, 'reviewer item dispatch must not hard-code a synthetic reviewRunId');
-    assert.doesNotMatch(output, /as koala-implementer/, 'reviewer item dispatch must not generate implementer prompt');
+    assert.doesNotMatch(output, /as lattice-implementer/, 'reviewer item dispatch must not generate implementer prompt');
     assert.doesNotMatch(output, /git commit/, 'reviewer item dispatch must not ask reviewer to commit');
     assert.doesNotMatch(output, /checklist_update/, 'reviewer item dispatch must not ask reviewer to mark checklist done');
 
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
     assert.equal(dispatchEvent?.targetKind, 'checklist', 'reviewer item dispatch should still write checklist targetKind');
-    assert.equal(dispatchEvent?.agentType, 'koala-review-quality', 'reviewer item dispatch should preserve reviewer agentType');
+    assert.equal(dispatchEvent?.agentType, 'lattice-review-quality', 'reviewer item dispatch should preserve reviewer agentType');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

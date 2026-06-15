@@ -15,7 +15,7 @@ import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordH
 import type { ScopeFreezeTextSource } from '../core/types.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
-  'koala-review-story-init',
+  'lattice-review-story-init',
   'product-reviewer',
 ]);
 

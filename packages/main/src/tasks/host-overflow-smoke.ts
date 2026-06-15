@@ -68,7 +68,7 @@ function initRepo(root: string): void {
   writeConfig(root);
   git(root, ['init']);
   git(root, ['config', 'user.email', 'koala@example.com']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
 }

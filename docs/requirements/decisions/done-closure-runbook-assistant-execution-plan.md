@@ -39,9 +39,9 @@ TEST PASS != DONE
 As of the latest local main observation, B-b750 has already been marked DONE
 and merged locally:
 
-```text
+ ```text
 7ceca1d8 merge: B-b750 Implement review_run_start signed workspace resolution
-5f9523e7 koala: mark B-b750 DONE + clear worktree
+5f9523e7 [legacy DONE metadata commit] mark B-b750 DONE + clear worktree
 c4e8fed6 test: confirm B-b750 validation after main sync
 ```
 

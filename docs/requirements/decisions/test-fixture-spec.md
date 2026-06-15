@@ -49,7 +49,7 @@ replyRoomMessage(conversationKey, targetEventId, content) { ... }
 
 `@test application/agent-service-facade` → `{fixturesDir}/application/agent-service-facade.json`
 
-- The path is relative to the `fixturesDir` of `koala.config.json`
+- The path is relative to the `fixturesDir` of `lattice.config.json`
 - No `.json` suffix
 - Multiple functions can point to the same fixture file (use the `fn` field to distinguish which case belongs to which)
 
@@ -373,14 +373,14 @@ The handler is preferentially part of the `js.execute` compatibility path only; 
 
 When `test_auto` runs, it creates a temporary store to isolate the test data, and loads handlers:
 
-1. **koala itself**: uses `createToolHandlers(testStore, root)` directly
-2. **External projects**: point to `tests/test-runtime.js` via the `testRuntime` config of `koala.config.json`; that file exports `createTestHandlers(store, projectRoot)`, which returns a handler map
+1. **Lattice itself**: uses `createToolHandlers(testStore, root)` directly
+2. **External projects**: point to `tests/test-runtime.js` via the `testRuntime` config of `lattice.config.json`; that file exports `createTestHandlers(store, projectRoot)`, which returns a handler map
 
 ## Browser Real-Machine Tests (browser case)
 
 ### Configuration
 
-Add a `browser` config to `koala.config.json` (`lattice init` will auto-detect a browser project):
+Add a `browser` config to `lattice.config.json` (`lattice init` will auto-detect a browser project):
 
 ```json
 {

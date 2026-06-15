@@ -99,7 +99,7 @@ function assertMissingScopeCheckGuidanceIsActionable(): void {
     assert.equal(issue.severity, 'blocker');
     assert.match(issue.message, /scope-check\.json is missing PLAN gate evidence/);
     assert.match(issue.message, /scope_check_save/);
-    assert.match(issue.message, /koala-review-scope-plan \/ scope-plan reviewer/);
+    assert.match(issue.message, /lattice-review-scope-plan \/ scope-plan reviewer/);
     assert.match(issue.message, /implementation\/main agent must not self-sign/);
     assert.match(issue.message, /manually edit story metadata/);
     assert.match(issue.message, /not Authority Server completion/);

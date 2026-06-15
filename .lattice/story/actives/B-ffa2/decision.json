@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Active user-facing and generated agent-role surfaces should use Lattice naming only.",
+    "Role ID migration must preserve reviewer/gate semantics rather than weakening evidence requirements.",
+    "Compatibility should be explicit and narrow: only historical/archive/runtime-compatibility references may keep Koala wording when renamed behavior would be misleading.",
+    "Verification must include both text inventory and executable CLI/build checks."
+  ],
+  "drivers": [
+    "The user wants a clean Lattice surface with no active Koala legacy identity.",
+    "koala-* role IDs are embedded in templates, generated assets, dispatch, reviewer gates, and docs.",
+    "A broad string replacement could break signed evidence lanes or historical metadata interpretation.",
+    "Host assets changed, so Codex/Claude adapter verification is required."
+  ],
+  "options": [
+    {
+      "name": "A: Hard active rename with explicit historical boundary",
+      "pros": [
+        "Removes active Koala role IDs from CLI/templates/runtime docs as requested.",
+        "Keeps a narrow allowance for archival or compatibility strings where removal would corrupt historical meaning.",
+        "Allows tests to assert the new Lattice surface without pretending old records never existed."
+      ],
+      "cons": [
+        "Requires touching more files and updating tests/registry fixtures carefully.",
+        "Some legacy runtime environment variable names may remain until a separate compatibility story."
+      ]
+    },
+    {
+      "name": "B: Template-only rename",
+      "pros": [
+        "Smaller patch and lower immediate test surface.",
+        "Quickly removes the most visible koala-implementer template names."
+      ],
+      "cons": [
+        "Runtime help, review lanes, process-fact registry, and generated assets would still emit Koala role IDs.",
+        "Does not satisfy the user request to clean all active Koala naming."
+      ]
+    },
+    {
+      "name": "C: Global blind replacement of every Koala token",
+      "pros": [
+        "Maximizes apparent cleanup in one pass.",
+        "Simple to execute mechanically."
+      ],
+      "cons": [
+        "High risk of corrupting historical docs, legacy compatibility constants, env var contracts, and migration tests.",
+        "Would make it harder to distinguish active product identity from old archive material."
+      ]
+    }
+  ],
+  "chosen": "A: Hard active rename with explicit historical boundary",
+  "rationale": "Choose A because the user wants active Koala naming removed, but process facts and archival material need a controlled boundary. The migration should change canonical role IDs to lattice-* while preserving or clearly labeling unavoidable historical/runtime-compatibility references.",
+  "preMortem": [
+    {
+      "scenario": "Reviewer gate stops accepting review evidence after role IDs change.",
+      "trigger": "review_run_start or finding_add still checks koala-review-* prefix while templates use lattice-review-*.",
+      "consequence": "Stories cannot progress through REVIEW or TEST.",
+      "mitigation": "Update review-run lane lists, prefix checks, process-fact registry, guard text, tests, and run targeted story/review smoke tests."
+    },
+    {
+      "scenario": "Generated host assets drift from canonical templates.",
+      "trigger": "Only packages/main/templates are renamed, while .claude/.Codex mirrors retain old filenames or frontmatter.",
+      "consequence": "Codex/Claude users still see or invoke koala-* roles, and verify_codex fails or misses drift.",
+      "mitigation": "Rename template files and mirrored assets together, update manifest/managed-asset expectations, then run node bin/lattice.js verify_codex."
+    },
+    {
+      "scenario": "Execution document overclaims that every Koala token is gone.",
+      "trigger": "Runtime compatibility paths like KOALA_* env vars or .koala legacy archive references are still intentionally present.",
+      "consequence": "Future hosts treat intentional compatibility material as unfinished cleanup or accidentally delete needed migration support.",
+      "mitigation": "Document the active-role boundary clearly and include rg verification patterns that separate role IDs from legacy runtime compatibility tokens."
+    },
+    {
+      "scenario": "Tests fail due to stale expected strings and salts.",
+      "trigger": "Smoke tasks and process fact contract scripts still assert koala-review-* names or koala integrity salt strings.",
+      "consequence": "Build/validate blocks late in TEST.",
+      "mitigation": "Update tests and scripts alongside runtime code, keeping signature salt changes deliberate and documented in the execution plan."
+    }
+  ],
+  "timestamp": "2026-06-15T15:31:24.726Z"
+}

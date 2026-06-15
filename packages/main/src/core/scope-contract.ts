@@ -278,7 +278,7 @@ export function checkScopeContract(
   ];
 
   for (const file of changedFiles) {
-    // B-b9d0 CHK-001/002: command-generated Koala lifecycle artifacts are
+    // B-b9d0 CHK-001/002: command-generated Lattice lifecycle artifacts are
     // recognized via lifecycle-artifact-scope. A strict `lifecycle` match
     // means `<storyDir>/<storyId>/<known artifact filename>` — narrow,
     // story-scoped, filename-aware. Legacy docs/story paths still pass for

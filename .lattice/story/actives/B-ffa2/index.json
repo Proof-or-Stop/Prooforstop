@@ -4,7 +4,7 @@
   "title": "Rename Koala agent role IDs to Lattice",
   "description": "Clean up remaining Koala naming in Lattice CLI by migrating subagent/reviewer role IDs, template assets, CLI help text, generated Codex/Claude agent assets, runtime references, and user-facing docs from koala-* to lattice-*. This is not the removed binary alias path; it touches reviewer/dispatch attribution and agent asset contracts, so it must run as a normal story with an execution document and verification evidence.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "koala",
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-06-15T15:28:34.904Z",
   "startedAt": "2026-06-15T15:28:34.904Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T21:20:52.154Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,11 +41,95 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:30:46.866Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T15:41:51.583Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T16:22:20.765Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T16:26:33.896Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T16:57:36.607Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T17:03:41.823Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T17:10:27.015Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T17:14:52.076Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T17:19:16.480Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T17:24:20.808Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T21:20:52.154Z",
+      "branch": "story/B-ffa2",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-ffa2",
-    "branch": "story/B-ffa2",
-    "createdAt": "2026-06-15T15:30:30.417Z"
-  }
+  "currentReviewRound": "2026-06-15T17:19:16.480Z"
 }

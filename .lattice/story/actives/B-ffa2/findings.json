@@ -1,0 +1,179 @@
+{
+  "findings": [
+    {
+      "id": "B-ffa2:F-001",
+      "desc": "Verification coverage is not fresh at the current REVIEW head: session_brief reports materialHash drift after 5dc6684 with 7 stale verification intent entries. The active Koala role surface scans are clean, but TEST is likely to reject stale evidence unless verification_evidence_refresh_stale and validation are rerun against the current material hash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T16:24:14.730Z",
+      "reviewRound": "2026-06-15T16:22:20.765Z",
+      "reviewRunId": "B-ffa2:RR-003",
+      "_hash": "98c15471e70deecbdeae83147e2b513872c2cf3f9ca9734a97c0fe86a756b9f2",
+      "files": [
+        ".lattice/story/actives/B-ffa2/checklist.json"
+      ],
+      "resolvedReason": "Resolved by refreshing evidence and rerunning node bin/lattice.js validate --story=B-ffa2 --json at REVIEW head dcf1c2d/3c83020; validation passed with allPass=true and verification coverage 15/15 covered, 0 required missing.",
+      "resolvedAt": "2026-06-15T16:58:28.313Z"
+    },
+    {
+      "id": "B-ffa2:F-002",
+      "desc": "Active metadata commit vocabulary still emits Koala: packages/main/src/cli-engine.ts:3260 and :3389 create `koala:` from-draft/INIT_CHECK metadata commits, packages/main/src/handlers/worktree.ts:318/:546/:858/:923 create or recognize `koala:` story init/discard/auto-add metadata commits, and packages/main/src/handlers/done-effects.ts:589 creates `koala:` DONE metadata commits. These are current command paths, not archive docs or signed-artifact salts, so the implementation does not yet satisfy the story requirement that active metadata vocabulary be Lattice.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-15T16:24:24.051Z",
+      "reviewRound": "2026-06-15T16:22:20.765Z",
+      "reviewRunId": "B-ffa2:RR-001",
+      "_hash": "1e1c810fad5233dcce77c11e786fdf7a110ef7abb3c9d48615f53923d61d00b9",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "resolvedReason": "Resolved in commit c967454 by replacing active metadata commit subjects with lattice: vocabulary. Verification scan rg -n \"koala:\" over cli-engine.ts, worktree.ts, and done-effects.ts returned no hits; lattice: from-draft/story/discard subjects are present.",
+      "resolvedAt": "2026-06-15T16:58:34.103Z"
+    },
+    {
+      "id": "B-ffa2:F-003",
+      "desc": "packages/main/src/handlers/validate-docs-drift.ts:51 still matches `koala <cmd>` even though the gate now claims to extract `lattice <cmd>`, so active Lattice command docs can be missed by docs-drift validation. The same active validation surface still emits Koala provider/schema names such as `koala-channel` at packages/main/src/handlers/validate-channel.ts:41 and user-visible summaries with `metadata-only koala CLI` at packages/main/src/handlers/validate-channel.ts:522-527, plus `koala-concept`/`koala-docs-drift`/`koala-lint`/`koala-serve-validator` provider values. These are not signed-salt or archive exceptions; they are active gates/schemas, so the migration is incomplete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-15T16:25:21.420Z",
+      "reviewRound": "2026-06-15T16:22:20.765Z",
+      "reviewRunId": "B-ffa2:RR-002",
+      "_hash": "690da8d53c41ac103868d0fc5cd32332a04d449e6c6863b7516636bd2ce4b8fd",
+      "files": [
+        "packages/main/src/handlers/validate-docs-drift.ts",
+        "packages/main/src/handlers/validate-channel.ts",
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/handlers/validate-lint.ts",
+        "packages/main/src/verifier/serve.ts"
+      ],
+      "resolvedReason": "Resolved in commits 758c57a/c967454: validate-docs-drift now extracts lattice commands, active validation providers use lattice-channel/lattice-concept/lattice-docs-drift/lattice-lint/lattice-serve-validator, and metadata summary uses lattice_metadata_changes. Verification scan for koala provider/vocab returned no hits.",
+      "resolvedAt": "2026-06-15T16:58:41.848Z"
+    },
+    {
+      "id": "B-ffa2:F-004",
+      "desc": "Active docs still instruct or imply koala.config.json is a usable configuration surface after this story defines lattice.config.json as the only active project config. docs/requirements/decisions/testing-infra.md:39 says legacy koala.config.json is ignored, but lines 41 and 101 still say validate/doctor can use or read legacy koala.config.json. docs/requirements/decisions/test-fixture-spec.md:52,377,383 still tells users to configure fixtures/browser/testRuntime via koala.config.json. This contradicts the B-ffa2 execution plan non-goal at docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md:101 and can cause operators to rely on an ignored fallback.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-15T16:25:48.380Z",
+      "reviewRound": "2026-06-15T16:22:20.765Z",
+      "reviewRunId": "B-ffa2:RR-006",
+      "_hash": "ee2dca811523b1a919c6ecb308323c1b1cbe24cea45daff633d7c480b4e81abb",
+      "files": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "resolvedReason": "Resolved in commits 758c57a/c967454: active docs now identify lattice.config.json as canonical, legacy koala.config.json as ignored by active loader, and test-fixture-spec examples use lattice.config.json. Verification scan for koala.config.json as usable/read/configure active docs returned no hits.",
+      "resolvedAt": "2026-06-15T16:58:47.691Z"
+    },
+    {
+      "id": "B-ffa2:F-005",
+      "desc": "Stale CHK-003 verification evidence remains: evidence_inspect reports stale refs CHK-003:runtime-contract, CHK-003:cli-help, and CHK-003:dispatch-compat-boundary bound to old head/material hashes even though validate is green. Remove or refresh these stale legacy evidence refs before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T17:03:07.206Z",
+      "reviewRound": "2026-06-15T16:57:36.607Z",
+      "reviewRunId": "B-ffa2:RR-008",
+      "_hash": "f0ee2a3e1ae28e40a3cb4a4a88a7cbc4a8d01c8f4d717b03268794087e29c6a5",
+      "files": [
+        ".lattice/story/actives/B-ffa2/checklist.json"
+      ],
+      "resolvedReason": "Resolved by replacing CHK-003 verificationEvidence through checklist_update with only the current CHK-003 happy/edge/adversarial refs, then running verification_evidence_refresh_stale and node bin/lattice.js validate --story=B-ffa2 --json. evidence_inspect now reports freshness.status=fresh with staleRefs=[].",
+      "resolvedAt": "2026-06-15T17:10:36.009Z"
+    },
+    {
+      "id": "B-ffa2:F-006",
+      "desc": "Active decision docs still teach old Koala surfaces: role-separation.md instructs koala-test-analyst/koala-red-team agent roles, and cc-learnings.md still uses koala.config.json in active checklist/test instructions. These conflict with current lattice-* role naming and lattice.config.json as the only active config.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-15T17:03:31.170Z",
+      "reviewRound": "2026-06-15T16:57:36.607Z",
+      "reviewRunId": "B-ffa2:RR-007",
+      "_hash": "7908f363e4ddfd2b89a9d095bda4f2d2778b4810ae43111f347197adc8932a9c",
+      "files": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "resolvedReason": "Resolved by renaming active role references in docs/requirements/decisions/role-separation.md from koala-test-analyst/koala-red-team to lattice-test-analyst/lattice-red-team, and active config instructions in docs/requirements/decisions/cc-learnings.md from koala.config.json to lattice.config.json. Verification: rg -n 'koala-test-analyst|koala-red-team|koala\\.config\\.json' over those files returns no matches.",
+      "resolvedAt": "2026-06-15T17:10:45.354Z"
+    },
+    {
+      "id": "B-ffa2:F-007",
+      "desc": "Active test/config surfaces still depend on koala.config.json: test:gap-coverage-smoke locates only koala.config.json and fails in a lattice.config.json-only repo, and test-flow-e2e still documents/creates koala.config.json as normal sandbox config. These are active tests, not legacy docs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-15T17:03:36.921Z",
+      "reviewRound": "2026-06-15T16:57:36.607Z",
+      "reviewRunId": "B-ffa2:RR-009",
+      "_hash": "7fed0e9c93eb134de6b2d084861a812a07d5d38465e6a5049e050054fcac8b65",
+      "files": [
+        "packages/main/src/tasks/gap-coverage-smoke.ts",
+        "packages/main/src/tasks/test-flow-e2e.ts",
+        "packages/main/package.json"
+      ],
+      "resolvedReason": "Resolved by making gap-coverage-smoke locate lattice.config.json and making test-flow-e2e document/create lattice.config.json in its sandbox. npm --prefix packages/main run build, npm --prefix packages/main run test:gap-coverage-smoke, and npm --prefix packages/main run test:flow-stability-smoke passed; the targeted rg scan for koala.config.json in these changed files returns no matches.",
+      "resolvedAt": "2026-06-15T17:10:54.482Z"
+    },
+    {
+      "id": "B-ffa2:F-008",
+      "desc": "Existing Claude agent mirrors can keep stale generated koala-* prompts after upgrade/init. packages/main/src/cli-init.ts writes the new .claude/agents lattice-* prompt files but does not remove old generated koala-* files, while the Codex path has stale prompt cleanup and managed-asset cleanup only covers .Codex/agents extras. Existing projects can therefore still expose active Claude subagents named koala-review-quality, koala-implementer, etc. after the rename.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-15T17:14:38.245Z",
+      "reviewRound": "2026-06-15T17:10:27.015Z",
+      "reviewRunId": "B-ffa2:RR-010",
+      "_hash": "b272ae44fa2a78a2eeff1ac88fcb184203a1f4d35b0af16242d08e480bf89fc3",
+      "files": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "resolvedReason": "Resolved in implementer commit 0a180522e by adding generated legacy Koala prompt cleanup for .claude/agents during init sync and managed asset definitions. Cleanup is bounded to koala-*.md prompts recognized by managed Lattice markers or old generated name: koala-* frontmatter. Verified with npm --prefix packages/main run build, node bin/lattice.js verify_codex, and implementer temp-dir init/managed cleanup smokes.",
+      "resolvedAt": "2026-06-15T17:19:30.980Z"
+    },
+    {
+      "id": "B-ffa2:F-009",
+      "desc": "Active Lattice smoke tests still use koala.config.json as normal config outside the fixed F-007 files. lattice-evidence-smoke.ts and lattice-parallel-wave-smoke.ts write koala.config.json in normal active Lattice-named smokes that are exposed by package scripts, keeping current test surfaces teaching the legacy config name after lattice.config.json became canonical.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-15T17:14:47.415Z",
+      "reviewRound": "2026-06-15T17:10:27.015Z",
+      "reviewRunId": "B-ffa2:RR-011",
+      "_hash": "5526a9b4ec107ad050e83331f9309f4a68085b71c3451575144fe17e45f15417",
+      "files": [
+        "packages/main/src/tasks/lattice-evidence-smoke.ts",
+        "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+        "packages/main/package.json"
+      ],
+      "resolvedReason": "Resolved in implementer commit 0a180522e by changing active Lattice-named smoke setup in packages/main/src/tasks/lattice-evidence-smoke.ts and packages/main/src/tasks/lattice-parallel-wave-smoke.ts from koala.config.json to lattice.config.json. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:lattice-evidence-smoke, npm --prefix packages/main run test:lattice-parallel-wave-smoke, and targeted rg over changed files returning no koala.config.json matches.",
+      "resolvedAt": "2026-06-15T17:19:45.115Z"
+    }
+  ]
+}

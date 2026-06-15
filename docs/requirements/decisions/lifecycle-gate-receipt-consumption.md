@@ -150,7 +150,7 @@ hosts at DONE.
 Local DONE requires review escalation only when the first lifecycle REVIEW round
 records at least two countable reviewer problems:
 
-- the finding agent is a `koala-review-*` reviewer;
+- the finding agent is a `lattice-review-*` reviewer;
 - severity is `critical`, `high`, or `medium`;
 - `evidenceState` is `verified`, or the legacy field is missing.
 

@@ -83,7 +83,7 @@ try {
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   if (!storyId) throw new Error(`story id not found in output:\n${created}`);
-  runKoala('init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
+  runKoala('init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
   runKoala('init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
 
   mkdirSync(join(temp, 'experiments', 'configs'), { recursive: true });

@@ -30,16 +30,16 @@ const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
-  'koala-evaluator.md',
-  'koala-implementer.md',
-  'koala-review-behavior.md',
-  'koala-review-channel.md',
-  'koala-review-concept.md',
-  'koala-review-delivery.md',
-  'koala-review-docs.md',
-  'koala-review-quality.md',
-  'koala-review-scope-plan.md',
-  'koala-review-story-init.md',
+  'lattice-evaluator.md',
+  'lattice-implementer.md',
+  'lattice-review-behavior.md',
+  'lattice-review-channel.md',
+  'lattice-review-concept.md',
+  'lattice-review-delivery.md',
+  'lattice-review-docs.md',
+  'lattice-review-quality.md',
+  'lattice-review-scope-plan.md',
+  'lattice-review-story-init.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',
@@ -55,8 +55,8 @@ const requiredSafetyPhrases = [
   'fullAuthorityDone',
 ];
 
-function extractKoalaBlock(content: string): string | null {
-  return content.match(/<!-- koala:start -->[\s\S]*?<!-- koala:end -->/)?.[0] ?? null;
+function extractLatticeBlock(content: string): string | null {
+  return content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/)?.[0] ?? null;
 }
 
 assert.equal(registry.schemaVersion, PROMPT_REGISTRY_VERSION);
@@ -78,7 +78,7 @@ for (const entry of registry.agents) {
     `${entry.file} codex render matches legacy transform`,
   );
   if (loadBearingPromptFiles.has(entry.file)) {
-    assert.equal(extractKoalaBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
+    assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
     for (const phrase of requiredSafetyPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }

@@ -20,16 +20,16 @@ const templateDir = join(packageRoot, 'templates', 'agents');
 const auditDocPath = join(repoRoot, 'docs', 'audits', 'lattice-token-cost-and-takeover-audit.md');
 
 const baselineTemplateBytes: Record<string, number> = {
-  'koala-evaluator.md': 57931,
-  'koala-implementer.md': 63463,
-  'koala-review-behavior.md': 63499,
-  'koala-review-channel.md': 63587,
-  'koala-review-concept.md': 61085,
-  'koala-review-delivery.md': 64505,
-  'koala-review-docs.md': 63591,
-  'koala-review-quality.md': 60804,
-  'koala-review-scope-plan.md': 63354,
-  'koala-review-story-init.md': 70868,
+  'lattice-evaluator.md': 57931,
+  'lattice-implementer.md': 63463,
+  'lattice-review-behavior.md': 63499,
+  'lattice-review-channel.md': 63587,
+  'lattice-review-concept.md': 61085,
+  'lattice-review-delivery.md': 64505,
+  'lattice-review-docs.md': 63591,
+  'lattice-review-quality.md': 60804,
+  'lattice-review-scope-plan.md': 63354,
+  'lattice-review-story-init.md': 70868,
 };
 
 const requiredSourcePaths = [
@@ -84,9 +84,9 @@ function readRepo(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function extractKoalaBlock(content: string): string {
-  const match = content.match(/<!-- koala:start -->[\s\S]*?<!-- koala:end -->/);
-  assert.ok(match, 'expected koala managed block');
+function extractLatticeBlock(content: string): string {
+  const match = content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
+  assert.ok(match, 'expected lattice managed block');
   return match[0];
 }
 
@@ -119,7 +119,7 @@ function assertPromptReductions(): void {
     currentTotal += current;
 
     assert.equal(
-      extractKoalaBlock(content),
+      extractLatticeBlock(content),
       LOAD_BEARING_LATTICE_PROMPT_SLICE,
       `${file} uses canonical load-bearing prompt slice`,
     );

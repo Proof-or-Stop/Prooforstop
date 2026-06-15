@@ -556,11 +556,11 @@ function computeNextStep(c: NextStepCtx): string {
             .filter(e => e.verdict === 'pending')
             .map(e => e.name)
             .join(', ') || 'reviewer evidence';
-          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: lattice reviewer_list --storyId=${sid} to see which koala-review-* reviewers should run; once all pass, run lattice story_advance --storyId=${sid} --phase=TEST`;
+          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: lattice reviewer_list --storyId=${sid} to see which lattice-review-* reviewers should run; once all pass, run lattice story_advance --storyId=${sid} --phase=TEST`;
         }
         return `REVIEW phase, All reviewer gates passed. Next: lattice story_advance --storyId=${sid} --phase=TEST to enter formal verification`;
       }
-      return `REVIEW phase. koala-reviewer reviews code and files findings. After all critical/high findings are resolved, run lattice story_advance --storyId=${sid} --phase=TEST`;
+      return `REVIEW phase. Lattice reviewers review code and file findings. After all critical/high findings are resolved, run lattice story_advance --storyId=${sid} --phase=TEST`;
     case 'TEST_CASE':
       return `TEST_CASE phase (legacy). Recommend lattice story_advance --phase=TEST to enter verification directly`;
     case 'TEST_CASE_REVIEW':
@@ -1155,8 +1155,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
             stall = renderAntiStall({
               storyId,
               title: `REVIEW waiting for ${pending}`,
-              retry: `lattice reviewer_list '{"storyId":"${storyId}"}' then run the pending koala-review-* reviewers`,
-              fix: `lattice review_run_start '{"storyId":"${storyId}","agent":"koala-review-<name>"}' first, then use the returned reviewRunId in lattice review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from lattice review_run_start>","agent":"koala-review-<name>","note":"..."}' when a reviewer found no blocker`,
+              retry: `lattice reviewer_list '{"storyId":"${storyId}"}' then run the pending lattice-review-* reviewers`,
+              fix: `lattice review_run_start '{"storyId":"${storyId}","agent":"lattice-review-<name>"}' first, then use the returned reviewRunId in lattice review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from lattice review_run_start>","agent":"lattice-review-<name>","note":"..."}' when a reviewer found no blocker`,
             });
           }
         } else {

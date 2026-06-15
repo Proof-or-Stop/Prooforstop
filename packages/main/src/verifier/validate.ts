@@ -731,7 +731,7 @@ export function dependencyReport(modules: Array<{ name: string; sources: string[
   console.log('');
 }
 
-/** Convert ValidateResult to ExternalVerifierResult (for koala gate consumption) */
+/** Convert ValidateResult to ExternalVerifierResult (for Lattice gate consumption) */
 export function toExternalResult(result: ValidateResult, machineName?: string): ExternalVerifierResult {
   let headSha: string | undefined;
   try {
@@ -742,7 +742,7 @@ export function toExternalResult(result: ValidateResult, machineName?: string): 
   const warnings = result.results.filter(r => r.pass && r.details.startsWith('⚠'));
 
   return {
-    provider: 'koala-verifier',
+    provider: 'lattice-verifier',
     status: result.allPass ? (warnings.length > 0 ? 'warn' : 'pass') : 'fail',
     allPass: result.allPass,
     summary: result.allPass

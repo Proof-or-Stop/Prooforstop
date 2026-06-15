@@ -7,7 +7,7 @@
  * @priority high
  * @description
  *   Smoke coverage for the read-only authority policy discovery command
- *   (authority_enforce_policy / koala authority enforce policy).
+ *   (authority_enforce_policy / lattice authority enforce policy).
  *
  *   Covers:
  *   - Valid fake policy response (matching real Python contract) → success with

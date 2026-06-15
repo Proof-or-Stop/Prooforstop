@@ -307,7 +307,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     repoRoot: string;
   }): void {
     const { storyId, branch, storyRel, repoRoot } = args;
-    const tempDir = mkdtempSync(join(tmpdir(), `koala-index-${storyId}-`));
+    const tempDir = mkdtempSync(join(tmpdir(), `lattice-index-${storyId}-`));
     const indexFile = join(tempDir, 'index');
     try {
       const head = gitFile(['rev-parse', '--verify', 'HEAD'], repoRoot);
@@ -315,7 +315,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       gitFile(['read-tree', 'HEAD'], repoRoot, env);
       gitFile(['add', '--', storyRel], repoRoot, env);
       const tree = gitFile(['write-tree'], repoRoot, env);
-      const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `koala: story ${storyId} init`], repoRoot);
+      const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `lattice: story ${storyId} init`], repoRoot);
       gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);
     } finally {
       try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* DEBUG: temp index cleanup best effort */ }
@@ -526,7 +526,11 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return '⚠ Uncleaned main init commit: cannot read HEAD';
     }
 
-    const safeSubject = subject === `koala: story ${storyId} init` || subject.includes(storyId);
+    const legacyInitSubject = `koala${':'} story ${storyId} init`;
+    const safeSubject =
+      subject === `lattice: story ${storyId} init` ||
+      subject === legacyInitSubject ||
+      subject.includes(storyId);
     const safeFiles = files.length > 0 && files.every(path => path.startsWith(storyRel));
     if (!safeSubject || !safeFiles) {
       return `⚠ Uncleaned main init commit: HEAD does not look like a pure metadata init commit for ${storyId}`;
@@ -543,12 +547,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       git(`add "${storyRel}"`);
       const staged = git(`diff --cached --name-only -- "${storyRel}"`);
       if (!staged) return '';
-      git(`-c commit.gpgsign=false commit -m "koala: discard ${storyId}" --only -- "${storyRel}"`);
+      git(`-c commit.gpgsign=false commit -m "lattice: discard ${storyId}" --only -- "${storyRel}"`);
       const after = git(`status --porcelain -- "${storyRel}"`);
       if (after) {
         throw new Error(`story metadata still dirty:\n${after}`);
       }
-      return `✓ discard metadata committed: koala: discard ${storyId}`;
+      return `✓ discard metadata committed: lattice: discard ${storyId}`;
     } catch (e: any) {
       throw new Error(
         `story_discard: discard metadata could not be committed, discard aborted.\n` +
@@ -823,7 +827,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `Story ${args.storyId} development environment is ready`,
         `Branch: ${branch}`,
         `Path: ${worktreePath}`,
-        `→ cd ${worktreePath} to enter the worktree for development; run all koala commands in this directory`,
+        `→ cd ${worktreePath} to enter the worktree for development; run all lattice commands in this directory`,
         `→ sub agent should not use isolation:"worktree", run directly in the main agent's worktree`,
         `→ checklist_get(${args.storyId}) to view pending development items`,
         `→ After development completes, call dev_finish(${args.storyId}) to merge back to the main branch`,
@@ -855,7 +859,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
         if (staged) {
-          git(`commit -m "koala: auto-add story files for ${args.storyId}"`, wtPath);
+          git(`commit -m "lattice: auto-add story files for ${args.storyId}"`, wtPath);
         }
       } catch { /* no new files is fine */ }
 
@@ -920,7 +924,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
         if (staged) {
-          git(`commit -m "koala: auto-add story files for ${args.storyId}"`, wtPath);
+          git(`commit -m "lattice: auto-add story files for ${args.storyId}"`, wtPath);
         }
       } catch { /* It's fine if there are no new files */ }
 

@@ -586,7 +586,7 @@ export async function applyDoneMergeEffects(
         const staged = runGitArgs(['diff', '--cached', '--name-only'], wtPathAbs);
         if (staged) {
           runGitArgs(
-            ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: mark ${storyId} DONE + clear worktree`],
+            ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: mark ${storyId} DONE + clear worktree`],
             wtPathAbs,
           );
         }

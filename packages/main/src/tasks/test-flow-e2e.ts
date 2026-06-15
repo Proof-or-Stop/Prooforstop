@@ -11,7 +11,7 @@ import { loadConfig } from '../core/config.js';
 // ── Configuration loading ──
 
 /**
- * Load user override config (from koala.config.json's flows.defaults), supports grouping by flow name.
+ * Load user override config (from lattice.config.json's flows.defaults), supports grouping by flow name.
  */
 let _userOverrides: Record<string, unknown> | null = null;
 
@@ -22,7 +22,7 @@ function defaultBackground(): string {
     'This background is deliberately written as complete context rather than a short placeholder, to avoid e2e bypassing the real four-part gate of story_create.',
     '',
     '## Key Insights',
-    'The current Koala story_create already requires background to be a source-of-truth input; old e2e passing only title and description would falsely report process failures.',
+    'The current Lattice story_create already requires background to be a source-of-truth input; old e2e passing only title and description would falsely report process failures.',
     'So the auto-default values must simulate context provided by a real user, rather than relying on the handler relaxing validation.',
     '',
     '## Solution Tradeoffs',
@@ -143,7 +143,7 @@ export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> 
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(dir, 'packages', 'main', 'src'), { recursive: true });
   writeFileSync(
-    join(dir, 'koala.config.json'),
+    join(dir, 'lattice.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -388,7 +388,7 @@ function ensureSandboxReady(
         note: 'E2E sandbox scope and execution boundaries are fixed before INIT_CHECK.',
         actor: 'flow-e2e',
       });
-      handlers.init_check_set({ storyId, issues: [], agentId: 'koala-review-story-init' });
+      handlers.init_check_set({ storyId, issues: [], agentId: 'lattice-review-story-init' });
       handlers.init_check_set({ storyId, issues: [], agentId: 'product-reviewer' });
     }
   } catch {
