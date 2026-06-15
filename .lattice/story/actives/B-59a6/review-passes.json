@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-15T11:23:15.767Z",
       "reviewRunId": "B-59a6:RR-020",
       "_hash": "7b63da9994b9356e30855832720c1a38461d5bd48f3e7c79a6bf8b282b2d911c"
+    },
+    {
+      "id": "B-59a6:RP-015",
+      "agent": "koala-review-docs",
+      "note": "PASS: F-006 fixed. review_escalation_fallback_set help/schema at packages/main/src/cli-engine.ts:846 and handler error at packages/main/src/handlers/review-escalation.ts:61 now require the reason to explain selected degraded fallback eligibility and lower-assurance 3x1 use, without asserting host unavailability for explicit-human-approval. Docs checked: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:104-136,572-587,735-747; docs/requirements/decisions/story-lifecycle.md:190,266; docs/requirements/decisions/lifecycle-gate-receipt-consumption.md:144-181. No Authority/full-3x2 overclaim found in relevant docs; legacy broad hits are forbidden/fail criteria or receipt-backed Authority contexts.",
+      "createdAt": "2026-06-15T11:26:10.816Z",
+      "reviewRound": "2026-06-15T11:23:15.767Z",
+      "reviewRunId": "B-59a6:RR-021",
+      "_hash": "a63e4844937482e67eddf079bfcb80a78dbf5b33d0c42e73c379ba4abe40703d"
     }
   ]
 }
