@@ -1,0 +1,25 @@
+{
+  "task": "Delete five confirmed-dead paths (three sample packages + two tracked cruft files) so the open-source repo ships only the real Lattice product; jek.md is kept (user-owned).",
+  "outcome": "After the change: `ls packages/` prints exactly `lab  main  utils`; `git ls-files | grep -E 'cli-guess-number|python-demo|python-rps|du.exe.stackdump|claude-session.mjs'` prints nothing; `git ls-files jek.md` still prints jek.md; and `npm run build` then `npm run test:e2e` both exit 0.",
+  "facts": [
+    "cli-guess-number is referenced only by its own package.json; python-demo and python-rps have 0 external references and no package.json.",
+    "No tsconfig references[]/path mapping and no root package.json entry points at the sample packages.",
+    "test:authority-live-python* build their own temp job under tmpdir()/lattice-live-python-job and do not use the sample packages.",
+    "claude-session.mjs has no live import (claude-cli.ts:58 is a coincidental '.tmp-claude-session' string; docs/metadata/task.json cites it historically).",
+    "jek.md is user-owned (decisions/root-markdown-migration-execution-solution.md) and is KEPT, never a deletion target here."
+  ],
+  "constraints": [
+    "Delete only the five in-scope paths; do NOT delete jek.md, packages/lab, or experiments/, and do not touch main/utils source.",
+    "After deletion, npm run build and npm run test:e2e must still pass.",
+    "Leaving the historical claude-session.mjs note in docs/metadata/task.json is acceptable."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/cli-guess-number",
+    "packages/python-demo",
+    "packages/python-rps",
+    "du.exe.stackdump",
+    "claude-session.mjs"
+  ],
+  "timestamp": "2026-06-15T22:25:25.172Z"
+}
