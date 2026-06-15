@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-ffa2",
+  "checkedAt": "2026-06-15T15:30:24.720Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "2663d918e31742d58ae934804b854b4f398c759b45574ae7a71e6ac9bb3a3e6e",
+  "executionBoundaryHash": "d4a1252c84d764857f0dec8e4baca25a57b8cb8037e726fa94a232ecc05c3aa4",
+  "freshnessHash": "aaeae3d4812f64483c7abb15670291309fb60a4ff8c1844e8420b239275b0747",
+  "effectiveExcludedKeywords": [
+    "Do not change unrelated Lattice lifecycle behavior beyond role naming",
+    "Do not publish or push remote branches",
+    "Do not rewrite docs/story or tests/fixtures directly",
+    "Do not run or use omx or .omx artifacts"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change unrelated Lattice lifecycle behavior beyond role naming",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change unrelated Lattice lifecycle behavior beyond role naming",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not publish or push remote branches",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not publish or push remote branches",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rewrite docs/story or tests/fixtures directly",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rewrite docs/story or tests/fixtures directly",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not run or use omx or .omx artifacts",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not run or use omx or .omx artifacts",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "dfee7f789c5770f8d734fe5c1a11b63f0753ddbd183aa1e35ce9aa9a52b71081"
+}
