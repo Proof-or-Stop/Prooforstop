@@ -28,6 +28,23 @@ assuming hidden context.
 - Story worktrees and `story/*` branches are local coordination details. Do
   not create a second worktree for the same task and do not push story branches.
 
+## Compact Status Queries
+
+For routine status refreshes, prefer compact read-only queries. These examples
+are opt-in; default `story_get` and `checklist_get` output remains full.
+
+```bash
+lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
+lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
+```
+
+Before evidence-sensitive conclusions or mutations, reload the full output:
+
+```bash
+lattice story_get '{"storyId":"B-xxxx"}'
+lattice checklist_get '{"storyId":"B-xxxx"}'
+```
+
 ## Fresh-Context Fence
 
 Fresh-context separation is a prompt and evidence discipline, not a hidden

@@ -235,7 +235,12 @@ lattice decision_get '{"storyId":"B-xxx"}'
 # 5 轮 cap 触发后的人类介入（必须 human:true）
 lattice testintent_resume '{"storyId":"B-xxx","itemId":"CHK-001","lane":"happy","index":0,"reason":"...","human":true}'
 
-# checklist
+# routine story/checklist status（read-only；默认完整输出未改变）
+lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
+lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
+
+# evidence-sensitive conclusions / mutations 前重新拉完整输出
+lattice story_get '{"storyId":"B-xxx"}'
 lattice checklist_get '{"storyId":"B-xxx"}'
 lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
 lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationEvidence":[{"kind":"logic_test","intentRef":"CHK-001:happy:0","command":"npm test -- --runInBand","result":"pass","note":"npm test passed and covers CHK-001:happy:0"}]}'
