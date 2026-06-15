@@ -272,6 +272,42 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc specifies streaming usage must be read from the terminal stream event (message_delta or final message) -> grep for terminal stream event or message_delta; WHY: streaming responses require reading usage from the last event, not assuming non-streaming shape",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies partial output usage on error/timeout mid-stream must still be recorded -> grep for partial or error or timeout in streaming context; WHY: errored calls still consume budget",
+            "type": "cli"
+          },
+          {
+            "desc": "doc clarifies usage.source=unavailable only when truly no count exists -> grep for unavailable and truly or no reliable; WHY: prevents lazy unavailable marking when partial counts are available",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "existing rule about failed requests writing ledger entries (line 81 area) is consistent with new streaming/failure guidance -> grep for failed request in both existing and new sections; WHY: catch contradiction between existing failure rule and new streaming failure rule",
+            "type": "cli"
+          },
+          {
+            "desc": "if streaming section references provider-reported source, it specifies that partial counts from a terminal event still qualify as provider-reported -> grep for provider-reported near streaming; WHY: partial real counts should not be downgraded to estimate",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep entire doc for any statement that sets unavailable usage to zero or treats missing as zero-cost -> must be absent or explicitly prohibited; WHY: adversarial check for the most dangerous accounting error",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Validation/Smoke Plan for streaming or partial or failure usage assertion -> must be present; WHY: catch stale Validation that omits streaming/failure test",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
