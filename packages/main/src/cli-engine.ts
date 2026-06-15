@@ -4075,14 +4075,13 @@ export async function runCli(opts?: {
       // story_get returns {checklist, review} by default; phase requires
       // detail:true to appear at result.index.phase.
       let alreadyInitCheck = false;
-      let phaseDetectionFailed = false;
       try {
         const story: any = handlers.story_get({ storyId, detail: true });
         alreadyInitCheck = story?.index?.phase === 'INIT_CHECK';
       } catch {
-        // story_get failed; fall back to the legacy advance-then-bootstrap order
-        // (we cannot prove the phase, so we keep the historical behavior path).
-        phaseDetectionFailed = true;
+        // story_get failed: we cannot prove the phase is INIT_CHECK, so
+        // alreadyInitCheck stays false and the normal path (guard pre-check +
+        // bootstrap + advance) runs — the safe behavior.
       }
 
       // B-804c CHK-001: validate the FULL INIT→INIT_CHECK transition guard BEFORE
@@ -4094,15 +4093,15 @@ export async function runCli(opts?: {
       // scope-freeze but missing init-check could create a worktree (and the exact
       // failure diagnostic would regress from [missing_init_check] to a scope
       // message). getGuardFailureReason returns null for a non-INIT story, so this
-      // is a no-op for the already-INIT_CHECK retry path. The gate now ALSO runs on
-      // the phase-detection-failed fallback (closing B-804c:F-002): the fallback
-      // previously skipped this pre-check and ran dev_start FIRST with no gate, so a
-      // succeeding bootstrap followed by a story_advance that failed its own gate
-      // could leave a worktree on disk while the phase stayed INIT — a partial
-      // bootstrap. Running the full INIT_CHECK transition guard here (for both the
-      // normal case AND the fallback) means dev_start never bootstraps ahead of the
-      // INIT_CHECK gate, so there is no path that creates a worktree without the
-      // phase advancing.
+      // is a no-op for the already-INIT_CHECK retry path. The gate runs whenever
+      // the story is not already INIT_CHECK — including the case where story_get
+      // threw and alreadyInitCheck stayed false (closing B-804c:F-002): without
+      // this pre-check that path ran dev_start FIRST with no gate, so a succeeding
+      // bootstrap followed by a story_advance that failed its own gate could leave
+      // a worktree on disk while the phase stayed INIT — a partial bootstrap.
+      // Running the full INIT_CHECK transition guard here means dev_start never
+      // bootstraps ahead of the INIT_CHECK gate, so there is no path that creates a
+      // worktree without the phase advancing.
       if (!alreadyInitCheck) {
         const guardFailure = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
         if (guardFailure) {
@@ -4131,16 +4130,16 @@ export async function runCli(opts?: {
         );
       }
 
-      // Bootstrap succeeded. Persist phase=INIT_CHECK now (only for the normal
-      // INIT case; an already-INIT_CHECK retry must never re-advance). If phase
-      // detection failed earlier, fall back to advancing here so the legacy
-      // contract (story ends in INIT_CHECK after a successful bootstrap) holds.
+      // Bootstrap succeeded. Persist phase=INIT_CHECK now (only when the story is
+      // not already INIT_CHECK; an already-INIT_CHECK retry must never re-advance).
+      // There is no separate fallback branch: if story_get failed above,
+      // alreadyInitCheck is false and we take the normal advance path here.
       let advanceResult: string;
       if (alreadyInitCheck) {
         advanceResult = `Story ${storyId} is already in INIT_CHECK; bootstrapped worktree`;
       } else {
-        // Normal case (and the phase-detection-failed fallback): persist the phase
-        // via the real story_advance handler, which re-runs the same guard.
+        // Normal case: persist the phase via the real story_advance handler,
+        // which re-runs the same guard.
         advanceResult = await handlers.story_advance(v.data);
       }
 
