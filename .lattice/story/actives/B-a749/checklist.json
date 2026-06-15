@@ -69,6 +69,17 @@
           "headHash": "e237f4a745f1df9c0fdb343f54f332ed3830614b",
           "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
           "timestamp": "2026-06-15T22:30:36.893Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-lint-change-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke case (d): changed-files reader throws -> resolveChangedFiles returns undefined -> full recursive tsc, never skip-all.",
+          "headHash": "345383cbdb7246a542666551256b774ec7a282c6",
+          "materialHash": "bd20d250b282f67e983c92d88ed965f912b262d1affaf520924325af3846fb78",
+          "timestamp": "2026-06-15T22:30:37.314Z"
         }
       ]
     },
