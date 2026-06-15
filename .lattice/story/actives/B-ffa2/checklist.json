@@ -64,6 +64,17 @@
           "headHash": "9b930548e77f9aef6c27da0655e69d4ff7cd3096",
           "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
           "timestamp": "2026-06-15T16:21:01.968Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "command": "rg -n 'koala-implementer|lattice-implementer|koala-review-quality|lattice-review-quality|koala-evaluator|lattice-evaluator' docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "result": "pass",
+          "note": "Execution plan contains the canonical old-to-new role map for implementer, reviewer, and evaluator IDs.",
+          "headHash": "b0bc06be24587410a9386422bf3bc45db23833e3",
+          "materialHash": "1dad901e7c0db5f45144f7f099e092d5b9289a31e7e2f02a3660529e346f4b6b",
+          "timestamp": "2026-06-15T16:21:02.174Z"
         }
       ]
     },
