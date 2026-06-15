@@ -37,7 +37,22 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "Required post-merge process-fact contract repair: delivery reviewer prompt mirrors must state that prompt-only user-value claims are not mechanical delivery evidence and must distinguish subjective user approval from machine evidence.",
+      "timestamp": "2026-06-15T11:16:58.439Z",
+      "paths": [
+        ".Codex/agents/koala-review-delivery.md",
+        ".claude/agents/koala-review-delivery.md",
+        "packages/main/templates/agents/koala-review-delivery.md"
+      ],
+      "anchors": [
+        "delivery_reviewer_evidence_boundary",
+        "process_fact_contract"
+      ]
+    }
+  ],
   "createdAt": "2026-06-15T03:29:40.753Z",
-  "updatedAt": "2026-06-15T03:29:40.753Z"
+  "updatedAt": "2026-06-15T11:16:58.439Z"
 }
