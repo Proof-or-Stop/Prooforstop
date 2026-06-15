@@ -1,0 +1,23 @@
+{
+  "task": "Fix post-DONE evidence freshness projection for completed stories",
+  "outcome": "User runs lattice done_closure --storyId=B-a57f --json and sees phase=DONE with evidence-freshness PASS because the historical test evidence matches its recorded evidence head, while active TEST stories still fail on stale material evidence.",
+  "facts": [
+    "B-a57f and B-22b0 are DONE but done_closure can report evidence-freshness fail after later main material commits.",
+    "currentMaterialHash excludes story metadata, so the residual is broader than metadata-only drift: it is current-main material drift after DONE.",
+    "Active TEST/DONE-entry freshness must remain strict against current workspace material state.",
+    "done-preflight-smoke.ts already has temp worktree helpers for DONE closure read-only and can host a focused regression."
+  ],
+  "constraints": [
+    "Only fix real correctness issue; no arbitrary optimization.",
+    "Preserve host-neutral local Non-authority semantics.",
+    "Do not change Authority Server receipt semantics.",
+    "Do not weaken active lifecycle gates before DONE."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/core/evidence-freshness.ts"
+  ],
+  "timestamp": "2026-06-15T02:53:00.043Z"
+}

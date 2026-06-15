@@ -10,7 +10,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees a reproducible regression note: a DONE story with valid historical test evidence no longer fails freshness just because later main material commits exist.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-preflight-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A focused regression fixture creates a DONE story whose test evidence matches its recorded evidence head, then adds a later unrelated material commit; done_closure reports evidence-freshness pass for that DONE story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The reproduction does not mutate completed production stories like B-a57f or B-22b0; it uses an isolated temp repo fixture.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The regression fails before the fix when DONE story freshness is compared against current HEAD materialHash.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
