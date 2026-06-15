@@ -78,7 +78,52 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees review-escalation smoke tests pass for zero-finding, threshold-triggered, and degraded 3x1 cases.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/decision-doc-quorum-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/decision-doc-quorum-smoke.ts",
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "smoke-zero-finding-doc-audit",
+            "desc": "Smoke test proves direct decision-doc edit with no countable first-round finding is classification-only and not a quorum blocker.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "smoke-threshold-doc-audit",
+            "desc": "Smoke test proves two countable first-round reviewer findings trigger full quorum requirement.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "smoke-degraded-fallback",
+            "desc": "Smoke test proves explicit degraded 3x1 fallback can pass only with allowed reason, evidence/approval, fresh material, and lower-assurance result.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "smoke-no-silent-downgrade",
+            "desc": "Smoke test proves missing fallback evidence or attempts to label degraded review as full 3x2 fail closed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
