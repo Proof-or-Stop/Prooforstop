@@ -94,6 +94,23 @@
       "files": [
         ".lattice/story/actives/B-ffa2/checklist.json"
       ]
+    },
+    {
+      "id": "B-ffa2:F-006",
+      "desc": "Active decision docs still teach old Koala surfaces: role-separation.md instructs koala-test-analyst/koala-red-team agent roles, and cc-learnings.md still uses koala.config.json in active checklist/test instructions. These conflict with current lattice-* role naming and lattice.config.json as the only active config.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-15T17:03:31.170Z",
+      "reviewRound": "2026-06-15T16:57:36.607Z",
+      "reviewRunId": "B-ffa2:RR-007",
+      "_hash": "7908f363e4ddfd2b89a9d095bda4f2d2778b4810ae43111f347197adc8932a9c",
+      "files": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/cc-learnings.md"
+      ]
     }
   ]
 }
