@@ -235,6 +235,32 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   }
 
   /**
+   * B-2856: resolve the gitRoot that this story's top-of-repo git ops
+   * (status / branch -D / merge / worktree remove/prune / rev-parse) must run
+   * from. In a wrapper-root layout the metadataRoot (`root`) is not a git repo
+   * and the real repo is a configured gitRoot subdir, so those ops fail with
+   * `fatal: not a git repository`.
+   *
+   * Reuse the SAME signed-workspace resolver (never a second resolver), but
+   * prefer its `repoRoot` over `authoritativeCwd`: these top-of-repo ops
+   * (`merge`, `branch -D` of the story branch, `worktree remove`) must run from
+   * the main repo root, NOT from inside the story worktree (which would have the
+   * branch checked out / be the path being removed). `repoRoot` is the common
+   * repo root whether the signed workspace is the gitRoot or a linked worktree.
+   * Null/unresolved → fall back to `root` so plain non-wrapper-root repos are
+   * byte-identical. cwd-only: command text unchanged.
+   */
+  function resolveStoryGitRoot(storyId: string): string {
+    try {
+      const resolution = resolveStorySignedWorkspace({ store, storyId, metadataRoot: root });
+      if (resolution.resolved && resolution.repoRoot) return resolution.repoRoot;
+    } catch {
+      // Resolver error (absent metadata, etc.): fall through to `root`.
+    }
+    return root;
+  }
+
+  /**
    * B-0975 fix: `git worktree remove --force` on Windows can transiently fail
    * with "Permission denied" when another process (logger hook, llmlog writer,
    * antivirus) still holds a handle to a file inside the worktree. The lock
@@ -245,8 +271,9 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
    * non-Windows platforms the first attempt almost always succeeds, so the
    * retry loop is effectively a no-op.
    */
-  function worktreeRemoveWithRetry(wtPath: string, opts: { force?: boolean } = {}): void {
+  function worktreeRemoveWithRetry(wtPath: string, opts: { force?: boolean; cwd?: string } = {}): void {
     const flag = opts.force ? ' --force' : '';
+    const cwd = opts.cwd ?? root;
     const delays = [0, 300, 800, 1500];
     let lastErr: unknown;
     for (const delay of delays) {
@@ -256,7 +283,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
       try {
         execFileSync('git', ['worktree', 'remove', ...(opts.force ? ['--force'] : []), wtPath], {
-          cwd: root,
+          cwd,
           encoding: 'utf-8',
           stdio: ['pipe', 'pipe', 'pipe'],
           timeout: 5000,
@@ -370,10 +397,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return join(getRepoRoot(), storedPath);
   }
 
-  function branchExists(branch: string): boolean {
+  function branchExists(branch: string, cwd: string = root): boolean {
     try {
       execFileSync('git', ['rev-parse', '--verify', `${branch}^{commit}`], {
-        cwd: root,
+        cwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       });
@@ -390,10 +417,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     prunable?: boolean;
   };
 
-  function listWorktreeRegistry(): WorktreeRegistryEntry[] {
+  function listWorktreeRegistry(cwd: string = root): WorktreeRegistryEntry[] {
     try {
       const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
-        cwd: root,
+        cwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       });
@@ -417,16 +444,16 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return [];
   }
 
-  function findWorktreePathByBranch(branch: string): string | null {
+  function findWorktreePathByBranch(branch: string, cwd: string = root): string | null {
     const branchRef = `refs/heads/${branch}`;
-    const entry = listWorktreeRegistry().find(e => e.branch === branchRef || e.branch === branch);
+    const entry = listWorktreeRegistry(cwd).find(e => e.branch === branchRef || e.branch === branch);
     return entry?.path || null;
   }
 
-  function findWorktreeResidue(storyId: string, branch: string, worktreePath?: string): string | null {
+  function findWorktreeResidue(storyId: string, branch: string, worktreePath?: string, cwd: string = root): string | null {
     const branchRef = `refs/heads/${branch}`;
     const expectedPath = worktreePath?.replace(/\\/g, '/');
-    for (const entry of listWorktreeRegistry()) {
+    for (const entry of listWorktreeRegistry(cwd)) {
       const entryPath = entry.path.replace(/\\/g, '/');
       if (entry.branch === branchRef || entry.branch === branch) return entry.path;
       if (expectedPath && entryPath === expectedPath) return entry.path;
@@ -443,18 +470,18 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }
   }
 
-  function pruneWorktreeRegistry(): void {
-    git('worktree prune --expire now');
+  function pruneWorktreeRegistry(cwd: string = root): void {
+    git('worktree prune --expire now', cwd);
   }
 
-  function removeStaleWorktreeAdminDirs(storyId: string, branch: string, worktreePath?: string): string[] {
+  function removeStaleWorktreeAdminDirs(storyId: string, branch: string, worktreePath?: string, cwd: string = root): string[] {
     const removed: string[] = [];
     const branchRef = `refs/heads/${branch}`;
     const expectedPath = worktreePath ? resolve(worktreePath).replace(/\\/g, '/') : null;
     let commonDir: string;
     try {
       commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
-        cwd: root,
+        cwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
         timeout: 5000,
@@ -462,7 +489,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     } catch {
       return removed;
     }
-    const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(root, commonDir, 'worktrees');
+    const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(cwd, commonDir, 'worktrees');
     let names: string[] = [];
     try {
       names = readdirSync(adminBase);
@@ -500,8 +527,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     });
   }
 
-  function purgeSafeInitCommit(storyId: string, storyRel: string): string {
-    const dirtyOutsideStory = git('status --porcelain')
+  function purgeSafeInitCommit(storyId: string, storyRel: string, gitRoot: string = root): string {
+    const dirtyOutsideStory = git('status --porcelain', gitRoot)
       .split('\n')
       .filter(Boolean)
       .filter(line => {
@@ -517,8 +544,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     let subject = '';
     let files: string[] = [];
     try {
-      subject = git('log -1 --pretty=%s');
-      files = git('diff-tree --no-commit-id --name-only -r HEAD')
+      subject = git('log -1 --pretty=%s', gitRoot);
+      files = git('diff-tree --no-commit-id --name-only -r HEAD', gitRoot)
         .split('\n')
         .map(s => s.trim())
         .filter(Boolean);
@@ -536,19 +563,19 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return `⚠ Uncleaned main init commit: HEAD does not look like a pure metadata init commit for ${storyId}`;
     }
 
-    git('reset --hard HEAD~1');
+    git('reset --hard HEAD~1', gitRoot);
     return `✓ main init commit safely rolled back: ${subject}`;
   }
 
-  function commitDiscardMetadata(storyId: string, storyRel: string): string {
+  function commitDiscardMetadata(storyId: string, storyRel: string, gitRoot: string = root): string {
     try {
-      const dirty = git(`status --porcelain -- "${storyRel}"`);
+      const dirty = git(`status --porcelain -- "${storyRel}"`, gitRoot);
       if (!dirty) return '';
-      git(`add "${storyRel}"`);
-      const staged = git(`diff --cached --name-only -- "${storyRel}"`);
+      git(`add "${storyRel}"`, gitRoot);
+      const staged = git(`diff --cached --name-only -- "${storyRel}"`, gitRoot);
       if (!staged) return '';
-      git(`-c commit.gpgsign=false commit -m "lattice: discard ${storyId}" --only -- "${storyRel}"`);
-      const after = git(`status --porcelain -- "${storyRel}"`);
+      git(`-c commit.gpgsign=false commit -m "lattice: discard ${storyId}" --only -- "${storyRel}"`, gitRoot);
+      const after = git(`status --porcelain -- "${storyRel}"`, gitRoot);
       if (after) {
         throw new Error(`story metadata still dirty:\n${after}`);
       }
@@ -910,6 +937,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       const wtPath = resolveWorktreePath(story.worktree.path);
       const { branch } = story.worktree;
+      // B-2856: top-of-repo git ops (merge / branch -d / worktree remove /
+      // rev-parse) must run from the resolved gitRoot in wrapper-root layouts;
+      // null/unresolved → `root` fallback (plain repos unchanged).
+      const gitRoot = resolveStoryGitRoot(args.storyId);
 
       // Check whether the worktree exists
       if (!existsSync(wtPath)) {
@@ -959,7 +990,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         story.events.push(collectContext('DONE', 'advance'));
       }
 
-      const mainBranch = git('rev-parse --abbrev-ref HEAD');
+      const mainBranch = git('rev-parse --abbrev-ref HEAD', gitRoot);
       const results: string[] = [];
 
       // B-5fa4 CHK-003: warn about unpushed commits before cleanup
@@ -970,7 +1001,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       // Merge into the main branch
       try {
-        git(`merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`);
+        git(`merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`, gitRoot);
         results.push(`✓ Branch ${branch} has been merged into ${mainBranch}`);
       } catch (e: any) {
         throw new Error(
@@ -979,12 +1010,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       // Clean up worktree (B-0975: retry transient Permission denied locks on Windows)
-      worktreeRemoveWithRetry(wtPath);
+      worktreeRemoveWithRetry(wtPath, { cwd: gitRoot });
       results.push(`✓ Worktree ${wtPath} cleaned up`);
 
       // Delete branch
       try {
-        git(`branch -d ${branch}`);
+        git(`branch -d ${branch}`, gitRoot);
         results.push(`✓ Branch ${branch} deleted`);
       } catch {
         results.push(`⚠ Branch ${branch} not deleted (may have unmerged commits)`);
@@ -1011,9 +1042,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const results: string[] = [];
       const fallbackBranch = `story/${args.storyId}`;
       const branch = story.worktree?.branch || fallbackBranch;
+      // B-2856: top-of-repo git ops (status / branch -D / worktree
+      // remove/prune / registry list) must run from the resolved gitRoot in
+      // wrapper-root layouts; null/unresolved → `root` fallback (plain repos
+      // unchanged). This is the symptom case: story_discard previously failed
+      // with `fatal: not a git repository` when metadataRoot was not the repo.
+      const gitRoot = resolveStoryGitRoot(args.storyId);
       const detectedWorktreePath = story.worktree?.path
         ? resolveWorktreePath(story.worktree.path)
-        : findWorktreeResidue(args.storyId, branch) || findWorktreePathByBranch(branch);
+        : findWorktreeResidue(args.storyId, branch, undefined, gitRoot) || findWorktreePathByBranch(branch, gitRoot);
 
       // Clean up worktree (if it exists). Any cleanup failure fails closed: do not write
       // DISCARDED, do not delete metadata, do not output a fake "cleaned up" success.
@@ -1062,7 +1099,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             // If git remove has already made the registry prunable / 0000000, but
             // the directory still has residue, continue with rm + prune instead of pushing cleanup responsibility to the user.
             try {
-              worktreeRemoveWithRetry(wtPath, { force: true });
+              worktreeRemoveWithRetry(wtPath, { force: true, cwd: gitRoot });
               results.push(`✓ Worktree ${wtPath} cleaned up`);
             } catch (e: any) {
               removeFailure = gitErrorMessage(e);
@@ -1079,10 +1116,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
           }
 
           try {
-            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath, gitRoot);
             if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin cleaned up: ${removedAdmins.join(', ')}`);
-            pruneWorktreeRegistry();
-            if (removeFailure || findWorktreeResidue(args.storyId, branch, wtPath)) {
+            pruneWorktreeRegistry(gitRoot);
+            if (removeFailure || findWorktreeResidue(args.storyId, branch, wtPath, gitRoot)) {
               results.push(`✓ stale worktree metadata pruned: ${wtPath}`);
             }
           } catch (e: any) {
@@ -1093,40 +1130,40 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             );
           }
 
-          if (removeFailure && findWorktreeResidue(args.storyId, branch, wtPath)) {
+          if (removeFailure && findWorktreeResidue(args.storyId, branch, wtPath, gitRoot)) {
             try {
-              pruneWorktreeRegistry();
+              pruneWorktreeRegistry(gitRoot);
             } catch (e: any) {
               throw new Error(
                 `story_discard: metadata prune failed after worktree removal failed, discard stopped.\n` +
                 `worktree: ${wtPath}\nbranch: ${branch}\nremove reason: ${removeFailure}\nprune reason: ${gitErrorMessage(e)}`,
               );
             }
-            if (!existsSync(wtPath) && findWorktreeResidue(args.storyId, branch, wtPath)) {
-              const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+            if (!existsSync(wtPath) && findWorktreeResidue(args.storyId, branch, wtPath, gitRoot)) {
+              const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath, gitRoot);
               if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin cleaned: ${removedAdmins.join(', ')}`);
             }
           }
         } else {
           let pruneFailure: string | null = null;
           try {
-            pruneWorktreeRegistry();
+            pruneWorktreeRegistry(gitRoot);
             results.push(`✓ stale worktree metadata pruned: ${wtPath}`);
           } catch (e: any) {
             pruneFailure = gitErrorMessage(e);
           }
-          if (findWorktreeResidue(args.storyId, branch, wtPath)) {
-            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+          if (findWorktreeResidue(args.storyId, branch, wtPath, gitRoot)) {
+            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath, gitRoot);
             if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin cleaned: ${removedAdmins.join(', ')}`);
             try {
-              pruneWorktreeRegistry();
+              pruneWorktreeRegistry(gitRoot);
               results.push(`✓ stale worktree metadata pruned: ${wtPath}`);
               pruneFailure = null;
             } catch (e: any) {
               pruneFailure = pruneFailure || gitErrorMessage(e);
             }
           }
-          if (pruneFailure && findWorktreeResidue(args.storyId, branch, wtPath)) {
+          if (pruneFailure && findWorktreeResidue(args.storyId, branch, wtPath, gitRoot)) {
             throw new Error(
               `story_discard: worktree path does not exist but git metadata prune failed, discard stopped.\n` +
               `worktree: ${wtPath}\nbranch: ${branch}\nreason: ${pruneFailure}\n` +
@@ -1136,24 +1173,24 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         }
 
         const pathStillExists = existsSync(wtPath);
-        const lingeringWorktreePath = findWorktreeResidue(args.storyId, branch, wtPath);
+        const lingeringWorktreePath = findWorktreeResidue(args.storyId, branch, wtPath, gitRoot);
         if (pathStillExists || lingeringWorktreePath) {
           try {
-            pruneWorktreeRegistry();
+            pruneWorktreeRegistry(gitRoot);
           } catch (e: any) {
             throw new Error(
               `story_discard: re-check after worktree cleanup failed, metadata prune also failed, discard stopped.\n` +
               `worktree: ${wtPath}\nbranch: ${branch}\nreason: ${gitErrorMessage(e)}`,
             );
           }
-          if (!existsSync(wtPath) && findWorktreeResidue(args.storyId, branch, wtPath)) {
-            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+          if (!existsSync(wtPath) && findWorktreeResidue(args.storyId, branch, wtPath, gitRoot)) {
+            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath, gitRoot);
             if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin cleaned: ${removedAdmins.join(', ')}`);
           }
         }
 
         const finalPathStillExists = existsSync(wtPath);
-        const finalLingeringWorktreePath = findWorktreeResidue(args.storyId, branch, wtPath);
+        const finalLingeringWorktreePath = findWorktreeResidue(args.storyId, branch, wtPath, gitRoot);
         if (finalPathStillExists || finalLingeringWorktreePath) {
           throw new Error(
             `story_discard: worktree re-check still has residue, discard stopped.\n` +
@@ -1165,10 +1202,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
         // Force delete branch
         try {
-          git(`branch -D ${branch}`);
+          git(`branch -D ${branch}`, gitRoot);
           results.push(`✓ Branch ${branch} deleted`);
         } catch (e: any) {
-          if (branchExists(branch)) {
+          if (branchExists(branch, gitRoot)) {
             throw new Error(
               `story_discard: Failed to delete branch ${branch}, discard stopped.\nReason: ${gitErrorMessage(e)}`,
             );
@@ -1177,9 +1214,9 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         }
 
         story.worktree = undefined;
-      } else if (branchExists(branch)) {
+      } else if (branchExists(branch, gitRoot)) {
         try {
-          git(`branch -D ${branch}`);
+          git(`branch -D ${branch}`, gitRoot);
           results.push(`✓ Branch ${branch} deleted`);
         } catch (e: any) {
           throw new Error(
@@ -1188,11 +1225,27 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         }
       }
 
+      // B-2856: the storyRel pathspec for the metadata git ops must be relative
+      // to the resolved gitRoot (where those `git add/commit/status` now run),
+      // not to the metadataRoot. When gitRoot === root this is byte-identical to
+      // the legacy storyDir/id pathspec; in wrapper-root layouts it is the path
+      // from the gitRoot down to the (in-gitRoot) story metadata dir.
+      const storyRelForGit = (metadataStoryRel: string): string => {
+        if (gitRoot === root) return metadataStoryRel;
+        const storyAbs = join(root, metadataStoryRel);
+        const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
+        const canonicalGitRoot = existsSync(gitRoot) ? realpathSync(gitRoot) : gitRoot;
+        const rel = relative(canonicalGitRoot, canonicalStoryAbs).replace(/\\/g, '/');
+        // Outside-gitRoot (shouldn't happen for a valid wrapper-root layout):
+        // fall back to the metadata-relative path to preserve prior behavior.
+        return !rel || isAbsolute(rel) || rel.split('/').includes('..') ? metadataStoryRel : rel;
+      };
+
       if (args.purge) {
         const storyRel = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${args.storyId}`;
         rmSync(join(root, storyRel), { recursive: true, force: true });
         results.push(`✓ Story metadata cleaned: ${storyRel}`);
-        results.push(purgeSafeInitCommit(args.storyId, storyRel));
+        results.push(purgeSafeInitCommit(args.storyId, storyRelForGit(storyRel), gitRoot));
         return results.join('\n');
       }
 
@@ -1210,7 +1263,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const digest = recordScopeDiscardDigest(args.storyId, args.reason);
       if (digest) results.push(`✓ discard digest recorded: ${digest.slice(0, 12)}`);
       store.writeStory(args.storyId, story);
-      const metadataCommit = commitDiscardMetadata(args.storyId, storyRel);
+      const metadataCommit = commitDiscardMetadata(args.storyId, storyRelForGit(storyRel), gitRoot);
       if (metadataCommit) results.push(metadataCommit);
 
       results.push(wasDiscarded
