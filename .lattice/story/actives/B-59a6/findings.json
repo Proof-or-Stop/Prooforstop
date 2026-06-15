@@ -113,6 +113,23 @@
       ],
       "resolvedReason": "Updated review_escalation_fallback_set CLI schema/help and handler validation error so fallback reason explains the selected degraded eligibility and lower-assurance 3x1 use, without asserting host unavailability for explicit-human-approval.",
       "resolvedAt": "2026-06-15T11:23:20.811Z"
+    },
+    {
+      "id": "B-59a6:F-007",
+      "desc": "verification_evidence_refresh_stale --dryRun reports 17 stale verificationEvidence entries after the F-006 wording/material change, including build-adjacent smoke evidence for review-escalation, decision-doc quorum, process-fact contract, and live status transcripts. Re-running the requested coverage commands passes, but `node bin/lattice.js review_escalation_status --storyId=B-59a6 --json` currently returns ok=false because the degraded fallback record and host verdict material digests are stale. WHY: verificationEvidence and review-escalation fallback material binding are gate-consumed process facts; without refreshing the checklist evidence and current fallback/verdict material binding, TEST/DONE can fail for stale evidence even though the implementation checks pass. Refresh stale verification evidence and re-establish current review-escalation fallback/verdict evidence before treating coverage as current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-15T11:26:27.660Z",
+      "reviewRound": "2026-06-15T11:23:15.767Z",
+      "reviewRunId": "B-59a6:RR-022",
+      "_hash": "a6b2ac66262302be19744fa650f6d0957c2cae17988074cb99180b81841e688d",
+      "files": [
+        ".lattice/story/actives/B-59a6/checklist.json",
+        ".lattice/story/actives/B-59a6/process-events.jsonl"
+      ]
     }
   ]
 }
