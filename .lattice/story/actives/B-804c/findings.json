@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/tasks/init-check-atomicity-smoke.ts"
       ]
+    },
+    {
+      "id": "B-804c:F-002",
+      "desc": "cli-engine.ts:4100 phaseDetectionFailed path: guard pre-check skipped but dev_start still runs first. If story_get throws (phaseDetectionFailed=true) yet dev_start succeeds (worktree created on disk), and the subsequent story_advance (line 4138) then fails its gate, the worktree exists on disk while the story stays at INIT — a partial bootstrap that contradicts the atomicity guarantee. In practice story_get is extremely defensive (catches all errors internally and returns null/empty, lines 416-426 of story-query.ts) so it essentially never throws; the risk is theoretical but the invariant is not enforced in code. The phaseDetectionFailed branch should either (a) run the guard pre-check before dev_start like the normal path does, or (b) add a try/catch around story_advance that cleans up the worktree on failure.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-15T22:45:28.815Z",
+      "reviewRound": "2026-06-15T22:40:11.984Z",
+      "reviewRunId": "B-804c:RR-002",
+      "_hash": "5a5bf4d7ba948a159eb9cd06fda6afca5cbf1423bd26491cd618bb242848ae03",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
