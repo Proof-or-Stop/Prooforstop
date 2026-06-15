@@ -1,0 +1,76 @@
+{
+  "findings": [
+    {
+      "id": "B-804c:F-001",
+      "desc": "CHK-001:happy:0 lacks a test that drives `story_advance --phase=INIT_CHECK` on a clean INIT story through a SUCCEEDING bootstrap and asserts that phase becomes INIT_CHECK and the worktree is created on disk. The recorded evidence maps this intent to `assertDevStartRecoversStuckInitCheckStory`, which calls `dev_start` on a story already stuck at INIT_CHECK — it exercises the new recovery command, not the `story_advance` success path. The atomicity fix defers phase persistence until after bootstrap succeeds; the only `story_advance INIT_CHECK` path exercised is the FAILURE case (edge intent). A regression in the success-path sequencing (e.g. phase accidentally written twice, or worktree not recorded on the story index after advance) would not be caught.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T22:41:47.355Z",
+      "reviewRound": "2026-06-15T22:40:11.984Z",
+      "reviewRunId": "B-804c:RR-003",
+      "_hash": "87921ab6b694d27302ef6e88bc04a44227847ba0bf0e2be127d23547f3cbfed9",
+      "files": [
+        "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit 8a9c44b86. Added assertCleanInitCheckAdvanceSucceeds() to init-check-atomicity-smoke.ts driving the REAL story_advance INIT_CHECK happy path (preferred route, not the recovery fallback): real story_create envelope -> freezeStory -> init_check_repair (signed init-check.json) -> commit metadata to main -> story_advance INIT_CHECK. Asserts exit 0, story_get detail phase===INIT_CHECK, existsSync(.worktrees/<id>)===true, and StoryStore.readStory().worktree?.path is set — directly guarding the success-path sequencing (phase advanced exactly once + worktree recorded on the index) that was previously untested. Smoke now has 4 assertions and exits 0. Two genuine bugs were found+fixed while wiring the real gate: freezeStory helper omitted background from its story projection (caused scope_freeze_check_stale freshnessHash divergence) and a metadata commit-ordering add/add conflict — both fixed.",
+      "resolvedAt": "2026-06-15T22:53:46.559Z"
+    },
+    {
+      "id": "B-804c:F-002",
+      "desc": "cli-engine.ts:4100 phaseDetectionFailed path: guard pre-check skipped but dev_start still runs first. If story_get throws (phaseDetectionFailed=true) yet dev_start succeeds (worktree created on disk), and the subsequent story_advance (line 4138) then fails its gate, the worktree exists on disk while the story stays at INIT — a partial bootstrap that contradicts the atomicity guarantee. In practice story_get is extremely defensive (catches all errors internally and returns null/empty, lines 416-426 of story-query.ts) so it essentially never throws; the risk is theoretical but the invariant is not enforced in code. The phaseDetectionFailed branch should either (a) run the guard pre-check before dev_start like the normal path does, or (b) add a try/catch around story_advance that cleans up the worktree on failure.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-15T22:45:28.815Z",
+      "reviewRound": "2026-06-15T22:40:11.984Z",
+      "reviewRunId": "B-804c:RR-002",
+      "_hash": "5a5bf4d7ba948a159eb9cd06fda6afca5cbf1423bd26491cd618bb242848ae03",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Fixed in commit 8a9c44b86. Changed the cli-engine INIT_CHECK pre-check condition from (!alreadyInitCheck && !phaseDetectionFailed) to (!alreadyInitCheck), so getGuardFailureReason(...,INIT_CHECK,...) now runs BEFORE dev_start on the phaseDetectionFailed fallback too (comment updated). No-partial-state proof: alreadyInitCheck=true is intentional recovery (phase already at INIT_CHECK, not partial); when !alreadyInitCheck the full guard runs before dev_start AND story_advance re-runs the same guard on the same inputs, so a pre-bootstrap pass passes again at advance time; a guard fail throws before dev_start, and a dev_start throw is re-thrown without advancing — no path creates a worktree without advancing the phase.",
+      "resolvedAt": "2026-06-15T22:53:38.013Z"
+    },
+    {
+      "id": "B-804c:F-003",
+      "desc": "quality-cleanup: cli-engine.ts:4078 phaseDetectionFailed is declared and set in the catch block but never read after the F-002 fix removed !phaseDetectionFailed from the guard condition; the variable is dead and should be removed along with its comment reference (line 4067: \"If phase detection failed earlier, fall back to advancing here\" — this now happens unconditionally via the else branch of alreadyInitCheck, not conditioned on phaseDetectionFailed)",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-15T22:54:48.485Z",
+      "reviewRound": "2026-06-15T22:53:23.221Z",
+      "reviewRunId": "B-804c:RR-007",
+      "_hash": "a64d8826a9aa02c297bcb4a3bbeba962ce2765b5fe29ded5c0e439983d7b8180",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Fixed in commit db8f1786. Removed the dead local variable phaseDetectionFailed (declaration + the catch-block assignment) from the cli-engine INIT_CHECK block; it became unreachable after the F-002 fix changed the guard pre-check condition to if(!alreadyInitCheck). The story_get try/catch is preserved as a bare catch that simply falls through (story_get failure leaves alreadyInitCheck=false, so the normal guarded path runs — the safe behavior). Updated the three stale comments that referenced a phaseDetectionFailed fallback. grep confirms phaseDetectionFailed no longer appears in cli-engine.ts. No runtime behavior changed; smoke (4 assertions) + lifecycle-registry-contract + validate all green.",
+      "resolvedAt": "2026-06-15T22:59:19.059Z"
+    },
+    {
+      "id": "B-804c:F-004",
+      "desc": "CHK-001:happy:0 verificationEvidence headHash is stale and note references the wrong assertion: the evidence recorded at headHash 9efde4255 (pre-fix commit) names assertDevStartRecoversStuckInitCheckStory as the CHK-001:happy:0 witness, but the actual fix (assertCleanInitCheckAdvanceSucceeds, added in 8a9c44b86) was committed afterward and the evidence was never re-recorded at the current HEAD (cf4a0fc6d). validate reports all 9 intent entries as stale/uncovered (0/9 covered). The main agent must re-run verification_evidence_add for CHK-001:happy:0 (and any other stale entries) citing assertCleanInitCheckAdvanceSucceeds and at the current HEAD hash to clear the stale gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-15T22:55:58.960Z",
+      "reviewRound": "2026-06-15T22:53:23.221Z",
+      "reviewRunId": "B-804c:RR-006",
+      "_hash": "eed2e5ff673c994c4d585ed93efe1f6fd0b2ca6f06d75c1027e55f6323e84825",
+      "files": [
+        "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by re-recording verificationEvidence at current HEAD. CHK-001:happy:0 evidence re-added with corrected note referencing assertCleanInitCheckAdvanceSucceeds (the real story_advance INIT_CHECK success-path test), and verification_evidence_refresh_stale refreshed the remaining 8 entries hashes to HEAD. lattice validate --story=B-804c now reports verification coverage 9/9 (missingRequired 0), and full lattice validate is green.",
+      "resolvedAt": "2026-06-15T22:59:19.455Z"
+    }
+  ]
+}

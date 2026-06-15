@@ -5,27 +5,238 @@
       "title": "Make the INIT_CHECK phase write atomic with worktree bootstrap",
       "context": "cli-engine.ts:4003 writes phase=INIT_CHECK before dev_start bootstraps the worktree (:4010); on bootstrap failure there is no rollback (:4022-4024). Defer the phase persistence until bootstrap succeeds, OR roll the phase back (and any mirror) if bootstrap throws, so a failed bootstrap never leaves a partially-advanced story.",
       "userSees": "When worktree bootstrap fails, `lattice story_advance --phase=INIT_CHECK` reports failure and the story stays at its prior phase (story_get shows the original phase, not INIT_CHECK) instead of 'advanced to INIT_CHECK' followed by a worktree-failed warning.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:34:53.024Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a clean repo, story_advance --phase=INIT_CHECK with a succeeding bootstrap advances phase to INIT_CHECK and creates the worktree (unchanged success behavior)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When dev_start bootstrap throws, story_get still shows the prior phase (INIT), not INIT_CHECK; output reports failure not advancement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A victim already at INIT_CHECK with no worktree re-runs story_advance --phase=INIT_CHECK: does not throw INIT_CHECK->INIT_CHECK, re-runs dev_start, no double-advance",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ]
+      },
+      "excludes": [
+        "packages/main/src/core/machine.ts (Option A defer-write fixes atomicity at the cli-engine sequencing layer; no xstate back-edge added, so machine.ts is intentionally NOT modified)",
+        "packages/main/src/tasks/worktree-repair-smoke.ts (CHK-003 adds a NEW smoke file init-check-atomicity-smoke.ts rather than editing the existing worktree-repair-smoke.ts)"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "assertCleanInitCheckAdvanceSucceeds drives the REAL story_advance --phase=INIT_CHECK happy path on a frozen story with a signed init-check.json: asserts exit 0, story_get detail phase===INIT_CHECK (advanced exactly once), worktree dir exists on disk, and story.worktree?.path recorded on the index.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "assertFailedBootstrapLeavesPhaseAtInit: with an injected (unfrozen) bootstrap failure, story_advance --phase=INIT_CHECK exits non-zero, output reports abort not advancement, and story_get detail still shows phase=INIT (no partial advance), no worktree created.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "assertDevStartRecoversStuckInitCheckStory seeds a story already persisted at INIT_CHECK with no worktree (the legacy victim) and re-bootstraps via dev_start without an INIT_CHECK->INIT_CHECK transition error and without double-advancing; idempotent re-run asserted too.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add a supported recovery path for stories already stuck without a worktree",
       "context": "core/machine.ts:503-508 has no INIT_CHECK->INIT backward transition, so a story stuck with requiresWorktree=true and no worktree on disk cannot be re-bootstrapped or rolled back today. Add an idempotent re-bootstrap (or guarded re-entry) command/path that recreates the worktree for such a story.",
       "userSees": "For a story stuck in INIT_CHECK with no worktree, a documented recovery command recreates the worktree and prints its path, instead of 'Cannot transition from PLAN to INIT_CHECK' with no way forward.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:34:57.216Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice dev_start {storyId} on a story stuck in INIT_CHECK with no worktree on disk recreates the worktree and prints its path",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice dev_start is idempotent: running it when the worktree already exists returns the existing path without error",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice dev_start is refused in REVIEW/TEST/DONE phases and refused for an INIT story that has not passed the scope-anti-expansion freeze gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "assertDevStartRecoversStuckInitCheckStory: lattice dev_start on a story stuck in INIT_CHECK with no worktree recreates the worktree (existsSync true) and prints its Path: line.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "Same test second-runs dev_start: idempotent, exits 0, reports the existing worktree (already exists/Path), worktree still present.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "assertDevStartRefusedInWrongPhases: dev_start refused (non-zero) for DONE and REVIEW stories (handler allowedPhases gate) and for an unfrozen INIT story (scope-anti-expansion freeze gate), citing the freeze gate; unfrozen story creates no worktree.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Add regression tests for non-atomic advance and recovery",
       "context": "Cover: (a) a forced bootstrap failure leaves the phase unchanged (no partial advance); (b) the recovery command re-creates a missing worktree for an already-stuck story. Use the existing worktree/cli-engine test seams; do not require a real failing bootstrap if it can be injected.",
       "userSees": "`lattice validate` runs the new tests green, proving bootstrap-failure leaves phase unchanged and the recovery path re-bootstraps a stuck story.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-15T22:35:01.156Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New smoke test runs green under lattice validate, asserting bootstrap-failure leaves phase unchanged and the recovery path re-bootstraps a stuck story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The injected bootstrap-failure path does not require a real failing git operation (uses an injectable seam) yet still exercises the cli-engine ordering",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Test guards against regression: if phase were advanced before bootstrap, the partial-advance assertion fails loudly",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "The new smoke runs green (exit 0, prints init-check atomicity smoke passed) and is registered as npm test:init-check-atomicity-smoke; it asserts both bootstrap-failure-leaves-phase-unchanged and the recovery re-bootstrap.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "The injected bootstrap failure is deterministic (an unfrozen INIT story tripping the scope-anti-expansion freeze gate), requiring no flaky real git failure, yet still exercising the cli-engine INIT_CHECK ordering.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-atomicity-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-atomicity-smoke.js",
+          "result": "pass",
+          "note": "The load-bearing assertion after.index.phase===INIT fails loudly if anyone reverts to advancing the phase before bootstrap, guarding against partial-advance regression.",
+          "headHash": "0a484efddf87634dce8f3d68308bdb64f74db01a",
+          "materialHash": "1e6690a21022dfbe3b80089469bcdc2a32eb5cb0d90f5c181d926a611e8f54ac",
+          "timestamp": "2026-06-15T23:04:59.807Z"
+        }
+      ]
     }
   ]
 }

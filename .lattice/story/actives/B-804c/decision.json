@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Phase persistence and the side effect it implies (worktree bootstrap) must be transactional: never persist a phase whose required side effect failed.",
+    "Prefer the smallest correct change at the true root cause (the cli-engine sequencing) over widening the xstate machine surface.",
+    "Recovery for already-stuck victims must reuse the existing idempotent dev_start handler, not invent new bootstrap logic.",
+    "Stay strictly inside scope (cli-engine / machine / worktree / tasks / tests); do not touch gitRoot resolution (B-2856) or the .lattice ignore model (B-854c).",
+    "Every new gate/allowlist change must be re-validated at both layers (phaseTools allowlist AND command-policy lifecycle) per the Handler convention."
+  ],
+  "drivers": [
+    "A failed bootstrap currently leaves phase=INIT_CHECK with no worktree and no back-edge: unrecoverable.",
+    "dev_start is already idempotent and already rolls back its own story.worktree on internal failure, but is not exposed as a CLI command and INIT_CHECK phaseTools is empty.",
+    "High blast radius: touches phase persistence and command gating; needs regression tests proving partial-advance cannot happen."
+  ],
+  "options": [
+    {
+      "name": "A-defer-write",
+      "pros": [
+        "Eliminates the partial state entirely: phase is only written after bootstrap succeeds, so a failed bootstrap leaves the prior phase intact",
+        "Smallest behavioral change, no machine edits, matches root cause (sequencing)",
+        "Easy to test: inject dev_start failure, assert phase unchanged"
+      ],
+      "cons": [
+        "Must verify nothing between the (removed) early advance and dev_start relied on the in-memory advanced phase",
+        "dev_start itself checks story.phase must be in INIT_CHECK/PLAN/DEV — so we must keep INIT story passable; dev_start currently allows only INIT_CHECK/PLAN/DEV, NOT INIT. Need to advance phase in-memory or relax dev_start to also accept INIT for the bootstrap call."
+      ]
+    },
+    {
+      "name": "B-rollback-on-failure",
+      "pros": [
+        "Keeps current order; on catch, revert phase to prior value + emit clear error",
+        "No need to touch dev_start phase-allow logic"
+      ],
+      "cons": [
+        "Rollback must be complete (phase + any mirror commit + events); easy to leave a residue",
+        "A crash between write and rollback still leaves the bad state — not truly atomic",
+        "More moving parts than deferring the write"
+      ]
+    },
+    {
+      "name": "C-machine-back-edge",
+      "pros": [
+        "Adds INIT_CHECK->INIT transition so a stuck story can roll back via story_advance"
+      ],
+      "cons": [
+        "Widens forward-only machine surface, risks other gates assuming no back-edge",
+        "Does not by itself fix the non-atomic write; only adds a manual recovery lever",
+        "Out of proportion to the bug"
+      ]
+    }
+  ],
+  "chosen": "A-defer-write",
+  "rationale": "Choose A (defer the phase write until bootstrap succeeds) for the forward fix because it removes the partial state at its root rather than compensating after the fact (B is best-effort and still non-atomic on crash; C widens the machine without fixing the write). Concretely: in the cli-engine INIT_CHECK block, run dev_start (bootstrap) FIRST against the still-INIT story, and only call handlers.story_advance to persist phase=INIT_CHECK AFTER bootstrap returns success; on bootstrap failure, do not advance — report failure and leave phase at INIT. dev_start currently requires phase in [INIT_CHECK,PLAN,DEV]; since we now bootstrap while still at INIT, relax dev_start to also accept INIT for the bootstrap entry (keeping its existing scope-anti-expansion gate). For recovery of ALREADY-stuck victims (CHK-002), expose the existing idempotent dev_start as a real CLI command (recovery command name: lattice dev_start) by adding it to MAIN_TOOLS + command-policy (allowedPhases INIT/INIT_CHECK/PLAN/DEV, storyScopedMutating) + INIT_CHECK & PLAN phaseTools allowlists, so a story stuck in INIT_CHECK with no worktree on disk can re-bootstrap and print its path. This reuses battle-tested bootstrap + its own rollback, adds no new machine edges.",
+  "preMortem": [
+    {
+      "scenario": "Deferring the phase write breaks the B-5246 retry path (currentPhase===INIT_CHECK skip-advance branch)",
+      "trigger": "A victim already at INIT_CHECK re-runs story_advance --phase=INIT_CHECK",
+      "consequence": "Code tries to advance INIT_CHECK->INIT_CHECK and throws, or double-advances",
+      "mitigation": "Keep the currentPhase detection: if already INIT_CHECK, skip the advance entirely and only (re)run dev_start; only advance when currentPhase is INIT and bootstrap succeeded. Regression test covers the retry-on-stuck case."
+    },
+    {
+      "scenario": "Relaxing dev_start to accept phase INIT lets a non-INIT_CHECK-gated story bootstrap, bypassing the scope-anti-expansion gate",
+      "trigger": "dev_start called directly on an INIT story that has not passed the scope freeze gate",
+      "consequence": "Worktree created before INIT gates satisfied; scope freeze bypassed",
+      "mitigation": "dev_start already runs getScopeAntiExpansionGuardFailureReason when phase===INIT_CHECK && !worktree; extend that guard check to also fire for phase===INIT so the freeze gate still applies to the INIT bootstrap path. Test asserts dev_start on an unfrozen INIT story is rejected."
+    },
+    {
+      "scenario": "Exposing dev_start as a public CLI command lets it run in wrong phases or by a non-owner, corrupting state",
+      "trigger": "User runs lattice dev_start on a DONE/REVIEW story or as a non-owner session",
+      "consequence": "Worktree recreated for a terminal story, or owner-lease bypassed",
+      "mitigation": "command-policy entry sets ownershipClass=storyScopedMutating (owner-lease gate applies) and allowedPhases limited to INIT/INIT_CHECK/PLAN/DEV; dev_start handler already rejects phases outside INIT_CHECK/PLAN/DEV(+INIT after relax). phaseTools only adds dev_start to INIT_CHECK & PLAN. Test asserts dev_start refused in REVIEW/TEST/DONE."
+    },
+    {
+      "scenario": "bootstrap-first changes the order of the B-f60c metadata mirror commit (commitInitCheckMetadataAndMergeMain), leaving the main checkout dirty and breaking DONE merge",
+      "trigger": "INIT_CHECK on a real repo where the metadata mirror commit ran in the old order",
+      "consequence": "DONE git merge story/B-xxx reports local changes would be overwritten",
+      "mitigation": "Keep the metadata-mirror commit AFTER successful dev_start exactly as today; only the phase-advance call moves. Order becomes: dev_start -> advance phase -> commit metadata mirror. Verify with existing worktree/init-check smokes still green and the new partial-advance smoke."
+    }
+  ],
+  "timestamp": "2026-06-15T22:09:19.219Z"
+}

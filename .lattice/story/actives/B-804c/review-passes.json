@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-804c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Scanned all deleted lines in cli-engine.ts, handlers/worktree.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts. No exported symbol was deleted or renamed. Deleted items are exclusively: (1) internal local variables (currentPhase, wtResult, syncSegment, advanceResult as let-empty-string), (2) old allowedPhases array literal [INIT_CHECK, PLAN, DEV] replaced by [INIT, INIT_CHECK, PLAN, DEV] in the same file, and (3) old error message strings. The new error message text is correctly adopted in the smoke test assertions (init-check-atomicity-smoke.ts:254,258). The getGuardFailureReason import added to cli-engine.ts is properly exported from core/machine.ts and re-exported via index.ts. References to old message templates in docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md are a static review-draft translation document, not live code or gate consumers. No concept-deletion residue found.",
+      "createdAt": "2026-06-15T22:41:57.247Z",
+      "reviewRound": "2026-06-15T22:40:11.984Z",
+      "reviewRunId": "B-804c:RR-001",
+      "_hash": "ebcc5a6b36a104a2d4b192831b98ebfa39c379722cc4af9a0bf947038621666c"
+    },
+    {
+      "id": "B-804c:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "All CHK-001/002/003 userSees match actual code behavior. CHK-001: failed bootstrap (dev_start throws) re-throws instead of returning exit-0 string, story stays at INIT, confirmed by smoke assertFailedBootstrapLeavesPhaseAtInit. CHK-001 adversarial (B-5246 retry): when phase is already INIT_CHECK, story_advance is never called and phase cannot double-advance — assertDevStartRecoversStuckInitCheckStory confirms no INIT_CHECK->INIT_CHECK error. Commit order is correct: dev_start -> story_advance -> commitInitCheckMetadataAndMergeMain (line 4118->4138->4149). Scope-anti-expansion freeze gate fires for INIT phase in worktree.ts handler: condition is now (INIT_CHECK || INIT) && !story.worktree. dev_start refused in REVIEW/TEST/DONE via allowedPhases gate in both handler and command-policy.ts. The phaseDetectionFailed fallback path (story_get throws) can leave a worktree on disk if dev_start succeeds but story_advance then fails — this is explicitly documented in the code comment as preserving historical behavior, and the state is recoverable (dev_start is idempotent, retry succeeds after fixing the gate cause). No unrecoverable partial-advance paths found.",
+      "createdAt": "2026-06-15T22:44:22.389Z",
+      "reviewRound": "2026-06-15T22:40:11.984Z",
+      "reviewRunId": "B-804c:RR-004",
+      "_hash": "40e3d59d923c92e0084cf1f4bf8778c5bf2422ea391daf7d1fa0b21e64da995a"
+    },
+    {
+      "id": "B-804c:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 behavior check: (1) getGuardFailureReason returns null for non-INIT stories (machine.ts:592 'if (story.phase !== INIT) return null'), so the phaseDetectionFailed path never wrongly blocks a legitimate advance — it only adds the guard for the INIT case, which is correct. (2) Bootstrap-first-then-advance ordering confirmed intact: guard gate at 4106-4113, dev_start at 4124, story_advance at 4144, commitInitCheckMetadata at 4155. (3) All 4 smoke assertions pass including new assertCleanInitCheckAdvanceSucceeds. No regression from F-002 fix.",
+      "createdAt": "2026-06-15T22:56:05.329Z",
+      "reviewRound": "2026-06-15T22:53:23.221Z",
+      "reviewRunId": "B-804c:RR-005",
+      "_hash": "083b3f5af414f3bc6819338c77c7f71662df076e3a9e836e04b8c6d5495fcf2a"
+    },
+    {
+      "id": "B-804c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 F-003 fix verification: phaseDetectionFailed is fully removed (grep returns nothing), bare catch{} block remains correct with accurate comment (alreadyInitCheck stays false on story_get failure, safe fallthrough to normal guarded path), updated comments accurately describe the logic with no lingering reference to phaseDetectionFailed fallback, bootstrap-first ordering and metadata-mirror commit order are unchanged. Build (npm --prefix packages/main run build) exits 0, smoke test (init-check-atomicity-smoke.js) exits 0. No new dead code, type, or behavior issues introduced.",
+      "createdAt": "2026-06-15T23:00:33.614Z",
+      "reviewRound": "2026-06-15T22:59:07.976Z",
+      "reviewRunId": "B-804c:RR-008",
+      "_hash": "6a36e5583ca7ff16e1431768136d805c7f03292b45a20d26ff1dc5e1cb84bc75"
+    }
+  ]
+}

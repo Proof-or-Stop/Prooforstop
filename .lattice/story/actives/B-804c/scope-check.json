@@ -1,0 +1,171 @@
+{
+  "storyId": "B-804c",
+  "checkedAt": "2026-06-15T22:12:00.833Z",
+  "features": [
+    {
+      "feature": "Phase write (phase=INIT_CHECK persisted) must not happen before bootstrap (dev_start) succeeds — atomicity fix in cli-engine.ts INIT_CHECK block",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Failed bootstrap must leave story at its prior phase (INIT), output failure message, not advancement; no partial-advance state",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B-5246 retry path preserved: if currentPhase===INIT_CHECK already (legacy victim), skip advance and only re-run dev_start; no INIT_CHECK->INIT_CHECK double-advance",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Supported recovery command (lattice dev_start) for stories already stuck in INIT_CHECK with no worktree on disk",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "dev_start exposed as real CLI command via MAIN_TOOLS registration + schema + longHelp",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "command-policy entry for dev_start: ownershipClass=storyScopedMutating, allowedPhases INIT/INIT_CHECK/PLAN/DEV",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "phaseTools allowlist: dev_start added to INIT_CHECK and PLAN allowlists (config.ts DEFAULT_PHASE_TOOLS)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "dev_start is idempotent: when worktree already exists returns existing path without error",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "dev_start refused in REVIEW/TEST/DONE phases and refused for unfrozen INIT story (scope-anti-expansion gate fires for INIT bootstrap entry too)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "dev_start relaxed to accept phase INIT for the bootstrap entry (worktree.ts handler change)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression test: injected bootstrap failure leaves phase unchanged (no partial advance); injectable seam not requiring real git failure",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression test: recovery path — story seeded in INIT_CHECK with no worktree on disk, dev_start recreates worktree and prints path",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression test guard: dev_start refused in terminal/REVIEW phases; unfrozen INIT story refused",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Test mirrors existing worktree-repair-smoke.ts seam (self-contained node script, execFileSync of dist/cli.js, mkdtemp repo)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "story_lifecycle.md INIT_CHECK gate: worktree bootstrap happens at INIT_CHECK entry; gate requires git available",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "MAIN_TOOLS + DEFAULT_PHASE_TOOLS + command-policy consistency checked by process-fact-registry / verify-process-fact-contract.mjs",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "lifecycle-registry.ts must reflect any new phase event/command change (Lifecycle registry mismatch test coverage)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "scope-anti-expansion gate (B-85ba) must fire during INIT bootstrap path (not bypassed when dev_start accepts INIT)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "story owner lease (storyScopedMutating) applies to new dev_start CLI command — non-owner rejected",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "gitRoot-aware worktree bootstrap (P2 from lattice-midflight-story-repair decision doc)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly states do not change gitRoot resolution (that is B-2856)",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "verification_intent_repair and mid-flight story repair path (P1 from lattice-midflight-story-repair decision doc)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Delivered by B-4e06; not in B-804c scope",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "B-f60c metadata-mirror commit (commitInitCheckMetadataAndMergeMain) order preserved: dev_start -> advance phase -> commit mirror",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 22,
+    "covered": 20,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2d68d26c1efcbe29347b079b3db10db742b1d8940f3e2c41012ff50144f3f21a",
+  "openQuestions": []
+}
