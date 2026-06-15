@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-198c:F-001",
+      "desc": "doc-comment-accuracy: evaluateStoryDirInsideGitRoot (story-signed-workspace-resolution.ts:220) doc says \"PURE: never throws\" but the function calls resolveStorySignedWorkspace which calls store.readStory() at line 74 of the same file, and store.readStory() throws StoryArtifactMissingError when the story index.json is absent. The smoke test titled \"purity: helper never throws even when the story metadata is absent\" (smoke.ts:160) actually runs with the story present (it reuses the no-git root where writeStoryIndex was already called at line 147); the suite comment at suite.ts:331-333 itself acknowledges the helper \"legitimately requires the story to exist via readStory\". The doc comment must be qualified to state it may throw when the story does not exist, or the function must be wrapped with a try/catch.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T21:09:03.469Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-002",
+      "_hash": "dff2c9128eb0444a67830f8c29530af36be8ab81af1c68f0c92b06b6da113d30",
+      "files": [
+        "packages/main/src/core/story-signed-workspace-resolution.ts",
+        "packages/main/src/tasks/storydir-inside-gitroot-smoke.ts",
+        "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+      ]
+    }
+  ]
+}
