@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/audits/lattice-token-cost-and-takeover-audit.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T10:48:42.745Z",
-      "endTime": null,
+      "endTime": "2026-06-15T10:59:25.911Z",
       "files": {
         "modify": [
           "docs/audits/lattice-token-cost-and-takeover-audit.md"
@@ -44,7 +44,40 @@
           }
         ]
       },
-      "userSees": "User sees prompt-token-cost-smoke report baseline template snapshot sizes and confirm the audit source paths are executable, with prompt-cache caveat shown."
+      "userSees": "User sees prompt-token-cost-smoke report baseline template snapshot sizes and confirm the audit source paths are executable, with prompt-cache caveat shown.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke reported baseline and current package template bytes/tokens and confirmed audit source paths are executable.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:25.946Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Audit doc and smoke explicitly keep prompt-cache billing as a caveat, not an exact cost-saving claim.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:25.973Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Smoke stat-checks required audit source paths and fails if cited implementation paths drift.",
+          "headHash": "d2f22dd44068d6fd992f175f7ca5c03db2db6c6d",
+          "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
+          "timestamp": "2026-06-15T10:59:26.000Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
