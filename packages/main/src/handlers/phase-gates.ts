@@ -3,14 +3,14 @@
  *
  * The transition gate logic was mechanically relocated here from
  * handlers/story-advance.ts with ZERO semantic change — gate decisions,
- * fail-closed semantics, error wording, and the koala validate test-evidence
+ * fail-closed semantics, error wording, and the lattice validate test-evidence
  * write timing are byte-identical before and after the move (preMortem #1).
  *
  * What lives here:
  *   - runReviewToTestPreflightGate  — REVIEW→TEST CLI preflight orchestration
  *                                     (logging / fail-closed catch / error
  *                                     shaping around handlers/review-preflight)
- *   - runValidateGate               — the koala validate --json gate (writes
+ *   - runValidateGate               — the lattice validate --json gate (writes
  *                                     test-evidence.json — see annotation below)
  *   - runDoneOracleGate             — the TEST→DONE done-oracle gate adapter
  *                                     (consumes core/done-oracle.ts)
@@ -195,8 +195,8 @@ export async function runReviewToTestPreflightGate(
       throw new Error(
         `Cannot enter TEST: CLI gate preflight did not pass (${failedGates})\n\n` +
         rendered +
-        `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
-        `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
+        `\n\n→ 修复上述 gate 后重跑 lattice story_advance --phase=TEST\n` +
+        `→ 单独复跑: lattice validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
       );
     }
     ctx.log?.('CLI gate preflight: all pass');
@@ -208,8 +208,8 @@ export async function runReviewToTestPreflightGate(
     throw new Error(
       `Cannot enter TEST: CLI gate preflight execution error\n` +
       `${message}\n\n` +
-      `→ 修复 review-preflight gate 后重跑 koala story_advance --phase=TEST\n` +
-      `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
+      `→ 修复 review-preflight gate 后重跑 lattice story_advance --phase=TEST\n` +
+      `→ 单独复跑: lattice validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
     );
   }
 }
@@ -259,7 +259,7 @@ export function runScopeTransitionGate(
       throw new Error(
         `Cannot enter ${phase}: scope-contract.json missing for a new-scope story [missing_scope_contract]\n\n` +
         `Story ${storyId} declares file scopes in its checklist but has no scope contract.\n` +
-        `→ Run: koala scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
+        `→ Run: lattice scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
         `   Then rerun story_advance --phase=${phase}`,
       );
     }
@@ -312,7 +312,7 @@ export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): s
 
   return (
     `\n\n⚠ Scope contract: not initialized — this story declares file scopes in its checklist.\n` +
-    `   Run before REVIEW: koala scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
+    `   Run before REVIEW: lattice scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
     `   Advancing to REVIEW without a scope contract will BLOCK for this new-scope story.`
   );
 }
@@ -413,9 +413,9 @@ export function runAuthorityReceiptTransitionGate(
 }
 
 /**
- * DEV→TEST koala validate gate.
+ * DEV→TEST lattice validate gate.
  *
- * 自动调 koala validate，写 test-evidence.json。
+ * 自动调 lattice validate，写 test-evidence.json。
  *
  * behavior-preserving side effect: this gate writes test-evidence.json via
  * store.writeTestEvidence — both on the PASS path (DONE gate consumes it) and
@@ -442,7 +442,7 @@ export async function runValidateGate(
   _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
-  ctx.log?.('DEV→TEST gate: running koala validate --json...');
+  ctx.log?.('DEV→TEST gate: running lattice validate --json...');
   try {
     const { createVerifierHandlers } = await import('./verifier.js');
     const verifierHandlers = createVerifierHandlers(ctx);
@@ -457,7 +457,7 @@ export async function runValidateGate(
     } catch { /* 无法获取 HEAD，跳过 */ }
     const evidenceMaterialHash = currentMaterialHash(ctx.root);
     store.writeTestEvidence(storyId, {
-      command: `koala validate --story=${storyId} --json`,
+      command: `lattice validate --story=${storyId} --json`,
       output: String(jsonResult),
       result: parsed.allPass ? 'PASS' : 'FAIL',
       timestamp: new Date().toISOString(),
@@ -483,12 +483,12 @@ export async function runValidateGate(
         parsed.summary ? `Summary: ${parsed.summary}` : '',
       ].filter(Boolean);
       throw new Error(
-        `Cannot enter TEST: koala validate did not pass` +
+        `Cannot enter TEST: lattice validate did not pass` +
         (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
         (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
         '\n' +
         sections.join('\n') +
-        '\n\n→ 修复后重跑 koala validate，再 story_advance --phase=TEST'
+        '\n\n→ 修复后重跑 lattice validate，再 story_advance --phase=TEST'
       );
     }
     ctx.log?.('validate PASS, writing test-evidence.json');
@@ -497,7 +497,7 @@ export async function runValidateGate(
     const message = e instanceof Error ? e.message : String(e);
     try {
       store.writeTestEvidence(storyId, {
-        command: `koala validate --story=${storyId} --json`,
+        command: `lattice validate --story=${storyId} --json`,
         output: `validate execution error: ${message}`,
         result: 'FAIL',
         timestamp: new Date().toISOString(),
@@ -510,10 +510,10 @@ export async function runValidateGate(
       });
     }
     throw new Error(
-      `Cannot enter TEST: koala validate execution error\n` +
+      `Cannot enter TEST: lattice validate execution error\n` +
       `${message}\n\n` +
-      `→ 修复 validate runner 后重跑 koala validate --story=${storyId} --json\n` +
-      `→ 然后重跑 koala story_advance --phase=TEST`,
+      `→ 修复 validate runner 后重跑 lattice validate --story=${storyId} --json\n` +
+      `→ 然后重跑 lattice story_advance --phase=TEST`,
     );
   }
 }

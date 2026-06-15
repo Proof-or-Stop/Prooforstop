@@ -105,8 +105,9 @@ identifier.
 4. **User-visible output** (hints, errors, `cli-output`): short, actionable, no
    internal jargon. Prefer plain English over abbreviations.
 5. **Preserve identifiers exactly**: command names, enum values, JSON keys, IDs,
-   filenames, and legacy aliases (`lattice` / `koala`) are never reworded, and
-   template tokens such as `${e.message}` are kept verbatim.
+   filenames, historical/process identifiers, and template tokens such as
+   `${e.message}` are kept verbatim. Active executable command guidance uses
+   `lattice`.
 6. **Apply the glossary**: use `blocked` vs `excluded` per the glossary, and use
    `source of truth` and `iteration` consistently.
 
@@ -219,8 +220,8 @@ Reviewer checks:
 - Phase-aware next-step hints are English.
 - Tests no longer require Chinese output except in explicitly named legacy
   compatibility assertions.
-- `koala` remains documented only as a legacy alias, not as the primary product
-  name.
+- Active user-facing command guidance documents `lattice` only; historical
+  process names remain only as identifiers.
 
 ## Translation Review Table
 
@@ -1156,7 +1157,7 @@ M720	3397	comment	dashboard 走独立长驻模式	dashboard uses standalone long
 M721	3403	comment	如果没指定 roots，用 --root（或自动检测）作为默认	If roots are not specified, use --root (or auto-detection) as the default.	review-draft
 M722	3517	cli-output	未知命令: ${cmd}	Unknown command: ${cmd}	review-draft
 M723	3519	cli-output	你是不是要找:	Did you mean:	review-draft
-M724	3520	cli-output	用 lattice help 查看所有命令（legacy alias: koala）	Use lattice help to view all commands (legacy alias: koala).	review-draft
+M724	3520	cli-output	用 lattice help 查看所有命令	Use lattice help to view all commands.	review-draft
 M725	3526	comment	Phase gate: 有 active story 时，拒绝不在白名单中的命令	Phase gate: When an active story exists, reject commands outside the allowlist.	review-draft
 M726	3539	comment	Parse arguments — 支持三种格式：	Parse arguments — supports three formats:	review-draft
 M727	3540	comment	1. --key=value --flag (标准 flag)	1. --key=value --flag (standard flag)	review-draft

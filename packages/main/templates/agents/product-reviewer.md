@@ -31,7 +31,7 @@ You are `product-reviewer`. Your job is not to review engineering correctness, b
 If the main agent asks you to take on INIT review or to judge whether INIT can advance, then after the review is complete — regardless of whether the conclusion is `pass` or `fail` — you must make one call to:
 
 ```bash
-koala init_check_set '{"storyId":"<STORY_ID>","issues":[...],"agentId":"product-reviewer"}'
+lattice init_check_set '{"storyId":"<STORY_ID>","issues":[...],"agentId":"product-reviewer"}'
 ```
 
 `agentId` must be exactly `product-reviewer`. Do not pass `koala-review-story-init` — that is a different INIT reviewer, and using it will cause the gate to continue thinking the product-reviewer record is missing.

@@ -3,7 +3,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import { loadConfig, pickProjectConfigPath, LATTICE_CONFIG_FILENAME, LEGACY_KOALA_CONFIG_FILENAME } from '../core/config.js';
+import { loadConfig, pickProjectConfigPath, LATTICE_CONFIG_FILENAME } from '../core/config.js';
 import { resolveWorkflowPolicy, explainProfile, computeChannel, CHANNEL_LABELS } from '../core/workflow-policy.js';
 import type { WorkflowProfile, WorkflowPolicy } from '../core/types.js';
 import { WORKFLOW_PRESETS } from '../core/types.js';
@@ -22,10 +22,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       }
       const newProfile = args.profile as WorkflowProfile;
 
-      // Prefer lattice.config.json (canonical). Fall back to legacy
-      // koala.config.json only if it is the sole existing project config so
-      // koala-only repos keep working. If neither exists, create the canonical
-      // lattice.config.json.
+      // Prefer an existing lattice.config.json. If none exists, create it.
       const picked = pickProjectConfigPath(root);
       const configPath = picked?.path ?? join(root, LATTICE_CONFIG_FILENAME);
       const configFilename = picked?.filename ?? LATTICE_CONFIG_FILENAME;
@@ -56,9 +53,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       } catch (err) {
         rawConfig.workflow.profile = oldProfile;
         writeFileSync(configPath, JSON.stringify(rawConfig, null, 2) + '\n', 'utf-8');
-        const configLabel = configFilename === LEGACY_KOALA_CONFIG_FILENAME
-          ? `${LEGACY_KOALA_CONFIG_FILENAME} (legacy fallback)`
-          : `${LATTICE_CONFIG_FILENAME} (canonical)`;
+        const configLabel = `${configFilename} (canonical)`;
         return `CLAUDE.md sync failed, rolled back ${configLabel}: ${err}`;
       }
 

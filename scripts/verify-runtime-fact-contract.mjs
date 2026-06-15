@@ -76,11 +76,13 @@ async function main() {
   check(registrySource.includes('driftMessage'), 'runtime registry entries should declare driftMessage');
   check(registrySource.includes('repairHint'), 'runtime registry should include repair hints where applicable');
   check(registrySource.includes('@lattice-agent/core'), 'runtime registry should name @lattice-agent/core as canonical');
-  check(registrySource.includes('@koala-agent/core is only a legacy compatibility fallback'), 'runtime registry should label @koala-agent/core as legacy compatibility only');
+  check(!registrySource.includes('@koala-agent/core'), 'runtime registry must not advertise @koala-agent/core fallback');
   check(checksSource.includes("const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core'"), 'runtime checks should resolve @lattice-agent/core as canonical');
-  check(checksSource.includes("const LEGACY_CORE_PACKAGE_NAME = '@koala-agent/core'"), 'runtime checks should keep bounded @koala-agent/core fallback');
-  check(registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint should prefer lattice and preserve koala fallback');
+  check(!checksSource.includes('@koala-agent/core'), 'runtime checks must not resolve @koala-agent/core fallback');
+  check(registrySource.includes('command -v lattice'), 'cli-entrypoint repair hint should use lattice');
+  check(!registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint must not include koala fallback');
   check(registrySource.includes('node_modules/.bin/lattice'), 'project-local-bin guidance should prefer lattice local bins');
+  check(!registrySource.includes('node_modules/.bin/koala'), 'project-local-bin guidance must not include koala local bins');
   check(doctorSource.includes('runRuntimeEnvironmentChecks'), 'doctor should call runRuntimeEnvironmentChecks');
   check(doctorSource.includes('runtime,'), 'doctor JSON should expose runtime');
   check(doctorSource.includes('renderRuntimeEnvironmentReport'), 'doctor text should render runtime scan');
@@ -89,6 +91,7 @@ async function main() {
   const checksModule = await importDist(root, 'packages/main/dist/core/runtime-environment-checks.js');
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');
+  const configModule = await importDist(root, 'packages/main/dist/core/config.js');
 
   if (registryModule) {
     const registry = registryModule.RUNTIME_FACT_REGISTRY ?? [];
@@ -107,14 +110,44 @@ async function main() {
     }
   }
 
-  const tmp = mkdtempSync(join(tmpdir(), 'koala-runtime-fact-contract-'));
+  if (configModule) {
+    const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-config-negative-'));
+    try {
+      writeFileSync(join(legacyOnlyRoot, 'koala.config.json'), JSON.stringify({
+        scanRoot: 'legacy-only-src',
+        validate: {
+          command: 'node -e "process.stdout.write(\\"legacy\\")"',
+        },
+      }));
+      configModule.resetConfigCache?.();
+      const legacyOnlyConfig = configModule.loadConfig(legacyOnlyRoot);
+      check(legacyOnlyConfig.scanRoot !== 'legacy-only-src', 'koala.config.json must not be read as an active config fallback');
+      check(!legacyOnlyConfig.validate, 'koala.config.json validate commands must not be read as active config');
+
+      writeFileSync(join(legacyOnlyRoot, 'lattice.config.json'), JSON.stringify({
+        scanRoot: 'lattice-src',
+        validate: {
+          command: 'node -e "process.stdout.write(\\"lattice\\")"',
+        },
+      }));
+      configModule.resetConfigCache?.();
+      const latticeConfig = configModule.loadConfig(legacyOnlyRoot);
+      check(latticeConfig.scanRoot === 'lattice-src', 'lattice.config.json must remain the active config source');
+      check(latticeConfig.validate?.command?.includes('lattice'), 'lattice.config.json validate command must load');
+    } finally {
+      rmSync(legacyOnlyRoot, { recursive: true, force: true });
+      configModule.resetConfigCache?.();
+    }
+  }
+
+  const tmp = mkdtempSync(join(tmpdir(), 'lattice-runtime-fact-contract-'));
   try {
     writeFileSync(join(tmp, 'package.json'), JSON.stringify({
       name: 'runtime-contract-smoke',
       version: '1.0.0',
       scripts: { test: 'node -e "process.stdout.write(\\"ok\\")"' },
     }));
-    writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
       validate: {
         command: 'node -e "process.stdout.write(\\"configured\\")"',
       },
@@ -133,8 +166,8 @@ async function main() {
       check(report.externalReferencePolicy.actual.policy === 'reference-only', 'external-reference-policy should be policy-only');
       check(report.projectLocalBin.status === 'pass', 'project-local-bin should pass when no project-local bin exists');
       check(report.projectLocalBin.actual.present === false, 'project-local-bin should record absent local bin');
-      check(report.cliEntrypoint.expected === 'lattice executable on PATH (falling back to legacy koala)', 'cli-entrypoint expected text should prefer lattice and name koala fallback');
-      check((report.cliEntrypoint.warnings ?? []).some((warning) => warning.includes('lattice') && warning.includes('koala')), 'missing CLI warning should mention lattice and koala fallback');
+      check(report.cliEntrypoint.expected === 'lattice executable on PATH', 'cli-entrypoint expected text should be lattice-only');
+      check((report.cliEntrypoint.warnings ?? []).some((warning) => warning.includes('lattice') && !warning.includes('koala')), 'missing CLI warning should mention lattice only');
 
       const pathBinDir = join(tmp, 'path-bin');
       mkdirSync(pathBinDir, { recursive: true });
@@ -159,11 +192,22 @@ async function main() {
         else process.env.Path = oldWindowsPath;
       }
 
-      const localBinName = process.platform === 'win32' ? 'koala.cmd' : 'koala';
+      const staleKoalaName = process.platform === 'win32' ? 'koala.cmd' : 'koala';
       const localBinDir = join(tmp, 'node_modules', '.bin');
-      const localBin = join(localBinDir, localBinName);
+      const staleKoalaBin = join(localBinDir, staleKoalaName);
       mkdirSync(localBinDir, { recursive: true });
-      writeFileSync(localBin, 'local koala');
+      writeFileSync(staleKoalaBin, 'local koala');
+      const staleKoalaReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
+        commandResolver: () => null,
+        globalNpmRootResolver: () => null,
+      });
+      check(staleKoalaReport.projectLocalBin.status === 'pass', 'project-local-bin should ignore stale koala-only local bin');
+      check(staleKoalaReport.projectLocalBin.actual.path.endsWith(process.platform === 'win32' ? 'lattice.cmd' : 'lattice'), 'project-local-bin should inspect lattice path only');
+      check(staleKoalaReport.projectLocalBin.actual.present === false, 'project-local-bin should not count koala-only local bin as present');
+
+      const localBinName = process.platform === 'win32' ? 'lattice.cmd' : 'lattice';
+      const localBin = join(localBinDir, localBinName);
+      writeFileSync(localBin, 'local lattice');
       const matchingLocalBinReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
         commandResolver: () => localBin,
         globalNpmRootResolver: () => null,
@@ -172,8 +216,8 @@ async function main() {
       check(matchingLocalBinReport.projectLocalBin.actual.matchesEntrypoint === true, 'project-local-bin should record matching local bin realpath');
       check(matchingLocalBinReport.projectLocalBin.actual.shadowsEntrypoint === false, 'project-local-bin should not shadow when realpaths match');
 
-      const activeCli = join(tmp, 'active-koala');
-      writeFileSync(activeCli, 'active koala');
+      const activeCli = join(tmp, 'active-lattice');
+      writeFileSync(activeCli, 'active lattice');
       const mismatchedLocalBinReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
         commandResolver: () => activeCli,
         globalNpmRootResolver: () => null,

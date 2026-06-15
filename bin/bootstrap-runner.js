@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Shared bootstrap runner for local koala wrappers.
+ * Shared bootstrap runner for local Lattice wrappers.
  *
  * These wrappers are repo-local convenience entrypoints. When their compiled
  * dependencies are missing we want a recovery hint, not an opaque
@@ -24,7 +24,7 @@ function printBootstrapFailure(error) {
   if (!existsSync(MAIN_DIST)) missing.push(MAIN_DIST);
   if (!existsSync(UTILS_DIST)) missing.push(UTILS_DIST);
 
-  console.error('koala local bootstrap is not ready.');
+  console.error('lattice local bootstrap is not ready.');
 
   if (missing.length > 0) {
     console.error('');
@@ -40,9 +40,9 @@ function printBootstrapFailure(error) {
   console.error('');
   console.error('Fallbacks:');
   console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
-  console.error('    Use this for current-worktree gate/status/validate checks while developing Koala.');
+  console.error('    Use this for current-worktree gate/status/validate checks while developing Lattice.');
   console.error('  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):');
-  console.error('    KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala <command>');
+  console.error('    KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice <command>');
   console.error('    Use only for session_brief heartbeat or post-merge main checks; may lag this worktree.');
 
   if (error) {

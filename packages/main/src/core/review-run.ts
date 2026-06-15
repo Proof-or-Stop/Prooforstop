@@ -409,7 +409,7 @@ function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string)
 }
 
 function startRunHint(storyId: string, lane: string): string {
-  return `→ Current REVIEW round has no available reviewer run: run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}', then resubmit finding_add/review_pass_set with the returned reviewRunId`;
+  return `→ Current REVIEW round has no available reviewer run: run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}', then resubmit finding_add/review_pass_set with the returned reviewRunId`;
 }
 
 function latestRunHint(storyId: string, lane: string, latestRunId?: string): string {
@@ -418,17 +418,17 @@ function latestRunHint(storyId: string, lane: string, latestRunId?: string): str
 }
 
 function roundMismatchHint(storyId: string, lane: string): string {
-  return `→ This reviewRunId does not belong to the current REVIEW round: run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to obtain the reviewRunId for the current round, then resubmit finding_add/review_pass_set`;
+  return `→ This reviewRunId does not belong to the current REVIEW round: run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to obtain the reviewRunId for the current round, then resubmit finding_add/review_pass_set`;
 }
 
 function staleMaterialHint(storyId: string, lane: string): string {
-  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run koala story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run lattice story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
 }
 
 // ── B-6bfd CHK-005: review scope binding (scope-protected stories only) ──
 
 function scopeBindingHint(storyId: string, lane: string): string {
-  return `→ scope-protected story: reviewer evidence must be bound to the current scope contract and diff. Re-run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to capture the latest scopeContractHash/diffPackHash, then use the new reviewRunId to resubmit finding_add/review_pass_set`;
+  return `→ scope-protected story: reviewer evidence must be bound to the current scope contract and diff. Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to capture the latest scopeContractHash/diffPackHash, then use the new reviewRunId to resubmit finding_add/review_pass_set`;
 }
 
 /**
@@ -601,7 +601,7 @@ function validateRunWorkspaceBinding(
 }
 
 function workspaceBindingHint(storyId: string, lane: string): string {
-  return `→ Re-run koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
+  return `→ Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
 }
 
 export function assertCurrentReviewRunForEvidence(

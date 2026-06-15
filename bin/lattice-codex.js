@@ -18,10 +18,10 @@ async function main() {
     import('node:url'),
   ]);
   const binDir = dirname(process.argv[1] || '.');
-  const localKoala = join(binDir, 'lattice.js');
-  if (existsSync(localKoala)) {
-    const koala = await import(pathToFileURL(localKoala).href);
-    const localMain = koala.main || koala.default?.main;
+  const localLattice = join(binDir, 'lattice.js');
+  if (existsSync(localLattice)) {
+    const lattice = await import(pathToFileURL(localLattice).href);
+    const localMain = lattice.main || lattice.default?.main;
     if (typeof localMain === 'function') {
       await localMain();
     }
@@ -30,7 +30,7 @@ async function main() {
     console.error('');
     console.error('Recovery:');
     console.error('  - Rerun: lattice init --verify-codex');
-    console.error('  - If this is the Lattice/Koala repository, run: npm run build');
+    console.error('  - If this is the Lattice repository, run: npm run build');
     process.exit(1);
   }
 }

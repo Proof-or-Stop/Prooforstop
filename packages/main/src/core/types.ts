@@ -954,7 +954,7 @@ export interface ScopeCheckData {
   };
   /**
    * B-ed3e CHK-003: 6th channel Open Questions. Reviewer writes here when scanning the full decisions/ directory and finding
-   * contradictions/questions that are "seen but not classified". Main agent must use `koala scope_question_resolve`
+   * contradictions/questions that are "seen but not classified". Main agent must use `lattice scope_question_resolve`
    * to resolve them in writing (prevents self-absolution); the PLAN gate blocks unresolved OQs.
    * Signature domain excludes this field (resolution is a main agent action, not part of reviewer signature _hash).
    */

@@ -28,7 +28,7 @@ This project uses software engineering to manage the automated generation, optim
 
 ## Lattice CLI Rollout
 
-`lattice` is the current primary command entry point. For local project development, inspection, and restoring context, prefer:
+`lattice` is the current command entry point and the only active product command. For local project development, inspection, and restoring context, prefer:
 
 ```bash
 lattice check

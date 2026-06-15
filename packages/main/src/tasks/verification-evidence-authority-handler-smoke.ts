@@ -125,7 +125,7 @@ function createStoryRepo(): { root: string; store: StoryStore } {
       intentRef: 'CHK-001:happy:0',
       kind: 'integration_test',
       file: 'validate.ts',
-      command: 'koala validate --story=B-authh',
+      command: 'lattice validate --story=B-authh',
       result: 'pass',
       note: 'integration test covers the happy path',
     }));

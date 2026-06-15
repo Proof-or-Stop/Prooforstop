@@ -100,7 +100,7 @@ export function buildMainWriteLockContentionMessage(
   holderAgeMs: number,
 ): string {
   const heartbeat = `heartbeat ${formatLockAge(holderAgeMs)} ago`;
-  const retry = 'Retry after the active operation completes, or run `koala doctor` if it appears stuck.';
+  const retry = 'Retry after the active operation completes, or run `lattice doctor` if it appears stuck.';
   if (holder) {
     // Holder metadata available — name pid / hostname / running command.
     return (

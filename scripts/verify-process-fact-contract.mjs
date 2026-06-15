@@ -457,8 +457,8 @@ function scanBraceState(line, state) {
 }
 
 function commandBlocks(text, command) {
-  const commandPattern = new RegExp(`\\bkoala\\s+${command}\\b`);
-  const anyKoalaCommandPattern = /\bkoala\s+[a-z_][a-z0-9_]*\b/;
+  const commandPattern = new RegExp(`\\b(?:lattice|koala)\\s+${command}\\b`);
+  const anyCliCommandPattern = /\b(?:lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
   const lines = text.split(/\r?\n/);
   const blocks = [];
 
@@ -480,7 +480,7 @@ function commandBlocks(text, command) {
 
       const nextLine = lines[nextIndex];
       const trimmed = nextLine.trim();
-      if (!state.seenJson && (!trimmed || trimmed.startsWith('```') || anyKoalaCommandPattern.test(nextLine))) break;
+      if (!state.seenJson && (!trimmed || trimmed.startsWith('```') || anyCliCommandPattern.test(nextLine))) break;
 
       blockLines.push(nextLine);
       scanBraceState(nextLine, state);
@@ -773,10 +773,10 @@ function scanActiveLifecycleDocText(text, label) {
 
 function assertSyntheticAdversarialChecks() {
   const badPassOnlyLines = [
-    'koala finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
-    'koala finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
-    'koala finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
-    'koala finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"koala-review-quality"}\'',
   ];
   for (const [index, line] of badPassOnlyLines.entries()) {
     assert(
@@ -785,7 +785,7 @@ function assertSyntheticAdversarialChecks() {
     );
   }
   const multilinePassOnly = [
-    "koala finding_add '{",
+    "lattice finding_add '{",
     '  storyId:"B-x",',
     '  desc:"PASS",',
     '  severity:"low",',
@@ -799,7 +799,7 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const noReviewPass = [
-    'Use koala finding_add for every problem.',
+    'Use lattice finding_add for every problem.',
     'No findings. Review passed.',
   ].join('\n');
   assert(
@@ -807,13 +807,13 @@ function assertSyntheticAdversarialChecks() {
     'synthetic no-finding prompt without review_pass_set should fail',
   );
 
-  const activeLegacy = 'koala finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"koala-review-quality"}\'';
+  const activeLegacy = 'lattice finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"koala-review-quality"}\'';
   assert(
     scanPromptText(activeLegacy, 'synthetic-active-legacy').some(issue => issue.includes('legacy category')),
     'synthetic active legacy category should fail',
   );
   const multilineLegacy = [
-    "koala finding_add '{",
+    "lattice finding_add '{",
     '  storyId:"B-x",',
     '  desc:"real issue",',
     '  severity:"medium",',
@@ -826,23 +826,23 @@ function assertSyntheticAdversarialChecks() {
     'synthetic multiline legacy category should fail',
   );
 
-  const unknownCategory = 'koala finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"koala-review-quality"}\'';
+  const unknownCategory = 'lattice finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"koala-review-quality"}\'';
   assert(
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
   );
-  const literalReviewRunId = 'koala finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  const literalReviewRunId = 'lattice finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
   assert(
     scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
     'synthetic literal RR-001 reviewer command should fail',
   );
-  const missingFindingReviewRunId = 'koala finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  const missingFindingReviewRunId = 'lattice finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
   assert(
     scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/koala-review-story-init.md')
       .some(issue => issue.includes('finding_add example must include reviewRunId')),
     'synthetic reviewer finding_add JSON example without reviewRunId should fail',
   );
-  const missingPassReviewRunId = 'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
+  const missingPassReviewRunId = 'lattice review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
   assert(
     scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/koala-evaluator.md')
       .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
@@ -868,7 +868,7 @@ function assertSyntheticAdversarialChecks() {
     'synthetic story_review.planReviewRound numeric docs should pass',
   );
   const multilineUnknown = [
-    "koala finding_add '{",
+    "lattice finding_add '{",
     '  storyId:"B-x",',
     '  desc:"real issue",',
     '  severity:"medium",',
@@ -882,13 +882,13 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const goodPrompt = [
-    'koala review_run_start \'{"storyId":"B-x","agent":"koala-review-quality"}\'',
-    'koala finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
-    'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
+    'lattice review_run_start \'{"storyId":"B-x","agent":"koala-review-quality"}\'',
+    'lattice finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
+    'lattice review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
 
-  const localizedAgentPlaceholder = 'koala review_run_start \'{"storyId":"B-x","agent":"<本 reviewer 名>"}\'';
+  const localizedAgentPlaceholder = 'lattice review_run_start \'{"storyId":"B-x","agent":"<本 reviewer 名>"}\'';
   assert(
     scanPromptText(localizedAgentPlaceholder, 'synthetic-localized-agent-placeholder')
       .some(issue => issue.includes('machine field "agent" uses non-code value')),
@@ -929,7 +929,7 @@ function assertSyntheticAdversarialChecks() {
     '    allowedPhases: ["PLAN", "REVIEW"],',
     '    destructiveRisk: "none",',
     '    reason: "Reviewer\\\'s plan artifact with \\"quotes\\" stays parseable.",',
-    '    replacement: `Use koala validate --story=<storyId> and record verificationEvidence`,',
+    '    replacement: `Use lattice validate --story=<storyId> and record verificationEvidence`,',
     '  },',
     '} as const satisfies Record<string, CommandPolicy>;',
   ].join('\n');
@@ -3068,10 +3068,10 @@ const inventory = [
         patterns: [
           'getGuardFailureReason',
           'runReviewCliGates',
-          'koala validate --json',
+          'lattice validate --json',
           'writeTestEvidence',
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: koala validate execution error',
+          'Cannot enter TEST: lattice validate execution error',
         ],
       },
       {
@@ -3295,8 +3295,8 @@ const inventory = [
           'allowedScope: z.array(z.string().min(1)).min(1)',
           'allowedPaths: z.array(z.string().min(1)).optional()',
           'excludedPaths: z.array(z.string().min(1)).optional()',
-          'INIT reviewer lane 不可直接改需求定义',
-          'INIT reviewer lane 不可直接改 story-level scope 字段',
+          'INIT reviewer lanes may not directly change requirement definitions.',
+          'INIT reviewer lanes may not directly change story-level scope fields.',
         ],
       },
       {
@@ -3352,7 +3352,7 @@ const inventory = [
     files: [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
-        // (runReviewCliGates / writeTestEvidence / the `koala validate --json`
+        // (runReviewCliGates / writeTestEvidence / the `lattice validate --json`
         // gate / the two English `Cannot enter TEST` strings) into phase-gates.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
         relPath: 'packages/main/src/handlers/story-advance.ts',
@@ -3360,7 +3360,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/phase-gates.ts',
-        patterns: ['runReviewCliGates', 'koala validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight execution error', 'Cannot enter TEST: koala validate execution error'],
+        patterns: ['runReviewCliGates', 'lattice validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight execution error', 'Cannot enter TEST: lattice validate execution error'],
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',

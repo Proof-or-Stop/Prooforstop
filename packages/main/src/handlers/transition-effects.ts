@@ -220,14 +220,14 @@ export function buildNextSteps(
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
 ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting; if no output for 4 minutes ask for status, if no result for 10 minutes/600s treat as stalled, restart that reviewer and note the previous stall in the retry prompt
-→ After all return, koala finding_list to aggregate
+→ After all return, lattice finding_list to aggregate
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
 → Need code changes: story_advance(${storyId}, DEV) to return to DEV
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"koala-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
     })(),
     TEST_CASE: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
     TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
-    TEST: `→ Must execute immediately: koala validate to run verification, write bug/evidence. fail auto aux_diagnose + bug_report, pass auto marks bug fixed.
+    TEST: `→ Must execute immediately: lattice validate to run verification, write bug/evidence. fail auto aux_diagnose + bug_report, pass auto marks bug fixed.
 ⚠ Engineering verification ≠ user acceptance: even if validate is fully pass, you must run it once on a real machine from the user's perspective (rhythm: treat PLAN outcome as expected → run → treat actual output as actual → diff). After verifying, put the actual transcript + diff notes in ${store.storyDirRel()}/${storyId}/evidence/transcript-diff.md. The "user value acceptance" section in CLAUDE.md has the complete 5-question self-check list.
 ⚠ delivery-check hard gate: before DONE you must spawn the koala-review-delivery reviewer to write the delivery-check.json signature. The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage. Fallback is compliant only with koala-review-delivery provenance / agentId=koala-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].`,
     DONE: `→ Must execute immediately: tell the user the Story summary paragraph below in your own words (what changed / how to use / real-machine coverage / limitations / pitfalls), then convergence_check to check project convergence state

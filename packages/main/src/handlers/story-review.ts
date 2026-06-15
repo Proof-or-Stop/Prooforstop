@@ -162,7 +162,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           type: 'risk_signals',
           severity: 'advisory',
           message: `story hit ${activeRiskSignals.length} high-risk signal(s): ${activeRiskSignals.map((r: any) => r.category).join(', ')}. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path).`
-            + ` If this story only mentions rather than modifies that area (false positive), run koala story_review_dismiss '{"storyId":"${args.storyId}","category":"<category>","reason":"..."}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted).`,
+            + ` If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{"storyId":"${args.storyId}","category":"<category>","reason":"..."}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted).`,
         });
       }
       if (dismissedCats.size > 0) {
@@ -466,7 +466,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           issues.push({
             type: 'scope_open_question_unresolved',
             severity: 'blocker',
-            message: `scope_open_question_unresolved: ${oq.id} unresolved — "${qText}"${shortTag}. Please run \`koala scope_question_resolve --storyId=${args.storyId} --oqId=${oq.id} --resolution=...\` to provide a written resolution (the main agent is responsible for the conclusion)`,
+            message: `scope_open_question_unresolved: ${oq.id} unresolved — "${qText}"${shortTag}. Please run \`lattice scope_question_resolve --storyId=${args.storyId} --oqId=${oq.id} --resolution=...\` to provide a written resolution (the main agent is responsible for the conclusion)`,
           });
         }
       }

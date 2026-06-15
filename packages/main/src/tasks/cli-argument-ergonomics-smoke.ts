@@ -89,7 +89,7 @@ try {
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
   assert.match(invalidVerificationIntent.stderr, /Parameter validation failed \(summary\)/);
   assert.doesNotMatch(invalidVerificationIntent.stderr, /Command "checklist_update" is not available in .* phase/);
-  assert.doesNotMatch(invalidVerificationIntent.stdout, /Don't know what to do now|koala status/);
+  assert.doesNotMatch(invalidVerificationIntent.stdout, /Don't know what to do now|lattice status/);
 } finally {
   rmSync(isolatedCwd, { recursive: true, force: true });
 }

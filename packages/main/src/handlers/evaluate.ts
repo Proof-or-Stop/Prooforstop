@@ -5,9 +5,9 @@
  * 按功能完整性和可用性两个维度打分。
  *
  * 前置条件：
- * - 项目 lattice.config.json (canonical) 或 koala.config.json (legacy fallback)
+ * - 项目 lattice.config.json
  *   配了 browser.devCommand（否则跳过）
- * - koala serve --dev 已经在运行（或由本命令启动）
+ * - lattice serve --dev 已经在运行（或由本命令启动）
  *
  * 结果写入 story 的 eval-evidence.json，DONE gate 消费。
  */
@@ -40,7 +40,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       if (!hasBrowser && !hasCli) {
         return JSON.stringify({
           skipped: true,
-          reason: 'No browser.devCommand or cli.command in lattice.config.json (canonical) / koala.config.json (legacy fallback) — no evaluator target',
+          reason: 'No browser.devCommand or cli.command in lattice.config.json — no evaluator target',
         });
       }
 
@@ -64,12 +64,12 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
 
       const instructions: string[] = [];
       if (hasBrowser) {
-        instructions.push(`1. 确保 koala serve --dev="${config.browser!.devCommand}" 正在运行（端口 ${port}）`);
+        instructions.push(`1. 确保 lattice serve --dev="${config.browser!.devCommand}" 正在运行（端口 ${port}）`);
         instructions.push(`2. 用 Agent tool 调 koala-evaluator agent，传入 serveUrl="${serveUrl}" 和 checklist`);
       }
       if (hasCli) {
         const step = hasBrowser ? 3 : 1;
-        instructions.push(`${step}. 确保 koala serve 正在运行（端口 ${port}）`);
+        instructions.push(`${step}. 确保 lattice serve 正在运行（端口 ${port}）`);
         instructions.push(`${step + 1}. 用 Agent tool 调 koala-evaluator-cli agent，传入 serveUrl="${serveUrl}", checklist, hasCliShell=true`);
       }
       const lastStep = instructions.length + 1;

@@ -1,0 +1,143 @@
+{
+  "storyId": "B-6351",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/managed-assets.ts",
+    ".Codex",
+    ".codex",
+    "bin",
+    ".Codex/README.md",
+    ".codex/README.md",
+    ".Codex/lattice.json",
+    ".codex/lattice.json",
+    "README.md",
+    "docs/guide-hooks.md",
+    "packages/main/package.json",
+    "packages/main/src/tasks",
+    "packages/main/src/tasks/rollout-check-smoke.ts",
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts",
+    "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+    "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "scripts/verify-entrypoints.mjs",
+    "scripts/verify-codex-assets.mjs",
+    "docs/requirements/decisions/project-vision.md",
+    "docs/requirements/decisions/stack-layering.md",
+    "docs/requirements/decisions/testing-infra.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/rollout-check-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "scripts/verify-codex-assets.mjs",
+    "scripts/verify-entrypoints.mjs",
+    "scripts/verify-truth-cli-commands.mjs",
+    "scripts/verify-session-brief-command-center.mjs",
+    "packages/main/src/tasks",
+    "packages/main/src/tasks/cli-engine-branding-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These files contain active command examples, generated prompt snippets, hook fallback lookup, lifecycle artifact policy, or verification scripts that directly referenced the removed koala runtime wrappers or @koala-agent/core fallback. Updating them is necessary for lattice-only runtime behavior and absence tests.",
+      "timestamp": "2026-06-15T02:49:01.465Z",
+      "paths": [
+        ".claude/agents",
+        ".gitignore",
+        "CLAUDE.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/cli-prompts.ts",
+        "packages/main/src/cli.ts",
+        "packages/main/src/core/rollout-check.ts",
+        "packages/main/src/handlers/test-auto.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "scripts/run-session-brief-experiment.mjs",
+        "scripts/run-story-review-experiment.mjs",
+        "scripts/verify-fail-fast-health.mjs",
+        "scripts/verify-lab-foundation.mjs",
+        "scripts/verify-role-telemetry.mjs",
+        "scripts/verify-workflow-phase-consistency.mjs"
+      ],
+      "anchors": [
+        "remove_koala_runtime_alias",
+        "lattice_only_codex_wrapper",
+        "absence_assertions"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The active Claude prompt hook printed the removed koala legacy alias in its stale session reminder, so it must be updated to lattice-only wording for this compatibility removal.",
+      "timestamp": "2026-06-15T02:51:47.969Z",
+      "paths": [
+        ".claude/hooks/session-brief-reminder.cjs"
+      ],
+      "anchors": [
+        "remove_koala_runtime_alias",
+        "absence_assertions"
+      ]
+    },
+    {
+      "actor": "implementer-worker",
+      "reason": "Review findings F-001 and F-003 require updating active generated agent prompt templates so new assets regenerate lattice command guidance instead of executable koala commands.",
+      "timestamp": "2026-06-15T03:06:43.746Z",
+      "paths": [
+        "packages/main/templates/agents"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer follow-up removed remaining active koala command guidance from runtime handlers, docs, task smokes, verifier output, and contract scripts so the CLI is lattice-only rather than compatibility-preserving.",
+      "timestamp": "2026-06-15T03:18:16.206Z",
+      "paths": [
+        "docs/metadata/task.json",
+        "docs/requirements/decisions",
+        "packages/main/src/core",
+        "packages/main/src/handlers",
+        "packages/main/src/registry.ts",
+        "packages/main/src/tasks",
+        "packages/main/src/verifier",
+        "scripts"
+      ],
+      "anchors": [
+        "remove_koala_runtime_alias",
+        "active_guidance_lattice_only",
+        "review_findings_resolved"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Open review findings required deleting remaining active Koala compatibility surfaces: the Claude pretool hook no longer accepts koala.config.json as a root marker, the active /koala skill asset is removed, and dashboard root validation is lattice.config.json only.",
+      "timestamp": "2026-06-15T10:14:11.909Z",
+      "paths": [
+        ".claude/hooks/lattice-scope-pretool.cjs",
+        ".claude/skills/koala/skill.md",
+        "packages/main/src/dashboard.ts"
+      ],
+      "anchors": [
+        "remove_koala_config_fallback",
+        "delete_active_koala_skill",
+        "lattice_only_dashboard_root"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-15T02:13:25.562Z",
+  "updatedAt": "2026-06-15T10:14:11.909Z"
+}

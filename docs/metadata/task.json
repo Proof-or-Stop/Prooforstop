@@ -8,7 +8,7 @@
       "checklist": [
         "ADHOC-002"
       ],
-      "title": "koala init 初始化命令",
+      "title": "lattice init 初始化命令",
       "type": "feature",
       "priority": "medium",
       "description": "在目标项目中初始化 koala 开发框架：\n创建目录、生成 koala.config.json、复制 skill、生成 CLAUDE.md 和 .mcp.json。",
@@ -48,7 +48,7 @@
       "title": "koala CLI 统一入口",
       "type": "feature",
       "priority": "high",
-      "description": "统一 CLI 入口：koala init / koala test / koala lint / koala serve",
+      "description": "统一 CLI 入口：lattice init / koala test / koala lint / lattice serve",
       "changes": [
         "- [ADHOC-003] 新增 cli.ts",
         "/"

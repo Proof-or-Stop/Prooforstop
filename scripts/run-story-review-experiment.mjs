@@ -6,8 +6,8 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'koala.js');
-const koala = join(root, 'bin', 'koala-codex.js');
+const cli = join(root, 'bin', 'lattice.js');
+const koala = join(root, 'bin', 'lattice-codex.js');
 const candidateDir = join(root, 'experiments', 'candidates', 'story-review');
 const reportDir = join(root, 'experiments', 'reports');
 const resultPath = join(reportDir, 'story-review-structured-v1.json');
@@ -87,9 +87,9 @@ function buildCandidates(baseline) {
 }`),
     sample('r03-fix-command-first', 'Fix Command First', `
 Fix first:
-1. koala checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
+1. lattice checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
 2. koala decision_set '{...preMortem...}'
-3. koala story_review '{"storyId":"B-x"}'
+3. lattice story_review '{"storyId":"B-x"}'
 
 Review data:
 issueCount=4

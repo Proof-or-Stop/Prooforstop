@@ -4,11 +4,11 @@
   "title": "Remove legacy koala CLI alias and compatibility paths",
   "description": "Delete the legacy koala CLI alias and compatibility surface. Lattice is the only supported command, binary, generated wrapper, fallback package, and active documentation name. Do not keep koala binary or historical compatibility behavior for runtime entrypoints.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-15T01:58:06.650Z",
   "startedAt": "2026-06-15T01:58:06.650Z",
-  "endedAt": null,
+  "endedAt": "2026-06-15T10:23:47.975Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,95 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:03:18.549Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:12:57.713Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T02:55:28.853Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:00:04.243Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:07:03.167Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:08:28.275Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:18:38.436Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T03:25:08.889Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:16:22.348Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:19:00.685Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-15T10:23:47.975Z",
+      "branch": "story/B-6351",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6351",
-    "branch": "story/B-6351",
-    "createdAt": "2026-06-15T02:02:57.888Z"
-  }
+  "currentReviewRound": "2026-06-15T10:16:22.348Z"
 }

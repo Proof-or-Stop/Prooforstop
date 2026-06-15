@@ -12,7 +12,7 @@ try {
     '# Test CLAUDE',
     '',
     '```bash',
-    'koala validate --json',
+    'lattice validate --json',
     'koala missing_cmd',
     '```',
     '',

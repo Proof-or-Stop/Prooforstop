@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Lattice is the only active runtime and documentation name.",
+    "Compatibility deletion must be mechanically tested, not just hidden from help text.",
+    "Historical signed data is preserved unless it is active runtime compatibility.",
+    "Keep the change scoped to entrypoints, generated assets, adapter checks, active docs, and tests."
+  ],
+  "drivers": [
+    "User explicitly does not need koala compatibility.",
+    "Current help and runtime checks still advertise and accept legacy alias paths.",
+    "Leaving fallback binaries alive would contradict the desired lattice-only product surface."
+  ],
+  "options": [
+    {
+      "name": "A: Remove only user-visible help wording",
+      "pros": [
+        "Very small diff",
+        "Immediately removes the exact annoying terminal text"
+      ],
+      "cons": [
+        "Leaves koala wrappers, fallbacks, docs, and tests alive",
+        "Future tests could still preserve compatibility contrary to user intent"
+      ]
+    },
+    {
+      "name": "B: Remove active runtime compatibility and update docs/tests, preserve immutable historical records",
+      "pros": [
+        "Matches the requested product behavior",
+        "Gives tests a clear absence contract",
+        "Avoids corrupting signed or historical process data"
+      ],
+      "cons": [
+        "Touches more files than a wording-only patch",
+        "Requires careful classification of koala references"
+      ]
+    },
+    {
+      "name": "C: Rename or delete every koala token in the repository",
+      "pros": [
+        "Maximal visual cleanup",
+        "No grep hits for koala in active tree if fully successful"
+      ],
+      "cons": [
+        "High risk of breaking signed evidence, process lane names, archived docs, and unrelated history",
+        "Large noisy diff with low product value"
+      ]
+    }
+  ],
+  "chosen": "B: Remove active runtime compatibility and update docs/tests, preserve immutable historical records",
+  "rationale": "Option B is the smallest implementation that satisfies the user-facing requirement and prevents the old alias from silently returning. It removes active compatibility while avoiding destructive historical rewrites.",
+  "preMortem": [
+    {
+      "scenario": "A stale bin/koala.js wrapper still exists after the change",
+      "trigger": "Generated asset logic keeps legacy path selection or verification accepts old wrappers",
+      "consequence": "The exact compatibility the user asked to delete remains usable",
+      "mitigation": "Remove legacy wrapper generation and update Codex/entrypoint verification to require lattice-only wrappers."
+    },
+    {
+      "scenario": "Tests pass because they only stop checking the alias wording",
+      "trigger": "Compatibility smokes are deleted without replacement absence assertions",
+      "consequence": "A later refactor can reintroduce koala fallback unnoticed",
+      "mitigation": "Rewrite smokes and verification scripts to assert koala runtime alias/fallback is absent."
+    },
+    {
+      "scenario": "Historical/process data is renamed too aggressively",
+      "trigger": "A global search-replace changes signed story data or old reviewer lane identifiers",
+      "consequence": "Existing evidence validation or audit trails become invalid",
+      "mitigation": "Classify each koala reference and exclude immutable historical evidence or process identifiers from the compatibility deletion."
+    }
+  ],
+  "timestamp": "2026-06-15T02:04:01.715Z"
+}

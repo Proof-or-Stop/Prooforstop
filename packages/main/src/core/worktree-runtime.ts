@@ -204,7 +204,7 @@ export function getStoryWorktreeRuntime(
     if (recordedAbsPath) warnings.push(`missing path: ${recordedAbsPath}`);
     if (branchMerged) warnings.push(`branch ${branch} already merged into main`);
     recoveryHint = branchExists
-      ? `Run koala story_advance --storyId=${storyId} --phase=INIT_CHECK to re-establish the worktree`
+      ? `Run lattice story_advance --storyId=${storyId} --phase=INIT_CHECK to re-establish the worktree`
       : `Branch ${branch} no longer exists; first check whether to reconcile / discard / re-run INIT_CHECK`;
   }
 

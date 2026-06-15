@@ -92,7 +92,6 @@ function findRepoRoot(start) {
       fs.existsSync(path.join(dir, '.Lattice')) ||
       fs.existsSync(path.join(dir, '.Codex')) ||
       fs.existsSync(path.join(dir, '.codex')) ||
-      fs.existsSync(path.join(dir, 'koala.config.json')) ||
       fs.existsSync(path.join(dir, 'lattice.config.json')) ||
       fs.existsSync(path.join(dir, '.git'))
     ) return dir;
@@ -106,15 +105,14 @@ function findRepoRoot(start) {
 function resolveCli(root) {
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
-    path.join(root, 'node_modules', '@koala-agent', 'core', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@lattice-agent', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'lattice.js'),
-    path.join(root, 'bin', 'koala.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  const found = spawnSync('sh', ['-lc', 'command -v lattice || command -v koala'], {
+  const found = spawnSync('sh', ['-lc', 'command -v lattice'], {
     cwd: root,
     encoding: 'utf8',
     timeout: 2000,

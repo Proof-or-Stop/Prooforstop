@@ -26,7 +26,7 @@ const DEFAULT_MAX_SNAPSHOTS = 5;
 
 /**
  * Read maxTraceSnapshots directly from the project config file (bypasses
- * loadConfig cache). lattice.config.json wins over the legacy koala.config.json
+ * loadConfig cache). lattice.config.json is the active project config
  * when both are present; either file is sufficient.
  */
 function getMaxSnapshots(root: string): number {

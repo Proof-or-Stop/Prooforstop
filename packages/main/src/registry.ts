@@ -194,7 +194,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createCheckHandlers(ctx));
 
   // B-a2f1 CHK-003: recover_evidence — single-shot stale-evidence recovery
-  // (refuse-on-non-metadata-dirt → verification_evidence_refresh_stale → koala validate).
+  // (refuse-on-non-metadata-dirt → verification_evidence_refresh_stale → lattice validate).
   registry.registerBatch(createRecoverEvidenceHandlers(ctx));
 
   // B-cf60: artifact_declare — per-story declared product artifact registration.

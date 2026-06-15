@@ -49,7 +49,7 @@ uv run pytest -q
 
 ## Subsequent Maintenance Rules
 
-When modifying the authority/evidence/context-pack-related code of the Koala CLI in the future, you must first establish or restore a Story per Orchestrate's Koala story flow, and run `koala session_brief` and `koala aux_doc_list`. Unless the user explicitly requests a quick patch, do not bypass Story/checklist/verificationEvidence.
+When modifying the authority/evidence/context-pack-related code of the Koala CLI in the future, you must first establish or restore a Story per Orchestrate's Koala story flow, and run `lattice session_brief` and `lattice aux_doc_list`. Unless the user explicitly requests a quick patch, do not bypass Story/checklist/verificationEvidence.
 
 Whenever you modify any of the following, you must synchronously check the protocol fields and tests of the external Python authority server:
 

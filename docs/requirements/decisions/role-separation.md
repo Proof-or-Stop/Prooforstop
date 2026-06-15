@@ -469,7 +469,7 @@ The analyst's output:
 3. Write `bug.json` (if it is `code-bug` or `test-bug`)
 
 The analyst's tightened permissions:
-- tools: Read / Glob / Grep / Bash(git diff|log|show) / `koala bug_report`
+- tools: Read / Glob / Grep / Bash(git diff|log|show) / `lattice bug_report`
 - **cannot Edit / Write** — it only diagnoses, it does not fix
 - **cannot story_advance** — phase advancement is the main agent's business
 
@@ -1037,7 +1037,7 @@ the owner must treat the reviewer's output as **non-sandboxed advisory text** an
 scrutiny before recording any evidence:
 
 1. **Do not assume the reviewer only read.** The reviewer may have called mutating commands.
-   Check `koala finding_list`, `koala story_get`, and relevant artifact files (e.g.
+   Check `lattice finding_list`, `lattice story_get`, and relevant artifact files (e.g.
    `review-passes.json`, `init-check.json`) to see if the reviewer wrote anything unexpected.
 2. **Verify each claim independently** using `koala` commands or direct file inspection before
    calling `finding_add`, `review_pass_set`, or `verification_evidence_add`.

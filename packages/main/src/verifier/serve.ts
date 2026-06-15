@@ -1,5 +1,5 @@
 // ============================================================
-// koala serve — HTTP API service + Bridge debug API + browser proxy + file watch
+// lattice serve — HTTP API service + Bridge debug API + browser proxy + file watch
 //
 // Real-time debug interface for AI agents and humans:
 //   GET  /status           project status
@@ -159,7 +159,7 @@ function createValidateRunner(projectRoot: string) {
           summary: 'No project validator configured; skipped project-specific validation',
           details: [
             'validate.ts/js/mts not found',
-            'lattice.config.json (canonical) / koala.config.json (legacy fallback) validate.command(s) not configured',
+            'lattice.config.json validate.command(s) not configured',
             'no standard language test command discovered (Swift/Mac Native is not in the automatic fallback set)',
           ],
           commands: [],
@@ -823,7 +823,7 @@ export async function startServe(options: ServeOptions) {
   const port = options.port ?? stablePort(projectRoot, 3);
   const watchPaths = options.watchPaths ?? ['data.ts', 'fn.ts', 'machine.ts', 'validate.ts'];
 
-  console.log(`\n🐨 koala serve`);
+  console.log(`\n🐨 lattice serve`);
   console.log(`  Project: ${projectRoot}`);
   console.log(`  API:  http://localhost:${port}`);
 
@@ -1268,7 +1268,7 @@ function generateCircuitDashboardHtml(endpointNames: string[], machineConfigs: R
 <html lang="zh">
 <head>
 <meta charset="utf-8">
-<title>koala serve --circuit</title>
+<title>lattice serve --circuit</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
@@ -1312,7 +1312,7 @@ header .ep-badges { display: flex; gap: 8px; flex-wrap: wrap; }
 </head>
 <body>
 <header>
-  <h1>koala serve --circuit</h1>
+  <h1>lattice serve --circuit</h1>
   <div class="ep-badges" id="epBadges"></div>
 </header>
 <div class="toolbar">
@@ -1513,7 +1513,7 @@ export async function startCircuitServe(options: ServeOptions) {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   const port = options.port ?? stablePort(projectRoot, 3);
 
-  console.log(`\n🐨 koala serve --circuit`);
+  console.log(`\n🐨 lattice serve --circuit`);
   console.log(`  Project: ${projectRoot}`);
   console.log(`  API:  http://localhost:${port}`);
 

@@ -1,5 +1,5 @@
 /**
- * B-fdcf CHK-001: koala reviewer_list CLI
+ * B-fdcf CHK-001: lattice reviewer_list CLI
  *
  * Output the opt-in reviewer roster for the current story (computed in real time based on 5 conditions):
  *   - concept  / quality / test-coverage → baseline (always on)
@@ -135,7 +135,7 @@ export function computeActiveReviewers(
   }
 
   // channel LLM reviewer has been retired; normal-channel mechanical constraints are handled by the
-  // `koala validate --channel --story=<id>` preflight in REVIEW→TEST.
+  // `lattice validate --channel --story=<id>` preflight in REVIEW→TEST.
 
   // forced override: command-line --forceReviewer=a,b,c explicitly mounts (input already constrained to lanes supported by review_run_start)
   // Auto reviewers with the same name will be overridden to reason='forced' + forced=true

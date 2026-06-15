@@ -158,7 +158,7 @@ function createTmpRepo(): { root: string; store: StoryStore } {
     projectId: 'proj',
     storyId: 'B-2522',
     producerActorId: 'actor-1',
-    command: 'koala validate',
+    command: 'lattice validate',
     exitCode: 0,
     nonce: 'nonce-off',
     createdAt: '2026-06-02T00:00:00.000Z',
