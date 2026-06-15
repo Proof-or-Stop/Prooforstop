@@ -52,7 +52,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: channel readers get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: resolver throw -> resolveGitCwd try/catch falls back to projectRoot",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "concurrent: cwd resolved per-call from per-story ctx; cwd-only change does not add shared state (diff: command/flow unchanged)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -106,7 +178,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: concept diff+grep get gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd assert = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: grep arg-handling & diff maxBuffer are UNCHANGED (diff shows only cwd added); behavior inherited",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: grep arg-handling & diff maxBuffer are UNCHANGED (diff shows only cwd added); behavior inherited",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -160,7 +304,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: readCommitsSinceMain git log runs against gitRoot (wrapper, exact cwd) / projectRoot (plain); error/empty paths unchanged",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: git log parsing/delimiter handling UNCHANGED (diff: only cwd added)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -218,7 +434,89 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke: story_discard/merge/branchExists run against gitRoot (wrapper, exact cwd) / projectRoot (plain); exact-cwd = wrong-tree guard",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "cwd-only: worktreeRemoveWithRetry retry logic UNCHANGED (diff: only cwd routed)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "worktree reroutes via resolveStoryGitRoot; the out-of-scope bootstrap git add left on root (Bug 3 deferred) — confirmed by implementer + cwd-only diff",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -290,7 +588,119 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "smoke check 1: resolveGitCwd returns authoritativeCwd when resolved, else projectRoot; resolved=false & no-storyId & throw all fall back",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "committed gitroot-cwd-routing smoke: wrapper-root (metadataRoot not a git repo + gitRoot subdir) + plain-repo fixtures both pass; wired into package.json",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "committed gitroot-cwd-routing smoke: wrapper-root (metadataRoot not a git repo + gitRoot subdir) + plain-repo fixtures both pass; wired into package.json",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "all rerouted files covered by the smoke (channel/concept/cluster-sync/worktree each have a passing smoke check)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "wrong-tree comprehensive: smoke asserts exact resolved cwd per site; a stale metadataRoot/.git would not match the resolved gitRoot assertion",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "no git command text changed: 0 command-text diff lines beyond cwd routing (want 0)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "no gate semantics changed: smoke asserts plain-repo byte-identical (cwd==projectRoot); diff is cwd-only",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-2856/evidence/verify-b-2856.mjs",
+          "result": "pass",
+          "note": "signatures back-compatible: packages/main build exits 0 (optional cwd params default to projectRoot)",
+          "headHash": "9a9f1b1fcbc91f346dc883a0a572316142187f8e",
+          "materialHash": "9c63f2ecdff0df5b96bdff11f7b4a10e4c2fe048e87be20a3b28b4a0ca00a218",
+          "timestamp": "2026-06-15T22:06:22.219Z"
+        }
+      ]
     }
   ]
 }
