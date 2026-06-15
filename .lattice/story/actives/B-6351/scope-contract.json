@@ -121,8 +121,23 @@
         "active_guidance_lattice_only",
         "review_findings_resolved"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Open review findings required deleting remaining active Koala compatibility surfaces: the Claude pretool hook no longer accepts koala.config.json as a root marker, the active /koala skill asset is removed, and dashboard root validation is lattice.config.json only.",
+      "timestamp": "2026-06-15T10:14:11.909Z",
+      "paths": [
+        ".claude/hooks/lattice-scope-pretool.cjs",
+        ".claude/skills/koala/skill.md",
+        "packages/main/src/dashboard.ts"
+      ],
+      "anchors": [
+        "remove_koala_config_fallback",
+        "delete_active_koala_skill",
+        "lattice_only_dashboard_root"
+      ]
     }
   ],
   "createdAt": "2026-06-15T02:13:25.562Z",
-  "updatedAt": "2026-06-15T03:18:16.206Z"
+  "updatedAt": "2026-06-15T10:14:11.909Z"
 }
