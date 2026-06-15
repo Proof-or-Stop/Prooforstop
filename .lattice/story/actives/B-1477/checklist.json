@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the LLM usage ledger execution plan document",
+      "context": "Convert the agreed design into a formal execution document. The document must distinguish provider-reported usage from approximate prompt-size estimates, keep local Non-authority evidence separate from Authority Server receipt-backed proof, and define implementation, validation, and rollout boundaries without arbitrary optimization.",
+      "relatedDocs": [
+        "docs/audits/lattice-token-cost-and-takeover-audit.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+        "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

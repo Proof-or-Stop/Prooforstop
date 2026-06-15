@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1477",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice delivery_check_set",
+    "lattice review_pass_set",
+    "lattice review_run_start",
+    "lattice scope_check_save",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice summary_set",
+    "lattice understanding_set",
+    "lattice validate",
+    "node packages/main/dist/cli.js",
+    "npm --prefix packages/main run build",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent INIT/REVIEW audit only"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+    "README.md"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git push",
+    "git reset --hard",
+    "node packages/main/dist/tasks/*provider*smoke.js against real provider CLIs",
+    "omx",
+    "rm -rf"
+  ],
+  "excludedTools": [
+    "direct docs/story editor",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+    "docs/story",
+    "packages/main/src",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Document-only story. No CLI implementation, provider execution changes, Authority Server changes, destructive git operations, remote pushes, raw prompt/transcript capture, or claims of Authority-backed usage proof.",
+  "createdAt": "2026-06-15T14:20:09.478Z",
+  "updatedAt": "2026-06-15T14:20:09.478Z",
+  "_hash": "588d00940d84e59bb857e0560bc93b58e16e1bec7f8aea1e7a9a740b9563e285"
+}
