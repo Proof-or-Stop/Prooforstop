@@ -383,9 +383,9 @@
       "title": "Route worktree story_discard and story_advance merge git invocations through the resolved gitRoot",
       "context": "worktree.ts git()/gitFile() default cwd to root (metadataRoot); story_discard (:1049 status --porcelain, :1164 branch -D), story_advance merge (:958 rev-parse --abbrev-ref HEAD, :969 merge --no-ff), worktreeRemoveWithRetry (:258-259) and branchExists (:373-376) inherit it. Resolve authoritativeCwd and pass the resolved root explicitly to these git calls. Keep merge/discard control flow and Windows remove-retry unchanged. NOTE: worktree.ts:316 git add is NOT in scope (it already uses repoRoot; its missing -f flag is Bug 3).",
       "userSees": "With gitRoot configured to a subdirectory, `lattice story_discard` and `lattice story_advance --phase=DONE` (merge + branch cleanup) run git from the gitRoot and complete normally instead of aborting with 'fatal: not a git repository'.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-15T22:06:25.759Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/worktree.ts"
