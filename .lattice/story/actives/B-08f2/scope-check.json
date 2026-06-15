@@ -229,9 +229,11 @@
       "q": "KOALA_AUTHORITY_* alias compatibility versus rename scope",
       "evidence": "lattice-authority-live-integration.md line 668 states: Legacy KOALA_AUTHORITY_* client variables remain aliases for compatibility. CHK-001 targets all KOALA_* env vars for rename including KOALA_AUTHORITY_MODE etc. The question is whether CHK-001 renames these to LATTICE_AUTHORITY_* (fully eliminating KOALA_) or preserves them as compatibility aliases while adding LATTICE_AUTHORITY_* twins. The story description says eliminate the KOALA_* env-var layer for OSS launch; but the live-integration spec calls them compatibility aliases. Must the OSS launch intent override the compatibility-alias spec?",
       "sourcePointers": [
-        "docs/requirements/decisions/lattice-authority-live-integration.md:668",
-        "docs/requirements/decisions/authority-client-role.md:92-143"
-      ]
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "CHK-001"
+      ],
+      "resolution": "User's explicit OSS-launch directive (2026-06-16) requires NO KOALA_ token to remain, and they chose the ship-clean depth accepting that external KOALA_* exporters must switch to LATTICE_*. This overrides the compatibility-alias note at lattice-authority-live-integration.md:668. The KOALA_AUTHORITY_* vars are among the 17 twins whose LATTICE_AUTHORITY_* equivalents already exist and are the primary read, so dropping the KOALA_AUTHORITY_* fallback only requires operators to set the LATTICE_AUTHORITY_* names. The decision-doc line 668 should be updated to drop the alias claim in the later active-docs sweep (out of scope for this env-var code story; editing decision docs trips the 3x2 gate).",
+      "resolvedAt": "2026-06-15T23:58:30.751Z"
     }
   ]
 }
