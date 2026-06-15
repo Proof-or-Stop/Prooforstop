@@ -1,0 +1,24 @@
+{
+  "storyId": "B-2856",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/core/cluster-sync.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks",
+    "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T22:06:39.416Z",
+  "updatedAt": "2026-06-15T22:06:39.416Z"
+}
