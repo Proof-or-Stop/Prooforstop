@@ -9,9 +9,9 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T02:13:46.327Z",
-      "endTime": null,
+      "endTime": "2026-06-15T02:41:37.325Z",
       "userSees": "`lattice --version` prints `Lattice CLI 0.3.5` without `legacy alias: koala`; `lattice help` and command help no longer advertise koala compatibility.",
       "files": {
         "modify": [
@@ -71,7 +71,59 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module -e version/help alias absence check",
+          "result": "pass",
+          "note": "Verified node bin/lattice.js --version outputs exactly Lattice CLI 0.3.5 and contains no legacy alias or koala text.",
+          "headHash": "c8eac3645181a204463a30530c29cb0b57f1034f",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:37.369Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module -e version/help alias absence check",
+          "result": "pass",
+          "note": "Checked node bin/lattice.js help and story_create --help for absence of legacy alias: koala and Compatible: koala.",
+          "headHash": "c8eac3645181a204463a30530c29cb0b57f1034f",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:37.405Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Runtime fact registry and runtime checks reject @koala-agent/core, command -v koala, and node_modules/.bin/koala fallback guidance.",
+          "headHash": "c8eac3645181a204463a30530c29cb0b57f1034f",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:37.438Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg targeted active-runtime legacy string scan",
+          "result": "pass",
+          "note": "Remaining hits for legacy strings are negative assertions, preserved process tokens, or user-owned legacy-file tests, not active runtime compatibility.",
+          "headHash": "c8eac3645181a204463a30530c29cb0b57f1034f",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:37.471Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lattice-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Absence smoke plants legacy-only koala assets and confirms runtime/Codex checks do not accept them as active compatibility.",
+          "headHash": "c8eac3645181a204463a30530c29cb0b57f1034f",
+          "materialHash": "c763acc0d3d003a9519bb1b43a9676b2d5ab5e2bfa72a4c0766022bd34b2ba0d",
+          "timestamp": "2026-06-15T02:41:37.504Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
