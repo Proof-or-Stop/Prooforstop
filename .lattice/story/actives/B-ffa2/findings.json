@@ -15,6 +15,24 @@
       "files": [
         ".lattice/story/actives/B-ffa2/checklist.json"
       ]
+    },
+    {
+      "id": "B-ffa2:F-002",
+      "desc": "Active metadata commit vocabulary still emits Koala: packages/main/src/cli-engine.ts:3260 and :3389 create `koala:` from-draft/INIT_CHECK metadata commits, packages/main/src/handlers/worktree.ts:318/:546/:858/:923 create or recognize `koala:` story init/discard/auto-add metadata commits, and packages/main/src/handlers/done-effects.ts:589 creates `koala:` DONE metadata commits. These are current command paths, not archive docs or signed-artifact salts, so the implementation does not yet satisfy the story requirement that active metadata vocabulary be Lattice.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-15T16:24:24.051Z",
+      "reviewRound": "2026-06-15T16:22:20.765Z",
+      "reviewRunId": "B-ffa2:RR-001",
+      "_hash": "1e1c810fad5233dcce77c11e786fdf7a110ef7abb3c9d48615f53923d61d00b9",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ]
     }
   ]
 }
