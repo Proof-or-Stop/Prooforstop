@@ -38,7 +38,44 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/game",
+          "command": "test ! -d packages/game",
+          "result": "pass",
+          "note": "packages/game directory is absent after deletion; tracked files under packages/game show as deleted in git status.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "package.json",
+          "command": "rg -n \"packages/game|@lattice/game\" --glob \"!docs/story/**\" --glob \"!**/tests/fixtures/**\" --glob \"!**/.omx/**\" --glob \"!node_modules/**\" --glob \"!**/.git/**\" --glob \"!**/.worktrees/**\" --glob \"!.lattice/**\"",
+          "result": "pass",
+          "note": "Post-removal repository scan outside excluded story/fixture/Lattice metadata paths produced no packages/game or @lattice/game hits, including root package configuration.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-status -- docs/requirements/decisions/test-fixture-spec.md packages/game",
+          "result": "pass",
+          "note": "Material diff is limited to deleting packages/game files and updating docs/requirements/decisions/test-fixture-spec.md.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -77,7 +114,44 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/test-fixture-spec.md",
+          "command": "rg -n \"packages/game\" docs/requirements/decisions/test-fixture-spec.md",
+          "result": "pass",
+          "note": "The fixture spec no longer contains packages/game in browser_test examples.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/test-fixture-spec.md",
+          "command": "rg -n \"browser_test\\(\\{ projectRoot\" docs/requirements/decisions/test-fixture-spec.md",
+          "result": "pass",
+          "note": "The docs still show browser_test projectRoot usage with /path/to/browser-app and a fixture-specific example.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-status -- docs/requirements/decisions/test-fixture-spec.md packages/game",
+          "result": "pass",
+          "note": "No docs outside the intended fixture spec are edited for the packages/game reference replacement.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -114,7 +188,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "rg -n \"packages/game\" --glob \"!docs/story/**\" --glob \"!**/tests/fixtures/**\" --glob \"!**/.omx/**\" --glob \"!node_modules/**\" --glob \"!**/.git/**\" --glob \"!**/.worktrees/**\" --glob \"!.lattice/**\" && rg -n \"@lattice/game\" --glob \"!docs/story/**\" --glob \"!**/tests/fixtures/**\" --glob \"!**/.omx/**\" --glob \"!node_modules/**\" --glob \"!**/.git/**\" --glob \"!**/.worktrees/**\" --glob \"!.lattice/**\"",
+          "result": "pass",
+          "note": "Separate post-removal scans for packages/game and @lattice/game have no current product/docs hits outside excluded metadata/fixture/story paths.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "npm test passed via packages/main/dist/tasks/cli-e2e.js after the package deletion and doc update.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "rg -n \"packages/game|@lattice/game\" --glob \"!docs/story/**\" --glob \"!**/tests/fixtures/**\" --glob \"!**/.omx/**\" --glob \"!node_modules/**\" --glob \"!**/.git/**\" --glob \"!**/.worktrees/**\" --glob \"!.lattice/**\"",
+          "result": "pass",
+          "note": "No remaining current product/docs hits exist; any Lattice story metadata references are process records for this removal, not maintained package references.",
+          "headHash": "57c5ac46eb96bba0caeee91a5e556418e26edb6b",
+          "materialHash": "ed8a14ae1839b86c760ec1b704554729b5cd63ae41f9e56d244bd0adec3af8c4",
+          "timestamp": "2026-06-15T02:59:15.097Z"
+        }
+      ]
     }
   ]
 }
