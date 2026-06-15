@@ -89,6 +89,66 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git ls-files du.exe.stackdump returns empty output (exit 0, no lines) → file fully removed from git index; WHY: confirms the Windows crash dump is no longer tracked",
+            "type": "cli"
+          },
+          {
+            "desc": "git ls-files claude-session.mjs returns empty output → dead prototype fully removed from git index; WHY: confirms the superseded session module is no longer tracked",
+            "type": "cli"
+          },
+          {
+            "desc": "test ! -f du.exe.stackdump && test ! -f claude-session.mjs → neither file exists on disk; WHY: git rm removes from index AND disk; confirms no leftover untracked copies",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build exits 0 after deleting claude-session.mjs → no live import depends on it; WHY: confirms claude-cli.ts:58 string is coincidental, not a real import",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e exits 0 after deletion → end-to-end tests unaffected by removal of cruft files; WHY: confirms neither file was used as a test fixture or runtime dependency",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep -r claude-session.mjs across repo (excluding node_modules/.git/.worktrees/.lattice/dist) returns only acceptable historical doc references (docs/metadata/task.json) or zero matches → no live code references remain; WHY: the context notes task.json historical mention is acceptable, but any NEW reference in .ts/.js/.json (non-doc) would be a bug",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -r du.exe.stackdump across repo (same exclusions) returns zero matches → no references to the crash dump exist; WHY: stackdump files should never be referenced anywhere, but a stale .gitignore entry or script might mention it",
+            "type": "cli"
+          },
+          {
+            "desc": "git status --porcelain shows no untracked du.exe.stackdump or claude-session.mjs → files are not lurking as untracked after git rm; WHY: catches the case where someone did rm instead of git rm, leaving the file un-indexed but still on disk, or vice versa",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "jek.md still exists on disk AND is git-tracked (git ls-files --error-unmatch jek.md exits 0) → jek.md survival guard; WHY: this is the CRITICAL guard — jek.md is user-owned and explicitly out of scope per decisions/root-markdown-migration-execution-solution.md; an agent deleting root files might accidentally include it",
+            "type": "cli"
+          },
+          {
+            "desc": "CLAUDE.md, README.md, AGENTS.md, CHANGELOG.md still exist at repo root → root markdown survival guard; WHY: a glob-based deletion (git rm *.mjs or rm root-files) could accidentally sweep critical documentation if the glob is too broad",
+            "type": "cli"
+          },
+          {
+            "desc": "packages/lab directory still exists with its package.json → cross-item over-deletion guard; WHY: though CHK-002 targets root files, a confused agent might batch all cleanup together and accidentally delete packages/lab",
+            "type": "cli"
+          },
+          {
+            "desc": "experiments/ directory still exists → out-of-scope deletion guard; WHY: experiments/ cleanup is explicitly deferred to a separate story; must survive this chore",
+            "type": "cli"
+          },
+          {
+            "desc": "bin/lattice.js still exists and is executable → core tooling survival guard; WHY: root-level file deletion could hit bin/ if an overly aggressive find/rm pattern is used (e.g., find . -maxdepth 1 -name *.js -delete would kill bin/ contents)",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
