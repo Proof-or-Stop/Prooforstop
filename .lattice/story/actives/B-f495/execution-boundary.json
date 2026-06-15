@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f495",
+  "allowedCommands": [
+    "git diff *",
+    "git status *",
+    "nl *",
+    "node bin/lattice.js aux_doc_list *",
+    "node bin/lattice.js checklist_get *",
+    "node bin/lattice.js execution_boundary_set *",
+    "node bin/lattice.js scope_boundary_set *",
+    "node bin/lattice.js session_brief",
+    "node bin/lattice.js story_advance *",
+    "node bin/lattice.js story_get *",
+    "node bin/lattice.js validate *",
+    "node bin/lattice.js verify_codex *",
+    "node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:prompt-registry-smoke",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "git-read",
+    "lattice-cli",
+    "npm-build-smoke",
+    "shell-read"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-f495",
+    "docs/audits/lattice-token-cost-and-takeover-audit.md",
+    "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout *",
+    "git clean *",
+    "git push *",
+    "git reset *",
+    "git restore *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Audit-only execution boundary for B-f495. Direct story and fixture file edits remain forbidden by project policy; Lattice CLI may mutate B-f495 metadata as part of the lifecycle.",
+  "createdAt": "2026-06-15T14:11:20.130Z",
+  "updatedAt": "2026-06-15T14:11:20.130Z",
+  "_hash": "6494868d469b70e4072316e410a27b02e106e1bcdb3b182b4b651910efd02b95"
+}
