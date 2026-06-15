@@ -1,0 +1,73 @@
+{
+  "storyId": "B-3010",
+  "checkedAt": "2026-06-15T11:54:54.267Z",
+  "features": [
+    {
+      "feature": "Runtime-owned agent prompt inventory is sourced from the local Lattice CLI package registry and reports promptRegistryHash/runtime path facts mechanically.",
+      "covered_by": "understanding.task/outcome; plan.md Objective and CHK-001; packages/main/src/core/prompt-registry.ts readPromptRegistry/renderPromptEntryForHost",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts plus prompt-registry source"
+    },
+    {
+      "feature": "Project-local .claude/agents and .Codex/agents prompt assets are classified as absent/matches-runtime/stale/override without changing files.",
+      "covered_by": "CHK-001 verificationIntent happy/edge/adversarial; CHK-003 title/context/userSees/verificationIntent; runtime-owned decision doc Phase 3",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get and runtime-owned decision doc"
+    },
+    {
+      "feature": "Runtime-owned default must not require project-local full templates or prompt-only thin config; absence of prompt asset directories/config is treated as runtime-owned for the diagnostic projection.",
+      "covered_by": "understanding fact about no prompt-only thin config; CHK-002 context; plan.md Objective/CHK-001/CHK-002; decision principle Runtime-owned by default",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get, decision_get, plan_get, checklist_get"
+    },
+    {
+      "feature": "Existing doctor/verify/rollout surfaces expose the projection rather than introducing a broad new workflow or mutating command path.",
+      "covered_by": "CHK-002 title/context/verificationIntent; plan.md CHK-002; codex-adapter-checks.ts runCodexAdapterChecks; rollout-check.ts readOnly probes",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts and diagnostic source reads"
+    },
+    {
+      "feature": "Stale detection is read-only: diagnostics warn/classify and do not apply, upgrade, delete, migrate, repair, or fix project prompt assets.",
+      "covered_by": "decision option A and preMortem 3; CHK-002 adversarial intent; CHK-003 adversarial intent; plan.md Non-Goals; rollout-check safety forbiddenArgs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision_get, checklist_get, plan_get, rollout-check source"
+    },
+    {
+      "feature": "Migration/deletion/repair of project-local prompt assets is intentionally outside this story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan.md Non-Goals; runtime-owned decision doc Recommended Story Split item 3; decision option B rejected",
+      "source": "plan_get and decision doc"
+    },
+    {
+      "feature": "Local Non-authority diagnostics remain separate from Authority Server receipt-backed proof and cannot mint receiptVerified/productionDone/authorityDone/fullAuthorityDone.",
+      "covered_by": "understanding constraints; decision principle and preMortem 2; CHK-001 adversarial intent; CHK-005 title/context/verificationIntent; plan.md CHK-005/Non-Goals",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts and authority-boundary docs"
+    },
+    {
+      "feature": "Regression evidence covers runtime-owned classification, stale/full-local cases, prompt registry/hash reporting, and approximate token accounting while stating provider billing tokens are unavailable.",
+      "covered_by": "CHK-004 title/context/userSees/verificationIntent; plan.md CHK-004 Token Accounting Rule; token-cost audit caveat",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get, plan_get, audit doc"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a0bd4caf56b07aa9e7aca75878e57e1c759d615bf206cbfaef868077c53c40a2",
+  "openQuestions": []
+}

@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-3010:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: smoke evidence covers absent runtime-owned assets, matching runtime assets, stale and override local assets, explicit full/local mode, codex and rollout diagnostic surfaces, read-only preservation, provider billing token caveat, and no local Authority overclaim.",
+      "createdAt": "2026-06-15T12:07:24.178Z",
+      "reviewRound": "2026-06-15T12:05:16.529Z",
+      "reviewRunId": "B-3010:RR-003",
+      "_hash": "282edfa97d5b8022478241652aab3884421561485d8c196aea056ea975595574"
+    },
+    {
+      "id": "B-3010:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: implementation matches the runtime-owned diagnostic plan, keeps ordinary checks read-only, separates localNonAuthorityAudit from Authority Server receipt proof, and does not introduce arbitrary optimization or high/critical correctness issues.",
+      "createdAt": "2026-06-15T12:07:32.941Z",
+      "reviewRound": "2026-06-15T12:05:16.529Z",
+      "reviewRunId": "B-3010:RR-001",
+      "_hash": "c15723ac4064be47ed13f12456c5c37b8228508cce00dd0db541a9415b9b8029"
+    },
+    {
+      "id": "B-3010:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: inspected runtime-owned agent asset diagnostics for path handling, read-only behavior, hash reporting, JSON/text consistency, no repair/delete/migration path in the new probe, Non-authority boundary wording, and scope containment. Targeted smoke tests and no-emit TypeScript check passed.",
+      "createdAt": "2026-06-15T12:07:38.998Z",
+      "reviewRound": "2026-06-15T12:05:16.529Z",
+      "reviewRunId": "B-3010:RR-002",
+      "_hash": "4a2f73c561dfdb3526e555885f889a84a9e8f1fae07047af2f61bac7a3384d91"
+    }
+  ]
+}

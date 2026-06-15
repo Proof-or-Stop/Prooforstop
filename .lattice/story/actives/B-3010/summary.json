@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3010",
+  "changes": "Added a read-only AgentAssetResolution projection, surfaced it through Codex adapter diagnostics and rollout_check, added runtime-owned agent asset smoke coverage, and preserved prompt token savings with explicit provider billing caveat.",
+  "usage": "Run node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js to see promptRegistryHash, asset classification, approximateTokens, and providerBillingTokens=unavailable; run node packages/main/dist/cli.js codex_doctor --json or rollout_check to inspect diagnostic projection.",
+  "expectedOutcome": "Terminal shows PASS runtime-owned-agent-assets-smoke promptRegistryHash=<sha256> approximateTokens=<n> providerBillingTokens=unavailable and diagnostics show authorityBoundary=localNonAuthorityAudit.",
+  "actualTranscript": "Observed PASS runtime-owned-agent-assets-smoke promptRegistryHash=6e42c247be24625d0427f6d72dedcb8a968f3d994c4118dc93ce22f32097cb0b approximateTokens=73027 providerBillingTokens=unavailable; validate passed with 15/15 verification coverage; codex adapter checks passed 8/8.",
+  "outcomeDiff": "No user-value difference. The Orchestrate repo itself reports mode=full-asset because it still tracks matching .claude/.Codex mirrors; the new smoke proves clean projects with no prompt assets resolve as runtime-owned/absent.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local Non-authority evidence only. Authority Server receipt-backed proof was not requested or produced; receiptVerified, productionDone, authorityDone, and fullAuthorityDone remain false/not claimed. No automatic deletion, repair, or migration of project-local prompt assets was implemented.",
+  "pitfalls": "PLAN review initially blocked because read-only docs/source references were listed as touchpoints; fixed by narrowing touchpoints to actual changed files. TEST initially blocked deferred CHK-005 gate evidence; replaced it with actual REVIEW/TEST evidence before validate passed. Provider billing tokens are unavailable to local CLI, so token accounting records measurable approximate tokens only.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 199117
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13771
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 373139
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 496788
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 204914
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 276606
+    }
+  },
+  "totalDurationMs": 1564336,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-15T12:13:18.049Z",
+  "updatedAt": "2026-06-15T12:13:18.049Z"
+}

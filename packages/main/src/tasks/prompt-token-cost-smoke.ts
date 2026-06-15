@@ -129,7 +129,7 @@ function assertPromptReductions(): void {
     `current ${currentTotal} B (~${approxTokens(currentTotal)} tok), ` +
     `delta ${baselineTotal - currentTotal} B (~${approxTokens(baselineTotal - currentTotal)} tok)`,
   );
-  console.log('  caveat: approximate tokens use bytes/4; prompt-cache billing behavior is not proven by this smoke.');
+  console.log('  caveat: approximate tokens use bytes/4; provider billing tokens are unavailable and prompt-cache billing behavior is not proven by this smoke.');
 }
 
 function assertMirrorsMatch(): void {

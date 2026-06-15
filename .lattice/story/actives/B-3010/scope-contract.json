@@ -1,0 +1,29 @@
+{
+  "storyId": "B-3010",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/core/agent-asset-resolution.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    ".lattice/story/actives/B-3010"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/agent-asset-resolution.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "Lattice REVIEW/TEST/DONE commands"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-15T11:57:10.038Z",
+  "updatedAt": "2026-06-15T11:57:10.038Z"
+}

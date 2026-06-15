@@ -12,6 +12,11 @@ import {
 } from '../init-assets.js';
 import { readActivityLogTail } from './activity-log.js';
 import {
+  resolveAgentAssetResolution,
+  summarizeAgentAssetResolution,
+  type AgentAssetResolution,
+} from './agent-asset-resolution.js';
+import {
   promptRegistryManifest,
   readPromptRegistry,
   renderPromptEntryForHost,
@@ -211,7 +216,15 @@ function resolveCodexManifest(root: string): CodexManifestSelection | null {
   return null;
 }
 
-function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMode | null {
+function checkAgentAssetResolution(resolution: AgentAssetResolution, checks: CodexAdapterCheck[]): void {
+  const hasLocalIssues = resolution.projectPromptAssets.some(asset =>
+    asset.status === 'stale' || asset.status === 'override');
+  const status: CodexAdapterCheckStatus = hasLocalIssues ? 'warn' : 'pass';
+  const detail = `${summarizeAgentAssetResolution(resolution)}; ${resolution.authorityBoundary.text}`;
+  push(checks, 'agent-asset-resolution', 'Codex agent asset resolution', status, false, detail);
+}
+
+function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: AgentAssetResolution): CodexPromptMode | null {
   // Resolver priority: canonical .lattice/lattice.json first; legacy
   // .Lattice/lattice.json remains read-only compatible.
   if (isGlobalThinProject(root)) {
@@ -220,6 +233,17 @@ function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMo
   }
   const selection = resolveCodexManifest(root);
   if (!selection) {
+    if (resolution.mode === 'runtime-owned') {
+      push(
+        checks,
+        'manifest',
+        'Codex manifest',
+        'pass',
+        true,
+        `runtime-owned default: .Codex/lattice.json not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
+      );
+      return 'registry';
+    }
     push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
@@ -653,7 +677,9 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
   const timeoutMs = options.timeoutMs ?? 10_000;
   const executeLocalHeartbeat = options.executeLocalHeartbeat ?? options.executeHeartbeats === true;
   const executeGlobalHeartbeat = options.executeGlobalHeartbeat ?? options.executeHeartbeats === true;
-  const promptMode = checkManifest(root, checks);
+  const agentAssetResolution = resolveAgentAssetResolution(root);
+  checkAgentAssetResolution(agentAssetResolution, checks);
+  const promptMode = checkManifest(root, checks, agentAssetResolution);
   if (promptMode === 'registry') {
     checkPromptRegistry(checks);
   } else {

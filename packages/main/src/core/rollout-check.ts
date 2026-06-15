@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, isAbsolute, join, resolve } from 'node:path';
+import { resolveAgentAssetResolution, summarizeAgentAssetResolution } from './agent-asset-resolution.js';
 import { runManagedAssetCheck, type ManagedAssetCheckResult, type ManagedAssetStatus } from './managed-assets.js';
 import { runRuntimeEnvironmentChecks, type RuntimeEnvironmentReport, type RuntimeFactStatus } from './runtime-environment-checks.js';
 import {
@@ -340,6 +341,23 @@ function buildManagedAssetProbe(result: ManagedAssetCheckResult): RolloutProbe {
   };
 }
 
+function buildAgentAssetResolutionProbe(projectRoot: string): RolloutProbe {
+  const resolution = resolveAgentAssetResolution(projectRoot);
+  const hasLocalIssues = resolution.projectPromptAssets.some(asset =>
+    asset.status === 'stale' || asset.status === 'override');
+  const status: RolloutStatus = hasLocalIssues ? 'warn' : 'pass';
+  return {
+    id: 'agent_asset_resolution',
+    label: 'Agent asset resolution',
+    status,
+    command: 'lattice verify_codex --json',
+    executed: 'in-process',
+    readOnly: true,
+    detail: `${summarizeAgentAssetResolution(resolution)}; ${resolution.authorityBoundary.text}`,
+    ...(status !== 'pass' ? { nextAction: 'Review project-local prompt assets manually; rollout_check is read-only and does not delete, repair, or migrate files.' } : {}),
+  };
+}
+
 function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProjectGit): RolloutProbe {
   const status = worstStatus([
     runtimeStatus(runtime),
@@ -429,6 +447,7 @@ function scanProject(projectRoot: string): RolloutProjectResult {
     buildConfigProbe(path),
     buildRuntimeProbe(runtime),
     buildManagedAssetProbe(managedAssets),
+    buildAgentAssetResolutionProbe(path),
     buildDoctorProbe(runtime, git),
     buildTranscriptScopeProbe(path, story),
   ];
