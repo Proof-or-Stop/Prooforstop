@@ -1,0 +1,61 @@
+{
+  "findings": [
+    {
+      "id": "B-198c:F-001",
+      "desc": "doc-comment-accuracy: evaluateStoryDirInsideGitRoot (story-signed-workspace-resolution.ts:220) doc says \"PURE: never throws\" but the function calls resolveStorySignedWorkspace which calls store.readStory() at line 74 of the same file, and store.readStory() throws StoryArtifactMissingError when the story index.json is absent. The smoke test titled \"purity: helper never throws even when the story metadata is absent\" (smoke.ts:160) actually runs with the story present (it reuses the no-git root where writeStoryIndex was already called at line 147); the suite comment at suite.ts:331-333 itself acknowledges the helper \"legitimately requires the story to exist via readStory\". The doc comment must be qualified to state it may throw when the story does not exist, or the function must be wrapped with a try/catch.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T21:09:03.469Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-002",
+      "_hash": "dff2c9128eb0444a67830f8c29530af36be8ab81af1c68f0c92b06b6da113d30",
+      "files": [
+        "packages/main/src/core/story-signed-workspace-resolution.ts",
+        "packages/main/src/tasks/storydir-inside-gitroot-smoke.ts",
+        "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+      ],
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@84f7ca9"
+    },
+    {
+      "id": "B-198c:F-002",
+      "desc": "doc-comment-accuracy: evaluateStoryDirConfigInsideGitRoot (story-signed-workspace-resolution.ts:306) doc says \"PURE: never throws, no console output\" but the function calls loadConfig(metadataRoot) (line 310) when opts.config is not provided. loadConfig() calls assertNoLegacyKoalaWritePath(config.storyDir) which throws Error when storyDir contains the legacy KOALA_DIR path (lattice-paths.ts:46). The storyDirOutsideGitRootAdvisory in story-create.ts:228 does not wrap this in try/catch and exports itself as never-throwing. session.ts:219 does wrap its call in try/catch (defensive guard), but the exported storyDirOutsideGitRootAdvisory in story-create.ts has no such guard.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T21:09:10.835Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-002",
+      "_hash": "9822a102d82fd633bfb0e67315fbe763a241991ff2658987ed160f4f3e03e207",
+      "files": [
+        "packages/main/src/core/story-signed-workspace-resolution.ts",
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@84f7ca9"
+    },
+    {
+      "id": "B-198c:F-003",
+      "desc": "type-safety: storydir-inside-gitroot-suite.ts:125 uses `as any` to cast json.storyDirGitRoot (typed unknown from Record<string,unknown>) instead of a specific type. A typed cast such as `as (StoryDirInsideGitRootResult & { violation: boolean; gitRootUnresolved: boolean; reason: string | null })` would preserve type-checking and make the shape explicit. This is in a test file but as any defeats the purpose of tsc validation in the suite.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-15T21:09:17.485Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-002",
+      "_hash": "da90def5edc1d07d188448b93d69dca25bfe586367875e5b1390627c9b6e2035",
+      "files": [
+        "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+      ],
+      "clusterId": "CL-003",
+      "resolvedBy": "CL-003@84f7ca9"
+    }
+  ]
+}

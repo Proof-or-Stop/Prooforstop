@@ -1,0 +1,122 @@
+{
+  "storyId": "B-198c",
+  "checkedAt": "2026-06-15T20:38:59.408Z",
+  "features": [
+    {
+      "feature": "Core invariant: storyDir must resolve inside the configured gitRoot (computed via relative(realpath(gitRoot), realpath(storyAbs)); violation when rel is empty, absolute, or contains a .. segment)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Resolution of gitRoot via the existing resolveStorySignedWorkspace (reuse, not a second resolver) — symlinks resolved via realpath on both sides",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "When gitRoot is unresolvable, the helper returns a non-violation distinct result (e.g. reason: gitroot-unresolved) and never throws",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "lattice doctor check: detects storyDir-outside-gitRoot violation early and prints remediation text (configure storyDir so story metadata lives inside the gitRoot)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "doctor check: when gitRoot is unresolvable, reports that condition separately without throwing",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Early advisory at story_create on wrapper-root violation — warn-only (Option A), never hard-fails story_create, advisory to stderr",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Early advisory at session_brief on wrapper-root violation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No advisory when metadataRoot == gitRoot or no gitRoot configured",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Tests: helper covers storyDir inside gitRoot (ok case), storyDir as .. sibling of gitRoot (violation / ClawCreek case), symlinked roots resolved via realpath, no-gitRoot/plain-repo case",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Tests: doctor + advisory violation prints, normal case silent, unresolvable-gitRoot does not throw",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Two existing late guards (worktree.ts:754 and cli-engine.ts:3367) remain untouched — no refactor of stable guard code",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md top-banner scope note (user steer 2026-06-15): story is purely additive; existing late guards left untouched; this supersedes CHK-001 context aside about having both guards call the shared fn",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "gitRoot-aware worktree bootstrap fix (INIT_CHECK creating worktree branches from the configured gitRoot, not the wrapper root) — B-4e06 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-4e06 already delivered: plan.md states story is purely additive (new detection helper + doctor + advisory); bootstrap fix is prior work",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "verification_intent_repair command and related story_review diagnostic upgrade — B-4e06 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-4e06 already delivered; not in B-198c scope",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "StorySignedWorkspaceResolution resolver + review_run_start signed-workspace integration — B-ab43 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Different story (B-ab43 per the doc); B-198c only reuses resolveStorySignedWorkspace as a read-only helper for detection",
+      "source": "decisions:decisions/review-run-start-signed-workspace-resolution-execution-plan.md"
+    },
+    {
+      "feature": "review_run_start workspace diagnostics classification (not_git_repo / missing_head / missing_material_hash / wrong_worktree) — B-3787/B-ab43 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Prior work (B-3787/B-ab43); not in B-198c scope",
+      "source": "decisions:decisions/review-run-start-workspace-diagnostics-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 10,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c9b0c3fc3d60dc8be852aba67867d4e0b696d0bd1994d9f5b6a4462738e95bcb",
+  "openQuestions": []
+}

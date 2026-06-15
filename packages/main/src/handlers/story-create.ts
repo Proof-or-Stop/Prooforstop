@@ -14,6 +14,7 @@ import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import { normalizeName, keywordOverlap } from '../core/story-dedup.js';
 import { buildExecutionBoundary, buildScopeBoundary, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
+import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -208,6 +209,40 @@ function terminalKeywordOverlapNote(
   return lines.join('\n');
 }
 
+/**
+ * B-198c CHK-003: build the one-line "storyDir resolves outside the resolved
+ * gitRoot" advisory, or '' when there is nothing to warn about.
+ *
+ * Reuses the id-independent CHK-002 helper {@link evaluateStoryDirConfigInsideGitRoot}
+ * (DO NOT re-derive the check). WARN-ONLY by design (decision Option A): the
+ * git-backed worktree/DONE lifecycle would later hard-fail at INIT_CHECK when
+ * story metadata cannot be committed inside the gitRoot — surfacing it early
+ * saves the user the INIT/PLAN investment, but must NOT block story creation.
+ *
+ * Only the `outside-gitroot` violation produces text. `ok=true` (inside, the
+ * normal case) and `reason='gitroot-unresolved'` (no/invalid gitRoot — e.g. a
+ * non-git metadata root with no configured gitRoot) both stay silent so the
+ * advisory never nags healthy or not-yet-git-backed setups. Never throws — the
+ * underlying helper is total, and a defensive try/catch here matches the
+ * session_brief advisory's parity guard so story_create can never fail on
+ * advisory-render error.
+ */
+export function storyDirOutsideGitRootAdvisory(metadataRoot: string): string {
+  try {
+    const result = evaluateStoryDirConfigInsideGitRoot({ metadataRoot });
+    if (result.ok || result.reason !== 'outside-gitroot') return '';
+    return (
+      `⚠ storyDir resolves outside the resolved gitRoot ` +
+      `(${result.storyDirAbs} not inside ${result.gitRootAbs}); ` +
+      `the worktree/DONE git lifecycle will fail at INIT_CHECK. ` +
+      `→ configure storyDir so story metadata lives inside the gitRoot.`
+    );
+  } catch {
+    // Defensive: never block story_create on advisory-render failure.
+    return '';
+  }
+}
+
 export function createStoryCreateHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
@@ -350,6 +385,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
         // Delete draft directory
         rmSync(draftsDir, { recursive: true, force: true });
+
+        // B-198c CHK-003: early storyDir-outside-gitRoot advisory (warn-only,
+        // Option A) — also surface on the from-draft create surface so the
+        // dead end is visible regardless of which create path was taken.
+        const draftStoryDirNote = storyDirOutsideGitRootAdvisory(ctx.root);
+        if (draftStoryDirNote.length > 0) {
+          process.stderr.write(draftStoryDirNote + '\n');
+        }
 
         return `Story ${storyId} created from draft '${draftName}' (INIT)\n→ draft '${draftName}' deleted\n→ run the normal INIT reviewer and scope anti-expansion gates, then story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
       }
@@ -615,6 +658,13 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // plan.md CHK-002 + AGENTS.md promise this warn, so it must be emitted.
         const terminalNote = terminalKeywordOverlapNote(store, args.keywords ?? []);
         if (terminalNote.length > 0) blocks.push(terminalNote);
+        // B-198c CHK-003: early storyDir-outside-gitRoot advisory. WARN-ONLY
+        // (decision Option A) and routed through the same stderr channel as the
+        // other story_create advisories — the create still succeeds. The two
+        // late guards (worktree.ts / cli-engine.ts) remain the hard backstop at
+        // INIT_CHECK; this only surfaces the dead end sooner.
+        const storyDirNote = storyDirOutsideGitRootAdvisory(ctx.root);
+        if (storyDirNote.length > 0) blocks.push(storyDirNote);
         if (blocks.length > 0) {
           process.stderr.write(blocks.join('\n') + '\n');
         }

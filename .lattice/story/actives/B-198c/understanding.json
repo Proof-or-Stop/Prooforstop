@@ -1,0 +1,28 @@
+{
+  "task": "The git-backed story lifecycle must git-commit story metadata, which requires storyDir to resolve inside the resolved gitRoot. Today that invariant is only enforced by two LATE guards (packages/main/src/handlers/worktree.ts:754 and packages/main/src/cli-engine.ts:3367). Wrapper-root projects (configured gitRoot points at a subdir; storyDir resolves outside it) sail through INIT and PLAN, then fail at INIT_CHECK worktree bootstrap with no early warning.",
+  "outcome": "Running lattice doctor on a wrapper-root project now prints up front:\n  ✗ storyDir resolves OUTSIDE the resolved gitRoot\n      storyDir: <abs path>/.lattice/story/actives\n      gitRoot:  <abs path>/clawcreek\n      The git-backed lifecycle cannot commit story metadata from here.\n      → configure storyDir so story metadata lives inside the gitRoot.\nand lattice story_create / lattice session_brief emit the same one-line advisory immediately. This replaces the old experience where everything looked fine until story_advance INIT_CHECK died with \"story metadata ... is not inside the resolved git root\" AFTER the user had already invested all their INIT and PLAN work.",
+  "facts": [
+    "worktree.ts:754 and cli-engine.ts:3367 both compute storyRel = relative(realpath(gitRoot), realpath(storyAbs)) and throw when storyRel is empty, absolute, or contains a .. segment.",
+    "grep confirms these are the ONLY two detection sites of the invariant; there is no check at config-load, story_create, doctor, or session_brief.",
+    "resolveStorySignedWorkspace in packages/main/src/core/story-signed-workspace-resolution.ts already resolves the gitRoot (resolutionSource configured-git-root / metadata-git-root / linked-story-branch-worktree).",
+    "Real trigger 2026-06-15: ClawCreek wrapper-root layout (metadataRoot=/Users/jek/Documents/ClawCreek, gitRoot=clawcreek, storyDir=.lattice/story/actives) hit the late guard at INIT_CHECK."
+  ],
+  "constraints": [
+    "Reuse the existing relative-path escape logic; do not fork a second resolver (single source of truth).",
+    "The two late guards must keep byte-identical fail-closed behavior.",
+    "The normal case (metadataRoot == gitRoot, storyDir under it) must be unchanged and must not emit a false-positive advisory.",
+    "realpath both sides so a /var -> /private/var symlink does not corrupt the relative path."
+  ],
+  "unknowns": [
+    "Whether story_create should hard-fail or only warn, given existing wrapper-root projects that were created fine before this gate existed.",
+    "Whether session_brief is a useful surface or only doctor + story_create."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/",
+    "packages/main/tests/"
+  ],
+  "timestamp": "2026-06-15T18:24:07.898Z"
+}

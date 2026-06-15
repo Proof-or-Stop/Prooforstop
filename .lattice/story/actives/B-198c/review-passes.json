@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-198c:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 12 must intents (happy/edge/adversarial x 4 checklist items) are covered by logic_test evidence pointing to packages/main/src/tasks/storydir-inside-gitroot-suite.ts. Suite contains 19 distinct named checks across 4 real-git-fixture scenarios (inside-ok, sibling-violation, symlink-realpath, no-gitRoot). Each evidence note names the exact scenario and assertion, not a generic claim. The advisory warn-only behavior (CHK-003:adversarial:0) is confirmed: storyDirOutsideGitRootAdvisory returns a string and never blocks; the suite asserts EXIT=0 behavior via direct function call returning empty/non-empty. lattice validate reports 12/12 covered with 0 missing required.",
+      "createdAt": "2026-06-15T21:08:19.541Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-001",
+      "_hash": "b47f427366d9a71af51afd080e724af81ee39f3ab8e49c5ed9d80eef3079db5d"
+    },
+    {
+      "id": "B-198c:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Purely additive change: no concept deletions or replacements in the diff. The new symbols (evaluateStoryDirInsideGitRoot, evaluateStoryDirConfigInsideGitRoot, StoryDirInsideGitRootResult, storyDirOutsideGitRootAdvisory, renderStoryDirGitRootScan, renderStoryDirOutsideGitRootAdvisory, storyDirGitRoot doctor key) are all consistently defined and referenced with no dangling references. No deleted symbols with residual references found. CLAUDE.md was not modified — no doc-promise-undelivered condition. Concept residue check complete, no blocker.",
+      "createdAt": "2026-06-15T21:08:20.829Z",
+      "reviewRound": "2026-06-15T21:06:28.231Z",
+      "reviewRunId": "B-198c:RR-003",
+      "_hash": "146c3b8da5f4a05bff4c31476aaa43fd72b290641b5785159c4936a9160c1aa6"
+    },
+    {
+      "id": "B-198c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Round 2 re-check of fixes in commit 84f7ca9. F-002: evaluateStoryDirConfigInsideGitRoot is genuinely total — the entire body is inside a real try/catch (lines 333-379 of story-signed-workspace-resolution.ts), the catch returns a safe non-violation, and the legacy-koala-storydir scenario in the suite exercises this path. storyDirOutsideGitRootAdvisory in story-create.ts also has a defensive try/catch. F-001: doc comment now explicitly states the id-dependent helper throws when story metadata is absent (not a purity guarantee); the smoke test has a real assert.throws absent-story case that exercises this behavior. F-003: as any replaced with Record<string,unknown> (line 124) and a fully typed intersection cast (line 127). No dead code, no new unsafe casts, no new empty-catch issues introduced. lattice validate GREEN.",
+      "createdAt": "2026-06-15T21:18:31.562Z",
+      "reviewRound": "2026-06-15T21:16:52.028Z",
+      "reviewRunId": "B-198c:RR-005",
+      "_hash": "66b7ea330c3dcbcbf57de900ce99dd4bd7169eb6d207325fb5b60ae6adb6c49b"
+    },
+    {
+      "id": "B-198c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: all 12 must-intents verified against concrete, non-hollow test code in storydir-inside-gitroot-suite.ts; scenario1-4 each use real git fixtures and assert specific values; new totality checks (lines 335-378) honestly test throw-on-absent-story smoke and legacy .koala storyDir degradation; refreshed evidence headHash ca6dffd matches current HEAD; lattice validate GREEN 12/12 covered.",
+      "createdAt": "2026-06-15T21:18:32.883Z",
+      "reviewRound": "2026-06-15T21:16:52.028Z",
+      "reviewRunId": "B-198c:RR-006",
+      "_hash": "48c169b59b9d71ce37ee0b35931a30caae0bc6109c059e15f0875ed21ce58da9"
+    },
+    {
+      "id": "B-198c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept residue check complete. The fix commit (84f7ca9c7) made no concept deletions or replacements. It corrected inaccurate doc comments (PURE: never throws) and added a try/catch to make evaluateStoryDirConfigInsideGitRoot total — these are doc/logic corrections, not concept renames. All new exported symbols (evaluateStoryDirInsideGitRoot, evaluateStoryDirConfigInsideGitRoot, storyDirOutsideGitRootAdvisory, StoryDirInsideGitRootResult) have intact definitions and all import sites resolve correctly. No deleted-symbol residuals, no dangling references.",
+      "createdAt": "2026-06-15T21:18:51.995Z",
+      "reviewRound": "2026-06-15T21:16:52.028Z",
+      "reviewRunId": "B-198c:RR-004",
+      "_hash": "f147f7175a24ea8bc01f7d590a5ff8a3f0f62276a8337d9bbf5be4f87afbcaca"
+    }
+  ]
+}
