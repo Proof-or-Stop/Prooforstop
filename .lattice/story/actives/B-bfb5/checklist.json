@@ -367,33 +367,34 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-005:happy:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Deferred until REVIEW/TEST/DONE: local Non-authority completion evidence cannot exist before entering those phases; this waiver must be replaced by real lifecycle evidence before final completion.",
-          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "kind": "manual_transcript",
+          "command": "lattice session_brief && lattice finding_list --storyId=B-bfb5 --json && lattice delivery_check_set --storyId=B-bfb5 ... --agentId=koala-review-delivery",
+          "result": "pass",
+          "note": "REVIEW shows concept, quality, test-coverage, and docs passes with no findings; delivery_check_set wrote signed local Non-authority delivery evidence and explicitly does not claim Authority completion.",
+          "headHash": "b5f672d739346da6217d936d8120af5e409efaf7",
           "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
-          "timestamp": "2026-06-15T11:01:32.275Z"
+          "timestamp": "2026-06-15T11:11:11.473Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Deferred until delivery documentation is reviewed after REVIEW/TEST; audit doc already records measured vs estimated token savings and prompt-cache caveat, but final closure evidence is not claimed yet.",
-          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "kind": "docs_check",
+          "file": "docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "command": "node packages/main/dist/tasks/prompt-token-cost-smoke.js && rg prompt-cache docs/audits/lattice-token-cost-and-takeover-audit.md",
+          "result": "pass",
+          "note": "Audit doc records measured package template reduction 632687 B to 115317 B and states prompt-cache billing remains a caveat, not proven billable savings.",
+          "headHash": "b5f672d739346da6217d936d8120af5e409efaf7",
           "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
-          "timestamp": "2026-06-15T11:01:32.307Z"
+          "timestamp": "2026-06-15T11:11:11.473Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Deferred until delivery review can verify no Authority Server, receiptVerified, productionDone, authorityDone, or fullAuthorityDone overclaim; no Authority completion is claimed by this waiver.",
-          "headHash": "60ddfc793ac84bbeb970c07bbc44e327f75365e5",
+          "kind": "manual_transcript",
+          "command": "lattice delivery_check_set --storyId=B-bfb5 ... --agentId=koala-review-delivery && rg receiptVerified productionDone authorityDone fullAuthorityDone docs/audits/lattice-token-cost-and-takeover-audit.md packages/main/src/core/prompt-registry.ts",
+          "result": "pass",
+          "note": "Delivery reviewer verified no Authority Server, handoff authority, receiptVerified, productionDone, authorityDone, or fullAuthorityDone overclaim; local evidence remains Non-authority only.",
+          "headHash": "b5f672d739346da6217d936d8120af5e409efaf7",
           "materialHash": "53d19e7c444a1e31a35677c7a8aae7c69645aebb18c410f87b1d22964f5b2784",
-          "timestamp": "2026-06-15T11:01:32.350Z"
+          "timestamp": "2026-06-15T11:11:11.473Z"
         }
       ]
     }
