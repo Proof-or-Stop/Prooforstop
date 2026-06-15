@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "Single source of truth: one invariant fn, never a third copy of the relative-path escape check",
+    "Fail early and loudly with actionable remediation, but do not retroactively break setups that work today",
+    "Keep the two existing late guards as the hard backstop (defense in depth)",
+    "The normal case (metadataRoot == gitRoot) must be byte-identical and free of false-positive advisories"
+  ],
+  "drivers": [
+    "Users invest full INIT + PLAN effort before discovering the dead end at INIT_CHECK",
+    "Wrapper-root layouts (configured gitRoot at a subdir) are a real, supported configuration",
+    "Divergent copies of the escape check would drift and reintroduce the bug"
+  ],
+  "options": [
+    {
+      "name": "A: advisory + doctor (warn, non-blocking)",
+      "pros": [
+        "Non-breaking: existing wrapper-root projects keep working",
+        "Surfaces the problem early with exact remediation",
+        "Late guards still hard-stop the actually-broken operation"
+      ],
+      "cons": [
+        "A user can ignore the warning and still hit the late guard at INIT_CHECK"
+      ]
+    },
+    {
+      "name": "B: hard-fail at story_create",
+      "pros": [
+        "Impossible to invest PLAN work in a doomed setup"
+      ],
+      "cons": [
+        "Retroactively breaks existing wrapper-root projects (e.g. ClawCreek created 19 stories fine before any such gate)",
+        "story_create has no such gate today; adding one is a behavior break"
+      ]
+    },
+    {
+      "name": "C: auto-relocate storyDir into gitRoot",
+      "pros": [
+        "Zero user action"
+      ],
+      "cons": [
+        "Dangerous magic: moves files, risks collisions, surprising side effects",
+        "Out of scope for a detection/advisory story"
+      ]
+    }
+  ],
+  "chosen": "A: advisory + doctor (warn, non-blocking)",
+  "rationale": "Option A surfaces the violation early (doctor + a story_create/session_brief advisory) with the exact remediation, while keeping the two late guards as the hard backstop. It does not retroactively break existing wrapper-root projects that limp along today. B trades that safety for a worse migration story; C is dangerous magic. A is the minimal, reversible, non-breaking improvement. Resolves unknown #1 (warn, not hard-fail) and unknown #2 (surface on BOTH doctor and the story_create/session_brief advisory, since users look at session_brief Next-step output).",
+  "preMortem": [
+    {
+      "scenario": "The advisory is too quiet and users still hit the late guard",
+      "trigger": "Warning is buried in noisy story_create output",
+      "consequence": "No real improvement over the status quo for that user",
+      "mitigation": "Have doctor flag it as a distinct failed check (non-zero/clearly marked) and place the advisory on the session_brief surface users actually read"
+    },
+    {
+      "scenario": "The extracted shared fn diverges from the two guards during refactor",
+      "trigger": "A subtle realpath/normalization difference creeps in",
+      "consequence": "Guard behavior changes, breaking valid setups or admitting broken ones",
+      "mitigation": "Refactor both guards to call the shared fn; add a test asserting it flags the exact ClawCreek case and passes for metadataRoot == gitRoot"
+    },
+    {
+      "scenario": "The advisory false-positives on the normal case",
+      "trigger": "metadataRoot == gitRoot relative path mis-computed (e.g. symlink)",
+      "consequence": "Every normal project sees a spurious warning",
+      "mitigation": "realpath both sides; add tests for no-configured-gitRoot and metadataRoot == gitRoot returning ok"
+    },
+    {
+      "scenario": "The doctor check throws when gitRoot is unresolvable",
+      "trigger": "configured gitRoot missing or not a git repo",
+      "consequence": "doctor crashes instead of reporting the problem",
+      "mitigation": "Guard the check: if signed-workspace resolution is unresolved, report that condition separately and never throw"
+    }
+  ],
+  "timestamp": "2026-06-15T18:24:31.718Z"
+}

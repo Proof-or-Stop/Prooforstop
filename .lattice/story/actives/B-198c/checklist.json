@@ -6,7 +6,30 @@
       "context": "worktree.ts:754 and cli-engine.ts:3367 both inline the same relative()+.. escape check. Extract to core (near story-signed-workspace-resolution.ts) as the single source of truth: realpath both sides, violation when rel is empty/absolute/contains a .. segment. Have both existing guards call it so behavior is byte-identical.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "helper returns ok when storyDir resolves inside the gitRoot",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "helper flags a violation when storyDir is a .. sibling of gitRoot (the ClawCreek case)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "symlinked roots (/var -> /private/var) do not produce a false violation (realpath both sides)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
