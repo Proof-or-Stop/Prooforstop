@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-854c:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-priority verificationIntent across CHK-001..CHK-004 have valid verificationEvidence (integration_test, result=pass, pointing at story-metadata-protection-smoke.ts). Smoke runs 10 real git-repo fixture checks and passes green. Coverage: CHK-002 all 3 intents (non-ignoring tracked, broad-ignore force-add+warn, negation-allowlist no-false-positive); CHK-003 all 3 intents (unsafe flagged, repair idempotent, safe no-false-positive); CHK-004 all 3 intents (regression smoke green, doctor predicate flagged+cleared, bootstrap never silently leaves untracked). CHK-001 must intents covered by docs_check on decision.json and story_review passage. No blocker found.",
+      "createdAt": "2026-06-15T22:34:15.310Z",
+      "reviewRound": "2026-06-15T22:31:56.255Z",
+      "reviewRunId": "B-854c:RR-004",
+      "_hash": "4fb4850ac1e46a6a2c335333df1edff8d2e5911f4836272d7dacabaac58ad693"
+    }
+  ]
+}
