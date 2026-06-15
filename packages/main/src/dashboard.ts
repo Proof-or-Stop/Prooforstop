@@ -9,7 +9,7 @@ import { execSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { join, resolve, basename } from 'path';
 import { StoryStore } from './core/store.js';
-import { loadConfig, hasProjectConfigFile, LATTICE_CONFIG_FILENAME, LEGACY_KOALA_CONFIG_FILENAME } from './core/config.js';
+import { loadConfig, hasProjectConfigFile, LATTICE_CONFIG_FILENAME } from './core/config.js';
 import { formatStoryOutcomeKind, normalizeStoryOutcomeKind, type StoryOutcomeKind, type StoryInfo, type ChecklistData } from './core/types.js';
 
 // ── Types ──
@@ -256,10 +256,10 @@ export async function runDashboard(args: DashboardArgs): Promise<void> {
   const roots = rootsRaw.split(',').map(r => r.trim()).filter(Boolean).map(r => resolve(r));
 
   // Validate roots — accept lattice.config.json (canonical) or
-  // koala.config.json (legacy fallback).
+  // lattice.config.json.
   for (const r of roots) {
     if (!hasProjectConfigFile(r)) {
-      console.error(`✗ No ${LATTICE_CONFIG_FILENAME} (canonical) or ${LEGACY_KOALA_CONFIG_FILENAME} (legacy) found in: ${r}`);
+      console.error(`✗ No ${LATTICE_CONFIG_FILENAME} found in: ${r}`);
       process.exit(1);
     }
   }

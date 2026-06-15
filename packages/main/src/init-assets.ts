@@ -84,7 +84,6 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 - Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Claude Code subagents live in \`.claude/agents\`.
 - Claude Code hooks live in \`.claude/hooks\`, and Claude settings live in \`.claude/settings.json\`.
-- The Claude Code \`/koala\` skill lives in \`.claude/skills/koala\`.
 - When the repository also enables the Codex profile, Codex assets live separately under \`.Codex/\`; do not treat this file as a shared truth source for both hosts.
 - Run \`node bin/lattice.js check\` to check Lattice managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
 
@@ -579,7 +578,6 @@ function findRepoRoot(start) {
       fs.existsSync(path.join(dir, '.lattice')) ||
       fs.existsSync(path.join(dir, '.Codex')) ||
       fs.existsSync(path.join(dir, '.codex')) ||
-      fs.existsSync(path.join(dir, 'koala.config.json')) ||
       fs.existsSync(path.join(dir, 'lattice.config.json')) ||
       fs.existsSync(path.join(dir, '.git'))
     ) return dir;

@@ -111,7 +111,7 @@ export const RUNTIME_FACT_REGISTRY = [
     outputKey: 'validateSource',
     rationale: 'Validation evidence depends on whether Lattice uses explicit validate files, configured commands, or advisory fallback discovery.',
     driftMessage: 'No explicit validation source is configured, or Lattice is relying on fallback discovery.',
-    repairHint: 'Add validate.ts/js/mts or configure validate.command(s) in lattice.config.json (koala.config.json is still read as a legacy fallback).',
+    repairHint: 'Add validate.ts/js/mts or configure validate.command(s) in lattice.config.json.',
   },
   {
     id: 'external-reference-policy',

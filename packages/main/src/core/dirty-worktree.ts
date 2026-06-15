@@ -280,7 +280,6 @@ export function dirtyWorktreeClassifierOptionsFromConfig(config: KoalaConfig, pr
     'README.md',
     '.gitignore',
     'lattice.config.json',
-    'koala.config.json',
     'package.json',
     'package-lock.json',
     'npm-shrinkwrap.json',

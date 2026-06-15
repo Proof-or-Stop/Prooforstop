@@ -147,7 +147,7 @@ src/
 | **machines/** | State machine + pure functions + bridge interface | No I/O |
 | **io/** | External I/O (LLM API calls, etc.) | No state management |
 | **shells/** | Rendering + user input capture | Do not import fn.ts, do not hold business state, do not call I/O |
-| **WS server** | **Framework**: `koala-dev` automatically starts WS bridge + proxy | The project does not need to write a WS server |
+| **WS server** | **Framework**: `lattice serve` automatically starts WS bridge + proxy | The project does not need to write a WS server |
 | **Debug API** | **Framework**: `lattice serve` automatically generates endpoints from machine.ts | The project does not need to write an HTTP server |
 
 **Key point: the project only writes LocalBridge (in-process direct connection). The WS channel and debug API are provided uniformly by the framework.**
@@ -210,7 +210,7 @@ interface GameBridge {
 }
 
 // createLocalBridge: implemented in bridge.ts, imports machine.ts + fn.ts
-// createWSBridge: used on the browser side, connects to the WS server provided by koala-dev
+// createWSBridge: used on the browser side, connects to the WS server provided by lattice serve
 // createBridge: auto-selects (detects window.__KOALA_WS_URL)
 ```
 
@@ -218,7 +218,7 @@ interface GameBridge {
 
 ```
 Production:   npm start / vite           → LocalBridge direct connection inside app.ts
-Dev/debug:    npm run serve / koala-dev  → core process + WS bridge + Dashboard
+Dev/debug:    npm run serve / lattice serve  → core process + WS bridge + Dashboard
               CLI/browser connect to the same logical instance at the same time
 Browser-only: vite build                 → LocalBridge bundled into the browser
 ```
@@ -227,9 +227,9 @@ Startup commands:
 
 ```bash
 npm start          # vite (Web shell + in-browser direct connection via app.ts)
-npm run serve      # koala-dev (core + Dashboard)
-npm run serve:web  # koala-dev --web (core + vite + Dashboard)
-npm run serve:cli  # koala-dev --cli (core + CLI shell + Dashboard)
+npm run serve      # lattice serve (core + Dashboard)
+npm run serve:web  # lattice serve --web (core + vite + Dashboard)
+npm run serve:cli  # lattice serve --cli (core + CLI shell + Dashboard)
 ```
 
 ### Port Discovery (multi-worktree safe)

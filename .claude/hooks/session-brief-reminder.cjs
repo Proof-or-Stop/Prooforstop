@@ -57,7 +57,6 @@ function findRepoRoot(start) {
       fs.existsSync(path.join(dir, '.lattice'))
       || fs.existsSync(path.join(dir, 'lattice.config.json'))
       || fs.existsSync(path.join(dir, '.koala'))
-      || fs.existsSync(path.join(dir, 'koala.config.json'))
       || fs.existsSync(path.join(dir, '.git'))
     ) {
       return dir;
@@ -136,8 +135,7 @@ function isSessionBrief(entry) {
 function containsSessionBriefCommand(value) {
   if (typeof value !== 'string') return false;
   const command = value.replace(/["']/g, '').trim();
-  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*(?:lattice|koala)\s+session_brief(?:$|[\s;&|()])/.test(command)
+  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*lattice\s+session_brief(?:$|[\s;&|()])/.test(command)
     || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/lattice\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
-    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/koala(?:-codex)?\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
     || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?packages\/main\/dist\/cli\.js\s+session_brief(?:$|[\s;&|()])/.test(command);
 }

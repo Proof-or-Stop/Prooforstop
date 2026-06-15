@@ -1,6 +1,6 @@
 # Lattice Hooks Guide
 
-Lattice exposes 4 event points in every command's lifecycle and lets you configure shell hook commands in `lattice.config.json`; `koala.config.json` remains supported only as a legacy fallback. The design is inspired by Claude Code's PreToolUse / PostToolUse / SessionStart / Stop mechanism, and its goal is to decouple "things the agent wants to do after a command finishes" from the Lattice framework core.
+Lattice exposes 4 event points in every command's lifecycle and lets you configure shell hook commands in `lattice.config.json`. The design is inspired by Claude Code's PreToolUse / PostToolUse / SessionStart / Stop mechanism, and its goal is to decouple "things the agent wants to do after a command finishes" from the Lattice framework core.
 
 ## Claude Code Prompt Reminder
 
@@ -42,7 +42,7 @@ The threshold can be adjusted with `KOALA_SESSION_BRIEF_FRESH_MINUTES`. Malforme
 
 ## Schema
 
-Add a `hooks` field to `lattice.config.json`; a `koala.config.json` in older projects is still read as a legacy fallback:
+Add a `hooks` field to `lattice.config.json`:
 
 ```json
 {

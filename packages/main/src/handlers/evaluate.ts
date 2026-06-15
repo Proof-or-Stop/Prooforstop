@@ -5,7 +5,7 @@
  * 按功能完整性和可用性两个维度打分。
  *
  * 前置条件：
- * - 项目 lattice.config.json (canonical) 或 koala.config.json (legacy fallback)
+ * - 项目 lattice.config.json
  *   配了 browser.devCommand（否则跳过）
  * - lattice serve --dev 已经在运行（或由本命令启动）
  *
@@ -40,7 +40,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       if (!hasBrowser && !hasCli) {
         return JSON.stringify({
           skipped: true,
-          reason: 'No browser.devCommand or cli.command in lattice.config.json (canonical) / koala.config.json (legacy fallback) — no evaluator target',
+          reason: 'No browser.devCommand or cli.command in lattice.config.json — no evaluator target',
         });
       }
 

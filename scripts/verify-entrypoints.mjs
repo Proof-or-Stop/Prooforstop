@@ -135,11 +135,11 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
     present.push(
       'CLAUDE.md',
       '.claude/agents/koala-implementer.md',
-      '.claude/skills/koala/skill.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',
     );
+    absent.push('.claude/skills/koala');
   } else if (!opts.allowExistingClaude) {
     absent.push('CLAUDE.md', '.claude');
   }
@@ -166,11 +166,11 @@ function assertGlobalThinAssets(tempDir, profile, opts = {}) {
     present.push(
       'CLAUDE.md',
       '.claude/agents/koala-implementer.md',
-      '.claude/skills/koala/skill.md',
       '.claude/hooks/log-tools.cjs',
       '.claude/hooks/session-brief-reminder.cjs',
       '.claude/settings.json',
     );
+    absent.push('.claude/skills/koala');
   } else if (!opts.allowExistingClaude) {
     absent.push('CLAUDE.md', '.claude');
   }

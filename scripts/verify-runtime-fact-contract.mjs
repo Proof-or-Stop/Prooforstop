@@ -91,6 +91,7 @@ async function main() {
   const checksModule = await importDist(root, 'packages/main/dist/core/runtime-environment-checks.js');
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');
+  const configModule = await importDist(root, 'packages/main/dist/core/config.js');
 
   if (registryModule) {
     const registry = registryModule.RUNTIME_FACT_REGISTRY ?? [];
@@ -109,14 +110,44 @@ async function main() {
     }
   }
 
-  const tmp = mkdtempSync(join(tmpdir(), 'koala-runtime-fact-contract-'));
+  if (configModule) {
+    const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-config-negative-'));
+    try {
+      writeFileSync(join(legacyOnlyRoot, 'koala.config.json'), JSON.stringify({
+        scanRoot: 'legacy-only-src',
+        validate: {
+          command: 'node -e "process.stdout.write(\\"legacy\\")"',
+        },
+      }));
+      configModule.resetConfigCache?.();
+      const legacyOnlyConfig = configModule.loadConfig(legacyOnlyRoot);
+      check(legacyOnlyConfig.scanRoot !== 'legacy-only-src', 'koala.config.json must not be read as an active config fallback');
+      check(!legacyOnlyConfig.validate, 'koala.config.json validate commands must not be read as active config');
+
+      writeFileSync(join(legacyOnlyRoot, 'lattice.config.json'), JSON.stringify({
+        scanRoot: 'lattice-src',
+        validate: {
+          command: 'node -e "process.stdout.write(\\"lattice\\")"',
+        },
+      }));
+      configModule.resetConfigCache?.();
+      const latticeConfig = configModule.loadConfig(legacyOnlyRoot);
+      check(latticeConfig.scanRoot === 'lattice-src', 'lattice.config.json must remain the active config source');
+      check(latticeConfig.validate?.command?.includes('lattice'), 'lattice.config.json validate command must load');
+    } finally {
+      rmSync(legacyOnlyRoot, { recursive: true, force: true });
+      configModule.resetConfigCache?.();
+    }
+  }
+
+  const tmp = mkdtempSync(join(tmpdir(), 'lattice-runtime-fact-contract-'));
   try {
     writeFileSync(join(tmp, 'package.json'), JSON.stringify({
       name: 'runtime-contract-smoke',
       version: '1.0.0',
       scripts: { test: 'node -e "process.stdout.write(\\"ok\\")"' },
     }));
-    writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(tmp, 'lattice.config.json'), JSON.stringify({
       validate: {
         command: 'node -e "process.stdout.write(\\"configured\\")"',
       },

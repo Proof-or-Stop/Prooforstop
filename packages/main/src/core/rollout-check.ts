@@ -224,7 +224,6 @@ function discoverProjects(root: string, maxDepth: number): string[] {
 
 function looksLikeProject(dir: string): boolean {
   return existsSync(join(dir, 'lattice.config.json')) ||
-    existsSync(join(dir, 'koala.config.json')) ||
     existsSync(join(dir, LATTICE_DIR)) ||
     existsSync(join(dir, '.koala')) ||
     existsSync(join(dir, 'package.json')) ||

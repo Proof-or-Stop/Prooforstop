@@ -590,8 +590,7 @@ function scanExternalReferences(projectRoot: string): {
 }
 
 function boundedReferenceFiles(projectRoot: string): string[] {
-  // lattice.config.json (canonical) ranked before legacy koala.config.json so
-  // scans observe the same lattice-first ordering as loadConfig.
+  // Scan the same active project config surface as loadConfig.
   const candidates = [...PROJECT_CONFIG_FILENAMES, 'AGENTS.md', 'CLAUDE.md', 'README.md'];
   const files = candidates.filter((relPath) => existsSync(join(projectRoot, relPath)));
   const requirementsRoot = join(projectRoot, 'docs', 'requirements');

@@ -2654,7 +2654,7 @@ function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
-  // Walk upward to find project config (prefer lattice.config.json, fallback koala.config.json) and determine project root.
+  // Walk upward to find lattice.config.json and determine the project root.
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
     if (hasProjectConfigFile(dir)) return dir;
@@ -3698,8 +3698,7 @@ export async function runCli(opts?: {
       // path, we re-create dirs and leave a dangling audit log that
       // masquerades as an active worktree.
       //
-      // Detect this by checking if `root` still has a project config file
-      // (lattice.config.json canonical, koala.config.json legacy fallback).
+      // Detect this by checking if `root` still has lattice.config.json.
       // If not (the worktree was removed), prefer the durable main-root
       // fallback captured at command start — it was computed while root/.git
       // still existed, so it points at the real main project even after the

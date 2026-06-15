@@ -3,10 +3,10 @@
  * dev-cli.ts — unified development launcher provided by the framework
  *
  * Usage (run from the project directory):
- *   koala-dev              → core + Dashboard
- *   koala-dev --web        → core + vite + Dashboard
- *   koala-dev --cli        → core + CLI shell + Dashboard
- *   koala-dev --web --cli  → core + vite + CLI + Dashboard
+ *   lattice serve              → core + Dashboard
+ *   lattice serve --web        → core + vite + Dashboard
+ *   lattice serve --cli        → core + CLI shell + Dashboard
+ *   lattice serve --web --cli  → core + vite + CLI + Dashboard
  */
 
 import { spawn, ChildProcess } from 'child_process';

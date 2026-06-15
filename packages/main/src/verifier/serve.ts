@@ -159,7 +159,7 @@ function createValidateRunner(projectRoot: string) {
           summary: 'No project validator configured; skipped project-specific validation',
           details: [
             'validate.ts/js/mts not found',
-            'lattice.config.json (canonical) / koala.config.json (legacy fallback) validate.command(s) not configured',
+            'lattice.config.json validate.command(s) not configured',
             'no standard language test command discovered (Swift/Mac Native is not in the automatic fallback set)',
           ],
           commands: [],

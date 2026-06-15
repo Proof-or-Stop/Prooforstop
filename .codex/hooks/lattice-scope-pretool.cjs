@@ -92,7 +92,6 @@ function findRepoRoot(start) {
       fs.existsSync(path.join(dir, '.Lattice')) ||
       fs.existsSync(path.join(dir, '.Codex')) ||
       fs.existsSync(path.join(dir, '.codex')) ||
-      fs.existsSync(path.join(dir, 'koala.config.json')) ||
       fs.existsSync(path.join(dir, 'lattice.config.json')) ||
       fs.existsSync(path.join(dir, '.git'))
     ) return dir;

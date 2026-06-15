@@ -152,7 +152,7 @@ src/
 | **machines/** | 状态机 + 纯函数 + bridge 接口 | 不做 I/O |
 | **io/** | 外部 I/O（LLM API 调用等） | 不做状态管理 |
 | **shells/** | 渲染 + 用户输入采集 | 不 import fn.ts，不持有业务状态，不调 I/O |
-| **WS server** | **框架**：`koala-dev` 自动启动 WS bridge + proxy | 项目不需要写 WS server |
+| **WS server** | **框架**：`lattice serve` 自动启动 WS bridge + proxy | 项目不需要写 WS server |
 | **调试 API** | **框架**：`lattice serve` 自动从 machine.ts 生成端点 | 项目不需要写 HTTP server |
 
 **关键：项目只写 LocalBridge（同进程直连）。WS 通道和调试 API 由框架统一提供。**
@@ -213,7 +213,7 @@ interface GameBridge {
 }
 
 // createLocalBridge：在 bridge.ts 中实现，import machine.ts + fn.ts
-// createWSBridge：浏览器端使用，连接 koala-dev 提供的 WS server
+// createWSBridge：浏览器端使用，连接 lattice serve 提供的 WS server
 // createBridge：自动选择（检测 window.__KOALA_WS_URL）
 ```
 
@@ -221,7 +221,7 @@ interface GameBridge {
 
 ```
 正式运行：   npm start / vite           → app.ts 里 LocalBridge 直连
-开发调试：   npm run serve / koala-dev   → core 进程 + WS bridge + Dashboard
+开发调试：   npm run serve / lattice serve   → core 进程 + WS bridge + Dashboard
              CLI/浏览器同时连同一个逻辑实例
 纯浏览器：   vite build                 → LocalBridge 打包进浏览器
 ```
@@ -230,9 +230,9 @@ interface GameBridge {
 
 ```bash
 npm start          # vite（Web 壳 + app.ts 浏览器内直连）
-npm run serve      # koala-dev（core + Dashboard）
-npm run serve:web  # koala-dev --web（core + vite + Dashboard）
-npm run serve:cli  # koala-dev --cli（core + CLI 壳 + Dashboard）
+npm run serve      # lattice serve（core + Dashboard）
+npm run serve:web  # lattice serve --web（core + vite + Dashboard）
+npm run serve:cli  # lattice serve --cli（core + CLI 壳 + Dashboard）
 ```
 
 ### 端口发现（多 worktree 安全）
@@ -1021,7 +1021,7 @@ see story/B-5a28
 
 ## 规则
 
-- 所有 Story 操作通过 `koala` CLI 完成
+- 所有 Story 操作通过 `lattice` CLI 完成
 - 测试统一通过 `lattice validate` 执行
 - `lattice validate` 全绿 = 可以提交
 - 调用出错时先 `lattice <command> --help`，不要靠记忆猜参数

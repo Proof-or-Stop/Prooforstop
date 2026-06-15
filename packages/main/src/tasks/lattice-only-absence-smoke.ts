@@ -25,6 +25,7 @@ import {
 import { formatLatticeProductLine, formatLatticeVersionLine } from '../core/lattice-brand.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
+import { loadConfig, resetConfigCache } from '../core/config.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -57,6 +58,30 @@ for (const template of [CODEX_README_TEMPLATE, renderCodexReadmeTemplate('full')
 const manifest = renderLatticeCodexAdapterManifest();
 assertNotContains(manifest, 'koala-codex', 'Codex manifest template');
 assertNotContains(manifest, '.Codex/koala.json', 'Codex manifest template');
+
+const legacyConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-config-legacy-absent-'));
+try {
+  writeText(legacyConfigRoot, 'koala.config.json', JSON.stringify({
+    scanRoot: 'legacy-only-src',
+    validate: { command: 'node -e "process.stdout.write(\\"legacy\\")"' },
+  }, null, 2) + '\n');
+  resetConfigCache();
+  const legacyOnlyConfig = loadConfig(legacyConfigRoot);
+  assert.notEqual(legacyOnlyConfig.scanRoot, 'legacy-only-src', 'koala.config.json must not be loaded as active config');
+  assert.equal(legacyOnlyConfig.validate, undefined, 'koala.config.json validate commands must not be loaded');
+
+  writeText(legacyConfigRoot, 'lattice.config.json', JSON.stringify({
+    scanRoot: 'lattice-src',
+    validate: { command: 'node -e "process.stdout.write(\\"lattice\\")"' },
+  }, null, 2) + '\n');
+  resetConfigCache();
+  const latticeConfig = loadConfig(legacyConfigRoot);
+  assert.equal(latticeConfig.scanRoot, 'lattice-src', 'lattice.config.json must remain active');
+  assert.match(latticeConfig.validate?.command ?? '', /lattice/, 'lattice.config.json validate command must load');
+} finally {
+  resetConfigCache();
+  rmSync(legacyConfigRoot, { recursive: true, force: true });
+}
 
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-legacy-absent-'));
 try {

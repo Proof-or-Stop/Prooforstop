@@ -13,7 +13,7 @@ function findRepoRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
     if (
-      (existsSync(join(dir, 'lattice.config.json')) || existsSync(join(dir, 'koala.config.json'))) &&
+      existsSync(join(dir, 'lattice.config.json')) &&
       existsSync(join(dir, 'packages', 'main', 'src'))
     ) {
       return dir;

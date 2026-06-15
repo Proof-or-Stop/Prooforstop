@@ -655,12 +655,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             summary: 'No project validator configured; skipped project-specific validation',
             details: [
               `当前目录: ${projectRoot}`,
-              '未找到 validate.ts/js/mts，也未在 lattice.config.json / koala.config.json 配置 validate.command(s)',
+              '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
               '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
               'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
             ],
             warnings: [
-              '这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands（koala.config.json 作为 legacy fallback 仍可读）。',
+              '这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。',
             ],
             headSha: currentHead(projectRoot),
           });

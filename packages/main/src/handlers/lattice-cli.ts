@@ -569,8 +569,7 @@ function renderWrapperGitRootDiagnosticsText(wrapperGitRoot: WrapperGitRootDiagn
  *    non-mutating preview that prints the exact confirm command;
  *  - validates the target is a relative path that stays strictly under the
  *    metadata root and is itself a git repository root;
- *  - writes ONLY the `gitRoot` field of the existing project config file
- *    (lattice.config.json preferred, legacy koala.config.json fallback);
+ *  - writes ONLY the `gitRoot` field of the existing lattice.config.json file;
  *  - reports whether the configured git root verifies after the write. It
  *    does not claim story resolution; check story_resolve separately.
  */
@@ -645,7 +644,7 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
   const picked = pickProjectConfigPath(metadataRoot);
   if (!picked) {
     throw new Error(
-      `Cannot repair gitRoot because no existing ${LATTICE_CONFIG_FILENAME} or koala.config.json was found at ${metadataRoot}. Initialize project config first.`,
+      `Cannot repair gitRoot because no existing ${LATTICE_CONFIG_FILENAME} was found at ${metadataRoot}. Initialize project config first.`,
     );
   }
   const configPath = picked.path;

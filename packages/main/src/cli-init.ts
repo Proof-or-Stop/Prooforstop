@@ -45,15 +45,8 @@ const agentTemplateDir = [
   join(packageRoot, 'templates', 'agents'),
   join(packageRoot, '..', '..', '.claude', 'agents'),
 ].find(existsSync);
-const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
 const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
-const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
-
-你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
-
-详细用法参考 @koala/main 文档。
-`;
 
 // 通过 lattice init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
@@ -246,7 +239,7 @@ lattice init — 初始化 Lattice 开发框架
   .lattice/Lattice.md           canonical host-neutral Lattice 指南（新目录）
   .lattice/lattice.json         项目 Lattice 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
-  lattice.config.json           项目配置（canonical; legacy koala.config.json 仍可读为兜底）
+  lattice.config.json           项目配置（canonical）
   .lattice/story/actives/       Story 数据目录
   docs/requirements/            真相源目录
 
@@ -518,7 +511,7 @@ const dirs = [
   'docs/requirements/extracted',
 ];
 if (isGlobalThin) dirs.push('.lattice');
-if (wantsClaude) dirs.push('.claude/skills/koala', '.claude/agents');
+if (wantsClaude) dirs.push('.claude/agents');
 if (wantsCodex && selectedAssetMode === 'full') dirs.push('.Codex/agents');
 for (const d of dirs) {
   const full = join(targetDir, d);
@@ -772,7 +765,7 @@ import { createApp } from './app.js';
   console.log('  ✓ src/core/debug.ts (调试入口模板)');
 }
 
-// 2. lattice.config.json (canonical; legacy koala.config.json still readable)
+// 2. lattice.config.json (canonical)
 console.log('\n[2/6] 生成 lattice.config.json...');
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
@@ -803,10 +796,6 @@ if (existsSync(pkgPath)) {
 }
 if (existsSync(join(targetDir, 'lattice.config.json'))) {
   console.log('  - lattice.config.json (exists, skip)');
-} else if (existsSync(join(targetDir, 'koala.config.json'))) {
-  // Legacy fallback already present — keep it intact and skip scaffold to
-  // avoid producing a conflicting canonical file the user did not ask for.
-  console.log('  - lattice.config.json (skip; legacy koala.config.json detected, keeping it as fallback)');
 } else {
   write('lattice.config.json', JSON.stringify(latticeConfig, null, 2) + '\n');
 }
@@ -841,24 +830,13 @@ if (isGlobalThin) {
   console.log('  - AGENTS.md (profile skip)');
 }
 
-// 4. 复制 skill
-console.log('\n[4/6] 复制 /koala skill...');
-const skillDst = join(targetDir, '.claude', 'skills', 'koala');
-if (wantsClaude && existsSync(skillSrc)) {
-  const skillFile = join(skillSrc, 'skill.md');
-  const dstFile = join(skillDst, 'skill.md');
-  if (!existsSync(dstFile)) {
-    if (!existsSync(skillDst)) mkdirSync(skillDst, { recursive: true });
-    cpSync(skillFile, dstFile);
-    console.log('  ✓ .claude/skills/koala/skill.md');
-  } else {
-    console.log('  - .claude/skills/koala/skill.md (exists, skip)');
-  }
-} else if (wantsClaude) {
-  // 从模板生成最小 skill
-  write('.claude/skills/koala/skill.md', KOALA_SKILL_FALLBACK);
+// 4. Claude slash-command skills
+console.log('\n[4/6] 跳过 legacy /koala skill...');
+if (wantsClaude) {
+  removePathIfExists('.claude/skills/koala', '.claude/skills/koala');
+  console.log('  - .claude/skills/koala (removed if managed legacy asset existed)');
 } else {
-  console.log('  - .claude/skills/koala/skill.md (profile skip)');
+  console.log('  - .claude/skills/koala (profile skip)');
 }
 
 // 5. agent 模板 → symlink/copy（发布包内置模板）
@@ -1064,7 +1042,7 @@ ${isGlobalThin ? `  1. Read .lattice/Lattice.md
   2. Use the global lattice CLI: lattice session_brief
   3. For Codex adapter: lattice codex verify / lattice codex doctor
   4. Optional: lattice validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
-  2. Optional: edit lattice.config.json to adjust scanRoot (legacy koala.config.json is still read as a fallback)
+  2. Optional: edit lattice.config.json to adjust scanRoot
   3. Optional: lattice validate to verify project`}
 `);
 
