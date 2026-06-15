@@ -61,7 +61,7 @@
       "desc": "CHK-001:edge:0 asks verification evidence to prove the document distinguishes provider-reported true usage, approximate prompt-size estimates, and unavailable provider usage so estimates cannot be mistaken for billing evidence. The recorded edge verificationEvidence command instead searches for repair-specific call-correlation and runtime-artifact terms such as ledgerCallId, attemptId, provider.requestIdHash, double count, .lattice/usage/llm-usage.jsonl, runtime-artifact-registry, materialHash, and story evidence, and its note only says F-001/F-002/F-003 were addressed. A document could remove the Usage Source Semantics table or the provider-reported/prompt-size-estimate/unavailable distinction while this recorded edge evidence would still pass. I independently confirmed the repaired document currently contains the required source semantics with rg, but that check is not recorded as CHK-001:edge:0 verificationEvidence; refresh the edge evidence with a command/note that directly asserts provider-reported, prompt-size-estimate, unavailable, and estimate-not-billing/Authority semantics.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-15T15:00:55.666Z",
@@ -70,7 +70,9 @@
       "_hash": "26f1a05479bf34946345784468ce5eb01c5604b17ec0d5b421893fcf925c54a6",
       "files": [
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by recording direct CHK-001:edge:0 docs_check evidence in commit 82f7478: rg now checks provider-reported, prompt-size-estimate, unavailable, not billing truth/final usage, and local estimate not Authority proof semantics. No document content change was required.",
+      "resolvedAt": "2026-06-15T15:01:54.948Z"
     }
   ]
 }
