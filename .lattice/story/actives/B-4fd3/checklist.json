@@ -10,7 +10,30 @@
       "userSees": "clean main 上 init 出来的 .gitignore managed 块含 .lattice/usage/；主仓 .gitignore 的 # lattice runtime artifacts (managed) 块新增 .lattice/usage/ 一行",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "init 复制路径(giSrc 存在)产出的 .gitignore managed 块含 .lattice/usage/",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "主仓 .gitignore 已含部分 runtime ignore 时合并幂等、不重复追加",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "registry 新增任意 ignorePattern 后复制路径仍输出全集（防再漂移）",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

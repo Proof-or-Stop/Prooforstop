@@ -1,0 +1,50 @@
+{
+  "principles": [
+    "registry 是 runtime ignore 的单一真相源，所有产出路径都从它派生",
+    "治本优先于治标：消除整类漂移，而非补单个 pattern",
+    "改动局部化，不扩面重构稳定代码",
+    "回归可机械验证，防同类漂移复发"
+  ],
+  "drivers": [
+    "smoke 在干净 main 上失败，污染自举开发信号",
+    "registry 未来还会新增 ignorePattern，需杜绝复制路径再漂移"
+  ],
+  "options": [
+    {
+      "name": "A: 只手补主仓 gitignore",
+      "pros": [
+        "改动最小",
+        "立即让 smoke 通过"
+      ],
+      "cons": [
+        "治标不治本",
+        "registry 下次新增 pattern 复制路径仍漂移",
+        "复制路径绕过 registry 的根因未除"
+      ]
+    },
+    {
+      "name": "B: 复制路径合并 registry",
+      "pros": [
+        "治本：registry 单一真相源贯通复制/已存在两条路径",
+        "杜绝整类 registry→gitignore 漂移",
+        "改动局部（cli-init 一处分支 + .gitignore + smoke 断言）"
+      ],
+      "cons": [
+        "比 A 多改一处复制分支逻辑"
+      ]
+    },
+    {
+      "name": "C: 永不复制统一 registry 渲染",
+      "pros": [
+        "最彻底，复制语义消失"
+      ],
+      "cons": [
+        "改变现有 cpSync 模板继承行为",
+        "超出 bug 修复范围，回归面更大"
+      ]
+    }
+  ],
+  "chosen": "B: 复制路径合并 registry",
+  "rationale": "选 B：直击根因（复制路径绕过 registry），复用已存在的 mergeKoalaRuntimeIgnores 让两条 .gitignore 路径都 registry-synced，杜绝整类漂移；改动局部且不动 registry 语义/检查逻辑。A 治标会复发；C 改变模板继承行为超出小修复范围、回归面大。",
+  "timestamp": "2026-06-16T21:01:59.428Z"
+}
