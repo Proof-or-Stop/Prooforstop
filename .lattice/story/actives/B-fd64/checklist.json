@@ -15,6 +15,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildUsageEvidenceEnvelope(validRecord) returns envelope with recordDigest (non-empty hex string, matches sha256 of canonicalJson(record)) + allowlisted fields (model, provider.name, usage.source, usage.inputTokens, usage.outputTokens, usage.cacheCreationInputTokens, usage.cacheReadInputTokens, decision.kind, recordId, ledgerCallId, attemptId, sequence) -> all present and matching the source record; WHY: proves the envelope faithfully mirrors non-secret fields and computes a stable digest",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) deep-scanned for ZERO forbidden material: JSON.stringify(envelope).toLowerCase() does NOT contain any of the FORBIDDEN_FIELD_NAMES tokens (prompt, transcript, secret, apiKey, authorizationHeader, rawResponse, content, messages, password, credentials, bearerToken, accessToken, refreshToken, etc.) AND the envelope object has no key at any depth whose lowercased name is in the denylist -> assertion passes; WHY: the anti-leak gate is the whole point",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where record has extra nested metadata containing a forbidden field name (e.g. record.metadata.debug.rawPrompt) -> builder either rejects (throws/returns error) OR the envelope omits the forbidden field entirely; the envelope NEVER contains the forbidden material; WHY: tests that forbidden fields in arbitrary nesting depths are caught, not just top-level",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where usage.source is unavailable and all token dimensions are null -> envelope still has a valid recordDigest and source=unavailable with null token fields; WHY: boundary case where no actual token counts exist",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope called twice on the same record -> returns identical recordDigest both times (deterministic); WHY: digest stability is required for future receipt binding",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where record has apiKey, secret, authorization, bearerToken, password, credentials, accessToken, refreshToken fields injected at multiple nesting depths (top-level, nested in provider, nested in usage.raw, nested in arrays) -> builder rejects ALL of them; deep scan of JSON.stringify(envelope) confirms zero matches against the full FORBIDDEN_FIELD_NAMES set; WHY: adversarial attacker tries to smuggle secrets through multiple nesting paths",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where field names use mixed case to evade denylist (ApiKey, API_KEY, rawPrompt, RawPrompt, PROMPT, AuthorizationHeader) -> builder still catches them (case-insensitive denylist match); WHY: case-variant evasion is the most common denylist bypass",
+            "type": "cli"
+          },
+          {
+            "desc": "buildUsageEvidenceEnvelope(record) where record contains field named content (in the denylist) at top level -> rejected/omitted even though content could be benign in other contexts; WHY: denylist is name-based not value-based, so even innocuous values under forbidden names are rejected by design",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
