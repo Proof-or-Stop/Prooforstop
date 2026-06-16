@@ -969,6 +969,9 @@ Behavior:
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
+  { name: 'agent_prompt', description: 'Print the canonical Lattice agent prompt body for a role from the package prompt registry (host-neutral single source; Claude thin-shims fetch from here, Codex resolves the same registry)', schema: {
+    role: z.string().min(1).describe('Lattice agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
+  }},
   { name: 'capability_claim_evaluate', description: 'Evaluate a local capability claim fail-closed from lower-layer suite reports (text/json)', schema: {
     target: z.string().optional().describe('Requested claim target, for example development, engineering, loop-engineering, or production-safety'),
     claimId: z.string().optional().describe('Claim id, for example CLAIM-PRODUCTION-SAFETY'),
@@ -2820,6 +2823,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'aux_doc_list',
   'capability_list',
   'capability_probe',
+  'agent_prompt',
   'baseline_run',
   'baseline_suite',
   'baseline_suite_report',

@@ -70,6 +70,7 @@ import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js'
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createMemoryBenchmarkHandlers } from './handlers/memory-benchmark.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
+import { createAgentPromptHandlers } from './handlers/agent-prompt.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
 import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
 import { createLatticeDispatchHandlers } from './handlers/lattice-dispatch.js';
@@ -241,6 +242,11 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // Host-neutral capability discovery for Lattice adapters.
   registry.registerBatch(createCapabilityListHandlers());
+
+  // B-097f CHK-002: agent_prompt — host-neutral shared content endpoint. Returns
+  // the canonical role body straight from the package prompt registry (the same
+  // registry the Codex manifest resolves). Claude thin-shims fetch from here.
+  registry.registerBatch(createAgentPromptHandlers());
 
   // Lattice productized export and cross-host handoff surfaces.
   registry.registerBatch(createLatticeCliHandlers(ctx));
