@@ -175,8 +175,8 @@
       "id": "CHK-004",
       "title": "Negative controls (cannot be tricked into verified)",
       "context": "Implement + test the spec's negative controls: transport accepted=true is NOT verification; a provider response with real token counts is NOT verification; a local JSONL hash chain is NOT verification; a copied receiptId without an injected verifier confirming signature+subject is NOT verification. In every case authority.receiptVerified stays false. Each negative control is a distinct smoke assertion.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T21:40:24.708Z",
       "endTime": null,
       "files": {
         "modify": [],
