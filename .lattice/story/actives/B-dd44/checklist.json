@@ -15,6 +15,90 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"5000\"}) -> {hardBudgetTokens:5000, budgetPolicyId:\"hard-budget:5000\"}; WHY: canonical positive-integer parse + policy id shape",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(6000, 5000) -> true; WHY: estimate exceeds ceiling, must return true",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(4000, 5000) -> false; WHY: estimate within ceiling, must return false",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveHardBudget({}) (no LATTICE_ or KOALA_ env) -> null; WHY: unset means no enforcement, null disables budget gate",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({KOALA_HARD_BUDGET_TOKENS:\"3000\"}) with no LATTICE_ -> reads KOALA_ fallback -> {hardBudgetTokens:3000,...}; WHY: legacy compat migration path",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"7000\",KOALA_HARD_BUDGET_TOKENS:\"3000\"}) -> uses LATTICE_ (7000), ignores KOALA_; WHY: LATTICE_ takes precedence over legacy fallback",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"0\"}) -> null; WHY: zero is not a positive integer, means no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"-100\"}) -> null; WHY: negative is invalid, no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"abc\"}) -> null; WHY: non-numeric string is invalid, no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"3.14\"}) -> null; WHY: float is not a positive integer, no enforcement",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(5000, 5000) -> false; WHY: exact boundary (estimate == budget) must NOT block, only strict exceed blocks",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"1\"}) -> {hardBudgetTokens:1,...}; WHY: minimum valid positive integer accepted",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"  5000  \"}) -> either null or {hardBudgetTokens:5000,...}; WHY: leading/trailing whitespace handling must be explicit and not crash",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"9007199254740992\"}) -> null or valid; WHY: Number.MAX_SAFE_INTEGER+1 would lose precision, must not silently accept unsafe integer",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"Infinity\"}) -> null; WHY: Infinity parses as number but is not a finite positive integer",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"NaN\"}) -> null; WHY: NaN parses but is not a valid integer",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget({LATTICE_HARD_BUDGET_TOKENS:\"\"}) -> null; WHY: empty string is not a valid budget",
+            "type": "cli"
+          },
+          {
+            "desc": "isOverHardBudget(0, 5000) -> false; WHY: zero estimate (empty prompt) is within any positive budget",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveHardBudget never throws for any env shape; WHY: must be crash-proof to avoid blocking dispatch on a parse error",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
