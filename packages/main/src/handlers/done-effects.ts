@@ -383,7 +383,14 @@ export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: s
   // strip the first line's leading status space and corrupt path parsing.
   let status: string;
   try {
-    status = execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], {
+    // `-c core.quotePath=false` forces porcelain to emit RAW UTF-8 paths. With
+    // git's default core.quotePath=true, non-ASCII paths are octal-escaped and
+    // double-quoted (e.g. `"src/caf\303\251.ts"`), which does NOT match the raw
+    // UTF-8 paths returned by `git diff ... -z` in listDoneMergeAffectedPaths().
+    // A mismatch there would let a dirty non-ASCII-named file that IS in the
+    // merge's affected set silently slip past the overlap check (clobber).
+    // Disabling quotePath makes both encodings identical so they intersect.
+    status = execFileSync('git', ['-c', 'core.quotePath=false', 'status', '--porcelain', '--untracked-files=no'], {
       cwd: mainMergeRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],

@@ -65,15 +65,23 @@ function buildScopedMergeRepo(storyId: string): { root: string } {
   write(root, 'shared/unrelated.txt', 'unrelated baseline content\n');
   write(root, 'src/feature.ts', 'export const feature = 1;\n');
   write(root, 'src/old-name.ts', 'export const renamed = true;\n');
+  // B-72df F-001: a NON-ASCII-named tracked file that the story ALSO edits.
+  // git's default core.quotePath=true octal-escapes + quotes this path in
+  // porcelain status output, but the affected-set diff (`-z`) carries raw UTF-8.
+  // Both sides must use the same encoding or a dirty overlap on this file is
+  // silently missed (clobber). The precondition now runs status with
+  // `-c core.quotePath=false` so both sides emit raw UTF-8 and intersect.
+  write(root, 'src/café.ts', 'export const accented = 1;\n');
 
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
   git(root, [...COMMIT_ENV, 'commit', '-m', 'base on main']);
 
-  // Story branch: edit feature.ts + rename old-name.ts -> new-name.ts.
+  // Story branch: edit feature.ts + café.ts + rename old-name.ts -> new-name.ts.
   git(root, ['checkout', '-b', `story/${storyId}`]);
   write(root, 'src/feature.ts', 'export const feature = 2; // changed by story\n');
+  write(root, 'src/café.ts', 'export const accented = 2; // changed by story\n');
   git(root, ['mv', 'src/old-name.ts', 'src/new-name.ts']);
   git(root, ['add', '.']);
   git(root, [...COMMIT_ENV, 'commit', '-m', 'story change set']);
@@ -161,6 +169,28 @@ function assertOverlappingDirtyPathStillBlocks(): void {
         'dirty rename-source path inside the merge change set must still block DONE',
       );
       console.log('  ✓ overlapping dirty path (rename source name) still blocks DONE');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // b3 (B-72df F-001): dirty a NON-ASCII-named file that IS in the merge change
+  //     set. With git's default core.quotePath=true, porcelain status quotes +
+  //     octal-escapes "src/café.ts" while the affected-set diff (`-z`) carries
+  //     raw UTF-8 — the two never match, so the overlap is silently missed and
+  //     DONE wrongly proceeds (clobber). This case FAILS pre-fix (no throw) and
+  //     PASSES post-fix (`-c core.quotePath=false` aligns both encodings).
+  {
+    const storyId = 'B-scope-overlap-nonascii';
+    const { root } = buildScopedMergeRepo(storyId);
+    try {
+      writeFileSync(join(root, 'src/café.ts'), 'export const accented = 999; // local uncommitted clash\n');
+      assert.throws(
+        () => assertMainWorktreeReadyForMerge(storyId, root),
+        /Cannot enter DONE/,
+        'dirty non-ASCII path inside the merge change set must still block DONE (clobber protection holds for non-ASCII paths)',
+      );
+      console.log('  ✓ overlapping dirty path (non-ASCII filename) still blocks DONE');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
