@@ -122,8 +122,17 @@
         "packages/main/src/tasks/scope-anti-expansion-smoke.ts",
         "packages/main/tests/fixtures/project-state-runtime-status-next.json"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Both are in-scope-by-consequence of CHK-002 fix commit: .codex/hooks/lattice-scope-pretool.cjs line 93 had a leftover uppercase .Codex existsSync probe that was the F-002 fix target (it's in the lowercase .codex/ dir but a Codex CLI hook, so the original grep excluded it). NAV.md is the auto-regenerated docs navigation index updated as side-effect of the doc edits in this story (decision-doc + audit + guide-hooks touched). Both belong to the existing CHK-002/CHK-003 work.",
+      "timestamp": "2026-06-16T21:20:05.975Z",
+      "paths": [
+        ".codex/hooks/lattice-scope-pretool.cjs",
+        "docs/requirements/NAV.md"
+      ]
     }
   ],
   "createdAt": "2026-06-16T21:07:00.858Z",
-  "updatedAt": "2026-06-16T21:09:02.293Z"
+  "updatedAt": "2026-06-16T21:20:05.975Z"
 }
