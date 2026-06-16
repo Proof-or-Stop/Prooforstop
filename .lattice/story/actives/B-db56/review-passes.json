@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T22:40:46.961Z",
       "reviewRunId": "B-db56:RR-002",
       "_hash": "d6f34d2a3a970e22abeac023ddd07a7e6ecb8cbf31d07ffc9975e2b24ceb95a8"
+    },
+    {
+      "id": "B-db56:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "F-002 fix verified clean. transition-orchestrator.ts: resolveGitCwd imported, doneGitCwd resolved once at DONE block entry via resolveGitCwd({store, storyId, metadataRoot:ctx.root, projectRoot:ctx.root}), threaded correctly to acquireDoneMainMergeLock, checkMainDivergence, and autoSyncMain. done-effects.ts: comment now accurately names the sole caller and describes the routing. Contract smoke still passes: 494 files, 0 bare-cwd violations. No new dead code, unused imports, or type issues introduced by the fix. No further findings.",
+      "createdAt": "2026-06-16T22:52:03.611Z",
+      "reviewRound": "2026-06-16T22:50:56.809Z",
+      "reviewRunId": "B-db56:RR-004",
+      "_hash": "a6fd385b5cb93269bbfff2e0e91ebc94fe74dfb78b1eeb7963d0eafaf9b2f0e0"
     }
   ]
 }
