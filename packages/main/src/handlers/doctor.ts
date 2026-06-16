@@ -18,7 +18,12 @@ import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/
 import { loadConfig } from '../core/config.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { findRuntimeArtifactEntry, isRepairableTrackedRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
-import { mergeRuntimeGitignore, runtimeIgnoreMissing } from '../core/managed-assets.js';
+import {
+  AGENT_ASSET_MODE_RUNTIME_OWNED,
+  mergeRuntimeGitignore,
+  runtimeIgnoreMissing,
+  scanProjectLocalManagedAgents,
+} from '../core/managed-assets.js';
 import {
   evaluateStoryMetadataProtection,
   type StoryMetadataProbe,
@@ -56,6 +61,15 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       });
       const validation = scanValidationSetup(root);
       const runtime = runRuntimeEnvironmentChecks(root);
+      // B-097f: Claude agent prompts are runtime-owned (single source =
+      // global ~/.claude/agents). Surface the mode + any stale project-local
+      // managed agent files so historical projects are diagnosable.
+      const projectAgentScan = scanProjectLocalManagedAgents(root);
+      const agentAssets = {
+        agentAssetMode: AGENT_ASSET_MODE_RUNTIME_OWNED,
+        projectLocalManagedFiles: projectAgentScan.managedFiles,
+        hasStaleProjectLocal: projectAgentScan.managedFiles.length > 0,
+      };
       // B-1637: resolve the gitRoot ONCE and thread it as the cwd into every git
       // probe below, so wrapper-root projects (metadataRoot != gitRoot) no longer
       // print leading `fatal: not a git repository` lines. Falls back to `root`
@@ -250,12 +264,22 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             repairFailed: runtimeArtifactsRepairFailed,
             repairRequested: !!args?.repair,
           },
+          agentAssets,
         };
       }
 
       // text output
       const lines: string[] = [];
       lines.push(renderRuntimeFootprintSummary(runtime.runtimeMode));
+      lines.push('');
+      lines.push(`agentAssetMode: ${agentAssets.agentAssetMode}`);
+      if (agentAssets.hasStaleProjectLocal) {
+        lines.push(
+          `  ⚠ ${agentAssets.projectLocalManagedFiles.length} managed agent file(s) in .claude/agents shadow the global ~/.claude/agents source; run lattice init --upgrade to migrate`,
+        );
+      } else {
+        lines.push('  ✓ agent prompts resolve from the global ~/.claude/agents single source');
+      }
       lines.push('');
       lines.push(`lattice doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);

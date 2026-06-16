@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a7b0",
+  "mode": "feature",
+  "allowed": [
+    "Add a managed-asset contradiction check cross-referencing core/managed-assets.ts",
+    "Add a regression smoke task wired into the validate battery",
+    "Add an allowlist seam mirroring the existing command allowlist",
+    "Extend validate-docs-drift.ts with a path-reference drift check reusing scanPathDrift from core/audit-scan.ts"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Scope drawn from story B-a7b0 description; out-of-scope items (the one-line CLAUDE.md wording fix B-94ae, the rename B-ed70, hook generation changes) are handled by separate stories.",
+  "createdAt": "2026-06-16T20:57:32.940Z",
+  "updatedAt": "2026-06-16T20:57:32.940Z",
+  "_hash": "b3f4e2338a89c84398c4743a52e62d945757c5f6789f17a84c17ea6c198df4cd"
+}

@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Confirm and extract the two inputs: REVIEW round count and per-round blocking-finding counts",
+      "context": "Round count is already derived from story events (how many times the story entered REVIEW) in core/guard-utils.ts / core/machine.ts; the DONE summary 'REVIEW: entered N times' uses it. Findings carry reviewRound and core/review-escalation.ts already groups findings by round and computes firstReviewRound. Produce a thin read-only accessor that returns { roundCount, perRoundBlockingCounts } for a story without duplicating existing logic.",
+      "userSees": "A helper returns the current story's REVIEW round count and an ordered array of blocking-finding counts per round, sourced from existing event/finding data (verified by a smoke printing e.g. roundCount=3 perRound=[2,1,0]).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement core/review-convergence.ts pure function plus threshold constants and the advisory message builder",
+      "context": "Pure function assessReviewConvergence(roundCount, perRoundBlockingCounts) returning { stalled, message? }. Trend-based heuristic (NOT a raw round ceiling): stalled = roundCount >= STALL_MIN_ROUNDS (e.g. 4) AND the last STALL_WINDOW (e.g. 3) rounds show no downward trend in blocking counts (still surfacing new blockers, not trending toward 0). No I/O. Thresholds are module constants, no CLI/config (YAGNI). Message is English-only and includes the escalation suggestion (Debugging Contract escalation plus a dismiss-don't-re-round hint).",
+      "userSees": "assessReviewConvergence returns stalled=false for a healthy decreasing series like [2,1,0] and stalled=true with an English advisory for a flat/rising series like [2,2,1] at round 4.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Wire the advisory into the story_advance REVIEW output and add a smoke covering four cases; assert it never blocks",
+      "context": "Inject the advisory into the REVIEW-entry output in handlers/transition-effects.ts (the place that prints 'Active reviewers' / 'launch in parallel'). Optionally also surface one line in session_brief REVIEW rendering. Add a smoke (packages/main/src/tasks style) covering: (a) healthy decreasing -> no advisory, (b) stalled flat/rising -> advisory, (c) below STALL_MIN_ROUNDS -> no advisory, (d) single clean round -> no advisory; AND assert that when the advisory is present, REVIEW->TEST still succeeds (advisory-only, never a gate). Wire the smoke into the validate/test chain.",
+      "userSees": "Re-entering REVIEW on a stalled story prints the English convergence-stall advisory; lattice validate stays green with the smoke; a story showing the advisory can still advance REVIEW->TEST (proving it does not block).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

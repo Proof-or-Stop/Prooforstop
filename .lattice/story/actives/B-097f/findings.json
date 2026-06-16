@@ -1,0 +1,43 @@
+{
+  "findings": [
+    {
+      "id": "B-097f:F-001",
+      "desc": "doc-code-drift: lifecycle-artifact-scope.md §Contract point 2 and execution-plan §Implementation Status both state that `lattice agent_prompt` serves content from `promptRegistryManifest()`, but the actual implementation calls `readPromptTemplate(entry)` (reads raw file bytes from templates/agents/*.md). `promptRegistryManifest()` returns only manifest metadata (schemaVersion/source/agentCount/materialHash), not template content. The behavioral outcome (same-source read) is correct, but the API reference is wrong and could mislead a developer to call the wrong function.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-16T18:55:42.927Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-003",
+      "_hash": "91339bfd682b2f1d8553e9237c96f98283c74c7406320dbf338c199fdb595d26",
+      "files": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+        "packages/main/src/handlers/agent-prompt.ts",
+        "packages/main/src/core/prompt-registry.ts"
+      ],
+      "resolvedReason": "修正 lifecycle-artifact-scope.md 契约点2 + runtime-owned plan Implementation Status + CLAUDE.md:agent_prompt 实为 readPromptTemplate 读 templates/agents/<role>.md 原文,promptRegistryManifest() 仅是该模板集的指纹清单(元数据非正文);内容单一源仍是 templates/agents,与 Codex 同源。commit 8e... docs fix",
+      "resolvedAt": "2026-06-16T19:03:56.650Z"
+    },
+    {
+      "id": "B-097f:F-002",
+      "desc": "concept-cleanup: agent-symlink deletion incomplete: packages/main/src/cli-init.ts line 3 still imports symlinkSync and readlinkSync from fs but both symbols became unused when the [5/6] symlink-based agent sync code was replaced by the thin-shim syncGlobalAgents() approach. The import suggests symlinks are still used for agent files, misleading future readers and creating dead code.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-16T19:01:07.633Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-004",
+      "_hash": "4655f31ad72abcee22259400d61d53bb8d1eb1583e6f30e85e145b6bbdf6a5dc",
+      "files": [
+        "packages/main/src/cli-init.ts"
+      ],
+      "resolvedReason": "Removed unused symlinkSync and readlinkSync from the node:fs import in packages/main/src/cli-init.ts (both appeared only on the import line, orphaned by the symlink->thin-shim migration). Verified each remaining symbol (lstatSync at line 960 etc.) is still used so kept those. npm --prefix packages/main run build green (tsc clean); lattice validate all green (PASS).",
+      "resolvedAt": "2026-06-16T19:05:01.838Z"
+    }
+  ]
+}

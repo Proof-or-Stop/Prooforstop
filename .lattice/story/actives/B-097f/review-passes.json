@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-097f:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 18 must-intents across 6 checklist items have valid passing verificationEvidence. global-agents-unit-smoke and global-agents-init-smoke both confirmed live-pass at current HEAD. Evidence notes correctly describe thin-shim behavior (not stale symlink-era claims): CHK-001:edge:0 note refers to resolveAgentTemplateDir using fileURLToPath(import.meta.url) for template dir resolution, not symlink creation. No blocker found.",
+      "createdAt": "2026-06-16T18:53:28.482Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-002",
+      "_hash": "26d91500eb919651fe1c6bfffce8ee41c2655c4ebfc01e6a1b634033eb2713e6"
+    },
+    {
+      "id": "B-097f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed: global-agents.ts (syncGlobalAgents, extractTemplateFrontmatter, renderAgentShim, buildShimBody, listManagedAgentBasenames), agent-prompt.ts (createAgentPromptHandlers), cli-init.ts (sync/migrate/warn block), managed-assets.ts (new scan/migrate exports), doctor.ts (agentAssets block). All checks pass: (1) Dead code: no unused imports or dead functions in changed files. (2) Type safety: no unnecessary `as any`, empty catch blocks all have PROBE/best-effort comments justifying swallow intent. (3) I/O isolation: no shell file imports fn.ts; syncGlobalAgents correctly uses injectable fs deps. (4) Runtime re-validation (Handler convention): agent_prompt handler re-validates role with trim+length check before Zod path; non-writable global dir throws clear actionable error with no silent fallback; tools: frontmatter preserved verbatim; idempotency uses byte-comparison of expected vs actual shim content; replace logic correctly unlinks old symlink/full-copy then rewrites. No blockers found.",
+      "createdAt": "2026-06-16T18:54:41.907Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-001",
+      "_hash": "5e4588b6b386be42b980987531ed8a1f9e554ac8d2e4d34a913473c8071a13d9"
+    },
+    {
+      "id": "B-097f:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Checked 12 symbols from diff against 3 doc sections (lifecycle-artifact-scope.md §Policy, execution-plan.md §Implementation Status, CLAUDE.md §Agent prompt 资产). All behavioral claims verified against code: agent_prompt command exists and is registered (registry.ts:249); serves content byte-equal from templates/agents/*.md (same source as Codex); thin-shims write to ~/.claude/agents via syncGlobalAgents; cli-init.ts line 545 confirms zero project agent files written; --upgrade migration uses migrateProjectLocalManagedAgents which deletes only managed basenames and preserves user files; doctor.ts reports agentAssetMode: runtime-owned (AGENT_ASSET_MODE_RUNTIME_OWNED constant). 16 template count confirmed. One medium finding registered (F-001): doc says agent_prompt reads from promptRegistryManifest() but code calls readPromptTemplate(entry) — behavioral outcome correct, internal API reference wrong.",
+      "createdAt": "2026-06-16T18:56:07.558Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-003",
+      "_hash": "a525bb1cdf29d1740e26fffe728dcaad7649864ba9aaeace4693a63e9de5a182"
+    },
+    {
+      "id": "B-097f:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. F-002 fix verified: symlinkSync and readlinkSync fully removed from cli-init.ts import line (line 3 of the new diff). No dangling references to the old symlink-based agent deployment approach remain in any story-introduced files. Remaining symlinkSync/readlinkSync occurrences across the codebase (worktree-repair-smoke.ts, dispatch-run-smoke.ts, flow-stability-smoke.ts, storydir-inside-gitroot-smoke.ts, worktree.ts) are all pre-existing, unrelated to agent file deployment, and used legitimately for their own purposes (worktree dir symlinks, test fixtures). Comments in global-agents.ts and cli-init.ts mentioning symlink are explanatory design-pivot notes (symlink-is-NOT-used rationale), not residue. No concept deletion/replacement residue found; no new findings.",
+      "createdAt": "2026-06-16T19:06:45.540Z",
+      "reviewRound": "2026-06-16T19:05:43.534Z",
+      "reviewRunId": "B-097f:RR-005",
+      "_hash": "920ae29d1b223552c3fc1183449cdf750c7abd0f87ae6365ff68af49d6076a8a"
+    },
+    {
+      "id": "B-097f:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage review passed: all 18 must-intents across 6 checklist items remain concretely covered at HEAD c9760d789. Evidence is flagged stale by headHash only because F-001 (docs wording clarification) and F-002 (dead import removal) landed after evidence was recorded — neither changes the covered behaviors. Both smoke tests (global-agents-unit-smoke and global-agents-init-smoke) pass at current HEAD. No coverage gaps found.",
+      "createdAt": "2026-06-16T19:07:26.803Z",
+      "reviewRound": "2026-06-16T19:05:43.534Z",
+      "reviewRunId": "B-097f:RR-007",
+      "_hash": "58252ed32734151be20694030c9bf25543257bdd524993f2c206c15b097fb2e9"
+    },
+    {
+      "id": "B-097f:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review of global-agents.ts, agent-prompt.ts, cli-init.ts. (1) symlinkSync/readlinkSync fully removed from cli-init.ts imports and call sites — tsc build clean, no residual usage. (2) All 4 new imports (migrateProjectLocalManagedAgents, scanProjectLocalManagedAgents, resolveAgentTemplateDir, syncGlobalAgents) are called; zero dead imports. (3) global-agents.ts: two empty catch blocks are intentional expected-error patterns (lstat path-not-found → linkPresent=false; readFileSync on existing non-symlink fail → treat as mismatch), not silent swallowing; all other catches rethrow with actionable messages. (4) agent-prompt.ts: runtime role re-validation (trim+length check) is present at lines 44-49 as required by Handler encoding convention. (5) Record<string,(...args:any[])=>any> handler type is the universal registry contract used identically across all handlers. (6) No as-any in live code of the three files; the one as-any in cli-init.ts line 717 is inside a generated-file string literal, not live logic. No dead code, no empty catches that swallow real errors, no type safety regressions.",
+      "createdAt": "2026-06-16T19:07:46.439Z",
+      "reviewRound": "2026-06-16T19:05:43.534Z",
+      "reviewRunId": "B-097f:RR-006",
+      "_hash": "cef7becfea8ae69597f89ed6fd39532981ff25cc1a070990a517b5acfdc67c1b"
+    },
+    {
+      "id": "B-097f:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review: 12 symbols extracted from diff (agent_prompt handler + prompt-registry.ts). 3 doc paragraphs compared: (1) CLAUDE.md §Agent prompt 资产：host-neutral 单一源 (2) lifecycle-artifact-scope.md §Contract point 2 (3) execution-plan.md §Implementation Status. All three correctly state readPromptTemplate reads the body, promptRegistryManifest() is metadata/fingerprint only, agent_prompt lists available roles on unknown role, 16 shims match actual template count. The R1 F-001 fix is confirmed in place. No blockers.",
+      "createdAt": "2026-06-16T19:08:31.625Z",
+      "reviewRound": "2026-06-16T19:05:43.534Z",
+      "reviewRunId": "B-097f:RR-008",
+      "_hash": "cbce4227e07fd18ca8c8633a8fae098a3b67035fea49ff5f688f9dbcf4764295"
+    }
+  ]
+}

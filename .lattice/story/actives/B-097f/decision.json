@@ -1,0 +1,85 @@
+{
+  "principles": [
+    "prompt 内容 host-neutral 单一源:只在包内 registry,绝不物化进任何宿主目录(symlink 也不行)",
+    "宿主只留 thin 适配:Claude=thin-shim(注册+tools+指针),Codex=registry manifest;形状随宿主加载器,内容同源",
+    "lattice agent_prompt 为唯一内容端点,从 promptRegistryManifest() 吐正文,两宿主字面同源",
+    "保留 subagent_type spawn + tools 沙箱;不改 gate/finding/scope 机制",
+    "资产操作幂等;迁移显式且只删管理 basename,绝不破坏用户文件或自举仓"
+  ],
+  "drivers": [
+    "用户硬约束:Lattice 是 host-neutral / non-host 机制,prompt 内容不能绑死在某个宿主目录下",
+    "用户目的:改 Lattice 后所有项目/宿主即时一致 + init 不再生成那么多 .md",
+    "平台约束:Claude Code 必须每 subagent 一个磁盘文件来注册类型+tools;Codex 靠单清单解析"
+  ],
+  "options": [
+    {
+      "name": "A symlink 全量模板到全局",
+      "pros": [
+        "改动最小,reviewer 零改"
+      ],
+      "cons": [
+        "prompt 内容仍 resolve 到 ~/.claude/ 下,非纯 host-neutral",
+        "对 Codex 无价值"
+      ]
+    },
+    {
+      "name": "B thin-shim + lattice agent_prompt 共享端点",
+      "pros": [
+        "prompt 内容只在 registry,宿主目录零内容(纯 host-neutral)",
+        "Claude shim 取的与 Codex manifest 指的同一 registry",
+        "保留 tools 沙箱",
+        "项目 0 文件",
+        "改 Lattice 运行时即时生效"
+      ],
+      "cons": [
+        "需新建 agent_prompt 命令",
+        "reviewer 第一步改为取 prompt,取不到是新脆弱点"
+      ]
+    },
+    {
+      "name": "C 彻底取消 subagent_type 内联吐 prompt",
+      "pros": [
+        "磁盘零 agent 文件"
+      ],
+      "cons": [
+        "丢失宿主 tools 沙箱",
+        "重构整个 reviewer 调用流,回归面大"
+      ]
+    }
+  ],
+  "chosen": "B thin-shim + lattice agent_prompt 共享端点",
+  "rationale": "B 满足用户 host-neutral 硬约束:prompt 内容只在 registry,宿主目录(Claude shim / Codex manifest)零内容、两者同源;同时保留 tools 沙箱、项目 0 文件、改 Lattice 即时一致。A 的 symlink 仍把内容暴露在宿主目录下不够纯;C 丢沙箱且回归面过大。用户在三轮架构对话后明确选 B。",
+  "preMortem": [
+    {
+      "scenario": "shim body 不被执行,reviewer 没取到角色正文就乱跑或缺指令",
+      "trigger": "被 spawn 的 agent 忽略 shim 的 fetch 指令",
+      "consequence": "reviewer 行为退化/缺失,REVIEW 失真",
+      "mitigation": "shim body 命令式 FIRST run lattice agent_prompt --role=X，that IS your instructions;主 agent dispatch prompt 同样注明;本 session INIT/scope reviewer 已证实 fetch-then-follow 可行"
+    },
+    {
+      "scenario": "agent_prompt 与 Codex registry 解析不同源,两宿主 prompt 漂移",
+      "trigger": "agent_prompt 自己读模板文件而非 promptRegistryManifest()",
+      "consequence": "Claude 与 Codex 拿到不同 prompt,违背单一源",
+      "mitigation": "agent_prompt 必须调 promptRegistryManifest();smoke 断言 agent_prompt 输出 byte-equal registry body"
+    },
+    {
+      "scenario": "迁移误删用户自建 agent 或普通 init 静默删文件",
+      "trigger": "--upgrade 通配清空 / 普通 init 误删",
+      "consequence": "破坏用户资产 / 违反 Phase 4 显式迁移",
+      "mitigation": "只删 16 个精确 managed basename,普通 init 仅 warn,删除仅 --upgrade,逐条 log,用户文件保留"
+    },
+    {
+      "scenario": "改本 dev 仓自身 .claude/agents 成 shim 但 agent_prompt 未 build,本 story 的 REVIEW reviewer 加载失败(自举断裂)",
+      "trigger": "story DEV 中途把 dev 仓 reviewer 文件改薄",
+      "consequence": "本 story 无法过 REVIEW,自举死锁",
+      "mitigation": "先 build 出 agent_prompt;dev 仓现有 .claude/agents 迁移只在显式 --upgrade 做,不在本 story DEV 中途破坏;REVIEW 前确认 reviewers 仍可加载"
+    },
+    {
+      "scenario": "全局 shim 写不进(HOME 不可写)时静默回退 project-local,重新 .md 泛滥",
+      "trigger": "受限环境 HOME 只读",
+      "consequence": "两目的都没达成且无感知",
+      "mitigation": "明确报错 + 可操作提示,不静默回退"
+    }
+  ],
+  "timestamp": "2026-06-16T18:24:14.400Z"
+}

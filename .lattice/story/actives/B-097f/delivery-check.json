@@ -1,0 +1,103 @@
+{
+  "storyId": "B-097f",
+  "checkedAt": "2026-06-16T19:16:34.300Z",
+  "reviewRound": "2026-06-16T19:05:43.534Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Policy: host-neutral prompt content, thin host adapters (B-097f)",
+      "promise": "Point 1: Prompt content never lives under a host — Claude shim is content-free, body not copied or symlinked",
+      "verifiedBy": "diff/grep",
+      "evidence": "global-agents.ts buildShimBody() constructs a body with only a CLI-fetch instruction and no role body. extractTemplateFrontmatter() parses only frontmatter fields. renderAgentShim() embeds frontmatter+shim body. unit-smoke asserts doesNotMatch role body content. init-smoke verified 16 global shims as regular files (not symlinks) with no role body content."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Policy: host-neutral prompt content, thin host adapters (B-097f)",
+      "promise": "Point 2: lattice agent_prompt --role=<name> is the shared content endpoint; reads package registry template byte-for-byte",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/agent-prompt.ts createAgentPromptHandlers() calls readPromptTemplate(entry) reading templates/agents/<role>.md. Registered in registry.ts and cli-engine.ts (READ_ONLY_COMMANDS). init-smoke Test (b) asserts byte-equality between CLI output and readPromptTemplate() for all 16 roles. Real-machine: node dist/cli.js agent_prompt --role=lattice-implementer confirmed registry body output."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Policy: host-neutral prompt content, thin host adapters (B-097f)",
+      "promise": "Point 3: Shims live in global ~/.claude/agents; init writes zero project agent files",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli-init.ts removed .claude/agents from dirs[] array. syncGlobalAgents() writes shims to HOME/.claude/agents. Real-machine: Project .claude/agents count=0, Global shim count=16, Symlink count=0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Policy: host-neutral prompt content, thin host adapters (B-097f)",
+      "promise": "Point 4: tools sandbox preserved — shim keeps tools: frontmatter verbatim",
+      "verifiedBy": "diff/grep",
+      "evidence": "extractTemplateFrontmatter() in global-agents.ts extracts verbatim YAML frontmatter including tools: field (comment: kept VERBATIM). renderAgentShim() embeds verbatim frontmatter. unit-smoke and init-smoke both assert tools: present in each shim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Policy: host-neutral prompt content, thin host adapters (B-097f)",
+      "promise": "Point 5: Migration is explicit, never silent — normal init WARNs; --upgrade removes only managed basenames and preserves user files",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli-init.ts: scanProjectLocalManagedAgents() detects managed files. Without --upgrade: prints warning and does not delete. With --upgrade: calls migrateProjectLocalManagedAgents() which only unlinks scan.managedFiles (exact basename set). init-smoke Test (c): normal init warns, deletes 0; --upgrade migrates 16 and leaves only my-custom.md byte-for-byte."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Policy: host-neutral prompt content, thin host adapters (B-097f)",
+      "promise": "Point 6: Project-level .claude/agents shadows user-level; stale project-local files removed under --upgrade for global shims to take effect",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli-init.ts comment: B-097f CHK-004: project-local .claude/agents shadows the global single source. migrateProjectLocalManagedAgents() removes only managed basenames. Shadowing rationale documented in lifecycle-artifact-scope.md. --upgrade behavior verified in init-smoke Test (c)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Policy: host-neutral prompt content, thin host adapters (B-097f)",
+      "promise": "Point 7: lattice doctor reports agentAssetMode: runtime-owned",
+      "verifiedBy": "diff/grep",
+      "evidence": "managed-assets.ts exports AGENT_ASSET_MODE_RUNTIME_OWNED=runtime-owned. doctor.ts imports it, builds agentAssets block, pushes agentAssetMode: ${agentAssets.agentAssetMode} to output. Real-machine: node dist/cli.js doctor confirmed agentAssetMode: runtime-owned."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md#Implementation Status",
+      "promise": "Codex side landed B-4ee0: promptMode=registry, no .Codex/agents materialization in global-thin/thin mode",
+      "verifiedBy": "pre-existing",
+      "evidence": "Pre-existing from B-4ee0, not introduced by B-097f. The Implementation Status section added in this diff documents the B-4ee0 state as already landed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md#Implementation Status",
+      "promise": "Claude side landed B-097f: thin-shim content-free files; zero project .claude/agents; explicit --upgrade migration; doctor reports agentAssetMode: runtime-owned",
+      "verifiedBy": "diff/grep",
+      "evidence": "Full thin-shim implementation in packages/main/src/core/global-agents.ts (336 lines new file) and packages/main/src/handlers/agent-prompt.ts (66 lines new file). cli-init.ts [5/6] block rewritten. doctor.ts extended. All 4 behaviors verified by real-machine tests."
+    },
+    {
+      "docPath": "CLAUDE.md#Agent prompt 資産：host-neutral 單一源（B-097f）",
+      "promise": "Section added documenting: prompt body single source in registry; no host materializes body; agent_prompt command; init writes 0 project files; 16 global thin-shims; normal init WARNs; --upgrade migrates; doctor reports agentAssetMode: runtime-owned",
+      "verifiedBy": "diff/grep",
+      "evidence": "CLAUDE.md diff shows new section with all 7 stated bullet points. Content matches actual implementation verified by real-machine tests."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002",
+      "transcript": "global-agents-unit-smoke.ts: happy (fresh sync writes thin-shim regular file with tools sandbox + CLI-fetch body, no role body); idempotent (second run skips all, outcome=shim ok); replacement (old full-content copy and old symlink both replaced); broken link (replaced); adversarial non-writable global dir (throws clear error, states will not fall back); adversarial missing template dir (throws). init-smoke Test (b): agent_prompt --role=<name> output byte-equal to readPromptTemplate() for all 16 roles. Real-machine node dist/cli.js agent_prompt confirmed correct output."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "global-agents-init-smoke.ts Test (a): fresh project after init has 0 .claude/agents/*.md; global HOME/.claude/agents has 16 managed basenames as regular files (not symlinks); each shim has tools: frontmatter; body contains lattice agent_prompt --role= and thin pointer; no role body marker. Real-machine: Project count=0, Global count=16, Symlinks=0. Test (d): idempotent re-run reports synced=0, ok=16, replaced=0."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "global-agents-init-smoke.ts Test (c): pre-seeds 16 managed + 1 user file. Normal init: output warns managed agent files found in .claude/agents and points at --upgrade; project still has 17 files. --upgrade: output confirms migrated 16 managed agent file(s) to global; remaining = [my-custom.md] only; user file content preserved byte-for-byte."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "lifecycle-artifact-scope.md section verified in diff. Behavioral contract verified via CHK-002/CHK-003/CHK-004 smoke tests.",
+      "waiverReason": "CHK-001 is a pure documentation/contract artifact finalizing the policy document. No separate machine test is possible for document-only work; the contract it defines is mechanically verified by CHK-002/CHK-003/CHK-004 smoke tests."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "CLAUDE.md, lifecycle-artifact-scope.md, and lattice-runtime-owned-agent-assets-execution-plan.md diffs all show the new documentation sections. Content accuracy confirmed by real-machine tests for CHK-002/CHK-003/CHK-004.",
+      "waiverReason": "CHK-005 is a pure documentation update. Document presence confirmed in diff; content accuracy verified by the implementation smoke tests for the features the docs describe."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "global-agents-unit-smoke.ts (259 lines): injectable-fs unit tests covering happy/idempotent/replacement/broken-link/non-writable-global/missing-template — all with assert.ok/assert.equal/assert.match assertions. global-agents-init-smoke.ts (168 lines): real-machine integration tests spawning actual CLI process with temp HOME, covering fresh-init/byte-equal/upgrade-migration/idempotent paths. Both new files in diff. Real-machine node dist/cli.js commands confirmed correct behavior independently."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 10 docsPromises verified from the diff and real-machine execution. Unit smoke covers happy/idempotent/replacement/broken-link/adversarial paths. Integration smoke covers fresh-init/byte-equal/upgrade-migration/idempotency with temp HOME safety. No TODO/FIXME/HACK in any implementation file. All 7 lifecycle-artifact-scope.md contract points fully implemented: content-free shims, agent_prompt shared endpoint, zero project files, tools sandbox preserved, explicit migration, shadowing documented, doctor observability."
+  },
+  "_hash": "7e9edab1a38f844f626615cd58c1b1e9a64ed66fa041141866d171852d7eff1f"
+}
