@@ -756,9 +756,9 @@
       "id": "CHK-007",
       "title": "Multi-provider: raw fidelity + normalized canonical view",
       "context": "Resolve the tension between 'preserve provider-specific units' and 'cross-source summaries' by requiring BOTH: keep the raw provider units/payload digest AND a normalized canonical {input, output, cacheCreation, cacheRead} view, with explicit mapping rules for how each provider's cache/cached-token fields map to the canonical cache fields.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-15T23:53:36.094Z",
-      "endTime": null,
+      "endTime": "2026-06-16T00:00:09.579Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
