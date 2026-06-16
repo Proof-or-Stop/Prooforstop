@@ -4,33 +4,1058 @@
       "id": "CHK-001",
       "title": "Flip the writer default to ON; keep the explicit-OFF escape hatch",
       "context": "In core/usage-ledger/writer.ts isUsageLedgerEnabled(): when LATTICE_USAGE_LEDGER (fallback KOALA_USAGE_LEDGER) is UNSET/undefined, return true (default ON). Keep the existing truthy/falsey parsing so 0/false/off/no/'' explicitly DISABLE. Default ON; explicit OFF respected. Unit-tested: unset -> true; '0'/'false'/'off'/'no' -> false; '1'/'true'/'on'/'yes' -> true.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T22:28:38.446Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/usage-ledger/writer.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "isUsageLedgerEnabled({}) === true (unset env returns ON by default); WHY: the core behavioral flip, must return true when LATTICE_USAGE_LEDGER is absent",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"1\"}) === true; WHY: explicit ON still works after flip",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"true\"}) === true; WHY: truthy string parsed as enabled",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"on\"}) === true; WHY: truthy on parsed as enabled",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"yes\"}) === true; WHY: truthy yes parsed as enabled",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"0\"}) === false; WHY: escape hatch explicit 0 disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"false\"}) === false; WHY: explicit false disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"off\"}) === false; WHY: explicit off disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"no\"}) === false; WHY: explicit no disables",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({KOALA_USAGE_LEDGER:\"1\"}) === true; WHY: legacy KOALA_ alias honored as fallback",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({KOALA_USAGE_LEDGER:\"0\"}) === false; WHY: KOALA_ alias escape hatch works",
+            "type": "cli"
+          },
+          {
+            "desc": "writer.ts comment updated from Default OFF to Default ON with escape-hatch note; WHY: doc accuracy",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"\"}) === false; WHY: empty string is falsy edge case, maps to disabled not the unset default-ON path",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\" 1 \"}) === true; WHY: whitespace-padded truthy value is trimmed",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\" FALSE \"}) === false; WHY: case-insensitive + trimmed falsy",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_ takes precedence over KOALA_ when both set: {LATTICE:0,KOALA:1} => false; WHY: LATTICE_ wins ?? chain",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"2\"}) === false; WHY: only 1/true/on/yes are truthy, random numeric must not enable",
+            "type": "cli"
+          },
+          {
+            "desc": "isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"enabled\"}) === false; WHY: word that sounds truthy but not in allowed set must not enable",
+            "type": "cli"
+          },
+          {
+            "desc": "Re-read on every call (not memoized): env=0 => false, delete env => true, env=1 => true in sequence; WHY: process-lifetime toggle without restart",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:6",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:7",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:8",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:9",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:10",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:11",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.894Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default flip verified: writer.ts isUsageLedgerEnabled() returns true on unset env; \"Default OFF\" comment updated. Covered by usage-ledger-default-on smoke + committed verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Escape-hatch regression proof: =0 restores legacy behavior",
       "context": "Prove that LATTICE_USAGE_LEDGER=0 restores the exact pre-rollout default-off behavior: isUsageLedgerEnabled()=false; appendUsageRecord is a strict no-op (no file/dir created); the Claude seam (runClaudeCodeRealLeafDispatch) uses the original spawn args ['--print', promptFile] (buildClaudeSpawnArgs(file,false)) and raw stdout; the budget guard is inert (no block); recordDispatchPreflight/Final no-op. Byte-identical to the historical default-off. Tested explicitly with the env var set to 0.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T22:28:39.088Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:\"0\"}) === false; WHY: escape hatch returns disabled, same as pre-rollout default",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => appendUsageRecord is strict no-op: call 10 times, no file created, no .lattice dir created; WHY: writer creates zero side effects when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => buildClaudeSpawnArgs(promptFile,false) === [\"--print\",promptFile]; WHY: spawn args are byte-identical to pre-rollout (no --output-format json)",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => recordDispatchPreflight returns null, writes nothing; WHY: preflight is strict no-op when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => recordDispatchFinal returns immediately, writes nothing; WHY: final is strict no-op when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => resolveHardBudget with env lacking LATTICE_HARD_BUDGET_TOKENS returns null; shouldBlockDispatch(false,...) returns {block:false,budget:null}; WHY: budget guard is inert when ledger disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 + LATTICE_HARD_BUDGET_TOKENS=1000 => shouldBlockDispatch(false,...,999) still {block:false}; WHY: even with a budget configured, disabled ledger means no block",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => recordBudgetBlock returns notBlocked even when LATTICE_HARD_BUDGET_TOKENS is set and estimate exceeds it; WHY: the full orchestrator path short-circuits on disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 => no .lattice/usage/ directory after appendUsageRecord + recordDispatchPreflight + recordDispatchFinal + recordBudgetBlock in sequence; WHY: the entire pipeline leaves zero filesystem trace",
+            "type": "cli"
+          },
+          {
+            "desc": "KOALA_USAGE_LEDGER=0 (legacy alias) produces same byte-identical no-op as LATTICE_USAGE_LEDGER=0; WHY: legacy alias escape hatch parity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After flipping default ON, run the FULL escape-hatch sequence with env=0: isUsageLedgerEnabled=false, append 10x no-op, preflight null, final no-op, budget inert, buildClaudeSpawnArgs=[--print,file] — confirm every observable is byte-identical to pre-rollout behavior; WHY: end-to-end regression proof that the escape hatch restores EXACT legacy behavior",
+            "type": "cli"
+          },
+          {
+            "desc": "With env=0, attempt appendUsageRecord with a valid record containing actual data — confirm {written:false} and zero bytes on disk; WHY: even with a perfect record the writer must not sneak a write through when disabled",
+            "type": "cli"
+          },
+          {
+            "desc": "With env=0, confirm parseClaudeCliOutput is still callable (pure function, no gate) but the seam never reaches it because buildClaudeSpawnArgs omits --output-format json; WHY: the disabled path never produces JSON output to parse",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:6",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Escape hatch: LATTICE_USAGE_LEDGER=0 => writer no-op + buildClaudeSpawnArgs(file,false)=[--print,promptFile] + inert budget (byte-identical legacy). Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Default-on behavior + safety holds",
       "context": "With the env var UNSET: isUsageLedgerEnabled()=true; appendUsageRecord writes; the Claude seam uses --output-format json with the B-0f7c raw-text fallback on parse failure; ledger errors are caught and never break dispatch; budget is NOT auto-enabled (no LATTICE_HARD_BUDGET_TOKENS => no block). Tested: unset env => writer writes + the seam's enabled path is taken + a parse failure still yields raw text + a ledger error does not propagate.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T22:28:39.736Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Env UNSET => isUsageLedgerEnabled({}) === true => appendUsageRecord writes a valid JSONL line to .lattice/usage/llm-usage.jsonl; WHY: default-on means unset env triggers actual writes",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => recordDispatchPreflight returns a DispatchPreflightHandle with correlation+estimateRecordId+estimatedInputTokens, appends 1 estimate record; WHY: preflight is active on default-on path",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => recordDispatchFinal with valid anthropicUsage appends a provider-reported record (sequence 2, supersedes estimate); WHY: final records usage on the enabled path",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => buildClaudeSpawnArgs(file,true) === [\"--print\",file,\"--output-format\",\"json\"]; WHY: enabled path adds --output-format json for the JSON envelope",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on valid JSON envelope => extracts resultText + anthropicUsage + model; WHY: the enabled seam path parses the JSON envelope correctly",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on non-JSON raw text => returns {resultText: rawText, anthropicUsage: null, model: null} (B-0f7c fallback); WHY: parse failure degrades gracefully to raw text",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET + NO LATTICE_HARD_BUDGET_TOKENS => resolveHardBudget returns null, shouldBlockDispatch(true,env,anyEstimate) => {block:false}; WHY: default-on does NOT auto-enable budget blocking",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parseClaudeCliOutput on JSON object missing .result => resultText is raw JSON string, anthropicUsage extracted if present; WHY: partial envelope still extracts usage even without result field",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on JSON array => raw fallback (array is not a valid envelope); WHY: edge case for JSON that parses but is wrong shape",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on empty string => {resultText:\"\", anthropicUsage:null, model:null}; WHY: empty stdout edge case degrades gracefully",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => appendUsageRecord with a record that causes writer to throw (corrupt last line) does NOT propagate through recordDispatchPreflight (returns null); WHY: ledger error never breaks dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => recordDispatchFinal swallows any appendUsageRecord error and returns void (no throw); WHY: ledger error in final never propagates to caller",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Env UNSET => simulate ledger write failure (e.g. corrupt last line in existing ledger) then call recordDispatchPreflight: returns null (no throw) and dispatch can proceed; WHY: a ledger corruption must never block or crash dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET => simulate recordDispatchFinal throwing internally (corrupt chain): the try/catch swallows it, caller sees void return; WHY: post-dispatch ledger error must not crash the process",
+            "type": "cli"
+          },
+          {
+            "desc": "Env UNSET + LATTICE_HARD_BUDGET_TOKENS=500 => shouldBlockDispatch(true,env,501) blocks, but shouldBlockDispatch(true,env,500) does NOT block (strict exceed, not >=); WHY: boundary condition — budget block is strictly greater-than, not greater-or-equal",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput on deeply nested malicious JSON (1000-level nesting) => does not throw, returns raw fallback; WHY: adversarial input must not crash the parser",
+            "type": "cli"
+          },
+          {
+            "desc": "parseClaudeCliOutput with usage.input_tokens as string \"100\" => anthropicUsage is null (type coercion attack rejected); WHY: type-confused usage must not produce a bad record",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:6",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Default-on behavior+safety: unset => writes + seam enabled path + raw-text fallback on parse failure + ledger error swallowed + NO budget block. Covered by default-on smoke + verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Smoke wired + no regression + doc/default note",
       "context": "Add packages/main/src/tasks/usage-ledger-default-on-smoke.ts (or extend an existing smoke; follow the *-smoke.ts pattern; ✓/✗, non-zero exit; temp dir; restore env hermetically) wired as an npm script, covering CHK-001/002/003. Update any doc/comment that states the flag default (e.g. a comment in writer.ts or a ledger doc) to reflect default-on + the =0 escape hatch. Build green; full ledger suite (usage-ledger/-adapter/-estimate/-diagnostics/-dispatch/-budget/-authority) passes with the NEW default; node bin/lattice.js validate. Assert usage-ledger still imports zero other modules.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T22:28:40.371Z",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/usage-ledger-smoke.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Existing usage-ledger-smoke.ts assertion updated: isUsageLedgerEnabled({}) now asserts === true (was false); WHY: the existing smoke must reflect the new default",
+            "type": "cli"
+          },
+          {
+            "desc": "writer.ts comment updated from \"Default OFF\" to \"Default ON\" with LATTICE_USAGE_LEDGER=0 escape-hatch note; WHY: in-code doc must be accurate",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-default-on-smoke.ts exists, follows *-smoke.ts pattern (check/label, non-zero exit on fail, temp dir, env restore); WHY: new smoke wired per convention",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-default-on-smoke.ts wired as npm script in packages/main/package.json; WHY: must be runnable via npm run",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run usage-ledger-default-on-smoke exits 0; WHY: the new smoke passes",
+            "type": "cli"
+          },
+          {
+            "desc": "FULL ledger suite passes: npm run usage-ledger-smoke + usage-ledger-adapter-smoke + usage-ledger-estimate-smoke + usage-ledger-diagnostics-smoke + usage-ledger-dispatch-smoke + usage-ledger-budget-smoke + usage-ledger-authority-smoke all exit 0 with the new default; WHY: no regression across the entire ledger module",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build (tsc) exits 0; WHY: no type errors introduced",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js validate exits 0; WHY: lattice validation passes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "usage-ledger module zero cross-module import: grep core/usage-ledger/*.ts for imports outside core/usage-ledger/ and node: builtins => zero matches; WHY: the module isolation invariant still holds after changes",
+            "type": "cli"
+          },
+          {
+            "desc": "Env mutations in usage-ledger-default-on-smoke.ts are hermetic: process.env is saved before and restored after each test block (save/restore pattern or equivalent); WHY: smoke must not leak env state to subsequent tests or the host shell",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-default-on-smoke.ts uses a temp directory (mkdtempSync under os.tmpdir()) and cleans up in finally block; WHY: no repo pollution from test artifacts",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the FULL ledger suite with LATTICE_USAGE_LEDGER explicitly unset (env var deleted) to confirm all 7+ smokes pass under the new default-on behavior without any env override; WHY: the suite must work with the real production default, not just with explicit env=1",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the FULL ledger suite with LATTICE_USAGE_LEDGER=0 to confirm all smokes still pass under the escape-hatch disabled mode; WHY: the suite must also be green when an operator disables the ledger",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm existing usage-ledger-smoke.ts CHK-006 flag test is updated but NOT removed — the assertion line still exists but now asserts true instead of false; WHY: the existing test coverage must be preserved, not deleted",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:6",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:7",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "command": "node .lattice/story/actives/B-1b28/evidence/verify-b-1b28.mjs",
+          "result": "pass",
+          "note": "Smoke wired (test:usage-ledger-default-on) + existing smokes updated for new default; FULL ledger suite green with new default; scope clean; zero cross-module imports; build OK. Covered by verifier.",
+          "headHash": "1112744dc89661b83b9545b38c0804df74b01ea7",
+          "materialHash": "2654204fe46977411137b23af6d105a3842b6d0065ba44b49a03d3073ecf5281",
+          "timestamp": "2026-06-16T22:40:07.895Z"
+        }
+      ]
     }
   ]
 }
