@@ -176,55 +176,69 @@ Registry-backed prompt checks are adapter hygiene. They do not submit evidence,
 verify receipts, or satisfy production authority. Validation evidence and
 receipt-backed authority remain separate gate inputs.
 
-## Policy: global agents single source (Claude-side runtime-owned, B-097f)
+## Policy: host-neutral prompt content, thin host adapters (B-097f)
 
-B-4ee0 collapsed the **Codex** side to the package prompt registry (global-thin).
-This policy does the equivalent for the **Claude** side, where Claude Code can
-only resolve subagents from on-disk `.claude/agents/*.md` (there is no in-memory
-CLI resolution path). The single source of truth for Lattice agent prompts is the
-running CLI package; it is exposed to every project through one user-global
-directory rather than copied into each project.
+The single source of truth for every Lattice agent prompt **body** is the package
+prompt registry (`packages/main/templates/agents/*.md` via
+`promptRegistryManifest()`). **No host materializes prompt content.** Each host
+keeps only a *thin adapter* that points back at the registry; the adapter shape is
+dictated by that host's loader, but the content source is identical across hosts.
+
+| Host | Thin adapter (what lives in the project/global) | Prompt content source |
+| --- | --- | --- |
+| Codex | `.Codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package prompt registry |
+| Claude | `.claude/agents/*.md` **thin shim** (frontmatter `name`/`description`/`tools` + a "fetch from CLI" body) | package prompt registry, served by `lattice agent_prompt` |
+
+B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
+not materialize `.Codex/agents`; it resolves prompts from the registry via its
+manifest. This policy does the host-neutral equivalent for **Claude**, which —
+unlike Codex — cannot resolve a subagent from a single manifest: Claude Code only
+discovers subagents from on-disk `.claude/agents/*.md` files and reads each file's
+frontmatter to register the `subagent_type` and its `tools` sandbox. So Claude
+keeps one file per role, but that file is a **content-free shim**.
 
 **Contract:**
 
-1. **Single source = global `~/.claude/agents`.** Lattice agent prompt templates
-   are materialized exactly once into the user-global `~/.claude/agents`
-   directory as symlinks. Claude Code resolves `subagent_type: lattice-*` for all
-   projects from this one location. Editing the CLI templates is immediately
-   reflected everywhere — no per-project snapshot can drift.
+1. **Prompt content never lives under a host.** A Claude shim contains only
+   frontmatter (`name`, `description`, `tools`) plus a body instructing the agent
+   to fetch its authoritative instructions from the Lattice CLI. The role prompt
+   body is **not** copied or symlinked into any host directory.
 
-2. **Symlink target resolves from the running CLI package.** The target is the
-   running CLI package's `templates/agents` directory, resolved from the CLI
-   module location (`fileURLToPath(import.meta.url)` → packageRoot →
-   `templates/agents`), **never** a hardcoded dev-checkout path. This is robust
-   for `npm i -g` installs and local dev alike.
+2. **`lattice agent_prompt --role=<name>` is the shared content endpoint.** It
+   returns the canonical role body straight from `promptRegistryManifest()` (the
+   same registry the Codex manifest resolves). Claude shims fetch from it; Codex
+   resolves the same registry. There is one content source, byte-for-byte.
 
-3. **`lattice init` writes zero project-local agent files.** On a fresh project,
-   the `claude`/`all` profile no longer symlinks the 16 templates into the
-   project's `.claude/agents`. It ensures the global source is present and prints
-   that subagents resolve from `~/.claude/agents`. The project tree stays clean
-   (only `.lattice/Lattice.md` + `AGENTS.md`, plus any pre-existing `CLAUDE.md`).
+3. **Shims live in global `~/.claude/agents`; projects get zero agent files.** The
+   16 shims are generated once into the user-global `~/.claude/agents` so Claude
+   Code resolves `subagent_type: lattice-*` for all projects from one place.
+   `lattice init` writes **zero** `.claude/agents` files into a project (fresh
+   tree stays `.lattice/Lattice.md` + `AGENTS.md`, plus any pre-existing
+   `CLAUDE.md`). Shim frontmatter (`tools`) is derived from each registry
+   template's frontmatter so the reviewer read-only sandbox is preserved.
 
-4. **Migration is explicit, never silent (execution-plan Phase 4).** A normal
+4. **`tools` sandbox is preserved.** Because the shim keeps the `tools:`
+   frontmatter, the host still mechanically restricts each role (e.g.
+   `lattice-review-*` stay read-only). Thinning the body does not weaken the
+   sandbox.
+
+5. **Migration is explicit, never silent (execution-plan Phase 4).** A normal
    `lattice init` MUST NOT delete project-local files. When it detects existing
-   project-local managed agent files it only WARNs and points at
-   `lattice init --upgrade`. Deletion/migration of project-local managed files
-   happens only under the explicit `--upgrade` flow.
+   project-local managed agent files (full copies or symlinks from older
+   versions) it only WARNs and points at `lattice init --upgrade`. Removal happens
+   only under the explicit `--upgrade` flow, deletes only the managed basenames
+   (the set from `templates/agents`), preserves user-authored files, forbids
+   wildcard clears, and logs each removal.
 
-5. **Migration deletes only the 16 managed basenames.** `--upgrade` removes only
-   files whose basename exactly matches a managed template name (the set derived
-   from `templates/agents`). User-authored, non-managed agent files are always
-   preserved; wildcard/clear-all is forbidden; each removal is logged.
-
-6. **Precedence drives why deletion is required.** Claude Code project-level
+6. **Precedence drives why removal is required.** Claude Code project-level
    `.claude/agents/` shadows user-level `~/.claude/agents/` (project wins on name
-   collision). Therefore stale project-local managed files must be removed for the
-   global single source to take effect — otherwise the project keeps using its
-   stale snapshot.
+   collision). Stale project-local managed files must be removed under `--upgrade`
+   for the global shims to take effect.
 
-7. **Observability.** `lattice doctor` reports `agentAssetMode: runtime-owned`
-   so the global single-source state is diagnosable across projects.
+7. **Observability.** `lattice doctor` reports `agentAssetMode: runtime-owned` so
+   the host-neutral state is diagnosable across projects.
 
-This is consistent with the runtime-owned principle in
-`lattice-runtime-owned-agent-assets-execution-plan.md`: agent templates belong to
-the local Lattice CLI runtime, not to each business project.
+This realizes the runtime-owned principle in
+`lattice-runtime-owned-agent-assets-execution-plan.md` for both hosts: agent
+prompt **content** belongs to the local Lattice CLI runtime/registry, not to any
+host directory or business project; hosts hold only thin, content-free adapters.
