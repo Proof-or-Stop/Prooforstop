@@ -266,9 +266,9 @@
       "id": "CHK-006",
       "title": "清理根文档 2 处 prose（CLAUDE.md 与 docs/guide.md）",
       "context": "CLAUDE.md:924 的 docs/koala/reviewer-redesign.md 路径引用、docs/guide.md:60 的 Koala/Lattice prose。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T22:18:51.512Z",
-      "endTime": null,
+      "endTime": "2026-06-16T22:22:56.681Z",
       "verificationIntent": {
         "happy": [
           {
@@ -302,7 +302,39 @@
           }
         ]
       },
-      "userSees": "根文档 + utils 的 branding 规则过滤该改项为 0"
+      "userSees": "根文档 + utils 的 branding 规则过滤该改项为 0",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -niI koala packages/utils/src packages/utils/package.json CLAUDE.md docs/guide.md (then B-3cca isClassified filter)",
+          "result": "pass",
+          "note": "All residual koala lines in batch are documented-exception runtime paths (.koala/audit-config.json, .koala-serve.json, .koala/locks, .koala/activity.jsonl) or preserved literals (koala.config.json, koala-lab/experiment.v1 schema). Brand prose/CLI hints/comments/description changed to Lattice. guide.md Koala/Lattice->Lattice; CLAUDE.md dangling docs/koala/reviewer-redesign.md pointer removed (file does not exist).",
+          "headHash": "ec253a2ab0ec8977f36304995ed1723851ea1512",
+          "materialHash": "498d7b1ee01020d8dd333bcd0a0b4fc7e577e7597c94e2b7d6f51eeceffc3f96",
+          "timestamp": "2026-06-16T22:22:56.728Z"
+        },
+        {
+          "intentRef": "CHK-006:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build",
+          "result": "pass",
+          "note": "utils tsc exits 0 after edits (once main dist present); pre-existing missing-dist errors are unrelated to these comment/string changes, confirmed by stash A/B comparison.",
+          "headHash": "ec253a2ab0ec8977f36304995ed1723851ea1512",
+          "materialHash": "498d7b1ee01020d8dd333bcd0a0b4fc7e577e7597c94e2b7d6f51eeceffc3f96",
+          "timestamp": "2026-06-16T22:22:56.770Z"
+        },
+        {
+          "intentRef": "CHK-006:validate",
+          "kind": "manual_transcript",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "validate fully green: main-write-lock-coverage PASS, e2e story-lifecycle + gap-convergence ALL PASS. No new failures vs baseline.",
+          "headHash": "ec253a2ab0ec8977f36304995ed1723851ea1512",
+          "materialHash": "498d7b1ee01020d8dd333bcd0a0b4fc7e577e7597c94e2b7d6f51eeceffc3f96",
+          "timestamp": "2026-06-16T22:22:56.813Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
