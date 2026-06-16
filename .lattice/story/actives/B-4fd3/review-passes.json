@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T21:12:31.271Z",
       "reviewRunId": "B-4fd3:RR-001",
       "_hash": "32237fb17278c54ffff0ac345c472fef9eecb066cb849757131ac1a4c2707087"
+    },
+    {
+      "id": "B-4fd3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed cli-init.ts (copy branch merge of runtime ignores), thin-init-assets-smoke.ts (new assertGitignoreCoversRegistry helper), and .gitignore (.lattice/usage/ addition). Dead code: none — both new imports (runtimeIgnoreMissing, listRuntimeArtifactIgnorePatterns) are used at lines 78 and 82. Type safety: no new as-any or empty-catch in added lines; pre-existing instances are outside the diff scope. I/O isolation: thin-init-assets-smoke.ts is a task/test runner (not a shell), imports from core directly which is appropriate. The fix correctly reuses mergeKoalaRuntimeIgnores (existing helper) post-cpSync to keep the copy branch registry-synced, matching the pattern on the existing-file branch. No duplication, no dead code, no type safety regressions.",
+      "createdAt": "2026-06-16T21:13:55.345Z",
+      "reviewRound": "2026-06-16T21:12:31.271Z",
+      "reviewRunId": "B-4fd3:RR-002",
+      "_hash": "44e3d395620456e8423d5adea303f2843b9dcc577648f08f8b942ec1bb7deae3"
     }
   ]
 }
