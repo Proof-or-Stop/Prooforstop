@@ -1,0 +1,21 @@
+{
+  "storyId": "B-fd64",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/usage-ledger/authority-evidence.ts",
+    "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-16T21:43:23.696Z",
+  "updatedAt": "2026-06-16T21:43:23.696Z"
+}
