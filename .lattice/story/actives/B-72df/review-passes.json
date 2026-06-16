@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T03:20:40.956Z",
       "reviewRunId": "B-72df:RR-003",
       "_hash": "dad3c1f1378abb221b052642926eb993eef0eff9f5bdbd81c828762cea66dd60"
+    },
+    {
+      "id": "B-72df:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (Round 2): all 9 must intents confirmed covered by logic_test evidence (result=pass, headHash stable). Commit f38b2fe added case b3 (non-ASCII overlap, src/cafe.ts dirty + in merge set) with correct fail-pre/pass-post structure: the `-c core.quotePath=false` fix in done-effects.ts is required for the throw to fire; pre-fix the paths never intersect and the assert.throws would fail, post-fix they do intersect and the throw is emitted. No assertions were removed. The validate-battery gap remains scoped to B-99b6 as acknowledged. No blocker.",
+      "createdAt": "2026-06-16T03:36:32.820Z",
+      "reviewRound": "2026-06-16T03:35:34.200Z",
+      "reviewRunId": "B-72df:RR-005",
+      "_hash": "ae1dce8b3b3a815c55979ac0780deeac6831bcef5ece4c9688feafa1b4338222"
     }
   ]
 }
