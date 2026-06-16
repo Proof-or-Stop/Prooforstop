@@ -133,6 +133,54 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "selectEstimate({model, input, countTokens: stub}) -> kind=count_tokens, confidence=high; WHY: when count_tokens is injected it must be selected as the highest-fidelity estimator",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate({model, input, localTokenizer: stub}) with NO countTokens -> kind=local_tokenizer, confidence=medium; WHY: without count_tokens, local_tokenizer is the next fallback",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate({model, input}) with neither countTokens nor localTokenizer -> kind=bytes_chars, confidence=low; WHY: falls back to the offline heuristic when no injected estimators exist",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate returns the EXACT model id passed, not a normalized or aliased version; WHY: estimate must be bound to the exact model id per the spec",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "selectEstimate with BOTH countTokens AND localTokenizer injected -> picks countTokens (highest priority), ignores localTokenizer; WHY: strict priority ordering count_tokens > local_tokenizer > bytes_chars",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with countTokens returning 0 tokens still reports kind=count_tokens with confidence=high; WHY: a zero-token estimate from count_tokens is still a valid high-confidence result",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with empty-string model id still returns that exact model id; WHY: the selector does not validate model names -- it echoes what was passed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "selectEstimate with countTokens that THROWS -> falls back to localTokenizer or bytes_chars gracefully; WHY: a failing count_tokens endpoint must not crash the whole estimate path -- degrade to next tier",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with countTokens that returns negative tokens -> either throws validation error or falls back; WHY: a rogue/corrupted count_tokens must not produce a negative estimate that passes downstream",
+            "type": "cli"
+          },
+          {
+            "desc": "selectEstimate with countTokens that returns NaN -> either throws or falls back; WHY: NaN from a buggy estimator must not propagate to the record",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
