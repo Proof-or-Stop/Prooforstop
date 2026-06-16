@@ -37,8 +37,8 @@
       "title": "Make the reconcile merge conflict-safe: deterministic metadata resolution or clean abort + recovery, never commit markers",
       "context": "In commitInitCheckMetadataAndMergeMain (cli-engine.ts): on a conflicted merge of machine-generated story metadata, either resolve deterministically (post-advance/main wins for index.json) or detect the conflict, abort the merge (git merge --abort / reset), and surface a clear recovery command. Do not leave or commit conflict markers.",
       "userSees": "If a reconcile conflict occurs, the story metadata stays parseable (CLI keeps working) or the user gets an explicit recovery instruction instead of a silent JSON-parse crash on every command.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T02:14:22.239Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
