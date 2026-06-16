@@ -118,9 +118,9 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 
 **远端写入纪律**：Lattice 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `lattice release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
-**Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.Codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
+**Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.lattice-codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.lattice-codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
 
-**Codex adapter 验证**：改动 `.Codex/`、`.claude/agents/`、Codex manifest / wrapper / telemetry / gate 相关代码后，必须运行 `node bin/lattice.js verify_codex`。该命令复用 doctor 的共享检查，验证 manifest drift、agent mirror、Codex native hook、local wrapper heartbeat、global fallback heartbeat、`.Codex/settings.json` 排除项，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 写入 process-events。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会消费这条硬证据；缺失或 stale 时按提示运行本地 wrapper 命令。诊断 Codex adapter 时运行 `node bin/lattice.js doctor`。
+**Codex adapter 验证**：改动 `.lattice-codex/`、`.claude/agents/`、Codex manifest / wrapper / telemetry / gate 相关代码后，必须运行 `node bin/lattice.js verify_codex`。该命令复用 doctor 的共享检查，验证 manifest drift、agent mirror、Codex native hook、local wrapper heartbeat、global fallback heartbeat、`.lattice-codex/settings.json` 排除项，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 写入 process-events。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会消费这条硬证据；缺失或 stale 时按提示运行本地 wrapper 命令。诊断 Codex adapter 时运行 `node bin/lattice.js doctor`。
 
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor main story/B-xxx`），避免遗漏 main 的更新。如有冲突，在 worktree 里 `git merge main` 解决。
 
@@ -189,7 +189,7 @@ lattice gap_log '{"category":"missing","severity":"medium","evidence":"<gap 描�
 
 ### Subagent 定义
 
-Codex subagent prompt 是 **Lattice adapter 约定**，由 Lattice tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.Codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.Codex/lattice.json` 的 package prompt registry 解析。legacy Codex adapter manifest 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件；Codex native PreToolUse hook 使用小写 `.codex/hooks.json` / `.codex/hooks/`，在大小写不敏感文件系统上可能显示为 `.Codex/hooks` alias。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.Codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
+Codex subagent prompt 是 **Lattice adapter 约定**，由 Lattice tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.lattice-codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.lattice-codex/lattice.json` 的 package prompt registry 解析。legacy Codex adapter manifest 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件；Codex native PreToolUse hook 使用小写 `.codex/hooks.json` / `.codex/hooks/`，在大小写不敏感文件系统上可能显示为 `.lattice-codex/hooks` alias。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.lattice-codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
 
 ```markdown
 ---

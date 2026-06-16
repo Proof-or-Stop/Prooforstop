@@ -139,7 +139,7 @@ Update the templates that routinely query story state:
 If the repository is in full-asset mode, regenerate or synchronize:
 
 - `.claude/agents/*.md`
-- `.Codex/agents/*.md`
+- `.lattice-codex/agents/*.md`
 
 The rendered mirrors must continue to match the package templates.
 
@@ -168,7 +168,7 @@ Extend `prompt-token-cost-smoke` or add a focused smoke that checks:
 
 - the compact-query guidance exists in package templates;
 - `.claude` mirrors match package templates;
-- `.Codex` mirrors match Codex-rendered package templates;
+- `.lattice-codex` mirrors match Codex-rendered package templates;
 - default `story_get` and `checklist_get` output is unchanged;
 - slim output remains smaller than default output;
 - the guidance includes a full-output fallback for evidence-sensitive work.

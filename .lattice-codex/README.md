@@ -26,8 +26,8 @@ fallback 说明：
 - `LATTICE_CODEX_ENTRYPOINT=global-fallback` 会防止本地 wrapper 子进程把 global fallback 误记成 `local-wrapper`
 - 全局 `lattice` 可能是 core-only，`aux_*` 命令不一定可用
 - 全局 `lattice` 也可能滞后于当前 worktree；有本地 wrapper 或 `node packages/main/dist/cli.js` 时，不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据
-- `.Codex/agents` 由 `.claude/agents` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 `.claude`
-- `.Codex/lattice.json` 是 Lattice 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
+- `.lattice-codex/agents` 由 `.claude/agents` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 `.claude`
+- `.lattice-codex/lattice.json` 是 Lattice 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
 建议：
 
@@ -42,6 +42,6 @@ fallback 说明：
 
 边界：
 
-- 不创建 `.Codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理；大小写不敏感文件系统上可能显示为 `.Codex/hooks` alias
-- 需要观测 Codex 活动时，使用 `.Codex/lattice.json` 记录的 wrapper 或带 `LATTICE_ACTIVITY_RECORD_READONLY=1` 的 fallback
+- 不创建 `.lattice-codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
+- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理；与 `.lattice-codex/` 分属不同目录
+- 需要观测 Codex 活动时，使用 `.lattice-codex/lattice.json` 记录的 wrapper 或带 `LATTICE_ACTIVITY_RECORD_READONLY=1` 的 fallback

@@ -269,7 +269,7 @@ Looking at the current repository, you can already see this layering starting to
 ### Claude Code / Codex Layer
 
 - `.claude/agents/*`
-- `.Codex/agents/*`
+- `.lattice-codex/agents/*`
 - `bin/lattice-codex.js`
 - runtime tool calling, subagents, interactive entry points
 

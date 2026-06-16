@@ -890,7 +890,7 @@ M453	1490	schema	同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISM
 M454	1491	schema	同步 MISSING/STALE_SAFE 管理资产到当前 Lattice 模板；等价于 --apply	Sync MISSING/STALE_SAFE managed assets to current Lattice templates; equivalent to --apply.	review-draft
 M455	1492	schema	输出 STALE_LOCAL_EDIT 的结构化人工审查摘要	Output structured manual review summary for STALE_LOCAL_EDIT.	review-draft
 M456	1493	schema	覆盖自动检测的 init profile	Override auto-detected init profile.	review-draft
-M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .Codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .Codex/agents, thin=use prompt registry.	review-draft
+M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .lattice-codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.	review-draft
 M458	1497	comment	Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)	Audit (framework self-audit: scan CLAUDE.md promises across stories versus actual CLI behavior drift).	review-draft
 M459	1498	command-description	框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）	Framework self-audit: scan CLAUDE.md drift, write audit finding plus report.md	review-draft
 M460	1499	schema	扫 CLAUDE.md / packages/main/CLAUDE.md 的 CLI 命令/flag/路径 drift（当前 MVP 唯一档）	Scan CLI command/flag/path drift in CLAUDE.md and packages/main/CLAUDE.md (current MVP only mode).	review-draft

@@ -39,7 +39,7 @@ const targetDocs = [
   'packages/main/src/cli-prompts.ts',
   ...agentFiles('packages/main/templates/agents'),
   ...agentFiles('.claude/agents'),
-  ...agentFiles('.Codex/agents'),
+  ...agentFiles('.lattice-codex/agents'),
 ];
 
 const staleFirstSessionPhrases = [

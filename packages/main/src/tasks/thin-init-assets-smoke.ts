@@ -9,7 +9,7 @@
  * Exercises the real init CLI with global-thin defaults (the new default) and
  * verifies full/thin local lattice asset modes remain available as explicit opt-in.
  * @changes
- * - [CHK-002] Assert fresh default init creates .lattice/ assets and not bin/lattice*.js or .Codex/.
+ * - [CHK-002] Assert fresh default init creates .lattice/ assets and not bin/lattice*.js or .lattice-codex/.
  * - [CHK-003] Assert global codex verify/doctor passes in a global-thin project.
  * - [CHK-004] Assert pre-existing user-owned legacy assets survive init (no deletion).
  * - [B-4ee0] Global-thin: .lattice/Lattice.md, .lattice/lattice.json, AGENTS.md are canonical defaults.
@@ -66,7 +66,7 @@ function assertCodexOk(root: string): void {
 
 // ─── Test 1: Fresh default (global-thin) ─────────────────────────────────────
 // No --profile or --asset-mode flags: should produce .lattice/ dir with minimal assets.
-// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, .Codex/README.md, .Codex/lattice.json, KOALA.md.
+// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, .lattice-codex/README.md, .lattice-codex/lattice.json, KOALA.md.
 const globalThinRoot = makeRoot('global-thin-default');
 try {
   const output = runInit(globalThinRoot, []);
@@ -100,10 +100,10 @@ try {
   assertAbsent(globalThinRoot, 'bin/lattice-codex.js');
   assertAbsent(globalThinRoot, 'bin/koala.js');
   assertAbsent(globalThinRoot, 'bin/koala-codex.js');
-  assertAbsent(globalThinRoot, '.Codex/README.md');
-  assertAbsent(globalThinRoot, '.Codex/lattice.json');
-  assertAbsent(globalThinRoot, '.Codex/koala.json');
-  assertAbsent(globalThinRoot, '.Codex/agents');
+  assertAbsent(globalThinRoot, '.lattice-codex/README.md');
+  assertAbsent(globalThinRoot, '.lattice-codex/lattice.json');
+  assertAbsent(globalThinRoot, '.lattice-codex/koala.json');
+  assertAbsent(globalThinRoot, '.lattice-codex/agents');
   assertAbsent(globalThinRoot, 'KOALA.md');
   assertAbsent(globalThinRoot, 'LATTICE.md');
 
@@ -118,27 +118,27 @@ try {
 const globalThinCodexRoot = makeRoot('global-thin-codex');
 try {
   runInit(globalThinCodexRoot, ['--profile=codex']);
-  // Still global-thin (default mode), so .lattice/ should exist, no .Codex/ assets
+  // Still global-thin (default mode), so .lattice/ should exist, no .lattice-codex/ assets
   assertExists(globalThinCodexRoot, '.lattice/Lattice.md');
   assertExists(globalThinCodexRoot, '.lattice/lattice.json');
   assertExists(globalThinCodexRoot, 'AGENTS.md');
   assertAbsent(globalThinCodexRoot, 'bin/lattice.js');
-  assertAbsent(globalThinCodexRoot, '.Codex/lattice.json');
+  assertAbsent(globalThinCodexRoot, '.lattice-codex/lattice.json');
   assertCodexOk(globalThinCodexRoot);
 } finally {
   rmSync(globalThinCodexRoot, { recursive: true, force: true });
 }
 
 // ─── Test 3: Explicit full mode (opt-in local lattice assets) ────────────────
-// --asset-mode=full should create LATTICE.md, bin/lattice.js, .Codex/ as before.
+// --asset-mode=full should create LATTICE.md, bin/lattice.js, .lattice-codex/ as before.
 const fullRoot = makeRoot('explicit-full');
 try {
   const output = runInit(fullRoot, ['--profile=codex', '--asset-mode=full']);
   assert.match(output, /Codex asset mode: full/);
-  for (const relPath of ['LATTICE.md', 'AGENTS.md', '.Codex/README.md', '.Codex/lattice.json', 'bin/lattice.js', 'bin/lattice-codex.js']) {
+  for (const relPath of ['LATTICE.md', 'AGENTS.md', '.lattice-codex/README.md', '.lattice-codex/lattice.json', 'bin/lattice.js', 'bin/lattice-codex.js']) {
     assertExists(fullRoot, relPath);
   }
-  for (const relPath of ['KOALA.md', '.Codex/koala.json', 'bin/koala.js', 'bin/koala-codex.js']) {
+  for (const relPath of ['KOALA.md', '.lattice-codex/koala.json', 'bin/koala.js', 'bin/koala-codex.js']) {
     assertAbsent(fullRoot, relPath);
   }
   assertAbsent(fullRoot, '.lattice/lattice.json');
@@ -152,11 +152,11 @@ const thinRoot = makeRoot('explicit-thin');
 try {
   const output = runInit(thinRoot, ['--profile=codex', '--asset-mode=thin']);
   assert.match(output, /Codex asset mode: thin/);
-  for (const relPath of ['LATTICE.md', 'AGENTS.md', '.Codex/README.md', '.Codex/lattice.json', 'bin/lattice.js', 'bin/lattice-codex.js']) {
+  for (const relPath of ['LATTICE.md', 'AGENTS.md', '.lattice-codex/README.md', '.lattice-codex/lattice.json', 'bin/lattice.js', 'bin/lattice-codex.js']) {
     assertExists(thinRoot, relPath);
   }
-  assert.equal(existsSync(join(thinRoot, '.Codex', 'agents')), false, 'thin init should not create .Codex/agents');
-  const manifest = JSON.parse(readFileSync(join(thinRoot, '.Codex', 'lattice.json'), 'utf8'));
+  assert.equal(existsSync(join(thinRoot, '.lattice-codex', 'agents')), false, 'thin init should not create .lattice-codex/agents');
+  const manifest = JSON.parse(readFileSync(join(thinRoot, '.lattice-codex', 'lattice.json'), 'utf8'));
   assert.equal(manifest.adapterOwner, 'lattice');
   assert.equal(manifest.promptMode, 'registry');
   assertAbsent(thinRoot, '.lattice/lattice.json');
@@ -166,7 +166,7 @@ try {
 }
 
 // ─── Test 5: User-owned legacy files survive global-thin init ────────────────
-// Running init on a dir that already has KOALA.md, bin/koala.js, .Codex/koala.json
+// Running init on a dir that already has KOALA.md, bin/koala.js, .lattice-codex/koala.json
 // must not delete or overwrite those legacy files.
 const preserveRoot = makeRoot('preserve-legacy');
 try {
@@ -175,7 +175,7 @@ try {
     ['LATTICE.md', '# User old Lattice guide\n\nDo not delete.\n'],
     ['bin/koala.js', '#!/usr/bin/env node\nconsole.log("user legacy bootstrap");\n'],
     ['bin/koala-codex.js', '#!/usr/bin/env node\nconsole.log("user legacy codex wrapper");\n'],
-    ['.Codex/koala.json', '{"userOwned":true}\n'],
+    ['.lattice-codex/koala.json', '{"userOwned":true}\n'],
   ]);
   for (const [relPath, content] of legacyFiles) writeText(preserveRoot, relPath, content);
   runInit(preserveRoot, []);

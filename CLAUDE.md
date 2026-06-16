@@ -74,7 +74,7 @@ lattice decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":
 建议先运行 lattice session_brief 恢复现场
 ```
 
-阈值可用 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。Claude hook/settings 只放在 `.claude/`，不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。
+阈值可用 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。Claude hook/settings 只放在 `.claude/`，不要创建 `.lattice-codex/hooks` 或 `.lattice-codex/settings.json`。
 
 ## 框架自省 audit 配置
 

@@ -23,7 +23,7 @@
 
 ### B-bfb5 DEV 落地核验（local Non-authority evidence，2026-06-15）
 
-本 story 已把 package agent templates 与 tracked `.claude/agents` / `.Codex/agents` mirrors 中的重复全量 guide snapshot 替换为 `prompt-registry.ts` 中的 load-bearing prompt slice，并新增可执行 smoke：
+本 story 已把 package agent templates 与 tracked `.claude/agents` / `.lattice-codex/agents` mirrors 中的重复全量 guide snapshot 替换为 `prompt-registry.ts` 中的 load-bearing prompt slice，并新增可执行 smoke：
 
 ```bash
 npm --prefix packages/main run build
@@ -37,7 +37,7 @@ node packages/main/dist/cli.js verify_codex --storyId=B-bfb5 --json
 | 范围 | baseline | after | delta |
 |---|---:|---:|---:|
 | 10 个 package snapshot-bearing templates | 632,687 B（~158,172 tok） | 115,317 B（~28,830 tok） | -517,370 B（~-129,343 tok） |
-| package + `.claude` + `.Codex` tracked mirrors 总量 | 1,987,273 B | 437,445 B | -1,549,828 B |
+| package + `.claude` + `.lattice-codex` tracked mirrors 总量 | 1,987,273 B | 437,445 B | -1,549,828 B |
 
 最大 caveat 不变：当前 smoke 证明的是本地 prompt 字节与近似 token 降幅，以及 safety phrases / mirror consistency / slim output invariants；**不能证明 provider prompt-cache billing 是否命中，也不构成 Authority Server receipt-backed completion / productionDone / receiptVerified / authorityDone / fullAuthorityDone。**
 
@@ -140,7 +140,7 @@ lattice handoff_resume  --file=accept.json --output=resume.json
 | lattice-review-story-init.md | 70,868 B | 17,620 B | -53,248 B | 4,376 B |
 | **合计** | **632,687 B（~158,172 tok）** | **115,317 B（~28,830 tok）** | **-517,370 B（~-129,343 tok）** | — |
 
-- **10 份 package 模板曾各嵌一份**全量快照，package 层 ~517KB 重复已移除；同步 `.claude` / `.Codex` mirrors 后，tracked 三份合计减少 ~1.55MB。
+- **10 份 package 模板曾各嵌一份**全量快照，package 层 ~517KB 重复已移除；同步 `.claude` / `.lattice-codex` mirrors 后，tracked 三份合计减少 ~1.55MB。
 - 每次 spawn 不再把整份全量 guide 快照灌进该 subagent context；只保留 compact load-bearing slice + role-specific prompt。
 - **test-coverage.md（4.4KB，无快照）能正常工作 → "瘦模板可行"已被框架自己证明。**
 
@@ -203,7 +203,7 @@ lattice handoff_resume  --file=accept.json --output=resume.json
 把大模板里的 57–71KB 全量 CLAUDE.md，换成 **~4.3KB 的 load-bearing 切片**（只留 fresh-context fence / flow-fact / reviewer run / delivery / Authority boundary / debugging contract 等该角色真正需要的段）。
 
 - 量级参照：test-coverage.md（4.4KB）已证明可跑。
-- **从单一真相源再生成**：load-bearing slice 登记在 [`prompt-registry.ts`](../../packages/main/src/core/prompt-registry.ts)，mirrors 继续由 [`managed-assets.ts`](../../packages/main/src/core/managed-assets.ts) / package registry render 机制校验；`prompt-registry-smoke` 现在检查 package ↔ `.claude` ↔ `.Codex` mirror consistency。
+- **从单一真相源再生成**：load-bearing slice 登记在 [`prompt-registry.ts`](../../packages/main/src/core/prompt-registry.ts)，mirrors 继续由 [`managed-assets.ts`](../../packages/main/src/core/managed-assets.ts) / package registry render 机制校验；`prompt-registry-smoke` 现在检查 package ↔ `.claude` ↔ `.lattice-codex` mirror consistency。
 - 实测效果：10 个 package templates 合计 ~158K tok → ~28.8K tok，减少 ~129.3K 近似 tokens。该数字仍是 prompt/context 字节近似，不是账单确认。
 
 ### 3.2 Lever 2：story_get / checklist_get 输出去重　**省 ~1.2–2.7K/查询轮，零风险**

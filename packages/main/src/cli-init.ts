@@ -187,7 +187,7 @@ function parseTargetDir(args: string[]): string | null {
 }
 
 function detectInitProfile(root: string): { profile: InitProfile; reason: string; compatibilityNote?: string } {
-  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.Codex'));
+  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.lattice-codex'));
   const hasClaudeMarkers = existsSync(join(root, 'CLAUDE.md')) || existsSync(join(root, '.claude'));
   if (hasCodexMarkers && hasClaudeMarkers) {
     return {
@@ -198,7 +198,7 @@ function detectInitProfile(root: string): { profile: InitProfile; reason: string
   if (hasCodexMarkers) {
     return {
       profile: 'codex',
-      reason: 'auto-detected Codex markers (AGENTS.md or .Codex)',
+      reason: 'auto-detected Codex markers (AGENTS.md or .lattice-codex)',
     };
   }
   if (hasClaudeMarkers) {
@@ -246,8 +246,8 @@ lattice init — 初始化 Lattice 开发框架
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   LATTICE.md                    canonical host-neutral Lattice 指南（旧位置）
   bin/lattice.js                本地 Lattice bootstrap（仅 full/thin）
-  .Codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
-  .Codex/agents                 agent prompt copies（仅 full mode + codex profile）
+  .lattice-codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
+  .lattice-codex/agents                 agent prompt copies（仅 full mode + codex profile）
 
 可选 starter 内容（仅 --starter / --with-template）:
   src/core/app.ts               应用组装（平台无关）
@@ -478,7 +478,7 @@ function removeCodexWrapperIfManaged() {
 }
 
 function removeCodexManifestIfManaged() {
-  removeWholeFileIfGenerated('.Codex/lattice.json', '.Codex/lattice.json', [
+  removeWholeFileIfGenerated('.lattice-codex/lattice.json', '.lattice-codex/lattice.json', [
     renderLatticeCodexAdapterManifest(),
     renderLatticeCodexAdapterManifest({ promptMode: 'registry' }),
   ]);
@@ -503,10 +503,10 @@ function cleanupClaudeAssets() {
 
 function cleanupCodexAssets() {
   removeIfManagedDoc('AGENTS.md', 'AGENTS.md');
-  removePathIfExists('.Codex/agents', '.Codex/agents');
-  removePathIfExists('.Codex/README.md', '.Codex/README.md');
+  removePathIfExists('.lattice-codex/agents', '.lattice-codex/agents');
+  removePathIfExists('.lattice-codex/README.md', '.lattice-codex/README.md');
   removeCodexManifestIfManaged();
-  cleanupEmptyDirChain('.Codex');
+  cleanupEmptyDirChain('.lattice-codex');
   removeCodexWrapperIfManaged();
   removeCodexNativeHooksIfManaged();
 }
@@ -536,7 +536,7 @@ const dirs = [
 ];
 if (isGlobalThin) dirs.push('.lattice');
 if (wantsClaude) dirs.push('.claude/agents');
-if (wantsCodex && selectedAssetMode === 'full') dirs.push('.Codex/agents');
+if (wantsCodex && selectedAssetMode === 'full') dirs.push('.lattice-codex/agents');
 for (const d of dirs) {
   const full = join(targetDir, d);
   if (!existsSync(full)) {
@@ -901,33 +901,33 @@ if (wantsClaude && agentTemplateDir) {
 }
 
 if (!isGlobalThin && wantsCodex) {
-  const codexReadmePath = join(targetDir, '.Codex', 'README.md');
+  const codexReadmePath = join(targetDir, '.lattice-codex', 'README.md');
   if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
-  console.log('  ✓ .Codex/README.md');
+  console.log('  ✓ .lattice-codex/README.md');
 
-  const codexManifestPath = join(targetDir, '.Codex', 'lattice.json');
+  const codexManifestPath = join(targetDir, '.lattice-codex', 'lattice.json');
   writeFileSync(codexManifestPath, renderLatticeCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
-  console.log('  ✓ .Codex/lattice.json');
+  console.log('  ✓ .lattice-codex/lattice.json');
 } else if (isGlobalThin) {
-  console.log('  - .Codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
-  console.log('  - .Codex/lattice.json (global-thin mode; use lattice codex verify)');
+  console.log('  - .lattice-codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
+  console.log('  - .lattice-codex/lattice.json (global-thin mode; use lattice codex verify)');
 } else {
-  console.log('  - .Codex/README.md (profile skip)');
-  console.log('  - .Codex/lattice.json (profile skip)');
+  console.log('  - .lattice-codex/README.md (profile skip)');
+  console.log('  - .lattice-codex/lattice.json (profile skip)');
 }
 
 if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
-  console.log('  - .Codex/agents (thin asset mode; prompts resolve from registry)');
+  console.log('  - .lattice-codex/agents (thin asset mode; prompts resolve from registry)');
 } else if (!isGlobalThin && wantsCodex && agentTemplateDir) {
-  const codexAgentDir = join(targetDir, '.Codex', 'agents');
+  const codexAgentDir = join(targetDir, '.lattice-codex', 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
   const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
   const agentPromptFileSet = new Set(agentPromptFiles);
   for (const file of listAgentPromptFiles(codexAgentDir)) {
     if (agentPromptFileSet.has(file)) continue;
     unlinkSync(join(codexAgentDir, file));
-    console.log(`  - .Codex/agents/${file} (removed stale prompt)`);
+    console.log(`  - .lattice-codex/agents/${file} (removed stale prompt)`);
   }
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
@@ -942,12 +942,12 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
       }
     }
     writeFileSync(dst, content);
-    console.log(`  ✓ .Codex/agents/${file}`);
+    console.log(`  ✓ .lattice-codex/agents/${file}`);
   }
 } else if (!isGlobalThin && wantsCodex) {
-  console.log('  - .Codex/agents template source missing, skip');
+  console.log('  - .lattice-codex/agents template source missing, skip');
 } else if (isGlobalThin) {
-  console.log('  - .Codex/agents (global-thin mode; Codex prompts resolve from global lattice registry)');
+  console.log('  - .lattice-codex/agents (global-thin mode; Codex prompts resolve from global lattice registry)');
 }
 
 // 6. hooks + settings.json

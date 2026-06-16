@@ -1600,7 +1600,7 @@ Behavior:
     upgrade: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets to current Lattice templates; equivalent to --apply.'),
     reviewLocalEdits: z.boolean().optional().describe('Output structured manual review summary for STALE_LOCAL_EDIT.'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('Override auto-detected init profile.'),
-    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .Codex/agents, thin=use prompt registry.'),
+    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.'),
   }},
 
   // Audit (framework self-audit: scan CLAUDE.md promises across stories versus actual CLI behavior drift).
