@@ -31,6 +31,7 @@ import {
 import type { InitAssetMode, InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
 import { renderManagedAssetCheck, runManagedAssetCheck } from './core/managed-assets.js';
+import { resolveAgentTemplateDir } from './core/global-agents.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
@@ -42,6 +43,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageRoot = join(__dirname, '..'); // @lattice-agent/core package root
 const agentTemplateDir = [
+  resolveAgentTemplateDir(),
   join(packageRoot, 'templates', 'agents'),
   join(packageRoot, '..', '..', '.claude', 'agents'),
 ].find(existsSync);
