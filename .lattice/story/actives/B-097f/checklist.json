@@ -327,7 +327,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
+          "result": "pass",
+          "note": "Integration smoke (temp HOME, never touches real ~/.claude): fresh claude init → 0 project agent .md + 16 global thin-shim regular files (tools frontmatter + lattice agent_prompt body + no role-body slice); agent_prompt --role=X byte-equal registry body for all 16 (CLI adds only print newline). PASS.",
+          "headHash": "88e72a816a16c7c39a06af2bbb620e0dae68f988",
+          "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
+          "timestamp": "2026-06-16T18:48:51.457Z"
+        }
+      ]
     }
   ]
 }
