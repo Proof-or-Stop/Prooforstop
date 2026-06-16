@@ -327,9 +327,10 @@ export function recordDispatchFinal(
   if (!isUsageLedgerEnabled(opts.env)) return;
 
   try {
-    // Without a correlation handle there is nothing to chain the final to; the
-    // estimate (if any) cannot be superseded, so skip rather than mint a stray
-    // orphan attempt. In the normal seam flow a handle is always present.
+    // In the normal seam flow a correlation handle is always passed in. If it is
+    // absent we mint a fresh correlation and still record the final; it then
+    // supersedes nothing (estimateRecordId is typically null in that case), as
+    // the function JSDoc describes.
     const corr = correlation ?? mintCallCorrelation();
     const supersedes = buildSupersedes(estimateRecordId);
 
