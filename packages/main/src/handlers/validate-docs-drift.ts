@@ -16,6 +16,7 @@
  */
 
 import { scanPathDrift } from '../core/audit-scan.js';
+import { ALL_MANAGED_ASSET_KINDS as MANAGED_ASSET_KIND_VALUES } from '../core/managed-assets.js';
 import type { ManagedAssetDefinition, ManagedAssetKind } from '../core/managed-assets.js';
 
 export interface DocsDriftResult {
@@ -247,16 +248,14 @@ const GENERATED_MANAGED_ASSET_KINDS: ReadonlySet<ManagedAssetKind> = new Set<Man
   'gitignore-runtime',
 ]);
 
-/** All known ManagedAssetKind values (runtime re-validation, Handler Encoding Convention). */
-const ALL_MANAGED_ASSET_KINDS: ReadonlySet<string> = new Set<ManagedAssetKind>([
-  'managed-block',
-  'whole-file',
-  'gitignore-runtime',
-  'claude-settings',
-  'codex-hooks',
-  'excluded-path',
-  'remove-extra',
-]);
+/**
+ * All known ManagedAssetKind values (runtime re-validation, Handler Encoding
+ * Convention). DERIVED from the canonical `ALL_MANAGED_ASSET_KINDS` export in
+ * core/managed-assets.ts (single source of truth) so a new kind added to the
+ * `ManagedAssetKind` union can never silently drift from this guard — the
+ * canonical list is compile-time exhaustiveness-checked against the union there.
+ */
+const ALL_MANAGED_ASSET_KINDS: ReadonlySet<string> = new Set<string>(MANAGED_ASSET_KIND_VALUES);
 
 /**
  * Path-normalize a path-ish token for casing/separator-insensitive comparison:
