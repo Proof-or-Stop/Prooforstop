@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T00:09:43.214Z",
       "reviewRunId": "B-1637:RR-002",
       "_hash": "647e6d16457a1cedca35addd5269a589b5d1e3aee9a34e89c896f6ecb04f81f3"
+    },
+    {
+      "id": "B-1637:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (2 items, no riskSignals, no verificationIntent required). Smoke test doctor-gitroot-probe-smoke.ts covers: (1) resolver unit — wrapper-root resolves to configured gitRoot subdir (not the non-git metadataRoot); (2) resolver unit — plain-repo falls back to root verbatim (byte-identical); (3) resolver unit — null gitRootAbs falls back to root verbatim; (4) e2e — real doctor() on wrapper-root fixture produces NO fatal: not a git repository on stdout or stderr, report still produced; (5) e2e — real doctor() on plain-repo fixture unchanged (no fatal, report produced). All 5 assertions pass. Stderr-piping on the two discovery execSync calls is validated implicitly by the e2e assertion that captures live process.stdout/process.stderr via stream monkey-patching — the precise channel where fatal lines previously leaked. No blocking coverage gaps found.",
+      "createdAt": "2026-06-16T00:11:03.432Z",
+      "reviewRound": "2026-06-16T00:09:43.214Z",
+      "reviewRunId": "B-1637:RR-003",
+      "_hash": "55d7262fb7102a75dfa85312691559d5da54988a47c71697611a1c6a6653aecb"
     }
   ]
 }
