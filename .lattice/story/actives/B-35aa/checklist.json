@@ -14,6 +14,102 @@
           "docs/requirements/decisions/test-runner-consolidation-plan.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ls docs/requirements/decisions/test-runner-consolidation-plan.md exits 0 -> file exists; WHY: primary deliverable existence check",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -c \"^## \" docs/requirements/decisions/test-runner-consolidation-plan.md >= 4 -> doc has at least 4 H2 sections; WHY: enforces the 4 required sections contract (current state, paths considered, chosen path, follow-up)",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -q 151 the doc exits 0 -> pinned smoke count present; WHY: current-state section must contain the audited 151 smoke file count",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qE 70[,.]?280 the doc exits 0 -> pinned line count present (allowing comma or period separator); WHY: current-state section must contain ~70,280 lines figure",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -q 258 the doc exits 0 -> pinned test:* script count present; WHY: current-state section must contain 258 test:* npm scripts",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -q 49 the doc exits 0 -> pinned verify script count present; WHY: current-state section must contain 49 verify scripts",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qiE (path.*A|option.*A|vitest) the doc exits 0 -> Path A (vitest) is named; WHY: paths-considered section must discuss vitest migration",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qi in-house the doc exits 0 -> Path B (in-house runner) is named; WHY: paths-considered section must discuss the in-house runner option",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qi testing-infra the doc exits 0 -> rationale references testing-infra.md; WHY: chosen-path rationale must explicitly reference the existing project-native validation policy",
+            "type": "cli"
+          },
+          {
+            "desc": "for B1 B2 B3 B4 grep each in the doc -> all four follow-up story IDs present; WHY: follow-up section must decompose into B1 B2 B3 B4",
+            "type": "cli"
+          },
+          {
+            "desc": "git log --oneline -- docs/requirements/decisions/test-runner-consolidation-plan.md produces at least 1 line -> file is committed; WHY: story requires a commit touching this path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "section count boundary: grep -c ^## returns exactly 4 or more, never 3 -> catch off-by-one where a heading is missing or malformed (missing space after ##); WHY: boundary check on minimum section count",
+            "type": "cli"
+          },
+          {
+            "desc": "B4 is present even if marked optional -> grep -qi B4 exits 0; WHY: spec says B4 may be noted as optional but must still appear in the decomposition",
+            "type": "cli"
+          },
+          {
+            "desc": "wc -l > 30 -> doc has substantive content not a stub; WHY: catch degenerate case where sections exist as headings but bodies are empty",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -qi c8 the doc exits 0 -> c8 coverage tool is mentioned; WHY: Path B and C both involve c8; its absence means paths-considered is incomplete",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff main -- docs/requirements/decisions/testing-infra.md | wc -l returns 0 -> testing-infra.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff main -- docs/requirements/decisions/testing-completeness.md | wc -l returns 0 -> testing-completeness.md is byte-identical to main; WHY: over-reach guard (b) no other decision doc may be modified",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- packages/ | wc -l returns 0 -> no code files in packages/ touched; WHY: over-reach guard (c) ZERO code change story",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- package.json | wc -l returns 0 -> root package.json untouched; WHY: over-reach guard (c) no package.json edits allowed",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- scripts/ | wc -l returns 0 -> no scripts/ edits; WHY: over-reach guard (c) no scripts changes in a doc-only story",
+            "type": "cli"
+          },
+          {
+            "desc": "git diff --name-only main -- docs/requirements/decisions/ | grep -v test-runner-consolidation-plan.md | wc -l returns 0 -> only the target file changed in decisions/; WHY: generalized over-reach guard catches edits to ANY other decision doc",
+            "type": "cli"
+          },
+          {
+            "desc": "4-section minimum is a hard gate: count=$(grep -c ^## ...) test >= 4 -> ENFORCED; WHY: adversarial guard (d) if any section heading is deleted or renamed to H3 the contract must fail",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
