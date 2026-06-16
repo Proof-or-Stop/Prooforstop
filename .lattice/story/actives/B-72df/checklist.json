@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduction test: DONE merge with an unrelated uncommitted tracked file in main is wrongly blocked today",
+      "context": "Construct a main worktree with one dirty tracked file UNRELATED to the story's merge scope; drive the DONE merge precondition; assert it is blocked today and (after the fix) proceeds with the unrelated file left untouched. Failing repro per the debugging contract.",
+      "userSees": "A new test fails before the fix (DONE blocked by an unrelated dirty file) and passes after (DONE proceeds; unrelated file preserved); lattice validate green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Scope the DONE merge main-clean precondition to the merge's affected paths",
+      "context": "In the DONE merge precondition (done-effects.ts / cli-engine.ts), block only when a dirty tracked path OVERLAPS the set of paths the merge would change; allow DONE when all dirty paths are unrelated to the merge. Preserve the clobber-protection: still refuse if the merge would touch a dirty path. Do not change DONE merge semantics otherwise.",
+      "userSees": "On a shared main worktree with an unrelated session's uncommitted file, lattice story_advance DONE proceeds and merges; it still refuses if the dirty file is one the merge would overwrite.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Tests: unrelated-dirty proceeds + preserved; overlapping-dirty still blocked; clean unchanged",
+      "context": "Cover: (a) unrelated dirty path -> DONE proceeds and the file is byte-identical after; (b) a dirty path that the merge would change -> still blocked (protection preserved); (c) fully clean -> behavior unchanged. Function level.",
+      "userSees": "lattice validate green with tests asserting the three cases (unrelated-allowed, overlapping-blocked, clean-unchanged).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
