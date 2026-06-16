@@ -352,9 +352,9 @@
       "id": "CHK-003",
       "title": "Gated seam in lattice-dispatch.ts (flag OFF = byte-identical)",
       "context": "Edit runClaudeCodeRealLeafDispatch() in packages/main/src/core/lattice-dispatch.ts as a MINIMAL one-way seam, all under isUsageLedgerEnabled(): (1) before spawn, read the prompt text and call recordDispatchPreflight; (2) when enabled, run the host with JSON output (add --output-format json or equivalent) and after spawn call parseClaudeCliOutput(stdout) -> use resultText as the downstream text result (preserving existing behavior) and call recordDispatchFinal with the parsed usage (provider-reported when present, else unavailable, superseding the estimate). When the flag is OFF, the spawn args and result handling are EXACTLY as today (byte-identical) — verify by keeping the original code path unchanged in the else/disabled branch. Derive storyId from record.storyId, phase/agentType from available dispatch context (or documented constants), model from the parsed JSON (for the final) and a best-effort default (for the estimate). Wrap all ledger work in try/catch so dispatch never breaks; on JSON-parse failure fall back to raw stdout text.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T19:34:08.495Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-dispatch.ts"
