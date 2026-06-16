@@ -62,7 +62,7 @@
       "desc": "dead-code: five fallback-chain functions collapsed to same-variable double-reads after KOALA_AUTHORITY_ -> LATTICE_AUTHORITY_ rename — authority-mode.ts:readAuthorityEnv (line 65), authority-mode.ts:trustEnvValue (line 362), authority-client.ts:authorityEnvValue (line 1053), authority-job-loop-live.ts:liveEnv (line 323), handlers/lattice-cli.ts:envValue (line 87) — in each case `legacy` is now same as `canonical`/`lattice`, so the legacy branch is unreachable dead code; behavior is correct but code is misleading",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T00:27:56.121Z",
@@ -74,7 +74,8 @@
         "packages/main/src/core/authority-client.ts",
         "packages/main/src/core/authority-job-loop-live.ts",
         "packages/main/src/handlers/lattice-cli.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T00:49:48.296Z"
     },
     {
       "id": "B-08f2:F-005",
