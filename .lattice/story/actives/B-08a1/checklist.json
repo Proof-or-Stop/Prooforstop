@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Anthropic usage adapter (native four-field)",
+      "context": "Add an adapter (e.g. core/usage-ledger/adapters/anthropic.ts) mapping an Anthropic Messages API usage object (input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens) into LedgerUsage: canonical {input,output,cacheCreation,cacheRead} from the four native fields, raw{providerUnits:'anthropic-usage-v1', payloadDigest}, source=provider-reported. input maps from input_tokens (already the uncached remainder). Unit-tested with a sample response incl. cache fields and a no-usage case -> unavailable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "OpenAI/codex usage adapter (cacheCreation=null)",
+      "context": "Add adapters/openai.ts mapping usage.prompt_tokens->canonical.input, completion_tokens->output, prompt_tokens_details.cached_tokens->cacheRead, and cacheCreation=null (OpenAI does not report cache writes — null never 0). raw{providerUnits:'openai-usage-v1', payloadDigest}. Tested: response with cached_tokens (cacheRead set, cacheCreation null), response without prompt_tokens_details (cacheRead null), and no-usage -> unavailable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Gemini usage adapter (cacheCreation=null)",
+      "context": "Add adapters/gemini.ts mapping usageMetadata.promptTokenCount->canonical.input, candidatesTokenCount->output, cachedContentTokenCount->cacheRead, cacheCreation=null. raw{providerUnits:'gemini-usage-v1', payloadDigest}. Tested: response with cachedContentTokenCount, without it (cacheRead null), and no-usage -> unavailable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Record assembler (provider response -> validated record)",
+      "context": "Add a buildProviderRecord(provider, providerResponse, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds}, attribution{storyId|null,phase,agentType,subagentId?,threadId?}) that selects the right adapter, assembles a full ledger record (schemaVersion, recordId via ids.ts, recordedAt, projectRootHash, privacy flags, authority{mode:'local',receiptVerified:false}, integrity computed by the writer), and returns a record that PASSES the B-253e validator. correlation ids come from ids.ts (never provider request id). Tested: assembled records for all three providers validate clean.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Streaming/failure usage extraction",
+      "context": "Add a helper that extracts final usage from a streaming terminal event / final message (e.g. Anthropic message_delta/final, OpenAI stream final usage, Gemini final usageMetadata) and partial usage when a stream errors/times out mid-way. If any count exists -> provider-reported (partial allowed); only when truly none -> unavailable with a reason. Tested with a terminal-event sample and a mid-stream-error sample per the spec's streaming/failure rules.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Unavailable + per-dimension null semantics across providers",
+      "context": "Centralize the rule: a provider response with NO usage -> source=unavailable + unavailableReason (never zeros). A provider that reports primary input/output but not a given cache dimension -> that canonical cache field = null (never 0, never via usage.source). Verified for anthropic (all four present), openai (cacheCreation null), gemini (cacheCreation null, cacheRead null when absent).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Smoke/test suite wired into package.json",
+      "context": "Add packages/main/src/tasks/usage-ledger-adapter-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-adapter. Cover: each provider's mapping (incl. cache-null cases), assembler output validates, streaming terminal-event + mid-stream-error extraction, unavailable + per-dimension null, and that an assembled record round-trips through the B-253e writer (opt-in ON, temp dir) and re-reads/validates. Build green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
