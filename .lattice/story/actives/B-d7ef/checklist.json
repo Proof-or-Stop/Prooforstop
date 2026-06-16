@@ -248,14 +248,14 @@
         },
         {
           "intentRef": "CHK-002:happy:3",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
-          "command": "npm run build",
+          "command": "npm run build && npm run test:e2e",
           "result": "pass",
-          "note": "tsc exit 0 after deletions — no broken types.",
-          "headHash": "4472800763b1e7c17e0bad029db67644e3aebbd0",
+          "note": "After deletion, tsc build exit 0 AND full npm run test:e2e ALL PASS (story-lifecycle + gap-convergence) — combining build with the assertion-driven e2e suite proves no live consumer was broken.",
+          "headHash": "f847d8667272b13103978d1274417fb9d679e08a",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
-          "timestamp": "2026-06-16T19:03:13.092Z"
+          "timestamp": "2026-06-16T19:03:53.740Z"
         },
         {
           "intentRef": "CHK-002:happy:4",
