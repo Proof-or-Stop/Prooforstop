@@ -445,6 +445,17 @@
           "headHash": "ff81a1da3f87f94245738375903266623843b7f5",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:01.713Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "node bin/lattice.js verify_codex",
+          "result": "pass",
+          "note": "Returns ✓ 8/8 PASS — Codex adapter behavior unchanged.",
+          "headHash": "b136bf3a7fa30015c3190329c30169d1acdb55b2",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:02.251Z"
         }
       ]
     },
