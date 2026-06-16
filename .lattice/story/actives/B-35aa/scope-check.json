@@ -1,0 +1,80 @@
+{
+  "storyId": "B-35aa",
+  "checkedAt": "2026-06-16T23:49:38.836Z",
+  "features": [
+    {
+      "feature": "Create docs/requirements/decisions/test-runner-consolidation-plan.md (the document file itself must exist and be committed)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Section 1: Current state pinned with concrete numbers (151 *-smoke.ts files, ~70,280 lines total, 258 test:* npm scripts, 49 scripts/verify-*.mjs, dist-standalone-executable pattern)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Section 2: Three paths considered (A vitest migration, B in-house runner + manifest + c8, C B minus c8) with concrete pros/cons referencing testing-infra.md project-native validation policy",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Section 3: Chosen path B with explicit rationale (smokes are spawn-CLI integration scenarios; dist-standalone-executable aligns with testing-infra.md; vitest migration would conflict; in-house manifest+runner delivers CI speedup + c8 coverage + newcomer ergonomics)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Section 4: Follow-up Lattice story decomposition B1-B4, each with a one-paragraph scope sketch (B1 in-house runner skeleton + manifest + test:all; B2 collapse 258 test:* scripts into manifest entries; B3 c8 coverage + test:coverage; optional B4 tag/select UX)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Alignment with testing-infra.md project-native validation policy: document must reference and align with the general-black-box-command / project-native validation entry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "No vitest-migration requirement: testing-infra.md does not require vitest, does not forbid in-house runner; Path B is therefore policy-consistent",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "Zero code changes: no runner code, smoke/script/package.json edits, c8 wiring, or existing decision-doc edits (over-reach guard enforced via verificationIntent adversarial checks)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Git commit of the new decision doc (git log shows at least 1 commit touching the file)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 9,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "347b5e224147d04edd90af72f04d9df61fcc4266c70ff7247e4271fae542141f",
+  "openQuestions": []
+}
