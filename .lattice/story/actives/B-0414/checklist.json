@@ -51,7 +51,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User opens the new requirements document and sees MVP goals, non-goals, data contracts, page requirements, recovery commands, Authority boundaries, visual rules, click-target behavior, acceptance criteria, and verification plan.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document includes goals, non-goals, CLI data-source contracts, pages, user flows, recovery commands, authority boundaries, MVP phasing, acceptance criteria, and verification plan.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document explicitly requires aesthetic spacing, symmetry, minimalism, restrained hierarchy, and semantic color use.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document explicitly requires every clickable demo target to open a meaningful detail/page/disabled explanation and preserve Lattice product logic.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
