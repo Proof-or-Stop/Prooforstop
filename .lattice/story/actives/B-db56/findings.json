@@ -21,7 +21,7 @@
       "desc": "doc-promise-undelivered: done-effects.ts:68 comment states \"callers route via resolveGitCwd\" but the actual caller at transition-orchestrator.ts:276 passes ctx.root directly without calling resolveGitCwd — the comment is aspirational, not factual, and misleads future readers about the enforcement state",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T22:45:47.691Z",
@@ -30,7 +30,8 @@
       "_hash": "2dd789f9a4fca5b03607819e83be2694855fa8f3f1285456ddc6566cdd8be1d6",
       "files": [
         "packages/main/src/handlers/done-effects.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T22:51:13.180Z"
     }
   ]
 }
