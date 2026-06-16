@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-7365:F-001",
+      "desc": "edge: cli-engine.ts:3581-3583 if gitCli(['add'] or 'rm') throws inside the conflicted-paths resolution loop, the exception propagates out with no merge --abort call, leaving the story worktree in a mid-merge state (MERGE_HEAD present) indefinitely. The still-unmerged guard at 3595 and the abort at 3596 are only reachable after the loop completes cleanly; a throw inside the loop bypasses them entirely. Recovery requires manual 'git merge --abort' in the worktree.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T02:26:55.825Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-003",
+      "_hash": "08fde819a215c12161cace04bcf7e50bc785db2284e8f40289b758e326ba5fa0",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ]
+    }
+  ]
+}
