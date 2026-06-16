@@ -401,6 +401,17 @@
           "headHash": "d8d251ad75616624ca3b6d8ca4bc34ed9a7d966f",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:59.137Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'lattice-codex' .codex/hooks/lattice-scope-pretool.cjs | head",
+          "result": "pass",
+          "note": "Pretool hook updated to reference .lattice-codex/.",
+          "headHash": "386217aceaea1138dc5725778c7c1d44e7c88f4a",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:59.674Z"
         }
       ]
     },
