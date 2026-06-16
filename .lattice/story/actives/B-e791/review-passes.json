@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-16T00:46:13.454Z",
       "reviewRunId": "B-e791:RR-004",
       "_hash": "39e1eaa0417e4bc1c8c3e25ef587620d7dc0d993db2bdd48bf06d1274772a9be"
+    },
+    {
+      "id": "B-e791:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. The only Round 2 change is ed2b305: const fixedRun → void execSync (unused-var fix in smoke). Full deleted-symbol inventory across packages/: (1) interface NextStepCtx → export interface NextStepCtx (same name, export added); (2) function computeNextStep → export function computeNextStep (same name, export added); (3) two if(!c.gitReady) guards narrowed to if(!c.gitReady && !c.configuredGitRootResolved) (same field name, logic extended); (4) execSync single-arg options → multi-line with stdio added (same call). No symbol was deleted or renamed en masse. configuredGitRootResolved is a net-new field with zero residue of any prior name. No concept cleanup residue found. No blocker.",
+      "createdAt": "2026-06-16T00:47:21.167Z",
+      "reviewRound": "2026-06-16T00:46:13.454Z",
+      "reviewRunId": "B-e791:RR-006",
+      "_hash": "46d9ff9a5b8145a2175f4ab1b3889e4f03f63895fc7b9770b5660e2229a6f652"
     }
   ]
 }
