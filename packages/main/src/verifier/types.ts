@@ -1,5 +1,5 @@
 // ============================================================
-// verifier/types — koala built-in verifier type definitions
+// verifier/types — lattice built-in verifier type definitions
 // ============================================================
 
 import type { CliStep } from './cli-executor.js';

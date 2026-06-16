@@ -15,7 +15,7 @@ export function browserVitePlugin(): Plugin {
   let clientCode: string | null = null;
 
   return {
-    name: 'koala-browser-test',
+    name: 'lattice-browser-test',
     apply: 'serve',
 
     transformIndexHtml() {
@@ -28,7 +28,7 @@ export function browserVitePlugin(): Plugin {
         ];
         const compiledPath = candidates.find(p => existsSync(p));
         if (!compiledPath) {
-          console.error('[koala] browser-client.js not found, tried:', candidates);
+          console.error('[lattice] browser-client.js not found, tried:', candidates);
           return [];
         }
         clientCode = readFileSync(compiledPath, 'utf-8');

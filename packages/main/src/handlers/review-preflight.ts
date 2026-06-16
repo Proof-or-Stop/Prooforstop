@@ -19,7 +19,7 @@
  * Express channel (checklist ≤ 2 and riskSignals empty) skips entirely — all CLI gates treated as pass,
  * symmetric with the existing "express channel REVIEW reviewer not checked".
  *
- * See docs/koala/reviewer-redesign.md §3 S1 item 7.
+ * See docs/reviewer-redesign.md §3 S1 item 7.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -186,10 +186,11 @@ function conceptReviewerHandledResiduals(
   }
 }
 
-/** Default CLAUDE.md reader: reads root CLAUDE.md + packages/koala/CLAUDE.md */
+/** Default CLAUDE.md reader: reads root CLAUDE.md + legacy packages/koala/CLAUDE.md if present */
 function defaultMdFileReader(projectRoot: string): string[] {
   const candidates = [
     join(projectRoot, 'CLAUDE.md'),
+    // legacy self-hosting layout path the reader still honors if present
     join(projectRoot, 'packages', 'koala', 'CLAUDE.md'),
   ];
   const contents: string[] = [];

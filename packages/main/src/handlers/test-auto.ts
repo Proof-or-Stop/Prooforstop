@@ -48,10 +48,10 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
   return {
     async test_auto(args: { storyId?: string; trace?: boolean; enableProfiler?: boolean; dryRun?: boolean; confirm?: boolean }): Promise<string> {
       // 递归防护：fixture case 里调 $handlers.test_auto() 时跳过，防止无限递归卡死
-      if ((globalThis as any).__koalaTestAutoRunning) {
+      if ((globalThis as any).__latticeTestAutoRunning) {
         return JSON.stringify({ hint: '→ test_auto 递归调用被跳过', allPassed: true, totalCases: 0, passedCases: 0, failedCases: 0, warnings: [], details: [] });
       }
-      (globalThis as any).__koalaTestAutoRunning = true;
+      (globalThis as any).__latticeTestAutoRunning = true;
       try {
 
       const warnings: string[] = [];
@@ -306,7 +306,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         })),
       }, null, 2);
 
-      } finally { (globalThis as any).__koalaTestAutoRunning = false; }
+      } finally { (globalThis as any).__latticeTestAutoRunning = false; }
     },
   };
 }

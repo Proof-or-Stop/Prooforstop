@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   Requirement completeness has no silver bullet; Koala lowers omission risk
+ *   Requirement completeness has no silver bullet; Lattice lowers omission risk
  *   through multiple defenses: understanding, decision, scope check, related
  *   docs, checklist quality, verificationIntent lanes, and reviewer prompts.
  *   Agent A is responsible for decomposing requirements and implementing code,

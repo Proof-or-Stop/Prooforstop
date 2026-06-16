@@ -706,7 +706,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
             lines.push('');
             lines.push(renderNonGitProjectNotice(
               configuredGitRootStatus,
-              '⚠ Non-git project: Koala can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.',
+              '⚠ Non-git project: Lattice can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.',
             ));
           }
           const gitNew = readGitStatus(ctx.root);

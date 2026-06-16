@@ -62,10 +62,10 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
      */
     async test_story(args: { storyId: string }): Promise<string> {
       // Recursion guard
-      if ((globalThis as any).__koalaTestRunning) {
+      if ((globalThis as any).__latticeTestRunning) {
         return JSON.stringify({ hint: '→ test_story recursive call skipped', allPassed: true, storyId: args.storyId, totalCases: 0, passedCases: 0, failedCases: 0, warnings: [], details: [] });
       }
-      (globalThis as any).__koalaTestRunning = true;
+      (globalThis as any).__latticeTestRunning = true;
       const __runStartMs = Date.now();
       try {
       const config = loadConfig(root);
@@ -286,7 +286,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
         })),
       }, null, 2);
 
-      } finally { (globalThis as any).__koalaTestRunning = false; }
+      } finally { (globalThis as any).__latticeTestRunning = false; }
     },
   };
 }

@@ -140,7 +140,7 @@ function runSessionBrief(root: string): string {
   return String(handlers.session_brief({}));
 }
 
-const base = mkdtempSync(join(tmpdir(), 'koala-storydir-gitroot-suite-'));
+const base = mkdtempSync(join(tmpdir(), 'lattice-storydir-gitroot-suite-'));
 
 console.log('storyDir-inside-gitRoot consolidated suite (B-198c CHK-004)');
 
