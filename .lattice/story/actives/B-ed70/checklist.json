@@ -237,6 +237,82 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -iE \"\\.omx|\\bomx\\b|OMX_\" -- . \":(exclude).lattice\" \":(exclude)CHANGELOG.md\" → exits 1 (no matches); WHY: confirms all omx references removed from active code and docs",
+            "type": "cli"
+          },
+          {
+            "desc": "grep test:omx-disabled package.json → exits 1; WHY: confirms the script entry was removed from root package.json",
+            "type": "cli"
+          },
+          {
+            "desc": "test ! -f scripts/verify-omx-disabled.mjs → exit 0; WHY: confirms the verify script file was deleted",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build → exit 0; WHY: proves all omx code removal did not break TypeScript compilation",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e → exit 0; WHY: end-to-end suite passes after omx guard removal",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep -n \\.omx .gitignore → exits 1; WHY: confirms .omx/ line removed from .gitignore",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -nE \"omx|OMX\" AGENTS.md → exits 1; WHY: confirms AGENTS.md item #12 (the OMX prohibition) was fully removed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rn omx packages/main/src/core/baseline.ts → exits 1; WHY: spot-check that omx-refusing code removed from baseline.ts (a key source file)",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -ni omx packages/main/src/handlers/capsule.ts → exits 1; WHY: spot-check capsule handler omx-refuse logic removed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -ni omx packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json → exits 1; WHY: confirms omx entries removed from the fixture file",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -ni omx packages/main/src/tasks/story-capsule-smoke.ts → exits 1; WHY: confirms omx test references removed from smoke test",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "test -f packages/lab/src/core/intent-coverage.ts → exit 0; WHY: over-reach guard — intent-coverage.ts is out of scope and must still exist",
+            "type": "cli"
+          },
+          {
+            "desc": "test -f packages/main/src/dev-cli.ts → exit 0; WHY: over-reach guard — dev-cli.ts is not in CHK-003 scope and must still exist",
+            "type": "cli"
+          },
+          {
+            "desc": "test -d .lattice && ls .lattice/story/actives/B-ed70/checklist.json → exit 0; WHY: over-reach guard — .lattice/ metadata untouched by omx removal",
+            "type": "cli"
+          },
+          {
+            "desc": "node -e require(package.json).scripts → no test:omx-disabled key present; WHY: adversarial proof via JS parse that the script entry is truly gone, not just commented out",
+            "type": "cli"
+          },
+          {
+            "desc": "git grep -niE \"omx.*(disable|禁|refuse|block)\" -- . \":(exclude).lattice\" \":(exclude)CHANGELOG.md\" → exits 1; WHY: adversarial semantic sweep for omx-disable policy language that might have been softened rather than fully removed",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rn omx scripts/verify-worktree-baseline-risk.mjs → exits 1 or file has no omx references; WHY: verify-worktree-baseline-risk.mjs is in the modify list and must have omx references cleaned",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
