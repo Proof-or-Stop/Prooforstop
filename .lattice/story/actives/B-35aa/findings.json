@@ -22,7 +22,7 @@
       "desc": "CHK-001:happy:9 evidence command mismatch: intent is 'grep each of B1 B2 B3 B4 in doc -> all four follow-up story IDs present', but recorded command='grep -c ^## ', note='6 H2 sections'. B1-B4 presence check is a distinct intent from section count. CHK-001:adversarial:0 also mismatched: intent is 'git diff main -- testing-infra.md | wc -l returns 0 (byte-identical guard)', but recorded command='grep -c testing-infra' (reference count check). Reviewer independently verified B1-B4 present and testing-infra.md diff=0.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-16T23:56:24.369Z",
@@ -31,7 +31,8 @@
       "_hash": "df6f44d9ae990d52518ab0e790b9c92acb198593cea945bf711594740568b9e1",
       "files": [
         "docs/requirements/decisions/test-runner-consolidation-plan.md"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T23:57:17.975Z"
     }
   ]
 }
