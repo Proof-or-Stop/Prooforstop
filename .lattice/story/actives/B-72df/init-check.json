@@ -1,0 +1,32 @@
+{
+  "storyId": "B-72df",
+  "checkedAt": "2026-06-16T03:00:00.154Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights describes B-e74e as being about availability rather than unrelated-dirty contention, but code comments in done-effects.ts (line 330, 460) show B-e74e CHK-001 introduced the broad main-worktree clean check itself. The distinction is functional but the characterization slightly understates B-e74e scope; a reader could be misled about what B-e74e did vs what this story changes."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-16T02:58:36.048Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-16T03:00:00.154Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights describes B-e74e as being about availability rather than unrelated-dirty contention, but code comments in done-effects.ts (line 330, 460) show B-e74e CHK-001 introduced the broad main-worktree clean check itself. The distinction is functional but the characterization slightly understates B-e74e scope; a reader could be misled about what B-e74e did vs what this story changes."
+        }
+      ]
+    }
+  ],
+  "_hash": "4948dc63b01ae348a03f8b3b2e583b81c8a6bbcb39ede54ac5a5f4cea8d3dfaf"
+}
