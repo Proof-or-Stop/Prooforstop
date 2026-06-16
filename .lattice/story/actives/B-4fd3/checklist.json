@@ -60,12 +60,12 @@
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/cli-init.ts",
-          "command": "node --input-type=module -e (runtimeIgnoreMissing on repo .gitignore)",
+          "command": "node -e runtimeIgnoreMissing(repo .gitignore)",
           "result": "pass",
-          "note": "mergeKoalaRuntimeIgnores 在 desiredBlockLines 为空时返回 changed:false（幂等）；验证 repo .gitignore runtimeIgnoreMissing=[] 即再次 merge 为 no-op，不重复追加",
-          "headHash": "21f25fdb89af1f1b2c2cc05aa73169ca98583fde",
-          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
-          "timestamp": "2026-06-16T21:11:30.221Z"
+          "note": "re-recorded post-fix: mergeKoalaRuntimeIgnores 幂等(desiredBlockLines 空→changed:false)；repo .gitignore runtimeIgnoreMissing=[] 证明再 merge 为 no-op",
+          "headHash": "edd8fb89a261f89da4b8e84dcbc3d2cc2ccbdccb",
+          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
+          "timestamp": "2026-06-16T21:16:46.599Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
