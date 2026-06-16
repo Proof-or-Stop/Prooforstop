@@ -26,6 +26,7 @@ import {
   hookCommand,
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
   LATTICE_SCOPE_PRETOOL_HOOK_FILE,
+  ENGLISH_ONLY_GUARD_HOOK_FILE,
   migrateHookCommandEntries,
 } from './init-assets.js';
 import type { InitAssetMode, InitProfile } from './init-assets.js';
@@ -53,7 +54,7 @@ const agentTemplateDir = [
   join(packageRoot, '..', '..', '.claude', 'agents'),
 ].find(existsSync);
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
-const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
+const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ONLY_GUARD_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
 
 // 通过 lattice init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);

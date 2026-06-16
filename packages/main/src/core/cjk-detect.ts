@@ -10,8 +10,8 @@
  * CJK Unified Ideographs (U+4E00..U+9FFF) plus Extension A (U+3400..U+4DBF).
  * Full-width punctuation / kana are deliberately NOT included — only Han.
  *
- * CRITICAL: this file contains NO literal CJK characters. The detection ranges
- * are assembled from numeric code points (see `cp()` and CJK_RANGES), exactly
+ * CRITICAL: this file contains NO literal CJK characters. Detection compares
+ * each code point against the numeric CJK_RANGES (see isCjkCodepoint), exactly
  * like english-open-source-surface-smoke.ts, so this file passes BOTH this gate
  * and the Phase 3 English-surface gate without a self-exemption.
  */
@@ -30,21 +30,6 @@ export const CJK_RANGES: readonly CjkRange[] = [
   { start: 0x4e00, end: 0x9fff }, // CJK Unified Ideographs
   { start: 0x3400, end: 0x4dbf }, // CJK Unified Ideographs Extension A
 ];
-
-/** Assemble a string from Unicode code points (keeps literal CJK out of this file). */
-function cp(...points: number[]): string {
-  return String.fromCodePoint(...points);
-}
-
-/**
- * Build a fresh global RegExp for the CJK character class from the numeric
- * ranges. A new instance per call keeps `lastIndex` state isolated for callers
- * that iterate matches.
- */
-function buildCjkRegex(): RegExp {
-  const cls = CJK_RANGES.map((r) => `${cp(r.start)}-${cp(r.end)}`).join('');
-  return new RegExp(`[${cls}]`, 'gu');
-}
 
 /** True if a single code point falls inside any CJK range. */
 export function isCjkCodepoint(codepoint: number): boolean {
@@ -75,11 +60,9 @@ export function detectCjk(text: string): CjkDetectResult {
   if (typeof text !== 'string' || text.length === 0) {
     return { found: false, matches };
   }
-  const re = buildCjkRegex();
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    re.lastIndex = 0;
     // Iterate by code point so the reported column is a code-point index, not a
     // UTF-16 unit index (CJK Extension A characters are outside the BMP).
     let col = 0;
