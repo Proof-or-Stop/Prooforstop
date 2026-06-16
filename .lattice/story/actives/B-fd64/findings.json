@@ -5,7 +5,7 @@
       "desc": "gate subjectId null-bypass: verifyUsageReceipt checks `subjectId !== undefined` but not `typeof subjectId === \\u0027string\\u0027`; a runtime-null subjectId (injected via JS cast) satisfies the condition when envelope.storyId is also null (non-story call), producing receiptVerified=true without a genuine string subject binding. Fix: replace the guard with `typeof subjectId === \\u0027string\\u0027 && subjectId === envelope.storyId`. No test covers this adversarial case.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T21:47:04.920Z",
@@ -14,7 +14,8 @@
       "_hash": "ee55c91b21b8761480faa3011c1382b0f9e9efdf6a694e26c54ac0c161b46c6b",
       "files": [
         "packages/main/src/core/usage-ledger/authority-evidence.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T21:55:51.403Z"
     },
     {
       "id": "B-fd64:F-002",
