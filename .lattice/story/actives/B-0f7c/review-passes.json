@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T19:34:32.280Z",
       "reviewRunId": "B-0f7c:RR-004",
       "_hash": "7f7ad92abb3c63a735085177e757fabd661b59bd57dff77100cd94bba1ad720a"
+    },
+    {
+      "id": "B-0f7c:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Re-review confirmed: (1) The only change in commit d7913f0ea is a comment rewrite in dispatch-usage.ts lines 330-333; zero code lines changed. (2) OFF path: buildClaudeSpawnArgs returns [--print, promptFile] only, stdout=rawStdout unchanged, no ledger code executes. (3) ON path: spawnArgs adds --output-format json; parsed.resultText is assigned to stdout (the appendTranscript variable); DispatchRunResult, receipt, and runnerRecord do not read stdout — they use exitCode, headSha, collection, submission, etc. (4) Parse-failure catch at line 1963 falls back to stdout=rawStdout (raw text). (5) recordDispatchFinal try/catch swallows errors. (6) Exit/return semantics: the exitCode != 0 branch and the success return at line 2082 are entirely unaffected by the ledger seam. All behavior claims in the prompt are accurate; no behavior change from the comment-only fix.",
+      "createdAt": "2026-06-16T19:42:21.476Z",
+      "reviewRound": "2026-06-16T19:41:00.483Z",
+      "reviewRunId": "B-0f7c:RR-006",
+      "_hash": "340b9ea6dbd84ad4c7499c95bb516cfabaf75e8813524f80f83652a6b55f9399"
     }
   ]
 }
