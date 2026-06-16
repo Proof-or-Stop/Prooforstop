@@ -357,6 +357,17 @@
           "headHash": "fb19d946c0bec5bbc8de3f7b71aa1c20a4bd1ff0",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:57.094Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f .codex/hooks.json && test -f .codex/hooks/lattice-scope-pretool.cjs",
+          "result": "pass",
+          "note": "Both files present — Codex CLI hook contract intact.",
+          "headHash": "a021d973e7f9d616fb987c85367139f0c486e194",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:57.617Z"
         }
       ]
     },
