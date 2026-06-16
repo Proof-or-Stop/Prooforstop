@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T02:31:11.041Z",
       "reviewRunId": "B-7365:RR-004",
       "_hash": "1bbc6c9ee586b41ded726584140d4f07115d7d5b971502baa7cc826ffa4bbc79"
+    },
+    {
+      "id": "B-7365:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-001 fix verified: try/catch correctly wraps the resolve+commit loop in mergeBaseBranchIntoStoryWorktreeResolvingMetadata. Success path returns before the try block (no accidental wrap). Out-of-bounds and non-conflict-failure paths abort+throw before the try block. The catch aborts (best-effort no-throw via runGitNoThrow) then rethrows the original error — the worktree is left clean in all failure scenarios. The inner stillUnmerged abort+throw path causes a benign double-abort (second merge --abort is a no-op against a clean worktree), which is correct behavior. F-002 fix verified: existsSync(...) || true replaced with real assert.equal(existsSync(...), true, message) — assertion now actually enforces the worktree .git file presence. No new dead code, unused imports, empty catches, or type-unsafe patterns introduced.",
+      "createdAt": "2026-06-16T02:33:06.599Z",
+      "reviewRound": "2026-06-16T02:31:11.041Z",
+      "reviewRunId": "B-7365:RR-006",
+      "_hash": "8d4ba4c8ca8a55076d174a2da9aa3a7ef579593c85a8abe5ae99e0bd78ad6fe7"
     }
   ]
 }
