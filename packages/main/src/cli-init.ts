@@ -30,7 +30,12 @@ import {
 } from './init-assets.js';
 import type { InitAssetMode, InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
-import { renderManagedAssetCheck, runManagedAssetCheck } from './core/managed-assets.js';
+import {
+  migrateProjectLocalManagedAgents,
+  renderManagedAssetCheck,
+  runManagedAssetCheck,
+  scanProjectLocalManagedAgents,
+} from './core/managed-assets.js';
 import { resolveAgentTemplateDir, syncGlobalAgents } from './core/global-agents.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
@@ -884,6 +889,30 @@ if (wantsClaude && agentTemplateDir) {
     `  ✓ ${sync.globalDir} (synced=${sync.synced}, ok=${sync.skipped}, replaced=${sync.replaced} → ${sync.templateDir})`,
   );
   console.log('  - .claude/agents (resolved from global ~/.claude/agents; no per-project copies)');
+
+  // B-097f CHK-004: project-local .claude/agents shadows the global single
+  // source. Migrate ONLY the exact managed basenames, and ONLY under the
+  // explicit --upgrade flow. A normal init MUST NOT delete project files.
+  const projectScan = scanProjectLocalManagedAgents(targetDir, agentTemplateDir);
+  if (projectScan.managedFiles.length > 0) {
+    if (upgradeManagedAssets) {
+      const migration = migrateProjectLocalManagedAgents(
+        targetDir,
+        agentTemplateDir,
+        relPath => console.log(`  ↻ ${relPath} (migrated to global)`),
+      );
+      console.log(
+        `  ✓ migrated ${migration.removed.length} managed agent file(s) to global` +
+          (migration.preserved.length > 0 ? `; preserved ${migration.preserved.length} user file(s)` : '') +
+          (migration.dirRemoved ? '; removed empty .claude/agents' : ''),
+      );
+    } else {
+      console.log(
+        `  ⚠ ${projectScan.managedFiles.length} managed agent files found in .claude/agents; ` +
+          `run lattice init --upgrade to migrate to global`,
+      );
+    }
+  }
 } else if (wantsClaude) {
   console.log('  - agent 模板目录不存在, skip');
 } else {
