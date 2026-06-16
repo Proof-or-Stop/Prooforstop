@@ -1,0 +1,92 @@
+{
+  "storyId": "B-0f7c",
+  "checkedAt": "2026-06-16T19:49:02.990Z",
+  "reviewRound": "2026-06-16T19:41:00.483Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/usage-ledger/dispatch-usage.ts (new file, plan.md)",
+      "promise": "recordDispatchPreflight exported: mints correlation, builds prompt-size-estimate via sync bytes/chars estimator, appends record opt-in gated, returns {correlation,estimateRecordId}|null, never throws",
+      "verifiedBy": "diff/read",
+      "evidence": "Lines 414-462 implement recordDispatchPreflight with isUsageLedgerEnabled gate, try/catch, mintCallCorrelation, bytesCharsEstimator, buildEstimateRecord, appendUsageRecord"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/dispatch-usage.ts (new file, plan.md)",
+      "promise": "recordDispatchFinal exported: provider-reported record when anthropicUsage present (supersedesRecordIds=[estimateRecordId]), unavailable final when null, opt-in gated, never throws",
+      "verifiedBy": "diff/read",
+      "evidence": "Lines 488-535 implement recordDispatchFinal with flag gate, try/catch, buildProviderRecord path and buildUnavailableFinalRecord fallback, supersedesRecordIds wired via buildSupersedes"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/dispatch-usage.ts (new file, plan.md)",
+      "promise": "parseClaudeCliOutput exported: extracts resultText+anthropicUsage+model from Claude Code JSON envelope; falls back to {resultText:raw,anthropicUsage:null,model:null} for non-JSON or wrong shape; never throws",
+      "verifiedBy": "diff/read",
+      "evidence": "Lines 328-355 implement parseClaudeCliOutput with JSON.parse in try/catch, shape validation, extractAnthropicUsage+extractModel helpers, multiple fallback paths"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-dispatch.ts (modified, plan.md)",
+      "promise": "INV-1: flag OFF path produces spawn args exactly [--print, promptFile] (byte-identical). buildClaudeSpawnArgs(file,false) returns that literal array",
+      "verifiedBy": "diff/read+test",
+      "evidence": "buildClaudeSpawnArgs lines 62-65 return [--print, promptFile] when ledgerOn=false. CHK-004 smoke asserts deepEqual. STATIC check confirms single import surface"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-dispatch.ts (modified, plan.md)",
+      "promise": "INV-2: parse-failure falls back to raw stdout; downstream text is never lost",
+      "verifiedBy": "diff/read",
+      "evidence": "Lines 136-161: let stdout=rawStdout; if(ledgerOn){try{stdout=parsed.resultText}catch{stdout=rawStdout; appendTranscript(...)}}. On any error stdout reverts to rawStdout"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-dispatch.ts (modified, plan.md)",
+      "promise": "INV-3: ledger errors (preflight and final) are caught; dispatch continues; appendTranscript records the error",
+      "verifiedBy": "diff/read",
+      "evidence": "Preflight try/catch lines 104-112 appends non-fatal transcript on error. Final try/catch lines 138-161 appends non-fatal transcript on error. Neither rethrows"
+    },
+    {
+      "docPath": "packages/main/src/core/usage-ledger/dispatch-usage.ts (new file, plan.md)",
+      "promise": "INV-4: usage-ledger keeps zero cross-module imports; dispatch-usage.ts imports only ./ siblings + node builtins; lattice-dispatch.ts imports usage-ledger only through dispatch-usage.js",
+      "verifiedBy": "diff/read+test",
+      "evidence": "All imports in dispatch-usage.ts are relative ./adapters/anthropic.js, ./assemble.js, ./estimate.js, ./ids.js, ./record.js, ./writer.js. STATIC smoke checks verify both invariants. grep confirms lattice-dispatch has only ./usage-ledger/dispatch-usage.js"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-dispatch.ts (modified, plan.md)",
+      "promise": "INV-5: provider-reported final supersedes the estimate (supersedesRecordIds=[estimateRecordId]); real served model bound from envelope; estimate not double-counted in summary",
+      "verifiedBy": "diff/read+test",
+      "evidence": "recordDispatchFinal called with parsed.model; buildSupersedes(estimateRecordId) wires supersedesRecordIds. CHK-005 e2e smoke asserts estimateCount=0 and providerReportedTotal=1900 (not doubled)"
+    },
+    {
+      "docPath": "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts (new) + packages/main/package.json",
+      "promise": "Smoke wired as npm test:usage-ledger-dispatch; 38 checks covering orchestrator (estimate->supersede, unavailable, flag-off); parser (JSON envelope, raw fallback, malformed); simulated e2e round-trip; STATIC import assertions; no repo pollution",
+      "verifiedBy": "diff/read+test",
+      "evidence": "package.json adds test:usage-ledger-dispatch script. 677-line smoke file with 38 checks. Confirmed run: 38/38 pass"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-dispatch: 38/38 pass. Covers preflight handle returned (ledgerCallId+attemptId+estimateRecordId minted), provider-reported final supersedes estimate (summary.estimateCount=0, providerReportedTotal=760), unavailable final supersedes estimate (unknownCount=1), empty prompt inputTokens=0, 1MB prompt <500ms, cache fields absent not 0, storyId=null written, corrupt ledger returns null no-throw, negative tokens no-throw, flag OFF null no file. verify-b-0f7c.mjs: 44/44 pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-dispatch: 38/38 pass. Covers JSON envelope extraction (result+usage+model), plain text raw fallback, top-level model preferred over usage.model, fallback to usage.model, non-string/empty model->null, malformed JSON->raw+null, JSON without usage->result+null, JSON without result->raw+usage, empty string, cache primaries only (cache fields absent not 0), deeply-nested 50-level->raw+null no stack overflow, tokens as strings->null, 5MB stdout no OOM."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Structurally verified by STATIC checks in smoke (38/38 pass): STATIC check confirms lattice-dispatch.ts imports usage-ledger only via dispatch-usage.js; seam code verified by diff read showing try/catch wrapping and isUsageLedgerEnabled gate. Live dispatch cannot run in CI (requires claude CLI host); simulated e2e in CHK-005 exercises the full record chain using the same functions the seam calls.",
+      "waiverReason": "CHK-003 seam is in lattice-dispatch.ts which requires the claude CLI host for live dispatch; the simulated e2e (CHK-005) exercises the full record chain using the same functions the seam calls. Structural assertions (STATIC import check + code diff inspection) cover gating and try/catch."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-dispatch: 38/38 pass. OFF byte-identical: buildClaudeSpawnArgs file false deepEqual [--print, promptFile]. ON: appends --output-format json. Parse-failure fallback: non-JSON->raw text+null+unavailable final recorded no throw. Env false/0/off/no all OFF no file. Truncated JSON->raw+null. ON + negative tokens in envelope->usage rejected null, unavailable recorded no throw."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm --prefix packages/main run test:usage-ledger-dispatch: 38/38 pass (simulated e2e). Envelope input_tokens:1500 output_tokens:400 model:claude-opus-4-8 -> parse -> preflight+final -> diagnostics group S-e2e keyed by claude-opus-4-8, provider known.input=1500, known.output=400, providerReportedTotal=1900, estimateCount=0 (superseded). Model fallback (no model field) -> final uses unknown default no throw. Flag OFF: no file written. No-regression: usage-ledger 61, adapter 50, estimate 55, diagnostics 34 all pass. verify-b-0f7c.mjs 44/44. Lattice validate 44/44."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 docs promises verified via diff inspection and matching test assertions. The 5 safety invariants (OFF byte-identical, parse-failure raw fallback, ledger errors caught, zero cross-module imports, provider-reported supersedes estimate with real served model) are verified by direct code read and passing smoke assertions. The simulated end-to-end (CHK-005) is the real-machine evidence for the full record chain; live dispatch requires the claude CLI host and cannot run in CI by design. No TODOs or FIXMEs in implementation files. Scope is exactly the 4 authorized files. 238 total checks pass across 5 smoke runs."
+  },
+  "_hash": "52643e5ab74c5c5a9a21c2e96bfab2542c9d470ce7ed7d7d3319223e4fa86247"
+}
