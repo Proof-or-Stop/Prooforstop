@@ -37,9 +37,9 @@
       "title": "Run or guard the dev_start nesting check in the resolved gitRoot so wrapper-root prints no spurious fatal: not a git repository",
       "context": "worktree.ts around line 795 runs git rev-parse --abbrev-ref HEAD in process.cwd() (metadataRoot). Run it in the resolved gitRoot (resolveBootstrapGitRoot result) or skip cleanly when the metadataRoot is not a git repo, so the swallowed-but-printed fatal line disappears. Behavior (the nesting rejection) must be unchanged for real in-worktree cases; only the spurious stderr on wrapper-root is removed.",
       "userSees": "lattice story_advance INIT_CHECK on a wrapper-root project no longer prints a fatal: not a git repository line; the worktree is still created and nesting is still rejected when actually inside a worktree.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T00:33:36.930Z",
       "verificationIntent": {
         "happy": [
           {
