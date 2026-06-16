@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-08f2",
+  "mode": "custom",
+  "allowed": [
+    "Eliminate KOALA_* env vars with no fallback: drop `|| KOALA_X` for the 17 LATTICE_* twins; rename the 38 KOALA-only vars to LATTICE_X across reads, setters, JSON config, .Codex/.claude wrapper assets, hook-contract docs, and tests; and drop the docs/koala/legacy/ archive."
+  ],
+  "excluded": [
+    "CHANGELOG.md / git-history rewrite",
+    "docs/koala/framework-audit/ (active B-META audit path) — KEEP",
+    "experiments/ data and recorded historical fixtures",
+    "koala.config.json / koala:start-end marker parsing",
+    "LEGACY_KOALA_* path constants in core/lattice-paths.ts and the .koala/ runtime dir (deferred .koala path work)"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved ship-clean koala removal, env layer as first substantive story (2026-06-16); accepts external KOALA_* exporters must switch to LATTICE_*.",
+  "createdAt": "2026-06-15T23:45:32.462Z",
+  "updatedAt": "2026-06-15T23:45:32.462Z",
+  "_hash": "b2bda2762f885567416a891fb67f863881a210b4cecaf5afcf8796c13031b49b"
+}

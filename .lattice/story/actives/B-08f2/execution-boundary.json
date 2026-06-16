@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-08f2",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git rm *",
+    "git status*",
+    "grep *",
+    "ls *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/* run *",
+    "npm run build",
+    "npm run test:*",
+    "npm run test:e2e"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".Codex",
+    "bin",
+    "docs/guide-hooks.md",
+    "docs/koala/legacy",
+    "packages/lab",
+    "packages/main",
+    "packages/utils",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "CHANGELOG.md",
+    "docs/koala/framework-audit",
+    "experiments"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Wide mechanical env-var rename + legacy archive drop. LEGACY_KOALA_* path constants, .koala dirs, framework-audit, experiments, CHANGELOG excluded.",
+  "createdAt": "2026-06-15T23:45:32.804Z",
+  "updatedAt": "2026-06-15T23:45:32.804Z",
+  "_hash": "7ec0050457a6c51fda4c6be56108e307e53b008080a4578c7808b4f73adba0c8"
+}

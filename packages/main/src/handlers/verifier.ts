@@ -42,7 +42,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
-import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { resolveGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
 import {
@@ -603,7 +603,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         // repo in wrapper-root layouts. Null/unresolved → projectRoot fallback.
         const gitCwd = args.story
           ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot })
-          : projectRoot;
+          : (evaluateStoryDirConfigInsideGitRoot({ metadataRoot: projectRoot }).gitRootAbs ?? projectRoot);
         type GateTask = () => Promise<{ name: string; ok: boolean; rendered: string; result: unknown }>;
         const tasks: GateTask[] = [];
         if (args.channel) {
