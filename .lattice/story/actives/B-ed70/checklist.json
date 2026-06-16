@@ -97,7 +97,35 @@
       "userSees": "No omx mentions remain in active code, scripts, .gitignore, AGENTS.md, or decision docs; build + e2e pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".gitignore",
+          "AGENTS.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/koala-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+          "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+          "docs/requirements/decisions/stash-split-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+          "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+          "packages/main/src/core/baseline-suite-report.ts",
+          "packages/main/src/core/baseline.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/capsule.ts",
+          "packages/main/src/tasks/story-capsule-smoke.ts",
+          "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json",
+          "scripts/verify-omx-disabled.mjs",
+          "scripts/verify-worktree-baseline-risk.mjs"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
