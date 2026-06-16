@@ -5,9 +5,9 @@
       "title": "Make session.ts git-readiness guidance gitRoot-aware (stop telling configured-gitRoot users to git init the metadata root)",
       "context": "gitReady = isGitRepository(ctx.root) only checks metadataRoot. When a configured gitRoot resolves (configuredGitRootStatus / signed-workspace, already available around session.ts:918), the INIT and INIT_CHECK next-step strings (around 549, 554) and the non-git advisories (around 694, 889, 921) must NOT instruct git init the metadata root; they should guide the user to proceed to INIT_CHECK. Reuse the existing resolution; do not add a second resolver. Plain non-git projects with no configured gitRoot keep the existing message.",
       "userSees": "On a wrapper-root project (configured gitRoot resolves), lattice session_brief / next no longer say the current project is not a git repository, run git init; instead they say the story is ready for INIT_CHECK.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T00:33:33.911Z",
       "verificationIntent": {
         "happy": [
           {
