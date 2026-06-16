@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T01:16:26.552Z",
       "reviewRunId": "B-0740:RR-003",
       "_hash": "b05aefe712b2fe6565c42d22e3658b1cfcb6b6c13cff0127568bdc2c8dc389e6"
+    },
+    {
+      "id": "B-0740:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Checked identity case (gitCwd unset or == projectRoot goes straight to normalizeChangedPaths(lines) — byte-identical to prior behavior). Throw boundary confirmed: rebase block is after try/catch so a throwing reader still returns undefined and empty diff stays []. Fallback safety confirmed: defaultChangedFilesReader uses `cwd: gitCwd ?? projectRoot` so cwd is never undefined. Out-of-projectRoot `..`-prefixed paths handled safely: normalizeChangedPaths strips only leading `./` not `../`, so they pass through unchanged and isPathUnderDir simply never matches them (fail-closed). No dead code, no type-safety issues, no I/O shell isolation violations. One low finding registered: duplicate comment block at validate-lint.ts:214-218.",
+      "createdAt": "2026-06-16T01:18:20.579Z",
+      "reviewRound": "2026-06-16T01:16:26.552Z",
+      "reviewRunId": "B-0740:RR-002",
+      "_hash": "22a2c9ab5dce88f60d216ecc739393663ca1eebcc4fa5b46b1ed24155837932f"
     }
   ]
 }
