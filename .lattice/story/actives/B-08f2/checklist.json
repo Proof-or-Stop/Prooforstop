@@ -410,7 +410,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run test:e2e",
+          "result": "pass",
+          "note": "npm run test:e2e exited 0 (ALL PASS) on the committed tree.",
+          "headHash": "56a908b283050677a99c518d0c3b9b4070a8dea2",
+          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
+          "timestamp": "2026-06-16T00:15:35.721Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
