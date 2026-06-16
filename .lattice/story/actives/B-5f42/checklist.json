@@ -55,9 +55,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 6 spawns english-only-guard.cjs with a CJK git-commit and lattice metadata command; hook prints the english-only warning on stderr and exits 0",
-          "headHash": "ddd539b4a81817f1682c3252c2453f24e3036443",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:42.819Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 6: English-only command and non-matching (unguarded) Bash produce no output and exit 0",
-          "headHash": "4a71d61f87a6535b1f63cc98278bf6a39b9c8cd0",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:43.819Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 6: empty/malformed stdin makes the hook exit 0 without crashing (warn-only, never blocks)",
-          "headHash": "3121413f6924d33fcbda8322c4b96f70a4494db5",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:44.832Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         }
       ]
     },
@@ -137,9 +137,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 4 + standalone proof: a CJK fixture commit/metadata flips english-artifact-gate ok=false naming source+line, blocking REVIEW to TEST",
-          "headHash": "033a7534c65b78346aed9289e1be24359ccf5896",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:46.043Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,9 +148,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 4: English-only commits+metadata return ok=true; lattice validate green on this story (gate passes)",
-          "headHash": "6192282181fd4094c121a7af64ca8350d9c9187a",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:47.412Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,9 +159,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 3: legacy Chinese in a path outside the current story dir is NOT flagged by english-artifact-gate (diff/story-scoped)",
-          "headHash": "9f92350d13777c86562768d850aa0a56d54f1e38",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:48.371Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         }
       ]
     },
@@ -216,9 +216,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 1: detectCjk detects a code-point-built Chinese string with positions and ignores ASCII/English",
-          "headHash": "9d8ebbf18db93a962f69e74571ce4746edb3d09a",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:48.842Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -227,9 +227,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 3 (scope) + Test 5 (real defaultGitLogReader parses git log main..HEAD with 0 notes, proving the %x1f/%x1e delimiter fix)",
-          "headHash": "7b5259ffcc32269eb005ca9c65000750e4b64cb5",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:49.291Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -238,9 +238,9 @@
           "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
           "result": "pass",
           "note": "smoke Test 2: keep-in-sync — the self-contained hook CJK range is byte-for-byte equal to core/cjk-detect.ts ranges",
-          "headHash": "c1e8e035af69a6aac7b8265d8a128cfcfa76b9a1",
-          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
-          "timestamp": "2026-06-16T23:08:49.765Z"
+          "headHash": "bd18aac201872cbae6e523b59837fb6b82c4dd67",
+          "materialHash": "c9d702f325de58c0ecb96a672c55243e23e0f5ba8523d3103959db2bee32dfe2",
+          "timestamp": "2026-06-16T23:22:45.259Z"
         }
       ]
     }
