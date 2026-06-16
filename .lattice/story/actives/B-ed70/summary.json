@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ed70",
+  "changes": "OSS naming cleanup, 3 bundled items: (1) lab/package.json description koala→Lattice; (2) renamed uppercase .Codex/ → .lattice-codex/ across 18 internal files (git mv) + 41+ external code/docs/fixture references; lowercase .codex/ (Codex CLI hook contract) preserved; (3) removed OMX disable guard entirely — .gitignore line, scripts/verify-omx-disabled.mjs + its package.json script entry, AGENTS.md item #12, source-code refuse logic across 8 files, fixture entries, 10 decision-doc edits, plus 25 historical-attribution comments (implementer second pass).",
+  "usage": "Operators reference .lattice-codex/ instead of .Codex/ for the project's codex adapter assets; lowercase .codex/ continues to hold Codex CLI's mandatory native hook contract. omx is no longer a recognized path — neither documented nor refused.",
+  "expectedOutcome": "grep -i koala packages/lab/package.json empty; .Codex repo-wide empty; omx in active code/docs empty; lowercase .codex/ intact (Codex CLI contract); build + e2e + verify_codex 8/8 + verify-codex-assets + validate 41/41 all pass.",
+  "actualTranscript": "All 4 gates re-verified live: koala in lab/package.json=0; uppercase .Codex=0 (incl. pretool hook fixed in round-2); omx active=0; lowercase .codex/hooks.json+hooks/lattice-scope-pretool.cjs both present; .lattice-codex/ has 18 files; managed-assets.ts koala tokens documented as intentional legacy-denylist; npm run build exit 0; npm run test:e2e ALL PASS; verify_codex 8/8; verify-codex-assets exit 0; lattice validate PASS 41/41 intent coverage; 4 REVIEW lanes all passed; 7 findings raised + 7 resolved across 2 rounds; delivery-check signed.",
+  "outcomeDiff": "No gap. All 3 cleanups delivered; over-reach guards held (intent-coverage.ts + dev-cli.ts SAFE; .codex/ + .lattice/ untouched contract).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope was deliberately bounded — out of scope and deferred: the 308-file koala residual sweep (new session per program plan), the .koala/ runtime-dir rename + LEGACY_KOALA_* path constants in core/lattice-paths.ts, intent-coverage.ts (live), docs/koala/framework-audit (active B-META). managed-assets.ts retains 'koala' tokens INTENTIONALLY as a legacy-denylist (renaming them would silently disable the denylist; documented in source comment).",
+  "pitfalls": "Two real-world lessons confirmed this round: (1) renaming .Codex by case-sensitive grep missed `.codex/hooks/lattice-scope-pretool.cjs:93` which has an uppercase .Codex check — because my initial grep EXCLUDED .codex/ to preserve the lowercase contract, but the hook *file* inside the lowercase dir still needed updating; quality reviewer caught this. (2) Two-stage cleanup: implementer's first pass left 25 OMX-style historical-attribution comments (\\b regex doesn't match hyphenated `OMX-style`); independent main-agent verification caught them and dispatched a second implementer pass; never trust a single mechanical grep for completeness — always cross-check case-insensitive scans afterwards. Also: 7 findings during 2 review rounds; most were evidence-correspondence (intent text vs evidence command mismatches) — the B-d7ef lesson about binding each intent to its literal command applies and should always be done.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 204202
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21174
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 553066
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1729549
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 918387
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 262841
+    }
+  },
+  "totalDurationMs": 3689227,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T21:33:28.809Z",
+  "updatedAt": "2026-06-16T21:33:28.809Z"
+}

@@ -153,16 +153,6 @@ Formal Layer 4 execution must not start until all of these are true:
 | Layer 4 evaluator | Formal evaluator can authorize only `production-safety`. | `BLOCKED: missing Layer 4 formal evaluator` |
 | Higher-layer lock | Global Capability Claim remains locked unless separately proven. | `BLOCKED: claim boundary violation` |
 
-The following paths must not be used as formal Layer 4 proof roots:
-
-```text
-.omx/artifacts/baseline/production-safety
-.omx/artifacts/baseline/layer4-production-safety-unlock
-```
-
-`.omx` may exist only as unrelated runtime state. It is not a Lattice proof
-root.
-
 ## 6. Artifact Root
 
 All formal Layer 4 artifacts must be under:

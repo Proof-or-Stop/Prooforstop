@@ -583,7 +583,7 @@ npm --prefix packages/main run build
 npm --prefix packages/main run test:outcome-semantics-smoke
 ```
 
-A story worktree created via `lattice story_advance ... INIT_CHECK` does not need a manual copy of `.Codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.Codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
+A story worktree created via `lattice story_advance ... INIT_CHECK` does not need a manual copy of `.lattice-codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.lattice-codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
 
 ### 3. The first step of a new session
 
@@ -614,7 +614,7 @@ This validates the current worktree's repo-local entrypoints / generated local w
 - repo-local default init generates only Lattice management assets, not the starter `src/core` / `src/shells` / `tests`
 - repo-local `init --starter` / `init --with-template` generates the legacy starter template and uses `scanRoot: "src"`
 - a Python no-src project's default init does not create `src/` and uses `scanRoot: "."`
-- whether `.Codex/README.md` contains the correct fallback entry-point notes
+- whether `.lattice-codex/README.md` contains the correct fallback entry-point notes
 
 ### 6. Verify that the Codex assets have not drifted
 
@@ -625,11 +625,11 @@ node bin/lattice-codex.js verify_codex
 
 This checks:
 
-- in legacy/full prompt mode, whether `.Codex/agents/*.md` still equals the controlled transform result of `.claude/agents/*.md`
-- in legacy/full prompt mode, whether `.Codex/agents` is missing any prompt newly added to `.claude/agents`
-- in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.Codex/lattice.json` matches the package registry and Codex prompt renderability is fine
-- whether `.Codex/lattice.json` declares the Lattice-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
-- whether `.Codex/README.md` retains the correct Codex fallback entry point
+- in legacy/full prompt mode, whether `.lattice-codex/agents/*.md` still equals the controlled transform result of `.claude/agents/*.md`
+- in legacy/full prompt mode, whether `.lattice-codex/agents` is missing any prompt newly added to `.claude/agents`
+- in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.lattice-codex/lattice.json` matches the package registry and Codex prompt renderability is fine
+- whether `.lattice-codex/lattice.json` declares the Lattice-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
+- whether `.lattice-codex/README.md` retains the correct Codex fallback entry point
 - whether `README.md` / `AGENTS.md` still contain the key Codex integration notes
 
 `node bin/lattice-codex.js verify_codex` (the general local entry point is `node bin/lattice.js verify_codex`) reuses the same shared checks and additionally runs the local wrapper and global fallback heartbeat: it confirms that the activity record contains `source=codex`, session, and entrypoint, and appends a `codex_adapter_verification` carrying the current HEAD/material hash to the current story's `process-events.jsonl`. A story that touches the Codex adapter has this evidence distinguished as missing / failing / stale / passing at the REVIEW/DONE gate, with a directly re-runnable local wrapper command provided.
@@ -696,7 +696,7 @@ npm run test:global-lab-entrypoint
 ```bash
 node bin/lattice.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 node bin/lattice.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --dry-run
-node bin/lattice.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".Codex/agents/test-case-reviewer.md"]}'
+node bin/lattice.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".lattice-codex/agents/test-case-reviewer.md"]}'
 ```
 
 By default, the first version supports only offline, safe experiment configs:
@@ -736,11 +736,11 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.Codex/settings.json`. What Lattice generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.Codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.Codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.Codex/hooks` alias. `.Codex/lattice.json` also records the Lattice-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
+The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.lattice-codex/settings.json`. What Lattice generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.lattice-codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.lattice-codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.lattice-codex/hooks` alias. `.lattice-codex/lattice.json` also records the Lattice-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
-- [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- `.lattice/lattice.json` (global-thin default init primary; full/thin mode projects may use `.Codex/lattice.json` instead)
-- [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1) (full mode materialization; can be omitted in thin mode)
+- [.lattice-codex/README.md](/Users/jek/Documents/Work/Orchestrate/.lattice-codex/README.md:1)
+- `.lattice/lattice.json` (global-thin default init primary; full/thin mode projects may use `.lattice-codex/lattice.json` instead)
+- [.lattice-codex/agents/](/Users/jek/Documents/Work/Orchestrate/.lattice-codex/agents:1) (full mode materialization; can be omitted in thin mode)
 
-In a full-mode repository, `.Codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/lattice-codex.js verify_codex` validates the registry manifest/hash/renderability.
+In a full-mode repository, `.lattice-codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/lattice-codex.js verify_codex` validates the registry manifest/hash/renderability.

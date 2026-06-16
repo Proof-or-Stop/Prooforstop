@@ -27,7 +27,7 @@ function seedMatchingPrompts(root: string): void {
   const registry = readPromptRegistry();
   for (const entry of registry.agents) {
     writeText(root, `.claude/agents/${entry.file}`, renderPromptEntryForHost(entry, 'claude'));
-    writeText(root, `.Codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
+    writeText(root, `.lattice-codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
   }
 }
 
@@ -108,7 +108,7 @@ try {
 
 const explicitFullRoot = makeRoot('runtime-owned-explicit-full');
 try {
-  writeText(explicitFullRoot, '.Codex/lattice.json', renderLatticeCodexAdapterManifest());
+  writeText(explicitFullRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest());
   seedMatchingPrompts(explicitFullRoot);
   const resolution = resolveAgentAssetResolution(explicitFullRoot);
   assert.equal(resolution.mode, 'full-asset');

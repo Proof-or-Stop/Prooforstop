@@ -100,7 +100,7 @@ try {
     'eval',
     JSON.stringify({
       config: 'experiments/configs/lab-reviewer-reviewer-quality-v1.json',
-      files: ['.Codex/agents/test-case-reviewer.md'],
+      files: ['.lattice-codex/agents/test-case-reviewer.md'],
     }),
   ]);
   assert(parseCliJson(allowedEval).ok === true, 'lab eval should allow editableFiles');

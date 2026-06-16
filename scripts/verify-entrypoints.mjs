@@ -120,15 +120,15 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
     present.push(
       'AGENTS.md',
       'bin/lattice-codex.js',
-      '.Codex/README.md',
-      '.Codex/lattice.json',
-      '.Codex/agents/test-intent.md',
-      '.Codex/agents/test-case-reviewer.md',
-      '.Codex/agents/lattice-review-quality.md',
-      '.Codex/agents/lattice-implementer.md',
+      '.lattice-codex/README.md',
+      '.lattice-codex/lattice.json',
+      '.lattice-codex/agents/test-intent.md',
+      '.lattice-codex/agents/test-case-reviewer.md',
+      '.lattice-codex/agents/lattice-review-quality.md',
+      '.lattice-codex/agents/lattice-implementer.md',
     );
   } else if (!opts.allowExistingCodex) {
-    absent.push('AGENTS.md', 'bin/lattice-codex.js', '.Codex');
+    absent.push('AGENTS.md', 'bin/lattice-codex.js', '.lattice-codex');
   }
 
   if (profile === 'claude' || profile === 'all') {
@@ -154,7 +154,7 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
 
 function assertGlobalThinAssets(tempDir, profile, opts = {}) {
   const present = ['.lattice/Lattice.md', '.lattice/lattice.json', 'lattice.config.json'];
-  const absent = ['LATTICE.md', 'bin/lattice.js', 'bin/lattice-codex.js', '.Codex'];
+  const absent = ['LATTICE.md', 'bin/lattice.js', 'bin/lattice-codex.js', '.lattice-codex'];
 
   if (profile === 'codex' || profile === 'all' || profile === 'core') {
     present.push('AGENTS.md');
@@ -294,7 +294,7 @@ checks.push(() => {
   assertIncludes(out, '"docs"', 'bin/lattice.js aux_doc_list');
   assertPathMissing(repoRoot, 'bin/koala.js', 'legacy local koala wrapper');
   assertPathMissing(repoRoot, 'bin/koala-codex.js', 'legacy local koala Codex wrapper');
-  assertPathMissing(repoRoot, '.Codex/koala.json', 'legacy Codex manifest');
+  assertPathMissing(repoRoot, '.lattice-codex/koala.json', 'legacy Codex manifest');
 });
 
 checks.push(() => {
@@ -358,14 +358,14 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-'));
   try {
-    mkdirSync(join(tempDir, '.Codex', 'agents'), { recursive: true });
-    writeFileSync(join(tempDir, '.Codex', 'agents', 'implementer.md'), 'old codex-only prompt\n');
-    writeFileSync(join(tempDir, '.Codex', 'agents', 'reviewer.md'), 'old codex-only prompt\n');
+    mkdirSync(join(tempDir, '.lattice-codex', 'agents'), { recursive: true });
+    writeFileSync(join(tempDir, '.lattice-codex', 'agents', 'implementer.md'), 'old codex-only prompt\n');
+    writeFileSync(join(tempDir, '.lattice-codex', 'agents', 'reviewer.md'), 'old codex-only prompt\n');
 
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
     assertIncludes(initOut, 'Selected init profile: all', 'lattice init explicit all profile selection');
     assertIncludes(initOut, 'explicit --profile=all', 'lattice init explicit all reason');
-    assertIncludes(initOut, '.Codex/README.md', 'lattice init output');
+    assertIncludes(initOut, '.lattice-codex/README.md', 'lattice init output');
     assertProfileAssets(tempDir, 'all');
 
     const defaultConfig = readJson(tempDir, 'lattice.config.json');
@@ -378,14 +378,14 @@ checks.push(() => {
     assertIncludes(generatedClaude, 'LATTICE.md', 'all profile CLAUDE.md should point to LATTICE.md');
     assertNotIncludes(generatedClaude, '正常通道：', 'all profile CLAUDE.md should not copy root lifecycle table');
 
-    const codexReadme = readFileSync(join(tempDir, '.Codex', 'README.md'), 'utf8');
-    assertIncludes(codexReadme, 'node bin/lattice-codex.js session_brief', '.Codex/README.md');
-    assertIncludes(codexReadme, `${GLOBAL_CODEX_FALLBACK} session_brief`, '.Codex/README.md');
-    assertIncludes(codexReadme, '不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据', '.Codex/README.md');
-    assertIncludes(codexReadme, '.Codex/lattice.json', '.Codex/README.md');
-    assertIncludes(codexReadme, 'Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json`', '.Codex/README.md');
+    const codexReadme = readFileSync(join(tempDir, '.lattice-codex', 'README.md'), 'utf8');
+    assertIncludes(codexReadme, 'node bin/lattice-codex.js session_brief', '.lattice-codex/README.md');
+    assertIncludes(codexReadme, `${GLOBAL_CODEX_FALLBACK} session_brief`, '.lattice-codex/README.md');
+    assertIncludes(codexReadme, '不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据', '.lattice-codex/README.md');
+    assertIncludes(codexReadme, '.lattice-codex/lattice.json', '.lattice-codex/README.md');
+    assertIncludes(codexReadme, 'Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json`', '.lattice-codex/README.md');
 
-    const codexManifest = readJson(tempDir, '.Codex/lattice.json');
+    const codexManifest = readJson(tempDir, '.lattice-codex/lattice.json');
     assert(codexManifest.adapterOwner === 'lattice', 'adapter manifest should be owned by lattice');
     assert(codexManifest.activitySource === 'codex', 'adapter manifest should declare activitySource=codex');
     assert(
@@ -411,13 +411,13 @@ checks.push(() => {
       'adapter manifest should document Codex/OpenAI/terminal session env candidates',
     );
     assert(codexManifest.sessionEnv.recordReadOnly === 'LATTICE_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
-    assert(!codexManifest.excludedRuntimeAssets.includes('.Codex/hooks'), 'adapter manifest should allow managed Codex native hooks');
-    assert(codexManifest.excludedRuntimeAssets.includes('.Codex/settings.json'), 'adapter manifest should exclude .Codex/settings.json');
+    assert(!codexManifest.excludedRuntimeAssets.includes('.lattice-codex/hooks'), 'adapter manifest should allow managed Codex native hooks');
+    assert(codexManifest.excludedRuntimeAssets.includes('.lattice-codex/settings.json'), 'adapter manifest should exclude .lattice-codex/settings.json');
     assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
     assertPathExists(tempDir, '.codex/hooks.json', 'lattice init .codex/hooks.json');
-    assertPathMissing(tempDir, '.Codex/settings.json', 'lattice init .Codex/settings.json');
+    assertPathMissing(tempDir, '.lattice-codex/settings.json', 'lattice init .lattice-codex/settings.json');
 
-    const codexAgents = readdirSync(join(tempDir, '.Codex', 'agents'));
+    const codexAgents = readdirSync(join(tempDir, '.lattice-codex', 'agents'));
     assert(!codexAgents.includes('implementer.md'), 'lattice init should not keep stale Codex-only implementer.md');
     assert(!codexAgents.includes('reviewer.md'), 'lattice init should not keep stale Codex-only reviewer.md');
 
@@ -436,7 +436,7 @@ checks.push(() => {
     assertIncludes(generatedBootstrap, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated local bootstrap should reject stale global fallback');
     assertPathMissing(tempDir, 'bin/koala.js', 'full init should not generate bin/koala.js');
     assertPathMissing(tempDir, 'bin/koala-codex.js', 'full init should not generate bin/koala-codex.js');
-    assertPathMissing(tempDir, '.Codex/koala.json', 'full init should not generate .Codex/koala.json');
+    assertPathMissing(tempDir, '.lattice-codex/koala.json', 'full init should not generate .lattice-codex/koala.json');
 
     const verifyInitOut = run('node', [CORE_ENTRYPOINT, 'init', '--asset-mode=full', '--verify-codex', tempDir]);
     assertIncludes(verifyInitOut, 'Codex verification:', 'lattice init --verify-codex output');
@@ -463,27 +463,27 @@ checks.push(() => {
     assert(checkOk.ok === true, 'lattice check should pass immediately after init');
     assert(checkOk.profile === 'all', 'lattice check should detect all profile after all init');
 
-    writeFileSync(join(tempDir, '.Codex', 'lattice.json'), '{}\n');
+    writeFileSync(join(tempDir, '.lattice-codex', 'lattice.json'), '{}\n');
     const checkDrift = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
     assert(checkDrift.ok === false, 'lattice check should report drift after managed manifest edit');
     assert(
-      checkDrift.items.some(item => item.relPath === '.Codex/lattice.json' && item.status === 'STALE_SAFE'),
+      checkDrift.items.some(item => item.relPath === '.lattice-codex/lattice.json' && item.status === 'STALE_SAFE'),
       'lattice check should classify generated Codex manifest drift as STALE_SAFE',
     );
 
     const checkApply = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--apply', '--json'], { cwd: tempDir }));
     assert(checkApply.ok === true, 'lattice check --apply should repair safe managed drift');
-    assert(checkApply.applied.includes('.Codex/lattice.json'), 'lattice check --apply should report applied managed manifest');
-    assert(readJson(tempDir, '.Codex/lattice.json').adapterOwner === 'lattice', 'lattice check --apply should restore Codex manifest');
+    assert(checkApply.applied.includes('.lattice-codex/lattice.json'), 'lattice check --apply should report applied managed manifest');
+    assert(readJson(tempDir, '.lattice-codex/lattice.json').adapterOwner === 'lattice', 'lattice check --apply should restore Codex manifest');
     assertPathExists(tempDir, '.lattice/managed-assets.json', 'lattice check --apply manifest');
 
     run('git', ['init'], { cwd: tempDir });
     writeFileSync(join(tempDir, 'koala-user-note.txt'), 'uncommitted local work\n');
-    writeFileSync(join(tempDir, '.Codex', 'lattice.json'), '{}\n');
+    writeFileSync(join(tempDir, '.lattice-codex', 'lattice.json'), '{}\n');
     const checkUpgrade = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--upgrade', '--json'], { cwd: tempDir }));
     assert(checkUpgrade.ok === true, 'lattice check --upgrade should repair safe managed drift');
     assert(checkUpgrade.mode === 'upgrade', 'lattice check --upgrade should report upgrade mode');
-    assert(checkUpgrade.applied.includes('.Codex/lattice.json'), 'lattice check --upgrade should report applied managed manifest');
+    assert(checkUpgrade.applied.includes('.lattice-codex/lattice.json'), 'lattice check --upgrade should report applied managed manifest');
     assert(
       checkUpgrade.warnings.some(warning => warning.includes('working tree already has')),
       'lattice check --upgrade should warn before syncing into a dirty worktree',
@@ -510,20 +510,20 @@ checks.push(() => {
     );
     writeFileSync(join(tempDir, 'CLAUDE.md'), originalClaude);
 
-    mkdirSync(join(tempDir, '.Codex', 'settings.json'), { recursive: true });
+    mkdirSync(join(tempDir, '.lattice-codex', 'settings.json'), { recursive: true });
     const checkExcludedDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
-    const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === '.Codex/settings.json');
+    const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === '.lattice-codex/settings.json');
     assert(checkExcludedDirectory.ok === false, 'lattice check should report excluded directory drift');
     assert(
       excludedDirectoryItem?.status === 'INCOMPATIBLE' && excludedDirectoryItem.reason.includes('directory'),
       'lattice check should classify directory at excluded asset path without throwing EISDIR',
     );
-    rmSync(join(tempDir, '.Codex', 'settings.json'), { recursive: true, force: true });
+    rmSync(join(tempDir, '.lattice-codex', 'settings.json'), { recursive: true, force: true });
 
-    rmSync(join(tempDir, '.Codex', 'README.md'), { force: true });
-    mkdirSync(join(tempDir, '.Codex', 'README.md'));
+    rmSync(join(tempDir, '.lattice-codex', 'README.md'), { force: true });
+    mkdirSync(join(tempDir, '.lattice-codex', 'README.md'));
     const checkManagedFileDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
-    const managedFileDirectoryItem = checkManagedFileDirectory.items.find(item => item.relPath === '.Codex/README.md');
+    const managedFileDirectoryItem = checkManagedFileDirectory.items.find(item => item.relPath === '.lattice-codex/README.md');
     assert(
       managedFileDirectoryItem?.status === 'INCOMPATIBLE' && managedFileDirectoryItem.reason.includes('expected a file'),
       'lattice check should classify directory at managed file path without throwing EISDIR',
@@ -561,8 +561,8 @@ checks.push(() => {
   const forbidden = [
     '.Lattice/Lattice.md',
     '.Lattice/lattice.json',
-    '.Codex/hooks.json',
-    '.Codex/hooks/lattice-scope-pretool.cjs',
+    '.lattice-codex/hooks.json',
+    '.lattice-codex/hooks/lattice-scope-pretool.cjs',
   ];
 
   for (const rel of required) {
@@ -697,7 +697,7 @@ checks.push(() => {
     assertIncludes(initOut, 'Codex verification skipped: init profile claude does not generate Codex adapter assets', 'explicit claude verify-codex skip');
     assertProfileAssets(tempDir, 'claude', { allowExistingCodex: true });
     assertPathMissing(tempDir, 'bin/lattice-codex.js', 'explicit claude profile should not create codex wrapper');
-    assertPathMissing(tempDir, '.Codex', 'explicit claude profile should not create .Codex');
+    assertPathMissing(tempDir, '.lattice-codex', 'explicit claude profile should not create .lattice-codex');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -710,7 +710,7 @@ checks.push(() => {
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=codex', '--asset-mode=full', tempDir]);
     assertIncludes(initOut, 'Selected init profile: codex', 'all -> codex profile selection');
     assertPathExists(tempDir, 'AGENTS.md', 'all -> codex AGENTS.md');
-    assertPathExists(tempDir, '.Codex/README.md', 'all -> codex .Codex/README.md');
+    assertPathExists(tempDir, '.lattice-codex/README.md', 'all -> codex .lattice-codex/README.md');
     assertPathMissing(tempDir, 'CLAUDE.md', 'all -> codex should remove managed CLAUDE.md');
     assertPathMissing(tempDir, '.claude/agents', 'all -> codex should remove .claude/agents');
     assertPathMissing(tempDir, '.claude/hooks', 'all -> codex should remove .claude/hooks');
@@ -730,7 +730,7 @@ checks.push(() => {
     assertPathExists(tempDir, 'CLAUDE.md', 'codex -> claude CLAUDE.md');
     assertPathExists(tempDir, '.claude/agents', 'codex -> claude .claude/agents');
     assertPathMissing(tempDir, 'AGENTS.md', 'codex -> claude should remove managed AGENTS.md');
-    assertPathMissing(tempDir, '.Codex', 'codex -> claude should remove .Codex');
+    assertPathMissing(tempDir, '.lattice-codex', 'codex -> claude should remove .lattice-codex');
     assertPathMissing(tempDir, 'bin/lattice-codex.js', 'codex -> claude should remove generated codex wrapper');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -747,7 +747,7 @@ checks.push(() => {
     assertPathExists(tempDir, 'bin/lattice.js', 'all -> core bin/lattice.js');
     assertPathMissing(tempDir, 'AGENTS.md', 'all -> core should remove managed AGENTS.md');
     assertPathMissing(tempDir, 'CLAUDE.md', 'all -> core should remove managed CLAUDE.md');
-    assertPathMissing(tempDir, '.Codex', 'all -> core should remove .Codex');
+    assertPathMissing(tempDir, '.lattice-codex', 'all -> core should remove .lattice-codex');
     assertPathMissing(tempDir, '.claude/agents', 'all -> core should remove .claude/agents');
     assertPathMissing(tempDir, '.claude/hooks', 'all -> core should remove .claude/hooks');
     assertPathMissing(tempDir, '.claude/skills/koala', 'all -> core should remove .claude/skills/koala');
@@ -772,7 +772,7 @@ checks.push(() => {
     assertIncludes(initOut, 'CLAUDE.md (profile skip)', 'core cleanup should not rewrite CLAUDE.md');
     assert(readFileSync(join(tempDir, 'AGENTS.md'), 'utf8') === agentsOriginal, 'core cleanup should preserve unmarked AGENTS.md');
     assert(readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8') === claudeOriginal, 'core cleanup should preserve unmarked CLAUDE.md');
-    assertPathMissing(tempDir, '.Codex', 'core cleanup should still remove managed .Codex');
+    assertPathMissing(tempDir, '.lattice-codex', 'core cleanup should still remove managed .lattice-codex');
     assertPathMissing(tempDir, '.claude/agents', 'core cleanup should still remove managed .claude/agents');
     assertPathMissing(tempDir, '.claude/hooks', 'core cleanup should still remove managed .claude/hooks');
     assertPathMissing(tempDir, '.claude/skills/koala', 'core cleanup should still remove managed .claude/skills/koala');
