@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4fd3",
+  "checkedAt": "2026-06-16T21:00:01.361Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "9cf077a9f6ef6f4c37cf373810a9c10c9a7e4ef512bf73977e3d062e3d88cfae",
+  "executionBoundaryHash": "e6905e681ad679bc3df9bd399f9e1bedcba82d681aab5b152b4aee84c4ee7272",
+  "freshnessHash": "51bceb67714a8bfb62d5c9118a59a7604aa80646c6866e7e1176b810cea7c277",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "把 thin-init-assets-smoke 聚合进 lattice validate battery（归 B-99b6）",
+    "改动 runtime-artifact-registry 的 ignorePatterns 语义或新增 runtime 资产",
+    "重构 init 资产体系或 managed-assets 检查逻辑"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "把 thin-init-assets-smoke 聚合进 lattice validate battery（归 B-99b6）",
+      "source": "scopeBoundary.excluded",
+      "text": "把 thin-init-assets-smoke 聚合进 lattice validate battery（归 B-99b6）",
+      "excluded": true
+    },
+    {
+      "keyword": "改动 runtime-artifact-registry 的 ignorePatterns 语义或新增 runtime 资产",
+      "source": "scopeBoundary.excluded",
+      "text": "改动 runtime-artifact-registry 的 ignorePatterns 语义或新增 runtime 资产",
+      "excluded": true
+    },
+    {
+      "keyword": "重构 init 资产体系或 managed-assets 检查逻辑",
+      "source": "scopeBoundary.excluded",
+      "text": "重构 init 资产体系或 managed-assets 检查逻辑",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5bd54e9b583950ec1517cee6ee8226a4a38ff3666de7703bab79914dd3898640"
+}
