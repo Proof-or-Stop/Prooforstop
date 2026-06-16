@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0f7c",
+  "mode": "feature",
+  "allowed": [
+    "Add an in-module dispatch-usage orchestrator + Claude-CLI-output parser in packages/main/src/core/usage-ledger/ (pure, zero cross-module imports) + a smoke",
+    "Add npm test scripts in packages/main/package.json",
+    "Edit runClaudeCodeRealLeafDispatch() in packages/main/src/core/lattice-dispatch.ts as a THIN flag-gated one-way seam (preflight estimate + parse host JSON usage -> provider-reported final superseding the estimate), OFF=byte-identical"
+  ],
+  "excluded": [
+    "Any other dispatch/cli-engine/handler logic change beyond the single gated seam",
+    "Budget decision and request blocking",
+    "Changing codex or gemini host invocation (scaffolded-only; they get estimate + unavailable)",
+    "Server-side signed evidence promotion",
+    "Turning the writer on by default"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized (2026-06-16, option B) relaxing the in-module-only constraint for THIS slice to wire the ledger into dispatch as a thin one-way seam; OFF must be byte-identical.",
+  "createdAt": "2026-06-16T19:06:36.418Z",
+  "updatedAt": "2026-06-16T19:06:36.418Z",
+  "_hash": "6fbe824cdaf5eec7af2f0ac1bcb1f687e2e916e960e2c7e4d3863478a2c13b7f"
+}

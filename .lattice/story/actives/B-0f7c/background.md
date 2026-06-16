@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-16, after B-97df (diagnostics) the user authorized wiring the ledger into the dispatch chain (relaxing the in-module-only constraint for this one slice) so real token numbers can be recorded. Exploration found runClaudeCodeRealLeafDispatch() in packages/main/src/core/lattice-dispatch.ts (~line 1862) does spawnSync('claude', ['--print', promptFile]) and captures only raw stdout/stderr/exit-code — Lattice receives NO token usage today.
+
+## Key Insight
+Real provider usage is obtainable only by asking the Claude Code CLI for structured output (e.g. --output-format json, whose envelope carries both the result text and a usage object) and parsing it. So the seam: (1) before spawn, record a preflight prompt-size-estimate (synchronous bytes/chars estimator to keep the sync dispatch function sync) attributed to the active storyId/phase/host; (2) when the ledger flag is ON, run the host with JSON output, parse result text + usage, and record a provider-reported record (via the existing anthropic adapter) that supersedes the estimate. The dependency stays one-way (dispatch -> ledger); the usage-ledger module keeps zero cross-module imports. The orchestration and parsing live as pure testable functions in the module; the dispatch edit is a minimal gated call.
+
+## Tradeoff
+Touching dispatch is inherently riskier than the prior in-module slices, so the risk is bounded by two invariants: flag OFF => dispatch is byte-identical to today (same spawn args, same raw-text handling), and flag ON with missing/unparseable JSON => fall back to raw stdout text (dispatch never breaks) + record 'unavailable'. Any ledger error is caught and never breaks dispatch. We accept a claude-host-only real-usage path now (codex/gemini are scaffolded-only and get estimate + unavailable); extending to other hosts is a later story. The alternative (estimate-only seam) was declined by the user because it would not show real numbers.
+
+## Conversation Texture
+The user chose 'seam + parse real usage' after being shown that a thin estimate-only seam cannot surface real provider counts. This follows B-253e/B-08a1/B-a5c9/B-97df and is the first slice that deliberately edits code outside the usage-ledger module, under an explicit thin-one-way-seam mandate.
