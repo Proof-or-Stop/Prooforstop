@@ -43,8 +43,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { StoryStore } from '../core/store.js';
-import { createDoctorHandlers } from '../handlers/doctor.js';
-import { resolveDoctorGitCwd } from '../handlers/doctor.js';
+import { createDoctorHandlers, resolveDoctorGitCwd } from '../handlers/doctor.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 
 const FATAL_RE = /fatal: not a git repository/i;
