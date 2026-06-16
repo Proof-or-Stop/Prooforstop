@@ -9,7 +9,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the recommendation document explicitly compare the static console demo against the existing host-neutral observability source of truth and list only real productization gaps.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document names the static prototype input and the existing host-neutral observability source-of-truth anchor.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document avoids replacing or contradicting the adopted host-neutral observability console design.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document identifies real productization gaps instead of adding arbitrary dashboard features or cosmetic-only work.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

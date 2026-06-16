@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Extend the existing host-neutral observability source of truth instead of replacing it.",
+    "Make visual discipline and click resolution explicit acceptance requirements, not optional polish.",
+    "Keep the MVP read-only and host-neutral, with Authority boundaries always visible.",
+    "Prefer live CLI JSON contracts and recovery commands over static dashboard claims."
+  ],
+  "drivers": [
+    "The user asked for a detailed requirements recommendation document, not implementation.",
+    "The static demo is useful but currently hard-coded and incomplete as a product contract.",
+    "Lattice philosophy requires local evidence, host verdicts, Authority receipts, and production DONE to remain separate."
+  ],
+  "options": [
+    {
+      "name": "A: Add a focused MVP requirements addendum",
+      "pros": [
+        "Preserves the adopted host-neutral observability console document as the source anchor",
+        "Captures prototype-specific requirements without rewriting the whole design",
+        "Keeps scope small enough for a document-only story"
+      ],
+      "cons": [
+        "A later implementation story is still required",
+        "Some requirements depend on CLI JSON surfaces that may need separate work"
+      ]
+    },
+    {
+      "name": "B: Rewrite the existing observability console document",
+      "pros": [
+        "One document would contain all console requirements",
+        "Could remove some cross-reference overhead"
+      ],
+      "cons": [
+        "Higher risk of disturbing adopted source-of-truth language",
+        "More likely to mix prototype productization with authority design",
+        "Unnecessary for the user request"
+      ]
+    },
+    {
+      "name": "C: Implement the console immediately",
+      "pros": [
+        "Would produce a visible artifact faster",
+        "Could validate click behavior directly"
+      ],
+      "cons": [
+        "Violates the current request for a requirements recommendation document",
+        "Would prematurely choose adapter and UI architecture",
+        "Risks optimizing UI before fixing data and authority correctness"
+      ]
+    }
+  ],
+  "chosen": "A: Add a focused MVP requirements addendum",
+  "rationale": "A focused addendum best satisfies the user request while keeping the existing host-neutral observability design stable and avoiding premature implementation.",
+  "preMortem": [
+    {
+      "scenario": "The document repeats the existing source of truth instead of adding prototype-specific requirements.",
+      "trigger": "Large sections are copied from host-neutral-observability-console.md without mapping the static demo gaps.",
+      "consequence": "The next implementation story still lacks actionable acceptance criteria.",
+      "mitigation": "Keep this document focused on live data, visual/click requirements, recovery commands, and MVP acceptance."
+    },
+    {
+      "scenario": "The document treats visual discipline as optional polish.",
+      "trigger": "Aesthetic spacing, symmetry, and click behavior are not included in acceptance criteria.",
+      "consequence": "A future console could technically read data but still feel untrustworthy or incomplete.",
+      "mitigation": "Make visual rules and click-target inventory mandatory acceptance and verification items."
+    },
+    {
+      "scenario": "The document blurs local workflow state with production authority.",
+      "trigger": "Green dashboard states are not explicitly tied to local evidence or verified receipts.",
+      "consequence": "Users may mistake local DONE for productionDone.",
+      "mitigation": "Require global authority markers and per-detail authority explanations."
+    }
+  ],
+  "timestamp": "2026-06-16T00:55:26.402Z"
+}
