@@ -15,6 +15,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Feed Anthropic response with all four usage fields {input_tokens:500,output_tokens:200,cache_creation_input_tokens:100,cache_read_input_tokens:50} -> canonical.input=500, canonical.output=200, canonical.cacheCreation=100, canonical.cacheRead=50; usage.source=provider-reported; raw.providerUnits=anthropic-usage-v1; WHY: covers main mapping path and all four native fields to canonical",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Anthropic response with zero cache fields {input_tokens:1200,output_tokens:340,cache_creation_input_tokens:0,cache_read_input_tokens:0} -> canonical cacheCreation=0 and cacheRead=0 (genuine provider-reported zero, NOT null); WHY: confirms 0 is preserved when provider genuinely reports zero, never coerced to null",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Feed Anthropic response with input_tokens=0 and output_tokens=0 (provider reports zero tokens, empty prompt) -> source=provider-reported NOT unavailable; WHY: zero is a valid provider report, never downgrade to unavailable",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Anthropic response with very large token counts (input_tokens=999999999, output_tokens=500000) -> canonical carries the large values without overflow or truncation; WHY: no silent overflow on large provider counts",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Feed Anthropic response with usage=null/undefined (no usage block) -> source=unavailable with non-empty unavailableReason, never zeros; WHY: no-usage response must never silently become zero",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Anthropic response with raw.payloadDigest -> verify it is a sha256:hex hash of the provider usage payload (deterministic); WHY: ensures raw provenance is preserved for audit",
+            "type": "cli"
+          },
+          {
+            "desc": "Feed Anthropic response with negative token count {input_tokens:-1,...} -> adapter either throws or produces a record that fails B-253e validateUsageLedgerRecord (negative dimension rejected); WHY: rogue provider negative counts must be caught",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
