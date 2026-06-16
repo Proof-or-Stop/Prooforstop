@@ -290,7 +290,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice' ':(exclude).codex'",
+          "result": "pass",
+          "note": "Covered by zero-residual scan on .Codex/.",
+          "headHash": "c129e9f55a2f8ca4c2a476bf77d5cd4a5beaa92a",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:54.503Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
