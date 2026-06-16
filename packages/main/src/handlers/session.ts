@@ -412,6 +412,17 @@ interface NextStepCtx {
   hasPassingTestEvidence: boolean;
   testPassedAt: string | null;
   gitReady: boolean;
+  /**
+   * B-e791 CHK-001: true when the metadata root is not itself a git repo BUT a
+   * configured gitRoot resolves to a signed workspace (mirrors the
+   * `!gitReady && configuredGitRootStatus?.signedWorkspaceRoot` pattern used in
+   * the main-branch next-step render ~918). When set, INIT/INIT_CHECK guidance
+   * must NOT tell the user to git init the metadata root — the workspace is
+   * already git-backed via the configured gitRoot, so the story is ready to
+   * proceed. Plain non-git projects with no configured gitRoot leave this false
+   * and keep the existing git-init message byte-identical.
+   */
+  configuredGitRootResolved: boolean;
   donePrecheck: DonePrecheckSummary | null;
   reviewerStatus: ReviewerStatusSummary | null;
   /**
@@ -546,12 +557,12 @@ function computeNextStep(c: NextStepCtx): string {
     case 'IDEA':
       return `Story is in IDEA phase with no checklist. After discussing the checklist with the user, append it via lattice checklist_add, or re-run lattice story_create with the checklist field`;
     case 'INIT':
-      if (!c.gitReady) {
+      if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in INIT phase, but the current project is not a git repository. You can continue recording metadata; to enter the INIT_CHECK/worktree flow, first run git init && git add . && git commit -m "init"`;
       }
       return `Story is in INIT phase. Next step: lattice story_advance --storyId=${sid} --phase=INIT_CHECK to create the worktree, then cd into it`;
     case 'INIT_CHECK':
-      if (!c.gitReady) {
+      if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in the pre-INIT_CHECK phase, but the current project is not a git repository. Run git init + initial commit first, then continue with worktree / PLAN flow`;
       }
       return `Story is at INIT_CHECK, worktree created. Next: cd into .worktrees/${sid}/ then lattice story_advance --phase=PLAN`;
@@ -1313,6 +1324,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         hasPassingTestEvidence,
         testPassedAt,
         gitReady,
+        configuredGitRootResolved: !gitReady && !!configuredGitRootStatus?.signedWorkspaceRoot,
         donePrecheck,
         reviewerStatus,
         scopeBlocking,
