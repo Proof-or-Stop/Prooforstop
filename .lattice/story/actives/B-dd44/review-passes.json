@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-16T21:10:44.729Z",
       "reviewRunId": "B-dd44:RR-005",
       "_hash": "581353c2d24a95cefd53e86f8467de99a85fc00d797c02d4af37c10ce18d4208"
+    },
+    {
+      "id": "B-dd44:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review RR-007 (post F-001 fix): (1) SCOPE: exactly 4 files changed outside .lattice/ -- dispatch-usage.ts, lattice-dispatch.ts, usage-ledger-budget-smoke.ts, package.json; dispatch-runner/cli-engine/handlers untouched. (2) ONE-WAY DEPENDENCY: dispatch-usage.ts imports only sibling usage-ledger modules (./ relative) and node: builtins; zero cross-module imports confirmed by grep returning no hits. (3) NO DEAD/DUPLICATE CONCEPTS: buildBlockedBudgetRecord correctly reuses record.js (validateUsageLedgerRecord, SCHEMA_VERSION, LedgerUsage, UsageLedgerRecordInput) and ids.js (mintRecordId, CallCorrelation) from the existing module. (4) RECORD SEMANTICS: decision.kind=blocked confirmed at line 637; usage.source=prompt-size-estimate (never provider-reported -- no hits on provider-reported source in new code); budgetPolicyId is the self-describing hard-budget:<N> string from resolveHardBudget; supersedesRecordIds supersedes the estimate record (or [] when no preflight handle); authority.mode=local, receiptVerified=false -- never-invent-a-budget contract upheld across 3 explicit comments. KOALA_HARD_BUDGET_TOKENS retained as legacy-compat fallback with backward-compat comments at lines 507, 525 (not @deprecated; retained intentionally per koala-removal program). No concept deletion, no residue, no doc-promise-undelivered items found. Zero blockers.",
+      "createdAt": "2026-06-16T21:13:00.669Z",
+      "reviewRound": "2026-06-16T21:10:44.729Z",
+      "reviewRunId": "B-dd44:RR-007",
+      "_hash": "830154fb86a6ce5c11304767a7581b56f06c34365c9978ce80c91da86c079320"
     }
   ]
 }
