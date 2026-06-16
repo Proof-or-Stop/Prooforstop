@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T00:09:43.214Z",
       "reviewRunId": "B-1637:RR-001",
       "_hash": "be270f6fd85b214843ffea1df5b92d451a3f1cd7df897936b18743ee8dfbf3e0"
+    },
+    {
+      "id": "B-1637:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The diff is purely additive: resolveDoctorGitCwd() is a new export added to doctor.ts; the three module-private probe functions (scanTrackedRuntimeArtifacts, scanOrphanWorktrees, scanStoryMetadataProtection) received only signature extensions (new optional gitCwd parameter with default=root). The old zero-extra-param signatures appear as deleted lines in the diff but the functions remain under the same names, all 6 internal call sites in doctor.ts were updated to pass gitProbeCwd, and the functions are module-private with no external callers (confirmed by grep). No symbols were deleted or renamed. New smoke test doctor-gitroot-probe-smoke.ts is correctly registered in both package.json files. No orphaned references found. No doc-promise-undelivered issues. No blocker.",
+      "createdAt": "2026-06-16T00:16:47.910Z",
+      "reviewRound": "2026-06-16T00:15:43.126Z",
+      "reviewRunId": "B-1637:RR-005",
+      "_hash": "1cc239a73f8b4d00b3ee64c5ff3434d7efe7438b121e2e4606b1a7b01613819f"
     }
   ]
 }
