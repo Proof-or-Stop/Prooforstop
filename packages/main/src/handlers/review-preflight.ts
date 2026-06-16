@@ -55,6 +55,12 @@ import {
   type DocsDriftGateResult,
 } from './validate-docs-drift.js';
 import {
+  detectManagedAssetMode,
+  detectManagedAssetProfile,
+  listManagedAssetDefinitions,
+  type ManagedAssetDefinition,
+} from '../core/managed-assets.js';
+import {
   LOCAL_CODEX_VERIFY_COMMAND,
   resolveLocalCodexVerifyCommand,
   storyRequiresCodexEvidence,
@@ -359,11 +365,30 @@ export function runReviewCliGates(
   if (deps.registryNames) {
     const mdReader = deps.mdFileReader ?? defaultMdFileReader;
     const mdContents = mdReader(deps.projectRoot);
+    // B-a7b0 CHK-002: cross-reference the REAL managed-asset registry. Detect the
+    // project's profile + assetMode so listManagedAssetDefinitions returns the
+    // assets `lattice init` would actually generate for this repo. The check is
+    // provider-injected — paths are never hardcoded in the gate. A registry-
+    // resolution failure degrades to no contradiction check (never crashes the gate).
+    let managedAssetDefs: Pick<ManagedAssetDefinition, 'relPath' | 'kind'>[] | undefined;
+    try {
+      const profile = detectManagedAssetProfile(deps.projectRoot);
+      const assetMode = detectManagedAssetMode(deps.projectRoot);
+      managedAssetDefs = listManagedAssetDefinitions(
+        profile,
+        undefined,
+        deps.projectRoot,
+        assetMode,
+      );
+    } catch {
+      managedAssetDefs = undefined;
+    }
     // B-a7b0 CHK-001: pass repoRoot so the gate also runs path-reference drift
     // (using DOCS_DRIFT_PATH_ALLOWLIST by default). When projectRoot is absent the
     // gate degrades to the command-only check (backward compatible).
     docsDrift = runDocsDriftGate(mdContents, deps.registryNames, {
       repoRoot: deps.projectRoot,
+      managedAssetDefs,
     });
     const docsDriftOk = docsDrift.status === 'pass' || docsDrift.status === 'skipped';
     gates.push({
@@ -376,6 +401,9 @@ export function runReviewCliGates(
           ? [`missing: ${docsDrift.missing.join(', ')}`]
           : []),
         ...docsDrift.missingPaths.map((p) => `missing path: ${p}`),
+        ...docsDrift.managedAssetContradictions.map(
+          (c) => `managed-asset contradiction: ${c.asset} (${c.kind})`,
+        ),
         ...(docsDrift.stale.length > 0
           ? [`stale (advisory): ${docsDrift.stale.join(', ')}`]
           : []),

@@ -110,7 +110,7 @@ export interface ManagedAssetLocalEditReview {
   recommendation: string;
 }
 
-interface ManagedAssetDefinition {
+export interface ManagedAssetDefinition {
   id: string;
   relPath: string;
   kind: ManagedAssetKind;

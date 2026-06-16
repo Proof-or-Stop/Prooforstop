@@ -141,4 +141,142 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
   );
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// B-a7b0 CHK-002: managed-asset contradiction check (the P3 class).
+// All defs are INJECTED fixtures — the real listManagedAssetDefinitions is NEVER
+// called in the assertion path.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── happy: md forbids a generated-kind relPath → fail, named in contradictions ──
+{
+  const md = [
+    '# Doc',
+    '',
+    'Claude hook/settings 只放在 `.claude/`，不要创建 `.codex/hooks` 或 `.codex/settings.json`。',
+    '',
+  ].join('\n');
+
+  // Injected registry: the codex hook file is a GENERATED kind (codex-hooks).
+  const result = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+    ],
+    // Empty allowlist so the contradiction is NOT suppressed (proves detection).
+    managedAssetAllowlist: new Set<string>(),
+  });
+
+  assert.equal(result.status, 'fail', 'happy: forbidding a generated asset must fail the gate');
+  assert.deepEqual(
+    result.managedAssetContradictions,
+    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    `happy: the asset + kind must appear in managedAssetContradictions (got ${JSON.stringify(result.managedAssetContradictions)})`,
+  );
+  assert.ok(
+    result.summary.includes('.codex/hooks/lattice-scope-pretool.cjs') && result.summary.includes('codex-hooks'),
+    'happy: summary should name the asset + registry kind',
+  );
+}
+
+// ── edge: md forbids an excluded-path (NON-generated) kind → NO contradiction ──
+{
+  const md = '# Doc\n\n不要创建 `.codex/settings.json`。\n';
+  const result = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [
+      { relPath: '.codex/settings.json', kind: 'excluded-path' },
+    ],
+    managedAssetAllowlist: new Set<string>(),
+  });
+  assert.equal(result.status, 'pass', 'edge: forbidding a NON-generated kind must not fail');
+  assert.deepEqual(
+    result.managedAssetContradictions,
+    [],
+    'edge: excluded-path kind must produce no contradiction',
+  );
+}
+
+// ── edge: md with no do-not-create claims → pass, contradictions empty ──
+{
+  const md = '# Doc\n\nThe framework generates `.codex/hooks/x.cjs` automatically.\n';
+  const result = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/x.cjs', kind: 'codex-hooks' },
+    ],
+    managedAssetAllowlist: new Set<string>(),
+  });
+  assert.equal(result.status, 'pass', 'edge: no forbidding claim → pass');
+  assert.deepEqual(result.managedAssetContradictions, [], 'edge: no claim → no contradiction');
+}
+
+// ── edge: forbidden ANCESTOR dir of a generated asset → contradiction ──
+{
+  // CLAUDE.md forbids the parent dir `.Codex/hooks` (uppercase C); the generated
+  // asset is the lowercase file under it. Casing-insensitive + ancestor match.
+  const md = '# Doc\n\n不要创建 `.Codex/hooks`。\n';
+  const result = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+    ],
+    managedAssetAllowlist: new Set<string>(),
+  });
+  assert.equal(result.status, 'fail', 'edge: forbidding an ancestor dir of a generated asset must fail');
+  assert.deepEqual(
+    result.managedAssetContradictions,
+    [{ asset: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' }],
+    'edge: ancestor-dir prohibition must flag the generated child asset',
+  );
+}
+
+// ── adversarial: allowlisted forbidden generated asset → NOT flagged ──
+{
+  // Mirrors the real CLAUDE.md pending claim: forbids `.Codex/hooks`, asset is
+  // generated, BUT the forbidden token is in the allowlist (B-94ae pending).
+  const md = '# Doc\n\n不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。\n';
+  const result = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [
+      { relPath: '.codex/hooks/lattice-scope-pretool.cjs', kind: 'codex-hooks' },
+    ],
+    // Uses the DEFAULT allowlist (DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST) → suppressed.
+  });
+  assert.equal(result.status, 'pass', 'adversarial: allowlisted pending claim must NOT block the gate');
+  assert.deepEqual(
+    result.managedAssetContradictions,
+    [],
+    'adversarial: allowlisted forbidden generated asset must not be flagged',
+  );
+}
+
+// ── adversarial: check reads the INJECTED registry, not a hardcoded list ──
+{
+  // Same forbidding md; flip ONLY the injected def's kind from generated→excluded.
+  // If the check were hardcoded it would flag both; it must instead follow the
+  // injected registry and flag ONLY the generated variant.
+  const md = '# Doc\n\n不要创建 `.codex/hooks/probe.cjs`。\n';
+
+  const asGenerated = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [{ relPath: '.codex/hooks/probe.cjs', kind: 'codex-hooks' }],
+    managedAssetAllowlist: new Set<string>(),
+  });
+  const asExcluded = runDocsDriftGate([md], REGISTRY, {
+    managedAssetDefs: [{ relPath: '.codex/hooks/probe.cjs', kind: 'excluded-path' }],
+    managedAssetAllowlist: new Set<string>(),
+  });
+
+  assert.equal(asGenerated.status, 'fail', 'adversarial: generated injected def → fail');
+  assert.equal(asExcluded.status, 'pass', 'adversarial: excluded injected def → pass');
+  assert.notDeepEqual(
+    asGenerated.managedAssetContradictions,
+    asExcluded.managedAssetContradictions,
+    'adversarial: different injected defs must yield different outcomes (proves registry-driven, not hardcoded)',
+  );
+
+  // And with NO managedAssetDefs at all → always empty (backward compatible).
+  const noDefs = runDocsDriftGate([md], REGISTRY, { repoRoot: REPO_ROOT, pathExists: () => true });
+  assert.deepEqual(
+    noDefs.managedAssetContradictions,
+    [],
+    'adversarial: absent managedAssetDefs → empty contradictions (additive/backward compatible)',
+  );
+}
+
 console.log('docs-drift-path-drift smoke passed');
+console.log('docs-drift-managed-asset-contradiction smoke passed');
