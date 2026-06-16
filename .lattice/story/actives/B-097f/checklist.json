@@ -41,6 +41,16 @@
           "headHash": "bd500d5bea65dd85a5f4efc72d6400ceba931a49",
           "materialHash": "46883686b1ce7a62c4535681a95ba08904cf8909e6f4ef9cb51fd4a22d07aa71",
           "timestamp": "2026-06-16T14:27:55.622Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "契约点2:symlink target 从 fileURLToPath(import.meta.url)->packageRoot->templates/agents 解析,非 hardcode dev 路径",
+          "headHash": "e143059f2638070d747cfb4c45d70cca82f4068a",
+          "materialHash": "46883686b1ce7a62c4535681a95ba08904cf8909e6f4ef9cb51fd4a22d07aa71",
+          "timestamp": "2026-06-16T14:27:56.463Z"
         }
       ]
     },
