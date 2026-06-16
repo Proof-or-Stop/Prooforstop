@@ -7,7 +7,30 @@
       "userSees": "The audit output lists every main-mutating CLI path and marks which hold the main-write-lock and which (if any) still do not.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit enumerates every main-mutating commit/merge/ref path across packages/main/src and marks each as locked or unlocked",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A path that only merges main INTO a story worktree (does not mutate main) is classified as NOT main-mutating, not a gap",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The B-7365 reconcile path shows up as LOCKED and no main-mutating git primitive is omitted from the enumeration",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,32 @@
+{
+  "task": "Audit every CLI path that commits to or merges into the main branch (or mutates the main ref/branch) and ensure each holds the main-write-lock, then add a mechanical regression guard so a future unlocked main-mutating path is caught automatically — generalizing the B-7365 fix.",
+  "outcome": "Running the new guard shows it green and proves it bites:\n$ npm --prefix packages/main run test:main-write-lock-coverage\n  ✓ every enumerated main-mutating commit/merge path is wrapped in withMainWriteLock/withReentrantMainWriteLock\n  ✓ negative case: an unlocked main-mutating path is detected and the guard fails (red)\n✓ main-write-lock-coverage passed\nand `lattice validate` prints ALL PASS, so a future B-7365-class gap (a main commit/merge shipped without the lock) turns the guard red instead of silently corrupting concurrent sessions' metadata.",
+  "facts": [
+    "B-7365 (this session) wrapped commitInitCheckMetadataAndMergeMain in cli-engine.ts in withReentrantMainWriteLock; that was one previously-unlocked main-mutating path that raced concurrent sessions and wrote git conflict markers into story metadata.",
+    "core/main-write-lock.ts exports withMainWriteLock and withReentrantMainWriteLock (releases on throw); doctor has a stuck-lock check.",
+    "Existing lock call sites: cli-engine.ts, handlers/{story-create,audit,finding,gap-log,story-query}.ts, core/auxiliary-worktree-cleanup.ts.",
+    "main/src/tasks/main-write-lock-smoke.ts tests lock acquire/release/reentrancy semantics, NOT coverage exhaustiveness — no test asserts every main-mutating path is locked.",
+    "Main-mutating git operations live mainly in cli-engine.ts (INIT_CHECK reconcile, locked), handlers/done-effects.ts (DONE merge of story branch into main + worktree cleanup), handlers/done-recover.ts (commit-tree against main), handlers/story-query.ts (story_reconcile/test_story merge main into story)."
+  ],
+  "constraints": [
+    "Lock-only: must not change any command's semantics, only wrap the critical section.",
+    "Use withReentrantMainWriteLock where a path may run inside an already-locked context (DONE, reconcile).",
+    "Full per-session physical checkout isolation is OUT OF SCOPE (deferred maximalist architecture; truth source session-ownership-and-write-leases.md).",
+    "The regression guard must be mechanical (static scan or runtime assertion) and run inside lattice validate; it must distinguish paths that mutate MAIN from paths that only mutate a story worktree (merging main INTO a story branch does not mutate main).",
+    "The external .githooks/pre-push must not depend on the lattice CLI (external-defense principle) — the guard belongs in validate, not the hook."
+  ],
+  "unknowns": [
+    "The exact set of main-mutating paths still NOT under the lock (besides B-7365's now-fixed reconcile) — resolved by CHK-001's audit before CHK-002 closes them."
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/auxiliary-worktree-cleanup.ts",
+    "packages/main/src/tasks/main-write-lock-smoke.ts",
+    "packages/main/src/tasks (new main-write-lock-coverage guard)"
+  ],
+  "timestamp": "2026-06-16T03:53:19.973Z"
+}
