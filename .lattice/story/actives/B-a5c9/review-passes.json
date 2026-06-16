@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T14:16:25.749Z",
       "reviewRunId": "B-a5c9:RR-003",
       "_hash": "64758d0d80095d0d6862542187853a153b9c025c652fdd9a73b25f0f9a82bbf6"
+    },
+    {
+      "id": "B-a5c9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 62 intents, 62 evidence entries (all manual_transcript result=pass). Verifier ran 62/62 PASS; smoke ran 55/55 PASS. All static checks sound (notTiktoken regex correctly excludes comments, zeroImport verified, scopeClean confirmed). CHK-004:adversarial:0 (forbidden field in context arg) has no dedicated smoke check but is structurally guaranteed by explicit field construction in buildEstimateRecord with no context spread to the record body. No intent carries priority=must, so no must-gap violations exist.",
+      "createdAt": "2026-06-16T14:21:26.012Z",
+      "reviewRound": "2026-06-16T14:16:25.749Z",
+      "reviewRunId": "B-a5c9:RR-001",
+      "_hash": "21499ed07350564362118e93f31c4405c80d0ca875c17ba822327285d0874c74"
     }
   ]
 }
