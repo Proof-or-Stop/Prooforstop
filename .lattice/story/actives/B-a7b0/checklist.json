@@ -71,7 +71,30 @@
       "userSees": "`lattice validate` runs the new docs-drift smoke green, proving the gate flags stale paths and managed-asset contradictions while leaving clean docs and existing command-name checks unaffected.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running the new docs-drift smoke (node dist/tasks/<name>-smoke.js) exits 0 and prints a passed line, asserting (a) stale-path fixture fails, (b) managed-asset-contradiction fixture fails, (c) clean fixture passes, (d) command-name behavior unchanged",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke uses dependency-injected fixtures (in-memory md strings + injected pathExists/grep/registry providers) and never reads or mutates the real CLAUDE.md",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke is wired into the actual lattice validate battery (chained into root npm test) so REVIEW->TEST runs it; running npm test shows the smoke output line and a deliberately broken check makes npm test fail",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
