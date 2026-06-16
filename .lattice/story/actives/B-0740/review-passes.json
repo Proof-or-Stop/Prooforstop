@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T01:16:26.552Z",
       "reviewRunId": "B-0740:RR-002",
       "_hash": "22a2c9ab5dce88f60d216ecc739393663ca1eebcc4fa5b46b1ed24155837932f"
+    },
+    {
+      "id": "B-0740:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (Round 2): all 6 must-intents (CHK-001 happy/edge/adversarial + CHK-002 happy/edge/adversarial) have concrete logic_test evidence referencing distinct smoke-test files with DI seams. The 6 evidence entries are currently marked stale (headHash fca68419 vs current HEAD 6b9ade7) because commit 0d1097cff removed a duplicate comment from validate-lint.ts after evidence was recorded — a cosmetic/no-logic change. Neither test file (story-metadata-protection-smoke.ts, validate-lint-change-scope-smoke.ts) nor doctor.ts changed after evidence recording. Both smoke tests pass against the current dist (12 checks + validate-lint change-scope smoke passed, verified directly). Adversarial revert proofs in the notes confirm tests are not tautologies. DI seams confirmed: CHK-001 uses real temp git repos via createDoctorHandlers with wrapper-root fixtures; CHK-002 uses CommandRunner injection and gitRootReader stub that asserts threaded gitCwd. No coverage gaps found. Staleness is a headHash drift artefact from the comment cleanup resolving F-001, not a semantic gap. Recommend evidence refresh at next validate run.",
+      "createdAt": "2026-06-16T02:02:12.800Z",
+      "reviewRound": "2026-06-16T01:58:56.058Z",
+      "reviewRunId": "B-0740:RR-006",
+      "_hash": "af8916e20f35de0b9c488c4c1cbaf3df50c633ae82f9d612648e5e8cee67eb43"
     }
   ]
 }
