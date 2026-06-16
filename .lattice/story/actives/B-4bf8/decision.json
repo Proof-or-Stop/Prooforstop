@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "The JSON example is the de-facto spec — fix the example, not just the prose",
+    "Amend in place; preserve the doc's existing correlation/supersedes/authority/privacy design",
+    "Preserve provider fidelity (raw units) AND add a normalized canonical view; never force one shape",
+    "Never bake absolute prices into append records — reference a pricing snapshot",
+    "Documentation-only: no source code in this story"
+  ],
+  "drivers": [
+    "A two-field token model systematically under-counts and makes cost impossible (cache reads ~0.1x, writes 1.25x/2x; input_tokens is uncached remainder)",
+    "Fixing the spec pre-implementation is far cheaper than after a writer ships",
+    "User needs accurate per-story token + cost accounting"
+  ],
+  "options": [
+    {
+      "name": "A: amend the existing doc in place",
+      "pros": [
+        "Preserves the strong existing design",
+        "Minimal, reviewable diff",
+        "Keeps one canonical doc"
+      ],
+      "cons": [
+        "Must keep edits consistent with many existing sections"
+      ]
+    },
+    {
+      "name": "B: rewrite the doc",
+      "pros": [
+        "Clean slate"
+      ],
+      "cons": [
+        "Throws away well-designed sections; large risky diff — rejected"
+      ]
+    },
+    {
+      "name": "C: write a second addendum doc",
+      "pros": [
+        "Isolated"
+      ],
+      "cons": [
+        "Splits the spec; readers miss the correction — rejected"
+      ]
+    }
+  ],
+  "chosen": "A: amend the existing doc in place",
+  "rationale": "The doc's correlation/supersedes/authority/privacy design is sound; only the token model and a few accuracy rules are wrong or missing. In-place amendment yields a small, reviewable diff and one canonical spec, at the cost of keeping edits consistent with existing sections — mitigated by a final cross-reference pass (CHK-009) and a whole-doc reviewer read.",
+  "preMortem": [
+    {
+      "scenario": "Four-field model added to prose but the JSON example still shows input/output/total",
+      "trigger": "Editor updates prose only",
+      "consequence": "Implementer copies the still-wrong example",
+      "mitigation": "CHK-001 explicitly covers both prose and example; verifier greps the example block for all four field names and asserts totalTokens absent"
+    },
+    {
+      "scenario": "Edits contradict the existing correlation/supersedes/authority sections",
+      "trigger": "New text duplicates or conflicts with existing rules",
+      "consequence": "Internally inconsistent spec",
+      "mitigation": "CHK-009 cross-reference pass + reviewer reads the whole doc end to end; verifier checks key invariants still appear once"
+    },
+    {
+      "scenario": "Scope creep into source code / a real schema file",
+      "trigger": "Implementer starts building the ledger",
+      "consequence": "Out-of-scope code, blast radius",
+      "mitigation": "Execution boundary excludes packages/*/src; scope contract enforced at REVIEW; verifier asserts only the one doc changed"
+    },
+    {
+      "scenario": "Required record constraints / Validation / Acceptance not updated to match new fields",
+      "trigger": "Only the example is edited",
+      "consequence": "Stale, self-contradicting spec",
+      "mitigation": "CHK-009 + the product-reviewer advisory (clarify the four fields in Required record constraints); verifier checks those sections mention cache fields"
+    },
+    {
+      "scenario": "A doc gate (e.g. English-surface / no-new-Chinese) fails",
+      "trigger": "Non-English content or formatting issue introduced",
+      "consequence": "Validate blocks DONE",
+      "mitigation": "Keep all additions English; run lattice validate before advancing"
+    }
+  ],
+  "timestamp": "2026-06-15T23:43:45.381Z"
+}

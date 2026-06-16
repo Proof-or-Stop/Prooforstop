@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Thread resolved gitRoot into doctor --repair (repairStoryMetadataAllowlist)",
+      "context": "doctor.ts:166 calls repairStoryMetadataAllowlist(root); its git rev-parse --show-toplevel (doctor.ts:945) uses cwd:root (metadataRoot). Add a gitCwd parameter (mirroring the three scan functions that already take gitProbeCwd) and pass the gitProbeCwd resolved at doctor.ts:63 (resolveDoctorGitCwd) at the line 166 call site, so the repair installs the managed allowlist on wrapper-root projects. Fall back to root when no gitRoot resolves. Add a wrapper-root --repair regression test.",
+      "userSees": "`lattice doctor --repair` on a wrapper-root project (metadataRoot != gitRoot) installs the metadata-protection allowlist and the re-scan reports clear, instead of returning 'fatal: not a git repository' / wrote:false and changing nothing.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Thread resolved gitCwd into lint change-scope (resolveChangedFiles)",
+      "context": "verifier.ts:630 and review-preflight.ts:334 call resolveChangedFiles({projectRoot}) without the resolved gitCwd; resolveChangedFiles / its defaultChangedFilesReader (validate-lint.ts) run git diff with cwd:projectRoot. Add an optional gitCwd to resolveChangedFiles (and its reader) and pass the gitCwd already resolved at verifier.ts:604 / review-preflight.ts so the change-scope git diff runs from the gitRoot on wrapper-root layouts. Keep the git-diff base and the tsconfig-relativity base consistent; fall back to root. Add a wrapper-root change-scope regression test.",
+      "userSees": "`lattice validate --lint --story=B-xxx` on a wrapper-root project scopes lint to the changed packages (out-of-scope tsconfigs reported skipped) instead of silently falling back to full recursive tsc because the change-scope git diff failed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

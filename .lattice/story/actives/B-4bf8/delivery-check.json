@@ -1,0 +1,101 @@
+{
+  "storyId": "B-4bf8",
+  "checkedAt": "2026-06-16T00:20:25.439Z",
+  "reviewRound": "2026-06-16T00:10:14.232Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#JSONL-Ledger-Record-Shape",
+      "promise": "Four-field cache-token model in prose + JSON example: inputTokens (uncached remainder), outputTokens, cacheCreationInputTokens, cacheReadInputTokens; totalTokens must NOT be stored; totals derived in summary layer via identity formula",
+      "verifiedBy": "diff/grep + verifier CHK-001 8/8 + CHK-002 7/7",
+      "evidence": "diff adds four fields to JSON example, billableUnits cache entries, identity formula, Derived Totals section; CHK-001:happy:0 all four fields in JSON block; CHK-001:edge:0 + CHK-002:happy:0 no totalTokens in example; CHK-002:happy:1 identity formula present"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#Estimate-accuracy-and-fallback-order",
+      "promise": "Estimate accuracy: prefer provider count_tokens endpoint (high confidence), fallback to local tokenizer (medium), then bytes/chars heuristic offline-only (low); estimate bound to exact provider.model; confidence field required",
+      "verifiedBy": "diff/grep + verifier CHK-003 7/7",
+      "evidence": "diff adds Estimate accuracy and fallback order section with three-step fallback chain; CHK-003:happy:0 count_tokens present; CHK-003:happy:1 confidence high|medium|low; CHK-003:adversarial:0 bytes is fallback-only"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#Story-and-Role-Attribution",
+      "promise": "Call-time attribution: storyId/phase captured at preflight from active lease/session; storyId=null for non-story calls (still recorded, not dropped); subagent/nested calls propagate parent storyId with subagentId/threadId; role/agentType field required; JSON example updated with agentType, subagentId, threadId",
+      "verifiedBy": "diff/grep + verifier CHK-004 8/8",
+      "evidence": "diff adds Story and Role Attribution section + Required record constraints agentType; JSON example adds agentType, subagentId, threadId; CHK-004:happy:0-3 all pass; CHK-004:adversarial:0 null-storyId records are not dropped"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#Completeness-Guarantee",
+      "promise": "Single ledger-writing choke-point for all provider dispatch; periodic reconciliation check keyed on ledgerCallId+attemptId; surfaces completeness gaps without silently reconciling them away",
+      "verifiedBy": "diff/grep + verifier CHK-005 6/6",
+      "evidence": "diff adds Completeness Guarantee section with single writer choke-point and reconciliation rules; CHK-005:happy:0 choke-point confirmed; CHK-005:edge:0 reconciliation keyed on ledgerCallId+attemptId; CHK-005:adversarial:1 Validation updated"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#Streaming-and-failure-usage-capture",
+      "promise": "Streaming usage read from terminal stream event (message_delta/final message); mid-stream error/timeout still records partial output usage as provider-reported; usage.source=unavailable only when truly no count; never default to 0",
+      "verifiedBy": "diff/grep + verifier CHK-006 7/7",
+      "evidence": "diff adds Streaming and failure usage capture section; CHK-006:happy:0 terminal stream event confirmed; CHK-006:happy:1 partial usage on error/timeout confirmed; CHK-006:adversarial:0 prohibition on treating missing as zero"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#Multi-Provider-Normalization",
+      "promise": "Every provider-reported record carries both raw provider digest (usage.raw) and normalized canonical {input, output, cacheCreation, cacheRead}; per-dimension null rule for missing cache fields (null not 0); explicit per-provider mapping rules",
+      "verifiedBy": "diff/grep + verifier CHK-007 6/6",
+      "evidence": "diff adds Multi-Provider Normalization section + per-dimension absence rule in Required constraints; JSON example updated with raw and canonical blocks; CHK-007:adversarial:1 example has both; CHK-007:adversarial:0 no discard of raw"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#Cost-Derivability",
+      "promise": "Cost never stored as absolute dollar amount on append-only record; pricingRef/pricingVersion field references versioned price-table snapshot; cost derived downstream from four-field counts + price table pinned to provider.model + date",
+      "verifiedBy": "diff/grep + verifier CHK-008 7/7",
+      "evidence": "diff adds Cost Derivability section + pricingRef field in JSON example + Required constraints pricingRef rule; CHK-008:adversarial:0 dollarDigits=0 in entire doc; CHK-008:happy:2 absolute price prohibition confirmed; CHK-008:happy:0 pricingRef field present"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md#Validation-Acceptance-Rollout",
+      "promise": "Validation/Smoke Plan, Acceptance Criteria, and Rollout sections updated to cover all new fields: four-field cache tokens, derived totals, estimator confidence/count_tokens, null-storyId attribution, subagent ids, reconciliation, streaming/failure, canonical normalization, pricingRef",
+      "verifiedBy": "diff/grep + verifier CHK-009 13/13",
+      "evidence": "diff adds to Targeted future tests, Acceptance Criteria, and Rollout Phases; CHK-009 all 13/13 pass including adversarial:3 Acceptance includes canonical+pricingRef; lattice validate --story=B-4bf8 reports ALL 69/69 PASS"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-001 8/8: four fields in JSON block, uncached-remainder prose, CMA model_usage reference, cache fields in Required constraints, no totalTokens in JSON, cache entries in billableUnits, totalTokens only in derived context, no source files changed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-002 7/7: no totalTokens in example, identity formula present, summary layer + not-stored prose, constraints totalTokens absent, no total-type billableUnit, every totalTokens in derived context, Validation does not assert totalTokens presence."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-003 7/7: count_tokens preferred, confidence high|medium|low, estimate bound to provider.model, fallback chain count_tokens>tokenizer>bytes, estimator+confidence in constraints, bytes offline-only fallback, estimator block includes confidence."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-004 8/8: storyId=null for non-story calls, subagent propagation, role/agentType field, captured at preflight, example includes storyId+agentType, subagentId/threadId field, no null-storyId dropping, Validation asserts null+subagent."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-005 6/6: single writer choke-point, reconciliation of dispatch vs ledger, reconciliation keyed ledgerCallId+attemptId, bypass/undercount failure mode described, touchpoints reinforce choke-point, Validation asserts reconciliation/completeness."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-006 7/7: streaming usage from terminal event, partial usage on error/timeout, unavailable only when truly no count, consistent with failed-request rule, partial counts tied to provider-reported, prohibits treating missing as zero, Validation asserts streaming/partial/failure."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-007 6/6: both raw + canonical required, explicit per-provider mapping, canonical uses four-field shape, adapter touchpoint consistent with dual view, no statement discarding raw, JSON example includes both raw + canonical."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-008 7/7: pricingRef/pricingVersion field, price table+snapshot+multipliers, prohibits absolute prices, no dollar amount in JSON example, cache multipliers addressed, no hardcoded dollar amounts (dollarDigits=0), Acceptance mentions pricing/pricingRef."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "verify-b-4bf8.mjs TOTAL 69 PASS 69 FAIL 0. CHK-009 13/13: Validation asserts cache-token recording, Acceptance mentions no-stored-total, Validation mentions estimator confidence/count_tokens, Validation mentions null+subagent attribution, CMA expanded on first use, Rollout references new fields, cross-refs consistent, Acceptance includes reconciliation, Acceptance includes streaming, diff is doc-only (onlyDoc=true noSource=true cjk=0), Validation does not assert totalTokens presence, Acceptance includes canonical+pricingRef. Also: lattice validate --story=B-4bf8 ALL 69/69 PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Documentation-only story: diff touches exactly one non-metadata file (the execution-plan doc) and zero source files (onlyDoc=true noSource=true). All eight promised amendments are present in the diff and independently verified by the committed verifier: four-field cache-token model + JSON example, no stored totalTokens with derived identity, estimate fallback chain with confidence + model binding, call-time attribution with null-storyId and subagent ids, completeness choke-point + reconciliation, streaming/failure usage capture, multi-provider raw+canonical dual view with per-dimension null rule, and pricingRef cost derivability. The committed verifier (verify-b-4bf8.mjs) ran 69 real grep/parse assertions and scored TOTAL 69 PASS 69 FAIL 0; lattice validate --story=B-4bf8 confirms 69/69 coverage. The ledger implementation is intentionally deferred (B-1477 scope); this story amends the spec only, by design and as documented."
+  },
+  "_hash": "59b8c8ea7c895bfcbba385777625fe8b65dfc74163c65e1e38bc4d30a055651d"
+}

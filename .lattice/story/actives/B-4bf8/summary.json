@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4bf8",
+  "changes": "Amended the plan-only doc docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md (B-1477) to fix token-accounting accuracy before implementation: four-field cache-token usage model (inputTokens uncached-remainder, outputTokens, cacheCreationInputTokens, cacheReadInputTokens) in prose AND the JSON example with Managed Agents (CMA) provenance; removed stored totalTokens with a summary-layer derived-total identity; count_tokens-preferred estimates with confidence + model-ID binding; call-time story/phase attribution (storyId=null for non-story, subagent propagation, role/agentType); single-writer choke-point + dispatch-vs-ledger reconciliation; streaming/failure usage from the terminal event; multi-provider raw + canonical view with an authoritative per-dimension null rule (unreported cache = null, never 0, never via usage.source); pricingRef cost-snapshot; and matching Validation/Acceptance/Rollout updates.",
+  "usage": "Read the amended decisions doc; a future ledger implementer now has an accurate spec — four-field cache-aware tokens, derived totals, count_tokens estimates, call-time per-story attribution, completeness reconciliation, and pricingRef-based cost. No runtime behavior changed (doc-only).",
+  "expectedOutcome": "git diff on the story branch shows only the one doc amended with the four-field model (prose + example), no stored totalTokens, and the new accuracy sections + Validation/Acceptance/Rollout updates; doc internally consistent and English-only.",
+  "actualTranscript": "verify-b-4bf8.mjs: TOTAL 69 | PASS 69 | FAIL 0 (onlyDoc=true noSource=true cjk=0 totalAllDerived=true dollarDigits=0). validate --story=B-4bf8: ALL PASS, 69/69 coverage. 4 REVIEW reviewers (concept/quality/test-coverage/docs) passed; 2 round-1 findings (example provider mismatch; usage.source per-dimension encoding) fixed and resolved.",
+  "outcomeDiff": "Expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Documentation/spec only — the ledger itself is NOT implemented (deferred to a later story). Scope was the single decisions/ doc.",
+  "pitfalls": "This is a SPEC, not code: the four-field model + per-dimension null rule + pricingRef must be honored when the ledger is actually built. Do not reintroduce stored totalTokens or a two-field model. The JSON example is an Anthropic example; OpenAI-style providers encode unreported cache dimensions as null (never 0).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 209230
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 113410
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 442970
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 654460
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 951498
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 62109
+    }
+  },
+  "totalDurationMs": 2433678,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T00:17:24.579Z",
+  "updatedAt": "2026-06-16T00:17:24.579Z"
+}

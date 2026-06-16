@@ -1,0 +1,384 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-4bf8:RR-001",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "startedAt": "2026-06-16T00:01:03.533Z",
+      "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+      "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "5e6f44cae39b779a3c5fa4f5b8393d5943bca22813a72da9cbee3a24822f8d9f",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0524493e12328a21777fbe285d5ec11298e8c18ea6148cdf2a09bce524324149",
+          "14064997234e890807e4bfbf0b49392ac553fdea96c0b4a97e594d4dd8c75b92",
+          "66174377fd545434f79c9ecf21aa8328f20553268d4e31afe608d29908ee9e9d",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7"
+        ],
+        "bindingHash": "9ba1624fe772f7c90d5a8e92e2adbd024765f6b8f3d827581a0b3e3f95d696b5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+        "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+        "bindingHash": "654f3dfb119a320fa42f320c231c6a2c78cb34f1dbb0463d7e71653ae901d59a"
+      },
+      "_hash": "0f251702bdef094c6b2d769562f51bfa04ea981bf500673195791e536214936b"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-002",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "startedAt": "2026-06-16T00:01:09.917Z",
+      "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+      "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "5e6f44cae39b779a3c5fa4f5b8393d5943bca22813a72da9cbee3a24822f8d9f",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0524493e12328a21777fbe285d5ec11298e8c18ea6148cdf2a09bce524324149",
+          "14064997234e890807e4bfbf0b49392ac553fdea96c0b4a97e594d4dd8c75b92",
+          "66174377fd545434f79c9ecf21aa8328f20553268d4e31afe608d29908ee9e9d",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7"
+        ],
+        "bindingHash": "9ba1624fe772f7c90d5a8e92e2adbd024765f6b8f3d827581a0b3e3f95d696b5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+        "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+        "bindingHash": "654f3dfb119a320fa42f320c231c6a2c78cb34f1dbb0463d7e71653ae901d59a"
+      },
+      "_hash": "f6a13e8045bc5f31de049121f64d395a6c880b06c65f09bd4abae85af04a6770"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-003",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "startedAt": "2026-06-16T00:01:16.259Z",
+      "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+      "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "5e6f44cae39b779a3c5fa4f5b8393d5943bca22813a72da9cbee3a24822f8d9f",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0524493e12328a21777fbe285d5ec11298e8c18ea6148cdf2a09bce524324149",
+          "14064997234e890807e4bfbf0b49392ac553fdea96c0b4a97e594d4dd8c75b92",
+          "66174377fd545434f79c9ecf21aa8328f20553268d4e31afe608d29908ee9e9d",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7"
+        ],
+        "bindingHash": "9ba1624fe772f7c90d5a8e92e2adbd024765f6b8f3d827581a0b3e3f95d696b5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+        "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+        "bindingHash": "654f3dfb119a320fa42f320c231c6a2c78cb34f1dbb0463d7e71653ae901d59a"
+      },
+      "_hash": "301234b25b09327a3102373393c9ff402f71d77d91a1bb4a4946e824687ab6ad"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-004",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "startedAt": "2026-06-16T00:01:33.512Z",
+      "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+      "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "5e6f44cae39b779a3c5fa4f5b8393d5943bca22813a72da9cbee3a24822f8d9f",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0524493e12328a21777fbe285d5ec11298e8c18ea6148cdf2a09bce524324149",
+          "14064997234e890807e4bfbf0b49392ac553fdea96c0b4a97e594d4dd8c75b92",
+          "66174377fd545434f79c9ecf21aa8328f20553268d4e31afe608d29908ee9e9d",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7"
+        ],
+        "bindingHash": "9ba1624fe772f7c90d5a8e92e2adbd024765f6b8f3d827581a0b3e3f95d696b5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "155d734dbfb012d2e7572606f1eaf4ddfc828573",
+        "materialHash": "e4b85b4d60656aa2a1410ac1ae7ed73b3a8c098b0f3db5591103e6fe52ff0331",
+        "bindingHash": "654f3dfb119a320fa42f320c231c6a2c78cb34f1dbb0463d7e71653ae901d59a"
+      },
+      "_hash": "994666efb71961f33b9170c021d92472bfe1715816b080b01e1f71d61d58d949"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-005",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "startedAt": "2026-06-16T00:08:08.826Z",
+      "headHash": "0a67c0823fb78d8724c1d5078c377d8b80e75774",
+      "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "1b87dfb6eecc2a2ff938a9f94e2993b32a659df40479461a8e94cba06c94e30e",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "347f3214c2e4bfbba0754cecfef07f03cd7de3d75ab06f09a65f36478e5abf7c",
+          "835ffbe7c7d29f155ddf261f7e8503d8c4ac94a84fa0cb29b89462f491214e04",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7",
+          "d104d291b7cbca26047ef45de3e02572ce7235601d974b6c47449363db4dd753"
+        ],
+        "bindingHash": "b3cfec2cd8ccbae7234a04a8a5b9004792e9990c16afb4f9c4f2a7ac9fcc29d5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "0a67c0823fb78d8724c1d5078c377d8b80e75774",
+        "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+        "bindingHash": "927e8de211fe9014e127c406442178966badc2f700058803a747d6b68ed342e0"
+      },
+      "_hash": "e3798fa432b88f6fe067aa1686e47ae3c9137ae9ca1b6791f39dcb4b6553d66e"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-006",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "startedAt": "2026-06-16T00:08:12.749Z",
+      "headHash": "0a67c0823fb78d8724c1d5078c377d8b80e75774",
+      "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "1b87dfb6eecc2a2ff938a9f94e2993b32a659df40479461a8e94cba06c94e30e",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "347f3214c2e4bfbba0754cecfef07f03cd7de3d75ab06f09a65f36478e5abf7c",
+          "835ffbe7c7d29f155ddf261f7e8503d8c4ac94a84fa0cb29b89462f491214e04",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7",
+          "d104d291b7cbca26047ef45de3e02572ce7235601d974b6c47449363db4dd753"
+        ],
+        "bindingHash": "b3cfec2cd8ccbae7234a04a8a5b9004792e9990c16afb4f9c4f2a7ac9fcc29d5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "0a67c0823fb78d8724c1d5078c377d8b80e75774",
+        "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+        "bindingHash": "927e8de211fe9014e127c406442178966badc2f700058803a747d6b68ed342e0"
+      },
+      "_hash": "1af91e3c94e7ccd0adc2a4f3e5ce2b54ea10e76ef241b2028711e997f04aaeae"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-007",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "startedAt": "2026-06-16T00:10:30.868Z",
+      "headHash": "c1669d564a9399b15a50804c768bf72c78d9c886",
+      "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "1b87dfb6eecc2a2ff938a9f94e2993b32a659df40479461a8e94cba06c94e30e",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "347f3214c2e4bfbba0754cecfef07f03cd7de3d75ab06f09a65f36478e5abf7c",
+          "835ffbe7c7d29f155ddf261f7e8503d8c4ac94a84fa0cb29b89462f491214e04",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7",
+          "d104d291b7cbca26047ef45de3e02572ce7235601d974b6c47449363db4dd753"
+        ],
+        "bindingHash": "b3cfec2cd8ccbae7234a04a8a5b9004792e9990c16afb4f9c4f2a7ac9fcc29d5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "c1669d564a9399b15a50804c768bf72c78d9c886",
+        "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+        "bindingHash": "cd63451dbea3bd99893a9893e635b726fe2799796b8970a8ef784bf5fbbc37bf"
+      },
+      "_hash": "19125a3f428c5b0b7d5f9df35ccac04bb542086ebcd0c17e87978fcbf95de404"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-008",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "startedAt": "2026-06-16T00:10:48.464Z",
+      "headHash": "c1669d564a9399b15a50804c768bf72c78d9c886",
+      "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "1b87dfb6eecc2a2ff938a9f94e2993b32a659df40479461a8e94cba06c94e30e",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "347f3214c2e4bfbba0754cecfef07f03cd7de3d75ab06f09a65f36478e5abf7c",
+          "835ffbe7c7d29f155ddf261f7e8503d8c4ac94a84fa0cb29b89462f491214e04",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7",
+          "d104d291b7cbca26047ef45de3e02572ce7235601d974b6c47449363db4dd753"
+        ],
+        "bindingHash": "b3cfec2cd8ccbae7234a04a8a5b9004792e9990c16afb4f9c4f2a7ac9fcc29d5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "c1669d564a9399b15a50804c768bf72c78d9c886",
+        "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+        "bindingHash": "cd63451dbea3bd99893a9893e635b726fe2799796b8970a8ef784bf5fbbc37bf"
+      },
+      "_hash": "6527913d71a8cd8d5edaebc7b74424fa1950c44b9f0af1fc6c0246ce624cbfad"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-009",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "startedAt": "2026-06-16T00:10:48.506Z",
+      "headHash": "c1669d564a9399b15a50804c768bf72c78d9c886",
+      "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "1b87dfb6eecc2a2ff938a9f94e2993b32a659df40479461a8e94cba06c94e30e",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "347f3214c2e4bfbba0754cecfef07f03cd7de3d75ab06f09a65f36478e5abf7c",
+          "835ffbe7c7d29f155ddf261f7e8503d8c4ac94a84fa0cb29b89462f491214e04",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7",
+          "d104d291b7cbca26047ef45de3e02572ce7235601d974b6c47449363db4dd753"
+        ],
+        "bindingHash": "b3cfec2cd8ccbae7234a04a8a5b9004792e9990c16afb4f9c4f2a7ac9fcc29d5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "c1669d564a9399b15a50804c768bf72c78d9c886",
+        "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+        "bindingHash": "cd63451dbea3bd99893a9893e635b726fe2799796b8970a8ef784bf5fbbc37bf"
+      },
+      "_hash": "50defd79beabd85a49c4f8beb995117759ad2961e34d33c85e4b600124a17eac"
+    },
+    {
+      "reviewRunId": "B-4bf8:RR-010",
+      "storyId": "B-4bf8",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-16T00:10:14.232Z",
+      "startedAt": "2026-06-16T00:11:09.683Z",
+      "headHash": "9f1118559ba0d781c15b8d107288eac79e4fa591",
+      "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "04f3cc0629f48154472c3bc3e050d181ac53f4cb1a5ecbd34fe8a61861db93ec",
+        "diffPackHash": "1b87dfb6eecc2a2ff938a9f94e2993b32a659df40479461a8e94cba06c94e30e",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "347f3214c2e4bfbba0754cecfef07f03cd7de3d75ab06f09a65f36478e5abf7c",
+          "835ffbe7c7d29f155ddf261f7e8503d8c4ac94a84fa0cb29b89462f491214e04",
+          "96fe369aebad263eb01e7b7fc92c30e2ca00f977f8d63e2e6aa35278e7859fb7",
+          "d104d291b7cbca26047ef45de3e02572ce7235601d974b6c47449363db4dd753"
+        ],
+        "bindingHash": "b3cfec2cd8ccbae7234a04a8a5b9004792e9990c16afb4f9c4f2a7ac9fcc29d5"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "invocationCwd": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "repoRoot": "/Users/jek/Documents/Work/Orchestrate",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-4bf8",
+        "workspaceMode": "story-worktree",
+        "headHash": "9f1118559ba0d781c15b8d107288eac79e4fa591",
+        "materialHash": "e1fa6d6c48d993878ed29306e61d6d87aa722409ab0a80f15ef08fbee45fc31f",
+        "bindingHash": "19bb84d4b2a45d3fb8d6999076fd46c83f4c7cb33c99ec9c1b652a250d59bf94"
+      },
+      "_hash": "5dc99c26ba06468babdd07f868fd82f9f964a656285d0e7c279a6cd7376450db"
+    }
+  ]
+}
