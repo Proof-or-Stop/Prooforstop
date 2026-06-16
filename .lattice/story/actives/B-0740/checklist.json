@@ -30,7 +30,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "WRAPPER-ROOT --repair installs allowlist (repairWrote:true, repairError:null, no leading fatal) → re-scan safe; gitRoot/.gitignore gets the managed !.lattice/story/actives/** allowlist. Real-machine doctor --repair on a /tmp wrapper-root fixture confirmed repairWrote:true RUN1.",
+          "headHash": "d9d5bf76606fb485d3b07fe2b90d600103387599",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T01:05:42.182Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
