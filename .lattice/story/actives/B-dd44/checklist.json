@@ -333,6 +333,58 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:usage-ledger-budget runs usage-ledger-budget-smoke.ts and exits 0 when all assertions pass; WHY: the smoke must be wired as a named npm script and produce a green exit",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-budget-smoke.ts follows existing *-smoke.ts pattern: uses temp dir, prints pass/fail with checkmark/cross, exits non-zero on first failure; WHY: pattern consistency for CI + operator readability",
+            "type": "cli"
+          },
+          {
+            "desc": "tsc --noEmit passes (build green) after all changes; WHY: new exports/imports must not break the TypeScript build",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js validate passes; WHY: Lattice self-validation must remain green after adding new code",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full existing ledger smoke suite (usage-ledger, usage-ledger-adapter, usage-ledger-estimate, usage-ledger-diagnostics, usage-ledger-dispatch) all still pass with zero regressions; WHY: new budget code must not break any existing ledger tests",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger module (core/usage-ledger/) static import analysis: imports ZERO modules outside core/usage-ledger/ and node builtins; WHY: zero-cross-module-import invariant is load-bearing for the one-way seam",
+            "type": "cli"
+          },
+          {
+            "desc": "budget-smoke covers: resolveHardBudget valid/invalid/unset, isOverHardBudget true/false/boundary, buildBlockedBudgetRecord validation, blocked-record-not-provider-reported in summary, fail-closed-only-when-configured behavior; WHY: the smoke must exercise all budget-related acceptance invariants",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test uses temp directory and cleans up after itself; no files left in repo working tree; WHY: test pollution prevention",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run budget smoke test with LATTICE_HARD_BUDGET_TOKENS already set in ambient env -> smoke overrides or isolates env within test, does not leak ambient budget state into assertions; WHY: CI environments may have budget env vars set; smoke must be hermetic",
+            "type": "cli"
+          },
+          {
+            "desc": "Run budget smoke test twice in rapid succession -> both runs pass, no temp-dir collision or stale state; WHY: idempotency -- smoke must not leave state that breaks the next run",
+            "type": "cli"
+          },
+          {
+            "desc": "Import graph audit: dispatch-usage.ts new exports (resolveHardBudget, isOverHardBudget, buildBlockedBudgetRecord) are imported ONLY by lattice-dispatch.ts and the smoke test, never by other modules; WHY: prevent uncontrolled coupling of budget internals",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
