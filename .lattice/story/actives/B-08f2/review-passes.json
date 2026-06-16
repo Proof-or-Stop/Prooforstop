@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-16T00:36:43.708Z",
       "reviewRunId": "B-08f2:RR-007",
       "_hash": "3bbb80c3ea79bdb2e024a32037b111c394e1b558a2d016efccdf0eb873161d89"
+    },
+    {
+      "id": "B-08f2:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: re-verified all 36 verificationIntents against current HEAD a9bc886 — npm run build exits 0, npm run test:e2e ALL PASS, residual gate 0, no-shim gate 0, dev-memory-legacy-read-smoke passes. The dev-memory-legacy-read-smoke.ts change correctly removed the now-invalid KOALA_GLOBAL_MEMORY_DIR override assertion (env override dropped in CHK-001); remaining behaviors (writable path under ~/.lattice, legacy read fallback to ~/.koala, combined read-paths) are still covered and pass. No coverage gap.",
+      "createdAt": "2026-06-16T00:39:38.363Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-010",
+      "_hash": "a620e4da61800a0a9664734b73717ec0e9f12605802cc88a19f2bbe296da580d"
     }
   ]
 }
