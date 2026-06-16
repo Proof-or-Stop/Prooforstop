@@ -39,7 +39,30 @@
       "userSees": "On a shared main worktree with an unrelated session's uncommitted file, lattice story_advance DONE proceeds and merges; it still refuses if the dirty file is one the merge would overwrite.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "precondition allows DONE when dirty paths are unrelated to the merge change set",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "B-e74e main-worktree-unavailable handling preserved",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a dirty path overlapping the merge change set still blocks (clobber-protection)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
