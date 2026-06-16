@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-db56:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 22 verificationIntents across 2 checklist items reviewed; all must-intents for happy and edge paths have valid non-fail evidence confirmed by live re-run (build exit 0, test:gitroot-cwd-routing exit 0, test:bare-gate-gitroot-cwd exit 0, test:e2e ALL PASS, test:gitroot-cwd-contract exit 0 with self-test + 494 files scanned); resolveGitCwd signature unchanged at :195; 3 ad-hoc helpers confirmed present; script registration confirmed in both package.json files; contract smoke source verified for inline self-test, KNOWN-BAD fixture, and allowlist correctness. One low-severity advisory finding filed (B-db56:F-001): CHK-001:adversarial:1 evidence command does not match intent but has no transitive coverage gap for the primary choke-point mechanism. No blocker.",
+      "createdAt": "2026-06-16T22:43:57.066Z",
+      "reviewRound": "2026-06-16T22:40:46.961Z",
+      "reviewRunId": "B-db56:RR-003",
+      "_hash": "b7e8ca79f0068482357e30caa4e35016234311899827d62704fc7e0063b63ae6"
+    }
+  ]
+}
