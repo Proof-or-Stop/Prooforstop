@@ -5,7 +5,7 @@
       "desc": "review-convergence.ts:253 assessReviewConvergence has an undocumented precondition that perRoundBlockingCounts.length >= STALL_WINDOW (3) for the strictlyDecreasing branch to work correctly. When called directly with a shorter array (e.g. assessReviewConvergence(4,[2,1])), strictlyDecreasing = (window.length === STALL_WINDOW) evaluates to false regardless of values, causing a FALSE POSITIVE stall for genuinely decreasing sequences like [2,1]. The production caller assessReviewConvergenceAtEntry is safe because STALL_MIN_ROUNDS-1 (3) >= STALL_WINDOW (3) guarantees a full window, but this invariant is undocumented and unenforced — future direct callers can silently trigger false positives. Fix: add a JSDoc precondition note to assessReviewConvergence stating that perRoundBlockingCounts must be dense with length >= STALL_WINDOW when roundCount >= STALL_MIN_ROUNDS, or assert window.length >= STALL_WINDOW before the strictlyDecreasing check and return stalled=false (conservative) for short windows.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-06-16T21:32:53.914Z",
@@ -14,7 +14,8 @@
       "_hash": "4ea39e3fcb76a627b92c4348863a53b224c14319bd48b6c94d214412b23eba7d",
       "files": [
         "packages/main/src/core/review-convergence.ts"
-      ]
+      ],
+      "resolvedBy": "B-cfdd:F-001@c82b264"
     }
   ]
 }
