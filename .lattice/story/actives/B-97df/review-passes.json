@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T14:55:32.024Z",
       "reviewRunId": "B-97df:RR-001",
       "_hash": "8d62b4cd344ef4d66d3b048240361d3342f3dfcd5a4e7e00fba8ba77e87eb7c5"
+    },
+    {
+      "id": "B-97df:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 3 quality checks clean. Dead code: none — every import is used in all 3 changed source files. Type safety: no `as any`; the single bare `catch {}` in loadPriceTable (report.ts:63) is not an error-swallowing hole — it immediately re-throws a structured Error; the `table as unknown as PriceTable` cast is an acceptable escape after structural validation guards (pricingRef, pricingVersion, rates are all checked before the cast). I/O isolation: no bridge.ts exists; the shell (cli-engine/handlers/registry) does not import diagnostics — grep over cli.ts/cli-engine.ts/handlers/registry.ts returns nothing. Scope: git diff --name-only is exactly diagnostics.ts, usage-ledger-report.ts, usage-ledger-diagnostics-smoke.ts, package.json, and .lattice metadata — no dispatch/cli-engine/handler/command-registry changes. Adversarial checks passed: no hardcoded price/dollar literal in diagnostics.ts code (static grep + test CHK-005 confirmed); no `?? 0` or `|| 0` coercion of unknown dims (the only numeric 0 literals are in emptyKnown() for bucket initialization — correct, as these are added to only when a record is fully-known); the tokensForCost guard (`bucket.knownCount > 0 ? bucket.known : null`) correctly routes all-unknown source buckets to the `unknown-token-dimensions` discriminant rather than pricing an all-zero bucket as $0; UsageReport carries no gate/verdict/decision/blocker/pass/fail/allowed/blocked field (interface scan + deep-key smoke test CHK-003); reporter task reads only (no writeFile/appendFile/git/exec on the repo path — it writes only to OS temp dir in the smoke, not in the task itself); TOKENS_PER_MILLION = 1_000_000 is the only non-zero numeric constant; all costs fall through to null when priceTable is absent. No findings.",
+      "createdAt": "2026-06-16T14:59:04.833Z",
+      "reviewRound": "2026-06-16T14:55:32.024Z",
+      "reviewRunId": "B-97df:RR-002",
+      "_hash": "adb7da25d3ebc1908303ddf44aee87d5ed690b5d3c5b7bd636b3ddb124e28850"
     }
   ]
 }
