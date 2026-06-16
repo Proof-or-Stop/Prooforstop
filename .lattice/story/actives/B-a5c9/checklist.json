@@ -143,9 +143,9 @@
       "id": "CHK-002",
       "title": "Deterministic offline bytes/chars fallback estimator",
       "context": "Provide a pure, deterministic bytes/chars heuristic estimator (kind='bytes_chars', confidence low) that needs no network and no provider client. Document that it is a coarse guard, NOT tiktoken (tiktoken is OpenAI's and undercounts Claude). Tested: deterministic output for the same input; reasonable monotonicity (more text -> more estimated tokens).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T14:15:56.725Z",
       "files": {
         "modify": [],
         "create": [
