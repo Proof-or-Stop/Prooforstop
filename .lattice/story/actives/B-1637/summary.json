@@ -1,0 +1,51 @@
+{
+  "storyId": "B-1637",
+  "changes": "doctor.ts now resolves the gitRoot once via the new exported resolveDoctorGitCwd(root) (reusing the total B-198c evaluateStoryDirConfigInsideGitRoot resolver) and threads it as the cwd into the three git probe functions (scanTrackedRuntimeArtifacts / scanOrphanWorktrees / scanStoryMetadataProtection); the two execSync git rev-parse --show-toplevel discovery calls now also pipe stderr. Falls back to root when no gitRoot resolves (byte-identical for plain repos). Added regression smoke doctor-gitroot-probe-smoke.ts registered in both package.json files.",
+  "usage": "Run lattice doctor from a wrapper-root project (metadataRoot != gitRoot, e.g. a non-git wrapper with a configured gitRoot subdir). It now prints the normal report with no leading fatal: not a git repository lines. No flags or config changes needed.",
+  "expectedOutcome": "lattice doctor run from a non-git wrapper metadataRoot prints the report and emits NO fatal: not a git repository line on stdout or stderr; plain repos are unchanged.",
+  "actualTranscript": "node packages/main/dist/cli.js doctor run from a wrapper metadataRoot (raw git rev-parse there DOES print fatal: not a git repository) → exit 0, grep count 0 for fatal: not a git repository across stdout+stderr, report produced; stderr only had running doctor.../doctor done. Smoke test 5/5 assertions pass. lattice validate PASS, validate --lint PASS (tsc 3 tsconfigs).",
+  "outcomeDiff": "Expected = no fatal line on wrapper-root doctor; Actual = zero fatal lines (grep count 0), exit 0, report intact. MATCH. Plain-repo path byte-identical (resolveDoctorGitCwd falls back to root).",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Cosmetic-only fix scope: the leaked lines were already harmless stderr noise (every probe is graceful try/catch). The --repair-only repairStoryMetadataAllowlist discovery site (~doctor.ts:900) and the git rm --cached / git worktree prune write calls were left as-is (out of CHK-001 scope; they already pipe stderr or capture errors structurally). The two read-path re-scans inside the --repair block were also threaded through the resolved gitRoot for consistency.",
+  "pitfalls": "Two conditions were both required to leak the fatal line: cwd pointing at the non-git wrapper AND inherited (unpiped) stderr — fixing only one would have left noise in some path. The global lattice binary is a stale symlink to old dist, so verify against node packages/main/dist/cli.js after npm --prefix packages/main run build. Committing a finding fix after reviewers ran invalidates their review-run materialHash; you must return to DEV, re-enter REVIEW for a fresh round, and re-run reviewers.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 146791
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 347083
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 541563
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 476560
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 191199
+    }
+  },
+  "totalDurationMs": 1703204,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T00:20:51.310Z",
+  "updatedAt": "2026-06-16T00:20:51.310Z"
+}
