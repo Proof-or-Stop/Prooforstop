@@ -765,7 +765,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 ## Agent prompt 资产：host-neutral 单一源（B-097f）
 
-Lattice agent prompt 的**正文（body）只有一个真相源**：包内 prompt registry（`promptRegistryManifest()` ← `packages/main/templates/agents/*.md`）。**任何宿主目录都不物化正文**——每个宿主只留一层 thin 适配，正文经 CLI 现取。改 registry 模板 → 所有宿主下次取到的就是新正文，不存在陈旧快照。
+Lattice agent prompt 的**正文（body）只有一个真相源**：包内 registry 模板 `packages/main/templates/agents/*.md`（其指纹清单 = `promptRegistryManifest()`，仅元数据非正文）。**任何宿主目录都不物化正文**——每个宿主只留一层 thin 适配，正文经 `lattice agent_prompt`（内部 `readPromptTemplate` 读模板原文）现取。改模板 → 所有宿主下次取到的就是新正文，不存在陈旧快照。
 
 | 宿主 | 项目/全局里的薄适配 | 正文来源 |
 |---|---|---|
