@@ -69,9 +69,9 @@
       "title": "Wire the advisory into the story_advance REVIEW output and add a smoke covering four cases; assert it never blocks",
       "context": "Inject the advisory into the REVIEW-entry output in handlers/transition-effects.ts (the place that prints 'Active reviewers' / 'launch in parallel'). Optionally also surface one line in session_brief REVIEW rendering. Add a smoke (packages/main/src/tasks style) covering: (a) healthy decreasing -> no advisory, (b) stalled flat/rising -> advisory, (c) below STALL_MIN_ROUNDS -> no advisory, (d) single clean round -> no advisory; AND assert that when the advisory is present, REVIEW->TEST still succeeds (advisory-only, never a gate). Wire the smoke into the validate/test chain.",
       "userSees": "Re-entering REVIEW on a stalled story prints the English convergence-stall advisory; lattice validate stays green with the smoke; a story showing the advisory can still advance REVIEW->TEST (proving it does not block).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:26:21.005Z",
       "verificationIntent": {
         "happy": [
           {
