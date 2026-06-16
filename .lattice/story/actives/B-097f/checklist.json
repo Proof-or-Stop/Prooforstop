@@ -54,7 +54,31 @@
       "context": "已存在项目里的 .claude/agents(copy 或指向 dev 路径的 symlink)需能被清理回落全局解析;注意 Claude Code 项目级会 shadow 用户级,stale 文件不清会破坏一致性。提供 --upgrade 或迁移路径",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "在已有 16 个 project-local .claude/agents 的项目跑 lattice init(或 --upgrade),输出逐条 ↻ .claude/agents/<file> (migrated to global);随后项目内这 16 个被移除,用户自建的非管理 agent 文件仍在",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "已有 project-local 16 文件的项目 init 后被移除并同步到全局",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "用户自建非管理 agent 文件迁移后仍保留",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "与管理模板同名的处理:按管理 basename 删除并逐条记录,不通配清空",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
