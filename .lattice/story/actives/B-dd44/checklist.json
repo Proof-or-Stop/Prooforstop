@@ -40,7 +40,16 @@
       "context": "In runClaudeCodeRealLeafDispatch (lattice-dispatch.ts), inside the existing isUsageLedgerEnabled() gate and AFTER the preflight estimate: resolveHardBudget; if a budget is set AND isOverHardBudget(preflight estimate): append buildBlockedBudgetRecord, SKIP the spawnSync, and return a blocked dispatch result (do not call the provider). If no budget is set (or estimate within budget), proceed exactly as today. All budget work in try/catch; a budget-check error must NOT wrongly block (on error, proceed as today). Budget UNSET or flag OFF => byte-identical to current dispatch.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
