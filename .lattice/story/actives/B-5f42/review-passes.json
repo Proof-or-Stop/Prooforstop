@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T23:09:40.084Z",
       "reviewRunId": "B-5f42:RR-003",
       "_hash": "16403c4d9c1d2225cbe9fc33521282c84c57d8405d2a49c3808c859cca9204a7"
+    },
+    {
+      "id": "B-5f42:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. Two concepts addressed by F-001 and F-002 fixes: (1) buildCjkRegex (dead code) — zero residue found across entire repo; (2) ENGLISH_ONLY_GUARD_HOOK_FILE — properly defined in init-assets.ts, imported in cli-init.ts, and added to HOOK_FILES (the F-002 fix in commit 71010e4). The mergeClaudeHooks refactor in managed-assets.ts consistently renames the migration target variable and loops over all entries. No dangling references, no concept residue. No findings.",
+      "createdAt": "2026-06-16T23:21:21.758Z",
+      "reviewRound": "2026-06-16T23:18:34.507Z",
+      "reviewRunId": "B-5f42:RR-004",
+      "_hash": "0f0d23ca1fb5382d2391eab6b4d4eccadfd2a02d1f1bdb64221476e452a6942e"
     }
   ]
 }
