@@ -27,6 +27,29 @@
         }
       ],
       "_hash": "39928c32f5e86d1beddf2689939fa53156280c3ef65ca90668cf5243e00f12a8"
+    },
+    {
+      "timestamp": "2026-06-16T19:02:13.316Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Delete the stray 'orphans' junk file at repo root + Delete 2 truly-dead source modules (phase-protocol + bridge-utils) and verify no residual references are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Validation Framework"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        }
+      ],
+      "_hash": "57c7510ced27000fe41a429ece68240030ee331cdcf4643542c741a3fbac38d4"
     }
   ]
 }
