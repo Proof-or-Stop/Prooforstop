@@ -681,6 +681,17 @@
           "headHash": "30a1f1a88ed0ee8cfe1c93fe357ea71c54c460e7",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:07.670Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -inE 'omx' packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json",
+          "result": "pass",
+          "note": "Returns empty — fixture omx entries removed.",
+          "headHash": "eba537b8ea19e8fc8cd928a73e779ea6fbacacda",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:08.484Z"
         }
       ]
     }
