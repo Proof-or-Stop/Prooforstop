@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T04:25:01.891Z",
       "reviewRunId": "B-9177:RR-004",
       "_hash": "70e7bdcabfddfe27ffa3f545905843716d2bab7b3d55e4f259b69de555175b24"
+    },
+    {
+      "id": "B-9177:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or renaming found. The diff is purely additive: (1) wraps existing code blocks in withReentrantMainWriteLock calls in cli-engine.ts and handlers/worktree.ts — no symbols removed, no functions renamed; (2) adds a new task file main-write-lock-coverage.ts whose exports are self-contained; (3) wires test:main-write-lock-coverage into the npm test chain. All referenced symbols (withReentrantMainWriteLock, withMainWriteLock, acquireMainWriteLockRegistered, acquireDoneMainMergeLock, purgeSafeInitCommit, isPathUnderAny, stageBoundedMetadataPath) exist in the codebase. All EXCEPTIONS registry entries in the new task file point to real code lines. No residue from any deleted/replaced concept. Doc-promise check: the plan.md promise to wire the guard into lattice validate is fulfilled via the npm test script chain.",
+      "createdAt": "2026-06-16T04:29:34.247Z",
+      "reviewRound": "2026-06-16T04:25:01.891Z",
+      "reviewRunId": "B-9177:RR-001",
+      "_hash": "064f39b05a15a8cc74b141366c5bd74841f9d0265402700ba406c1c6c1080b0f"
     }
   ]
 }
