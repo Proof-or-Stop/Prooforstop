@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e791",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-e791/",
+    "packages/main/src/handlers/",
+    "packages/main/src/tasks/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Guidance/cwd only: session.ts gitReady-prompt gitRoot-awareness + worktree.ts nesting-check cwd. Reuse existing signed-workspace resolution; do not touch doctor (B-1637), bootstrap behavior, gate semantics, or git command text.",
+  "createdAt": "2026-06-16T00:23:43.873Z",
+  "updatedAt": "2026-06-16T00:23:43.873Z",
+  "_hash": "832412243000f8baddb0e8d1f734dbd915bb4456fd7a2675d04dc8f53ed4e4fc"
+}
