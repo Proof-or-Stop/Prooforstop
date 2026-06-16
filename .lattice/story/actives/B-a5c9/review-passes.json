@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a5c9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletions or replacements detected. All four focal checks passed: (1) estimate.ts delegates record/validation/id-minting to siblings record.ts and ids.ts — no re-implementation; no leftover scaffolding (PLACEHOLDER constants are intentional documented deterministic defaults). (2) prompt-size-estimate concept is consistent: usage.source=prompt-size-estimate, estimator fields {name,version,unit,confidence} present, outputTokens/cacheCreationInputTokens/cacheReadInputTokens and canonical.{output,cacheCreation,cacheRead} all null, no totalTokens field introduced, source never masquerades as provider-reported or final. (3) Scope honored: only packages/main/package.json (additive script entry), packages/main/src/core/usage-ledger/estimate.ts (new file), and packages/main/src/tasks/usage-ledger-estimate-smoke.ts (new file) changed; record.ts, ids.ts, assemble.ts, writer.ts, summary.ts all untouched. (4) Zero-cross-module-import property preserved: estimate.ts imports only from ./record.js, ./ids.js, and no node builtins (no import statement uses node: prefix or any non-sibling path); no forbidden provider adapter, dispatch-runner, or other Lattice subsystem import detected. Concept residue check: new types (EstimatorKind, ESTIMATOR_PRIORITY, CONFIDENCE_MAP, TokenEstimator, EstimateOutput, SelectedEstimate, SelectEstimateArgs, EstimateCorrelation, EstimateAttribution, EstimateContext) and functions (bytesCharsEstimator, selectEstimate, buildEstimateRecord) exist only in estimate.ts with no duplicate implementations in other files. No doc-promise-undelivered issues found.",
+      "createdAt": "2026-06-16T14:19:46.796Z",
+      "reviewRound": "2026-06-16T14:16:25.749Z",
+      "reviewRunId": "B-a5c9:RR-002",
+      "_hash": "3b428e956c7cf21d8c16e1b848e92b7ae38963af43712751595f9ee05b8530ae"
+    }
+  ]
+}
