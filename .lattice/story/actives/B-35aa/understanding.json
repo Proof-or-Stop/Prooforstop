@@ -1,0 +1,21 @@
+{
+  "task": "Write a decision document at docs/requirements/decisions/test-runner-consolidation-plan.md that records the chosen test-runner consolidation architecture (path B) and decomposes implementation into 3-4 follow-up Lattice stories.",
+  "outcome": "`ls docs/requirements/decisions/test-runner-consolidation-plan.md` succeeds; the file is committed (git log shows it); opening it reveals 4+ `## ` sections (current state with pinned numbers, paths considered, chosen path with rationale, follow-up stories B1-B4).",
+  "facts": [
+    "151 *-smoke.ts files totaling ~70,280 lines, ~466 lines/smoke average, max 3,831 lines (flow-stability-smoke).",
+    "258 test:* npm script entries (111 in root package.json + 147 in packages/main/package.json).",
+    "49 scripts/verify-*.mjs.",
+    "Existing decision docs constrain the architecture: testing-infra.md documents project-native validation (npm test / pytest / go test) + general-black-box-command validation entry; testing-completeness.md documents @flow / @test annotation contract.",
+    "Each smoke is a standalone executable run as `node packages/main/dist/tasks/<name>-smoke.js` — spawn-CLI integration scenarios with tmpdir setup, not unit tests."
+  ],
+  "constraints": [
+    "The deliverable is the decision doc ONLY — no runner code, no smoke edits, no package.json edits, no edits to other decision docs.",
+    "The chosen path (B: in-house parallel runner + manifest + c8) must be presented with explicit rationale that aligns with the existing testing-infra.md project-native validation policy.",
+    "B1-B4 sketches must be concrete enough that future `story_create` calls can quote scope verbatim."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/test-runner-consolidation-plan.md"
+  ],
+  "timestamp": "2026-06-16T23:45:04.973Z"
+}
