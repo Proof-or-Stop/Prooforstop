@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-1637:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The diff is purely additive: resolveDoctorGitCwd() is a new export, and the three probe functions (scanTrackedRuntimeArtifacts, scanOrphanWorktrees, scanStoryMetadataProtection) received only signature extensions (new optional gitCwd parameter with default=root). The old signatures appear as deleted lines in the diff but the functions themselves remain and all 6 internal call sites in doctor.ts have been updated to pass gitProbeCwd. Grep across the full repo confirms these three probe functions have no external callers outside doctor.ts (they are module-private), so the signature change has zero residue risk. No concept deletions or replacements found. No doc-promise-undelivered issues: the new resolveDoctorGitCwd export is exercised in doctor-gitroot-probe-smoke.ts (imported and called directly in 3 unit assertions). No blocker.",
+      "createdAt": "2026-06-16T00:10:58.861Z",
+      "reviewRound": "2026-06-16T00:09:43.214Z",
+      "reviewRunId": "B-1637:RR-002",
+      "_hash": "647e6d16457a1cedca35addd5269a589b5d1e3aee9a34e89c896f6ecb04f81f3"
+    }
+  ]
+}
