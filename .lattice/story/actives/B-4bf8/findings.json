@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: lattice-llm-usage-ledger-execution-plan.md JSON example (line ~341): provider.name is \"openai\" but usage.raw.providerUnits is \"anthropic-usage-v1\" — the raw view is supposed to be provider-specific, so an OpenAI record should carry an OpenAI-shaped providerUnits identifier. This is a self-contradicting example that will mislead implementers writing the provider adapter.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T00:02:51.525Z",
@@ -14,7 +14,8 @@
       "_hash": "29d04a1f75b04d1c47d217b3dbd709a0965ee0f6cc0e2f225e894a000fca22d7",
       "files": [
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T00:08:45.420Z"
     },
     {
       "id": "B-4bf8:F-002",
