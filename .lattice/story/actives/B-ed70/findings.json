@@ -103,6 +103,22 @@
       "files": [
         "packages/lab/package.json"
       ]
+    },
+    {
+      "id": "B-ed70:F-007",
+      "desc": "CHK-001:adversarial:2 wrong command and impossible intent: intent requires test -f packages/lab/src/core/intent-coverage.ts → exit 0 (over-reach guard that an unrelated lab file still exists). Evidence ran grep -ri koala packages/lab/package.json — a completely different command that does not test file existence. Additionally the intent path itself is wrong: packages/lab/src/core/intent-coverage.ts does not exist (the file exists at packages/main/src/core/intent-coverage.ts). The over-reach guard concept is sound but the evidence does not implement it and the intent path is incorrect.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-16T21:26:24.141Z",
+      "reviewRound": "2026-06-16T21:20:07.360Z",
+      "reviewRunId": "B-ed70:RR-010",
+      "_hash": "313b762d6df44eedb079cf1f56dfb09fc51148143e96f76ed35bd5e9596dd456",
+      "files": [
+        "packages/lab/package.json"
+      ]
     }
   ]
 }
