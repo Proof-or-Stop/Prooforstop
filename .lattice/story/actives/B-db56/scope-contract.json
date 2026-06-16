@@ -60,8 +60,17 @@
         "packages/main/src/tasks/gap-analyze.ts",
         "packages/main/src/tasks/trace-store.ts"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-002 fix: transition-orchestrator's DONE block resolves doneGitCwd once via resolveGitCwd and passes it to the 3 callees (acquireDoneMainMergeLock, checkMainDivergence, autoSyncMain). done-effects.ts comment corrected. Same in-scope-by-consequence pattern as the round-1 28 acknowledged files.",
+      "timestamp": "2026-06-16T22:50:56.141Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-16T22:40:18.767Z",
-  "updatedAt": "2026-06-16T22:40:46.209Z"
+  "updatedAt": "2026-06-16T22:50:56.141Z"
 }

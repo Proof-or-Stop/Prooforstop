@@ -4,7 +4,7 @@
   "title": "Single resolveGitCwd choke-point + grep-contract test to kill the wrapper-root git-cwd defect class",
   "description": "Make resolveGitCwd (already exported from packages/main/src/core/story-signed-workspace-resolution.ts:195) the SOLE entry point for resolving git child-process cwd, and add a grep-based contract smoke that FAILS if any new git call site (execFileSync/spawnSync/execSync of 'git') bypasses it by passing a bare metadataRoot/projectRoot as cwd. The defect class — git child-process cwds defaulted to metadataRoot but the wrapper-root layout's real git repo is a configured gitRoot subdir — has hit at least 3 prior stories (B-1637 doctor probes, B-e791 INIT git-readiness guidance, B-0740 doctor --repair + lint change-scoping), each whack-a-mole fixing one or two specific call sites without preventing recurrence. The current state: 193 git child-process calls across 88 files; only ~14 sites are rerouted via resolveGitCwd; the existing gitroot-cwd-routing-smoke and bare-gate-gitroot-cwd-smoke assert the SPECIFIC rerouted sites but do not prevent a new call site from being added with the bare projectRoot cwd. This story (a) audits all 193 sites and reroutes the unrouted ones through resolveGitCwd, (b) adds a contract grep test that fails CI on any new `(execFileSync|spawnSync|execSync)\\(['\"]git['\"]` with bare projectRoot/root/metadataRoot cwd not going through the helper. Out of scope: the smoke-runner consolidation effort (proposed #2 — separate sub-program).",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "wrapper-root",
@@ -64,6 +64,14 @@
       "branch": "story/B-db56",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T22:50:56.809Z",
+      "branch": "story/B-db56",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -71,5 +79,5 @@
     "branch": "story/B-db56",
     "createdAt": "2026-06-16T22:09:39.731Z"
   },
-  "currentReviewRound": "2026-06-16T22:40:46.961Z"
+  "currentReviewRound": "2026-06-16T22:50:56.809Z"
 }
