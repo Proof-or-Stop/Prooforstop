@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T02:40:52.780Z",
       "reviewRunId": "B-08a1:RR-003",
       "_hash": "22448860def66b86c096e34307d023361bbc7a5bc64f2ced38d899d7fd3b3bf6"
+    },
+    {
+      "id": "B-08a1:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "No blockers. Provider mappings are correct (anthropic: 4-field native; openai/gemini: cacheCreation=null always; cacheRead null-vs-0 preserved correctly). The 0-vs-null distinction is maintained throughout — readReportedDimension returns the genuine number for present values and null only for absent/null/undefined. The assembler uses validateUsageLedgerRecord and mintRecordId from ids.ts (never provider-derived ids). unavailable is set only when there is truly no usage (never zeros). payloadDigest hashes only the usage sub-object (extractRawUsage extracts before hashing). Streaming handles terminal-event, partial-on-error, and no-usage correctly. Scope is clean: only packages/main/** changed (no dispatch-runner, estimate, budget, or receipt code). Two non-blocking findings registered: F-001 (medium) unsound `as TokenDimension` cast in shared.ts:72 that is caught by runtime validator but silences TS; F-002 (low) canonicalJson/sortValue duplication between shared.ts and writer.ts that could diverge silently.",
+      "createdAt": "2026-06-16T02:46:17.418Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-002",
+      "_hash": "75f42bbb420ae2b2fcc95ebef796de75cf02ee65bf0a5525e5e18e66b7daef6b"
     }
   ]
 }
