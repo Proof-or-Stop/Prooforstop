@@ -652,3 +652,138 @@ export function buildBlockedBudgetRecord(
     return null;
   }
 }
+
+// =============================================================================
+// B-dd44 CHK-003: fail-closed pre-spawn guard orchestrator (gated, never throws)
+//
+// The dispatch seam keeps a MINIMAL gated guard and delegates the whole
+// resolve + check + build + append to recordBudgetBlock, so lattice-dispatch.ts
+// still imports usage-ledger ONLY through this single module. shouldBlockDispatch
+// is the extracted PURE decision the orchestrator uses (and the smoke asserts).
+// =============================================================================
+
+/**
+ * PURE block decision: a dispatch is blocked ONLY when the ledger is enabled AND
+ * a hard budget is configured AND the preflight estimate strictly EXCEEDS it.
+ *
+ * Returns the resolved budget alongside the boolean so the caller can record the
+ * policy id without re-resolving. NEVER throws: any resolution/predicate error is
+ * caught and treated as "do not block" (fail-open — local non-authority never
+ * invents a budget). `enabled=false` short-circuits to block=false with no env
+ * read, mirroring the OFF-path no-op.
+ */
+export function shouldBlockDispatch(
+  enabled: boolean,
+  env: NodeJS.ProcessEnv | undefined,
+  estimatedInputTokens: number,
+): { block: boolean; budget: ResolvedHardBudget | null } {
+  if (!enabled) return { block: false, budget: null };
+  try {
+    const budget = resolveHardBudget(env);
+    if (budget === null) return { block: false, budget: null };
+    return { block: isOverHardBudget(estimatedInputTokens, budget.hardBudgetTokens), budget };
+  } catch {
+    // Fail-open: a budget-check error must NEVER wrongly block dispatch.
+    return { block: false, budget: null };
+  }
+}
+
+/** The decision the dispatch seam acts on after the preflight estimate. */
+export interface BudgetGuardDecision {
+  /** True => the seam must SKIP spawnSync and return a blocked dispatch result. */
+  blocked: boolean;
+  /** The policy id that triggered the block (for the blocked dispatch result). */
+  budgetPolicyId: string | null;
+  /** The hard ceiling that was exceeded (for the blocked dispatch result message). */
+  hardBudgetTokens: number | null;
+}
+
+/**
+ * Thin gated orchestrator the dispatch seam calls AFTER recordDispatchPreflight
+ * and BEFORE spawnSync. It resolves the budget, applies the strict-exceed
+ * predicate, and — only when over budget — appends a validated blocked record and
+ * returns {blocked:true,...}. In every other case (flag OFF, no budget, within
+ * budget, or ANY error) it returns {blocked:false} so the seam proceeds exactly
+ * as today.
+ *
+ * Fail-closed semantics: once the block decision is made, a record-write failure
+ * does NOT revert the decision — the seam still skips the provider (a blocked
+ * record that failed to persist must not silently call the provider). A
+ * build/check error BEFORE the block decision is fail-open (proceeds).
+ *
+ * NEVER throws: every step is wrapped so a budget error cannot break dispatch.
+ */
+export function recordBudgetBlock(
+  root: string,
+  ctx: DispatchUsageContext,
+  handle: DispatchPreflightHandle | null,
+  promptText: string,
+  opts: DispatchUsageOptions,
+): BudgetGuardDecision {
+  const notBlocked: BudgetGuardDecision = {
+    blocked: false,
+    budgetPolicyId: null,
+    hardBudgetTokens: null,
+  };
+
+  // Strict no-op when disabled: never read env, never resolve a budget. Mirrors
+  // the OFF-path no-op of recordDispatchPreflight.
+  if (!isUsageLedgerEnabled(opts.env)) return notBlocked;
+
+  // The estimate to compare against the ceiling: use the preflight handle's value
+  // when present (the canonical estimate already written); otherwise recompute the
+  // synchronous offline floor so a null preflight handle (write failed) still
+  // gets a defensible estimate for the budget decision.
+  let estimatedInputTokens: number;
+  if (handle && Number.isFinite(handle.estimatedInputTokens)) {
+    estimatedInputTokens = handle.estimatedInputTokens;
+  } else {
+    try {
+      const model = ctx.model && ctx.model.length > 0 ? ctx.model : DEFAULT_ESTIMATE_MODEL;
+      estimatedInputTokens = bytesCharsEstimator(model, promptText).estimatedInputTokens;
+    } catch {
+      // Cannot even estimate -> fail-open (never invent a block).
+      return notBlocked;
+    }
+  }
+
+  const { block, budget } = shouldBlockDispatch(true, opts.env, estimatedInputTokens);
+  if (!block || budget === null) return notBlocked;
+
+  // Over budget: assemble + append the blocked record. A correlation handle is
+  // reused from preflight when present; otherwise a fresh one is minted so the
+  // blocked record still has stable ids (it then supersedes nothing).
+  try {
+    const correlation = handle?.correlation ?? mintCallCorrelation();
+    const record = buildBlockedBudgetRecord(
+      ctx.model ?? null,
+      {
+        estimatedInputTokens,
+        estimateRecordId: handle?.estimateRecordId ?? null,
+      },
+      correlation,
+      attributionFor(ctx),
+      finalContext(opts, ctx.model ?? null),
+      budget.budgetPolicyId,
+    );
+    if (record === null) {
+      // The blocked-record builder failed (validator rejected the assembled
+      // record). Fail OPEN: proceed to spawn rather than blocking without a record.
+      return notBlocked;
+    }
+    try {
+      appendUsageRecord(root, record, { env: opts.env });
+    } catch {
+      // Fail-closed: once the over-budget decision is made, a write failure must
+      // NOT revert it and call the provider. Still return blocked.
+    }
+    return {
+      blocked: true,
+      budgetPolicyId: budget.budgetPolicyId,
+      hardBudgetTokens: budget.hardBudgetTokens,
+    };
+  } catch {
+    // An unexpected assembly error before the record was committed -> fail-open.
+    return notBlocked;
+  }
+}
