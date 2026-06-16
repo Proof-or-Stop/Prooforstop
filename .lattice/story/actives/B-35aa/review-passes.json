@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T23:52:14.893Z",
       "reviewRunId": "B-35aa:RR-003",
       "_hash": "083db78a63617eb7a45fa9fd255c58707abe169c039f6da8b6d0dd202b637a20"
+    },
+    {
+      "id": "B-35aa:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion check complete. (1) git diff --diff-filter=D: zero source/script/test/doc files deleted in this story branch. (2) testing-infra.md and testing-completeness.md diff is empty — both existing decision docs are completely untouched. (3) The sole diff is the new file docs/requirements/decisions/test-runner-consolidation-plan.md (211 lines added, zero removed). It introduces Path A/B/C as new concepts and explicitly declares both existing docs remain untouched; no existing concept is deprecated or overridden. (4) Grep for stray residue of new concept words (dist-standalone-executable, run-all-smokes, smoke-manifest) shows zero hits outside the new file and .lattice/ metadata. No concept deletion or replacement found; no blocker.",
+      "createdAt": "2026-06-16T23:58:35.591Z",
+      "reviewRound": "2026-06-16T23:52:14.893Z",
+      "reviewRunId": "B-35aa:RR-004",
+      "_hash": "e8111548f6ede8a6e6ac82c5aeb199dbf7b95ebcc7340427d7fc32a3d732652c"
     }
   ]
 }
