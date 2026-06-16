@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a warn-only PreToolUse hook that detects CJK in git commit and lattice story-metadata commands",
+      "context": "Model after the existing UserPromptSubmit hook in .claude/settings.json. Hook reads tool_input.command from stdin JSON; when the command matches git commit or lattice story_create/checklist_add/checklist_update/decision_set/understanding_set/summary_set, scan for CJK codepoints (U+4E00-9FFF plus common CJK ranges). On match, print a warning to stderr and exit 0 (non-blocking). Hook must be self-contained (no dependency on dist) per the pre-push external-defense principle.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "After a commit or lattice-metadata command containing Chinese, the terminal shows a warning like: warn: artifact contains non-English (CJK) text; Lattice artifacts must be English. The command still proceeds.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a diff/story-scoped CJK gate to lattice validate that hard-blocks REVIEW to TEST on non-English commits or story metadata",
+      "context": "Add a CJK scan to the validate preflight alongside --lint. Scope strictly to the current story/branch: scan git log main..HEAD commit subjects and bodies and the current story author-controlled metadata (background.md, index.json title/description, checklist.json text fields, decision.json, understanding.json, plan.md, summary.json). Exclude framework/reviewer-generated or pure-runtime files to limit false positives. Fail (non-zero) when CJK is found so REVIEW to TEST is blocked; pass on English-only.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "lattice validate fails with: CJK detected in artifact(s): <file/commit> line N; Lattice artifacts must be English, so REVIEW to TEST is blocked. On English-only artifacts validate stays green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Tests: unit-test the CJK detector (positive/negative/scope) and prove the validate gate blocks a CJK fixture and passes English-only",
+      "context": "Unit test the detector: Chinese string is detected; pure ASCII/English is not detected; mixed allowed ranges. Scope test: a legacy file outside the current story is not flagged. Integration: a fixture commit message or story metadata with CJK makes the validate gate fail; English-only passes. Keep tests fast (no real subprocess where a stubbed input suffices).",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "lattice validate runs the new CJK detector tests green; a deliberate CJK fixture flips the gate to fail, confirming the block is real and not silent.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
