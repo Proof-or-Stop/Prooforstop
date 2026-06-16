@@ -692,6 +692,17 @@
           "headHash": "eba537b8ea19e8fc8cd928a73e779ea6fbacacda",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:08.484Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -inE 'omx' packages/main/src/handlers/capsule.ts packages/main/src/tasks/story-capsule-smoke.ts",
+          "result": "pass",
+          "note": "Returns empty — capsule omx handling removed.",
+          "headHash": "d02ba4a638542b59c16b14b0ce243f8f6f305ee0",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:09.307Z"
         }
       ]
     }
