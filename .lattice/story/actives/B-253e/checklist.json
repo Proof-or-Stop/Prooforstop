@@ -157,6 +157,54 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call mintLedgerCallId() -> returns a string starting with a recognizable prefix (e.g. llmcall_), is unique across 100 calls; WHY: proves id is minted locally with stable prefix",
+            "type": "cli"
+          },
+          {
+            "desc": "Call mintAttemptId() -> returns a string starting with a recognizable prefix (e.g. llmatt_), is unique across 100 calls; WHY: proves attempt id minted locally",
+            "type": "cli"
+          },
+          {
+            "desc": "Create a preflight record (sequence=1) and a postflight record (sequence=2) for the same ledgerCallId+attemptId -> both share ledgerCallId and attemptId, sequence is monotonically increasing; WHY: correlation stability across an attempts records",
+            "type": "cli"
+          },
+          {
+            "desc": "Create a final record with supersedesRecordIds=[preflight-record-id] -> supersedesRecordIds contains exactly the preflight recordId; WHY: proves supersedes wiring works",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mint ledgerCallId when no provider request exists yet (before dispatch) -> id is returned without any provider.requestIdHash input; WHY: ids must be pre-dispatch, not derived from provider",
+            "type": "cli"
+          },
+          {
+            "desc": "Same ledgerCallId with two different attemptIds (retry scenario) -> both attemptIds are distinct, ledgerCallId is shared; WHY: retries reuse call id but get new attempt id",
+            "type": "cli"
+          },
+          {
+            "desc": "Sequence counter resets for a new attemptId under the same ledgerCallId -> sequences start from 1 again for the new attempt; WHY: sequence is per-attempt monotonic",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Pass a provider.requestIdHash value to mintLedgerCallId -> function ignores it or does not accept it as a parameter (id is never derived from provider hash); WHY: prevents provider-hash-derived ids",
+            "type": "cli"
+          },
+          {
+            "desc": "Call mintLedgerCallId concurrently from 50 parallel calls -> all 50 ids are unique (no collision under concurrency); WHY: uniqueness under concurrent minting",
+            "type": "cli"
+          },
+          {
+            "desc": "Attempt to set sequence to a non-monotonic value (e.g. sequence 3 after sequence 5 for same call+attempt) -> rejected or automatically corrected; WHY: monotonicity enforcement",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
