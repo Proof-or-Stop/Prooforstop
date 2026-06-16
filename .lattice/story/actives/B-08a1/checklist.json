@@ -40,7 +40,16 @@
       "context": "Add adapters/gemini.ts mapping usageMetadata.promptTokenCount->canonical.input, candidatesTokenCount->output, cachedContentTokenCount->cacheRead, cacheCreation=null. raw{providerUnits:'gemini-usage-v1', payloadDigest}. Tested: response with cachedContentTokenCount, without it (cacheRead null), and no-usage -> unavailable.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/adapters/gemini.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
