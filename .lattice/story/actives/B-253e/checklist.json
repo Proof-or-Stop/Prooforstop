@@ -292,6 +292,50 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call findRuntimeArtifactEntry(\".lattice/usage/llm-usage.jsonl\") -> returns entry with id=llm-usage-ledger; WHY: proves the ledger path is registered and findable",
+            "type": "cli"
+          },
+          {
+            "desc": "Call isMaterialExcludedRuntimeArtifactPath(\".lattice/usage/llm-usage.jsonl\") -> returns true; WHY: ledger must be excluded from material hash",
+            "type": "cli"
+          },
+          {
+            "desc": "Call isVolatileRuntimeArtifactPath(\".lattice/usage/llm-usage.jsonl\") -> returns true; WHY: ledger is volatile runtime state",
+            "type": "cli"
+          },
+          {
+            "desc": "Call isRepairableTrackedRuntimeArtifactPath(\".lattice/usage/llm-usage.jsonl\") -> returns true; WHY: ledger is repairable",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call findRuntimeArtifactEntry(\".lattice/usage/\") with prefix matcher -> returns the llm-usage-ledger entry (or a parent entry covering the prefix); WHY: prefix .lattice/usage/ should match",
+            "type": "cli"
+          },
+          {
+            "desc": "listRuntimeArtifactIgnorePatterns() includes .lattice/usage/ -> gitignore will cover the ledger directory; WHY: ledger path must be gitignored",
+            "type": "cli"
+          },
+          {
+            "desc": "Call findRuntimeArtifactEntry with a path like .lattice/usage/other-file.jsonl -> still matches the prefix matcher; WHY: future adjacent usage-runtime files are also covered",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call findRuntimeArtifactEntry with a path outside .lattice/usage/ (e.g. .lattice/story/actives/B-253e/usage.jsonl) -> does NOT match the llm-usage-ledger entry; WHY: matcher must not be overly broad and catch story evidence paths",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the entry has volatile=true AND repairableTrackedArtifact=true AND materialHash=exclude simultaneously -> all three properties confirmed on the same entry; WHY: a partial registration (e.g. volatile but not repairable) would be a spec violation",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
