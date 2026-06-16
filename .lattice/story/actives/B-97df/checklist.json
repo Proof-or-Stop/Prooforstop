@@ -238,8 +238,8 @@
       "id": "CHK-005",
       "title": "Smoke/test suite wired into package.json",
       "context": "Add packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-diagnostics. Cover: grouped aggregation correctness (by story/model/role/provider; unknown!=0; estimate excluded from provider totals; superseded excluded); cost projection with/without injected price table (null when absent; unknown stays unknown); report builder feeds no gate (no gate/verdict/decision field); the reporter task runs over a sample ledger and prints correctly; build green; and a static assert that the usage-ledger module still imports ZERO other Lattice modules. No regression in the other usage-ledger smokes.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T14:48:17.706Z",
       "endTime": null,
       "files": {
         "modify": [
