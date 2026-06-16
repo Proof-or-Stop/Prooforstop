@@ -69,6 +69,17 @@
           "headHash": "4a71d61f87a6535b1f63cc98278bf6a39b9c8cd0",
           "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
           "timestamp": "2026-06-16T23:08:43.819Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 6: empty/malformed stdin makes the hook exit 0 without crashing (warn-only, never blocks)",
+          "headHash": "3121413f6924d33fcbda8322c4b96f70a4494db5",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:44.832Z"
         }
       ]
     },
