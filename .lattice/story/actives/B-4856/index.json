@@ -1,0 +1,49 @@
+{
+  "storyId": "B-4856",
+  "name": "koala-residual-verify-gate-and-cleanup",
+  "title": "Koala residual verify gate: catalog all remaining koala hits + clean up real misses",
+  "description": "Pre-open-source final verify gate for the Koala-removal program (after B-d313/B-0b26/B-08f2/B-747e/B-d7ef/B-ed70). Run a comprehensive `git grep -i koala` audit, classify every remaining hit into documented exception categories (the 7 from memory: .koala/ runtime paths, LEGACY_KOALA_* constants, signature salts, framework-audit, managed-assets denylist, CHANGELOG/history, koala-to-lattice-role-naming plan), document any newly-discovered legitimate exception categories (decision-doc historical design references, smoke-test mkdtemp prefixes that test koala-Lattice rebrand regression, .githooks self-host-detection by npm package name), and clean up the genuine missed-cleanup hits (audit doc still teaching KOALA_AUTHORITY_* env vars that B-08f2 already renamed; .gitignore entries for deleted packages; NAV.md titles; etc.). Output: a verify-gate report committed to docs/requirements/decisions/ that future contributors can use to confirm no NEW koala creep before each OSS release, plus the cleanup commits for any real misses found.",
+  "type": "chore",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "keywords": [
+    "open-source-cleanup",
+    "koala-to-lattice",
+    "verify-gate",
+    "ship-clean",
+    "documentation"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "priorityElevatedFrom": "low",
+  "createdAt": "2026-06-16T21:59:09.257Z",
+  "startedAt": "2026-06-16T21:59:09.257Z",
+  "endedAt": "2026-06-16T22:01:57.531Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T21:59:09.270Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-16T22:01:57.531Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reason": "Discovered B-40eb (created 8 min before B-4856 by another session, still INIT_CHECK with active owner-lease and worktree) is already covering the same scope — koala-removal program story 4 (residual verify gate). B-40eb takes the more aggressive route (mechanical sweep of lab/main/scripts/docs koala brand tokens, NOT documented as exceptions); B-4856 took the 'document-as-exception + minimal cleanup' route. User chose to let B-40eb run (not B-4856's documentation route) — they will personally coordinate with the other session on the design direction. Avoiding duplicate work."
+    }
+  ]
+}
