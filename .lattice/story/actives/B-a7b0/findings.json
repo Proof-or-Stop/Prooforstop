@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/handlers/validate-docs-drift.ts"
       ]
+    },
+    {
+      "id": "B-a7b0:F-002",
+      "desc": "quality-cleanup: review-preflight.ts:383-385 empty catch {} swallows all errors from detectManagedAssetProfile / detectManagedAssetMode / listManagedAssetDefinitions with no logging; when the managed-asset registry resolution fails the gate silently degrades to no contradiction check with zero user-visible signal — callers cannot distinguish a clean registry load from a silent failure",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T21:32:17.405Z",
+      "reviewRound": "2026-06-16T21:28:15.259Z",
+      "reviewRunId": "B-a7b0:RR-002",
+      "_hash": "76ef8606a992a2cc06f9267653a957d68c01f0e2210f1e4a8a67209b6334d1c8",
+      "files": [
+        "packages/main/src/handlers/review-preflight.ts"
+      ]
     }
   ]
 }
