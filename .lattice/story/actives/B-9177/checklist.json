@@ -42,6 +42,17 @@
           "headHash": "aabb7e42db19b20f4d7ebadf564eb54d30d7be05",
           "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
           "timestamp": "2026-06-16T04:24:53.310Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard classifies merge-main-into-story-worktree + autoSyncMain + worktree/branch cleanup as mutates-main=no (worktree-only), not flagged as gaps",
+          "headHash": "d628d18328166fc43a147ce627724a8c930135c6",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:53.724Z"
         }
       ]
     },
