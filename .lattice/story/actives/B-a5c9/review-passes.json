@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T14:16:25.749Z",
       "reviewRunId": "B-a5c9:RR-002",
       "_hash": "3b428e956c7cf21d8c16e1b848e92b7ae38963af43712751595f9ee05b8530ae"
+    },
+    {
+      "id": "B-a5c9:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed estimate.ts + usage-ledger-estimate-smoke.ts. Dead code: none — all imports used, no commented-out blocks. Type safety: the empty catch in tryEstimator is intentional by-design (injected estimator fallback), documented in JSDoc and covered by smoke tests for throw/reject/NaN/negative/non-integer paths — not a swallowed error bug. No unnecessary `as any` beyond safe cast patterns in smoke test stubs. I/O isolation: estimate.ts imports only ./record.js and ./ids.js (zero cross-module coupling); statically asserted by the smoke STATIC check. Selector fallback: count_tokens > local_tokenizer > bytes_chars; force-sets canonical kind so stub cannot mislabel confidence; all invalid outputs (throw/reject/NaN/negative/non-integer) degrade correctly. bytes_chars heuristic: deterministic, monotonic, offline, uses Buffer.byteLength, not tiktoken, never NaN/negative, empty=0. buildEstimateRecord: canonical.input set, output/cache null, estimator{name,version,unit,confidence} all set, throws on validator failure, model bound exactly, source=prompt-size-estimate, no raw block, authority local+receiptVerified=false. Null-becomes-0 path: deriveRecordTotal returns unknown:true when any dim null; the estimate with null output/cache becomes unknownCount not providerReportedTotal. estimate-never-final: summary.ts routes by source discriminator, estimates go only to estimateSubtotal. record.ts was NOT changed. git diff --name-only confined to packages/main/** only (lattice story files + estimate.ts + smoke + package.json script entry). No hidden network/provider imports. No mislabeled confidence path. No non-deterministic heuristic. No null-becomes-0 path found.",
+      "createdAt": "2026-06-16T14:20:06.691Z",
+      "reviewRound": "2026-06-16T14:16:25.749Z",
+      "reviewRunId": "B-a5c9:RR-003",
+      "_hash": "64758d0d80095d0d6862542187853a153b9c025c652fdd9a73b25f0f9a82bbf6"
     }
   ]
 }
