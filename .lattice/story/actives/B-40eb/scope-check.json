@@ -1,0 +1,157 @@
+{
+  "storyId": "B-40eb",
+  "checkedAt": "2026-06-16T22:07:26.172Z",
+  "features": [
+    {
+      "feature": "Remove user-readable koala branding from packages/lab (koala-lab → lattice-lab: @title, comments, errors, CLI text)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove user-readable koala branding from packages/main source code comments and CLI text",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove koala branding from scripts/verify-*.mjs and other scripts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Handle test smoke/fixtures: change non-intent fixtures, preserve branding-assertion intent fixtures",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Clean root document prose (CLAUDE.md and docs/guide.md)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Acceptance gate: git grep -i koala in active scope leaves only documented-exceptions whitelist",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Produce classified whitelist of in-scope vs documented-exception koala references",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "PRESERVE .koala/ runtime path references (single-story storage migration, not in scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: .koala/ 运行时路径引用（单独的 storage migration，本 story 不动）",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "PRESERVE KOALA_* environment variable names (runtime compatibility contract per decisions doc)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "koala-to-lattice-role-naming-execution-plan.md explicit non-goal: Do not rename KOALA_* environment variables; scope-boundary excluded list",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "PRESERVE signature salt values (koala-*-integrity-v1) — changing breaks existing signature verification",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "koala-to-lattice-role-naming-execution-plan.md explicit non-goal: Do not change hash salts; scope-boundary excluded list",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "PRESERVE docs/requirements/decisions/*.md historical decision documents (3×2 gate scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: docs/requirements/decisions/**.md 历史决策文档（3×2 gate 须排除）",
+      "source": "description"
+    },
+    {
+      "feature": "PRESERVE test assertion intent fixtures (cli-engine-branding-smoke, lattice-only-absence-smoke — intentionally assert koala is absent/recognized)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; CHK-005 explicitly preserves these",
+      "source": "description"
+    },
+    {
+      "feature": "PRESERVE process-lane names (koala-codex, koala-review-*, koala-implementer, etc.) — established in B-3cca",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json constraints; koala-to-lattice-role-naming-execution-plan.md establishes these as legacy alias lane names",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "PRESERVE CHANGELOG.md, git history, docs/story history records",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: CHANGELOG.md / git 历史 / docs/story 历史记录",
+      "source": "description"
+    },
+    {
+      "feature": "Coordinate with B-ed70 (lab/package.json description and packages/lab/src/core/config.ts .Codex line — do not touch)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: B-ed70 正在改的 lab/package.json description 与 packages/lab/src/core/config.ts 的 .Codex 引用; CHK-002 context",
+      "source": "description"
+    },
+    {
+      "feature": "Active entry point policy: lattice is canonical; koala not accepted as active alias (project-vision.md)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/project-vision.md"
+    },
+    {
+      "feature": ".koala runtime paths are legacy read-only fallback for dev-memory; writes go to .lattice only (dev-memory.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: .koala/ 运行時路径引用 (storage migration separate story)",
+      "source": "decisions:decisions/dev-memory.md"
+    },
+    {
+      "feature": "KOALA.md must not remain at root after cleanup (root-document-migration-guide.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Already completed in story B-7f61; out of scope for B-40eb per background",
+      "source": "decisions:decisions/root-document-migration-guide.md"
+    },
+    {
+      "feature": "CLI engine Chinese-to-English translation (cli-engine-english-open-source-execution-plan.md, story B-8448)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Separate story B-8448; cli-engine-english-open-source-execution-plan.md explicitly says do not modify cli-engine.ts in the documentation story and do not remove legacy koala compatibility semantics as part of translation",
+      "source": "decisions:decisions/cli-engine-english-open-source-execution-plan.md"
+    },
+    {
+      "feature": "Story 4: extend cli-engine-branding-smoke audit scope to full active range as permanent verify gate",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred to story 4 per decision.json, plan.md CHK-007 note, and scope-boundary.json",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 8,
+    "excluded": 12,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4a72cb183798837f082b70db7b33ae3af189834cb7bde03c17f0c5945aa7efce",
+  "openQuestions": []
+}
