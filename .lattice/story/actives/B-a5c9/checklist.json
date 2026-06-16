@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Estimator interface + confidence model",
+      "context": "In core/usage-ledger/estimate.ts (new), define EstimatorKind ('count_tokens'|'local_tokenizer'|'bytes_chars') with a confidence mapping (count_tokens->'high', local_tokenizer->'medium', bytes_chars->'low'), and a TokenEstimator type: an (optionally async) function (model: string, input: string | promptParts) -> { estimatedInputTokens: number, kind: EstimatorKind }. Export the kind->confidence map. Unit-tested: each kind maps to the right confidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Deterministic offline bytes/chars fallback estimator",
+      "context": "Provide a pure, deterministic bytes/chars heuristic estimator (kind='bytes_chars', confidence low) that needs no network and no provider client. Document that it is a coarse guard, NOT tiktoken (tiktoken is OpenAI's and undercounts Claude). Tested: deterministic output for the same input; reasonable monotonicity (more text -> more estimated tokens).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Estimate selector (count_tokens > local_tokenizer > bytes_chars)",
+      "context": "selectEstimate({model, input, countTokens?: TokenEstimator, localTokenizer?: TokenEstimator}) picks the highest-available estimator in order count_tokens > local_tokenizer > bytes_chars, returns {estimatedInputTokens, kind, confidence, model}. The estimate is bound to the exact model id passed. count_tokens/localTokenizer are injected (optional); when neither is provided, falls back to bytes_chars. Tested: with count_tokens injected -> high; only localTokenizer -> medium; neither -> bytes_chars/low; model id echoed back.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "buildEstimateRecord -> validated prompt-size-estimate record",
+      "context": "buildEstimateRecord(model, estimateResult, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds}, attribution{storyId|null,phase,agentType}) assembles a usage.source='prompt-size-estimate' record (reuse assemble.ts/record.ts/ids.ts) with estimator{name,version,unit,confidence}, canonical.input = estimatedInputTokens, and output/cacheCreation/cacheRead = null (unknown — nothing generated yet, per the per-dimension null rule). It MUST pass validateUsageLedgerRecord. If the B-253e validator currently rejects a prompt-size-estimate with null output, make the minimal record.ts adjustment so estimates legitimately allow unknown output (estimates are preflight) — with a test — but do NOT relax provider-reported rules. Tested: assembled estimate record validates; source is prompt-size-estimate; estimator fields present.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Supersedes wiring + estimate-never-final guarantee",
+      "context": "Provide/confirm the helper so a later provider-reported final record lists the preflight estimate's recordId in supersedesRecordIds (buildSupersedes from ids.ts). Confirm via summary.ts that a superseded estimate is excluded from provider-reported totals and that prompt-size-estimate is NEVER counted as final usage (it may appear only in a separate estimate view). Tested: an estimate followed by a superseding provider-reported record -> summary providerReportedTotal counts only the final; estimateSubtotal tracks the estimate separately; no double count.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Smoke/test suite wired into package.json",
+      "context": "Add packages/main/src/tasks/usage-ledger-estimate-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-estimate. Cover: confidence mapping; bytes/chars determinism; selector ordering (count_tokens>tokenizer>bytes_chars) with injected stubs; model binding; estimate record validates + is prompt-size-estimate with estimator fields + null output; supersedes interplay with summary (no double count, estimate never final); and an estimate record round-trips through the B-253e writer (opt-in ON, temp dir). Build green; module still imports zero other Lattice modules (grep assert in the smoke).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
