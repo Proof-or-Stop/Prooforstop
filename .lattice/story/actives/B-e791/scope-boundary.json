@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e791",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Make session.ts git-readiness guidance gitRoot-aware (no git init metadata root when a gitRoot resolves)",
+    "Run or guard the dev_start nesting check in the resolved gitRoot so no spurious fatal line",
+    "Tests for both on a wrapper-root fixture; plain repo unchanged"
+  ],
+  "excluded": [
+    "Anything not explicitly enumerated in the allowed list above is out of bounds for this story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to open and drive a story for external report fix #3 (gitRoot-aware INIT guidance + nesting-check noise). Coordination (exclude doctor/B-1637) is documented in the description and plan.md.",
+  "createdAt": "2026-06-16T00:24:47.132Z",
+  "updatedAt": "2026-06-16T00:24:47.132Z",
+  "_hash": "ec9d0f516057979165c6f8020d8395ec529fb921f2e40093ac995d9ddabf33f8"
+}

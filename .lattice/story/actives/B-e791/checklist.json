@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make session.ts git-readiness guidance gitRoot-aware (stop telling configured-gitRoot users to git init the metadata root)",
+      "context": "gitReady = isGitRepository(ctx.root) only checks metadataRoot. When a configured gitRoot resolves (configuredGitRootStatus / signed-workspace, already available around session.ts:918), the INIT and INIT_CHECK next-step strings (around 549, 554) and the non-git advisories (around 694, 889, 921) must NOT instruct git init the metadata root; they should guide the user to proceed to INIT_CHECK. Reuse the existing resolution; do not add a second resolver. Plain non-git projects with no configured gitRoot keep the existing message.",
+      "userSees": "On a wrapper-root project (configured gitRoot resolves), lattice session_brief / next no longer say the current project is not a git repository, run git init; instead they say the story is ready for INIT_CHECK.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run or guard the dev_start nesting check in the resolved gitRoot so wrapper-root prints no spurious fatal: not a git repository",
+      "context": "worktree.ts around line 795 runs git rev-parse --abbrev-ref HEAD in process.cwd() (metadataRoot). Run it in the resolved gitRoot (resolveBootstrapGitRoot result) or skip cleanly when the metadataRoot is not a git repo, so the swallowed-but-printed fatal line disappears. Behavior (the nesting rejection) must be unchanged for real in-worktree cases; only the spurious stderr on wrapper-root is removed.",
+      "userSees": "lattice story_advance INIT_CHECK on a wrapper-root project no longer prints a fatal: not a git repository line; the worktree is still created and nesting is still rejected when actually inside a worktree.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Tests: wrapper-root fixture asserts gitRoot-aware guidance + no spurious fatal line; plain repo unchanged",
+      "context": "Function-level tests: (a) the guidance helper returns the INIT_CHECK-ready message (not git init) when a gitRoot is configured + resolves, and keeps the git-init message for a plain non-git project with no gitRoot; (b) the nesting check produces no fatal: not a git repository for a wrapper-root metadataRoot. Do not shell to the global lattice binary.",
+      "userSees": "lattice validate green with new tests covering the wrapper-root guidance + nesting-check-quiet behavior and the plain-repo unchanged case.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
