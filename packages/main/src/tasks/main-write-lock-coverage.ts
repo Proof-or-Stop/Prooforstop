@@ -15,12 +15,17 @@
  * WHAT IT GUARDS (decision.json preMortem, all three honored):
  *
  *  1. NO function-name allowlist as the primary check. The guard SCANS
- *     `packages/main/src` for the git main-mutation primitives themselves
- *     (`git commit` / `git merge <storyBranch>` into main / `git reset` on the
- *     main checkout / `git update-ref refs/heads/main` / `git commit-tree`+
- *     `write-tree` against main) and asserts each enclosing path acquires the
- *     lock. A newly-added unlocked primitive fails the guard BY CONSTRUCTION,
- *     not because a name was added to a list.
+ *     `packages/main/src` for the git main-mutation primitives themselves —
+ *     exactly the verbs in MAIN_MUTATION_VERBS: `commit` / `merge` (a
+ *     story-branch merge INTO main) / `reset` on the main checkout /
+ *     `commit-tree` / `update-ref refs/heads/main` — and asserts each enclosing
+ *     path acquires the lock. A newly-added unlocked primitive fails the guard
+ *     BY CONSTRUCTION, not because a name was added to a list.
+ *     (`write-tree` is intentionally NOT scanned: it only writes a dangling
+ *     tree OBJECT into the object DB and cannot move any ref, so it can never
+ *     mutate main — no lock is needed and listing it would over-claim coverage.
+ *     `commit-tree` is scanned only so the paired ref move is reached; it too is
+ *     classified as a non-mutation below because it writes no ref by itself.)
  *
  *  2. CLASSIFY by direction / target, not raw substring. `git merge main` run
  *     INSIDE a story worktree merges main INTO the story branch — it does NOT
