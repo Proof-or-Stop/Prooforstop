@@ -193,6 +193,58 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Guard active + budget set + estimate OVER budget -> spawnSync is NOT called, blocked record appended to ledger, function returns a blocked dispatch result; WHY: core fail-closed behavior -- must skip provider call when over budget",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard active + budget set + estimate UNDER budget -> spawnSync IS called, no blocked record, proceeds as normal; WHY: within-budget dispatch must not be impeded",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard active + no budget env set -> proceeds to spawnSync exactly as today, no budget code side-effects; WHY: unset budget must be a no-op within the enabled ledger path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Ledger OFF (isUsageLedgerEnabled()===false) -> no resolveHardBudget call, no budget check, spawnSync called with original args, byte-identical to pre-budget code; WHY: OFF path must have zero budget side-effects",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard active + budget set + estimate EXACTLY equal to budget -> proceeds (not blocked); WHY: boundary condition -- block is strict-exceed only (estimate > budget, not >=)",
+            "type": "cli"
+          },
+          {
+            "desc": "Budget check error (resolveHardBudget or isOverHardBudget throws) -> proceeds to spawnSync as if no budget; WHY: fail-open on error -- a budget-check crash must not wrongly block dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Blocked dispatch result carries well-formed structure (exitCode, stdout indicators) that downstream handlers can distinguish from a normal dispatch; WHY: callers must know the dispatch was budget-blocked, not a provider error",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveHardBudget throws mid-check after preflight succeeded -> try/catch catches, proceeds to spawn, no blocked record; WHY: budget code is inside try/catch, error must not propagate to dispatch caller or wrongly block",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord throws (validator rejects assembled record) -> try/catch catches, proceeds to spawn rather than crashing; WHY: a broken blocked-record builder must fail open (proceed), never fail closed (block without record)",
+            "type": "cli"
+          },
+          {
+            "desc": "Budget env set to extreme value (LATTICE_HARD_BUDGET_TOKENS=\"1\") + non-empty prompt -> blocked; estimate of even a tiny prompt exceeds 1 token; WHY: minimum budget stress test",
+            "type": "cli"
+          },
+          {
+            "desc": "appendUsageRecord for blocked record throws (fs error) -> guard catches, still returns blocked result (does not proceed to spawn); WHY: once the block decision is made, a write failure must not revert the decision and call the provider",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
