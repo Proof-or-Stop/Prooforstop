@@ -237,10 +237,10 @@
           "verdict": "success",
           "command": "git grep -nE 'process.env.KOALA_[A-Z]' -- bin .Codex .claude",
           "result": "pass",
-          "note": "No KOALA_ setter/reader remains in wrapper assets (residual gate 0).",
-          "headHash": "86b11a2555bd3ec276e5f806df3f6029cb01779d",
-          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
-          "timestamp": "2026-06-16T00:15:31.593Z"
+          "note": "No KOALA_ setter/reader in wrapper assets.",
+          "headHash": "2eb1012733644506a3095d56313e86697f90d9c2",
+          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
+          "timestamp": "2026-06-16T00:59:46.437Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
