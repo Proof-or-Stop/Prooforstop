@@ -23,7 +23,16 @@
       "context": "Add buildBlockedBudgetRecord(model, estimateResult, correlation, attribution, budgetPolicyId, reasonCode) parallel to buildUnavailableFinalRecord: a record with decision.kind='blocked', budgetPolicyId, reasonCode (e.g. 'hard_budget_exceeded'), usage.source='prompt-size-estimate' (the estimate that triggered the block) or 'unavailable', supersedesRecordIds=[estimateRecordId]. It MUST pass validateUsageLedgerRecord. Never throws. Tested: produces a valid blocked record; decision.kind is blocked; supersedes the estimate.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
