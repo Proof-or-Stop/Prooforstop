@@ -83,9 +83,9 @@
           "command": "git grep -w KoalaConfig -- packages",
           "result": "pass",
           "note": "Returns nothing — zero KoalaConfig identifiers remain in packages (verified on HEAD).",
-          "headHash": "ef1ab2559ab8f80273cb170f4b80f10b274c6479",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:19.305Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -94,9 +94,9 @@
           "command": "git grep -nw 'interface LatticeConfig' packages/main/src/core/config.ts",
           "result": "pass",
           "note": "config.ts now declares `export interface LatticeConfig`.",
-          "headHash": "f3792b3fd7ea54242173eed6d8d67a1654fc65be",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:22.209Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -105,9 +105,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "tsc build exited 0 — type resolution intact after the rename.",
-          "headHash": "fe2c914363628b32f31ccca5f59960cc53aaea7c",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:24.580Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -116,9 +116,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "npm run test:e2e exited 0 (ALL PASS) — no runtime behavior change.",
-          "headHash": "3b42f17508971243539be77fb45ec31976b2d43e",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:27.797Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -127,9 +127,9 @@
           "command": "git grep -lw LatticeConfig -- packages/main/src/core",
           "result": "pass",
           "note": "All 5 files (config + 4 consumers) carry LatticeConfig; none carry KoalaConfig.",
-          "headHash": "da1d225abe380564ece72cf9a0e824fc7c1cc1de",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:28.995Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -138,9 +138,9 @@
           "command": "git grep -w KoalaConfig -- packages",
           "result": "pass",
           "note": "Returns nothing — zero KoalaConfig identifiers remain in packages (verified on HEAD).",
-          "headHash": "64250923eb1827ee59f86c8aff64f4f06686a45e",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:30.253Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -149,9 +149,9 @@
           "command": "git grep -lw LatticeConfig -- packages/main/src/core",
           "result": "pass",
           "note": "All 5 files (config + 4 consumers) carry LatticeConfig; none carry KoalaConfig.",
-          "headHash": "5af78f86bcb3495bf3d92110d229103fdca94758",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:31.618Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -160,9 +160,9 @@
           "command": "git grep -nE 'type KoalaConfig|as KoalaConfig' -- packages",
           "result": "pass",
           "note": "No backward-compat KoalaConfig alias left (0 matches).",
-          "headHash": "2fb3c198352a2f7de5064c012b05d77638895b26",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:32.880Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -171,9 +171,9 @@
           "command": "git diff --name-only",
           "result": "pass",
           "note": "Diff touches only the 5 type files — koala.config.json fixtures untouched.",
-          "headHash": "dac297143d90eb7deeca50b83b97a32c68b78323",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:34.172Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -182,9 +182,9 @@
           "command": "git diff --name-only",
           "result": "pass",
           "note": "Diff touches only packages/main/src/core — the lab package untouched.",
-          "headHash": "a631e20ba5da5bb70a90ee203ff167446e734136",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:35.173Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -193,9 +193,9 @@
           "command": "git diff",
           "result": "pass",
           "note": "Diff shows identifier-only changes (KoalaConfig→LatticeConfig); no comment/prose edits.",
-          "headHash": "456e51dfe3f9ca94ec83cb52168b4174a6450d04",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:37.094Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -204,9 +204,9 @@
           "command": "git diff --name-only",
           "result": "pass",
           "note": "cli-engine-branding-smoke.ts not modified by this story.",
-          "headHash": "30ed6949707c5745943a33dba2ec1d0c22ecbf26",
-          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
-          "timestamp": "2026-06-16T02:54:38.056Z"
+          "headHash": "cc7e781cd3edbb874806d96790aa33863c3ecb64",
+          "materialHash": "11bd630eeee5e5210e38da55eba5dbc98fea45379dc2e24976be445779c3b9b0",
+          "timestamp": "2026-06-16T03:02:22.558Z"
         }
       ]
     }
