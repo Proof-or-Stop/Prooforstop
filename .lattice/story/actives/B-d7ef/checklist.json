@@ -377,6 +377,17 @@
           "headHash": "54aa721c2f91b81c2fd73bac97a148019fa87e8d",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
           "timestamp": "2026-06-16T19:03:19.711Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff --name-only HEAD~1 HEAD",
+          "result": "pass",
+          "note": "Diff touches only the 3 deletion targets; lab/.codex/.Codex/.lattice untouched.",
+          "headHash": "8a3912060396fed6fb50b9d6f76f0b12ebc604ef",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:20.419Z"
         }
       ]
     }
