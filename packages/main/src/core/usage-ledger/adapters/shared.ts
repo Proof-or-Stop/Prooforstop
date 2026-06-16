@@ -18,6 +18,7 @@
 
 import { createHash } from 'node:crypto';
 
+import { canonicalJson } from '../canonical-json.js';
 import type { LedgerUsage, TokenDimension, UsageCanonical } from '../record.js';
 
 /** Stable, provider-agnostic sha256 digest of a raw usage payload. */
@@ -26,25 +27,6 @@ export function payloadDigest(rawUsage: unknown): string {
   // provider's key insertion order. Mirrors the writer's canonicalization.
   const digest = createHash('sha256').update(canonicalJson(rawUsage), 'utf8').digest('hex');
   return `sha256:${digest}`;
-}
-
-function canonicalJson(value: unknown): string {
-  return JSON.stringify(sortValue(value));
-}
-
-function sortValue(value: unknown): unknown {
-  if (value === null) return null;
-  if (Array.isArray(value)) return value.map(sortValue);
-  if (typeof value === 'object') {
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      const child = (value as Record<string, unknown>)[key];
-      if (child === undefined) continue;
-      out[key] = sortValue(child);
-    }
-    return out;
-  }
-  return value;
 }
 
 /**
@@ -67,9 +49,14 @@ export function readReportedDimension(value: unknown): TokenDimension {
   if (typeof value === 'number' && Number.isInteger(value) && Number.isFinite(value) && value >= 0) {
     return value;
   }
-  // Present but malformed: return it verbatim (cast) so the assembler's
-  // validateUsageLedgerRecord rejects it instead of laundering it to null/NaN.
-  return value as TokenDimension;
+  // Present but malformed (string / float / NaN / negative / Infinity): return
+  // it verbatim so the assembler's validateUsageLedgerRecord rejects the
+  // assembled record instead of laundering the value to null/NaN. The
+  // double-cast (`unknown` first) makes the unsoundness EXPLICIT: we KNOWINGLY
+  // hand back a value whose runtime type may not be `number | null`, because the
+  // B-253e validator — not this reader — is the rejection point for rogue
+  // payloads. Never coerce and never silently drop to null.
+  return value as unknown as TokenDimension;
 }
 
 /**
