@@ -56,7 +56,12 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       });
       const validation = scanValidationSetup(root);
       const runtime = runRuntimeEnvironmentChecks(root);
-      let trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root);
+      // B-1637: resolve the gitRoot ONCE and thread it as the cwd into every git
+      // probe below, so wrapper-root projects (metadataRoot != gitRoot) no longer
+      // print leading `fatal: not a git repository` lines. Falls back to `root`
+      // when no gitRoot resolves → byte-identical for plain repos.
+      const gitProbeCwd = resolveDoctorGitCwd(root);
+      let trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
       const runtimeArtifactsRepaired: string[] = [];
       const runtimeArtifactsRepairFailed: Array<{ path: string; error: string }> = [];
 
@@ -65,7 +70,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // after a DONE merge when Claude Code's activity.jsonl hook or tmp/
       // runtime files kept file handles open during `git worktree remove`,
       // so git deregistered the worktree but left the dir behind.
-      let orphanScan = scanOrphanWorktrees(root, store);
+      let orphanScan = scanOrphanWorktrees(root, store, gitProbeCwd);
       let auxiliaryWorktrees = scanAuxiliaryWorktreeResidues(root, store);
       const auxiliaryRepaired: AuxiliaryCleanupResult[] = [];
       const auxiliaryRepairFailed: Array<{ path: string; error: string }> = [];
@@ -93,7 +98,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       const storyDirGitRoot = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
       // B-854c CHK-003: scan active stories' metadata leaves for the
       // neither-tracked-nor-protected data-loss state (ClawCreek incident).
-      let storyMetadataProtection = scanStoryMetadataProtection(root, store);
+      let storyMetadataProtection = scanStoryMetadataProtection(root, store, gitProbeCwd);
       let storyMetadataRepair: { requested: boolean; wrote: boolean; error?: string } = {
         requested: !!args?.repair,
         wrote: false,
@@ -126,7 +131,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         } catch (e: any) {
           repairFailed.push({ path: '<git worktree prune>', error: e.message || String(e) });
         }
-        orphanScan = scanOrphanWorktrees(root, store);
+        orphanScan = scanOrphanWorktrees(root, store, gitProbeCwd);
         cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
       }
       if (args?.repair && auxiliaryWorktrees.some((candidate) => candidate.state === 'safe-cleanup')) {
@@ -151,7 +156,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             runtimeArtifactsRepairFailed.push({ path: artifact.path, error: e.message || String(e) });
           }
         }
-        trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root);
+        trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
       }
 
       // B-854c CHK-003: --repair installs the managed ignore-volatile/track-metadata
@@ -160,7 +165,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       if (args?.repair && storyMetadataProtection.evaluated && storyMetadataProtection.needsRepair) {
         const result = repairStoryMetadataAllowlist(root);
         storyMetadataRepair = { requested: true, wrote: result.wrote, error: result.error };
-        storyMetadataProtection = scanStoryMetadataProtection(root, store);
+        storyMetadataProtection = scanStoryMetadataProtection(root, store, gitProbeCwd);
       }
 
       if (args?.format === 'json') {
@@ -499,11 +504,36 @@ function renderPosixShellArg(value: string): string {
   return `'${value.replace(/'/g, `'\"'\"'`)}'`;
 }
 
-function scanTrackedRuntimeArtifacts(root: string): TrackedRuntimeArtifact[] {
+/**
+ * B-1637: resolve the cwd doctor's git probes should run in.
+ *
+ * doctor previously ran every git probe with cwd=root (the metadataRoot). On a
+ * WRAPPER-ROOT project (metadataRoot != gitRoot — e.g. ClawCreek with a non-git
+ * wrapper root and a configured gitRoot subdir) the metadataRoot is NOT a git
+ * repo, so each probe's `git` invocation emitted `fatal: not a git repository`.
+ * Every probe is already wrapped in try/catch (graceful degradation), so this
+ * was cosmetic stderr noise only — but it printed two leading fatal lines on an
+ * otherwise healthy report.
+ *
+ * Reuse the id-independent, TOTAL project-level resolver (the same one doctor
+ * already calls at the top of doctor() for the storyDir/gitRoot check, B-198c):
+ *   evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root }).gitRootAbs ?? root
+ * A configured (valid) gitRoot wins, else the metadata root's own git toplevel,
+ * else null → fall back to `root`. This mirrors B-2856 / B-3990's `?? root`
+ * reroute and is cwd-only: it never changes git command text or what a probe
+ * CHECKS. For a PLAIN repo (metadataRoot == gitRoot) the resolver yields the
+ * metadata git root, which is the same repo as `root`, so probe behavior is
+ * byte-identical. The resolver never throws.
+ */
+export function resolveDoctorGitCwd(root: string): string {
+  return evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root }).gitRootAbs ?? root;
+}
+
+function scanTrackedRuntimeArtifacts(root: string, gitCwd: string = root): TrackedRuntimeArtifact[] {
   let raw = '';
   try {
     raw = execFileSync('git', ['ls-files', '-z'], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -539,7 +569,7 @@ function scanTrackedRuntimeArtifacts(root: string): TrackedRuntimeArtifact[] {
  * list it as an active worktree. Typical cause: `git worktree remove` because gitignored runtime
  * artifacts like activity.jsonl are continuously written by hooks, git silently only clears the registry without removing the directory.
  */
-function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
+function scanOrphanWorktrees(root: string, store: HandlerContext['store'], gitCwd: string = root): {
   registered: string[];
   orphans: string[];
   terminalRegistered: string[];
@@ -548,10 +578,16 @@ function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
   const cfg = loadConfig(root);
   const worktreeDirName = cfg.worktreeDir || '.worktrees';
 
-  // Find repo root from the current root
+  // Find repo root from the resolved gitRoot (B-1637): on a wrapper-root project
+  // `root` (metadataRoot) is not a git repo, so this discovery must run in the
+  // resolved gitRoot. stdio piped so a caught failure does not leak a fatal line.
   let repoRoot: string;
   try {
-    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+    repoRoot = execSync('git rev-parse --show-toplevel', {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
   } catch {
     return { registered: [], orphans: [], terminalRegistered: [], terminalDirs: [] };
   }
@@ -794,10 +830,19 @@ function gitProbeRunner(repoRoot: string): (leaf: string) => StoryMetadataProbe 
  * git's tracking/ignore facts; it does NOT claim validation evidence or process
  * facts, and it does not widen the runtime-artifact registry.
  */
-function scanStoryMetadataProtection(root: string, store: HandlerContext['store']): StoryMetadataProtectionScan {
+function scanStoryMetadataProtection(root: string, store: HandlerContext['store'], gitCwd: string = root): StoryMetadataProtectionScan {
+  // B-1637: discover repoRoot from the resolved gitRoot. On a wrapper-root
+  // project `root` (metadataRoot) is not a git repo, so this `rev-parse` (which
+  // DISCOVERS the repoRoot threaded into the per-leaf probes below) must run in
+  // the resolved gitRoot — INIT review INIT-001 correction. stdio piped so a
+  // caught failure does not leak a fatal line.
   let repoRoot: string;
   try {
-    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+    repoRoot = execSync('git rev-parse --show-toplevel', {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
   } catch {
     return { evaluated: false, leaves: [], unsafeLeaves: [], allowlistMissing: [], unsafe: false, needsRepair: false };
   }
