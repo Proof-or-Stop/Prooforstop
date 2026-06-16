@@ -153,7 +153,45 @@
       "context": "37 个 koala.config.json fixture + smoke 测试：lattice-only-absence-smoke、cli-engine-branding-smoke 等故意断言 koala 被忽略/识别的保留；纯历史/无意图夹具按需改。逐个判定。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:e2e passes including cli-engine-branding-smoke and lattice-only-absence-smoke -> intentional test assertions preserved and still pass; WHY: confirms test intent not broken by fixture changes",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala packages/main/src/tasks/cli-engine-branding-smoke.ts shows only classified references (process lanes, LEGACY_KOALA, salt, .koala paths) -> branding smoke test preserved as documented exception; WHY: smoke test itself is a legitimate koala-mentioning file",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep -i koala packages/main/src/tasks/lattice-only-absence-smoke.ts shows only classified assertion references -> absence smoke test preserved as documented exception; WHY: this test intentionally references koala to assert it is absent from certain contexts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Non-intentional koala.config.json fixture files renamed/updated to lattice.config.json where they were pure historical artifacts -> git grep koala.config.json returns only files where fixture name is part of test assertion logic; WHY: distinguishes fixture-by-intent from fixture-by-accident",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delete a koala reference from cli-engine-branding-smoke.ts NEUTRAL_TOKEN_PATTERNS, run branding smoke -> smoke fails because it can no longer classify legitimate legacy tokens; WHY: ensures the classification rules themselves are not accidentally narrowed during cleanup",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Rename a koala.config.json fixture that IS used by test assertion logic, run affected test suite -> test fails with missing fixture; WHY: catches over-aggressive fixture rename that breaks test expectations",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
