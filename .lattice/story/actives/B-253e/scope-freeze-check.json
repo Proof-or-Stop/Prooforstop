@@ -1,73 +1,59 @@
 {
   "schemaVersion": "lattice.scope_freeze_check.v1",
   "storyId": "B-253e",
-  "checkedAt": "2026-06-16T00:53:31.344Z",
+  "checkedAt": "2026-06-16T00:55:51.602Z",
   "mode": "feature",
-  "status": "fail",
-  "scopeBoundaryHash": "e6277b4fd43899b4605027085ec45297b82e958ff50149af735befc2e297b532",
+  "status": "pass",
+  "scopeBoundaryHash": "e61aabb3a50f71bdadb2bbae93f8262b87bdb99d89d9bed93405ae4ba5d4a43a",
   "executionBoundaryHash": "31216f9d605c8b65991c47eb333abc2cfe10b303eca253b67126760338820a7c",
-  "freshnessHash": "299ea00f0bc445e79aecb5f16fa052f27c73bec3bad5531cdd32bf796dd43b9d",
+  "freshnessHash": "9635a88bde6dc27529f47e98511c57f39133514f5a2175e5744e80c7cab65a8c",
   "effectiveExcludedKeywords": [
-    "Any change outside packages/main/src and its tests",
-    "Authority receipt-backed path",
-    "Budget policy and fail-closed enforcement",
-    "count_tokens / prompt-size estimate path",
-    "Default-on rollout (writer stays opt-in/off)",
-    "Provider adapter extraction / wiring real dispatch through the writer"
+    "Budget decision and request blocking",
+    "Edits outside packages/main/src or its tests",
+    "Enabling the writer by default",
+    "Integrating live model calls into the writer",
+    "Preflight token estimation logic",
+    "Signed receipt verification or server promotion"
   ],
   "keywordHits": [
     {
-      "keyword": "Any change outside packages/main/src and its tests",
+      "keyword": "Budget decision and request blocking",
       "source": "scopeBoundary.excluded",
-      "text": "Any change outside packages/main/src and its tests",
+      "text": "Budget decision and request blocking",
       "excluded": true
     },
     {
-      "keyword": "Authority receipt-backed path",
-      "source": "story.background",
-      "text": "## Trigger Event On 2026-06-16, after story B-4bf8 corrected the token-accuracy gaps in the LLM usage ledger execution plan (docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md), the user authorized starting the actual implementation. No ledger code exists yet — confirmed there is nothing under packages/main/src that writes .lattice/usage/llm-usage.jsonl. This story is the first implementation slice. ## Key Insight The spec explicitly mandates narrow slices and a phased rollout (6 implementation touchpoints, 6 rollout phases). Slice 1 — the JSONL schema + validator + append-only hash-chained writer + runtime-artifact registration — is the self-contained foundation every later slice builds on. It must record the four-field cache-aware usage shape (inputTokens uncached-remainder, outputTokens, cacheCreationInputTokens, cacheReadInputTokens; no stored totalTokens), the usage.source discriminator, correlation ids minted before dispatch, story/role attribution, privacy (no raw content), and a tamper-evident hash chain — all behind an opt-in flag so it stays inert until later slices wire providers and budgets. ## Tradeoff Building only the writer foundation (no provider wiring, no budget enforcement, no estimate path, no Authority) keeps this story small, testable, and low-risk, at the cost of the ledger being inert (opt-in; nothing writes real records yet) until follow-up stories. We accept an unused-but-correct foundation over a big-bang implementation the spec warns against. The chosen file path .lattice/usage/llm-usage.jsonl is runtime state and must be classified materialHash=exclude/volatile/repairable so it never pollutes evidence or gate hashes. ## Conversation Texture The user said '开始开发吧，使用Lattice CLI create Story流程，走完整个生命' and, when asked about scope, chose the foundation slice (recommended) over a budget-inclusive or all-in-one story. This follows B-1477 (original plan) and B-4bf8 (accuracy fixes). Subsequent slices — provider adapter extraction, count_tokens estimate path, fail-closed budget policy, and the Authority receipt-backed path — are separate future stories.",
-      "excluded": false
-    },
-    {
-      "keyword": "Authority receipt-backed path",
+      "keyword": "Edits outside packages/main/src or its tests",
       "source": "scopeBoundary.excluded",
-      "text": "Authority receipt-backed path",
+      "text": "Edits outside packages/main/src or its tests",
       "excluded": true
     },
     {
-      "keyword": "Budget policy and fail-closed enforcement",
+      "keyword": "Enabling the writer by default",
       "source": "scopeBoundary.excluded",
-      "text": "Budget policy and fail-closed enforcement",
+      "text": "Enabling the writer by default",
       "excluded": true
     },
     {
-      "keyword": "count_tokens / prompt-size estimate path",
+      "keyword": "Integrating live model calls into the writer",
       "source": "scopeBoundary.excluded",
-      "text": "count_tokens / prompt-size estimate path",
+      "text": "Integrating live model calls into the writer",
       "excluded": true
     },
     {
-      "keyword": "Default-on rollout (writer stays opt-in/off)",
+      "keyword": "Preflight token estimation logic",
       "source": "scopeBoundary.excluded",
-      "text": "Default-on rollout (writer stays opt-in/off)",
+      "text": "Preflight token estimation logic",
       "excluded": true
     },
     {
-      "keyword": "Provider adapter extraction / wiring real dispatch through the writer",
+      "keyword": "Signed receipt verification or server promotion",
       "source": "scopeBoundary.excluded",
-      "text": "Provider adapter extraction / wiring real dispatch through the writer",
+      "text": "Signed receipt verification or server promotion",
       "excluded": true
     }
   ],
   "repeatDiscardOverlaps": [],
-  "issues": [
-    {
-      "code": "future_capability_keyword",
-      "severity": "hard",
-      "message": "Excluded scope keyword \"Authority receipt-backed path\" appears in story.background.",
-      "keyword": "Authority receipt-backed path",
-      "source": "story.background"
-    }
-  ],
-  "_hash": "fd1840b7b14b53798a2171b23417d73ce1ce1f521bb28cf64671ba2b9ba11125"
+  "issues": [],
+  "_hash": "7faaed903f5af5c1c1d418833b094fcaa5043b5649f8deff19b078726948a186"
 }
