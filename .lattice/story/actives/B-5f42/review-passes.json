@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T23:18:34.507Z",
       "reviewRunId": "B-5f42:RR-004",
       "_hash": "0f0d23ca1fb5382d2391eab6b4d4eccadfd2a02d1f1bdb64221476e452a6942e"
+    },
+    {
+      "id": "B-5f42:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-inspection: R1 findings F-001 (dead buildCjkRegex/re in cjk-detect.ts) and F-002 (HOOK_FILES const init) are both verified fixed in commit 71010e4. Reviewed cjk-detect.ts, english-artifact-gate.ts, english-only-guard.cjs, english-only-guards-smoke.ts, cli-init.ts, init-assets.ts, managed-assets.ts, review-preflight.ts. Dead code: none — buildCjkRegex in hook is actively called via containsCjk, PRETOOL_ENGLISH_ONLY_HOOK_MATCHER is exported following the same pattern as peer constants and is used within init-assets.ts. Type safety: no unnecessary as-any in the diff; empty catches in the .cjs hook are intentional graceful-degradation by design (documented in header). I/O isolation: english-artifact-gate.ts is a handler (not a shell file) and correctly receives I/O injections (gitLogReader, readFile); the hardwired existsSync for storyDir is in a non-blocking notes path and is low-severity. No blocker findings.",
+      "createdAt": "2026-06-16T23:22:03.384Z",
+      "reviewRound": "2026-06-16T23:18:34.507Z",
+      "reviewRunId": "B-5f42:RR-005",
+      "_hash": "d6479fe111ca58608b3231c80ca561a3ac8ebac89c4e8c08487e75fd52535a45"
     }
   ]
 }
