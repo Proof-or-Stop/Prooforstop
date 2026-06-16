@@ -262,6 +262,58 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "QUADRANT A: ledger flag OFF -> buildClaudeSpawnArgs returns [\"--print\", promptFile] (original literal args), no resolveHardBudget/isOverHardBudget called, spawnSync runs, dispatch byte-identical to pre-budget code; WHY: OFF path must produce zero observable difference from the pre-story baseline",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT B: ledger ON + no LATTICE_HARD_BUDGET_TOKENS env -> resolveHardBudget returns null, isOverHardBudget never called, dispatch proceeds, budgetPolicyId=null on any records, spawn happens; WHY: budget-unset + ledger-on is the common production path before budget adoption",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT C: ledger ON + LATTICE_HARD_BUDGET_TOKENS=1000 + estimate=2000 (over) -> blocked record with decision.kind=blocked written, spawn SKIPPED, returns blocked dispatch result; WHY: the ONLY quadrant where block fires -- proves positive case",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT D: ledger ON + LATTICE_HARD_BUDGET_TOKENS=5000 + estimate=2000 (under) -> no blocked record, spawn proceeds, normal dispatch result; WHY: within-budget must not be impeded",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "QUADRANT A vs B spawn-args comparison: OFF produces [\"--print\",promptFile], ON produces [\"--print\",promptFile,\"--output-format\",\"json\"]; WHY: the ONLY difference between A and B is the output-format flag -- control flow and side-effects are otherwise identical",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT C: blocked record supersedesRecordIds contains the preflight estimateRecordId; WHY: the blocked record must supersede the estimate so summary does not double-count",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT C: blocked dispatch result has sufficient structure for the caller to distinguish budget-block from provider-error or timeout; WHY: downstream error handling must not confuse a budget block with a crash",
+            "type": "cli"
+          },
+          {
+            "desc": "QUADRANT D boundary: estimate exactly equals budget (estimate==budget) -> proceeds (quadrant D not C); WHY: block is strict-exceed (>), not >=",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "QUADRANT C with preflight failure (ledgerHandle===null): budget still resolves and blocks, but blocked record has supersedesRecordIds=[]; WHY: preflight null is documented path; budget block must still fire even without an estimate record to supersede",
+            "type": "cli"
+          },
+          {
+            "desc": "Budget-check throws in any quadrant -> dispatch proceeds (fail-open); WHY: the try/catch around budget code must catch and proceed, never propagate to caller or block without a record",
+            "type": "cli"
+          },
+          {
+            "desc": "Rapid sequential dispatches with same budget env: each dispatch independently resolves budget from env, no stale state; WHY: resolveHardBudget must be stateless (reads env each time), no caching of previous result",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
