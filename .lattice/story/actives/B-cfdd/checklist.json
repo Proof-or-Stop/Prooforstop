@@ -39,9 +39,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "collectReviewConvergenceInputs returns roundCount (via resolveReviewRoundCount) + dense round-aligned perRoundBlockingCounts; verified by smoke + inline asserts",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "Single-round / no-finding story yields roundCount=1 and zero-filled per-round counts, no spurious entries",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "Reuses isFindingBlocking/resolveReviewRoundCount; dense round-aligned so decay tier keys on actual round number (inline assert [1,1,0,0] with empty round 3 proves no index shift)",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "assessReviewConvergence returns stalled=true with English message for [2,2,1] at round>=4 (smoke case a)",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "Returns stalled=false when roundCount < STALL_MIN_ROUNDS (smoke case c, 3<4)",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "Returns stalled=false for healthy decreasing [2,1,0] and clean-tail series (smoke case b) - no false alarm",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "assessReviewConvergenceAtEntry drops the empty current round and the transition-effects REVIEW-entry path appends the advisory for a stalled story (smoke case a fires; raw-dense [2,2,1,0] would be the no-op)",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "No advisory for healthy/below-threshold/single-clean stories (smoke cases b,c,d)",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/review-convergence-smoke.js",
           "result": "pass",
           "note": "Advisory path is append-only inside try/catch; never throws, base output preserved, transition result unaffected (smoke case e non-blocking proof)",
-          "headHash": "c82b264bbc42d318bcb49ccf3e0ca3b5215e75bf",
-          "materialHash": "bb4bac9285a8a1b32c2f6f9917e265c685d0e8fc9809fe50aca0d80f9790923c",
-          "timestamp": "2026-06-16T21:36:46.689Z"
+          "headHash": "54f7f1351474d2f86a0494178f3fd9547cf017e1",
+          "materialHash": "9eb72184fd71048c6f3120464ac9a0f04982bc78f69415afb587bfe387d52710",
+          "timestamp": "2026-06-16T21:40:09.658Z"
         }
       ]
     }
