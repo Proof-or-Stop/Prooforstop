@@ -1,0 +1,55 @@
+{
+  "storyId": "B-a5c9",
+  "changes": "Implemented LLM usage ledger Slice 3 — the PURE preflight estimate path in packages/main/src/core/usage-ledger/estimate.ts: EstimatorKind + frozen confidence map (count_tokens=high/local_tokenizer=medium/bytes_chars=low); a deterministic offline bytes/chars heuristic (UTF-8 bytes, NOT tiktoken); selectEstimate (async) that prefers count_tokens > local_tokenizer > bytes_chars among PLUGGABLE injected estimators, falls back on throw/reject/NaN/negative/non-integer, force-sets the canonical kind so a stub cannot mislabel confidence, and binds to the exact model id; buildEstimateRecord -> a validated source=prompt-size-estimate record (canonical.input=estimate, output/cache null, estimator{name,version,unit,confidence}); buildSupersedes re-exported + estimate-never-final via summary.ts source-bucketing. No record.ts change needed (validator already allows null output for estimates). estimate.ts imports only ./record + ./ids — the module keeps zero cross-module imports. Added usage-ledger-estimate-smoke.ts (55 checks) wired as npm test:usage-ledger-estimate.",
+  "usage": "Pure functions: selectEstimate({model,input,countTokens?,localTokenizer?}) -> {estimatedInputTokens,kind,confidence,model}; buildEstimateRecord(...) -> a prompt-size-estimate ledger record. The high-confidence count_tokens path is a pluggable interface — the dispatch slice injects a real count_tokens later; bytes/chars is the always-available offline floor. Run npm --prefix packages/main run test:usage-ledger-estimate to see all 55 checks pass.",
+  "expectedOutcome": "npm run test:usage-ledger-estimate all-green: confidence map; bytes/chars deterministic+monotonic+offline+not-tiktoken; selector ordering with injected stubs + fallback-on-error; model binding; estimate record validates (prompt-size-estimate, input set, output/cache null, estimator fields); supersedes -> summary counts only the final (estimate never final); writer round-trip; zero-cross-module-import assertion. Build clean; only packages/main changed; no dispatch touched.",
+  "actualTranscript": "verify-b-a5c9.mjs: TOTAL 62 | PASS 62 | FAIL 0 (buildOk estSmoke foundationSmoke adapterSmoke pkgScript zeroImport notTiktoken noDispatch scopeClean). estimate smoke 55/55; no regression (foundation 61, adapter 50). validate --story=B-a5c9: ALL PASS 62/62. CLI gate preflight all pass. 3 reviewers passed with 0 findings (clean first round; escalation not required).",
+  "outcomeDiff": "Expected == actual.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Estimate path only — the high-confidence count_tokens path is a pluggable interface and is INERT until the dispatch slice injects a real count_tokens; only the coarse bytes/chars low-confidence floor is active. No real provider count_tokens HTTP binding, no live-dispatch wiring, no budget enforcement, no receipt path, no default-on.",
+  "pitfalls": "bytes/chars is a coarse guard (low confidence) — never billing truth; estimates are source=prompt-size-estimate and must never count as final (summary buckets by source). When the dispatch slice injects a real count_tokens, keep it model-version-specific and do NOT use tiktoken for Claude. Keep estimate.ts importing only sibling usage-ledger files to preserve zero cross-module coupling. Minor noted follow-up: record.ts validator does not HARD-require estimator.confidence for prompt-size-estimate (buildEstimateRecord always sets it, so records comply) — optional future hardening.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 262531
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17408
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 358684
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 860804
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 376452
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 98451
+    }
+  },
+  "totalDurationMs": 1974332,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T14:24:20.652Z",
+  "updatedAt": "2026-06-16T14:24:20.652Z"
+}
