@@ -140,6 +140,17 @@
           "headHash": "033a7534c65b78346aed9289e1be24359ccf5896",
           "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
           "timestamp": "2026-06-16T23:08:46.043Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 4: English-only commits+metadata return ok=true; lattice validate green on this story (gate passes)",
+          "headHash": "6192282181fd4094c121a7af64ca8350d9c9187a",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:47.412Z"
         }
       ]
     },
