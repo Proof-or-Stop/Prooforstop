@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Flip the writer default to ON; keep the explicit-OFF escape hatch",
       "context": "In core/usage-ledger/writer.ts isUsageLedgerEnabled(): when LATTICE_USAGE_LEDGER (fallback KOALA_USAGE_LEDGER) is UNSET/undefined, return true (default ON). Keep the existing truthy/falsey parsing so 0/false/off/no/'' explicitly DISABLE. Default ON; explicit OFF respected. Unit-tested: unset -> true; '0'/'false'/'off'/'no' -> false; '1'/'true'/'on'/'yes' -> true.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T22:28:38.446Z",
       "files": {
         "modify": [
           "packages/main/src/core/usage-ledger/writer.ts"
