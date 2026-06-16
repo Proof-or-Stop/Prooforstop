@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-72df:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. No external symbols were deleted or renamed. assertMainWorktreeReadyForMerge changed from private to exported (no residue — all callers are within done-effects.ts). New private helpers parsePorcelainDirtyPaths and listDoneMergeAffectedPaths are defined and consumed only within done-effects.ts. unquoteGitPath exists independently as a private copy in both dirty-worktree.ts (pre-existing) and done-effects.ts (new) with no cross-dependency. No CLAUDE.md doc promises added. No concept deletions or replacements with orphaned residual references found. No blocker.",
+      "createdAt": "2026-06-16T03:23:12.835Z",
+      "reviewRound": "2026-06-16T03:20:40.956Z",
+      "reviewRunId": "B-72df:RR-002",
+      "_hash": "31e9cf7ece4fc6892d713a9fd573bf4531eae37c620650cdd6f9dc5f3f521987"
+    }
+  ]
+}
