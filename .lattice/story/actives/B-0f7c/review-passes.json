@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T19:34:32.280Z",
       "reviewRunId": "B-0f7c:RR-002",
       "_hash": "fc6ff160e5e166238ad096f7423d8ebe8a28aaab2fe36321cd62fb104511aec4"
+    },
+    {
+      "id": "B-0f7c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement found. This story adds new symbols only (dispatch-usage.ts is purely additive). Concept residue check: (1) dispatch-usage.ts imports only ./ siblings + node — zero cross-module imports confirmed; (2) scope is exactly the 4 authorized files (dispatch-usage.ts, lattice-dispatch.ts, smoke, package.json) — no dispatch-runner/cli-engine/handlers touched; (3) one-way dependency confirmed — usage-ledger/* has zero imports pointing back to lattice-dispatch/dispatch-runner/cli-engine; (4) lattice-dispatch.ts imports usage-ledger through only the single seam ./usage-ledger/dispatch-usage.js; (5) no re-implementation of record/ids/writer/assemble/adapters/estimate — dispatch-usage.ts delegates to all of them via import and call; (6) estimate=sequence-1/supersedesRecordIds=[] and both final paths=sequence-2/supersedesRecordIds=[estimateRecordId] confirmed; (7) buildClaudeSpawnArgs OFF path returns literal [--print, promptFile] (byte-identical); (8) buildUnavailableFinalRecord is legitimately distinct (source=unavailable path not covered by assemble.ts buildProviderRecord); (9) no doc-promise-undelivered: all 5 imported symbols and buildClaudeSpawnArgs are called at the seam. Zero blockers.",
+      "createdAt": "2026-06-16T19:37:37.090Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-003",
+      "_hash": "b8857085b084b03150105b2f5912fada28280c8a7a2526fb5663c5e1f6267e9a"
     }
   ]
 }
