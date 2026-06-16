@@ -47,20 +47,24 @@
 - 不创建项目 `.claude/agents` 目录(除非迁移需要,见 CHK-004)
 - codex 侧 / asset-mode 行为保持不变(不回归 B-4ee0)
 
-## CHK-004: 迁移已有项目的 project-local .claude/agents
+## CHK-004: 迁移已有项目的 project-local .claude/agents（显式 --upgrade，非自动删除）
 
 **Owner**: lattice-implementer
 **DependsOn**: CHK-002, CHK-003
+**OQ-1 resolution（载入）**: 执行计划 Phase 4 要求迁移必须显式、普通命令不得自动删除项目文件。故普通 `lattice init` **永不静默删除** project-local agent 文件;仅在显式 `lattice init --upgrade` 下迁移/删除。
 **Files**:
-- Modify: packages/main/src/cli-init.ts (迁移逻辑,可复用 managed-assets 已知模板名集合)
-- 可选 Modify: packages/main/src/core/managed-assets.ts (暴露 16 个管理 basename 列表 + 断链/doctor 检查)
+- Modify: packages/main/src/cli-init.ts (检测 + warn;`--upgrade` 下迁移逻辑)
+- Modify: packages/main/src/core/managed-assets.ts (暴露 16 个管理 basename 列表 + 断链检查 + `agentAssetMode: runtime-owned` 信号)
 **Verify**:
-- 真机:预置含 16 个 project-local `.claude/agents/*.md` + 1 个用户自建 `my-custom.md` 的项目,跑 `init`(或 `--upgrade`)后:16 个管理文件被移除并逐条 `↻ migrated to global`,`my-custom.md` 保留
+- 真机:预置含 16 个 project-local `.claude/agents/*.md` + 1 个用户自建 `my-custom.md` 的项目:
+  - 跑普通 `init` → 输出 `⚠ 16 managed agent files found ...; run lattice init --upgrade to migrate`,**不删除**
+  - 跑 `init --upgrade` → 逐条 `↻ migrated to global`,16 个管理文件被移除,`my-custom.md` 保留
+- 真机:`lattice doctor` 输出 `agentAssetMode: runtime-owned`（Gap 1 / 执行计划 Phase 2 验收）
 **DoneWhen**:
-- 迁移只按 16 个精确管理 basename(来自 agentTemplateDir 的文件名集合)删除项目 `.claude/agents` 中同名项;通配清空被禁止
-- 删除前确保全局源已就绪(CHK-002);逐条 log 删除项
+- 普通 init 检测到 project-local 管理文件时仅 WARN + 提示 `--upgrade`,不删除任何文件
+- `--upgrade` 迁移只按 16 个精确管理 basename(来自 agentTemplateDir 文件名集合)删除;通配清空被禁止;删除前确保全局源就绪(CHK-002);逐条 log
 - 非管理文件一律保留;`.claude/agents` 仅剩用户文件时保留目录,空目录可清理
-- doctor/upgrade 可复用同逻辑修复历史项目
+- doctor 复用同逻辑暴露 `agentAssetMode: runtime-owned`,可诊断历史项目
 
 ## CHK-005: 更新决策文档与 CLAUDE.md 反映新契约
 
@@ -84,10 +88,12 @@
 - Create/Modify: packages/main/src/tasks/(扩展 thin-init-assets-smoke 或新增 global-agents-smoke)
 - Test: 对应 .test.ts
 **Verify**:
-- `npm --prefix packages/main run <smoke>` 全绿
+- `npm --prefix packages/main run <new/extended smoke>` 全绿
+- **既有 smoke 不回归(Gap 2/3 / 执行计划 Phase 7)**:`prompt-token-cost-smoke` 与 `prompt-registry-smoke` 改动后仍全绿
 - `npm run build`(根)/ `npm --prefix packages/main run build` 绿
 - `lattice validate` 全绿
 **DoneWhen**:
-- smoke 覆盖:(a) 干净 claude-marker 项目 init 后项目内 0 个 agent `.md` 且全局源含 16 symlink;(b) 已有 project-local 16 文件被迁移清理、用户自建文件保留;(c) syncGlobalAgents 幂等 + 断链修复;(d) 全局不可写时报错不回退
-- subagent_type 从全局解析的实际可用性:若无法在 smoke 中机械验证 Claude Code 解析行为,则文档化平台优先级行为并由 DEV 真机 spawn 一次确认
+- smoke 覆盖:(a) 干净 claude-marker 项目 init 后项目内 0 个 agent `.md` 且全局源含 16 symlink;(b) `--upgrade` 把已有 project-local 16 文件迁移清理、用户自建文件保留、普通 init 仅 warn 不删;(c) syncGlobalAgents 幂等 + 断链修复;(d) 全局不可写时报错不回退
+- 显式跑 `prompt-token-cost-smoke` + `prompt-registry-smoke` 确认不回归(Phase 7)
+- subagent_type 从全局解析的实际可用性:若无法在 smoke 中机械验证 Claude Code 解析行为,则文档化平台优先级行为(project shadow user)并由 DEV 真机 spawn 一次确认
 - build + validate 绿

@@ -1,79 +1,86 @@
 {
   "storyId": "B-097f",
-  "checkedAt": "2026-06-16T14:20:42.773Z",
+  "checkedAt": "2026-06-16T14:25:42.704Z",
   "features": [
     {
-      "feature": "~/.claude/agents is the single global source for all Lattice agent prompt templates",
+      "feature": "Single global ~/.claude/agents as sole source for all Lattice agent prompt templates",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "~/.claude/agents symlink target resolves from running CLI package templates/agents (npm -g and local dev both work)",
+      "feature": "Symlink target resolves from running CLI package templates/agents (robust for npm -g and local dev paths)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "lattice init writes 0 agent files into the project (claude/all profiles)",
+      "feature": "lattice init writes 0 agent files into project (claude/all profiles)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Pre-existing project-local .claude/agents (16 managed files) migrated/cleaned on init or --upgrade",
+      "feature": "Normal lattice init detects existing project-local managed agent files and WARNs only (never silently deletes)",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Migration identifies managed files by the 16 managed basenames only (not wildcard)",
+      "feature": "lattice init --upgrade explicitly migrates/removes 16 managed project-local agent files",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "User-created non-managed agent files are preserved during migration",
+      "feature": "Migration uses only the 16 precise managed basenames (not wildcard deletion)",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Global ~/.claude/agents sync mechanism is idempotent (broken links and stale copies auto-replaced)",
+      "feature": "User-created non-managed agent files are preserved during any migration path",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Global ~/.claude/agents sync is idempotent; broken links and stale copies auto-replaced",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "~/.claude/agents not writable: explicit error, no silent fallback to project-local",
+      "feature": "When global ~/.claude/agents is not writable: explicit error, no silent fallback to project-local",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Decision documents and CLAUDE.md updated to reflect new global-agents single source contract",
+      "feature": "Decision docs and CLAUDE.md updated to reflect global-agents single-source contract",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "smoke/contract tests verify: clean-project init has 0 project agent files + global source 16 symlinks ready",
+      "feature": "smoke verifies: clean-project init produces 0 project agent files + global source has 16 symlinks",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "smoke verifies already-initialized project migration: 16 project-local removed, user files preserved",
+      "feature": "smoke verifies migration: 16 project-local files removed, user files preserved; plain init only warns",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
@@ -87,52 +94,59 @@
       "source": "description"
     },
     {
-      "feature": "New projects do not need thin prompt config (no .lattice/lattice.json or .Codex/lattice.json) solely to use runtime-owned prompts",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Story scope is Claude-side global ~/.claude/agents only; Codex-side and assetMode config changes belong to B-4ee0 (already DONE for global-thin). This story does not touch .lattice/lattice.json or .Codex/ asset config.",
-      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+      "feature": "npm run build still succeeds after all changes",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
     },
     {
-      "feature": "Mechanical AgentAssetResolution contract (interface with schemaVersion, mode, projectPromptAssets, blockingIssues)",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "The execution plan describes this as a phased capability. B-4ee0 already addressed Codex side. This story does not introduce the AgentAssetResolution interface schema or doctor/verify command integration.",
-      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
-    },
-    {
-      "feature": "lattice doctor or adapter doctor reports mode=runtime-owned",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "lattice doctor reports agentAssetMode: runtime-owned (execution plan Phase 2 acceptance)",
+      "covered_by": "CHK-004",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
     },
     {
-      "feature": "Full-asset mode remains explicitly supported (lattice init --asset-mode=full or lattice_config_repair --agent-assets=full)",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "The execution plan says full-asset mode must not be removed but this story only changes the default. CHK-003 adversarial covers the all profile. Full-asset explicit mode is pre-existing behavior not changed by this story.",
+      "feature": "prompt-token-cost-smoke still passes after changes (execution plan Phase 7)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
       "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
     },
     {
-      "feature": "Claude and Codex host adapters report prompt source consistently (verify_codex passes without .Codex/agents)",
+      "feature": "prompt-registry-smoke still passes after changes (execution plan Phase 7)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "New projects do not need thin prompt config (.lattice/lattice.json or .Codex/lattice.json) solely to use runtime-owned prompts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope is Claude-side global ~/.claude/agents only. Codex-side assetMode config belongs to B-4ee0 (already DONE). This story does not touch .lattice/lattice.json or .Codex/ asset config.",
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "Mechanical AgentAssetResolution contract interface (schemaVersion, mode, projectPromptAssets, blockingIssues fields)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The execution plan describes this as a phased capability. This story does not introduce the AgentAssetResolution interface schema or doctor/verify command full integration.",
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "Full-asset mode remains explicitly supported via lattice init --asset-mode=full or lattice_config_repair --agent-assets=full",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The execution plan says full-asset mode must not be removed. This story changes only the default. Full-asset explicit mode is pre-existing behavior not changed by this story; CHK-004 adversarial covers user-created files are preserved.",
+      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
+    },
+    {
+      "feature": "Claude and Codex host adapters report prompt source consistently; verify_codex passes without .Codex/agents (Phase 6)",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "Phase 6 (host adapter verification alignment) is a separate planned story per the execution plan recommended story split. Codex adapter is unchanged by this story.",
-      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
-    },
-    {
-      "feature": "prompt-token-cost-smoke still passes after changes",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
-    },
-    {
-      "feature": "prompt-registry-smoke still passes after changes",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
       "source": "decisions:decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
     },
     {
@@ -153,38 +167,19 @@
       "feature": "Legacy full-mode repositories may keep .claude/agents (backward compat)",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "lifecycle-artifact-scope.md explicitly says legacy full-mode repos may keep .claude/agents. This story removes project-local agent files only for managed basenames; user-created and non-default-mode repos are not touched. Covered by CHK-004 adversarial intent.",
+      "excluded_by": "lifecycle-artifact-scope.md explicitly permits legacy full-mode repos to keep .claude/agents. This story removes project-local agent files only for managed basenames on explicit --upgrade; user-created and non-default-mode repos are not touched. CHK-004 adversarial covers managed-basename-only deletion.",
       "source": "decisions:decisions/lifecycle-artifact-scope.md"
-    },
-    {
-      "feature": "npm run build still succeeds after all changes",
-      "covered_by": "CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
     }
   ],
   "summary": {
-    "total": 22,
-    "covered": 14,
-    "excluded": 5,
-    "gaps": 3,
+    "total": 24,
+    "covered": 17,
+    "excluded": 7,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "d75ec1d32e09b9992314c0507d152134256cf2e962c297222b285164e968f97a",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "The execution plan (Phase 3) requires stale project-local .claude/agents to be *mechanically detected* by doctor/verify before any migration. The description says init itself does the migration (CHK-004). Do these two requirements conflict, or is init allowed to detect-and-migrate without a separate doctor phase?",
-      "evidence": "Execution plan Phase 3: \"If .claude/agents/*.md exists and the project is not explicitly in full-asset/debug mode, warn or fail with a clear migration path.\" Phase 4: \"Migration must be explicit. Do not auto-delete project files during normal commands.\" Description: \"init writes 0 agent files into the project, and pre-existing project-local .claude/agents is migrated/cleaned\" (CHK-004 title: migrated already-initialized projects).",
-      "sourcePointers": [
-        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
-        "CHK-004"
-      ],
-      "resolution": "以执行计划 Phase 4 迁移必须显式、普通命令不得自动删除项目文件为准。重构 CHK-004:普通 lattice init 永不静默删除 project-local agent 文件——fresh 项目 init 只同步全局 + 项目零 agent 文件(无删除);检测到已有 project-local 管理文件时 init 仅 WARN + 提示运行 lattice init --upgrade。真正的删除/迁移只在显式 --upgrade 下执行,只按 16 个精确管理 basename 删除、逐条 log、用户自建文件保留。既满足用户 init 不再生成那么多 .md(fresh 路径零文件),又满足 Phase 4 显式迁移约束。",
-      "resolvedAt": "2026-06-16T14:22:01.857Z"
-    }
-  ]
+  "_hash": "d6a1ba89e2b0225fc9914b6650f9ca5d08ce5e01856552cb7bf3eca66b10a1c2",
+  "openQuestions": []
 }
