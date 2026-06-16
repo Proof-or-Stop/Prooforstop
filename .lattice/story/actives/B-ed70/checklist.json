@@ -368,6 +368,17 @@
           "headHash": "a021d973e7f9d616fb987c85367139f0c486e194",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:57.617Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git ls-files .lattice-codex | wc -l",
+          "result": "pass",
+          "note": "18 files — same count as the original .Codex/ contents.",
+          "headHash": "88b99b694d15a64591ea686c624e8cc70901d44e",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:58.115Z"
         }
       ]
     },
