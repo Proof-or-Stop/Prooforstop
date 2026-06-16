@@ -3409,7 +3409,7 @@ function resolveInitCheckGitMainRoot(root: string, store: StoryStore, storyId: s
   );
 }
 
-function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, storyId: string): string {
+export function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, storyId: string): string {
   const gitMainRoot = resolveInitCheckGitMainRoot(root, store, storyId);
   const currentBranch = gitCli(gitMainRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
   if (currentBranch.startsWith('story/')) {
