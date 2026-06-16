@@ -99,6 +99,17 @@
           "headHash": "af49691405192220b58d5879c6ae40963fc8a646",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:07:51.789Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -i koala packages/lab/package.json",
+          "result": "pass",
+          "note": "No koala in lab/package.json (0).",
+          "headHash": "66a2eb6b9ef60de754a4a2831a9c333a2cf943bf",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:07:52.287Z"
         }
       ]
     },
