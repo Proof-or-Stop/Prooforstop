@@ -825,9 +825,9 @@
       "id": "CHK-006",
       "title": "Smoke/test suite wired into package.json",
       "context": "Add packages/main/src/tasks/usage-ledger-estimate-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-estimate. Cover: confidence mapping; bytes/chars determinism; selector ordering (count_tokens>tokenizer>bytes_chars) with injected stubs; model binding; estimate record validates + is prompt-size-estimate with estimator fields + null output; supersedes interplay with summary (no double count, estimate never final); and an estimate record round-trips through the B-253e writer (opt-in ON, temp dir). Build green; module still imports zero other Lattice modules (grep assert in the smoke).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T14:16:01.301Z",
       "files": {
         "modify": [
           "packages/main/package.json"
