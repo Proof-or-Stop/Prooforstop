@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T00:16:54.496Z",
       "reviewRunId": "B-08f2:RR-005",
       "_hash": "b6477fbf634a93db2c08af7fd4387f440675da1d0cbc74d48ab6b2621e206bf8"
+    },
+    {
+      "id": "B-08f2:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified for new round (RR-007). All three checks passed on source paths (packages, scripts, bin, .Codex, .claude, docs/guide-hooks.md): (1) no non-legacy KOALA_[A-Z] references; (2) no || or ?? process.env.KOALA_ fallback patterns; (3) LEGACY_KOALA_* not present in lattice-paths.ts (the only match for check 2 was inside .lattice/story transcript-diff evidence artifact, outside source scope). Concept residue check complete, no blocker.",
+      "createdAt": "2026-06-16T00:38:45.212Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-007",
+      "_hash": "3bbb80c3ea79bdb2e024a32037b111c394e1b558a2d016efccdf0eb873161d89"
     }
   ]
 }
