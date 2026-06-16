@@ -1,15 +1,15 @@
 {
   "command": "lattice validate --story=B-097f --json",
-  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 18 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  main-write-lock-coverage: scanned 280 source files, 17 git mutation-verb sites\",\"    ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\",\"  main-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\",\"  main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/18 covered (18 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/docs] stale via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 契约文档明确写出全局唯一源 + 项目零 agent 文件\",\"  ✗ CHK-001:edge:0 [edge/must/docs] stale via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 契约说明 symlink target 从运行中 CLI 包解析而非 hardcode dev 路径\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/docs] stale via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 契约明确迁移只按 16 个管理 basename 删除,不碰用户自建 agent\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via logic_test (packages/main/src/tasks/global-agents-unit-smoke.ts) — syncGlobalAgents 在 ~/.claude/agents 生成 16 个 thin-shim(frontmatter+tools 取自 registry,body 为 CLI-fetch 指令)\",\"  ✗ CHK-002:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/global-agents-unit-smoke.ts) — 幂等:重复跑不变;模板 frontmatter 变更 shim 同步;断链/旧 symlink/旧全量 copy 自动替换为 shim\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via manual_transcript (packages/main/src/handlers/agent-prompt.ts) — lattice agent_prompt --role=X 从 promptRegistryManifest() 同一 registry 吐正文(与 Codex 同源 byte-equal);全局不可写报错不静默回退\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via manual_transcript (packages/main/src/cli-init.ts) — claude profile init 后项目内 0 个 .claude/agents 文件且输出全局 thin-shim 解析提示\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via manual_transcript (packages/main/src/cli-init.ts) — core profile(无标记)行为不变仍 skip\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] stale via manual_transcript (packages/main/src/cli-init.ts) — all profile(codex+claude)同样不写 project-local agent 文件\",\"  ✗ CHK-004:happy:0 [happy/must/cli] stale via manual_transcript (packages/main/src/cli-init.ts) — 显式 --upgrade 把已有 project-local 16 管理文件迁移到全局并移除\",\"  ✗ CHK-004:edge:0 [edge/must/logic] stale via manual_transcript (packages/main/src/cli-init.ts) — 普通 init 仅 WARN 不删除;用户自建非管理文件任何路径都保留\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] stale via manual_transcript (packages/main/src/handlers/doctor.ts) — 只按 16 精确管理 basename 删除不通配;lattice doctor 报 agentAssetMode runtime-owned\",\"  ✗ CHK-005:happy:0 [happy/must/docs] stale via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 三份文档反映 host-neutral thin-shim + 共享 registry 端点契约\",\"  ✗ CHK-005:edge:0 [edge/must/docs] stale via docs_check (CLAUDE.md) — 修正旧的 init 往项目/全局物化 agent 正文的表述\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/docs] stale via docs_check (CLAUDE.md) — 文档与实际 init / agent_prompt 输出一致(无 docs-drift)\",\"  ✗ CHK-006:happy:0 [happy/must/cli] stale via logic_test (packages/main/src/tasks/global-agents-init-smoke.ts) — smoke 断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt==registry body\",\"  ✗ CHK-006:edge:0 [edge/must/cli] stale via logic_test (packages/main/src/tasks/global-agents-init-smoke.ts) — smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、普通 init 仅 warn\",\"  ✗ CHK-006:adversarial:0 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/prompt-registry-smoke.ts) — 既有 prompt-token-cost-smoke 与 prompt-registry-smoke 仍绿 + build + validate 绿\"],\"warnings\":[],\"timestamp\":\"2026-06-16T20:46:29.355Z\",\"headSha\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nmain-write-lock-coverage: scanned 280 source files, 17 git mutation-verb sites\\n  ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\\n\\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1247}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":0,\"missingRequired\":18,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"契约文档明确写出全局唯一源 + 项目零 agent 文件\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"新增 Policy: global agents single source 段,契约点1明确全局 ~/.claude/agents 为唯一源 + 契约点3 init 零项目 agent 文件\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"契约说明 symlink target 从运行中 CLI 包解析而非 hardcode dev 路径\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"契约点2:symlink target 从 fileURLToPath(import.meta.url)->packageRoot->templates/agents 解析,非 hardcode dev 路径\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"契约明确迁移只按 16 个管理 basename 删除,不碰用户自建 agent\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"契约点5:迁移只删 16 个管理 basename,禁止通配,用户文件保留;契约点6 解释 project shadow user 优先级\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"syncGlobalAgents 在 ~/.claude/agents 生成 16 个 thin-shim(frontmatter+tools 取自 registry,body 为 CLI-fetch 指令)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-unit-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-unit-smoke.js\",\"result\":\"pass\",\"note\":\"syncGlobalAgents writes a thin-shim regular file per template: verbatim frontmatter (tools sandbox preserved, multi-line + inline forms), CLI-fetch body referencing lattice agent_prompt --role=<name>, role body absent. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"幂等:重复跑不变;模板 frontmatter 变更 shim 同步;断链/旧 symlink/旧全量 copy 自动替换为 shim\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-unit-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-unit-smoke.js\",\"result\":\"pass\",\"note\":\"Idempotent re-run reports shim ok (skipped=N); old full copy, old symlink, broken link, drifted shim all unlink+rewrite (replaced=N) back to deterministic shim. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"lattice agent_prompt --role=X 从 promptRegistryManifest() 同一 registry 吐正文(与 Codex 同源 byte-equal);全局不可写报错不静默回退\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/agent-prompt.ts\",\"command\":\"node packages/main/dist/cli.js agent_prompt --role=lattice-implementer | diff - templates/agents/lattice-implementer.md\",\"result\":\"pass\",\"note\":\"In-process handler output is byte-equal to readPromptTemplate(entry) for all 16 roles (same registry Codex resolves); CLI process adds only the generic print-time trailing newline. Unknown role lists available roles; blank role rejected by runtime re-validate beyond Zod min(1); non-writable global dir throws Cannot create global agents dir ... will not fall back. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"claude profile init 后项目内 0 个 .claude/agents 文件且输出全局 thin-shim 解析提示\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude\",\"result\":\"pass\",\"note\":\"claude profile init: [5/6] outputs synced=16 thin-shims to global ~/.claude/agents + line - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files). Project .claude/agents has 0 .md (dir not created). Global has 16 regular-file shims (0 symlinks). PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"core profile(无标记)行为不变仍 skip\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=core\",\"result\":\"pass\",\"note\":\"core profile (no markers): [5/6] prints - .claude/agents (profile skip); 0 project + 0 global agent files. Behavior unchanged. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"all profile(codex+claude)同样不写 project-local agent 文件\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=all\",\"result\":\"pass\",\"note\":\"all profile (codex+claude): synced=16 global thin-shims, 0 project-local agent files. Codex/asset-mode not regressed (global-thin .Codex path unchanged). PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"显式 --upgrade 把已有 project-local 16 管理文件迁移到全局并移除\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude --upgrade\",\"result\":\"pass\",\"note\":\"Pre-seeded 16 managed + 1 user (my-custom.md). --upgrade logs 16x ↻ migrated to global, removes exactly the 16 managed basenames, project count 17→1. Verified correct after thin-shim transform. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"普通 init 仅 WARN 不删除;用户自建非管理文件任何路径都保留\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude\",\"result\":\"pass\",\"note\":\"Normal init only WARNs: ⚠ 16 managed agent files found in .claude/agents; run lattice init --upgrade. Deletes nothing (17 files remain). User file my-custom.md preserved on every path. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"只按 16 精确管理 basename 删除不通配;lattice doctor 报 agentAssetMode runtime-owned\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/doctor.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> doctor | grep agentAssetMode\",\"result\":\"pass\",\"note\":\"Migration removes only the 16 exact managed basenames (from templates/agents filename set), no wildcard clear; non-managed files always preserved. lattice doctor reports agentAssetMode: runtime-owned. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"三份文档反映 host-neutral thin-shim + 共享 registry 端点契约\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"lifecycle-artifact-scope.md 重写为 host-neutral thin-shim 契约(两宿主同源表+7点);runtime-owned plan 加 Implementation Status(Claude 侧 B-097f landed);CLAUDE.md 加 Agent prompt 资产 host-neutral 单一源节\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"修正旧的 init 往项目/全局物化 agent 正文的表述\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"result\":\"pass\",\"note\":\"旧 symlink/物化正文表述被 thin-shim+agent_prompt 取代;CLAUDE.md 明确 reviewer 第一步 run lattice agent_prompt 取正文\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"文档与实际 init / agent_prompt 输出一致(无 docs-drift)\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"result\":\"pass\",\"note\":\"文档命令 lattice agent_prompt --role=X 与实测一致(16 role byte-equal,非法 role 列可用列表);doctor agentAssetMode runtime-owned 与实现一致\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.505Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"smoke 断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt==registry body\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-init-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-init-smoke.js\",\"result\":\"pass\",\"note\":\"Integration smoke (temp HOME, never touches real ~/.claude): fresh claude init → 0 project agent .md + 16 global thin-shim regular files (tools frontmatter + lattice agent_prompt body + no role-body slice); agent_prompt --role=X byte-equal registry body for all 16 (CLI adds only print newline). PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.506Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、普通 init 仅 warn\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-init-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-init-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke (c): --upgrade migrates 16 managed (removed), keeps my-custom.md byte-for-byte; normal init only WARNs run lattice init --upgrade and deletes nothing (17 remain). Smoke (d): second init idempotent synced=0 ok=16 replaced=0. PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.506Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"既有 prompt-token-cost-smoke 与 prompt-registry-smoke 仍绿 + build + validate 绿\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/prompt-registry-smoke.ts\",\"command\":\"node dist/tasks/prompt-registry-smoke.js; node dist/tasks/prompt-token-cost-smoke.js; npm --prefix packages/main run build; lattice validate\",\"result\":\"pass\",\"note\":\"No-regress: prompt-registry-smoke (16 agents claude+codex), prompt-token-cost-smoke, runtime-owned-agent-assets-smoke all PASS. global-agents-unit-smoke PASS. packages/main build green. lattice validate 全绿 (main-write-lock-coverage + cli-e2e ALL PASS). PASS.\",\"headHash\":\"02fe3fa0fe089eaa623e032cba07bc81c8710bec\",\"materialHash\":\"2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547\",\"timestamp\":\"2026-06-16T19:08:55.506Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-16T20:46:30.049Z",
-  "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+  "output": "{\"provider\":\"lattice-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > lattice@0.3.5 test\",\"  > npm run test:main-write-lock-coverage && npm run test:e2e\",\"  > lattice@0.3.5 test:main-write-lock-coverage\",\"  > node packages/main/dist/tasks/main-write-lock-coverage.js\",\"  main-write-lock-coverage: scanned 280 source files, 17 git mutation-verb sites\",\"    ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\",\"    ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\",\"    ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\",\"  main-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\",\"  main-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\",\"  > lattice@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 18/18 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 契约文档明确写出全局唯一源 + 项目零 agent 文件\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 契约说明 symlink target 从运行中 CLI 包解析而非 hardcode dev 路径\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 契约明确迁移只按 16 个管理 basename 删除,不碰用户自建 agent\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/global-agents-unit-smoke.ts) — syncGlobalAgents 在 ~/.claude/agents 生成 16 个 thin-shim(frontmatter+tools 取自 registry,body 为 CLI-fetch 指令)\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/global-agents-unit-smoke.ts) — 幂等:重复跑不变;模板 frontmatter 变更 shim 同步;断链/旧 symlink/旧全量 copy 自动替换为 shim\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript (packages/main/src/handlers/agent-prompt.ts) — lattice agent_prompt --role=X 从 promptRegistryManifest() 同一 registry 吐正文(与 Codex 同源 byte-equal);全局不可写报错不静默回退\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/cli-init.ts) — claude profile init 后项目内 0 个 .claude/agents 文件且输出全局 thin-shim 解析提示\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript (packages/main/src/cli-init.ts) — core profile(无标记)行为不变仍 skip\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript (packages/main/src/cli-init.ts) — all profile(codex+claude)同样不写 project-local agent 文件\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/cli-init.ts) — 显式 --upgrade 把已有 project-local 16 管理文件迁移到全局并移除\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via manual_transcript (packages/main/src/cli-init.ts) — 普通 init 仅 WARN 不删除;用户自建非管理文件任何路径都保留\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via manual_transcript (packages/main/src/handlers/doctor.ts) — 只按 16 精确管理 basename 删除不通配;lattice doctor 报 agentAssetMode runtime-owned\",\"  ✓ CHK-005:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — 三份文档反映 host-neutral thin-shim + 共享 registry 端点契约\",\"  ✓ CHK-005:edge:0 [edge/must/docs] covered via docs_check (CLAUDE.md) — 修正旧的 init 往项目/全局物化 agent 正文的表述\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/docs] covered via docs_check (CLAUDE.md) — 文档与实际 init / agent_prompt 输出一致(无 docs-drift)\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/global-agents-init-smoke.ts) — smoke 断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt==registry body\",\"  ✓ CHK-006:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/global-agents-init-smoke.ts) — smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、普通 init 仅 warn\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/prompt-registry-smoke.ts) — 既有 prompt-token-cost-smoke 与 prompt-registry-smoke 仍绿 + build + validate 绿\"],\"warnings\":[],\"timestamp\":\"2026-06-16T20:46:50.101Z\",\"headSha\":\"1ea8b244937700e430073e6506efb6b8be846a4b\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> lattice@0.3.5 test\\n> npm run test:main-write-lock-coverage && npm run test:e2e\\n\\n\\n> lattice@0.3.5 test:main-write-lock-coverage\\n> node packages/main/dist/tasks/main-write-lock-coverage.js\\n\\nmain-write-lock-coverage: scanned 280 source files, 17 git mutation-verb sites\\n  ✓ src/cli-engine.ts:3336  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3371  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3490  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/cli-engine.ts:3544  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/cli-engine.ts:3632  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/core/auto-commit-metadata.ts:198  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:75  [merge]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:714  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/done-effects.ts:736  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/done-recover.ts:81  [merge]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:358  [commit-tree]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:359  [update-ref]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:620  [reset]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:631  [commit]  mutates-main=YES  locked=YES  OK\\n  ✓ src/handlers/worktree.ts:972  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1041  [commit]  mutates-main=no   locked=n/a  OK\\n  ✓ src/handlers/worktree.ts:1095  [merge]  mutates-main=YES  locked=YES  OK\\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\\n\\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\\n\\n> lattice@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1175}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":18,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"契约文档明确写出全局唯一源 + 项目零 agent 文件\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"新增 Policy: global agents single source 段,契约点1明确全局 ~/.claude/agents 为唯一源 + 契约点3 init 零项目 agent 文件\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"契约说明 symlink target 从运行中 CLI 包解析而非 hardcode dev 路径\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"契约点2:symlink target 从 fileURLToPath(import.meta.url)->packageRoot->templates/agents 解析,非 hardcode dev 路径\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"契约明确迁移只按 16 个管理 basename 删除,不碰用户自建 agent\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"契约点5:迁移只删 16 个管理 basename,禁止通配,用户文件保留;契约点6 解释 project shadow user 优先级\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"syncGlobalAgents 在 ~/.claude/agents 生成 16 个 thin-shim(frontmatter+tools 取自 registry,body 为 CLI-fetch 指令)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-unit-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-unit-smoke.js\",\"result\":\"pass\",\"note\":\"syncGlobalAgents writes a thin-shim regular file per template: verbatim frontmatter (tools sandbox preserved, multi-line + inline forms), CLI-fetch body referencing lattice agent_prompt --role=<name>, role body absent. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"幂等:重复跑不变;模板 frontmatter 变更 shim 同步;断链/旧 symlink/旧全量 copy 自动替换为 shim\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-unit-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-unit-smoke.js\",\"result\":\"pass\",\"note\":\"Idempotent re-run reports shim ok (skipped=N); old full copy, old symlink, broken link, drifted shim all unlink+rewrite (replaced=N) back to deterministic shim. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"lattice agent_prompt --role=X 从 promptRegistryManifest() 同一 registry 吐正文(与 Codex 同源 byte-equal);全局不可写报错不静默回退\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/agent-prompt.ts\",\"command\":\"node packages/main/dist/cli.js agent_prompt --role=lattice-implementer | diff - templates/agents/lattice-implementer.md\",\"result\":\"pass\",\"note\":\"In-process handler output is byte-equal to readPromptTemplate(entry) for all 16 roles (same registry Codex resolves); CLI process adds only the generic print-time trailing newline. Unknown role lists available roles; blank role rejected by runtime re-validate beyond Zod min(1); non-writable global dir throws Cannot create global agents dir ... will not fall back. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"claude profile init 后项目内 0 个 .claude/agents 文件且输出全局 thin-shim 解析提示\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude\",\"result\":\"pass\",\"note\":\"claude profile init: [5/6] outputs synced=16 thin-shims to global ~/.claude/agents + line - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files). Project .claude/agents has 0 .md (dir not created). Global has 16 regular-file shims (0 symlinks). PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"core profile(无标记)行为不变仍 skip\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=core\",\"result\":\"pass\",\"note\":\"core profile (no markers): [5/6] prints - .claude/agents (profile skip); 0 project + 0 global agent files. Behavior unchanged. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"all profile(codex+claude)同样不写 project-local agent 文件\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=all\",\"result\":\"pass\",\"note\":\"all profile (codex+claude): synced=16 global thin-shims, 0 project-local agent files. Codex/asset-mode not regressed (global-thin .Codex path unchanged). PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"显式 --upgrade 把已有 project-local 16 管理文件迁移到全局并移除\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude --upgrade\",\"result\":\"pass\",\"note\":\"Pre-seeded 16 managed + 1 user (my-custom.md). --upgrade logs 16x ↻ migrated to global, removes exactly the 16 managed basenames, project count 17→1. Verified correct after thin-shim transform. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"普通 init 仅 WARN 不删除;用户自建非管理文件任何路径都保留\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-init.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude\",\"result\":\"pass\",\"note\":\"Normal init only WARNs: ⚠ 16 managed agent files found in .claude/agents; run lattice init --upgrade. Deletes nothing (17 files remain). User file my-custom.md preserved on every path. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"只按 16 精确管理 basename 删除不通配;lattice doctor 报 agentAssetMode runtime-owned\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/doctor.ts\",\"command\":\"HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> doctor | grep agentAssetMode\",\"result\":\"pass\",\"note\":\"Migration removes only the 16 exact managed basenames (from templates/agents filename set), no wildcard clear; non-managed files always preserved. lattice doctor reports agentAssetMode: runtime-owned. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"三份文档反映 host-neutral thin-shim + 共享 registry 端点契约\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"result\":\"pass\",\"note\":\"lifecycle-artifact-scope.md 重写为 host-neutral thin-shim 契约(两宿主同源表+7点);runtime-owned plan 加 Implementation Status(Claude 侧 B-097f landed);CLAUDE.md 加 Agent prompt 资产 host-neutral 单一源节\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"修正旧的 init 往项目/全局物化 agent 正文的表述\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"result\":\"pass\",\"note\":\"旧 symlink/物化正文表述被 thin-shim+agent_prompt 取代;CLAUDE.md 明确 reviewer 第一步 run lattice agent_prompt 取正文\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"文档与实际 init / agent_prompt 输出一致(无 docs-drift)\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"result\":\"pass\",\"note\":\"文档命令 lattice agent_prompt --role=X 与实测一致(16 role byte-equal,非法 role 列可用列表);doctor agentAssetMode runtime-owned 与实现一致\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"smoke 断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt==registry body\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-init-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-init-smoke.js\",\"result\":\"pass\",\"note\":\"Integration smoke (temp HOME, never touches real ~/.claude): fresh claude init → 0 project agent .md + 16 global thin-shim regular files (tools frontmatter + lattice agent_prompt body + no role-body slice); agent_prompt --role=X byte-equal registry body for all 16 (CLI adds only print newline). PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、普通 init 仅 warn\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/global-agents-init-smoke.ts\",\"command\":\"node packages/main/dist/tasks/global-agents-init-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke (c): --upgrade migrates 16 managed (removed), keeps my-custom.md byte-for-byte; normal init only WARNs run lattice init --upgrade and deletes nothing (17 remain). Smoke (d): second init idempotent synced=0 ok=16 replaced=0. PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"既有 prompt-token-cost-smoke 与 prompt-registry-smoke 仍绿 + build + validate 绿\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/prompt-registry-smoke.ts\",\"command\":\"node dist/tasks/prompt-registry-smoke.js; node dist/tasks/prompt-token-cost-smoke.js; npm --prefix packages/main run build; lattice validate\",\"result\":\"pass\",\"note\":\"No-regress: prompt-registry-smoke (16 agents claude+codex), prompt-token-cost-smoke, runtime-owned-agent-assets-smoke all PASS. global-agents-unit-smoke PASS. packages/main build green. lattice validate 全绿 (main-write-lock-coverage + cli-e2e ALL PASS). PASS.\",\"headHash\":\"aacb930d30a44792480e8b21042b4f6e76633a84\",\"materialHash\":\"8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016\",\"timestamp\":\"2026-06-16T20:46:47.985Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-16T20:46:50.796Z",
+  "headHash": "1ea8b244937700e430073e6506efb6b8be846a4b",
   "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
   "verificationCoverage": {
     "total": 18,
     "required": 18,
-    "covered": 0,
-    "missingRequired": 18,
+    "covered": 18,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,16 +18,16 @@
         "desc": "契约文档明确写出全局唯一源 + 项目零 agent 文件",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "新增 Policy: global agents single source 段,契约点1明确全局 ~/.claude/agents 为唯一源 + 契约点3 init 零项目 agent 文件",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -37,16 +37,16 @@
         "desc": "契约说明 symlink target 从运行中 CLI 包解析而非 hardcode dev 路径",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "契约点2:symlink target 从 fileURLToPath(import.meta.url)->packageRoot->templates/agents 解析,非 hardcode dev 路径",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -56,16 +56,16 @@
         "desc": "契约明确迁移只按 16 个管理 basename 删除,不碰用户自建 agent",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "契约点5:迁移只删 16 个管理 basename,禁止通配,用户文件保留;契约点6 解释 project shadow user 优先级",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -75,7 +75,7 @@
         "desc": "syncGlobalAgents 在 ~/.claude/agents 生成 16 个 thin-shim(frontmatter+tools 取自 registry,body 为 CLI-fetch 指令)",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
@@ -83,9 +83,9 @@
           "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
           "result": "pass",
           "note": "syncGlobalAgents writes a thin-shim regular file per template: verbatim frontmatter (tools sandbox preserved, multi-line + inline forms), CLI-fetch body referencing lattice agent_prompt --role=<name>, role body absent. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -95,7 +95,7 @@
         "desc": "幂等:重复跑不变;模板 frontmatter 变更 shim 同步;断链/旧 symlink/旧全量 copy 自动替换为 shim",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
@@ -103,9 +103,9 @@
           "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
           "result": "pass",
           "note": "Idempotent re-run reports shim ok (skipped=N); old full copy, old symlink, broken link, drifted shim all unlink+rewrite (replaced=N) back to deterministic shim. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -115,7 +115,7 @@
         "desc": "lattice agent_prompt --role=X 从 promptRegistryManifest() 同一 registry 吐正文(与 Codex 同源 byte-equal);全局不可写报错不静默回退",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
@@ -123,9 +123,9 @@
           "command": "node packages/main/dist/cli.js agent_prompt --role=lattice-implementer | diff - templates/agents/lattice-implementer.md",
           "result": "pass",
           "note": "In-process handler output is byte-equal to readPromptTemplate(entry) for all 16 roles (same registry Codex resolves); CLI process adds only the generic print-time trailing newline. Unknown role lists available roles; blank role rejected by runtime re-validate beyond Zod min(1); non-writable global dir throws Cannot create global agents dir ... will not fall back. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -135,7 +135,7 @@
         "desc": "claude profile init 后项目内 0 个 .claude/agents 文件且输出全局 thin-shim 解析提示",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
@@ -143,9 +143,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude",
           "result": "pass",
           "note": "claude profile init: [5/6] outputs synced=16 thin-shims to global ~/.claude/agents + line - .claude/agents (resolved from global ~/.claude/agents thin-shims; no per-project files). Project .claude/agents has 0 .md (dir not created). Global has 16 regular-file shims (0 symlinks). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -155,7 +155,7 @@
         "desc": "core profile(无标记)行为不变仍 skip",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
@@ -163,9 +163,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=core",
           "result": "pass",
           "note": "core profile (no markers): [5/6] prints - .claude/agents (profile skip); 0 project + 0 global agent files. Behavior unchanged. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -175,7 +175,7 @@
         "desc": "all profile(codex+claude)同样不写 project-local agent 文件",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
@@ -183,9 +183,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=all",
           "result": "pass",
           "note": "all profile (codex+claude): synced=16 global thin-shims, 0 project-local agent files. Codex/asset-mode not regressed (global-thin .Codex path unchanged). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -195,7 +195,7 @@
         "desc": "显式 --upgrade 把已有 project-local 16 管理文件迁移到全局并移除",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
@@ -203,9 +203,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude --upgrade",
           "result": "pass",
           "note": "Pre-seeded 16 managed + 1 user (my-custom.md). --upgrade logs 16x ↻ migrated to global, removes exactly the 16 managed basenames, project count 17→1. Verified correct after thin-shim transform. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -215,7 +215,7 @@
         "desc": "普通 init 仅 WARN 不删除;用户自建非管理文件任何路径都保留",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
@@ -223,9 +223,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude",
           "result": "pass",
           "note": "Normal init only WARNs: ⚠ 16 managed agent files found in .claude/agents; run lattice init --upgrade. Deletes nothing (17 files remain). User file my-custom.md preserved on every path. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -235,7 +235,7 @@
         "desc": "只按 16 精确管理 basename 删除不通配;lattice doctor 报 agentAssetMode runtime-owned",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
@@ -243,9 +243,9 @@
           "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> doctor | grep agentAssetMode",
           "result": "pass",
           "note": "Migration removes only the 16 exact managed basenames (from templates/agents filename set), no wildcard clear; non-managed files always preserved. lattice doctor reports agentAssetMode: runtime-owned. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -255,16 +255,16 @@
         "desc": "三份文档反映 host-neutral thin-shim + 共享 registry 端点契约",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "lifecycle-artifact-scope.md 重写为 host-neutral thin-shim 契约(两宿主同源表+7点);runtime-owned plan 加 Implementation Status(Claude 侧 B-097f landed);CLAUDE.md 加 Agent prompt 资产 host-neutral 单一源节",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -274,16 +274,16 @@
         "desc": "修正旧的 init 往项目/全局物化 agent 正文的表述",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:edge:0",
           "kind": "docs_check",
           "file": "CLAUDE.md",
           "result": "pass",
           "note": "旧 symlink/物化正文表述被 thin-shim+agent_prompt 取代;CLAUDE.md 明确 reviewer 第一步 run lattice agent_prompt 取正文",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -293,16 +293,16 @@
         "desc": "文档与实际 init / agent_prompt 输出一致(无 docs-drift)",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "docs_check",
           "file": "CLAUDE.md",
           "result": "pass",
           "note": "文档命令 lattice agent_prompt --role=X 与实测一致(16 role byte-equal,非法 role 列可用列表);doctor agentAssetMode runtime-owned 与实现一致",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.505Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -312,7 +312,7 @@
         "desc": "smoke 断言干净项目 init 后项目 0 agent 文件 + 全局 16 thin-shim + agent_prompt==registry body",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:happy:0",
           "kind": "logic_test",
@@ -320,9 +320,9 @@
           "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
           "result": "pass",
           "note": "Integration smoke (temp HOME, never touches real ~/.claude): fresh claude init → 0 project agent .md + 16 global thin-shim regular files (tools frontmatter + lattice agent_prompt body + no role-body slice); agent_prompt --role=X byte-equal registry body for all 16 (CLI adds only print newline). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.506Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -332,7 +332,7 @@
         "desc": "smoke 断言 --upgrade 迁移清理 project-local、用户文件保留、普通 init 仅 warn",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:edge:0",
           "kind": "logic_test",
@@ -340,9 +340,9 @@
           "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
           "result": "pass",
           "note": "Smoke (c): --upgrade migrates 16 managed (removed), keeps my-custom.md byte-for-byte; normal init only WARNs run lattice init --upgrade and deletes nothing (17 remain). Smoke (d): second init idempotent synced=0 ok=16 replaced=0. PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.506Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       },
       {
@@ -352,7 +352,7 @@
         "desc": "既有 prompt-token-cost-smoke 与 prompt-registry-smoke 仍绿 + build + validate 绿",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:adversarial:0",
           "kind": "integration_test",
@@ -360,9 +360,9 @@
           "command": "node dist/tasks/prompt-registry-smoke.js; node dist/tasks/prompt-token-cost-smoke.js; npm --prefix packages/main run build; lattice validate",
           "result": "pass",
           "note": "No-regress: prompt-registry-smoke (16 agents claude+codex), prompt-token-cost-smoke, runtime-owned-agent-assets-smoke all PASS. global-agents-unit-smoke PASS. packages/main build green. lattice validate 全绿 (main-write-lock-coverage + cli-e2e ALL PASS). PASS.",
-          "headHash": "02fe3fa0fe089eaa623e032cba07bc81c8710bec",
-          "materialHash": "2fd324a49b98f798e58f33c19c21081d01b1cd06c7f6e1bd6d4d2fe3f8820547",
-          "timestamp": "2026-06-16T19:08:55.506Z"
+          "headHash": "aacb930d30a44792480e8b21042b4f6e76633a84",
+          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
+          "timestamp": "2026-06-16T20:46:47.985Z"
         }
       }
     ]
