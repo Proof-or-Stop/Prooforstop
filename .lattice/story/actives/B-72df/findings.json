@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-72df:F-001",
+      "desc": "clobber-safety miss: parsePorcelainDirtyPaths incorrectly decodes git-quoted non-ASCII paths. unquoteGitPath uses JSON.parse which throws on git octal escapes (e.g. \\303\\251 for é), then falls back to path.slice(1,-1) leaving literal backslash-octal in the string. normalizeGitPath then replaces those backslashes with forward slashes, producing a corrupted path like src/caf/303/251.ts instead of src/café.ts. The affected set from listDoneMergeAffectedPaths uses -z (NUL-separated, never quoted) so it carries raw UTF-8 bytes. The two forms never match, so a dirty non-ASCII-named file that is IN the merge affected set is not detected as overlapping, and the DONE merge proceeds when it should be blocked — silent clobber of uncommitted work on that file.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T03:23:08.585Z",
+      "reviewRound": "2026-06-16T03:20:40.956Z",
+      "reviewRunId": "B-72df:RR-001",
+      "_hash": "a553e47f5ba2b6cc67ca3b26f525c727a1ffe9937e60df8d768143e2f21fa914",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "resolvedBy": "B-72df:F-001@f38b2fe"
+    }
+  ]
+}

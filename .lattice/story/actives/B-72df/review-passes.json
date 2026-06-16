@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-72df:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. No external symbols were deleted or renamed. assertMainWorktreeReadyForMerge changed from private to exported (no residue — all callers are within done-effects.ts). New private helpers parsePorcelainDirtyPaths and listDoneMergeAffectedPaths are defined and consumed only within done-effects.ts. unquoteGitPath exists independently as a private copy in both dirty-worktree.ts (pre-existing) and done-effects.ts (new) with no cross-dependency. No CLAUDE.md doc promises added. No concept deletions or replacements with orphaned residual references found. No blocker.",
+      "createdAt": "2026-06-16T03:23:12.835Z",
+      "reviewRound": "2026-06-16T03:20:40.956Z",
+      "reviewRunId": "B-72df:RR-002",
+      "_hash": "31e9cf7ece4fc6892d713a9fd573bf4531eae37c620650cdd6f9dc5f3f521987"
+    },
+    {
+      "id": "B-72df:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 9/9 must intents covered by done-merge-scope-smoke.ts with concrete non-hollow assertions: case (a) unrelated dirty passes + byte-identical check via readFileSync assertion, case (b) overlapping dirty throws for both edited-file and rename-source variants via assert.throws, case (c) clean passes, case (d) no-git-HEAD throws. Smoke not in default validate battery is a systemic gap owned by backlog B-99b6, not a B-72df-specific deficiency.",
+      "createdAt": "2026-06-16T03:31:44.937Z",
+      "reviewRound": "2026-06-16T03:20:40.956Z",
+      "reviewRunId": "B-72df:RR-003",
+      "_hash": "dad3c1f1378abb221b052642926eb993eef0eff9f5bdbd81c828762cea66dd60"
+    },
+    {
+      "id": "B-72df:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (Round 2): all 9 must intents confirmed covered by logic_test evidence (result=pass, headHash stable). Commit f38b2fe added case b3 (non-ASCII overlap, src/cafe.ts dirty + in merge set) with correct fail-pre/pass-post structure: the `-c core.quotePath=false` fix in done-effects.ts is required for the throw to fire; pre-fix the paths never intersect and the assert.throws would fail, post-fix they do intersect and the throw is emitted. No assertions were removed. The validate-battery gap remains scoped to B-99b6 as acknowledged. No blocker.",
+      "createdAt": "2026-06-16T03:36:32.820Z",
+      "reviewRound": "2026-06-16T03:35:34.200Z",
+      "reviewRunId": "B-72df:RR-005",
+      "_hash": "ae1dce8b3b3a815c55979ac0780deeac6831bcef5ece4c9688feafa1b4338222"
+    },
+    {
+      "id": "B-72df:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review (post f38b2fe -c core.quotePath=false commit). Scanned git diff main...HEAD for deleted/replaced symbols. No concept deletion or mass replacement found. The commit adds -c core.quotePath=false to the git status call and introduces a non-ASCII test case; no symbol was renamed or removed. Existing functions assertMainWorktreeReadyForMerge (now exported), parsePorcelainDirtyPaths, listDoneMergeAffectedPaths, unquoteGitPath, normalizeGitPath are all coherently referenced within the changed files only. The quotePath references exist only in the two changed source files (done-effects.ts, done-merge-scope-smoke.ts) — no orphaned references elsewhere. No CLAUDE.md changes in this diff; no doc-promise-undelivered risk. Concept residue check completed. No blocker.",
+      "createdAt": "2026-06-16T03:37:13.129Z",
+      "reviewRound": "2026-06-16T03:35:34.200Z",
+      "reviewRunId": "B-72df:RR-006",
+      "_hash": "386b3e81f127182c4baed680bf039f67b28df6839d54846d265c28643a8e0110"
+    },
+    {
+      "id": "B-72df:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "R2 quality re-check: F-001 fix (commit f38b2fe) is correct and complete. (1) Both dirty-path parse (git -c core.quotePath=false status --porcelain) and affected-path set (git diff -z, NUL-separated, never quoted) now emit identical raw UTF-8 — the overlap intersection is correct for non-ASCII filenames. (2) unquoteGitPath/JSON.parse path is now unreachable: with core.quotePath=false porcelain never quotes paths, so the function always returns its input unchanged — harmless. (3) No regression for paths with spaces: git core.quotePath only controls non-ASCII quoting, not spaces; slice(3) + trimEnd() in parsePorcelainDirtyPaths correctly preserves internal spaces; -z diff side identical. Test b3 in done-merge-scope-smoke.ts adds cafe.ts to both branches, dirties it in main, and asserts the throw — correctly targeting the F-001 clobber scenario. All three verification points clean. No new issues.",
+      "createdAt": "2026-06-16T03:37:13.898Z",
+      "reviewRound": "2026-06-16T03:35:34.200Z",
+      "reviewRunId": "B-72df:RR-004",
+      "_hash": "86cc00a99d13336597ee40d9a8c78593147c588ece85c3558b4e8b6d09e65b57"
+    }
+  ]
+}

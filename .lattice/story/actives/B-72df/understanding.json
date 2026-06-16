@@ -1,0 +1,24 @@
+{
+  "task": "assertMainWorktreeReadyForMerge (done-effects.ts) requires the ENTIRE main worktree clean (git status --porcelain --untracked-files=no; throws on any dirty tracked file) before the DONE merge. On a shared main worktree, an unrelated session's uncommitted tracked file blocks an unrelated story's DONE merge (observed: B-e791 blocked by B-0414). The check is over-broad: correctness only needs the paths the merge would change to be clean.",
+  "outcome": "On a shared main worktree with an unrelated session's uncommitted tracked file, lattice story_advance DONE proceeds and merges (the unrelated file left byte-identical). It STILL refuses when a dirty tracked path overlaps what the merge would change (clobber-protection preserved).",
+  "facts": [
+    "assertMainWorktreeReadyForMerge in packages/main/src/handlers/done-effects.ts runs git status --porcelain --untracked-files=no and throws on any dirty tracked file; introduced/owned by B-e74e CHK-001.",
+    "The DONE merge is git merge of the story branch into main; the merge's affected path set = git diff main...HEAD --name-only (the story's change set).",
+    "B-e74e is adjacent: it also handles main-worktree-UNAVAILABLE (must keep that), distinct from this unrelated-dirty contention.",
+    "The DONE merge runs under the main-write-lock (B-f60c), so the check + merge are serialized against concurrent sessions."
+  ],
+  "constraints": [
+    "Never clobber uncommitted work: still block when a dirty path overlaps the merge's change set.",
+    "Preserve B-e74e's main-worktree-unavailable handling; only narrow the dirty-path scope.",
+    "Do not change DONE merge semantics otherwise; clean-tree case byte-identical.",
+    "Tracked-only (the existing check uses --untracked-files=no); handle rename name-pairs in the affected set."
+  ],
+  "unknowns": [
+    "Cleanest computation of the merge's affected path set (git diff main...HEAD --name-only, including rename old/new names) to intersect with the dirty tracked paths."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks/"
+  ],
+  "timestamp": "2026-06-16T03:05:39.182Z"
+}
