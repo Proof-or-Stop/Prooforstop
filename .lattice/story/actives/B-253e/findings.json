@@ -22,7 +22,7 @@
       "desc": "type-safety: summary.ts:165,169 — after the `if (item.unknown) continue` guard, TypeScript still types `item.total` as `number | null` (no type-level narrowing), so the code uses `item.total ?? 0` to satisfy the compiler. This ?? 0 silently coerces a null total to 0 if `deriveRecordTotal` ever returns `{unknown:false, total:null}` (a contract violation). The spec explicitly states unknown dimensions must NEVER be coerced to 0. The fix is a discriminated union: `{ unknown: true; total: null } | { unknown: false; total: number }` so TypeScript narrows total to `number` after the guard and the `?? 0` is removed entirely.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T01:39:42.273Z",
@@ -31,7 +31,8 @@
       "_hash": "12e2171b1c9d4edd807fae7530bda0039a8b90453c5ac18d0bf3be1a76883233",
       "files": [
         "packages/main/src/core/usage-ledger/summary.ts"
-      ]
+      ],
+      "resolvedAt": "2026-06-16T01:44:47.634Z"
     }
   ]
 }
