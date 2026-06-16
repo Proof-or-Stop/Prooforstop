@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-0f7c:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 44 intents (CHK-001: 3h/4e/4a, CHK-002: 2h/5e/3a, CHK-003: 2h/2e/3a, CHK-004: 2h/3e/3a, CHK-005: 4h/2e/2a) have valid non-fail manual_transcript evidence backed by the dispatch smoke (38/38 checks verified live). Safety invariants confirmed sound: offByteIdentical regex matches actual buildClaudeSpawnArgs source; seamGated confirmed by try/catch wrapping in runClaudeCodeRealLeafDispatch; zeroImport confirmed (adapters/../canonical-json resolves within usage-ledger/); noForbidden/scopeClean verified against git diff. Simulated E2E asserts served model, provider total 1900, estimateCount=0. No hollow assertions found.",
+      "createdAt": "2026-06-16T19:36:41.856Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-001",
+      "_hash": "4fe4ca2094076523a1e0c2c64c1c584d8a957d59e8ebaccff9e262e1fad320c3"
+    },
+    {
+      "id": "B-0f7c:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "OFF path byte-identical: buildClaudeSpawnArgs(false) returns literal [--print, promptFile]; spawnSync uses those exact args; rawStdout assigned to stdout with no parseClaudeCliOutput call. ON path: spawnArgs gains --output-format json; parseClaudeCliOutput extracts .result as human text; stdout set to parsed.resultText not raw JSON. Downstream: stdout feeds ONLY appendTranscript (line 1976); receipt, collection, runnerRecord and DispatchRunResult return object draw from exitCode/git/record fields only - none read stdout. Double fallback: if parseClaudeCliOutput throws, catch resets stdout=rawStdout. isUsageLedgerEnabled gates correctly on LATTICE_USAGE_LEDGER=1/true/on/yes; all other values (unset, 0, false) are OFF. No behavioral regression in either path.",
+      "createdAt": "2026-06-16T19:36:48.196Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-002",
+      "_hash": "fc6ff160e5e166238ad096f7423d8ebe8a28aaab2fe36321cd62fb104511aec4"
+    },
+    {
+      "id": "B-0f7c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement found. This story adds new symbols only (dispatch-usage.ts is purely additive). Concept residue check: (1) dispatch-usage.ts imports only ./ siblings + node — zero cross-module imports confirmed; (2) scope is exactly the 4 authorized files (dispatch-usage.ts, lattice-dispatch.ts, smoke, package.json) — no dispatch-runner/cli-engine/handlers touched; (3) one-way dependency confirmed — usage-ledger/* has zero imports pointing back to lattice-dispatch/dispatch-runner/cli-engine; (4) lattice-dispatch.ts imports usage-ledger through only the single seam ./usage-ledger/dispatch-usage.js; (5) no re-implementation of record/ids/writer/assemble/adapters/estimate — dispatch-usage.ts delegates to all of them via import and call; (6) estimate=sequence-1/supersedesRecordIds=[] and both final paths=sequence-2/supersedesRecordIds=[estimateRecordId] confirmed; (7) buildClaudeSpawnArgs OFF path returns literal [--print, promptFile] (byte-identical); (8) buildUnavailableFinalRecord is legitimately distinct (source=unavailable path not covered by assemble.ts buildProviderRecord); (9) no doc-promise-undelivered: all 5 imported symbols and buildClaudeSpawnArgs are called at the seam. Zero blockers.",
+      "createdAt": "2026-06-16T19:37:37.090Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-003",
+      "_hash": "b8857085b084b03150105b2f5912fada28280c8a7a2526fb5663c5e1f6267e9a"
+    },
+    {
+      "id": "B-0f7c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "All INVs verified. INV-1 holds: OFF path uses buildClaudeSpawnArgs(promptFile, false) -> [\"--print\", promptFile] with no ledger code executed; stdout assigned from rawStdout with no parse. INV-2: parseClaudeCliOutput never throws, returns raw+null on any non-JSON/shape-mismatch. INV-3: all ledger calls wrapped in try/catch in both dispatch-usage.ts and lattice-dispatch.ts outer guard. INV-4: dispatch-usage.ts imports only ./siblings + node: confirmed; lattice-dispatch.ts imports usage-ledger only via dispatch-usage.js confirmed by static check. INV-5: buildSupersedes(estimateRecordId) passed as supersedesRecordIds in provider-reported final; summarizeRecords excludes superseded records. One low/missing finding registered (F-001): misleading inline comment in recordDispatchFinal at line 333 says \"skip rather than mint\" but code mints and continues. No blockers; no dead code in changed files; no type-safety issues; no I/O isolation violations.",
+      "createdAt": "2026-06-16T19:38:44.423Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-004",
+      "_hash": "7f7ad92abb3c63a735085177e757fabd661b59bd57dff77100cd94bba1ad720a"
+    },
+    {
+      "id": "B-0f7c:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Re-review confirmed: (1) The only change in commit d7913f0ea is a comment rewrite in dispatch-usage.ts lines 330-333; zero code lines changed. (2) OFF path: buildClaudeSpawnArgs returns [--print, promptFile] only, stdout=rawStdout unchanged, no ledger code executes. (3) ON path: spawnArgs adds --output-format json; parsed.resultText is assigned to stdout (the appendTranscript variable); DispatchRunResult, receipt, and runnerRecord do not read stdout — they use exitCode, headSha, collection, submission, etc. (4) Parse-failure catch at line 1963 falls back to stdout=rawStdout (raw text). (5) recordDispatchFinal try/catch swallows errors. (6) Exit/return semantics: the exitCode != 0 branch and the success return at line 2082 are entirely unaffected by the ledger seam. All behavior claims in the prompt are accurate; no behavior change from the comment-only fix.",
+      "createdAt": "2026-06-16T19:42:21.476Z",
+      "reviewRound": "2026-06-16T19:41:00.483Z",
+      "reviewRunId": "B-0f7c:RR-006",
+      "_hash": "340b9ea6dbd84ad4c7499c95bb516cfabaf75e8813524f80f83652a6b55f9399"
+    },
+    {
+      "id": "B-0f7c:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verifier 44/44, dispatch smoke 38/38 on HEAD 3fdb517 (only behavioral delta from evidenced c4a370e is one inline comment correction in dispatch-usage.ts; all static invariants hold: buildOk, dispatchSmoke, noRegression, offByteIdentical, seamGated, zeroImport, modelHandled, noForbidden, scopeClean). All 44 must-intents covered by valid manual_transcript evidence, no gaps.",
+      "createdAt": "2026-06-16T19:42:30.919Z",
+      "reviewRound": "2026-06-16T19:41:00.483Z",
+      "reviewRunId": "B-0f7c:RR-008",
+      "_hash": "dc60c21140e434fd29336b31ebf5b4b06d9f80db69188b856c438440a5fa5da3"
+    },
+    {
+      "id": "B-0f7c:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 (RR-007). Scope: still exactly the 4 declared files (dispatch-usage.ts, lattice-dispatch.ts, usage-ledger-dispatch-smoke.ts, package.json) — no dispatch-runner / cli-engine / handlers touched. One-way seam intact: dispatch-usage.ts imports only ./ sibling usage-ledger modules + node builtins (adapters/anthropic, assemble, estimate, ids, record, writer) — zero cross-module imports confirmed by grep. lattice-dispatch imports usage-ledger only via ./usage-ledger/dispatch-usage.js (single import line, confirmed). No re-implementation: reuses buildProviderRecord, buildEstimateRecord, bytesCharsEstimator, buildSupersedes, mintCallCorrelation, mintRecordId, appendUsageRecord. Record semantics correct: preflight seq=1 / supersedesRecordIds=[]; final seq=2 / supersedesRecordIds=[estimateRecordId] via buildSupersedes; provider-reported via anthropic adapter (buildProviderRecord); unavailable path builds source=unavailable seq=2 supersedes; served model bound via finalContext. Comment-only fix (F-001 / commit d7913f0) corrected misleading text about null-correlation behavior — old comment residue confirmed absent by grep. No concept deletions or replacements identified. No blocker.",
+      "createdAt": "2026-06-16T19:42:54.883Z",
+      "reviewRound": "2026-06-16T19:41:00.483Z",
+      "reviewRunId": "B-0f7c:RR-007",
+      "_hash": "e0301bb5861380350b379b04bf9b832f73b698276818bba75c8e83af8ef1e14a"
+    },
+    {
+      "id": "B-0f7c:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review clean. F-001 (misleading comment) confirmed resolved via commit d7913f0ea — comment-only diff, 3 lines replaced, zero behavior change. All 5 safety invariants verified: INV-1 OFF byte-identical (buildClaudeSpawnArgs(file,false)===[--print,file] confirmed in code + CHK-004 test); INV-2 parse-failure fallback (CHK-004 test passes); INV-3 ledger errors caught (catch blocks in both recordDispatchPreflight and recordDispatchFinal); INV-4 dispatch-usage.ts imports only ./ siblings (anthropic, assemble, estimate, ids, record, writer) + no node builtins; INV-5 final supersedes estimate (supersedesRecordIds=[estimateRecordId] confirmed in buildProviderRecord call). Build exit 0. 38/38 usage-ledger-dispatch checks pass. Verifier 44/44 (buildOk, dispatchSmoke, noRegression, offByteIdentical, seamGated, zeroImport, modelHandled, noForbidden, scopeClean all true). No new findings.",
+      "createdAt": "2026-06-16T19:43:10.369Z",
+      "reviewRound": "2026-06-16T19:41:00.483Z",
+      "reviewRunId": "B-0f7c:RR-005",
+      "_hash": "252cdb2bf3876e96e4bce5cfa8315230a04a3cb7f81eb26676c72cbcf134504d"
+    }
+  ]
+}

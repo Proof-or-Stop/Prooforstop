@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-06-16, continuing OSS launch prep after stories B-d313/B-0b26/B-08f2/B-747e/B-d7ef. A repo audit found: (a) packages/lab/package.json:4 description still reads 'koala 离线优化实验室' — a koala→Lattice rebrand leftover; (b) the uppercase .Codex/ adapter dir collides with lowercase .codex/ (Codex CLI's mandatory hook dir) on case-insensitive filesystems; (c) the OMX disable guard infrastructure remains in the repo (gitignore entry, verify script, AGENTS.md prohibition, refuse-in-source-code) even though the user never wanted omx to touch the workspace at all.
+
+## Key Insights
+The lab description fix is 1 line. The .Codex rename is mechanical but wide: 32 tracked files reference .Codex/ (across CLAUDE.md, README.md, AGENTS.md, .codex/hooks/lattice-scope-pretool.cjs, packages/main+lab src code, 8 decision docs, experiments artifacts), plus 18 files inside .Codex/ itself need git mv. Lowercase .codex/ is Codex CLI's hard contract — KEEP. The omx removal touches 23 files: .gitignore line, AGENTS.md item #12 (the prohibition), scripts/verify-omx-disabled.mjs (delete the script and its package.json reference), code paths in baseline.ts/baseline-suite-report.ts/dev-memory.ts/lattice-baseline.ts/runtime-artifact-registry.ts/handlers/capsule.ts that refuse or filter .omx, the story-capsule-smoke and baseline-risk-accepted-local-paths fixture, and 10 decision docs that document the disable policy.
+
+## Solution Tradeoffs
+Bundle all three because items 2 and 3 both edit decision documents and would each trip the 3x2 escalation; one bundled story shares the cost. Use the existing user-approved degraded 3x1 fallback (memory) when escalation triggers. Lab description is folded in as a low-cost coupled fix. Risk: a wide diff with multiple semantically distinct changes — mitigated by per-item checklist split and per-item adversarial verificationIntents. The lowercase .codex/ Codex CLI directory is excluded from the rename (would break Codex's hook contract).
+
+## Conversational Texture
+The user is driving the OSS launch in Chinese, gave four directives, chose to bundle the bounded 1+2+3 in this session and defer the 308-file koala residual sweep to a new session. They explicitly chose .lattice-codex as the new name and said they never wanted omx polluting the workspace.

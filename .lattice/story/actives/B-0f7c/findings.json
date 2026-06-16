@@ -1,0 +1,18 @@
+{
+  "findings": [
+    {
+      "id": "B-0f7c:F-001",
+      "desc": "quality-cleanup: dispatch-usage.ts:333 inline comment contradicts actual behavior — comment says \"skip rather than mint a stray orphan attempt\" but the code immediately mints a fresh mintCallCorrelation() and continues to write a record. The function-level docstring at line ~312 is accurate (\"the final still records but supersedes nothing\"); only the inline comment is wrong. Future maintainers working on the null-correlation path will be misled.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T19:38:30.495Z",
+      "reviewRound": "2026-06-16T19:34:32.280Z",
+      "reviewRunId": "B-0f7c:RR-004",
+      "_hash": "967f26c6f1a7b7df893954f863c9b6811b3b129a5bd1964411a7ee7347ffa73c",
+      "resolvedAt": "2026-06-16T19:42:59.647Z"
+    }
+  ]
+}
