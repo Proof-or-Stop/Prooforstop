@@ -63,9 +63,9 @@
           "command": "grep -ri koala packages/lab/package.json",
           "result": "pass",
           "note": "Direct file: 0 koala. (Broader packages/lab dir koala refs are pre-existing residual sweep work, not in this story's scope.)",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -74,9 +74,9 @@
           "command": "grep -ri koala packages/lab/package.json",
           "result": "pass",
           "note": "Direct file: 0 koala. (Broader packages/lab dir koala refs are pre-existing residual sweep work, not in this story's scope.)",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -85,9 +85,9 @@
           "command": "npm --prefix packages/lab run build",
           "result": "pass",
           "note": "lab build exit 0.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -96,9 +96,9 @@
           "command": "node -e 'JSON.parse(require(\"fs\").readFileSync(\"packages/lab/package.json\"))'",
           "result": "pass",
           "note": "JSON valid after edit.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -107,9 +107,9 @@
           "command": "grep -i koala packages/lab/package.json",
           "result": "pass",
           "note": "No koala in lab/package.json (0).",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -118,9 +118,9 @@
           "command": "grep -i koala packages/lab/package.json",
           "result": "pass",
           "note": "No koala in lab/package.json (0).",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -129,9 +129,9 @@
           "command": "grep -ri koala packages/lab/package.json",
           "result": "pass",
           "note": "Direct file: 0 koala. (Broader packages/lab dir koala refs are pre-existing residual sweep work, not in this story's scope.)",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -140,9 +140,9 @@
           "command": "grep -ri koala packages/lab/package.json",
           "result": "pass",
           "note": "Direct file: 0 koala. (Broader packages/lab dir koala refs are pre-existing residual sweep work, not in this story's scope.)",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         }
       ]
     },
@@ -299,9 +299,9 @@
           "command": "git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice' ':(exclude).codex'",
           "result": "pass",
           "note": "Covered by zero-residual scan on .Codex/.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -310,9 +310,9 @@
           "command": "git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice' ':(exclude).codex'",
           "result": "pass",
           "note": "Covered by zero-residual scan on .Codex/.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -321,9 +321,9 @@
           "command": "git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice' ':(exclude).codex'",
           "result": "pass",
           "note": "Covered by zero-residual scan on .Codex/.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -332,9 +332,9 @@
           "command": "git grep -nE '\\.Codex(/|\\b)' -- . ':(exclude).lattice' ':(exclude).codex'",
           "result": "pass",
           "note": "Covered by zero-residual scan on .Codex/.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:happy:4",
@@ -343,9 +343,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "npm run test:e2e ALL PASS.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:happy:5",
@@ -354,9 +354,9 @@
           "command": "node bin/lattice.js verify_codex",
           "result": "pass",
           "note": "Returns ✓ 8/8 PASS — Codex adapter behavior unchanged.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -365,9 +365,9 @@
           "command": "test -f .codex/hooks.json && test -f .codex/hooks/lattice-scope-pretool.cjs",
           "result": "pass",
           "note": "Both files present — Codex CLI hook contract intact.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -376,9 +376,9 @@
           "command": "git ls-files .lattice-codex | wc -l",
           "result": "pass",
           "note": "18 files — same count as the original .Codex/ contents.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -387,9 +387,9 @@
           "command": "grep -n 'lattice-codex' packages/main/src/core/codex-adapter-checks.ts | head",
           "result": "pass",
           "note": "codex-adapter-checks.ts now uses .lattice-codex/.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -398,9 +398,9 @@
           "command": "grep -n 'lattice-codex' CLAUDE.md | head",
           "result": "pass",
           "note": "CLAUDE.md updated to .lattice-codex.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
@@ -409,9 +409,9 @@
           "command": "grep -n 'lattice-codex' .codex/hooks/lattice-scope-pretool.cjs | head",
           "result": "pass",
           "note": "Pretool hook updated to reference .lattice-codex/.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -420,9 +420,9 @@
           "command": "test -f .codex/hooks.json && test -f .codex/hooks/lattice-scope-pretool.cjs",
           "result": "pass",
           "note": "Both files present — Codex CLI hook contract intact.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -431,9 +431,9 @@
           "command": "git diff --name-only HEAD~5 HEAD | grep -c '^\\.lattice/' || echo 0",
           "result": "pass",
           "note": "Story-metadata commits are normal lifecycle commits; no .lattice/ contract change.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -442,9 +442,9 @@
           "command": "test -f packages/main/src/verifier/dev-cli.ts && echo SAFE",
           "result": "pass",
           "note": "dev-cli.ts present (over-reach guard).",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -453,9 +453,9 @@
           "command": "node bin/lattice.js verify_codex",
           "result": "pass",
           "note": "Returns ✓ 8/8 PASS — Codex adapter behavior unchanged.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
@@ -464,9 +464,9 @@
           "command": "git diff --name-only HEAD~5 HEAD -- .codex/",
           "result": "pass",
           "note": "Empty — lowercase .codex/ had zero changes in the rename diff.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         }
       ]
     },
@@ -590,9 +590,9 @@
           "command": "git grep -inE 'omx' -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md'",
           "result": "pass",
           "note": "Covered by zero-residual omx scan.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -601,9 +601,9 @@
           "command": "grep test:omx-disabled package.json",
           "result": "pass",
           "note": "Returns empty — script entry removed.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -612,9 +612,9 @@
           "command": "test -f scripts/verify-omx-disabled.mjs",
           "result": "pass",
           "note": "File absent — script deleted.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -623,9 +623,9 @@
           "command": "git grep -inE 'omx' -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md'",
           "result": "pass",
           "note": "Covered by zero-residual omx scan.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.374Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:happy:4",
@@ -634,9 +634,9 @@
           "command": "npm run test:e2e",
           "result": "pass",
           "note": "npm run test:e2e ALL PASS.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -645,9 +645,9 @@
           "command": "grep -n '\\.omx' .gitignore",
           "result": "pass",
           "note": "Returns empty — .omx/ line removed.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -656,9 +656,9 @@
           "command": "grep -inE 'omx' AGENTS.md",
           "result": "pass",
           "note": "AGENTS.md item #12 omx prohibition removed (0 matches).",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -667,9 +667,9 @@
           "command": "grep -inE 'omx' packages/main/src/core/baseline.ts",
           "result": "pass",
           "note": "Returns empty — baseline.ts omx-refuse logic removed.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -678,9 +678,9 @@
           "command": "grep -inE 'omx' packages/main/src/handlers/capsule.ts packages/main/src/tasks/story-capsule-smoke.ts",
           "result": "pass",
           "note": "Returns empty — capsule omx handling removed.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:edge:4",
@@ -689,9 +689,9 @@
           "command": "grep -inE 'omx' packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json",
           "result": "pass",
           "note": "Returns empty — fixture omx entries removed.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:edge:5",
@@ -700,9 +700,9 @@
           "command": "grep -inE 'omx' packages/main/src/handlers/capsule.ts packages/main/src/tasks/story-capsule-smoke.ts",
           "result": "pass",
           "note": "Returns empty — capsule omx handling removed.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -711,9 +711,9 @@
           "command": "test -f packages/main/src/core/intent-coverage.ts && echo SAFE",
           "result": "pass",
           "note": "intent-coverage.ts present (over-reach guard).",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -722,9 +722,9 @@
           "command": "test -f packages/main/src/verifier/dev-cli.ts && echo SAFE",
           "result": "pass",
           "note": "dev-cli.ts present (over-reach guard).",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -733,9 +733,9 @@
           "command": "git diff --name-only HEAD~5 HEAD -- .lattice",
           "result": "pass",
           "note": "Only normal lifecycle metadata commits; .lattice/ contract untouched.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -744,9 +744,9 @@
           "command": "grep test:omx-disabled package.json",
           "result": "pass",
           "note": "Returns empty — script entry removed.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
@@ -755,9 +755,9 @@
           "command": "git grep -inE 'omx.*(disable|refuse|block|forbidden|policy)' -- .",
           "result": "pass",
           "note": "Returns empty — no remaining 'disable/refuse omx' policy language.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         },
         {
           "intentRef": "CHK-003:adversarial:5",
@@ -766,9 +766,9 @@
           "command": "grep -inE 'omx' scripts/verify-worktree-baseline-risk.mjs",
           "result": "pass",
           "note": "Returns empty — script cleaned.",
-          "headHash": "4f59213e6dde6ba1915223eed2a2f2d083922887",
-          "materialHash": "8b4c62ed0000bcc68958b844ad97da3dfc5aaa8ba9f1603c1ca6abecf8ed56f9",
-          "timestamp": "2026-06-16T21:19:18.375Z"
+          "headHash": "93c720d4f13e61d8e7cfcf93b22bc26bef5798fc",
+          "materialHash": "a496264522e88dceda6bc7a107ec017e33e9da549622fcbd6e196598f4dc73ac",
+          "timestamp": "2026-06-16T21:35:53.253Z"
         }
       ]
     }
