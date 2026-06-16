@@ -161,9 +161,9 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T01:01:34.364Z",
       "userSees": "User sees NAV entry \"Lattice Console Demo MVP Requirements Recommendation\" linking to decisions/lattice-console-demo-mvp-requirements.md.",
       "files": {
         "modify": [
@@ -194,7 +194,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n \"Lattice Console Demo MVP Requirements Recommendation|decisions/lattice-console-demo-mvp-requirements.md\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV.md contains the correct title and link for the new requirements recommendation.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:34.403Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -c \"^- \\[\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The command returned 51, matching the NAV header verified by rg -n \"^> 51 个文件\" docs/requirements/NAV.md.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:34.442Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/NAV.md",
+          "command": "git diff -- docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The command produced empty output after link and count verification, so there is no unrelated NAV churn.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:34.476Z"
+        }
+      ]
     }
   ]
 }
