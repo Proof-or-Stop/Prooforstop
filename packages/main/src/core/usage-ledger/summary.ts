@@ -20,20 +20,41 @@ import { existsSync, readFileSync } from 'node:fs';
 import type { TokenDimension, UsageLedgerRecord } from './record.js';
 
 /**
- * A derived per-record total. `null` means "unknown" — it is used when the
- * source is unavailable, or when a contributing dimension is null. Unknown is
- * NEVER coerced to 0.
+ * Fields shared by every derived per-record total, regardless of known/unknown.
  */
-export interface DerivedRecordTotal {
+interface DerivedRecordTotalBase {
   recordId: string;
   ledgerCallId: string;
   attemptId: string;
   source: UsageLedgerRecord['usage']['source'];
-  /** Sum of the four token fields, or null when any contributing dim is unknown. */
-  total: number | null;
-  /** True when the record carries no usable count (unavailable / all-null). */
-  unknown: boolean;
 }
+
+/**
+ * A derived per-record total, modeled as a discriminated union on `unknown` so
+ * that `total` narrows to a concrete shape after a `unknown` check:
+ *
+ *   - `unknown: true`  => `total: null` (the source is unavailable, or a
+ *     contributing dimension is null). Unknown is NEVER coerced to 0.
+ *   - `unknown: false` => `total: number` (all four dimensions are known and
+ *     summed).
+ *
+ * Because the union ties `unknown` to `total`, code that does
+ * `if (item.unknown) continue;` lets TypeScript narrow the survivor to the
+ * `unknown: false` member, so `item.total` is a `number` without any `?? 0`
+ * fallback (which could otherwise silently turn a null total into 0).
+ */
+export type DerivedRecordTotal =
+  | (DerivedRecordTotalBase & {
+      /** True when the record carries no usable count (unavailable / all-null). */
+      unknown: true;
+      /** Always null when unknown — never substitute 0. */
+      total: null;
+    })
+  | (DerivedRecordTotalBase & {
+      unknown: false;
+      /** Sum of the four token fields; only present when fully known. */
+      total: number;
+    });
 
 export interface UsageLedgerSummary {
   /** Count of lines parsed from the ledger. */
@@ -68,7 +89,7 @@ export interface UsageLedgerSummary {
  */
 export function deriveRecordTotal(record: UsageLedgerRecord): DerivedRecordTotal {
   const { usage } = record;
-  const base: Omit<DerivedRecordTotal, 'total' | 'unknown'> = {
+  const base: DerivedRecordTotalBase = {
     recordId: record.recordId,
     ledgerCallId: record.ledgerCallId,
     attemptId: record.attemptId,
@@ -161,12 +182,14 @@ export function summarizeRecords(records: UsageLedgerRecord[]): UsageLedgerSumma
       unknownCount += 1;
       continue;
     }
+    // `if (item.unknown) continue;` above narrowed `item` to the `unknown: false`
+    // member, so `item.total` is a `number` here — no `?? 0` fallback needed.
     if (item.source === 'provider-reported') {
-      providerReportedTotal += item.total ?? 0;
+      providerReportedTotal += item.total;
       providerReportedCount += 1;
     } else if (item.source === 'prompt-size-estimate') {
       // Estimates are kept OUT of provider-reported totals — separate subtotal.
-      estimateSubtotal += item.total ?? 0;
+      estimateSubtotal += item.total;
       estimateCount += 1;
     }
   }
