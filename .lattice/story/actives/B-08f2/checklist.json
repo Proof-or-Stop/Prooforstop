@@ -186,6 +186,17 @@
           "headHash": "b394443f9151b09f49a0db0c08b90b7bc0039b41",
           "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
           "timestamp": "2026-06-16T00:15:28.411Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
+          "result": "pass",
+          "note": "LEGACY_KOALA_* constants preserved (7 refs) — over-reach guard held.",
+          "headHash": "791fe0c7d51c4b005eb3c72647b3a2ac96aca24c",
+          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
+          "timestamp": "2026-06-16T00:15:29.239Z"
         }
       ]
     },
