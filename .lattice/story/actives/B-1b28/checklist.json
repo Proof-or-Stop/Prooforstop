@@ -538,9 +538,9 @@
       "id": "CHK-003",
       "title": "Default-on behavior + safety holds",
       "context": "With the env var UNSET: isUsageLedgerEnabled()=true; appendUsageRecord writes; the Claude seam uses --output-format json with the B-0f7c raw-text fallback on parse failure; ledger errors are caught and never break dispatch; budget is NOT auto-enabled (no LATTICE_HARD_BUDGET_TOKENS => no block). Tested: unset env => writer writes + the seam's enabled path is taken + a parse failure still yields raw text + a ledger error does not propagate.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T22:28:39.736Z",
       "files": {
         "modify": [],
         "create": [
