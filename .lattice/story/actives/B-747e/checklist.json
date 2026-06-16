@@ -152,6 +152,17 @@
           "headHash": "5af78f86bcb3495bf3d92110d229103fdca94758",
           "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
           "timestamp": "2026-06-16T02:54:31.618Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -nE 'type KoalaConfig|as KoalaConfig' -- packages",
+          "result": "pass",
+          "note": "No backward-compat KoalaConfig alias left (0 matches).",
+          "headHash": "2fb3c198352a2f7de5064c012b05d77638895b26",
+          "materialHash": "c687f944e7a6f67741729a8996fc739136cc18511bbf7b44787ec4eb831b3967",
+          "timestamp": "2026-06-16T02:54:32.880Z"
         }
       ]
     }
