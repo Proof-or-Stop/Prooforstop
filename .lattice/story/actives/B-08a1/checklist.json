@@ -6,7 +6,16 @@
       "context": "Add an adapter (e.g. core/usage-ledger/adapters/anthropic.ts) mapping an Anthropic Messages API usage object (input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens) into LedgerUsage: canonical {input,output,cacheCreation,cacheRead} from the four native fields, raw{providerUnits:'anthropic-usage-v1', payloadDigest}, source=provider-reported. input maps from input_tokens (already the uncached remainder). Unit-tested with a sample response incl. cache fields and a no-usage case -> unavailable.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/adapters/anthropic.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-adapter-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
