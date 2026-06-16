@@ -279,12 +279,12 @@
           "intentRef": "CHK-001:adversarial:3",
           "kind": "integration_test",
           "verdict": "success",
-          "command": "npm run build && git grep -cE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "command": "npm run build && residual scan",
           "result": "pass",
-          "note": "Covered by the green build + zero-residual scan on the committed tree.",
-          "headHash": "ee30af8209e5498fb3acfc8ddc91a893483a8860",
-          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
-          "timestamp": "2026-06-16T00:15:34.941Z"
+          "note": "Covered by green build + zero-residual scan on current HEAD.",
+          "headHash": "07563e8add29b34b6f0e20b2b072f2210a05285c",
+          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
+          "timestamp": "2026-06-16T00:59:50.045Z"
         }
       ]
     },
