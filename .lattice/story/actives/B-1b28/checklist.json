@@ -290,6 +290,70 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Existing usage-ledger-smoke.ts assertion updated: isUsageLedgerEnabled({}) now asserts === true (was false); WHY: the existing smoke must reflect the new default",
+            "type": "cli"
+          },
+          {
+            "desc": "writer.ts comment updated from \"Default OFF\" to \"Default ON\" with LATTICE_USAGE_LEDGER=0 escape-hatch note; WHY: in-code doc must be accurate",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-default-on-smoke.ts exists, follows *-smoke.ts pattern (check/label, non-zero exit on fail, temp dir, env restore); WHY: new smoke wired per convention",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-default-on-smoke.ts wired as npm script in packages/main/package.json; WHY: must be runnable via npm run",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run usage-ledger-default-on-smoke exits 0; WHY: the new smoke passes",
+            "type": "cli"
+          },
+          {
+            "desc": "FULL ledger suite passes: npm run usage-ledger-smoke + usage-ledger-adapter-smoke + usage-ledger-estimate-smoke + usage-ledger-diagnostics-smoke + usage-ledger-dispatch-smoke + usage-ledger-budget-smoke + usage-ledger-authority-smoke all exit 0 with the new default; WHY: no regression across the entire ledger module",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build (tsc) exits 0; WHY: no type errors introduced",
+            "type": "cli"
+          },
+          {
+            "desc": "node bin/lattice.js validate exits 0; WHY: lattice validation passes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "usage-ledger module zero cross-module import: grep core/usage-ledger/*.ts for imports outside core/usage-ledger/ and node: builtins => zero matches; WHY: the module isolation invariant still holds after changes",
+            "type": "cli"
+          },
+          {
+            "desc": "Env mutations in usage-ledger-default-on-smoke.ts are hermetic: process.env is saved before and restored after each test block (save/restore pattern or equivalent); WHY: smoke must not leak env state to subsequent tests or the host shell",
+            "type": "cli"
+          },
+          {
+            "desc": "usage-ledger-default-on-smoke.ts uses a temp directory (mkdtempSync under os.tmpdir()) and cleans up in finally block; WHY: no repo pollution from test artifacts",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the FULL ledger suite with LATTICE_USAGE_LEDGER explicitly unset (env var deleted) to confirm all 7+ smokes pass under the new default-on behavior without any env override; WHY: the suite must work with the real production default, not just with explicit env=1",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the FULL ledger suite with LATTICE_USAGE_LEDGER=0 to confirm all smokes still pass under the escape-hatch disabled mode; WHY: the suite must also be green when an operator disables the ledger",
+            "type": "cli"
+          },
+          {
+            "desc": "Confirm existing usage-ledger-smoke.ts CHK-006 flag test is updated but NOT removed — the assertion line still exists but now asserts true instead of false; WHY: the existing test coverage must be preserved, not deleted",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
