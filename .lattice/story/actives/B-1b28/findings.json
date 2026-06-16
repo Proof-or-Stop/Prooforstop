@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-1b28:F-001",
+      "desc": "quality-cleanup: writer.ts:12 and :115 still say 'opt-in gate' / 'opt-in flag' after the default-ON flip — the gate is now opt-out (default ON, =0 disables), so these two doc-comments are factually inverted and will mislead future maintainers. writer.ts:12 reads 'opt-in gate (CHK-006): a strict no-op when the flag is OFF' (should describe it as a default-ON / opt-out gate); writer.ts:115 AppendResult.written JSDoc reads 'false when the opt-in flag was OFF'. Neither was updated in the diff.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T22:31:30.121Z",
+      "reviewRound": "2026-06-16T22:29:31.413Z",
+      "reviewRunId": "B-1b28:RR-002",
+      "_hash": "f952252568eab5cec34d94489cc3dc6ea1dab290f23f0197848e93bb5fb24ed0",
+      "files": [
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ]
+    }
+  ]
+}
