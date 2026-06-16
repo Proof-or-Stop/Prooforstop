@@ -58,7 +58,42 @@
       "userSees": "lattice validate fails with: CJK detected in artifact(s): <file/commit> line N; Lattice artifacts must be English, so REVIEW to TEST is blocked. On English-only artifacts validate stays green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-preflight.ts"
+        ],
+        "create": [
+          "packages/main/src/core/cjk-detect.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With a CJK commit message or current-story metadata, the validate preflight english-artifacts gate fails non-zero and names the offending file/commit, blocking REVIEW to TEST",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On English-only commits and metadata the gate passes and validate stays green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A legacy Chinese file outside the current story (e.g. another story dir or CLAUDE.md) is NOT flagged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
