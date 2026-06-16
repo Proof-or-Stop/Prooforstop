@@ -80,8 +80,8 @@
       "title": "Add the grep-contract smoke test that fails on any bare-projectRoot git call",
       "context": "Create packages/main/src/tasks/gitroot-cwd-contract-smoke.ts that runs the canonical grep across `packages/**/*.ts` looking for `(execFileSync|spawnSync|execSync)\\(['\\\"']git['\\\"']` and inspects each hit. The smoke FAILS if any hit's cwd argument is a bare projectRoot/root/metadataRoot identifier or string literal not sourced from resolveGitCwd. An allowlist file (or inline whitelist) is supported for the resolveGitCwd helper itself and the 3 existing helper wrappers (lab.ts runGit / cli-engine.ts runGitNoThrow / declared-artifact-commit-check.ts runGit) — any other site fails the contract. Register `test:gitroot-cwd-contract` script in root package.json and packages/main/package.json. Add an entry to the main e2e suite or run it in CI so the contract gate runs on every PR. After: `npm run test:gitroot-cwd-contract` passes on current state (after CHK-001 reroutes); intentionally introducing a regression (add `execFileSync('git',['status'],{cwd:projectRoot})` in a test fixture file) makes the smoke FAIL with a clear error pointing at the bad site.",
       "userSees": "`npm run test:gitroot-cwd-contract` passes on HEAD; running it after a deliberate regression injection fails with a clear pointer to the offending file:line and a remediation message naming resolveGitCwd.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T22:17:34.745Z",
       "endTime": null,
       "files": {
         "modify": [
