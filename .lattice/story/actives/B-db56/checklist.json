@@ -5,7 +5,7 @@
       "title": "Audit all 193 git child-process call sites and reroute the unrouted ones through resolveGitCwd",
       "context": "Get the live list via `git grep -nE \"(execFileSync|spawnSync|execSync)\\(['\\\"']git['\\\"']\" -- 'packages/**/*.ts'`. For each site, determine the cwd source: ALREADY routed via resolveGitCwd / resolveStorySignedWorkspace / equivalent — keep as-is. Passing projectRoot/root/metadataRoot bare — REROUTE: call resolveGitCwd at the source (or accept a resolved cwd from caller) and pass it. Be careful NOT to break the 3 ad-hoc helpers (lab.ts runGit, cli-engine.ts runGitNoThrow, declared-artifact-commit-check.ts runGit) — keep them, but ensure their CALLERS use resolveGitCwd. The two existing smokes (gitroot-cwd-routing-smoke, bare-gate-gitroot-cwd-smoke) must continue to pass. After: `npm run build` exit 0; `npm run test:e2e` ALL PASS; `npm run test:gitroot-cwd-routing` exit 0; `npm run test:bare-gate-gitroot-cwd` exit 0; wrapper-root fixture tests pass.",
       "userSees": "Every git call site uses a cwd obtained from resolveGitCwd (or an existing helper that itself takes a resolved cwd); both existing wrapper-root smokes still pass; build + e2e green.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-16T22:17:34.149Z",
       "endTime": "2026-06-16T22:40:17.296Z",
       "files": {
