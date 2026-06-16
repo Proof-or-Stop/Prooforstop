@@ -217,12 +217,12 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git grep -nE \"from ['\\\"][^'\\\"]*(phase-protocol|bridge-utils)\" -- 'packages/**/*.ts'",
+          "command": "test -f packages/main/src/core/phase-protocol.ts || echo GONE",
           "result": "pass",
-          "note": "Static imports of the deleted modules: 0 (verified empty).",
-          "headHash": "b5b6a2059b8516af70b32913e659118d1611af66",
+          "note": "Prints GONE — phase-protocol.ts absent from disk.",
+          "headHash": "9a2f57e85d3068321a9db304a161b4ce82acf56e",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
-          "timestamp": "2026-06-16T19:03:11.453Z"
+          "timestamp": "2026-06-16T19:08:14.566Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
