@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-253e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review clean. (1) No leftover/dead scaffolding or duplicate concepts — only 4 new files in usage-ledger/ plus one smoke task; no TODOs or stubs. (2) totalTokens appears only in validator denylist logic and smoke rejection tests, never as a stored field in any type, interface, or computed property — four-field model (inputTokens/outputTokens/cacheCreationInputTokens/cacheReadInputTokens) used consistently throughout. (3) Scope honored: no provider-adapter, estimate-path, budget-enforcement, or Authority-receipt code added; only packages/main/src/core/usage-ledger/, tasks/usage-ledger-smoke.ts, runtime-artifact-registry.ts entry, and package.json test script. (4) The ?? 0 in summarizeRecords is safe: unknown===true items hit continue before reaching those lines, so null never becomes 0 in a total. No doc-promise-undelivered — plan.md describes exactly what the code delivers.",
+      "createdAt": "2026-06-16T01:37:07.321Z",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "reviewRunId": "B-253e:RR-005",
+      "_hash": "6593469c3632689f061498123ff6476e47e7be805849e4e12f7f3d627b31116f"
+    }
+  ]
+}
