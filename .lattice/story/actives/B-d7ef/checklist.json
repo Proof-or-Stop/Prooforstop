@@ -349,12 +349,12 @@
           "intentRef": "CHK-002:edge:5",
           "kind": "manual_transcript",
           "verdict": "success",
-          "command": "git grep -nE \"from ['\\\"][^'\\\"]*(phase-protocol|bridge-utils)\" -- 'packages/**/*.ts'",
+          "command": "git checkout HEAD -- packages/main/src/verifier/bridge-utils.ts",
           "result": "pass",
-          "note": "Static imports of the deleted modules: 0 (verified empty).",
-          "headHash": "5a9e65781878d00e48d4fd4f238fedd323248330",
+          "note": "Fails (non-zero, path not in HEAD) — bridge-utils cannot be restored from HEAD.",
+          "headHash": "520596e5ac67f1971db4fca9d14368516d1feaaf",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
-          "timestamp": "2026-06-16T19:03:18.336Z"
+          "timestamp": "2026-06-16T19:08:17.052Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
