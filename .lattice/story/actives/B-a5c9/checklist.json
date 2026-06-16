@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Estimator interface + confidence model",
       "context": "In core/usage-ledger/estimate.ts (new), define EstimatorKind ('count_tokens'|'local_tokenizer'|'bytes_chars') with a confidence mapping (count_tokens->'high', local_tokenizer->'medium', bytes_chars->'low'), and a TokenEstimator type: an (optionally async) function (model: string, input: string | promptParts) -> { estimatedInputTokens: number, kind: EstimatorKind }. Export the kind->confidence map. Unit-tested: each kind maps to the right confidence.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T14:03:45.912Z",
-      "endTime": null,
+      "endTime": "2026-06-16T14:15:55.628Z",
       "files": {
         "modify": [],
         "create": [
