@@ -38,7 +38,12 @@ import {
   mintRecordId,
   type CallCorrelation,
 } from './ids.js';
-import { SCHEMA_VERSION, type LedgerUsage, type UsageLedgerRecordInput } from './record.js';
+import {
+  SCHEMA_VERSION,
+  validateUsageLedgerRecord,
+  type LedgerUsage,
+  type UsageLedgerRecordInput,
+} from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
 
 /**
@@ -223,6 +228,13 @@ export interface DispatchUsageOptions {
 export interface DispatchPreflightHandle {
   correlation: CallCorrelation;
   estimateRecordId: string;
+  /**
+   * The preflight estimated input-token count (the bytes/chars floor). Exposed so
+   * the fail-closed budget guard (B-dd44) can compare it against a configured hard
+   * budget WITHOUT re-running the estimator. Backward-compatible: existing callers
+   * ignore it; the value is the same number assembled into the estimate record.
+   */
+  estimatedInputTokens: number;
 }
 
 /** Default model id for the preflight estimate when none is supplied. */
@@ -284,7 +296,11 @@ export function recordDispatchPreflight(
     );
 
     appendUsageRecord(root, record, { env: opts.env });
-    return { correlation, estimateRecordId: record.recordId };
+    return {
+      correlation,
+      estimateRecordId: record.recordId,
+      estimatedInputTokens: estimate.estimatedInputTokens,
+    };
   } catch {
     // Never propagate a ledger error to the dispatch caller.
     return null;
@@ -440,4 +456,199 @@ function buildUnavailableFinalRecord(
     },
     authority: { mode: 'local', receiptId: null, receiptVerified: false },
   };
+}
+
+// =============================================================================
+// B-dd44 CHK-001: PURE hard-budget policy resolution + over-budget predicate
+//
+// These are the ONLY budget POLICY primitives. They live here (zero
+// cross-module imports) so the dispatch seam stays a minimal gated guard. They
+// are PURE and NEVER throw: a budget-resolution / predicate error must never
+// wrongly block a dispatch — the local non-authority NEVER invents a budget.
+// =============================================================================
+
+/** Default reason code recorded on a hard-budget block. */
+export const HARD_BUDGET_REASON_CODE = 'hard_budget_exceeded';
+
+/** A resolved hard budget: the numeric ceiling + the policy id it is bound to. */
+export interface ResolvedHardBudget {
+  /** The configured ceiling (a finite, positive, safe integer). */
+  hardBudgetTokens: number;
+  /** Stable policy id derived from the ceiling, recorded on the blocked record. */
+  budgetPolicyId: string;
+}
+
+/**
+ * Parse a candidate env string into a usable hard-budget ceiling, or null.
+ *
+ * A usable ceiling is a finite, positive, SAFE integer. Everything else — unset,
+ * empty, non-numeric, float, zero, negative, NaN, Infinity, or above
+ * Number.MAX_SAFE_INTEGER — yields null, meaning "no enforcement". Surrounding
+ * whitespace is trimmed before parsing (an internal-space / unit-suffixed value
+ * is still rejected because Number() of it is NaN). NEVER throws.
+ */
+function parsePositiveIntegerBudget(raw: string | undefined): number | null {
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return null;
+  // Number() (not parseInt) so "3.14", "5px", "1e3" do not silently truncate to
+  // a misleading integer; only a clean numeric literal survives.
+  const value = Number(trimmed);
+  if (!Number.isFinite(value)) return null;
+  if (!Number.isInteger(value)) return null;
+  if (value <= 0) return null;
+  if (value > Number.MAX_SAFE_INTEGER) return null;
+  return value;
+}
+
+/**
+ * Resolve the configured hard budget from the environment, or null.
+ *
+ * Reads `LATTICE_HARD_BUDGET_TOKENS` first; when absent, falls back to the legacy
+ * `KOALA_HARD_BUDGET_TOKENS` (LATTICE_ always takes precedence). Returns:
+ *   - { hardBudgetTokens, budgetPolicyId } when a valid positive-integer ceiling
+ *     is configured;
+ *   - null when unset / empty / non-numeric / float / <=0 / NaN / Infinity /
+ *     unsafe — i.e. NO enforcement (the dispatch proceeds byte-identically).
+ *
+ * STATELESS: reads `env` each call, never caches — rapid sequential dispatches
+ * each re-resolve from the live env. PURE and NEVER throws.
+ */
+export function resolveHardBudget(env: NodeJS.ProcessEnv | undefined): ResolvedHardBudget | null {
+  const source = env ?? {};
+  // LATTICE_ takes precedence; KOALA_ is the legacy-compat fallback. The fallback
+  // is only consulted when LATTICE_ does not resolve to a usable ceiling.
+  const primary = parsePositiveIntegerBudget(source.LATTICE_HARD_BUDGET_TOKENS);
+  const hardBudgetTokens =
+    primary !== null ? primary : parsePositiveIntegerBudget(source.KOALA_HARD_BUDGET_TOKENS);
+  if (hardBudgetTokens === null) return null;
+  return {
+    hardBudgetTokens,
+    // Stable, self-describing policy id for the audit trail on a blocked record.
+    budgetPolicyId: `hard-budget:${hardBudgetTokens}`,
+  };
+}
+
+/**
+ * Strict over-budget predicate: the preflight estimate must EXCEED the ceiling
+ * (estimate > budget) to be over budget. The exact boundary (estimate == budget)
+ * is NOT over budget. PURE and NEVER throws: a non-finite or non-numeric estimate
+ * is treated as "not over budget" (fail-open — never invent a block).
+ */
+export function isOverHardBudget(estimatedInputTokens: number, hardBudgetTokens: number): boolean {
+  if (typeof estimatedInputTokens !== 'number' || !Number.isFinite(estimatedInputTokens)) {
+    return false;
+  }
+  if (typeof hardBudgetTokens !== 'number' || !Number.isFinite(hardBudgetTokens)) {
+    return false;
+  }
+  return estimatedInputTokens > hardBudgetTokens;
+}
+
+// =============================================================================
+// B-dd44 CHK-002: PURE blocked-budget record builder (validated, never throws)
+//
+// Mirrors buildUnavailableFinalRecord: a fully-formed, writer-validated record
+// body assembled directly here. The block decision is recorded BEFORE any
+// provider call, so the record carries the prompt-size estimate that triggered
+// it (NOT a provider-reported usage) and supersedes the preflight estimate so
+// the summary never double-counts.
+// =============================================================================
+
+/**
+ * Build a validated `decision.kind='blocked'` record for a hard-budget refusal.
+ *
+ * - `decision.kind='blocked'`, `decision.budgetPolicyId` = the resolved policy id,
+ *   `decision.reasonCode` defaults to `hard_budget_exceeded`;
+ * - `usage.source='prompt-size-estimate'`: the call was blocked BEFORE the
+ *   provider was reached, so the recorded usage is the preflight estimate that
+ *   triggered the block (input only; output/cache are null/unknown). It is NEVER
+ *   `provider-reported` — a blocked call produced no provider usage, so summary
+ *   buckets it as unknown, never inflating provider totals;
+ * - `supersedesRecordIds=[estimateRecordId]` so the blocked record supersedes the
+ *   preflight estimate (or `[]` when preflight returned no estimate id);
+ * - authority is local; privacy stores no raw content.
+ *
+ * Returns a record that PASSES validateUsageLedgerRecord. NEVER throws: any
+ * assembly/validation failure is swallowed and `null` is returned so the guard
+ * can decide how to proceed (fail-open) rather than crashing dispatch.
+ */
+export function buildBlockedBudgetRecord(
+  model: string | null,
+  estimateResult: { estimatedInputTokens: number; estimateRecordId: string | null },
+  correlation: CallCorrelation,
+  attribution: RecordAttribution,
+  context: RecordContext,
+  budgetPolicyId: string,
+  reasonCode: string = HARD_BUDGET_REASON_CODE,
+): UsageLedgerRecordInput | null {
+  try {
+    const boundModel = model && model.length > 0 ? model : DEFAULT_ESTIMATE_MODEL;
+    const estimatedInput = isFiniteNonNegativeInteger(estimateResult.estimatedInputTokens)
+      ? estimateResult.estimatedInputTokens
+      : null;
+
+    const usage: LedgerUsage = {
+      // The block happened at preflight: the recorded usage is the prompt-size
+      // estimate that triggered it (input only; the call never reached the
+      // provider, so output/cache stay null/unknown). This is NOT provider-reported.
+      source: 'prompt-size-estimate',
+      inputTokens: estimatedInput,
+      outputTokens: null,
+      cacheCreationInputTokens: null,
+      cacheReadInputTokens: null,
+      canonical: {
+        input: estimatedInput,
+        output: null,
+        cacheCreation: null,
+        cacheRead: null,
+      },
+      estimator: {
+        name: 'bytes-chars-heuristic',
+        version: '1',
+        unit: 'utf8-bytes',
+        confidence: 'low',
+      },
+    };
+
+    const supersedes = buildSupersedes(estimateResult.estimateRecordId);
+
+    const record: UsageLedgerRecordInput = {
+      schemaVersion: SCHEMA_VERSION,
+      recordId: mintRecordId(),
+      ledgerCallId: correlation.ledgerCallId,
+      attemptId: correlation.attemptId,
+      sequence: 2,
+      supersedesRecordIds: supersedes,
+      recordedAt: context.recordedAt,
+      projectRootHash: context.projectRootHash,
+      storyId: attribution.storyId,
+      phase: attribution.phase,
+      agentType: attribution.agentType,
+      subagentId: attribution.subagentId ?? null,
+      threadId: attribution.threadId ?? null,
+      decision: {
+        kind: 'blocked',
+        budgetPolicyId,
+        reasonCode: reasonCode && reasonCode.length > 0 ? reasonCode : HARD_BUDGET_REASON_CODE,
+      },
+      usage,
+      provider: { name: 'anthropic', model: boundModel },
+      ...(context.command !== undefined ? { command: context.command } : {}),
+      ...(context.host !== undefined ? { host: context.host } : {}),
+      privacy: {
+        promptStored: false,
+        transcriptStored: false,
+        redactionProfile: context.redactionProfile ?? 'no-raw-content-v1',
+      },
+      authority: { mode: 'local', receiptId: null, receiptVerified: false },
+    };
+
+    const result = validateUsageLedgerRecord(record, { expectIntegrity: false });
+    if (!result.ok) return null;
+    return record;
+  } catch {
+    // Never propagate an assembly error: the guard fails open on a null record.
+    return null;
+  }
 }
