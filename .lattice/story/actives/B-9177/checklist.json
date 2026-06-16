@@ -97,7 +97,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-coverage.js",
+          "result": "pass",
+          "note": "Guard PASS — all 7 main-mutating paths hold the lock: the 4 newly-wrapped (from-draft commit, from-draft commit+merge, story_discard reset+commit, dev_merge) plus B-7365 reconcile and DONE/done_recover",
+          "headHash": "d17284b037d53d6849d1eaaef5adaac31482937f",
+          "materialHash": "1aa7d885d9d0f674712142c532498d680f0df46bbe2e7c68ac0c4eac7cf3e5ed",
+          "timestamp": "2026-06-16T04:24:54.464Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
