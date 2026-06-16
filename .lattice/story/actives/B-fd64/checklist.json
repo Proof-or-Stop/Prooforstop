@@ -72,6 +72,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A local record with authority.receiptId=null, authority.receiptSubjectKind=null, authority.receiptSubjectId=null, authority.receiptVerified=false -> validateUsageLedgerRecord returns ok=true; WHY: proves the nullable receipt-ref fields are accepted on a default local record without breaking existing validation",
+            "type": "cli"
+          },
+          {
+            "desc": "A local record with authority.receiptId=some-id, authority.receiptSubjectKind=story, authority.receiptSubjectId=B-1234, authority.receiptVerified=false -> validateUsageLedgerRecord returns ok=true; WHY: proves a referenced receipt (all three fields non-null together) is valid as long as receiptVerified stays false — having a receiptId alone does NOT make it verified",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A record with authority.receiptId=some-id but authority.receiptSubjectKind=null (partial receipt ref: id present, subject fields missing) -> validator rejects with an error about receipt-ref fields needing to be all-or-nothing; WHY: partial receipt references are incoherent and must be caught",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with authority.receiptId=null but authority.receiptSubjectKind=story (partial receipt ref: subject present without id) -> validator rejects; WHY: subject fields without a receiptId are orphaned and must be caught",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with all receipt-ref fields present (receiptId + receiptSubjectKind + receiptSubjectId) but receiptVerified=false -> validates ok; WHY: boundary test that having receipt-ref fields is orthogonal to verification status — the presence of a receipt reference alone does NOT flip verified",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A record directly claiming authority.receiptVerified=true with authority.receiptId=some-id and receiptSubjectKind/Id set, but NOT going through verifyUsageReceipt gate -> validateUsageLedgerRecord rejects with error about receiptVerified; WHY: THE CORE ANTI-OVERCLAIM INVARIANT — a record cannot self-declare verified by manually setting the field; the validator enforces receiptVerified=false for local records",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with authority.receiptVerified=true and authority.receiptId=null (claiming verified with no receipt) -> validator rejects; WHY: verified without any receipt reference is logically impossible and must be caught",
+            "type": "cli"
+          },
+          {
+            "desc": "A record with authority.receiptVerified set to the string true (type confusion attack) -> validator rejects; WHY: strict boolean false check prevents string/truthy coercion from bypassing the gate",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
