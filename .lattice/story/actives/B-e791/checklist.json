@@ -39,7 +39,30 @@
       "userSees": "lattice story_advance INIT_CHECK on a wrapper-root project no longer prints a fatal: not a git repository line; the worktree is still created and nesting is still rejected when actually inside a worktree.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "wrapper-root INIT_CHECK: nesting check emits no fatal: not a git repository",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plain repo: nesting check behavior unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "actually inside a worktree-* branch: nesting is still rejected",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
