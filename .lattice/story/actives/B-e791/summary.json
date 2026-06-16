@@ -1,0 +1,55 @@
+{
+  "storyId": "B-e791",
+  "changes": "Made the session.ts INIT/INIT_CHECK next-step guidance gitRoot-aware (added a configuredGitRootResolved flag to the next-step ctx, reusing the existing configured-gitRoot resolution) so wrapper-root projects with a resolvable gitRoot are no longer told to git init the metadata root; and added stdio pipe to the worktree.ts dev_start nesting probe so its fatal stderr no longer leaks on wrapper-root. Guidance/cwd only; bootstrap behavior, gate semantics, nesting rejection, and plain-repo behavior unchanged.",
+  "usage": "On a wrapper-root project (metadataRoot not a git repo, configured gitRoot resolves), lattice next / session guidance points to INIT_CHECK instead of git init, and story_advance INIT_CHECK no longer prints fatal: not a git repository.",
+  "expectedOutcome": "wrapper-root next/INIT guidance no longer says git init the metadata root; INIT_CHECK prints no fatal line; plain no-gitRoot keeps the git-init guidance.",
+  "actualTranscript": "node dist/cli.js next on a wrapper-root fixture: Note: Metadata root is not a git repo; configured gitRoot supplies the signed workspace for git-backed operations (no git init). The smoke leak-control proves the pre-fix default execSync leaks the fatal while the fixed stdio-pipe form does not; a real worktree-* branch is still rejected. See evidence/transcript-diff.md; lattice validate GREEN (7/7 smoke).",
+  "outcomeDiff": "Match - the wrapper-root guidance is gitRoot-aware and the fatal no longer leaks; plain repos byte-identical.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scoped to session.ts guidance + worktree.ts nesting cwd. lattice doctor probes are B-1637 territory. The smoke is not yet in the default validate battery (backlog B-99b6 owns that wiring).",
+  "pitfalls": "This closes the external report fix #3; the report core defect was already fixed in main (reporter on a stale dist, proven by reproduction). The INIT_CHECK reconcile hit the merge-conflict-marker bug (B-7365) again under concurrent main churn during this story and was recovered manually.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 210645
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 97339
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 254113
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 785051
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 271615
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 213790
+    }
+  },
+  "totalDurationMs": 1832554,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T00:51:50.889Z",
+  "updatedAt": "2026-06-16T00:51:50.889Z"
+}
