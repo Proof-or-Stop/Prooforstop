@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: lifecycle-artifact-scope.md §Contract point 2 and execution-plan §Implementation Status both state that `lattice agent_prompt` serves content from `promptRegistryManifest()`, but the actual implementation calls `readPromptTemplate(entry)` (reads raw file bytes from templates/agents/*.md). `promptRegistryManifest()` returns only manifest metadata (schemaVersion/source/agentCount/materialHash), not template content. The behavioral outcome (same-source read) is correct, but the API reference is wrong and could mislead a developer to call the wrong function.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-16T18:55:42.927Z",
@@ -17,7 +17,9 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "packages/main/src/handlers/agent-prompt.ts",
         "packages/main/src/core/prompt-registry.ts"
-      ]
+      ],
+      "resolvedReason": "修正 lifecycle-artifact-scope.md 契约点2 + runtime-owned plan Implementation Status + CLAUDE.md:agent_prompt 实为 readPromptTemplate 读 templates/agents/<role>.md 原文,promptRegistryManifest() 仅是该模板集的指纹清单(元数据非正文);内容单一源仍是 templates/agents,与 Codex 同源。commit 8e... docs fix",
+      "resolvedAt": "2026-06-16T19:03:56.650Z"
     },
     {
       "id": "B-097f:F-002",
