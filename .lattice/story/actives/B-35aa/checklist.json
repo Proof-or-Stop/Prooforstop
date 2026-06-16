@@ -166,6 +166,17 @@
           "headHash": "3db41fe163173957a91b31d799381a53ebfa79dd",
           "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
           "timestamp": "2026-06-16T23:51:59.580Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c '^## ' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "6 H2 sections (>= 4 required).",
+          "headHash": "1fbe7dd26013b88841aae3280abc90ae266513ae",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:00.216Z"
         }
       ]
     }
