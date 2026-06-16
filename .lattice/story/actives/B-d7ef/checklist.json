@@ -322,6 +322,17 @@
           "headHash": "4142cdc192617cdcdfb7c9df2242dd1a595e88c7",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
           "timestamp": "2026-06-16T19:03:15.973Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git log --diff-filter=D --name-only HEAD~1.. -- packages/main/src/core/phase-protocol.ts packages/main/src/verifier/bridge-utils.ts",
+          "result": "pass",
+          "note": "Both modules appear in deletion commit history.",
+          "headHash": "395e7a5c876fcae4743674dc370c3e80c5b4fd57",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:16.457Z"
         }
       ]
     }
