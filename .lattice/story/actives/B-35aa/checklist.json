@@ -177,6 +177,17 @@
           "headHash": "1fbe7dd26013b88841aae3280abc90ae266513ae",
           "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
           "timestamp": "2026-06-16T23:52:00.216Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:6",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -n 'Path A — Vitest' docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "result": "pass",
+          "note": "Path A (Vitest migration) named in section header.",
+          "headHash": "26bb0e5c485a61bc089f4ebbecaa17cb7fb7b361",
+          "materialHash": "100b198460314663e3419442860e89fc1a63a4fabfe175f35899b31af9036bbc",
+          "timestamp": "2026-06-16T23:52:01.004Z"
         }
       ]
     }
