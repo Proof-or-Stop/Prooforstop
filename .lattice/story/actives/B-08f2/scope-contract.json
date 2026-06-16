@@ -164,8 +164,26 @@
         "packages/main/tests/fixtures/session-brief-command-center.json",
         "packages/main/tests/fixtures/session-ownership-guard.json"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Active-doc references to env vars renamed by this story (README teaches KOALA_AUTHORITY_MODE/URL/ACTOR_KEY/RUNNER_ID and KOALA_ACTIVITY_* ; CLAUDE.md references KOALA_SESSION_BRIEF_FRESH_MINUTES/KOALA_SHELL/__KOALA_WS_URL). These are in-scope-by-consequence of the env-var rename — the docs must teach the LATTICE_* names the code now reads, else they are broken. Only the renamed env-var NAME references are updated; broader koala prose in these docs stays for the active-docs sweep (story 4).",
+      "timestamp": "2026-06-16T00:43:09.683Z",
+      "paths": [
+        "CLAUDE.md",
+        "README.md"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Active-doc references to env vars renamed by this story (docs/guide.md teaches KOALA_AUTHORITY_MODE/URL/ACTOR_KEY/RUNNER_ID; the audit doc references KOALA_SESSION_ID). In-scope-by-consequence: the docs must teach the LATTICE_* names the code now reads. Only renamed env-var NAME references are updated; broader koala prose and decisions/*.md stay for the active-docs sweep (story 4).",
+      "timestamp": "2026-06-16T00:46:07.383Z",
+      "paths": [
+        "docs/guide.md",
+        "docs/audits/lattice-token-cost-and-takeover-audit.md"
+      ]
     }
   ],
   "createdAt": "2026-06-16T00:15:57.547Z",
-  "updatedAt": "2026-06-16T00:16:38.033Z"
+  "updatedAt": "2026-06-16T00:46:07.383Z"
 }
