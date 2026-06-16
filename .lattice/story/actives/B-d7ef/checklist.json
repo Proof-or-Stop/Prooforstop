@@ -23,7 +23,15 @@
       "userSees": "The 2 modules are gone; intent-coverage.ts still present; `npm run build` and `npm run test:e2e` pass; no live code or fixture references them.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/phase-protocol.ts",
+          "packages/main/src/verifier/bridge-utils.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
