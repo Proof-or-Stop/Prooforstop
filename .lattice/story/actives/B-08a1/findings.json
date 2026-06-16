@@ -23,7 +23,7 @@
       "desc": "dead-code-duplication: `canonicalJson` and `sortValue` are copied verbatim in adapters/shared.ts (lines 31-46) and writer.ts (lines 72-89). The shared.ts comment says \"Mirrors the writer's canonicalization\" acknowledging the copy. These implementations can diverge silently — if the canonicalization algorithm is ever changed in writer.ts, shared.ts payloadDigest hashes could become inconsistent. Extracting both to a shared internal utility (e.g. packages/main/src/core/usage-ledger/canonical-json.ts) would remove the duplication without violating the pure/I/O boundary.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-16T02:46:03.433Z",
@@ -33,7 +33,9 @@
       "files": [
         "packages/main/src/core/usage-ledger/adapters/shared.ts",
         "packages/main/src/core/usage-ledger/writer.ts"
-      ]
+      ],
+      "resolvedReason": "fixed",
+      "resolvedAt": "2026-06-16T02:53:45.512Z"
     }
   ]
 }
