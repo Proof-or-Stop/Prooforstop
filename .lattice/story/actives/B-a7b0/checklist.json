@@ -39,7 +39,30 @@
       "userSees": "A CLAUDE.md that forbids or denies a framework-generated managed asset (e.g. a host hook) fails the gate with a message naming the asset and the registry entry that contradicts it; a doc with no such contradiction passes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A CLAUDE.md fixture that says do-not-create / must-not-exist for a path the managed-asset registry generates (a generated kind) makes the gate return status fail with a managed-asset-contradiction entry naming the asset and the registry definition that contradicts it",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A fixture that forbids a path the registry classifies as NON-generated (excluded-path / remove-extra) does NOT trigger a contradiction; a fixture with no do-not-create claims passes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A do-not-create claim for a generated asset that is present in the allowlist seam is NOT flagged (lets the real CLAUDE.md pending Codex-hooks claim pass until B-94ae); the check reads the registry rather than a hardcoded path list, proven by a fixture registry-provider injection",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
