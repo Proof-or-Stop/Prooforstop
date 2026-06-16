@@ -105,7 +105,39 @@
       "userSees": "lattice validate runs the new CJK detector tests green; a deliberate CJK fixture flips the gate to fail, confirming the block is real and not silent.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cjk-detect unit cases: a Chinese string is detected; pure ASCII/English is not",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Scope test: a fixture path outside the current story is not flagged by the gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Keep-in-sync test: the self-contained hook CJK range matches the core detector range",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
