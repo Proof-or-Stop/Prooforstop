@@ -80,6 +80,17 @@
           "headHash": "9c2b6339be10439f488e7492ef8ac205764b1ad2",
           "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
           "timestamp": "2026-06-16T19:03:09.278Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git log --diff-filter=D --name-only -- orphans",
+          "result": "pass",
+          "note": "orphans appears in deletion commit history.",
+          "headHash": "ff16ae157f8a2b804ea511f1c8d028a97778ec88",
+          "materialHash": "7b6309f092c9cfed44c7df38bb0acf599882c0d68e91ce24033e45c01089551d",
+          "timestamp": "2026-06-16T19:03:09.788Z"
         }
       ]
     },
