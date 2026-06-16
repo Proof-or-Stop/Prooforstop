@@ -238,7 +238,7 @@ try {
     // (1) FIXED form: stdio:'pipe' for stderr → child's own stderr stays clean.
     const fixedScript =
       "try{require('child_process').execSync('git rev-parse --abbrev-ref HEAD',{stdio:['pipe','pipe','pipe']})}catch(e){}";
-    const fixedRun = execSync(`node -e "${fixedScript}"`, {
+    void execSync(`node -e "${fixedScript}"`, {
       cwd: wrapper2,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
