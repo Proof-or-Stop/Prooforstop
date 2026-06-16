@@ -609,8 +609,8 @@ template/adapter rewrites outside its declared scope.
 ## Implementation Status
 
 - **Codex side — landed (B-4ee0).** Global-thin default; Codex resolves prompts
-  from the package registry via the `.Codex/lattice.json` manifest
-  (`promptMode: 'registry'`). No `.Codex/agents` materialization in global-thin/thin
+  from the package registry via the `.lattice-codex/lattice.json` manifest
+  (`promptMode: 'registry'`). No `.lattice-codex/agents` materialization in global-thin/thin
   mode.
 - **Claude side — landed (B-097f), host-neutral.** Claude Code cannot resolve a
   subagent from a single manifest (it discovers subagents only from on-disk

@@ -186,11 +186,11 @@ dictated by that host's loader, but the content source is identical across hosts
 
 | Host | Thin adapter (what lives in the project/global) | Prompt content source |
 | --- | --- | --- |
-| Codex | `.Codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package prompt registry |
+| Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package prompt registry |
 | Claude | `.claude/agents/*.md` **thin shim** (frontmatter `name`/`description`/`tools` + a "fetch from CLI" body) | package prompt registry, served by `lattice agent_prompt` |
 
 B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
-not materialize `.Codex/agents`; it resolves prompts from the registry via its
+not materialize `.lattice-codex/agents`; it resolves prompts from the registry via its
 manifest. This policy does the host-neutral equivalent for **Claude**, which —
 unlike Codex — cannot resolve a subagent from a single manifest: Claude Code only
 discovers subagents from on-disk `.claude/agents/*.md` files and reads each file's

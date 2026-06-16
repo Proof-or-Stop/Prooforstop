@@ -194,7 +194,7 @@ function parseTargetDir(args: string[]): string | null {
 }
 
 function detectInitProfile(root: string): { profile: InitProfile; reason: string; compatibilityNote?: string } {
-  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.Codex'));
+  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.lattice-codex'));
   const hasClaudeMarkers = existsSync(join(root, 'CLAUDE.md')) || existsSync(join(root, '.claude'));
   if (hasCodexMarkers && hasClaudeMarkers) {
     return {
@@ -513,7 +513,7 @@ function cleanupCodexAssets() {
   removePathIfExists('.lattice-codex/agents', '.lattice-codex/agents');
   removePathIfExists('.lattice-codex/README.md', '.lattice-codex/README.md');
   removeCodexManifestIfManaged();
-  cleanupEmptyDirChain('.Codex');
+  cleanupEmptyDirChain('.lattice-codex');
   removeCodexWrapperIfManaged();
   removeCodexNativeHooksIfManaged();
 }
@@ -933,12 +933,12 @@ if (wantsClaude && agentTemplateDir) {
 }
 
 if (!isGlobalThin && wantsCodex) {
-  const codexReadmePath = join(targetDir, '.Codex', 'README.md');
+  const codexReadmePath = join(targetDir, '.lattice-codex', 'README.md');
   if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
   console.log('  ✓ .lattice-codex/README.md');
 
-  const codexManifestPath = join(targetDir, '.Codex', 'lattice.json');
+  const codexManifestPath = join(targetDir, '.lattice-codex', 'lattice.json');
   writeFileSync(codexManifestPath, renderLatticeCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
   console.log('  ✓ .lattice-codex/lattice.json');
 } else if (isGlobalThin) {
@@ -952,7 +952,7 @@ if (!isGlobalThin && wantsCodex) {
 if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   console.log('  - .lattice-codex/agents (thin asset mode; prompts resolve from registry)');
 } else if (!isGlobalThin && wantsCodex && agentTemplateDir) {
-  const codexAgentDir = join(targetDir, '.Codex', 'agents');
+  const codexAgentDir = join(targetDir, '.lattice-codex', 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
   const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
   const agentPromptFileSet = new Set(agentPromptFiles);
