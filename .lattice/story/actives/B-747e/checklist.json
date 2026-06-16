@@ -18,6 +18,62 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -w KoalaConfig -- packages returns zero matches -> rename is complete across all 5 files; WHY: proves the old identifier is fully eradicated from the packages tree",
+            "type": "cli"
+          },
+          {
+            "desc": "git grep -w LatticeConfig -- packages/main/src/core/config.ts shows the renamed interface definition, DEFAULT_CONFIG annotation, cache type, loadConfig return type -> new name is in place; WHY: confirms the canonical definition file carries the new identifier in all positions",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run build (tsc) exits 0 -> type resolution intact after rename; WHY: proves all import/type-reference sites compile cleanly with the new name",
+            "type": "cli"
+          },
+          {
+            "desc": "npm run test:e2e exits 0 -> runtime behavior unchanged; WHY: the rename is type-only so all integration paths must still pass",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep -lw LatticeConfig across all 4 consumer files returns all 4 filenames -> rename propagated to every consumer, not just the definition; WHY: catches partial rename where definition was changed but some consumers were missed",
+            "type": "cli"
+          },
+          {
+            "desc": "git grep -Pw KoalaConfig -- packages (Perl regex mode) returns nothing -> catches sneaky partial-match survivors that basic word-boundary grep might miss; WHY: belt-and-suspenders with a different grep engine mode",
+            "type": "cli"
+          },
+          {
+            "desc": "Count of LatticeConfig occurrences across the 5 files roughly matches the ~20 KoalaConfig occurrences that existed before -> no occurrences were accidentally deleted instead of renamed; WHY: ensures rename was 1:1 replacement, not deletion",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No backward-compat alias: grep for 'type KoalaConfig =' or 'export.*KoalaConfig' or 'as KoalaConfig' returns nothing -> the old name is truly dead, not kept alive via a re-export alias; WHY: the story explicitly forbids keeping an alias and this catches a common refactoring shortcut",
+            "type": "cli"
+          },
+          {
+            "desc": "Over-reach guard on fixture files: koala.config.json filenames in test fixtures are NOT renamed -> story scope is type identifiers only, not config file names; WHY: catches accidental find-and-replace overshoot into fixture data",
+            "type": "cli"
+          },
+          {
+            "desc": "Over-reach guard on lab package: packages/lab/src/core/sandbox.ts still has camelCase koalaConfig local variable unchanged -> the lab package type reader is out of scope; WHY: catches accidental global rename bleeding into the lab package",
+            "type": "cli"
+          },
+          {
+            "desc": "Over-reach guard on code comments: git diff of the 5 files shows only KoalaConfig->LatticeConfig identifier changes, no comment or prose changes; WHY: ensures the rename was surgical and did not rewrite comments containing koala in other contexts",
+            "type": "cli"
+          },
+          {
+            "desc": "Over-reach guard on branding smoke test: packages/main/src/tasks/cli-engine-branding-smoke.ts is NOT modified by this story -> its KoalaConfig regex whitelist is dead code but harmless, cleanup deferred to a later story; WHY: the branding smoke file is out of scope",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
