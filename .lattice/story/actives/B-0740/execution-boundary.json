@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0740",
+  "allowedCommands": [
+    "git",
+    "lattice",
+    "lattice validate",
+    "node packages/main/dist",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/validate-lint.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Combination-review fix: thread resolved gitRoot into doctor --repair and lint change-scope; do not touch B-e791 (INIT git-readiness/dev_start) scope.",
+  "createdAt": "2026-06-16T00:49:19.539Z",
+  "updatedAt": "2026-06-16T00:49:19.539Z",
+  "_hash": "a4cdd01936aae8c25d260036465908b6840adb82128c48d96ac2bd4f7e00e63f"
+}
