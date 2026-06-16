@@ -44,7 +44,9 @@ The prototype also exposes real productization gaps:
 
 The MVP should fix these correctness issues first. It should not optimize layout, animation, chart density, or background style until the state model is honest.
 
-## 3. Product Principles
+## 3. Lattice Core Design Philosophy
+
+The console should expose Lattice's core product philosophy: host-neutral workflow, CLI-owned truth, evidence-backed gates, recovery before analytics, and explicit authority boundaries. The demo can be visually polished only when those semantics remain visible and consistent.
 
 1. **Host-neutral workflow first**
    Lattice workflow commands and state are not Codex-specific, Claude-specific, or Mac-app-specific. The console must describe Lattice state, not a single host runtime transcript.
@@ -60,6 +62,12 @@ The MVP should fix these correctness issues first. It should not optimize layout
 
 5. **Read-only by default**
    The MVP console can display copyable commands. It must not mutate story metadata, submit verdicts, advance phases, or claim authority.
+
+6. **Calm visual discipline**
+   The console should feel precise, spacious, and operational. Aesthetic quality is a correctness requirement for this surface because the product is a monitoring and recovery console: uneven spacing, noisy density, or asymmetric panels make state harder to trust.
+
+7. **Every clickable surface must resolve**
+   Any element that appears clickable in the demo must open a meaningful detail drawer, route, or disabled-state explanation. A click target that does nothing is a product logic bug, not a harmless prototype gap.
 
 ## 4. MVP Goals
 
@@ -243,7 +251,65 @@ This page should show:
 
 The top-level UI should always show an authority boundary marker, not bury it on this page only.
 
-## 8. Core User Flows
+## 8. Visual and Interaction Requirements
+
+The prototype should keep its dark operational style, but the implementation must satisfy a stricter visual system before it can be considered product-ready.
+
+### 8.1 Aesthetic Rules
+
+- Use a consistent spacing scale across cards, rows, drawers, and navigation. Adjacent panels should align on the same grid.
+- Preserve left/right symmetry in page gutters, card padding, drawer padding, and metric grids.
+- Keep the interface minimal: no decorative element should compete with story state, gate status, recovery action, or authority boundary.
+- Keep card radii and borders consistent. Avoid mixing unrelated panel treatments.
+- Use color only for semantic state: pass, fail, warning, pending, host degradation, authority tier, or selection.
+- Keep typography hierarchy restrained: page title, panel title, row label, metadata, command text. Do not introduce extra display styles for emphasis.
+- Make dense information scannable with alignment and grouping rather than extra prose.
+- Avoid one-off visual treatments for single panels unless the state semantics require it.
+
+### 8.2 Layout Requirements
+
+- Overview metric cards must share equal height and baseline alignment.
+- Lifecycle phase chips must remain evenly spaced and visually centered at desktop widths.
+- Story rows must keep stable columns for phase, id/meta, title, and checklist state.
+- DONE pre-check gates must align icon, label, and status value consistently.
+- Host rows must align host name, status, and capability details.
+- Drawer content must preserve the same key/value alignment on every opened detail.
+- At mobile or narrow widths, the layout may stack, but text must not overlap or clip.
+
+### 8.3 Click Target Requirements
+
+Every clickable element in the demo must be backed by a product-logical action:
+
+| Clickable area | Required behavior |
+|---|---|
+| Top project pill | Open project snapshot: root, gitRoot, config path, active story count, current authority mode |
+| Top refresh pill | Open refresh diagnostics: last refresh time, command duration, failed command list |
+| DONE percentage pill | Open story completion breakdown by phase and outcome |
+| Left navigation item | Switch page and preserve selected state |
+| Metric card | Open source command, field path, calculation, and recovery meaning if warning/fail |
+| Lifecycle phase chip/bar segment | Open stories filtered to that phase |
+| Active story row | Open story detail with authoritative cwd, mirror phase, checklist, next action |
+| Checklist progress | Open checklist detail and verification intent coverage |
+| DONE pre-check gate | Open gate reason, evidence source, and recovery command |
+| Bug/finding row | Open bug or finding detail including evidenceState and gate impact |
+| Terminal worktree warning | Open story_reconcile dry-run explanation and safe cleanup command |
+| Host runtime row | Open host_runtime_probe detail and authority-impact degradations |
+| Convergence/gap row | Open exact convergence check failure and whether it blocks story DONE or whole-project convergence |
+| Authority status row | Open authority field explanation and what would change it |
+| Drawer close / scrim / Escape | Close drawer consistently |
+
+If an element cannot yet resolve to real data, it must show a disabled or "not implemented in MVP" explanation. It must not silently fail.
+
+### 8.4 Product Logic Requirements for Clicks
+
+- A click must never imply a mutation unless the UI explicitly labels it as a copyable command or future confirmed action.
+- A failed gate click must explain why Lattice would block the phase transition.
+- A warning click must distinguish advisory state from blocking state.
+- A host click must distinguish runtime availability from Authority readiness.
+- A convergence click must distinguish whole-project convergence from the selected story's DONE eligibility.
+- A command shown in a drawer must use host-neutral Lattice command names unless the command is explicitly adapter-specific.
+
+## 9. Core User Flows
 
 ### Flow A: Start of Session
 
@@ -294,7 +360,7 @@ Acceptance:
 - User can distinguish story DONE from whole-project convergence.
 - High gaps are not exaggerated into unrelated story blockers.
 
-## 9. MVP Phasing
+## 10. MVP Phasing
 
 ### Slice 1: Live Read-only Data Adapter
 
@@ -353,7 +419,7 @@ Exit criteria:
 
 - `convergence_check` failures are explainable without reading raw CLI output.
 
-## 10. Acceptance Criteria
+## 11. Acceptance Criteria
 
 The first implementation story should be accepted only when:
 
@@ -367,8 +433,11 @@ The first implementation story should be accepted only when:
 8. The console marks local workflow evidence separately from Authority receipt evidence.
 9. The console marks `productionDone=false` unless a verified receipt is present.
 10. The console can explain non-convergence without treating every project-level gap as a current-story blocker.
+11. The console satisfies the visual rules for spacing, symmetry, restrained hierarchy, and semantic color use.
+12. Every visible clickable target opens a meaningful detail, route, disabled-state explanation, or close action.
+13. Click behavior preserves Lattice product logic: read-only by default, host-neutral commands, and no local evidence upgraded into production authority.
 
-## 11. Verification Plan
+## 12. Verification Plan
 
 Minimum verification for the implementation story:
 
@@ -380,10 +449,12 @@ Minimum verification for the implementation story:
   - one convergence failure;
   - one host runtime degradation;
   - one authority local-evidence-only state.
+- Browser interaction test every clickable prototype selector and assert that it opens the expected drawer/page or a documented disabled-state explanation.
+- Visual QA at desktop and narrow widths for spacing, symmetry, row alignment, drawer alignment, and non-overlapping text.
 - Snapshot test that no `.lattice/story/**` direct reads are used.
 - Manual transcript proving that the console's next action matches `session_brief`.
 
-## 12. Risks and Mitigations
+## 13. Risks and Mitigations
 
 | Risk | Mitigation |
 |---|---|
@@ -393,16 +464,19 @@ Minimum verification for the implementation story:
 | Metrics drift from CLI | Store source command and field path for every metric |
 | Console grows into arbitrary analytics | Limit MVP to recovery, authority clarity, and current workflow correctness |
 | Host-specific wording leaks into workflow commands | Keep `story_*`, `session_brief`, `validate`, and recovery commands host-neutral |
+| Visual polish gets treated as optional | Make spacing, symmetry, and click resolution part of acceptance, not a later styling pass |
+| Prototype click affordances drift from product logic | Maintain a click-target inventory and test every interactive selector |
 
-## 13. Open Questions
+## 14. Open Questions
 
 1. Should the MVP live as a generated static HTML snapshot, a local dev server, or a CLI-served dashboard page?
 2. Should the first implementation target the existing `lattice dashboard` terminal command, or a separate browser console command?
 3. Which command should become the canonical machine-readable resolver for active stories: `session_brief --json`, `story_authority_resolve --json`, or a new purpose-built command?
 4. Should recovery commands be copy-only in MVP, or should a later version allow explicit confirmed execution?
 5. Should the external prototype be imported into the repository after MVP scope is accepted, or remain a reference artifact outside the repo?
+6. Should visual QA be enforced with Playwright screenshots only, or should there also be layout assertions for clickable target bounds and text overflow?
 
-## 14. Recommended Next Story
+## 15. Recommended Next Story
 
 Recommended implementation story:
 
@@ -414,6 +488,7 @@ Initial checklist:
 2. Build a read-only adapter that executes supported Lattice JSON commands.
 3. Replace prototype hard-coded metrics with adapter snapshots.
 4. Render DONE pre-check gates with recovery commands.
-5. Add tests proving no direct `.lattice/story/**` reads and no mutating commands.
+5. Add a click-target inventory and browser test proving every clickable demo element opens a valid detail/page/disabled explanation.
+6. Add tests proving no direct `.lattice/story/**` reads and no mutating commands.
 
 This sequence follows the Lattice host-neutral direction and avoids optimization for its own sake: it fixes live-state correctness, recovery clarity, and authority-boundary clarity first.
