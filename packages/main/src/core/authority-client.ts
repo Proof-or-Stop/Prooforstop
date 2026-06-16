@@ -97,7 +97,7 @@ import { z } from 'zod';
 
 /**
  * HTTP client that POSTs verification evidence envelopes to the cross-repo Python
- * authority server (LATTICE_AUTHORITY_URL; legacy KOALA_AUTHORITY_URL remains accepted).
+ * authority server (LATTICE_AUTHORITY_URL).
  * The defining responsibility for B-94a6 is
  * to mechanically distinguish every transport / server outcome, so that shadow mode
  * (CHK-003) can degrade ANY failure to a warning while enforce mode (CHK-004) can
@@ -1049,9 +1049,7 @@ export interface AuthorityGateEvaluatorResolution {
 
 function authorityEnvValue(env: Record<string, string | undefined>, name: string): string | undefined {
   const lattice = env[`LATTICE_AUTHORITY_${name}`];
-  if (typeof lattice === 'string' && lattice.trim() !== '') return lattice.trim();
-  const legacy = env[`KOALA_AUTHORITY_${name}`];
-  return typeof legacy === 'string' && legacy.trim() !== '' ? legacy.trim() : undefined;
+  return typeof lattice === 'string' && lattice.trim() !== '' ? lattice.trim() : undefined;
 }
 
 function numericAuthorityEnv(env: Record<string, string | undefined>, name: string, fallback: number): number {

@@ -843,13 +843,13 @@ function projectLocalBinCandidates(projectRoot: string): string[] {
 }
 
 function isPackagedRuntime(): boolean {
-  return process.env.KOALA_DESKTOP_PACKAGED_RUNTIME === '1'
+  return process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME === '1'
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
 function compatibilityLauncherSignal(activePath: string | null): boolean {
-  if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return true;
-  if (process.env.KOALA_CODEX_ENTRYPOINT === 'global-fallback' || process.env.KOALA_CODEX_ENTRYPOINT === 'local-wrapper') return true;
+  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return true;
+  if (process.env.LATTICE_CODEX_ENTRYPOINT === 'global-fallback' || process.env.LATTICE_CODEX_ENTRYPOINT === 'local-wrapper') return true;
   const name = activePath ? basename(activePath) : '';
   return name === 'lattice.js' || name === 'lattice-codex.js';
 }

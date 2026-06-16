@@ -55,25 +55,6 @@ export const LATTICE_MD_TEMPLATE = `# LATTICE.md
 <!-- lattice:end -->
 `;
 
-export const KOALA_MD_TEMPLATE = `# KOALA.md
-
-<!-- lattice:start -->
-## Legacy Lattice Guide
-
-\`KOALA.md\` is a legacy guide retained for old project context. Active runtime commands use Lattice.
-
-- At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
-- Before acting, run \`lattice aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
-- Prefer the \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
-- The default local entrypoint is \`node bin/lattice.js\`; if the profile generated a Codex adapter, also use \`node bin/lattice-codex.js\`.
-- Codex-specific notes live in \`AGENTS.md\` and \`.Codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
-- After changing Lattice adapter assets, run the corresponding verification: project validation uses \`lattice validate\`, and the Codex adapter additionally uses \`node bin/lattice-codex.js verify_codex\`.
-- \`lattice check\` checks Lattice managed assets against the hardcoded registry. \`lattice check --apply\` / \`lattice check --upgrade\` sync only MISSING/STALE_SAFE items and do not overwrite CASE_MISMATCH, local edits, or incompatible files.
-
-<!-- lattice:end -->
-`;
-
 export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 <!-- lattice:start -->
@@ -176,14 +157,14 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     },
     {
       name: 'global-fallback',
-      command: 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice',
+      command: 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice',
       useWhen: 'Only the global lattice CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
     },
   ],
   sessionEnv: {
-    source: 'KOALA_ACTIVITY_SOURCE',
-    session: 'KOALA_ACTIVITY_SESSION',
-    recordReadOnly: 'KOALA_ACTIVITY_RECORD_READONLY',
+    source: 'LATTICE_ACTIVITY_SOURCE',
+    session: 'LATTICE_ACTIVITY_SESSION',
+    recordReadOnly: 'LATTICE_ACTIVITY_RECORD_READONLY',
     sessionCandidates: [
       'CODEX_SESSION_ID',
       'OPENAI_SESSION_ID',
@@ -246,14 +227,14 @@ node bin/lattice-codex.js aux_doc_list --format=json
 只有当前项目没有本地 wrapper 时，才使用全局 fallback：
 
 \`\`\`bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
+LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief
 \`\`\`
 
 fallback 说明：
 
-- \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用标记为 \`source=codex\`
-- \`KOALA_ACTIVITY_RECORD_READONLY=1\` 会让 \`session_brief\` 这样的只读入口也记录 heartbeat
-- \`KOALA_CODEX_ENTRYPOINT=global-fallback\` 会防止本地 wrapper 子进程把 global fallback 误记成 \`local-wrapper\`
+- \`LATTICE_ACTIVITY_SOURCE=codex\` 会把本次调用标记为 \`source=codex\`
+- \`LATTICE_ACTIVITY_RECORD_READONLY=1\` 会让 \`session_brief\` 这样的只读入口也记录 heartbeat
+- \`LATTICE_CODEX_ENTRYPOINT=global-fallback\` 会防止本地 wrapper 子进程把 global fallback 误记成 \`local-wrapper\`
 - 全局 \`lattice\` 可能是 core-only，\`aux_*\` 命令不一定可用
 - 全局 \`lattice\` 也可能滞后于当前 worktree；有本地 wrapper 或 \`node packages/main/dist/cli.js\` 时，不要把 fallback 的 \`status\` / \`next\` / \`validate\` 输出当作 gate 证据
 - \`.Codex/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
@@ -274,7 +255,7 @@ fallback 说明：
 
 - 不创建 \`.Codex/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
 - Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Lattice init/check 管理；大小写不敏感文件系统上可能显示为 \`.Codex/hooks\` alias
-- 需要观测 Codex 活动时，使用 \`.Codex/lattice.json\` 记录的 wrapper 或带 \`KOALA_ACTIVITY_RECORD_READONLY=1\` 的 fallback
+- 需要观测 Codex 活动时，使用 \`.Codex/lattice.json\` 记录的 wrapper 或带 \`LATTICE_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
 const CODEX_README_THIN_APPENDIX = `
@@ -372,12 +353,12 @@ if (require.main === module) {
 
 export function renderCodexWrapperScript(): string {
   return `#!/usr/bin/env node
-process.env.KOALA_ACTIVITY_SOURCE = 'codex';
-process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
-process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
+process.env.LATTICE_ACTIVITY_SOURCE = 'codex';
+process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
+process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
 
-if (!process.env.KOALA_ACTIVITY_SESSION) {
-  process.env.KOALA_ACTIVITY_SESSION =
+if (!process.env.LATTICE_ACTIVITY_SESSION) {
+  process.env.LATTICE_ACTIVITY_SESSION =
     process.env.CODEX_SESSION_ID ||
     process.env.OPENAI_SESSION_ID ||
     process.env.TERM_SESSION_ID ||

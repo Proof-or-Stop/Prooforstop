@@ -39,8 +39,8 @@ import {
   type InitProfile,
 } from '../init-assets.js';
 import {
-  KOALA_RUNTIME_IGNORE_BLOCK_END,
-  KOALA_RUNTIME_IGNORE_BLOCK_START,
+  LATTICE_RUNTIME_IGNORE_BLOCK_END,
+  LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './runtime-artifact-registry.js';
 
@@ -434,9 +434,9 @@ function runtimeIgnoreMissing(existing: string | null): string[] {
 
 function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   return [
-    KOALA_RUNTIME_IGNORE_BLOCK_START,
+    LATTICE_RUNTIME_IGNORE_BLOCK_START,
     ...lines,
-    KOALA_RUNTIME_IGNORE_BLOCK_END,
+    LATTICE_RUNTIME_IGNORE_BLOCK_END,
   ].join('\n');
 }
 
@@ -710,7 +710,7 @@ export function listManagedAssetDefinitions(
         'bin:lattice-codex.js',
         'bin/lattice-codex.js',
         renderLatticeCodexWrapperScript(),
-        actual => actual.includes('KOALA_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
+        actual => actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
       wholeFile(

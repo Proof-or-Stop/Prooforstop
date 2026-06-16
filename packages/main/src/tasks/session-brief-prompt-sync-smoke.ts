@@ -103,7 +103,7 @@ function runHook(root: string, input: string): { status: number | null; output: 
   const result = spawnSync(process.execPath, [hookPath], {
     input,
     encoding: 'utf8',
-    env: { ...process.env, KOALA_SESSION_BRIEF_FRESH_MINUTES: '60' },
+    env: { ...process.env, LATTICE_SESSION_BRIEF_FRESH_MINUTES: '60' },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return {

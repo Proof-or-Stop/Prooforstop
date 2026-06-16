@@ -110,7 +110,7 @@ export function sample() {
     'doctor',
     JSON.stringify({ format: 'json', limit: 20 }),
   ], {
-    env: { ...process.env, KOALA_HEALTH_PATH: tempHealthPath },
+    env: { ...process.env, LATTICE_HEALTH_PATH: tempHealthPath },
   });
   const doctor = extractJsonObject(doctorRaw);
   assert(doctor.total >= 1, 'doctor did not read any health issues');

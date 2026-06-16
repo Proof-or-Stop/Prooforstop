@@ -48,8 +48,8 @@ process.on('SIGINT', () => { cleanup(); process.exit(0); });
 process.on('SIGTERM', () => { cleanup(); process.exit(0); });
 
 // 1. Start core
-const coreEnv: Record<string, string> = { ...process.env as Record<string, string>, KOALA_SERVE_PORT: String(wsPort) };
-if (withCli) coreEnv.KOALA_SHELL = 'cli';
+const coreEnv: Record<string, string> = { ...process.env as Record<string, string>, LATTICE_SERVE_PORT: String(wsPort) };
+if (withCli) coreEnv.LATTICE_SHELL = 'cli';
 
 const core = spawn('npx', ['tsx', debugFile], {
   cwd: root,

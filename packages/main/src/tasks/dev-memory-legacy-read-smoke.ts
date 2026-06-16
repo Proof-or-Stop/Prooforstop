@@ -106,7 +106,6 @@ function legacySmokeWave(): LatticeParallelWave {
 const originalHome = process.env.HOME;
 const originalUserProfile = process.env.USERPROFILE;
 const originalLatticeGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
-const originalKoalaGlobalMemoryDir = process.env.KOALA_GLOBAL_MEMORY_DIR;
 
 const root = mkdtempSync(join(tmpdir(), 'lattice-dev-memory-legacy-read-'));
 
@@ -138,7 +137,6 @@ try {
   process.env.HOME = fakeHome;
   process.env.USERPROFILE = fakeHome;
   delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  delete process.env.KOALA_GLOBAL_MEMORY_DIR;
 
   const globalCurrent = makeEntry('global-current', 'global current lattice memory entry', 'global');
   const globalLegacy = makeEntry('global-legacy', 'global legacy koala memory entry', 'global');
@@ -168,26 +166,22 @@ try {
   );
   delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
 
-  const legacyOverrideDir = join(root, 'koala-global-override');
-  process.env.KOALA_GLOBAL_MEMORY_DIR = legacyOverrideDir;
-  const writableGlobalPathWithLegacyOverride = resolveGlobalMemoryPath();
-  const legacyGlobalPathWithLegacyOverride = resolveLegacyGlobalMemoryPath();
+  const writableGlobalPath = resolveGlobalMemoryPath();
+  const legacyGlobalPath = resolveLegacyGlobalMemoryPath();
   assert.equal(
-    writableGlobalPathWithLegacyOverride,
+    writableGlobalPath,
     join(fakeHome, '.lattice', 'dev-memory', 'experience.jsonl'),
-    'KOALA_GLOBAL_MEMORY_DIR alone must not redirect writable global memory path',
+    'writable global memory path must resolve under ~/.lattice',
   );
   assert.equal(
-    legacyGlobalPathWithLegacyOverride,
-    join(legacyOverrideDir, 'experience.jsonl'),
-    'KOALA_GLOBAL_MEMORY_DIR should remain available as the legacy global read fallback',
+    legacyGlobalPath,
+    join(fakeHome, '.koala', 'dev-memory', 'experience.jsonl'),
+    'legacy global read fallback is the fixed ~/.koala/dev-memory path with no separate override env',
   );
-  const globalLegacyOverride = makeEntry('global-legacy-override', 'global legacy koala override memory entry', 'global');
-  writeEntry(legacyGlobalPathWithLegacyOverride, globalLegacyOverride);
   assert.deepEqual(
     resolveGlobalMemoryReadPaths(),
-    [writableGlobalPathWithLegacyOverride, legacyGlobalPathWithLegacyOverride],
-    'global read paths should keep current writable path first, then legacy KOALA fallback',
+    [writableGlobalPath, legacyGlobalPath],
+    'global read paths should keep current writable path first, then legacy .koala fallback',
   );
   const wave = legacySmokeWave();
   const dispatch = buildParallelDispatch(wave, {
@@ -202,13 +196,8 @@ try {
     'parallel dispatch experienceRefs should include legacy project .koala memory through includeExperience',
   );
   assert.ok(
-    dispatchExperienceIds.includes('global-legacy-override'),
-    'parallel dispatch experienceRefs should include KOALA_GLOBAL_MEMORY_DIR legacy global fallback',
-  );
-  assert.equal(
     dispatchExperienceIds.includes('global-legacy'),
-    false,
-    'KOALA_GLOBAL_MEMORY_DIR should mask the default legacy global .koala path in parallel dispatch experienceRefs',
+    'parallel dispatch experienceRefs should include legacy global .koala memory through includeExperience',
   );
   const report = buildParallelReport(wave, {
     projectRoot,
@@ -222,10 +211,9 @@ try {
     'parallel report experienceRefs should include legacy project .koala memory through includeExperience',
   );
   assert.ok(
-    reportExperienceIds.includes('global-legacy-override'),
-    'parallel report experienceRefs should include KOALA_GLOBAL_MEMORY_DIR legacy global fallback',
+    reportExperienceIds.includes('global-legacy'),
+    'parallel report experienceRefs should include legacy global .koala memory through includeExperience',
   );
-  delete process.env.KOALA_GLOBAL_MEMORY_DIR;
 
   const captureRoot = join(root, 'capture-project');
   mkdirSync(captureRoot, { recursive: true });
@@ -274,11 +262,6 @@ try {
     delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
   } else {
     process.env.LATTICE_GLOBAL_MEMORY_DIR = originalLatticeGlobalMemoryDir;
-  }
-  if (originalKoalaGlobalMemoryDir === undefined) {
-    delete process.env.KOALA_GLOBAL_MEMORY_DIR;
-  } else {
-    process.env.KOALA_GLOBAL_MEMORY_DIR = originalKoalaGlobalMemoryDir;
   }
   rmSync(root, { recursive: true, force: true });
 }

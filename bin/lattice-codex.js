@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-process.env.KOALA_ACTIVITY_SOURCE = 'codex';
-process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
-process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
+process.env.LATTICE_ACTIVITY_SOURCE = 'codex';
+process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
+process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
 
-if (!process.env.KOALA_ACTIVITY_SESSION) {
-  process.env.KOALA_ACTIVITY_SESSION =
+if (!process.env.LATTICE_ACTIVITY_SESSION) {
+  process.env.LATTICE_ACTIVITY_SESSION =
     process.env.CODEX_SESSION_ID ||
     process.env.OPENAI_SESSION_ID ||
     process.env.TERM_SESSION_ID ||

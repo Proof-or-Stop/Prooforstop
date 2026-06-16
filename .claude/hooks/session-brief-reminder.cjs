@@ -40,8 +40,8 @@ function parseHookInput(raw) {
 
 function freshnessThresholdMs() {
   const configured = Number(
-    process.env.KOALA_SESSION_BRIEF_FRESH_MINUTES
-      || process.env.KOALA_SESSION_BRIEF_REMINDER_MINUTES
+    process.env.LATTICE_SESSION_BRIEF_FRESH_MINUTES
+      || process.env.LATTICE_SESSION_BRIEF_REMINDER_MINUTES
       || DEFAULT_FRESH_MINUTES,
   );
   const minutes = Number.isFinite(configured) && configured > 0

@@ -205,10 +205,10 @@ assertCheckFails(
 
 {
   const dir = copyCodexAssetsToTemp();
-  const previousPackaged = process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
+  const previousPackaged = process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
   const previousPath = process.env.PATH;
   try {
-    process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
+    process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
     process.env.PATH = '/definitely-no-global-koala';
     const checkResult = runCodexAdapterChecks(dir, {
       executeLocalHeartbeat: false,
@@ -222,8 +222,8 @@ assertCheckFails(
     assertIncludes(globalCheck.detail || '', 'skipped in packaged desktop runtime', 'packaged global fallback detail');
     assert(checkResult.ok, 'packaged global fallback warning should not be a hard failure');
   } finally {
-    if (previousPackaged === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
-    else process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = previousPackaged;
+    if (previousPackaged === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = previousPackaged;
     if (previousPath === undefined) delete process.env.PATH;
     else process.env.PATH = previousPath;
     rmSync(dir, { recursive: true, force: true });
@@ -237,7 +237,7 @@ function shellQuote(value) {
 function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
   const fakeBin = mkdtempSync(join(tmpdir(), 'lattice-codex-fake-global-'));
   const previousPath = process.env.PATH;
-  const previousEntrypoint = process.env.KOALA_CODEX_ENTRYPOINT;
+  const previousEntrypoint = process.env.LATTICE_CODEX_ENTRYPOINT;
   try {
     const fakeCli = join(fakeBin, 'lattice');
     writeFileSync(
@@ -246,7 +246,7 @@ function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
     );
     chmodSync(fakeCli, 0o755);
     process.env.PATH = `${fakeBin}:${previousPath || ''}`;
-    process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
+    process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
 
     const checkResult = runCodexAdapterChecks(root, { executeHeartbeats: true });
     if (!checkResult.ok) {
@@ -259,8 +259,8 @@ function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
   } finally {
     if (previousPath === undefined) delete process.env.PATH;
     else process.env.PATH = previousPath;
-    if (previousEntrypoint === undefined) delete process.env.KOALA_CODEX_ENTRYPOINT;
-    else process.env.KOALA_CODEX_ENTRYPOINT = previousEntrypoint;
+    if (previousEntrypoint === undefined) delete process.env.LATTICE_CODEX_ENTRYPOINT;
+    else process.env.LATTICE_CODEX_ENTRYPOINT = previousEntrypoint;
     rmSync(fakeBin, { recursive: true, force: true });
   }
 }
