@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-97df",
+  "mode": "feature",
+  "allowed": [
+    "Implement a READ-ONLY diagnostics/report layer strictly inside packages/main/src/core/usage-ledger/ (diagnostics.ts: grouped aggregation by story/phase/role/model/provider reusing summary.ts; pure cost projection with an injected price table; read-only report builder) + a runnable reporter task in packages/main/src/tasks + npm scripts in packages/main/package.json"
+  ],
+  "excluded": [
+    "Any change to dispatch / gate / handler / other logic code outside the usage-ledger module",
+    "Budget decision and request blocking",
+    "Connecting to the live dispatch path",
+    "Registering a first-class lattice CLI command / touching the command registry or cli-engine",
+    "Server-side signed evidence promotion",
+    "Turning the writer on by default"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User direction 2026-06-16: keep the token module modular, do NOT modify other logic code, run via Lattice. Strictly in-module read-only diagnostics.",
+  "createdAt": "2026-06-16T14:34:09.100Z",
+  "updatedAt": "2026-06-16T14:34:09.100Z",
+  "_hash": "d4dd5c1023fc4dc09ae5175eb27ec48189ec5a96513a0019adef59e2bd2d04eb"
+}

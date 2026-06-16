@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5740",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git grep*",
+    "git rm *",
+    "git status*",
+    "grep *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/* run *",
+    "npm run build",
+    "npm run test:e2e"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "orphans",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/src/core/phase-protocol.ts",
+    "packages/main/src/verifier/bridge-utils.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".codex",
+    ".lattice",
+    "experiments",
+    "packages/lab",
+    "packages/main/src/verifier/dev-cli.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Deletion-only hygiene: 1 junk file + 3 dead modules. dev-cli/omx/.codex/.Codex/.lattice all blocked.",
+  "createdAt": "2026-06-16T18:06:10.352Z",
+  "updatedAt": "2026-06-16T18:06:10.352Z",
+  "_hash": "7dec26434117158f9a357742b705b2c3a5143ffb78412c5a74e6de8bf5c553a1"
+}

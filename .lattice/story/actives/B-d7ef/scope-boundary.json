@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d7ef",
+  "mode": "maintenance",
+  "allowed": [
+    "Delete the stray 'orphans' junk file and the 2 confirmed-dead source modules (phase-protocol.ts + bridge-utils.ts); scrub any residual references."
+  ],
+  "excluded": [
+    "Any disabled-tool safety guard",
+    "Codex adapter directory restructuring",
+    "intent coverage source module (live via fixture dynamic import)",
+    "Repo metadata tracking or ignore rules",
+    "the lattice serve launcher script"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User said 'delete the certain ones' after B-5740 discard (2026-06-16).",
+  "createdAt": "2026-06-16T18:55:38.925Z",
+  "updatedAt": "2026-06-16T18:55:38.925Z",
+  "_hash": "8c597a011e10bb23e6fa3643737d23c6c3740ccf28259291822f8b8bbf89fde4"
+}

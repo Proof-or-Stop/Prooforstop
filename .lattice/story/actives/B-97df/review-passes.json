@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-97df:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Verifier 42/42, diagnostics smoke 34/34 checks; static checks (noHardcodedPrice, zeroImport, noForbidden) confirmed sound against actual source; reporter absent from CLI registry; scope clean (4 files, all packages/main/).",
+      "createdAt": "2026-06-16T14:57:44.155Z",
+      "reviewRound": "2026-06-16T14:55:32.024Z",
+      "reviewRunId": "B-97df:RR-001",
+      "_hash": "8d62b4cd344ef4d66d3b048240361d3342f3dfcd5a4e7e00fba8ba77e87eb7c5"
+    },
+    {
+      "id": "B-97df:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 3 quality checks clean. Dead code: none — every import is used in all 3 changed source files. Type safety: no `as any`; the single bare `catch {}` in loadPriceTable (report.ts:63) is not an error-swallowing hole — it immediately re-throws a structured Error; the `table as unknown as PriceTable` cast is an acceptable escape after structural validation guards (pricingRef, pricingVersion, rates are all checked before the cast). I/O isolation: no bridge.ts exists; the shell (cli-engine/handlers/registry) does not import diagnostics — grep over cli.ts/cli-engine.ts/handlers/registry.ts returns nothing. Scope: git diff --name-only is exactly diagnostics.ts, usage-ledger-report.ts, usage-ledger-diagnostics-smoke.ts, package.json, and .lattice metadata — no dispatch/cli-engine/handler/command-registry changes. Adversarial checks passed: no hardcoded price/dollar literal in diagnostics.ts code (static grep + test CHK-005 confirmed); no `?? 0` or `|| 0` coercion of unknown dims (the only numeric 0 literals are in emptyKnown() for bucket initialization — correct, as these are added to only when a record is fully-known); the tokensForCost guard (`bucket.knownCount > 0 ? bucket.known : null`) correctly routes all-unknown source buckets to the `unknown-token-dimensions` discriminant rather than pricing an all-zero bucket as $0; UsageReport carries no gate/verdict/decision/blocker/pass/fail/allowed/blocked field (interface scan + deep-key smoke test CHK-003); reporter task reads only (no writeFile/appendFile/git/exec on the repo path — it writes only to OS temp dir in the smoke, not in the task itself); TOKENS_PER_MILLION = 1_000_000 is the only non-zero numeric constant; all costs fall through to null when priceTable is absent. No findings.",
+      "createdAt": "2026-06-16T14:59:04.833Z",
+      "reviewRound": "2026-06-16T14:55:32.024Z",
+      "reviewRunId": "B-97df:RR-002",
+      "_hash": "adb7da25d3ebc1908303ddf44aee87d5ed690b5d3c5b7bd636b3ddb124e28850"
+    },
+    {
+      "id": "B-97df:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement this round. Concept residue check completed with no blocker. Specific findings: (1) diagnostics.ts correctly imports and calls selectLatestRecords from summary.js — no re-implementation of superseded-set, byAttempt, sequence-dedup, or source-bucketing logic. (2) Imports are strictly ./summary.js and ./record.js (both sibling usage-ledger files) plus zero node builtins — zero cross-module import. (3) usage-ledger-report.ts is a task file (not a registered CLI command); imports only node:fs, ../core/usage-ledger/diagnostics.js, and ../core/usage-ledger/summary.js — no dispatch/cli-engine/handlers/command-registry in actual imports (mention in JSDoc comment only). (4) Touchpoint 5 read-only spec honored: unavailable surfaces as unknownCount not zero; no model-routing/optimization advice; no estimates labeled final; no hardcoded price literals (null byte in groupKeyString sentinel is the sole file encoding anomaly — it is a deliberate embedded \\x00 in a string literal used as a collision-free sentinel for null storyId in JSON.stringify, sound because real storyIds cannot contain \\x00). (5) UsageReport carries no gate/verdict/decision/blocker/pass field at any depth. (6) package.json adds only two scripts — no deletions. (7) No CLAUDE.md/README modified; no doc-promise-undelivered. (8) No concept words deleted or replaced en masse anywhere in the diff. 0 findings registered.",
+      "createdAt": "2026-06-16T15:00:26.969Z",
+      "reviewRound": "2026-06-16T14:55:32.024Z",
+      "reviewRunId": "B-97df:RR-003",
+      "_hash": "5d3a4797932114fadabb45b96fc5ca4db8e14f00d063443793b259914b7e6355"
+    }
+  ]
+}

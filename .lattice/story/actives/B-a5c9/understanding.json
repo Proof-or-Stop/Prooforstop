@@ -1,0 +1,27 @@
+{
+  "task": "Implement the PURE preflight estimate path (Slice 3) in packages/main/src/core/usage-ledger/: estimator interface + confidence model, deterministic offline bytes/chars fallback, an estimate selector with a pluggable injected count_tokens, buildEstimateRecord -> validated prompt-size-estimate record, supersedes wiring, and a wired smoke. Keep the module's zero-cross-module-coupling property; the real count_tokens HTTP binding is deferred.",
+  "outcome": "npm --prefix packages/main run test:usage-ledger-estimate prints all-green: the confidence map is count_tokens=high / local_tokenizer=medium / bytes_chars=low; the bytes/chars fallback is deterministic and monotonic; selectEstimate picks count_tokens>local_tokenizer>bytes_chars given injected stubs and binds to the exact model id; buildEstimateRecord produces a usage.source='prompt-size-estimate' record (canonical.input=estimatedInputTokens, output/cacheCreation/cacheRead=null) that PASSES the B-253e validator with estimator{name,version,unit,confidence}; a superseding provider-reported record makes summary count only the final (estimate never counts as final, no double-count); and an estimate record round-trips through the B-253e writer (opt-in ON, temp dir). Build clean; the usage-ledger module still imports zero other Lattice modules.",
+  "facts": [
+    "B-253e + B-08a1 shipped core/usage-ledger/{record,ids,writer,summary,assemble,canonical-json}.ts + adapters/*; this slice reuses them in-module",
+    "The B-253e validator ALREADY permits null outputTokens for source=prompt-size-estimate (INIT reviewer confirmed record.ts ~lines 452-464); the non-null rule applies only to provider-reported — so NO record.ts change is needed",
+    "ids.ts has buildSupersedes; summary.ts already excludes superseded estimates from provider-reported totals",
+    "Spec: estimate must prefer count_tokens > local tokenizer > bytes/chars, record confidence, bind to exact model id; estimates are preflight/diagnostic only, never final",
+    "The module currently imports zero other Lattice modules (only own files + node:fs/crypto/path)"
+  ],
+  "constraints": [
+    "count_tokens is a PLUGGABLE injected function; do NOT call a provider HTTP client or couple to dispatch in this slice",
+    "Local fallback is a coarse bytes/chars heuristic (low confidence) — NOT tiktoken (wrong for Claude)",
+    "Reuse assemble.ts/record.ts/ids.ts; estimate is source=prompt-size-estimate and never final usage",
+    "Keep all changes inside core/usage-ledger + its smoke + package.json; preserve zero cross-module imports"
+  ],
+  "unknowns": [
+    "Whether a local_tokenizer concrete estimator is worth shipping now or left as an interface slot (bytes/chars is the only guaranteed offline fallback)",
+    "Exact estimator.name/version/unit values to standardize"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/usage-ledger/estimate.ts",
+    "packages/main/src/tasks/usage-ledger-estimate-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-16T13:56:55.169Z"
+}

@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Delete the stray 'orphans' junk file at repo root",
+      "context": "git rm the tracked root file 'orphans' (5 bytes, content 'NO -', a shell-redirect mistake). After: `git ls-files orphans` returns nothing; build + e2e unaffected.",
+      "userSees": "`git ls-files orphans` returns nothing; the junk file is gone.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Delete 3 confirmed-dead source modules and verify no residual references",
+      "context": "git rm packages/main/src/core/intent-coverage.ts, packages/main/src/core/phase-protocol.ts, packages/main/src/verifier/bridge-utils.ts. Each has 0 import statements and 0 external uses of its exported symbols (verified). Confirm after deletion that `git grep -nE 'intent-coverage|phase-protocol|bridge-utils' -- packages` shows no live code import (story-metadata/.lattice mentions are fine), and that the superseded behaviors (intent coverage, phase gate) still exist elsewhere. `npm run build` (tsc) and `npm run test:e2e` must pass.",
+      "userSees": "The 3 modules are gone; `npm run build` and `npm run test:e2e` pass; no live code references them.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

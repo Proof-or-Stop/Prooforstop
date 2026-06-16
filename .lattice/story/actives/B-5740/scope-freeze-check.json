@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5740",
+  "checkedAt": "2026-06-16T18:06:10.770Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "892fa4ca6862792deb221c811367195d966fa6010f787592e691bde6cb58faad",
+  "executionBoundaryHash": "7dec26434117158f9a357742b705b2c3a5143ffb78412c5a74e6de8bf5c553a1",
+  "freshnessHash": "eecc34a91434c029c05c8be1112caf1a4ca6f362df9d0ec72939b0937b10f1eb",
+  "effectiveExcludedKeywords": [
+    "Any source module other than the three listed dead files",
+    "Codex adapter directory restructuring",
+    "Re-enabling or touching any disabled-tool safety guard",
+    "Repo metadata tracking or ignore rules"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any source module other than the three listed dead files",
+      "source": "scopeBoundary.excluded",
+      "text": "Any source module other than the three listed dead files",
+      "excluded": true
+    },
+    {
+      "keyword": "Codex adapter directory restructuring",
+      "source": "scopeBoundary.excluded",
+      "text": "Codex adapter directory restructuring",
+      "excluded": true
+    },
+    {
+      "keyword": "Re-enabling or touching any disabled-tool safety guard",
+      "source": "scopeBoundary.excluded",
+      "text": "Re-enabling or touching any disabled-tool safety guard",
+      "excluded": true
+    },
+    {
+      "keyword": "Repo metadata tracking or ignore rules",
+      "source": "scopeBoundary.excluded",
+      "text": "Repo metadata tracking or ignore rules",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "82854c4eca91e4510316d0cbea0fef5147d9181610cbc1df8eae67dce3a738ee"
+}

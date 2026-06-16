@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "In-module dispatch-usage orchestrator (estimate + final, pure)",
+      "context": "Add packages/main/src/core/usage-ledger/dispatch-usage.ts exporting pure helpers: recordDispatchPreflight(root, ctx{storyId|null,phase,agentType,model?}, promptText, opts{recordedAt,projectRootHash,command,host}) -> mints correlation (ids.ts), builds a prompt-size-estimate via the SYNCHRONOUS bytes/chars estimator + buildEstimateRecord, appends it (opt-in gated; no-op when off), returns {correlation, estimateRecordId} | null; and recordDispatchFinal(root, ctx, correlation, estimateRecordId, anthropicUsage|null, model) -> when usage present builds a provider-reported record via the existing anthropic adapter + assemble (supersedesRecordIds=[estimateRecordId]) and appends; when null appends an 'unavailable' final (supersedes estimate); opt-in gated; never throws to the caller (internal try/catch). MUST NOT import dispatch or any non-usage-ledger module — keep zero cross-module imports. Unit-tested: estimate then provider-reported supersede; estimate then unavailable; flag off => no-op.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Pure Claude Code JSON output parser (with raw-text fallback)",
+      "context": "Add a pure parser (in dispatch-usage.ts or usage-ledger/host-output.ts): parseClaudeCliOutput(stdout) -> {resultText, anthropicUsage|null}. When stdout is the Claude Code CLI JSON envelope, extract the human result text (e.g. .result) and the usage object (input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens). When stdout is NOT valid JSON or lacks the expected shape, return {resultText: <raw stdout>, anthropicUsage: null} (graceful fallback — never throw). Tested with a sample JSON envelope (usage extracted), a plain-text stdout (raw fallback, usage null), and malformed JSON (raw fallback).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Gated seam in lattice-dispatch.ts (flag OFF = byte-identical)",
+      "context": "Edit runClaudeCodeRealLeafDispatch() in packages/main/src/core/lattice-dispatch.ts as a MINIMAL one-way seam, all under isUsageLedgerEnabled(): (1) before spawn, read the prompt text and call recordDispatchPreflight; (2) when enabled, run the host with JSON output (add --output-format json or equivalent) and after spawn call parseClaudeCliOutput(stdout) -> use resultText as the downstream text result (preserving existing behavior) and call recordDispatchFinal with the parsed usage (provider-reported when present, else unavailable, superseding the estimate). When the flag is OFF, the spawn args and result handling are EXACTLY as today (byte-identical) — verify by keeping the original code path unchanged in the else/disabled branch. Derive storyId from record.storyId, phase/agentType from available dispatch context (or documented constants), model from the parsed JSON (for the final) and a best-effort default (for the estimate). Wrap all ledger work in try/catch so dispatch never breaks; on JSON-parse failure fall back to raw stdout text.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression safety: OFF byte-identical + parse-failure fallback",
+      "context": "Add tests/assertions proving the safety invariants: (a) with the ledger flag OFF, the host invocation (spawn args) and the result text the dispatch produces are identical to the pre-change behavior (e.g. unit-test the arg-builder / a structural assertion that the disabled path uses ['--print', promptFile] and raw stdout); (b) with the flag ON but the host output not JSON-parseable, parseClaudeCliOutput returns the raw text and recordDispatchFinal records 'unavailable' — dispatch still yields the raw result and does not throw. These guard the two risk invariants.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Smoke/test suite wired + no regression",
+      "context": "Add packages/main/src/tasks/usage-ledger-dispatch-smoke.ts (follow existing *-smoke.ts pattern; print ✓/✗, non-zero exit; temp dir, no repo pollution), wired as npm test:usage-ledger-dispatch. Cover: orchestrator (preflight estimate appended; provider-reported final supersedes the estimate so summary counts only the final; unavailable final when no usage; flag off => nothing written); the JSON parser (usage extracted from a sample envelope; raw-text + malformed fallback to usage=null); end-to-end record-chain round-trip through the writer (opt-in ON, temp dir) re-validates. Assert the usage-ledger module STILL imports zero other modules (dispatch-usage.ts imports only ./ siblings + node). Build green; run the full ledger suite (usage-ledger / -adapter / -estimate / -diagnostics) with NO regression; `node bin/lattice.js validate` builds. The lattice-dispatch.ts seam itself is covered structurally (gated + minimal) since a live dispatch can't run in the smoke.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

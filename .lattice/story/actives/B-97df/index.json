@@ -1,0 +1,84 @@
+{
+  "storyId": "B-97df",
+  "name": "usage-ledger-diagnostics",
+  "title": "Implement LLM usage ledger Slice 5: read-only diagnostics/report layer (grouped aggregation + injected-price cost) — strictly in-module, no other logic touched",
+  "description": "Status & diagnostics slice (Touchpoint 5) of the LLM usage ledger (spec docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md; foundation B-253e, adapters B-08a1, estimate path B-a5c9). Per user direction, this slice is STRICTLY in-module: all new code lives in packages/main/src/core/usage-ledger/ plus its own task + a package.json script — it must NOT modify or import any other Lattice logic (no dispatch, no gate, no handler, no CLI command registration), preserving the module's zero-cross-module-import property. It builds a READ-ONLY diagnostics/report layer over the ledger, feeding NO gate. Deliverables: (1) grouped aggregation that rolls up the latest non-superseded records by storyId, phase, agentType/role, model, and provider, reusing summary.ts selection + source bucketing (provider-reported vs estimate vs unavailable); unknown/unavailable stays unknown (never 0); superseded estimates excluded from final totals; (2) a pure cost-projection function that, GIVEN an INJECTED price table (per-model $/MTok for input/output/cacheRead/cacheCreation, with the cache multipliers), computes cost per group — with NO hardcoded prices; cost is null/omitted when no price table is supplied, and a pricingRef is recorded when one is; (3) a read-only diagnostics report builder that assembles a structured report object (overall totals, per-group breakdowns, counts by source, unknown count) and is never consumed by any gate; (4) a runnable reporter task (tasks/usage-ledger-report.ts) that reads a ledger JSONL path (+ optional price table) and prints the report, wired as an npm script — NOT a registered lattice CLI command (to avoid touching the command registry / other logic); (5) a wired smoke. Out of scope: registering a first-class lattice CLI command, wiring into live dispatch, budget enforcement, signed-receipt path, default-on, and any change outside core/usage-ledger + its task + package.json.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-06-16T14:31:25.828Z",
+  "startedAt": "2026-06-16T14:31:25.828Z",
+  "endedAt": "2026-06-16T18:04:51.052Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T14:31:25.831Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T14:34:26.800Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-16T14:34:43.387Z",
+      "branch": "story/B-97df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T14:42:00.476Z",
+      "branch": "story/B-97df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T14:55:32.024Z",
+      "branch": "story/B-97df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T15:01:28.656Z",
+      "branch": "story/B-97df",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T18:04:51.052Z",
+      "branch": "story/B-97df",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive: token refers to LLM API usage tokens (input/output/cache counts) for cost diagnostics, not auth/session/credential tokens. Slice is READ-ONLY, feeds no gate, enforces no budget, touches no auth path. Confirmed by INIT story-init reviewer.",
+      "at": "2026-06-16T14:34:07.943Z"
+    }
+  ],
+  "currentReviewRound": "2026-06-16T14:55:32.024Z"
+}
