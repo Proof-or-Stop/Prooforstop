@@ -14,6 +14,46 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -i koala packages/lab/package.json → exits 1 (no matches); WHY: confirms koala string fully replaced in lab description",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -i lattice packages/lab/package.json → matches Lattice 离线优化实验室; WHY: confirms replacement text is present and correct",
+            "type": "cli"
+          },
+          {
+            "desc": "npm --prefix packages/lab run build → exit 0; WHY: proves package.json is valid JSON and lab build pipeline unbroken",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node -e JSON.parse(fs.readFileSync packages/lab/package.json) → exit 0; WHY: boundary guard that edit did not break JSON syntax (missing comma, trailing comma, unescaped char in Chinese text)",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -c koala packages/lab/package.json → 0; WHY: count confirms zero occurrences across entire file, catches multiple koala references if any existed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git grep -niE koala -- packages/lab/ → empty; WHY: adversarial sweep across ALL lab files ensures koala was not accidentally introduced elsewhere during the edit",
+            "type": "cli"
+          },
+          {
+            "desc": "python3 -c assert len(description)>10 on packages/lab/package.json → exit 0; WHY: adversarial check that description was not truncated or emptied during replacement",
+            "type": "cli"
+          },
+          {
+            "desc": "test -f packages/lab/src/core/intent-coverage.ts → exit 0; WHY: over-reach guard — unrelated lab source files must still exist, proving change scoped to package.json only",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
