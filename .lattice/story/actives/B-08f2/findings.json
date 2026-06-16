@@ -93,6 +93,22 @@
         ".claude/hooks/session-brief-reminder.cjs",
         "docs/guide-hooks.md"
       ]
+    },
+    {
+      "id": "B-08f2:F-006",
+      "desc": "dead-code: packages/main/src/core/authority-mode.ts:65 readAuthorityEnv() still has a dead-code double-read introduced by the KOALA_AUTHORITY_->LATTICE_AUTHORITY_ rename — line 63 reads env[`LATTICE_AUTHORITY_${name}`] into lattice, line 64 returns it if string, and line 65 `return env[LATTICE_AUTHORITY_${name}]` is unreachable dead code (if lattice was undefined/non-string, re-reading the same key returns the same undefined). F-004 fix commit addressed trustEnvValue/authorityEnvValue/liveEnv/envValue (4 of 5 instances listed in F-004) but missed readAuthorityEnv. Fix: `return env[LATTICE_AUTHORITY_${name}]` directly, removing the unused lattice variable and dead fallback line.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:40:31.950Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-012",
+      "_hash": "fc35a806314a5ca9bf3ab7a5b10b1ad076cb142b1abbb73e31174093aacae7b4",
+      "files": [
+        "packages/main/src/core/authority-mode.ts"
+      ]
     }
   ]
 }
