@@ -30,7 +30,7 @@
   "notes": [
     "This file is read by Lattice tooling, not by the Codex runtime.",
     "Codex agent prompts live in .lattice-codex/agents and are generated from .claude/agents in full asset mode.",
-    "Codex native hooks are official lowercase .codex assets and live in a separate directory from .lattice-codex.",
+    "Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .lattice-codex directory entry.",
     "Claude Code hooks, settings, and skills remain under .claude only.",
     "Run node bin/lattice-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.",
     "Legacy project documents may remain archived, but active Codex adapter assets use .lattice-codex/lattice.json and bin/lattice-codex.js."

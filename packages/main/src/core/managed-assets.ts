@@ -590,6 +590,11 @@ function isExpandedLatticeClaudeGuide(actual: string): boolean {
 }
 
 function appendLegacyRuntimeExclusions(defs: ManagedAssetDefinition[]): void {
+  // Legacy denylist: these are the OLD koala-era filenames that the
+  // koala-removal program is enforcing as NOT-allowed in the runtime tree.
+  // The literal `koala*` tokens here are intentional and must remain — they
+  // are the names being denied, not paths being created. Renaming them would
+  // silently disable the denylist for projects that still have these files.
   defs.push(
     { id: 'excluded:bin/koala.js', relPath: 'bin/koala.js', kind: 'excluded-path' },
     { id: 'excluded:bin/koala-codex.js', relPath: 'bin/koala-codex.js', kind: 'excluded-path' },

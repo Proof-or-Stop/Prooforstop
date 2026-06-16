@@ -43,5 +43,5 @@ fallback 说明：
 边界：
 
 - 不创建 `.lattice-codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理；与 `.lattice-codex/` 分属不同目录
+- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理；大小写不敏感文件系统上可能显示为 `.lattice-codex/hooks` alias
 - 需要观测 Codex 活动时，使用 `.lattice-codex/lattice.json` 记录的 wrapper 或带 `LATTICE_ACTIVITY_RECORD_READONLY=1` 的 fallback
