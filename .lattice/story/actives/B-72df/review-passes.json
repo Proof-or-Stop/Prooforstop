@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T03:35:34.200Z",
       "reviewRunId": "B-72df:RR-005",
       "_hash": "ae1dce8b3b3a815c55979ac0780deeac6831bcef5ece4c9688feafa1b4338222"
+    },
+    {
+      "id": "B-72df:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review (post f38b2fe -c core.quotePath=false commit). Scanned git diff main...HEAD for deleted/replaced symbols. No concept deletion or mass replacement found. The commit adds -c core.quotePath=false to the git status call and introduces a non-ASCII test case; no symbol was renamed or removed. Existing functions assertMainWorktreeReadyForMerge (now exported), parsePorcelainDirtyPaths, listDoneMergeAffectedPaths, unquoteGitPath, normalizeGitPath are all coherently referenced within the changed files only. The quotePath references exist only in the two changed source files (done-effects.ts, done-merge-scope-smoke.ts) — no orphaned references elsewhere. No CLAUDE.md changes in this diff; no doc-promise-undelivered risk. Concept residue check completed. No blocker.",
+      "createdAt": "2026-06-16T03:37:13.129Z",
+      "reviewRound": "2026-06-16T03:35:34.200Z",
+      "reviewRunId": "B-72df:RR-006",
+      "_hash": "386b3e81f127182c4baed680bf039f67b28df6839d54846d265c28643a8e0110"
     }
   ]
 }
