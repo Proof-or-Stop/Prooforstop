@@ -241,6 +241,42 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm test:usage-ledger-authority runs to completion with exit code 0 and prints only checkmarks (no failures); WHY: the smoke script itself is wired and green, covering envelope + receipt-ref + gate + negative controls",
+            "type": "cli"
+          },
+          {
+            "desc": "Static import analysis: grep/regex scan of all .ts files under core/usage-ledger/ confirms ZERO imports from authority-signing module (no import from ../authority-signing, no import from authority-signing, no require of authority-signing) -> the usage-ledger module keeps its zero cross-module import property; WHY: the pluggable verifier design requires the ledger to stay decoupled; importing authority-signing would create the hard coupling this slice explicitly avoids",
+            "type": "cli"
+          },
+          {
+            "desc": "Full ledger test suite (usage-ledger + usage-ledger-adapter + usage-ledger-estimate + usage-ledger-diagnostics + usage-ledger-dispatch + usage-ledger-budget) all pass with no regressions -> exit code 0 for each; WHY: adding authority-evidence.ts and modifying record.ts must not break any existing ledger functionality",
+            "type": "cli"
+          },
+          {
+            "desc": "npx tsc --noEmit completes with exit code 0 -> the build is clean with the new file and modified record.ts; WHY: type errors from the new types or changed interfaces would break downstream consumers",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node bin/lattice.js validate completes with exit code 0 -> the Lattice self-validation (which checks story metadata, checklist integrity, etc.) is not broken by the code changes; WHY: ensures the story workflow tooling itself is unaffected",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke test uses a temp directory (mkdtemp) and cleans up after itself: no leftover files in /tmp matching the test prefix after the smoke completes; WHY: tests must not pollute the filesystem, matching the existing smoke pattern",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After adding authority-evidence.ts, run a static import graph check: for every .ts file in core/usage-ledger/, collect all import paths and verify none reference modules outside core/usage-ledger/ or node builtins -> the zero cross-module import property holds for the entire directory, not just the new file; WHY: a subtle import in an existing file (e.g. if record.ts imported from authority-evidence.ts which then transitively imported authority-signing) would silently break the isolation contract",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
