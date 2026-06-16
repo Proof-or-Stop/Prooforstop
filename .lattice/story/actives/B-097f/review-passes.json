@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T18:51:41.763Z",
       "reviewRunId": "B-097f:RR-001",
       "_hash": "5e4588b6b386be42b980987531ed8a1f9e554ac8d2e4d34a913473c8071a13d9"
+    },
+    {
+      "id": "B-097f:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Checked 12 symbols from diff against 3 doc sections (lifecycle-artifact-scope.md §Policy, execution-plan.md §Implementation Status, CLAUDE.md §Agent prompt 资产). All behavioral claims verified against code: agent_prompt command exists and is registered (registry.ts:249); serves content byte-equal from templates/agents/*.md (same source as Codex); thin-shims write to ~/.claude/agents via syncGlobalAgents; cli-init.ts line 545 confirms zero project agent files written; --upgrade migration uses migrateProjectLocalManagedAgents which deletes only managed basenames and preserves user files; doctor.ts reports agentAssetMode: runtime-owned (AGENT_ASSET_MODE_RUNTIME_OWNED constant). 16 template count confirmed. One medium finding registered (F-001): doc says agent_prompt reads from promptRegistryManifest() but code calls readPromptTemplate(entry) — behavioral outcome correct, internal API reference wrong.",
+      "createdAt": "2026-06-16T18:56:07.558Z",
+      "reviewRound": "2026-06-16T18:51:41.763Z",
+      "reviewRunId": "B-097f:RR-003",
+      "_hash": "a525bb1cdf29d1740e26fffe728dcaad7649864ba9aaeace4693a63e9de5a182"
     }
   ]
 }
