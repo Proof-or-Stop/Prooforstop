@@ -14,9 +14,9 @@
       "title": "Add a regression test for doctor git-probe gitRoot resolution",
       "context": "Cover (a) wrapper-root: metadataRoot != gitRoot, the git probes run from the resolved gitRoot and emit no fatal output; (b) plain repo: behavior unchanged. Use the existing dependency-injection seams (the probe runners) rather than spawning real git against a real non-git directory where injection exists.",
       "userSees": "`lattice validate` runs the new test green, proving doctor's git probes resolve the gitRoot and produce no fatal noise on wrapper-root projects while plain repos are unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-16T00:06:57.210Z"
     }
   ]
 }
