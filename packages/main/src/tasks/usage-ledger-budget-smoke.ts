@@ -96,6 +96,46 @@ function opts(env: NodeJS.ProcessEnv) {
   };
 }
 
+/**
+ * B-dd44 F-001 regression guard: PRODUCTION-shaped opts with NO explicit `env`
+ * key. This is exactly what the dispatch seam builds, so the budget path must
+ * fall back to process.env. The original smoke always passed an explicit env and
+ * therefore missed that the production path resolved a null budget (silent
+ * no-op). Tests using this MUST set/restore process.env themselves.
+ */
+function prodOpts() {
+  return {
+    recordedAt: '2026-06-16T00:00:00.000Z',
+    projectRootHash: 'sha256:deadbeef',
+    command: 'claude --print <prompt-file>',
+    host: { kind: 'claude-code' },
+    // Intentionally NO `env` key -> the seam relies on the process.env default.
+  };
+}
+
+/**
+ * Run `fn` with a temporary patch to process.env, always restoring the prior
+ * values (delete keys that were absent). Keeps the production-path checks hermetic
+ * even though they deliberately read the real process.env.
+ */
+function withProcessEnv(patch: Record<string, string | undefined>, fn: () => void): void {
+  const prior: Record<string, string | undefined> = {};
+  for (const key of Object.keys(patch)) {
+    prior[key] = process.env[key];
+    const value = patch[key];
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
+  try {
+    fn();
+  } finally {
+    for (const key of Object.keys(patch)) {
+      if (prior[key] === undefined) delete process.env[key];
+      else process.env[key] = prior[key];
+    }
+  }
+}
+
 function readLedger(subRoot: string) {
   const path = resolveLedgerPath(subRoot);
   if (!existsSync(path)) return [];
@@ -451,6 +491,80 @@ async function main(): Promise<void> {
     // in process.env never influences these results.
     const d = shouldBlockDispatch(true, {}, 999999);
     assert.equal(d.block, false, 'no budget in the passed env -> never blocks regardless of process.env');
+  });
+
+  // ======================================================================
+  // B-dd44 F-001 PRODUCTION PATH: no explicit env -> falls back to process.env.
+  // The original smoke always passed an explicit env, so it MISSED that the
+  // production seam (which threads no env into the budget path) resolved a null
+  // budget and silently never enforced. These checks lock the production path.
+  // ======================================================================
+  await check('F-001 unit: resolveHardBudget(undefined) reads process.env (not null)', () => {
+    withProcessEnv({ LATTICE_HARD_BUDGET_TOKENS: '1234' }, () => {
+      const r = resolveHardBudget(undefined);
+      assert.ok(r, 'resolveHardBudget(undefined) must read process.env, not default to {}');
+      assert.equal(r?.hardBudgetTokens, 1234);
+      assert.equal(r?.budgetPolicyId, 'hard-budget:1234');
+    });
+    // After restore, the ambient var is gone -> back to null (no enforcement).
+    assert.equal(process.env.LATTICE_HARD_BUDGET_TOKENS, undefined, 'env must be restored');
+  });
+
+  await check('F-001 unit: resolveHardBudget(undefined) honors KOALA_ fallback via process.env', () => {
+    withProcessEnv({ LATTICE_HARD_BUDGET_TOKENS: undefined, KOALA_HARD_BUDGET_TOKENS: '777' }, () => {
+      const r = resolveHardBudget(undefined);
+      assert.equal(r?.hardBudgetTokens, 777, 'KOALA_ legacy fallback must work on the production (process.env) path');
+    });
+  });
+
+  await check('F-001 guard: PRODUCTION-shaped opts (no env key) + over budget -> ENFORCES (blocks)', () => {
+    const sub = freshRoot();
+    const prompt = 'this production prompt is clearly larger than a one-token budget ceiling';
+    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' }, () => {
+      // Production seam shape: ledger ON + budget via process.env, opts has NO env.
+      const handle = recordDispatchPreflight(sub, ctx(), prompt, prodOpts());
+      assert.ok(handle, 'preflight must run on the production path (ledger ON via process.env)');
+      const decision = recordBudgetBlock(sub, ctx(), handle, prompt, prodOpts());
+      // THIS is the bug the finding caught: pre-fix this returned blocked=false.
+      assert.equal(decision.blocked, true, 'production path (no explicit env) MUST enforce the budget');
+      assert.equal(decision.budgetPolicyId, 'hard-budget:1');
+      const blockedRec = readLedger(sub).find((r) => r.decision.kind === 'blocked');
+      assert.ok(blockedRec, 'production path must append the blocked record');
+    });
+  });
+
+  await check('F-001 guard: PRODUCTION-shaped opts + UNDER budget -> proceeds (no false block)', () => {
+    const sub = freshRoot();
+    const prompt = 'tiny';
+    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '100000' }, () => {
+      const handle = recordDispatchPreflight(sub, ctx(), prompt, prodOpts());
+      const decision = recordBudgetBlock(sub, ctx(), handle, prompt, prodOpts());
+      assert.equal(decision.blocked, false, 'within-budget production path must proceed');
+      assert.equal(readLedger(sub).find((r) => r.decision.kind === 'blocked'), undefined);
+    });
+  });
+
+  await check('F-001 guard: PRODUCTION-shaped opts + NO budget env -> proceeds (byte-identical)', () => {
+    const sub = freshRoot();
+    const prompt = 'a prompt with no budget configured at all';
+    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: undefined, KOALA_HARD_BUDGET_TOKENS: undefined }, () => {
+      const handle = recordDispatchPreflight(sub, ctx(), prompt, prodOpts());
+      const decision = recordBudgetBlock(sub, ctx(), handle, prompt, prodOpts());
+      assert.equal(decision.blocked, false, 'no budget env -> guard is a no-op even on the production path');
+      assert.equal(decision.budgetPolicyId, null);
+      assert.equal(readLedger(sub).find((r) => r.decision.kind === 'blocked'), undefined);
+    });
+  });
+
+  await check('F-001 guard: PRODUCTION-shaped opts + ledger OFF -> strict no-op (nothing written)', () => {
+    const sub = freshRoot();
+    const prompt = 'over one token but the ledger is OFF on the production path';
+    // Ledger OFF (no LATTICE_USAGE_LEDGER) but a budget IS set: must NOT block.
+    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined, LATTICE_HARD_BUDGET_TOKENS: '1' }, () => {
+      const decision = recordBudgetBlock(sub, ctx(), null, prompt, prodOpts());
+      assert.equal(decision.blocked, false, 'OFF must be byte-identical even with a budget set');
+      assert.equal(existsSync(resolveLedgerPath(sub)), false, 'OFF writes nothing on the production path');
+    });
   });
 
   // ======================================================================

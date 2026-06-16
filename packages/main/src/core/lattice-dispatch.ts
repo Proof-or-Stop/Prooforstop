@@ -1964,6 +1964,11 @@ function runClaudeCodeRealLeafDispatch(
     projectRootHash: dispatchProjectRootHash(root),
     command: commandLabel,
     host: { kind: record.selectedHost },
+    // B-dd44 F-001 fix: thread the real process env explicitly into the ledger +
+    // budget path. resolveHardBudget also defaults undefined -> process.env, but
+    // passing it here is belt-and-suspenders so the production budget guard reads
+    // the real env (the seam never builds a synthetic env object).
+    env: process.env,
   };
   let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
   let ledgerPromptText = '';

@@ -513,9 +513,15 @@ function parsePositiveIntegerBudget(raw: string | undefined): number | null {
  *
  * STATELESS: reads `env` each call, never caches — rapid sequential dispatches
  * each re-resolve from the live env. PURE and NEVER throws.
+ *
+ * When no explicit `env` is supplied it defaults to `process.env` (consistent
+ * with isUsageLedgerEnabled). This is load-bearing: the production dispatch seam
+ * does NOT thread an explicit env into the budget path, so defaulting to `{}`
+ * here would silently disable the budget guard in production (every lookup would
+ * miss). Tests pass an explicit env to stay hermetic.
  */
 export function resolveHardBudget(env: NodeJS.ProcessEnv | undefined): ResolvedHardBudget | null {
-  const source = env ?? {};
+  const source = env ?? process.env;
   // LATTICE_ takes precedence; KOALA_ is the legacy-compat fallback. The fallback
   // is only consulted when LATTICE_ does not resolve to a usable ceiling.
   const primary = parsePositiveIntegerBudget(source.LATTICE_HARD_BUDGET_TOKENS);
