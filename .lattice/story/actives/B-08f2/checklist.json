@@ -712,14 +712,14 @@
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "verdict": "success",
-          "command": "npm run build && git grep -cE 'KOALA_[A-Z]' (in-scope, whitelisted)",
+          "command": "git grep -c LEGACY_KOALA_ -- packages/main/src/core/lattice-paths.ts",
           "result": "pass",
-          "note": "Covered by the green build + zero-residual scan on the committed tree.",
-          "headHash": "bbe7880f0c7ed278e3b0514b16a74859f031a9d8",
-          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
-          "timestamp": "2026-06-16T00:15:45.760Z"
+          "note": "LEGACY_KOALA_* constants preserved (7) — over-reach guard held.",
+          "headHash": "8e287c415152ada01172d96ebb9b12030c1c91ce",
+          "materialHash": "c1b64ab0913a6e0ad98789f0670fb59f1a7c83b82ddc288b18868da4a4771039",
+          "timestamp": "2026-06-16T01:00:06.308Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
