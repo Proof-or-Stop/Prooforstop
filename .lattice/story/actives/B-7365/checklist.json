@@ -71,7 +71,30 @@
       "userSees": "Concurrent story_advance INIT_CHECK from multiple sessions no longer corrupts metadata; the lock serializes the reconcile.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "reconcile wrapped in withReentrantMainWriteLock; serialized so concurrent advance cannot race",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "single-session advance does not deadlock (reentrant lock)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "reconcile throw releases the lock (no stuck lock)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
