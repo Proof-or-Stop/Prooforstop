@@ -66,7 +66,50 @@
       "context": "排除 .koala 运行时路径、盐值、测试断言意图后，改源码注释/字符串里的 koala 品牌为 Lattice。逐文件确认非运行时路径。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -i koala packages/main/src/ piped through cli-engine-branding-smoke isClassified filter returns zero unclassified lines -> all brand comments and CLI text cleaned; WHY: confirms main package source is brand-free except documented exceptions",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run build succeeds after main source brand cleanup -> no compile errors from string/comment changes; WHY: build integrity after refactor",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep -i koala packages/main/src/ still matches .koala runtime path references (e.g. ~/.koala/) -> runtime paths preserved as documented exceptions; WHY: ensures legitimate runtime paths not accidentally removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala packages/main/src/ still matches LEGACY_KOALA* constants and koala-*-integrity-v1 salt strings -> salt values and legacy constants preserved; WHY: ensures security-critical salts and backward compat constants untouched",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep koala-codex packages/main/src/ returns expected process-lane references intact -> process lane names preserved; WHY: ensures koala-codex/koala-review* lane names are documented exceptions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Add a new comment containing bare koala brand text to a main/src file, run branding smoke -> smoke test fails with unclassified count > 0; WHY: validates guard test catches regression",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Rename a .koala runtime path reference to .lattice in main/src, run e2e tests -> tests fail due to broken path; WHY: confirms that over-aggressive cleanup breaks runtime and tests catch it",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
