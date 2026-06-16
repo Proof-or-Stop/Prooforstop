@@ -272,8 +272,8 @@
       "title": "Drop the docs/koala/legacy/ archive and add the residual-scan verification gate",
       "context": "git rm -r docs/koala/legacy/ (12 files, an archive with 0 code references; docs/koala/framework-audit/ is an ACTIVE path and must be KEPT). Then verify: a scan for KOALA_ env-var names (pattern KOALA_[A-Z]) over packages/, scripts/, bin/, .Codex/, .claude/ returns zero; `npm run build` and `npm run test:e2e` both pass. The koala-to-lattice execution-plan decision doc and truthful CHANGELOG/history are documented exceptions and out of scope.",
       "userSees": "docs/koala/legacy/ is gone; a KOALA_ env-name scan over code/config/wrappers returns zero; build + e2e pass.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T00:12:23.598Z",
       "endTime": null,
       "files": {
         "modify": [
