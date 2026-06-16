@@ -672,9 +672,9 @@
       "id": "CHK-005",
       "title": "Supersedes wiring + estimate-never-final guarantee",
       "context": "Provide/confirm the helper so a later provider-reported final record lists the preflight estimate's recordId in supersedesRecordIds (buildSupersedes from ids.ts). Confirm via summary.ts that a superseded estimate is excluded from provider-reported totals and that prompt-size-estimate is NEVER counted as final usage (it may appear only in a separate estimate view). Tested: an estimate followed by a superseding provider-reported record -> summary providerReportedTotal counts only the final; estimateSubtotal tracks the estimate separately; no double count.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T14:15:59.901Z",
       "files": {
         "modify": [],
         "create": [
