@@ -463,9 +463,9 @@
       "id": "CHK-004",
       "title": "buildEstimateRecord -> validated prompt-size-estimate record",
       "context": "buildEstimateRecord(model, estimateResult, correlation{ledgerCallId,attemptId,sequence,supersedesRecordIds}, attribution{storyId|null,phase,agentType}) assembles a usage.source='prompt-size-estimate' record (reuse assemble.ts/record.ts/ids.ts) with estimator{name,version,unit,confidence}, canonical.input = estimatedInputTokens, and output/cacheCreation/cacheRead = null (unknown — nothing generated yet, per the per-dimension null rule). It MUST pass validateUsageLedgerRecord. If the B-253e validator currently rejects a prompt-size-estimate with null output, make the minimal record.ts adjustment so estimates legitimately allow unknown output (estimates are preflight) — with a test — but do NOT relax provider-reported rules. Tested: assembled estimate record validates; source is prompt-size-estimate; estimator fields present.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T14:15:58.853Z",
       "files": {
         "modify": [],
         "create": [
