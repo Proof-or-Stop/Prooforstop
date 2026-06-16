@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a7b0",
+  "allowedCommands": [
+    "lattice validate",
+    "node dist/tasks/*-smoke.js",
+    "npm run build",
+    "npm test",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "lattice-implementer",
+    "lattice-review-concept",
+    "lattice-review-delivery",
+    "lattice-review-docs",
+    "lattice-review-quality",
+    "lattice-review-test-coverage"
+  ],
+  "allowedPaths": [
+    "packages/main/package.json",
+    "packages/main/src/core/audit-scan.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/handlers/validate-docs-drift.ts",
+    "packages/main/src/tasks",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Additive change to docs-drift gate; reuse scanPathDrift + managed-assets registry; new smoke wired into validate battery. No remote push, no hook generation changes.",
+  "createdAt": "2026-06-16T20:57:46.360Z",
+  "updatedAt": "2026-06-16T20:57:46.360Z",
+  "_hash": "c0828774e1790503994525ce0fbf247170b4c428dceb8b7345e622b30ab35d30"
+}
