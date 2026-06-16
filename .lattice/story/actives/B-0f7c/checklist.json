@@ -261,6 +261,46 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test file exists at packages/main/src/tasks/usage-ledger-dispatch-smoke.ts and is wired as npm test:usage-ledger-dispatch in package.json; running it exits 0 with all checks passing (prints only checkmarks, no X marks); WHY: smoke suite must be wired and green",
+            "type": "cli"
+          },
+          {
+            "desc": "Simulated end-to-end round-trip: sample Claude JSON envelope -> parseClaudeCliOutput extracts usage -> recordDispatchPreflight writes estimate -> recordDispatchFinal writes provider-reported record with REAL token counts (input_tokens:1500, output_tokens:400) attributed to storyId=S-e2e -> diagnostics buildUsageReport shows S-e2e group with provider-reported known.input=1500, known.output=400; estimate is NOT double-counted (superseded, excluded from provider total); WHY: end-to-end verification that the full record chain produces correct diagnostics output",
+            "type": "cli"
+          },
+          {
+            "desc": "Full ledger suite no regression: run all existing usage-ledger smoke tests (usage-ledger-smoke, usage-ledger-adapter-smoke, usage-ledger-estimate-smoke, usage-ledger-diagnostics-smoke) -> all exit 0; WHY: new dispatch-usage code must not break any prior ledger tests",
+            "type": "cli"
+          },
+          {
+            "desc": "Build clean: node bin/lattice.js validate completes with exit 0 (TypeScript compilation succeeds with the new dispatch-usage.ts and the lattice-dispatch.ts edit); WHY: compilation must be green",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Module isolation assertion: dispatch-usage.ts imports only ./ siblings (record, ids, estimate, assemble, adapters/anthropic, writer) and node builtins; grep/static-analysis confirms no import of lattice-dispatch, cli-engine, handler, or any module outside core/usage-ledger/; WHY: the zero-cross-module-import invariant must hold after adding the new file",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers orchestrator flag-off no-op: with LATTICE_USAGE_LEDGER unset, recordDispatchPreflight returns null and no ledger file is created in tmpDir; WHY: flag-off path must be tested in the smoke",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke covers unavailable final: recordDispatchFinal with null anthropicUsage -> records unavailable (superseding estimate); summary shows unknownCount incremented; estimate not double-counted; WHY: the unavailable path must be tested since it is the fallback for parse failures in the dispatch seam",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers parser malformed fallback: parseClaudeCliOutput with malformed JSON string -> returns {resultText: raw, anthropicUsage: null}; never throws; WHY: malformed output is the adversarial scenario for the parser and must be smoke-tested",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
