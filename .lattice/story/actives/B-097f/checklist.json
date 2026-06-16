@@ -134,7 +134,31 @@
       "context": "lifecycle-artifact-scope.md / lattice-runtime-owned-agent-assets-execution-plan.md / CLAUDE.md 相关段同步为 global-agents 单一真相源口径",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "git diff main...HEAD 显示 lifecycle-artifact-scope.md / lattice-runtime-owned-agent-assets-execution-plan.md / CLAUDE.md 三处均更新为 global-agents 单一源口径,旧的 project .claude/agents 物化口径被修正",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "三份文档反映 global-agents 单一真相源契约",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "移除/修正旧的 project-local .claude/agents 物化口径",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "文档描述与实际 init 输出一致(无 docs-drift)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
