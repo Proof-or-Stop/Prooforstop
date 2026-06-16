@@ -39,9 +39,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "Happy case: md references a non-existent path (pathExists=false, grep=false) -> runDocsDriftGate with repoRoot returns status fail and names the path in missingPaths; summary includes the path.",
-          "headHash": "ed9d031a0651120a33bb813e142e0e0f8760aad0",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:28:23.460Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,9 +50,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "Edge case: a referenced path that exists (pathExists=true) -> status pass, missingPaths empty; also covers grep-fallback (pathExists=false but grepLiteral=true) staying pass.",
-          "headHash": "ed9d031a0651120a33bb813e142e0e0f8760aad0",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:28:23.460Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -61,9 +61,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "Adversarial: docs/story/ path + uppercase-XXX placeholder + allowlisted path are NOT flagged; and command-name missing/stale result is byte-identical with vs without repoRoot (unregistered command still caught), proving the path check is purely additive.",
-          "headHash": "ed9d031a0651120a33bb813e142e0e0f8760aad0",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:28:23.460Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "happy: injected codex-hooks generated def + md forbidding it → runDocsDriftGate status fail, asset+kind in managedAssetContradictions; smoke green",
-          "headHash": "ed9d031a0651120a33bb813e142e0e0f8760aad0",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:28:23.460Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -117,9 +117,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "edge: md forbidding an excluded-path (NON-generated) kind → no contradiction/pass; md with no do-not-create claim → pass; ancestor-dir prohibition of a generated child → flagged; smoke green",
-          "headHash": "ed9d031a0651120a33bb813e142e0e0f8760aad0",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:28:23.460Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -128,9 +128,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "adversarial: allowlisted pending Codex-hooks claim NOT flagged (real CLAUDE.md self-check pass); flipping injected def kind generated→excluded flips outcome (proves registry-driven, not hardcoded); absent defs → empty contradictions; smoke green",
-          "headHash": "ed9d031a0651120a33bb813e142e0e0f8760aad0",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:28:23.460Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         }
       ]
     },
@@ -173,9 +173,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "Compiled smoke runs all four behaviors (stale-path fail, managed-asset contradiction fail, clean pass, command-name unchanged) and prints \"docs-drift path+asset smoke passed\" with exit 0.",
-          "headHash": "e1257ebf566ea59d9c222a2e36f7d8ab6e8b14b0",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:27:21.872Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -184,9 +184,9 @@
           "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
           "result": "pass",
           "note": "DI-fixture logic tests assert edge behaviors: clean fixture yields empty missingPaths AND empty managedAssetContradictions; injected pathExists/grepLiteral/managedAssetDefs only, real CLAUDE.md never read.",
-          "headHash": "b80cca00bce053eb1e26f0a1c95a0c1e7d077355",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:27:28.060Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -195,9 +195,9 @@
           "command": "npm test",
           "result": "pass",
           "note": "Smoke is chained into root npm test (= lattice validate battery): test:main-write-lock-coverage && test:docs-drift-smoke && test:e2e. Observed output line \"docs-drift path+asset smoke passed\" during npm test, then \"✓ ALL PASS\". Negative control: breaking one assert in dist yields non-zero exit.",
-          "headHash": "a9ad3e2a9352f1fe212d37c80f21d531a83d004f",
-          "materialHash": "cb804050b02a8f1e4c65d1e78523ad4180f1ed1ac32f7923d41c2a5caed88bcb",
-          "timestamp": "2026-06-16T21:27:34.058Z"
+          "headHash": "d1049b7639d22de3448c09e2cd8c9da95a594742",
+          "materialHash": "becf131e9c87e651f0b5c3256db3138b0330a1e52aa4939397201e1546818a5b",
+          "timestamp": "2026-06-16T21:38:15.614Z"
         }
       ]
     }
