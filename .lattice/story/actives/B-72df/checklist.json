@@ -69,9 +69,9 @@
       "title": "Tests: unrelated-dirty proceeds + preserved; overlapping-dirty still blocked; clean unchanged",
       "context": "Cover: (a) unrelated dirty path -> DONE proceeds and the file is byte-identical after; (b) a dirty path that the merge would change -> still blocked (protection preserved); (c) fully clean -> behavior unchanged. Function level.",
       "userSees": "lattice validate green with tests asserting the three cases (unrelated-allowed, overlapping-blocked, clean-unchanged).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T03:19:04.865Z",
       "verificationIntent": {
         "happy": [
           {
