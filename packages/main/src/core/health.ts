@@ -51,7 +51,7 @@ export interface HealthIssue {
 /** Default health.jsonl path: ~/.lattice/health.jsonl */
 export function getHealthPath(): string {
   // Allow overriding the path via env for easier testing
-  if (process.env.KOALA_HEALTH_PATH) return process.env.KOALA_HEALTH_PATH;
+  if (process.env.LATTICE_HEALTH_PATH) return process.env.LATTICE_HEALTH_PATH;
   return join(homedir(), LATTICE_DIR, 'health.jsonl');
 }
 

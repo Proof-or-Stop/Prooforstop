@@ -228,9 +228,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
-      // Record caller identity (env var KOALA_AGENT is set by subagent)
-      const missingAttribution = !args.agent && !process.env.KOALA_AGENT;
-      const agent = args.agent || process.env.KOALA_AGENT || 'main';
+      // Record caller identity (env var LATTICE_AGENT is set by subagent)
+      const missingAttribution = !args.agent && !process.env.LATTICE_AGENT;
+      const agent = args.agent || process.env.LATTICE_AGENT || 'main';
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
@@ -290,7 +290,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
           severity: args.severity,
           missingAttribution,
           hardWarning: missingAttribution
-            ? 'finding_add called without agent/KOALA_AGENT; recorded as main and REVIEW/TEST gates may reject it'
+            ? 'finding_add called without agent/LATTICE_AGENT; recorded as main and REVIEW/TEST gates may reject it'
             : undefined,
         });
       } catch (e) {
@@ -306,7 +306,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       const warning = missingAttribution
-        ? '\n⚠ finding_add is missing agent/KOALA_AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.'
+        ? '\n⚠ finding_add is missing agent/LATTICE_AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.'
         : '';
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
       const advisoryHint = evidence.evidenceState === 'suspected'
@@ -321,7 +321,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (!args.note || args.note.trim().length < 10) {
         throw new Error('review_pass_set: note must be ≥ 10 characters, explaining what the reviewer checked and why there is no blocker');
       }
-      const agent = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT || 'main');
+      const agent = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT || 'main');
       assertCwdInWorktree(store, args.storyId);
       return recordReviewPass(ctx, args.storyId, agent, args.note, args.reviewRunId || '');
     },

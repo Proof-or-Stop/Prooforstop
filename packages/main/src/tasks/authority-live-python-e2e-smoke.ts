@@ -65,7 +65,7 @@ export interface LiveContext {
 export function envValue(env: Env, suffix: string): string | undefined {
   const canonical = env[`LATTICE_AUTHORITY_${suffix}`];
   if (typeof canonical === 'string' && canonical.trim()) return canonical.trim();
-  const legacy = env[`KOALA_AUTHORITY_${suffix}`];
+  const legacy = env[`LATTICE_AUTHORITY_${suffix}`];
   return typeof legacy === 'string' && legacy.trim() ? legacy.trim() : undefined;
 }
 

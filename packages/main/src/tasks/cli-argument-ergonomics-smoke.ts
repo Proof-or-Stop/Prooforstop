@@ -66,7 +66,7 @@ assert.deepEqual(emptyVerificationIntent.verificationIntent, {
 const isolatedCwd = mkdtempSync(join(tmpdir(), 'koala-cli-arg-smoke-'));
 try {
   const env = { ...process.env };
-  delete env.KOALA_PROJECT_ROOT;
+  delete env.LATTICE_PROJECT_ROOT;
   const invalidVerificationIntent = spawnSync(process.execPath, [
     cliPath,
     'checklist_update',

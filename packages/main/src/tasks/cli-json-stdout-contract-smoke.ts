@@ -112,9 +112,9 @@ function assertNoHumanHint(stdout: string, label: string): void {
 // commands that never had a hint to begin with.
 {
   const stdout = runCli(['authority_status', '--format=json'], {
-    KOALA_AUTHORITY_MODE: '',
-    KOALA_AUTHORITY_URL: '',
-    KOALA_AUTHORITY_TIMEOUT_MS: '',
+    LATTICE_AUTHORITY_MODE: '',
+    LATTICE_AUTHORITY_URL: '',
+    LATTICE_AUTHORITY_TIMEOUT_MS: '',
   });
   const parsed = JSON.parse(stdout) as Record<string, unknown>;
   assert.equal(parsed.schemaVersion, 'lattice.authority_status.v1');
@@ -125,9 +125,9 @@ function assertNoHumanHint(stdout: string, label: string): void {
 // ── A known-good --json shortcut also remains direct-parseable ─────────────
 {
   const stdout = runCli(['authority_status', '--json'], {
-    KOALA_AUTHORITY_MODE: '',
-    KOALA_AUTHORITY_URL: '',
-    KOALA_AUTHORITY_TIMEOUT_MS: '',
+    LATTICE_AUTHORITY_MODE: '',
+    LATTICE_AUTHORITY_URL: '',
+    LATTICE_AUTHORITY_TIMEOUT_MS: '',
   });
   const parsed = JSON.parse(stdout) as Record<string, unknown>;
   assert.equal(parsed.schemaVersion, 'lattice.authority_status.v1');

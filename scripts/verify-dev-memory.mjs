@@ -351,7 +351,7 @@ check('formatPreflightPack includes "Dev Memory Preflight" header', () => {
 console.log('\n--- Section 6: CLI smoke tests ---');
 
 // Use the compiled CLI directly — avoids local koala bootstrap version skew.
-const KOALA_CLI = join(ROOT, 'packages', 'main', 'dist', 'cli.js');
+const LATTICE_CLI = join(ROOT, 'packages', 'main', 'dist', 'cli.js');
 const cliEnv = {
   ...process.env,
   LATTICE_PROJECT_ROOT: join(tmpBase, 'cli-test-project'),
@@ -359,7 +359,7 @@ const cliEnv = {
 };
 
 function runKoala(args, env = cliEnv, cwd = ROOT) {
-  const result = spawnSync('node', [KOALA_CLI, ...args], {
+  const result = spawnSync('node', [LATTICE_CLI, ...args], {
     cwd,
     encoding: 'utf-8',
     env,
@@ -1204,8 +1204,8 @@ check('search includes sourceStoryId in searchable text (B-1148)', () => {
     scope: 'project',
     summary: 'Story owner lease fail-closed on non-owner writes',
     trigger: 'non-owner session hits storyScopedMutating command',
-    lesson: 'always set KOALA_SESSION_ID or rely on CLAUDE_CODE_SESSION_ID',
-    reusePrompt: 'set KOALA_SESSION_ID for owner lease commands',
+    lesson: 'always set LATTICE_SESSION_ID or rely on CLAUDE_CODE_SESSION_ID',
+    reusePrompt: 'set LATTICE_SESSION_ID for owner lease commands',
     tags: ['owner-lease', 'session'],
     sourceStoryId: 'B-c55d',
     evidenceRefs: ['.lattice/story/actives/B-c55d/summary.json'],

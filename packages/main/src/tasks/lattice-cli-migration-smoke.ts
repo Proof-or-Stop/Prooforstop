@@ -260,9 +260,9 @@ assert.match(rollout.safety.note, /never runs apply, upgrade, repair, fix/i);
 assertNoProductionOverclaim(rollout, 'lattice rollout check');
 
 const authority = runJson<any>(['lattice', 'authority', 'status', '--format=json'], {
-  KOALA_AUTHORITY_MODE: '',
-  KOALA_AUTHORITY_URL: '',
-  KOALA_AUTHORITY_TIMEOUT_MS: '',
+  LATTICE_AUTHORITY_MODE: '',
+  LATTICE_AUTHORITY_URL: '',
+  LATTICE_AUTHORITY_TIMEOUT_MS: '',
 });
 assert.equal(authority.schemaVersion, 'lattice.authority_status.v1');
 assert.equal(authority.baseURLConfigured, false);

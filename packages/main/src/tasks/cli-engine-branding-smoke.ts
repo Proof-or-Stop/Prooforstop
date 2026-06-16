@@ -24,19 +24,16 @@ const pkgRoot = join(here, '..', '..');
 // ─── Classification rules ────────────────────────────────────────────────────
 // Classification is token-based, not whole-line based. We strip exact
 // compatibility tokens, then fail if any koala/Koala text remains. This catches
-// lines such as "KOALA_COMMAND ... koala command" instead of hiding them behind
+// lines such as "LATTICE_COMMAND ... koala command" instead of hiding them behind
 // the legacy env var name.
 const NEUTRAL_TOKEN_PATTERNS: RegExp[] = [
-  // Legacy env var names (process tokens — preserved by design).
-  /KOALA_\*/g,
-  /\bKOALA_[A-Z0-9_]+\b/g,
   // koala-codex / lattice-review-* / lattice-implementer / etc. are process lanes.
   /\bkoala-(?:codex|review[a-z-]*|implementer|reviewer|eval[a-z-]*|delivery|init|agent|story[a-z-]*)\b/gi,
   // Legacy internal constants and type names.
   /\bLEGACY_KOALA[A-Z0-9_]*\b/g,
   /\bKoalaConfig\b/g,
-  // Asset/template names.
-  /\bKOALA_MD_TEMPLATE\b|KOALA\.md/g,
+  // Legacy asset/file name (deferred .koala path work).
+  /KOALA\.md/g,
   // String literal CLI alias token.
   /['"]koala['"]/g,
 ];

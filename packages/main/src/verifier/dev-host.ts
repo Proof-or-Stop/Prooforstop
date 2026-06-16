@@ -42,7 +42,7 @@ export async function devHost(
   createApp: () => Promise<DevHostOptions> | DevHostOptions,
   machine: MachineInfo,
 ): Promise<DevHostOptions> {
-  const wsPort = Number(process.env.KOALA_SERVE_PORT || stablePort(process.cwd(), 4));
+  const wsPort = Number(process.env.LATTICE_SERVE_PORT || stablePort(process.cwd(), 4));
   const infoPath = '.koala-serve.json';
 
   // Kill old core

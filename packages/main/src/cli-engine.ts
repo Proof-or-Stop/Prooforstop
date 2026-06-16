@@ -583,7 +583,7 @@ Behavior:
     excludedScope: z.array(z.string().min(1)).optional().describe('Scope entries the user confirmed as excluded or not to be done.'),
     userConfirmed: z.boolean().describe('Must be true: confirms this is the user-confirmed INIT scope boundary.'),
     confirmation: z.string().optional().describe('Confirmation note or source excerpt.'),
-    actor: z.string().optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'execution_boundary_set', description: 'Save INIT execution boundaries (command/tool/path allow/block) for the gate', schema: {
     storyId: z.string().min(1).describe('Story ID'),
@@ -596,20 +596,20 @@ Behavior:
     blockedPaths: z.array(z.string().min(1)).optional().describe('Explicitly blocked relative paths; rejects absolute paths and .. traversal.'),
     excludedPaths: z.array(z.string().min(1)).optional().describe('Explicitly blocked relative paths.'),
     notes: z.string().optional().describe('Additional execution-boundary notes.'),
-    actor: z.string().optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'scope_freeze_check', description: 'Write the INIT scope freeze check result (accepted extensions stale old freeze)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     status: z.enum(['PASS', 'FAIL', 'pass', 'fail']).optional().describe('Optional assertion; cannot override the core evaluateScopeFreeze result.'),
     note: z.string().optional().describe('Freeze-check note; can also serve as repeated-discard mitigation text.'),
     repeatDiscardMitigation: z.string().optional().describe('Mitigation note for repeated discarded direction.'),
-    actor: z.string().optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'scope_extension_proposal', description: 'Propose a scope extension as the INIT reviewer (proposal only)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     proposal: z.string().min(10).describe('Extension proposal narrative; cannot take effect as accepted scope.'),
     reason: z.string().optional().describe('Why the reviewer thinks an extension is needed.'),
-    reviewer: z.string().optional().describe('Proposer; defaults to KOALA_AGENT/USER/main-agent.'),
+    reviewer: z.string().optional().describe('Proposer; defaults to LATTICE_AGENT/USER/main-agent.'),
     findingId: z.string().optional().describe('Optional related finding or issue ID.'),
     evidenceRefs: z.array(z.string().min(1)).optional().describe('Optional evidence references.'),
   }},
@@ -618,7 +618,7 @@ Behavior:
     proposalId: z.string().min(1).describe('Proposal ID returned by scope_extension_proposal.'),
     decision: z.enum(['accepted', 'rejected']).describe('Explicit decision.'),
     reason: z.string().min(10, 'reason ≥ 10 characters').describe('Decision reason.'),
-    decider: z.string().optional().describe('Decider; defaults to KOALA_AGENT/USER/main-agent.'),
+    decider: z.string().optional().describe('Decider; defaults to LATTICE_AGENT/USER/main-agent.'),
   }},
   { name: 'light_review', description: 'Record one lightweight review (called after each batch of DEV items completes)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -627,7 +627,7 @@ Behavior:
   }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),
     lane: z.enum([
       'lattice-review-concept',
       'lattice-review-quality',
@@ -642,7 +642,7 @@ Behavior:
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
   }},
@@ -652,7 +652,7 @@ Behavior:
     reviewRound: z.string().min(1).optional().describe('Optional REVIEW round; defaults to story.currentReviewRound.'),
     trigger: reviewLoopTriggerSchema.describe('Structured source that triggered the loop.'),
     rollbackRef: reviewLoopRollbackRefSchema.describe('References required for manual rollback; recorded only, not executed.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -668,7 +668,7 @@ Behavior:
     decision: reviewLoopDecisionSchema.describe('Final decision for this iteration.'),
     decisionReason: z.string().min(1).describe('Final decision reason.'),
     nextAction: reviewLoopNextActionSchema.optional().describe('Suggested next action; recorded only, not executed.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -688,7 +688,7 @@ Behavior:
     resolvedEvidenceRefs: z.array(z.string().min(1)).optional().describe('Resolved evidence references.'),
     supersedingEvidenceRefs: z.array(z.string().min(1)).optional().describe('Superseding evidence references.'),
     closeReason: z.string().min(1).describe('Close reason.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to KOALA_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -1624,7 +1624,7 @@ Behavior:
       .describe('Evidence state: default suspected; verified is allowed only when structured evidence is provided, otherwise it is forced back to suspected.'),
     uncertaintyReason: z.string().optional().describe('Suspicion reason for suspected state (optional; automatic fallback if omitted).'),
     files: z.array(z.string()).optional().describe('Related file paths.'),
-    agent: z.string().optional().describe('Caller identity (audit field, defaults from KOALA_AGENT).'),
+    agent: z.string().optional().describe('Caller identity (audit field, defaults from LATTICE_AGENT).'),
   }},
 
   // Verifier (Lattice built-in code verification).
@@ -1674,7 +1674,7 @@ Behavior:
       'doc-code-drift',
       'spec-boundary',
     ]).describe('Category (legacy category is normalized to missing).'),
-    agent: z.string().optional().describe('Caller identity (optional, defaults from KOALA_AGENT environment variable).'),
+    agent: z.string().optional().describe('Caller identity (optional, defaults from LATTICE_AGENT environment variable).'),
     reviewRunId: z.string().optional().describe('Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
     files: z.array(z.string()).optional().describe('Related file paths (for reviewer finding clustering and traceability).'),
     // B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.
@@ -1955,8 +1955,8 @@ Behavior:
   // B-ea92 M1: read-only authority policy discovery.
   // Alias: lattice authority enforce policy → authority_enforce_policy (resolved in runCli).
   { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: lattice authority enforce policy', schema: {
-    authorityURL: z.string().optional().describe('Authority server base URL (overrides KOALA_AUTHORITY_URL)'),
-    authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
+    authorityURL: z.string().optional().describe('Authority server base URL (overrides LATTICE_AUTHORITY_URL)'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides LATTICE_AUTHORITY_TIMEOUT_MS)'),
   }},
   { name: 'authority_receipt_verify', description: 'Verify an Authority gate_decision proof and write authority-receipt-refs.json only for production-classified receipts. Alias: lattice authority receipt verify', schema: {
     storyId: z.string().describe('Expected story id and story artifact target'),
@@ -2748,7 +2748,7 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
-  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
+  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   // Walk upward to find lattice.config.json and determine the project root.
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
@@ -2881,10 +2881,10 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
 ]);
 
 function inferCodexEntrypoint(): string {
-  if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
+  if (process.env.LATTICE_CODEX_ENTRYPOINT) return process.env.LATTICE_CODEX_ENTRYPOINT;
   const invoked = process.argv[1] || '';
   if (invoked.includes('lattice-codex')) return 'local-wrapper';
-  if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
+  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
   return 'cli';
 }
 
@@ -3012,7 +3012,7 @@ export function resolveEffectiveOwnershipClass(
  * delivery reviewer (`lattice-review-delivery`).
  *
  * The actor is resolved from the explicit `agentId` argument first, then the
- * `KOALA_AGENT` environment variable — the same precedence the
+ * `LATTICE_AGENT` environment variable — the same precedence the
  * `delivery_check_set` handler records into `delivery-check.json`. Only the
  * exact `lattice-review-delivery` lane qualifies for the reviewerWrite exemption;
  * a main agent (or any other agent id) does NOT, so it cannot borrow
@@ -3025,7 +3025,7 @@ export function resolveEffectiveOwnershipClass(
  */
 export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean {
   const explicit = typeof args.agentId === 'string' ? args.agentId.trim() : '';
-  const env = typeof process.env.KOALA_AGENT === 'string' ? process.env.KOALA_AGENT.trim() : '';
+  const env = typeof process.env.LATTICE_AGENT === 'string' ? process.env.LATTICE_AGENT.trim() : '';
   const actor = explicit || env;
   return actor === 'lattice-review-delivery';
 }
@@ -3185,7 +3185,7 @@ export function enforceStoryOwnerLeaseGate(
 // ─── B-4f15 CHK-002: read-only reviewer command guard ───────────────────────
 
 /** Environment variable name that activates read-only reviewer mode. */
-export const REVIEWER_READONLY_ENV = 'KOALA_REVIEWER_READONLY';
+export const REVIEWER_READONLY_ENV = 'LATTICE_REVIEWER_READONLY';
 
 /** Returns true when the process is running as a read-only reviewer. */
 export function isReviewerReadOnlyModeEnabled(): boolean {
@@ -3195,7 +3195,7 @@ export function isReviewerReadOnlyModeEnabled(): boolean {
 /**
  * B-4f15 CHK-002: pre-hook, pre-lease gate for read-only reviewer mode.
  *
- * When KOALA_REVIEWER_READONLY=1, only commands whose EFFECTIVE ownershipClass
+ * When LATTICE_REVIEWER_READONLY=1, only commands whose EFFECTIVE ownershipClass
  * is `readOnly` are permitted. All other classes — `reviewerWrite`,
  * `storyScopedMutating`, `mainSharedMutating`, `dangerousMutating`, and
  * unclassified (null) — are rejected fail-closed.
@@ -3235,7 +3235,7 @@ export function enforceReviewerReadOnlyCommandGate(
  */
 export function shouldWriteActivityLog(cmdName: string, args: Record<string, unknown>): boolean {
   if (READ_ONLY_COMMANDS.has(cmdName)) {
-    return process.env.KOALA_ACTIVITY_RECORD_READONLY === '1';
+    return process.env.LATTICE_ACTIVITY_RECORD_READONLY === '1';
   }
   if (args.dryRun === true) return false;
   return true;
@@ -3757,10 +3757,10 @@ export async function runCli(opts?: {
   } catch { /* never block */ }
 
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
-  // Can be overridden with KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS,
+  // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
-  const IDLE_TIMEOUT = Number(process.env.KOALA_IDLE_TIMEOUT_MS) || (5 * 60 * 1000);
-  const MAX_TIMEOUT = Number(process.env.KOALA_MAX_TIMEOUT_MS) || (15 * 60 * 1000);
+  const IDLE_TIMEOUT = Number(process.env.LATTICE_IDLE_TIMEOUT_MS) || (5 * 60 * 1000);
+  const MAX_TIMEOUT = Number(process.env.LATTICE_MAX_TIMEOUT_MS) || (15 * 60 * 1000);
   const startTime = Date.now();
   let lastActivity = Date.now();
   const originalLog = log;
@@ -3819,8 +3819,8 @@ export async function runCli(opts?: {
         }
       }
       const record: Record<string, unknown> = {
-        source: process.env.KOALA_ACTIVITY_SOURCE || 'cli',
-        session: process.env.KOALA_ACTIVITY_SESSION || '',
+        source: process.env.LATTICE_ACTIVITY_SOURCE || 'cli',
+        session: process.env.LATTICE_ACTIVITY_SESSION || '',
         entrypoint: inferCodexEntrypoint(),
         startTime: entry.startTime,
         endTime: entry.endTime,
@@ -3835,7 +3835,7 @@ export async function runCli(opts?: {
           projectRoot: effectiveRoot,
         }),
         phase: activeStory?.phase || null,
-        role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
+        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
       };
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
@@ -3855,7 +3855,7 @@ export async function runCli(opts?: {
     success: boolean;
     error?: string;
   }) {
-    if ((process.env.KOALA_ACTIVITY_SOURCE || '') !== 'codex') return;
+    if ((process.env.LATTICE_ACTIVITY_SOURCE || '') !== 'codex') return;
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
@@ -3869,8 +3869,8 @@ export async function runCli(opts?: {
       store.appendProcessEvent(storyId, {
         type: 'codex_cli',
         source: 'codex',
-        session: process.env.KOALA_ACTIVITY_SESSION || '',
-        role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
+        session: process.env.LATTICE_ACTIVITY_SESSION || '',
+        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
         storyId,
         phase,
         command: entry.command,
@@ -3969,7 +3969,7 @@ export async function runCli(opts?: {
       }
       if (!READ_ONLY_COMMANDS.has(cmd)) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
-          KOALA_RESULT_JSON: truncateForEnv(resultText),
+          LATTICE_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
       }
       const output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
@@ -3989,7 +3989,7 @@ export async function runCli(opts?: {
         process.stderr.write(`[lattice-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
-        KOALA_ERROR: String(e?.message || e),
+        LATTICE_ERROR: String(e?.message || e),
       }), config0, root);
       process.stderr.write(`Error: ${e.message}\n`);
       process.exitCode = 1;

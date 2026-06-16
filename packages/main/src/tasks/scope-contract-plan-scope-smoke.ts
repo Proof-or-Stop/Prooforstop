@@ -34,7 +34,7 @@ import {
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const sessionEnv = { ...process.env, KOALA_SESSION_ID: 'scope-plan-scope-smoke', KOALA_AGENT: 'scope-plan-scope-smoke' };
+const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'scope-plan-scope-smoke', LATTICE_AGENT: 'scope-plan-scope-smoke' };
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
