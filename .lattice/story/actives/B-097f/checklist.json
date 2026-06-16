@@ -245,12 +245,12 @@
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/cli-init.ts",
-          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude (无 --upgrade)",
+          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude",
           "result": "pass",
-          "note": "真机: 普通 init 仅输出 ⚠ 16 managed agent files found ...; run lattice init --upgrade to migrate to global，文件计数仍 17，my-custom.md 保留，不删除任何文件",
-          "headHash": "9968d7d4b40e2cf226b17ecb2761a1b895849632",
-          "materialHash": "2f521de1ad3e1313e304dae767346acd870b39ed0a541b4eace3fa1de9bf5346",
-          "timestamp": "2026-06-16T14:50:55.142Z"
+          "note": "Normal init only WARNs: ⚠ 16 managed agent files found in .claude/agents; run lattice init --upgrade. Deletes nothing (17 files remain). User file my-custom.md preserved on every path. PASS.",
+          "headHash": "8b6850e0009eff895fbc521b62b4010925a630bd",
+          "materialHash": "efd7af56f95a5fbd729e189b6c5f2d8993bf58d1b5a5175268df28adf6f2b65c",
+          "timestamp": "2026-06-16T18:46:57.214Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
