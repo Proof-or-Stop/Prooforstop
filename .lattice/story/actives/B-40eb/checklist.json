@@ -25,7 +25,40 @@
       "context": "lab/src/core/*.ts、handlers/lab.ts、tool-defs.ts、profiles 里的 @title/注释/报错/CLI 文案 koala-lab → lattice-lab。避开 B-ed70 在做的 package.json description（CHK-001）与 config.ts 的 .Codex 行（CHK-002）。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep -i koala-lab packages/lab/src/ returns zero unclassified hits after cleanup -> all koala-lab brand references in lab core/handlers/tool-defs/profiles replaced with lattice-lab; WHY: confirms primary brand rename completed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run build succeeds after lab brand rename -> no broken imports or string references; WHY: ensures rename did not introduce compile errors",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep -i koala packages/lab/src/core/config.ts shows only B-ed70-owned .Codex line untouched -> coordination boundary respected; WHY: ensures this story does not conflict with concurrent B-ed70 changes",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep -i koala packages/lab/package.json shows only B-ed70-owned description field untouched -> coordination boundary respected; WHY: verifies cross-story conflict avoidance",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Introduce a new koala-lab string in a lab profile comment, re-run branding smoke -> smoke detects the regression; WHY: confirms guard test catches re-introduction of cleaned brand",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
