@@ -198,6 +198,66 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildEstimateRecord produces a record with usage.source === prompt-size-estimate; WHY: the record type discriminator must be prompt-size-estimate, never provider-reported",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has usage.estimator with name, version, unit, confidence all present as non-empty strings; WHY: spec requires estimator metadata on every estimate record",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has canonical.input === estimatedInputTokens and canonical.output === null, canonical.cacheCreation === null, canonical.cacheRead === null; WHY: an estimate is preflight -- only input is estimated, output/cache are unknown (null, not 0)",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record PASSES validateUsageLedgerRecord({expectIntegrity:false}); WHY: the assembled record must be valid per the B-253e schema before the writer touches it",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has usage.outputTokens === null, usage.cacheCreationInputTokens === null, usage.cacheReadInputTokens === null; WHY: top-level token fields for unknown dimensions must be null (per the per-dimension null rule), not 0 or undefined",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildEstimateRecord with storyId=null (non-story call) still validates; WHY: non-story estimates are legitimate and must not be rejected",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord with estimatedInputTokens=0 (zero-token estimate) validates; WHY: a zero-token estimate from count_tokens on an empty prompt is valid",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord sets supersedesRecordIds from the correlation arg (possibly empty []); WHY: a fresh estimate supersedes nothing; the field must be present and match what was passed",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record has recordId starting with llmuse_ prefix; WHY: recordId is minted via ids.ts and must follow the prefix convention",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "buildEstimateRecord with a forbidden field injected into extra args (e.g. totalTokens) -> the record either excludes it or fails validation; WHY: privacy/stored-total denylist must reject any attempt to sneak forbidden fields into an estimate record",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord with negative estimatedInputTokens -> throws or produces a record that fails validateUsageLedgerRecord; WHY: negative token counts are invalid and must not pass validation",
+            "type": "cli"
+          },
+          {
+            "desc": "buildEstimateRecord record does NOT have usage.raw or usage.canonical with all four dimensions filled (no output/cache) -- it must not masquerade as provider-reported; WHY: an estimate pretending to be provider-reported would bypass the estimate-never-final guarantee",
+            "type": "cli"
+          },
+          {
+            "desc": "Provider-reported validation rules (non-null outputTokens, required canonical+raw) still enforced for source=provider-reported records even after any record.ts adjustments for estimates; WHY: relaxing null-output for estimates must NOT relax provider-reported rules",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
