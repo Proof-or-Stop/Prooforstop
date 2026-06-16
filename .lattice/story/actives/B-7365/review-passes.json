@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-16T02:31:11.041Z",
       "reviewRunId": "B-7365:RR-006",
       "_hash": "8d4ba4c8ca8a55076d174a2da9aa3a7ef579593c85a8abe5ae99e0bd78ad6fe7"
+    },
+    {
+      "id": "B-7365:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check completed. Commit 83445c2 added try/catch around the conflict-resolution loop and fixed a no-op smoke assertion — no symbols introduced or deleted. Full residue scan: mergeBaseBranchIntoStoryWorktreeResolvingMetadata defined+called only in cli-engine.ts (zero orphaned refs); runGitNoThrow same; withReentrantMainWriteLock pre-existing with clean references including the new cli-engine.ts call site; isPathUnderAny pre-existing reused at three call sites; commitInitCheckMetadataAndMergeMain correctly exported and imported by smoke; the bare gitCli merge pattern is gone with zero .ts residue. No deleted concept has remaining references. No doc-promise-undelivered patterns found. 0 findings.",
+      "createdAt": "2026-06-16T02:33:10.585Z",
+      "reviewRound": "2026-06-16T02:31:11.041Z",
+      "reviewRunId": "B-7365:RR-005",
+      "_hash": "632b4cbcc40d29bd91d4d6fcf217745546be568f094872289f93aeff66cbcaff"
     }
   ]
 }
