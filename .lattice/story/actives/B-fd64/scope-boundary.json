@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fd64",
+  "mode": "feature",
+  "allowed": [
+    "Add the local-only authority-evidence layer inside the usage-ledger module: a privacy-preserving usage-evidence envelope shape+builder (authority-evidence.ts), nullable receipt-reference fields on the record authority block (record.ts), a pluggable verification gate (injected verifier; usage-ledger does NOT import authority-signing), negative controls keeping receiptVerified=false, and a smoke"
+  ],
+  "excluded": [
+    "Implementing real signature cryptography (verifier stays injected)",
+    "Marking local records as verified without an injected verifier",
+    "Network submission of evidence",
+    "Running or requiring a live authority server"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized one story per remaining ledger touchpoint (2026-06-16); scout rated this feasible local-only. Stays receiptVerified=false locally; pluggable verifier keeps the module decoupled.",
+  "createdAt": "2026-06-16T21:25:02.314Z",
+  "updatedAt": "2026-06-16T21:25:02.314Z",
+  "_hash": "01d66aa79646494557f965a6c513fd17a34f15503ba19dab583efc1bee91d4f5"
+}
