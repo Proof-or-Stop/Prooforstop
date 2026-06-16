@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T01:20:30.602Z",
       "reviewRunId": "B-253e:RR-005",
       "_hash": "6593469c3632689f061498123ff6476e47e7be805849e4e12f7f3d627b31116f"
+    },
+    {
+      "id": "B-253e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Verifier 75/75 pass, smoke 61/61 pass. All key adversarial intents confirmed genuine: totalTokens deep scan (>=2 errors for dual-location attack), middle-line tamper detection throws, correlation ids not derived from requestIdHash, opt-in OFF creates no dir/file after 10 calls, null cache dims produce unknown=true/total=null never 0, superseded estimate excluded from summary, single-appender static check is a real filesystem walk, registry materialHash/volatile/repairable confirmed via real API calls, summary carries no gate field and is not imported by any gate.",
+      "createdAt": "2026-06-16T01:37:07.989Z",
+      "reviewRound": "2026-06-16T01:20:30.602Z",
+      "reviewRunId": "B-253e:RR-004",
+      "_hash": "03cba6129c33f15757dd420d9b801f3a6e1102a47220cb0efcdded9b9b990188"
     }
   ]
 }
