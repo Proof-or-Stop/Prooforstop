@@ -30,7 +30,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "repro: unrelated dirty tracked file blocked DONE pre-fix (threw), passes post-fix",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "clean main worktree: precondition unchanged (case c)",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "unrelated dirty file is byte-identical after (not clobbered)",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -62,7 +97,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "assertMainWorktreeReadyForMerge allows DONE when dirty paths are unrelated to the merge affected set (git diff main...story --name-status -M)",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "B-e74e main-worktree-unavailable handling preserved (no-git-HEAD still throws, case d)",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "overlapping dirty path (edit AND rename-source) still throws (clobber-protection); diff-uncomputable falls back to conservative block-all",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -94,7 +164,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "test case a: unrelated-dirty proceeds + file preserved",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "test case c: clean unchanged; case d: main-unavailable still blocked",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-merge-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-merge-scope-smoke.js",
+          "result": "pass",
+          "note": "test case b: overlapping-dirty (edit + rename-source) still blocked",
+          "headHash": "d86f79c794489c3ff3780b35ee59c726f3382c75",
+          "materialHash": "9a258f50617a4aa7b66f4f1b29570c0418f38a73fecd986c694eea341f18dc07",
+          "timestamp": "2026-06-16T03:20:20.662Z"
+        }
+      ]
     }
   ]
 }
