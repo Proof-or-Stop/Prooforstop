@@ -1,0 +1,220 @@
+{
+  "storyId": "B-0f7c",
+  "checkedAt": "2026-06-16T19:10:42.413Z",
+  "features": [
+    {
+      "feature": "Preflight prompt-size estimate record written before dispatch (bytes/chars heuristic, synchronous, returns correlation + estimateRecordId)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Provider-reported final usage record that supersedes the estimate (supersedesRecordIds populated)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Unavailable final record when no provider usage (supersedes estimate, records unavailableReason)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Flag-gated opt-in: orchestrator is a no-op when ledger flag is OFF",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Zero cross-module imports: dispatch-usage.ts must not import dispatch or any non-usage-ledger module",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Claude Code CLI JSON output parser: extract resultText and anthropicUsage from JSON envelope",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Parser raw-text fallback: non-JSON or wrong-shape stdout returns {resultText: raw, anthropicUsage: null} without throwing",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Gated seam in lattice-dispatch.ts: preflight call to recordDispatchPreflight before spawn",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Flag-ON path: run host with JSON output format (--output-format json) and parse via parseClaudeCliOutput",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Flag-OFF path: spawn args and result handling byte-identical to pre-change behavior",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Ledger errors must never break dispatch: all ledger work wrapped in try/catch",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "JSON-parse failure in the dispatch seam falls back to raw stdout text (dispatch still yields result)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Regression safety test: flag-OFF spawn args and result text identical to pre-change (structural assertion)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Regression safety test: flag-ON but non-JSON-parseable host output falls back to raw text, records unavailable, dispatch does not throw",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke test: orchestrator happy path (estimate appended, provider-reported supersedes, summary counts final only)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke test: orchestrator unavailable path (no usage => unavailable final, flag off => nothing written)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke test: JSON parser (usage extracted; raw-text fallback; malformed fallback to usage=null)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke test: zero-module-import assertion (dispatch-usage.ts imports only ./ siblings + node)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "No regression in existing ledger suite (usage-ledger, -adapter, -estimate, -diagnostics smokes)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Build green: lattice validate passes after changes",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec (Rollout Phase 4): provider-reported mappings for cache token fields (cacheCreationInputTokens, cacheReadInputTokens) using explicit adapter declarations",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope explicitly defers Codex/Gemini host invocation changes and all other provider adapter changes; only the Claude Code dispatch seam is in scope",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec (Rollout Phase 4): streaming terminal-event usage capture per provider",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Streaming paths are out of scope for this dispatch-wiring slice; deferred per story deferred set (no streaming in Claude CLI --print path)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec (Rollout Phase 4): prefer provider count_tokens endpoint for estimates (high confidence) over bytes/chars heuristic",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 explicitly scopes to synchronous bytes/chars estimator only; count_tokens endpoint is deferred outside this slice",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec: budget enforcement (fail-closed preflight budget blocks)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Budget enforcement explicitly deferred/OUT of scope for this story",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec: signed-receipt path and Authority receipt-backed usage",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Signed-receipt path explicitly OUT of scope for this story",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec: reconciliation check (provider-dispatch events vs ledger final records per ledgerCallId+attemptId)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Completeness reconciliation is a later-phase concern; this story only adds the single choke-point seam",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec: runtime artifact registry entry for .lattice/usage/llm-usage.jsonl",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Registry entry belongs to the earlier ledger-schema-and-writer story; out of scope here",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Spec: default-on ledger (Rollout Phase 6)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Default-on explicitly OUT of scope for this story",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Story description: storyId derived from record.storyId at call time (attribution captured at preflight)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 29,
+    "covered": 21,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a50f8efec75cac5955f7ce46da275956cc5b9b9c30243504fc05594d59eb214e",
+  "openQuestions": []
+}
