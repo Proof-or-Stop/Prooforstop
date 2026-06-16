@@ -23,7 +23,16 @@
       "context": "Provide a pure, deterministic bytes/chars heuristic estimator (kind='bytes_chars', confidence low) that needs no network and no provider client. Document that it is a coarse guard, NOT tiktoken (tiktoken is OpenAI's and undercounts Claude). Tested: deterministic output for the same input; reasonable monotonicity (more text -> more estimated tokens).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/estimate.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
