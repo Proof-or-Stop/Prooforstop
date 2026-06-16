@@ -116,6 +116,66 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildBlockedBudgetRecord(model, estimateResult, correlation, attribution, \"hard-budget:5000\", \"hard_budget_exceeded\") -> record with decision.kind==\"blocked\"; WHY: primary contract: a budget block must record kind=blocked",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.budgetPolicyId == passed budgetPolicyId; WHY: blocked record must carry the policy that triggered the block for audit trail",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.decision.reasonCode == \"hard_budget_exceeded\"; WHY: reason code must be preserved for diagnostics",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.supersedesRecordIds contains the estimateRecordId; WHY: the blocked record supersedes the estimate so summary never double-counts",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord output passes validateUsageLedgerRecord({expectIntegrity:false}) with ok:true; WHY: load-bearing invariant -- blocked records must be schema-valid",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildBlockedBudgetRecord never throws even with minimal/edge inputs; WHY: parallels buildUnavailableFinalRecord contract -- never propagate error to dispatch",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> usage.source is prompt-size-estimate or unavailable (NOT provider-reported); WHY: a blocked call never reached the provider, so it must not be counted as provider-reported in summary",
+            "type": "cli"
+          },
+          {
+            "desc": "blocked record in summarizeRecords -> NOT counted in providerReportedTotal/providerReportedCount; WHY: a blocked dispatch never called the provider, so it must not inflate provider totals",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.privacy.promptStored===false and transcriptStored===false; WHY: blocked records still obey the privacy contract",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord -> record.authority.mode===local, receiptId===null; WHY: local-only authority boundary applies to blocked records",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "buildBlockedBudgetRecord with a forged budgetPolicyId containing special chars (newlines, quotes, unicode) -> still passes validateUsageLedgerRecord; WHY: policy id from env could contain arbitrary strings, must not break validator",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord called with null estimateRecordId (preflight failed) -> still produces a valid record with supersedesRecordIds=[]; WHY: preflight returning null is a documented code path",
+            "type": "cli"
+          },
+          {
+            "desc": "buildBlockedBudgetRecord output deep-scanned by scanForbiddenFields -> returns zero hits; WHY: blocked records must not accidentally include forbidden fields (totalTokens, secrets, etc.)",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
