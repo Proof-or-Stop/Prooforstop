@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-16T21:43:24.705Z",
       "reviewRunId": "B-fd64:RR-002",
       "_hash": "d92af9f8186781d23b70548255f97a192350d0d9e60114a291f4cf4b2ee238c6"
+    },
+    {
+      "id": "B-fd64:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "All four concept-review axes clean. (1) No dead/duplicate concepts: authority-evidence.ts reuses canonicalJson from canonical-json.js (line 37) and scanForbiddenFields/AuthorityMode/UsageLedgerRecord/UsageSource from record.ts (lines 38-44); sha256Hex is a local 3-line wrapper over node:crypto createHash — no re-implemented signing/verification crypto anywhere. (2) Scope honored: git diff --name-only shows exactly 4 changed source files (authority-evidence.ts, record.ts, usage-ledger-authority-smoke.ts, package.json); zero dispatch-runner/cli-engine/handlers/authority-signing files touched. (3) One-way decoupling intact: authority-evidence.ts imports only node:crypto, ./canonical-json.js, and ./record.js; usage-ledger core dir has zero authority-signing imports (only prose comments mentioning it, which the static scan in smoke correctly excludes from the import check). (4) record/authority semantics consistent: LedgerAuthority.receiptVerified is typed as literal false; the validator enforces receiptVerified !== false rejection; the only receiptVerified: true assignment in authority-evidence.ts is inside verifyUsageReceipt behind the full gate condition (verified===true AND subjectKind===story AND subjectId matches envelope.storyId AND receiptId non-null); no local append path (assemble.ts/estimate.ts/dispatch-usage.ts) sets receiptVerified=true. Old removed concept (receiptId must be null for local records) has zero residue. No doc-promise-undelivered issues found.",
+      "createdAt": "2026-06-16T21:46:31.901Z",
+      "reviewRound": "2026-06-16T21:43:24.705Z",
+      "reviewRunId": "B-fd64:RR-003",
+      "_hash": "b47ba41d85d88819c958c51b9e4766488ae109cbf5c930707c89d9dfd71fd779"
     }
   ]
 }
