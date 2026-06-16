@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T21:43:24.705Z",
       "reviewRunId": "B-fd64:RR-003",
       "_hash": "b47ba41d85d88819c958c51b9e4766488ae109cbf5c930707c89d9dfd71fd779"
+    },
+    {
+      "id": "B-fd64:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 38 verificationIntent entries are covered by manual_transcript evidence (kind=manual_transcript, result=pass) via the committed verify-b-fd64.mjs verifier which runs build + authority smoke (33 checks) + no-regression + static checks. Adversarial confirmation: (1) envelope privacy-safety is genuine — scanForbiddenFields + scanSeparatorVariants deep-scan rejects forbidden fields at any nesting depth; builder catches content, apiKey, bearerToken, secret at depth 2-3 and case-variants; (2) validator enforces receiptVerified !== false strictly (rejects true, string true, 1); partial receipt-ref rejections confirmed; (3) gate verified===true only via strict === true + subjectId===envelope.storyId; throws/missing-subject/subject-mismatch/truthy-1/no-verifier all yield false; (4) all four negative controls exercise verifyUsageReceipt(envelope, ..., undefined) or subject-mismatch verifier explicitly; none stack into verified. Static checks (zeroImport, noAuthSigningImport) confirmed: only comment references to authority-signing in usage-ledger; scope clean (4 files, all packages/main/).",
+      "createdAt": "2026-06-16T21:48:43.020Z",
+      "reviewRound": "2026-06-16T21:43:24.705Z",
+      "reviewRunId": "B-fd64:RR-001",
+      "_hash": "f81ea40408af144142dcbcc4de4c6844abb9d4a4fe584158251c4159caf4d842"
     }
   ]
 }
