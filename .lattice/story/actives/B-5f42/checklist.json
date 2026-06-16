@@ -128,7 +128,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-only-guards-smoke.js",
+          "result": "pass",
+          "note": "smoke Test 4 + standalone proof: a CJK fixture commit/metadata flips english-artifact-gate ok=false naming source+line, blocking REVIEW to TEST",
+          "headHash": "033a7534c65b78346aed9289e1be24359ccf5896",
+          "materialHash": "05455bffdd47a413daa065f5d601801897054da029790972fd7bc075c98bab7b",
+          "timestamp": "2026-06-16T23:08:46.043Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
