@@ -68,9 +68,9 @@
       "id": "CHK-002",
       "title": "实现全局 ~/.claude/agents 同步机制",
       "context": "把 16 个 agent 模板 symlink 到 ~/.claude/agents,target 解析自运行中 CLI 包(非 hardcode dev 路径);幂等、可重复跑;断链/旧 copy 自动替换。决定挂在 init 还是独立 lattice 子命令(PLAN 决策)",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-16T18:22:13.606Z",
-      "endTime": "2026-06-16T14:35:40.494Z",
+      "endTime": "2026-06-16T18:44:40.957Z",
       "userSees": "ls ~/.claude/agents 显示 16 个 thin-shim 实体文件;cat lattice-review-scope-plan.md 看到 frontmatter 保留 tools: Read, Grep, Glob, Bash + body 为 run lattice agent_prompt --role=lattice-review-scope-plan(无角色正文);lattice agent_prompt --role=lattice-implementer 打印 registry 完整角色正文",
       "verificationIntent": {
         "happy": [
