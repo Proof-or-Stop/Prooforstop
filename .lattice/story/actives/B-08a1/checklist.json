@@ -332,8 +332,8 @@
       "id": "CHK-007",
       "title": "Smoke/test suite wired into package.json",
       "context": "Add packages/main/src/tasks/usage-ledger-adapter-smoke.ts (follow existing *-smoke.ts pattern; ✓/✗, non-zero exit on failure; temp dir, no repo pollution), wired as npm test:usage-ledger-adapter. Cover: each provider's mapping (incl. cache-null cases), assembler output validates, streaming terminal-event + mid-stream-error extraction, unavailable + per-dimension null, and that an assembled record round-trips through the B-253e writer (opt-in ON, temp dir) and re-reads/validates. Build green.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T02:32:59.137Z",
       "endTime": null,
       "files": {
         "modify": [
