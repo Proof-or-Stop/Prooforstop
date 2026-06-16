@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-a7b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion/replacement completeness check complete. The diff is purely additive. The only symbol-level change is ManagedAssetDefinition promoted from private interface to export interface (no deletion, no rename, no residual dangling refs). All new exports (checkPathDrift, checkManagedAssetContradiction, DocsDriftGateOpts, DOCS_DRIFT_PATH_ALLOWLIST, DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST, missingPaths/managedAssetContradictions fields on DocsDriftGateResult) are present in the code. Grep confirms: single definition of ManagedAssetDefinition (no duplicate), all call sites of runDocsDriftGate handle the extended result backward-compatibly (optional third arg, new fields as empty arrays on no-opts path), no dangling imports. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-06-16T21:30:48.387Z",
+      "reviewRound": "2026-06-16T21:28:15.259Z",
+      "reviewRunId": "B-a7b0:RR-001",
+      "_hash": "2bf1e62abc06a0e6d3d58a7ec9caff66ad1f21090f5cdc93ffe382ba12e47600"
+    },
+    {
+      "id": "B-a7b0:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-intents (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial, CHK-003 happy/edge/adversarial) have valid non-stale passing verificationEvidence. Smoke executes green (exit 0). Battery wiring confirmed via root npm test script. No blocker.",
+      "createdAt": "2026-06-16T21:30:49.265Z",
+      "reviewRound": "2026-06-16T21:28:15.259Z",
+      "reviewRunId": "B-a7b0:RR-003",
+      "_hash": "0945c01a8a412bb4d808be5ebf48d59d3c245cb47694babc97e3229b22c68521"
+    },
+    {
+      "id": "B-a7b0:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 9/9 must-intents covered (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial). Evidence headHash matches d1049b7 (refreshed to 1927cbb). Smoke uses DI fixtures only (no real CLAUDE.md reads). Battery wiring confirmed: root npm test chains test:main-write-lock-coverage && test:docs-drift-smoke && test:e2e. Command-name-unchanged adversarial assertion is byte-identical via deepEqual in smoke lines 136-155. validate --story=B-a7b0 reports 9/9 covered, all pass.",
+      "createdAt": "2026-06-16T21:39:51.288Z",
+      "reviewRound": "2026-06-16T21:38:09.638Z",
+      "reviewRunId": "B-a7b0:RR-006",
+      "_hash": "938a3b83c93bcdffeb6bcd57bcba6837db13f4e7900c7be6553b0b5cf69e1417"
+    },
+    {
+      "id": "B-a7b0:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check completed for round 2 (RR-004). Diff is purely additive: (1) ManagedAssetDefinition changed from private to export interface — same name, no concept deletion, consumers in review-preflight.ts and validate-docs-drift.ts correctly import it as a named type. (2) ALL_MANAGED_ASSET_KINDS is a NEW export — no prior symbol deleted or renamed. (3) validate-docs-drift.ts imports ALL_MANAGED_ASSET_KINDS as MANAGED_ASSET_KIND_VALUES to avoid collision with a local const of the same name (line 258) — intentional, consistent. (4) runDocsDriftGate call site updated with opts parameter — no concept deletion, purely extended. (5) No CLAUDE.md/README changes so no doc-promise-undelivered risk. (6) No deleted symbols with dangling residual references found. Zero findings.",
+      "createdAt": "2026-06-16T21:41:07.466Z",
+      "reviewRound": "2026-06-16T21:38:09.638Z",
+      "reviewRunId": "B-a7b0:RR-004",
+      "_hash": "245706d899242a418b190f440e2c65050fd58fab99fa499f653f1d06a3b7caac"
+    },
+    {
+      "id": "B-a7b0:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review PASS. F-001 fix verified sound: ALL_MANAGED_ASSET_KINDS in managed-assets.ts uses satisfies + _AssertAllKinds exhaustiveness type guard; validate-docs-drift derives runtime set from the canonical export. F-002 fix verified sound: catch (e) in review-preflight.ts runReviewCliGates folds error message into gate details + stderr; happy path byte-identical. Full diff scan: no unused imports, no as-any, no empty catch in diff scope, no I/O in pure check fns (validate-docs-drift delegates fs ops to scanPathDrift via DI), Handler Encoding Convention followed at all consumption points, additivity assertion present in smoke test fixture (d), allowlist seam clearly commented with B-94ae pending reference, reuse confirmed (scanPathDrift reused, registry provider-injected).",
+      "createdAt": "2026-06-16T21:43:23.034Z",
+      "reviewRound": "2026-06-16T21:38:09.638Z",
+      "reviewRunId": "B-a7b0:RR-005",
+      "_hash": "6221d830852ea3a1c499fe227b5ad11ce64a877e15f3956cce57d799dde23335"
+    }
+  ]
+}

@@ -63,6 +63,37 @@ export type ManagedAssetKind =
   | 'excluded-path'
   | 'remove-extra';
 
+/**
+ * Canonical runtime list of every `ManagedAssetKind`. Single source of truth for
+ * any consumer that must re-validate kinds at runtime (Handler Encoding
+ * Convention) — e.g. validate-docs-drift's managed-asset contradiction guard.
+ *
+ * Two compile-time guards keep this list honest:
+ *   1. `as const satisfies readonly ManagedAssetKind[]` — every LISTED value must
+ *      be a valid kind (rejects typos / removed kinds).
+ *   2. `_AssertAllKinds` below — every UNION member must appear here, so adding a
+ *      new `ManagedAssetKind` without listing it is a TYPE ERROR (no silent drift).
+ */
+export const ALL_MANAGED_ASSET_KINDS = [
+  'managed-block',
+  'whole-file',
+  'gitignore-runtime',
+  'claude-settings',
+  'codex-hooks',
+  'excluded-path',
+  'remove-extra',
+] as const satisfies readonly ManagedAssetKind[];
+
+// Compile-time exhaustiveness: if a new ManagedAssetKind is added to the union
+// but NOT to ALL_MANAGED_ASSET_KINDS above, `Exclude<...>` is the missing kind
+// (not `never`), so this type resolves to the error tuple and the assignment
+// below fails to compile. Adding the kind to the array restores it to `never`.
+type _AssertAllKinds = Exclude<ManagedAssetKind, typeof ALL_MANAGED_ASSET_KINDS[number]> extends never
+  ? true
+  : ['MISSING_KIND', Exclude<ManagedAssetKind, typeof ALL_MANAGED_ASSET_KINDS[number]>];
+const _allKindsCovered: _AssertAllKinds = true;
+void _allKindsCovered;
+
 export interface ManagedAssetCheckOptions {
   apply?: boolean;
   upgrade?: boolean;
@@ -110,7 +141,7 @@ export interface ManagedAssetLocalEditReview {
   recommendation: string;
 }
 
-interface ManagedAssetDefinition {
+export interface ManagedAssetDefinition {
   id: string;
   relPath: string;
   kind: ManagedAssetKind;
