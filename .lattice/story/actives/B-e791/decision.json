@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Reuse the existing signed-workspace / configuredGitRootStatus resolution; no second resolver",
+    "Guidance text and nesting-check cwd only; never change bootstrap behavior, gate semantics, or git command text",
+    "Plain non-git projects with no configured gitRoot stay byte-identical",
+    "Stay out of lattice doctor (B-1637) and the already-fixed sites"
+  ],
+  "drivers": [
+    "External report fix #3: configured-gitRoot users are wrongly told to git init the metadata root",
+    "The bootstrap already works, so the misleading guidance and the spurious fatal line are pure UX noise",
+    "A reusable gitRoot resolution already exists in session.ts"
+  ],
+  "options": [
+    {
+      "name": "A: gitRoot-aware guidance + nesting check in the resolved gitRoot",
+      "pros": [
+        "Correct guidance for wrapper-root",
+        "Removes the spurious fatal line",
+        "Reuses existing resolution, minimal"
+      ],
+      "cons": [
+        "Touches two handler files (session.ts + worktree.ts)"
+      ]
+    },
+    {
+      "name": "B: only suppress the fatal stderr, leave the guidance",
+      "pros": [
+        "Smaller change"
+      ],
+      "cons": [
+        "Leaves the misleading git-init guidance, the bigger half of the report"
+      ]
+    },
+    {
+      "name": "C: broad sweep of all metadataRoot git probes",
+      "pros": [
+        "Comprehensive"
+      ],
+      "cons": [
+        "Overlaps B-1637 (doctor) and risks collisions; scope creep"
+      ]
+    }
+  ],
+  "chosen": "A: gitRoot-aware guidance + nesting check in the resolved gitRoot",
+  "rationale": "Option A makes the session.ts git-readiness guidance gitRoot-aware (reusing the existing configuredGitRootStatus resolution) and runs/guards the nesting check in the resolved gitRoot, fixing both halves of the report fix #3 with a minimal, plain-repo-byte-identical change. B leaves the worse half (misleading guidance); C overlaps B-1637 and risks collisions.",
+  "preMortem": [
+    {
+      "scenario": "Plain-repo regression",
+      "trigger": "a plain non-git project with no configured gitRoot stops showing the git-init guidance",
+      "consequence": "plain-repo users lose the correct hint",
+      "mitigation": "only change the message when a configured gitRoot actually resolves; test the plain no-gitRoot case stays git-init"
+    },
+    {
+      "scenario": "Collision with B-1637 (doctor)",
+      "trigger": "the change strays into doctor's git probes",
+      "consequence": "merge conflict / duplicate with B-1637",
+      "mitigation": "scope strictly to session.ts next-step/advisory guidance + worktree.ts nesting check; do not touch doctor"
+    },
+    {
+      "scenario": "Nesting rejection broken",
+      "trigger": "running the nesting check in the gitRoot changes when it rejects",
+      "consequence": "real in-worktree nesting no longer rejected, or false rejections",
+      "mitigation": "preserve the rejection logic; add a test that a real worktree-* branch is still rejected and a wrapper-root metadataRoot emits no fatal"
+    },
+    {
+      "scenario": "DONE-merge reconcile corruption (known B-7365)",
+      "trigger": "concurrent main churn conflicts the DONE merge of index.json",
+      "consequence": "merge markers / blocked DONE",
+      "mitigation": "recover the merge manually (take main's metadata version) as already done twice this session; B-7365 is the durable fix"
+    }
+  ],
+  "timestamp": "2026-06-16T00:27:21.008Z"
+}

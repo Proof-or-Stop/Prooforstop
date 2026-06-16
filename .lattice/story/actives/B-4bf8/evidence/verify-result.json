@@ -1,0 +1,278 @@
+{
+ "CHK-001:happy:0": {
+  "pass": true,
+  "note": "JSON example has all four token fields"
+ },
+ "CHK-001:happy:1": {
+  "pass": true,
+  "note": "prose: input_tokens is the uncached remainder"
+ },
+ "CHK-001:happy:2": {
+  "pass": true,
+  "note": "references CMA model_usage"
+ },
+ "CHK-001:happy:3": {
+  "pass": true,
+  "note": "Required record constraints mention cache fields"
+ },
+ "CHK-001:edge:0": {
+  "pass": true,
+  "note": "JSON example has no totalTokens"
+ },
+ "CHK-001:edge:1": {
+  "pass": true,
+  "note": "billableUnits/example includes cache entries"
+ },
+ "CHK-001:adversarial:0": {
+  "pass": true,
+  "note": "totalTokens only in derived/not-stored context (5 lines)"
+ },
+ "CHK-001:adversarial:1": {
+  "pass": true,
+  "note": "no source files changed (1 non-meta: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)"
+ },
+ "CHK-002:happy:0": {
+  "pass": true,
+  "note": "example block has no totalTokens"
+ },
+ "CHK-002:happy:1": {
+  "pass": true,
+  "note": "identity formula present"
+ },
+ "CHK-002:happy:2": {
+  "pass": true,
+  "note": "totals derived in summary layer, not stored"
+ },
+ "CHK-002:edge:0": {
+  "pass": true,
+  "note": "constraints: totalTokens absent or marked not-stored"
+ },
+ "CHK-002:edge:1": {
+  "pass": true,
+  "note": "no total-type billableUnits entry"
+ },
+ "CHK-002:adversarial:0": {
+  "pass": true,
+  "note": "every totalTokens occurrence is in not-stored/derived context"
+ },
+ "CHK-002:adversarial:1": {
+  "pass": true,
+  "note": "Validation does not assert totalTokens presence"
+ },
+ "CHK-003:happy:0": {
+  "pass": true,
+  "note": "count_tokens preferred estimator"
+ },
+ "CHK-003:happy:1": {
+  "pass": true,
+  "note": "confidence high|medium|low"
+ },
+ "CHK-003:happy:2": {
+  "pass": true,
+  "note": "estimate bound to model ID / model-version-specific"
+ },
+ "CHK-003:edge:0": {
+  "pass": true,
+  "note": "fallback chain count_tokens>tokenizer>bytes"
+ },
+ "CHK-003:edge:1": {
+  "pass": true,
+  "note": "estimator + confidence in constraints"
+ },
+ "CHK-003:adversarial:0": {
+  "pass": true,
+  "note": "bytes only as fallback, not primary"
+ },
+ "CHK-003:adversarial:1": {
+  "pass": true,
+  "note": "example estimator block (if object) includes confidence"
+ },
+ "CHK-004:happy:0": {
+  "pass": true,
+  "note": "storyId=null for non-story calls"
+ },
+ "CHK-004:happy:1": {
+  "pass": true,
+  "note": "subagent propagation of parent storyId"
+ },
+ "CHK-004:happy:2": {
+  "pass": true,
+  "note": "role/agentType field"
+ },
+ "CHK-004:happy:3": {
+  "pass": true,
+  "note": "captured at preflight from active context"
+ },
+ "CHK-004:edge:0": {
+  "pass": true,
+  "note": "example includes storyId + role/agentType"
+ },
+ "CHK-004:edge:1": {
+  "pass": true,
+  "note": "subagentId/threadId field"
+ },
+ "CHK-004:adversarial:0": {
+  "pass": true,
+  "note": "no statement dropping null-storyId records"
+ },
+ "CHK-004:adversarial:1": {
+  "pass": true,
+  "note": "Validation asserts null-storyId + subagent"
+ },
+ "CHK-005:happy:0": {
+  "pass": true,
+  "note": "single writer choke-point"
+ },
+ "CHK-005:happy:1": {
+  "pass": true,
+  "note": "reconciliation of dispatch vs ledger"
+ },
+ "CHK-005:edge:0": {
+  "pass": true,
+  "note": "reconciliation keyed on ledgerCallId+attemptId"
+ },
+ "CHK-005:edge:1": {
+  "pass": true,
+  "note": "bypassed-writer under-count failure mode"
+ },
+ "CHK-005:adversarial:0": {
+  "pass": true,
+  "note": "touchpoints reinforce choke-point"
+ },
+ "CHK-005:adversarial:1": {
+  "pass": true,
+  "note": "Validation asserts reconciliation/completeness"
+ },
+ "CHK-006:happy:0": {
+  "pass": true,
+  "note": "streaming usage from terminal event"
+ },
+ "CHK-006:happy:1": {
+  "pass": true,
+  "note": "partial usage on error/timeout"
+ },
+ "CHK-006:happy:2": {
+  "pass": true,
+  "note": "unavailable only when truly no count"
+ },
+ "CHK-006:edge:0": {
+  "pass": true,
+  "note": "consistent with failed-request rule"
+ },
+ "CHK-006:edge:1": {
+  "pass": true,
+  "note": "partial counts tied to provider-reported"
+ },
+ "CHK-006:adversarial:0": {
+  "pass": true,
+  "note": "prohibits treating missing as zero"
+ },
+ "CHK-006:adversarial:1": {
+  "pass": true,
+  "note": "Validation asserts streaming/partial/failure usage"
+ },
+ "CHK-007:happy:0": {
+  "pass": true,
+  "note": "both raw + canonical view required"
+ },
+ "CHK-007:happy:1": {
+  "pass": true,
+  "note": "explicit per-provider mapping rules"
+ },
+ "CHK-007:edge:0": {
+  "pass": true,
+  "note": "canonical uses four-field shape"
+ },
+ "CHK-007:edge:1": {
+  "pass": true,
+  "note": "adapter touchpoint consistent with dual view"
+ },
+ "CHK-007:adversarial:0": {
+  "pass": true,
+  "note": "no statement discarding raw units"
+ },
+ "CHK-007:adversarial:1": {
+  "pass": true,
+  "note": "example includes both raw + canonical"
+ },
+ "CHK-008:happy:0": {
+  "pass": true,
+  "note": "pricingRef/pricingVersion field"
+ },
+ "CHK-008:happy:1": {
+  "pass": true,
+  "note": "price table/snapshot + multipliers"
+ },
+ "CHK-008:happy:2": {
+  "pass": true,
+  "note": "prohibits absolute prices in record"
+ },
+ "CHK-008:edge:0": {
+  "pass": true,
+  "note": "no dollar amount in JSON example"
+ },
+ "CHK-008:edge:1": {
+  "pass": true,
+  "note": "cache multipliers addressed"
+ },
+ "CHK-008:adversarial:0": {
+  "pass": true,
+  "note": "no hardcoded dollar amounts (\\$<digit> count=0)"
+ },
+ "CHK-008:adversarial:1": {
+  "pass": true,
+  "note": "Acceptance mentions pricing/pricingRef"
+ },
+ "CHK-009:happy:0": {
+  "pass": true,
+  "note": "Validation asserts cache-token recording"
+ },
+ "CHK-009:happy:1": {
+  "pass": true,
+  "note": "Acceptance mentions no-stored-total/derived"
+ },
+ "CHK-009:happy:2": {
+  "pass": true,
+  "note": "Validation mentions estimator confidence/count_tokens"
+ },
+ "CHK-009:happy:3": {
+  "pass": true,
+  "note": "Validation mentions null + subagent attribution"
+ },
+ "CHK-009:happy:4": {
+  "pass": true,
+  "note": "CMA expanded on first use"
+ },
+ "CHK-009:happy:5": {
+  "pass": true,
+  "note": "Rollout references new fields"
+ },
+ "CHK-009:edge:0": {
+  "pass": true,
+  "note": "cross-refs consistent: no removed field referenced as stored"
+ },
+ "CHK-009:edge:1": {
+  "pass": true,
+  "note": "Acceptance includes reconciliation/completeness"
+ },
+ "CHK-009:edge:2": {
+  "pass": true,
+  "note": "Acceptance includes streaming/failure"
+ },
+ "CHK-009:adversarial:0": {
+  "pass": true,
+  "note": "diff is only the doc (non-meta changed: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)"
+ },
+ "CHK-009:adversarial:1": {
+  "pass": true,
+  "note": "no CJK (count=0)"
+ },
+ "CHK-009:adversarial:2": {
+  "pass": true,
+  "note": "Validation does not assert totalTokens presence"
+ },
+ "CHK-009:adversarial:3": {
+  "pass": true,
+  "note": "Acceptance includes canonical + pricingRef"
+ }
+}

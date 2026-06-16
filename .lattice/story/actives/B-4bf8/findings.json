@@ -1,0 +1,72 @@
+{
+  "findings": [
+    {
+      "id": "B-4bf8:F-001",
+      "desc": "quality-cleanup: lattice-llm-usage-ledger-execution-plan.md JSON example (line ~341): provider.name is \"openai\" but usage.raw.providerUnits is \"anthropic-usage-v1\" — the raw view is supposed to be provider-specific, so an OpenAI record should carry an OpenAI-shaped providerUnits identifier. This is a self-contradicting example that will mislead implementers writing the provider adapter.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:02:51.525Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-004",
+      "_hash": "29d04a1f75b04d1c47d217b3dbd709a0965ee0f6cc0e2f225e894a000fca22d7",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "resolvedAt": "2026-06-16T00:08:45.420Z"
+    },
+    {
+      "id": "B-4bf8:F-002",
+      "desc": "quality-cleanup: lattice-llm-usage-ledger-execution-plan.md lines 413-414 and 487-489: the spec uses `usage.source=unavailable` as both a whole-record discriminator (lines 126, 423) and a per-dimension state within a provider-reported record (\"maps to usage.source=unavailable for the cache dimension\"). These usages contradict each other: a record cannot be simultaneously source=provider-reported (for input/output tokens) and source=unavailable (for cache dimensions) under a single enum field. The Multi-Provider Normalization section also says canonical maps those cache fields to \"unavailable for that dimension\" without specifying the concrete value (null? absent key? sentinel?). An implementer has no clear path. The spec must either define a per-dimension source sub-field on usage, or define the canonical field value for an unavailable dimension (e.g., null), or resolve the collision in the usage.source enum.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T00:03:00.069Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-004",
+      "_hash": "6fbc0d38defca37ad3cb4b528ce9cfc15d30896795178f8375ca53478c1304e4",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "resolvedAt": "2026-06-16T00:08:50.765Z"
+    },
+    {
+      "id": "B-4bf8:F-003",
+      "desc": "doc-code-drift: JSON example has provider.name=openai and provider.model=gpt-5 but usage.raw.providerUnits=anthropic-usage-v1. The raw units label claims Anthropic format while the provider block claims OpenAI. A reader implementing the raw-view shape from this example would associate the wrong providerUnits discriminator with OpenAI calls. Either the provider block should use an Anthropic-shaped provider (which would also align with the Anthropic-shaped canonical mapping described in the Multi-Provider Normalization section), or the providerUnits value should be an OpenAI-shaped label. This is an internal contradiction in the only JSON example the doc provides.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-16T00:03:06.860Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-001",
+      "_hash": "215eeca0124477fd59f2da8309c39e8275f225219536ccd2de359aebd2dab89d",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "resolvedAt": "2026-06-16T00:09:00.992Z"
+    },
+    {
+      "id": "B-4bf8:F-004",
+      "desc": "doc-code-drift: The Required record constraints section (lines 408-414) states that if a provider does not expose cache-token fields at all, that maps to usage.source=unavailable for the cache dimension. The Multi-Provider Normalization section (lines 487-489) states that such providers map cacheCreation and cacheRead to unavailable for that dimension while still mapping input and output. But usage.source is a single record-level discriminator (provider-reported | prompt-size-estimate | unavailable); the doc does not define how a record with provider-reported input/output AND unavailable cache fields represents itself in usage.source, nor does it define a per-field source sub-schema, nullable cache fields, or split-record encoding. An implementer cannot determine from the doc alone whether to emit usage.source=provider-reported with null/absent cache fields, usage.source=unavailable for the whole record, or two separate records. The per-dimension language needs a concrete resolution: either define a mixed-source encoding (e.g. nullable cache fields under provider-reported), mandate a split-record approach, or clarify that the whole record becomes usage.source=unavailable when cache fields are missing.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-16T00:03:19.271Z",
+      "reviewRound": "2026-06-16T00:00:30.448Z",
+      "reviewRunId": "B-4bf8:RR-001",
+      "_hash": "0948cbcf3c1fcb50783170ea53723e2bcd5d8fc098c98908a02644aa6f91ff19",
+      "files": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "resolvedAt": "2026-06-16T00:09:07.824Z"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+## Trigger Event
+2026-06-16: An external developer reported that wrapper-root INIT_CHECK bootstrap fails / asks you to git init the metadata root. Reproduction on current main proved the bootstrap itself SUCCEEDS (worktree created under the resolved gitRoot), so the reporter is on a stale dist for the core defect. But their fix #3 (do not tell users to git init the metadata root when a gitRoot is configured) exposed two genuine residuals still present in current main: the session.ts git-readiness guidance and the worktree.ts nesting-check stderr noise.
+
+## Key Insights
+session.ts computes gitReady = isGitRepository(ctx.root) (metadataRoot only) at around line 672; the INIT and INIT_CHECK next-step strings (around lines 549 and 554) and the non-git advisories (around lines 694, 889, 921) branch on that, so a configured-gitRoot wrapper-root project is wrongly told to git init the metadata root. session.ts already has a configuredGitRootStatus branch (around line 918) that knows the resolved signed workspace, so the guidance can reuse it. The dev_start nesting check (worktree.ts around line 795) runs git rev-parse --abbrev-ref HEAD with no cwd, so it runs in process.cwd() (metadataRoot) and prints fatal: not a git repository; the error is caught and bootstrap proceeds, but the line is alarming noise. This is the same defect class as B-2856 and B-1637; this story is a distinct residual (session guidance + nesting-check), not a duplicate.
+
+## Solution Tradeoffs
+For the guidance: reuse the existing configuredGitRootStatus / signed-workspace resolution so the prompts become gitRoot-aware (preferred, single source of truth) versus introducing a second resolver (rejected). For the nesting check: run it in the resolved gitRoot (cwd of the configured gitRoot) versus detect-and-skip when metadataRoot is not a git repo. Both are cwd / guidance only and keep plain repos byte-identical. Keep the change minimal and out of B-1637 and the already-fixed sites.
+
+## Conversational Texture
+Direct follow-up to the external report's fix #3 in this session, after a reproduction proved the bootstrap is already fixed. The user asked to open a dedicated story and drive it through the full Lattice CLI flow. Scope must stay on the session guidance text and the worktree nesting-check cwd; doctor probes are B-1637's job.

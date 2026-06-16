@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-253e",
+  "mode": "feature",
+  "allowed": [
+    "Implement the LLM usage ledger writer FOUNDATION in packages/main/src: record types + schema validator (core/usage-ledger/*), append-only hash-chained writer to .lattice/usage/llm-usage.jsonl, correlation-id generation helpers, raw-content/secret rejection, register the path in core/runtime-artifact-registry.ts, opt-in flag gating (default OFF), informational summary reader (no gates), and a wired smoke/test suite"
+  ],
+  "excluded": [
+    "Budget decision and request blocking",
+    "Edits outside packages/main/src or its tests",
+    "Enabling the writer by default",
+    "Integrating live model calls into the writer",
+    "Preflight token estimation logic",
+    "Signed receipt verification or server promotion"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized starting implementation (2026-06-16) and chose the foundation slice scope. Spec mandates slicing; later slices are separate stories.",
+  "createdAt": "2026-06-16T00:54:45.963Z",
+  "updatedAt": "2026-06-16T00:54:45.963Z",
+  "_hash": "e61aabb3a50f71bdadb2bbae93f8262b87bdb99d89d9bed93405ae4ba5d4a43a"
+}

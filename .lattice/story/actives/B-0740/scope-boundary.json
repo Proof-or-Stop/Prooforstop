@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0740",
+  "mode": "correctness_fix",
+  "allowed": [
+    "packages/main/src/handlers/doctor.ts: thread resolved gitRoot into repairStoryMetadataAllowlist (--repair)",
+    "packages/main/src/handlers/verifier.ts + review-preflight.ts + validate-lint.ts: thread resolved gitCwd into resolveChangedFiles (lint change-scope)",
+    "wrapper-root regression tests for both"
+  ],
+  "excluded": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Combination-review remediation; user asked to fix the found stacking gaps via the story flow.",
+  "createdAt": "2026-06-16T00:49:19.145Z",
+  "updatedAt": "2026-06-16T00:49:19.145Z",
+  "_hash": "8a4a212ca4fa419967792aad2369a3d90061ed70dc79405dd07ba544618bc477"
+}

@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-1637:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The diff is purely additive: resolveDoctorGitCwd() is a new export, and the three probe functions (scanTrackedRuntimeArtifacts, scanOrphanWorktrees, scanStoryMetadataProtection) received only signature extensions (new optional gitCwd parameter with default=root). The old signatures appear as deleted lines in the diff but the functions themselves remain and all 6 internal call sites in doctor.ts have been updated to pass gitProbeCwd. Grep across the full repo confirms these three probe functions have no external callers outside doctor.ts (they are module-private), so the signature change has zero residue risk. No concept deletions or replacements found. No doc-promise-undelivered issues: the new resolveDoctorGitCwd export is exercised in doctor-gitroot-probe-smoke.ts (imported and called directly in 3 unit assertions). No blocker.",
+      "createdAt": "2026-06-16T00:10:58.861Z",
+      "reviewRound": "2026-06-16T00:09:43.214Z",
+      "reviewRunId": "B-1637:RR-002",
+      "_hash": "647e6d16457a1cedca35addd5269a589b5d1e3aee9a34e89c896f6ecb04f81f3"
+    },
+    {
+      "id": "B-1637:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (2 items, no riskSignals, no verificationIntent required). Smoke test doctor-gitroot-probe-smoke.ts covers: (1) resolver unit — wrapper-root resolves to configured gitRoot subdir (not the non-git metadataRoot); (2) resolver unit — plain-repo falls back to root verbatim (byte-identical); (3) resolver unit — null gitRootAbs falls back to root verbatim; (4) e2e — real doctor() on wrapper-root fixture produces NO fatal: not a git repository on stdout or stderr, report still produced; (5) e2e — real doctor() on plain-repo fixture unchanged (no fatal, report produced). All 5 assertions pass. Stderr-piping on the two discovery execSync calls is validated implicitly by the e2e assertion that captures live process.stdout/process.stderr via stream monkey-patching — the precise channel where fatal lines previously leaked. No blocking coverage gaps found.",
+      "createdAt": "2026-06-16T00:11:03.432Z",
+      "reviewRound": "2026-06-16T00:09:43.214Z",
+      "reviewRunId": "B-1637:RR-003",
+      "_hash": "55d7262fb7102a75dfa85312691559d5da54988a47c71697611a1c6a6653aecb"
+    },
+    {
+      "id": "B-1637:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "No dead code, no unsafe type usage, no I/O shell isolation violations found. The resolveDoctorGitCwd helper is clean: total, non-throwing, correct fallback semantics. The gitCwd default-parameter threading into scanTrackedRuntimeArtifacts / scanOrphanWorktrees / scanStoryMetadataProtection is correct. The stdio pipe additions on the two execSync discovery calls correctly suppress leaked fatal lines. Smoke test covers resolver unit (wrapper-root / plain-repo / no-git) and e2e (wrapper-root + plain-repo doctor() output). One low finding registered (split import from same module, lines 46-47 of smoke file); no blockers.",
+      "createdAt": "2026-06-16T00:11:16.590Z",
+      "reviewRound": "2026-06-16T00:09:43.214Z",
+      "reviewRunId": "B-1637:RR-001",
+      "_hash": "be270f6fd85b214843ffea1df5b92d451a3f1cd7df897936b18743ee8dfbf3e0"
+    },
+    {
+      "id": "B-1637:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The diff is purely additive: resolveDoctorGitCwd() is a new export added to doctor.ts; the three module-private probe functions (scanTrackedRuntimeArtifacts, scanOrphanWorktrees, scanStoryMetadataProtection) received only signature extensions (new optional gitCwd parameter with default=root). The old zero-extra-param signatures appear as deleted lines in the diff but the functions remain under the same names, all 6 internal call sites in doctor.ts were updated to pass gitProbeCwd, and the functions are module-private with no external callers (confirmed by grep). No symbols were deleted or renamed. New smoke test doctor-gitroot-probe-smoke.ts is correctly registered in both package.json files. No orphaned references found. No doc-promise-undelivered issues. No blocker.",
+      "createdAt": "2026-06-16T00:16:47.910Z",
+      "reviewRound": "2026-06-16T00:15:43.126Z",
+      "reviewRunId": "B-1637:RR-005",
+      "_hash": "1cc239a73f8b4d00b3ee64c5ff3434d7efe7438b121e2e4606b1a7b01613819f"
+    },
+    {
+      "id": "B-1637:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed doctor.ts and doctor-gitroot-probe-smoke.ts. Dead code: none — resolveDoctorGitCwd is exported and consumed by the smoke; all gitCwd default parameters are exercised. Type safety: production code has no unnecessary `as any`; smoke monkey-patches process.stdout.write with `as any` which is the standard approach for test stream capture. No empty catch swallowing (existing catch clauses return safe sentinel values, unchanged). I/O shell isolation: neither changed file is a shell file; no fn.ts import from shells. The two new execSync discovery calls now pipe stdio correctly. No blocking issues found.",
+      "createdAt": "2026-06-16T00:17:15.843Z",
+      "reviewRound": "2026-06-16T00:15:43.126Z",
+      "reviewRunId": "B-1637:RR-004",
+      "_hash": "3da109713a8de51e288d3d1365899d72454e0b8c830cd2a80910e7d274e9c1c2"
+    },
+    {
+      "id": "B-1637:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (no verificationIntent rows); judged delivered tests against behavior change directly. resolveDoctorGitCwd unit: all 3 resolver outcomes covered (wrapper→gitRoot subdir, plain→root fallback, null→root verbatim). E2E wrapper-root: real doctor() on real temp fixture, live stdout+stderr captured via process.write monkey-patch (the actual pre-fix leak path), asserts no FATAL_RE anywhere; report still produced. E2E plain-repo: unchanged behavior confirmed. Smoke test registered in both package.json files and passes green. No coverage gaps found.",
+      "createdAt": "2026-06-16T00:17:18.989Z",
+      "reviewRound": "2026-06-16T00:15:43.126Z",
+      "reviewRunId": "B-1637:RR-006",
+      "_hash": "67c1d4fca4cd5c699c2b06232d69de1a67d063bb8c52596c0f84cdefa6d1626a"
+    }
+  ]
+}

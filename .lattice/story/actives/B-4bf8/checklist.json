@@ -4,73 +4,1192 @@
       "id": "CHK-001",
       "title": "Adopt the four-field token model (cache tokens) in usage shape + JSON example",
       "context": "In the 'JSON Ledger Record Shape' section and its example, replace inputTokens/outputTokens/totalTokens with the full Anthropic shape: inputTokens (uncached remainder), outputTokens, cacheCreationInputTokens, cacheReadInputTokens — as first-class fields (or mandate them as required billableUnits[] entries). Add a sentence stating input_tokens is the uncached remainder, not total. Reference that CMA's span.model_request_end.model_usage already uses these four fields.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:50:25.295Z",
+      "endTime": "2026-06-16T00:00:04.319Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep the JSON example block -> contains cacheCreationInputTokens AND cacheReadInputTokens AND inputTokens AND outputTokens as four distinct fields; WHY: the example is the de-facto spec, must show all four cache-aware token fields",
+            "type": "cli"
+          },
+          {
+            "desc": "prose states that inputTokens (or input_tokens) is the uncached remainder, not the total input -> grep for uncached remainder; WHY: prevents implementer misreading inputTokens as gross input",
+            "type": "cli"
+          },
+          {
+            "desc": "doc references CMA span.model_request_end.model_usage (or Managed Agents model_usage) as prior art -> grep for model_usage or model_request_end; WHY: establishes provenance for the four-field shape",
+            "type": "cli"
+          },
+          {
+            "desc": "Required record constraints section mentions all four token fields as required (or specifies when-required semantics) -> grep constraints section for cacheCreation and cacheRead; WHY: folds in product-reviewer advisory about constraints clarity",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "JSON example does NOT contain a totalTokens field (CHK-002 removes it but CHK-001 example should already omit or CHK-002 will) -> grep for totalTokens inside JSON block -> expect absent OR expect CHK-002 removes it; WHY: catch inconsistency if CHK-001 adds four fields but leaves stale totalTokens",
+            "type": "cli"
+          },
+          {
+            "desc": "billableUnits array in the example, if still present, includes cache-type entries (cache_creation, cache_read) or the example omits billableUnits entirely -> grep billableUnits; WHY: catch stale billableUnits that only lists input/output without cache",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "search entire doc for the string totalTokens -> must appear ONLY in derived/summary context (CHK-002), never as a stored field in the record shape or example; WHY: adversarial check that old two-field model is fully purged from record-level prose",
+            "type": "cli"
+          },
+          {
+            "desc": "verify no source-code files (.ts, .js, .json schema files) are modified in the git diff for this story -> git diff --name-only vs main; WHY: scope creep guard -- this is doc-only",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "JSON example has all four token fields",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prose: input_tokens is the uncached remainder",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "references CMA model_usage",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Required record constraints mention cache fields",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "JSON example has no totalTokens",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "billableUnits/example includes cache entries",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "totalTokens only in derived/not-stored context (5 lines)",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no source files changed (1 non-meta: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Remove derived totalTokens as a stored field; define the identity in the summary layer",
       "context": "Delete totalTokens from the append record (derived fields drift and are ambiguous once cache tokens exist). State the identity total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens, and require totals to be computed in the ledger summary layer, not stored per-record.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:51:14.645Z",
+      "endTime": "2026-06-16T00:00:04.966Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep entire JSON example block for totalTokens -> absent; WHY: totalTokens is a derived field and must not be stored per-record",
+            "type": "cli"
+          },
+          {
+            "desc": "doc contains the identity formula total_processed = inputTokens + outputTokens + cacheCreationInputTokens + cacheReadInputTokens (or equivalent) -> grep for the identity; WHY: the summary layer must define how totals are computed",
+            "type": "cli"
+          },
+          {
+            "desc": "prose explicitly states totals are computed in the summary layer, not stored per-record -> grep for summary layer or summary-derived; WHY: prevents implementers from re-adding totalTokens",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep Required record constraints for totalTokens -> absent; WHY: catch constraints section still listing totalTokens as required even after example removal",
+            "type": "cli"
+          },
+          {
+            "desc": "grep billableUnits entries for a total-type entry -> absent; WHY: catch totalTokens smuggled back via billableUnits",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "count all occurrences of totalTokens in the entire doc -> each occurrence must be in a context that says derived/summary/not-stored; WHY: adversarial full-text scan to catch any stale reference that still treats totalTokens as a stored field",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Validation/Smoke Plan for totalTokens -> must reference its removal or absence, not assert its presence; WHY: catch stale validation assertion that still tests for stored totalTokens",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example block has no totalTokens",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "identity formula present",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "totals derived in summary layer, not stored",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "constraints: totalTokens absent or marked not-stored",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no total-type billableUnits entry",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "every totalTokens occurrence is in not-stored/derived context",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation does not assert totalTokens presence",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Estimate accuracy: prefer provider count_tokens; rank estimator confidence; bind to model ID",
       "context": "In 'Usage Source Semantics' and the Estimate path, require prompt-size-estimate to prefer the provider's count_tokens endpoint (model-version-specific — counts differ across model versions), falling back to local tokenizer then bytes/chars only when offline. Record estimator confidence high|medium|low accordingly and require the estimate to be tied to the exact provider.model.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:51:36.451Z",
+      "endTime": "2026-06-16T00:00:05.780Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc mentions count_tokens as the preferred estimation method (provider endpoint) -> grep for count_tokens; WHY: ensures estimate path prefers provider tokenizer over local heuristics",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies estimator confidence ranking high|medium|low -> grep for confidence and high|medium|low; WHY: ensures estimate records carry a confidence discriminator",
+            "type": "cli"
+          },
+          {
+            "desc": "doc requires estimate to be bound to exact provider.model (model-version-specific) -> grep for model-version or provider.model in estimate context; WHY: counts differ across model versions, binding prevents stale estimates",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fallback chain is explicitly ordered: count_tokens > local tokenizer > bytes/chars -> grep for fallback or ordered preference; WHY: catch missing fallback order that would leave implementers guessing",
+            "type": "cli"
+          },
+          {
+            "desc": "estimator.name and estimator.version still required in constraints alongside new confidence field -> grep constraints for estimator; WHY: catch regression where adding confidence drops existing estimator fields",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep entire doc for bytes-per-char or bytes heuristic as a PRIMARY estimator (not fallback) -> must only appear as lowest-confidence fallback; WHY: adversarial check that cheap heuristics are not accidentally promoted to preferred",
+            "type": "cli"
+          },
+          {
+            "desc": "grep JSON example for estimator block -> if present, must include confidence field; WHY: catch example updated with estimator but missing the new confidence field, creating prose-example mismatch",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "count_tokens preferred estimator",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "confidence high|medium|low",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "estimate bound to model ID / model-version-specific",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "fallback chain count_tokens>tokenizer>bytes",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "estimator + confidence in constraints",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "bytes only as fallback, not primary",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example estimator block (if object) includes confidence",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Call-time story/phase attribution rules",
       "context": "Specify that storyId/phase are captured from the active lease/session context at preflight (call time). Non-story calls (global validate, daemon) record storyId=null and are NOT dropped. Subagent/nested calls propagate the parent storyId plus a subagent/thread id. Add a role/agentType field (implementer|reviewer|main|...) so per-story breakdowns by role are possible.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:52:11.190Z",
+      "endTime": "2026-06-16T00:00:06.403Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc specifies storyId=null for non-story calls (global validate, daemon) and explicitly states they are NOT dropped -> grep for storyId and null; WHY: non-story usage must still be recorded",
+            "type": "cli"
+          },
+          {
+            "desc": "doc describes subagent/nested call propagation of parent storyId plus subagent/thread id -> grep for subagent or nested or propagat; WHY: ensures nested calls are traceable to parent story",
+            "type": "cli"
+          },
+          {
+            "desc": "doc adds role or agentType field (implementer|reviewer|main or similar) -> grep for role or agentType; WHY: enables per-story breakdown by role",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies storyId/phase captured at preflight (call time) from active lease/session context -> grep for preflight or call time in attribution context; WHY: prevents post-hoc attribution errors",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "JSON example block includes storyId field (already present) and now also includes role/agentType field -> grep JSON example for agentType or role; WHY: catch prose-updated-but-example-not inconsistency",
+            "type": "cli"
+          },
+          {
+            "desc": "subagent propagation specifies a subagentId or threadId field in the record -> grep for subagentId or threadId; WHY: without an id field, subagent propagation is unimplementable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for any statement that drops or filters out storyId=null records -> must be absent; WHY: adversarial check that null-story records are not silently excluded from summaries",
+            "type": "cli"
+          },
+          {
+            "desc": "grep for storyId in Validation/Smoke Plan -> must assert null-storyId recording and subagent propagation; WHY: catch stale Validation section that does not test the new attribution rules",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "storyId=null for non-story calls",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "subagent propagation of parent storyId",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "role/agentType field",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "captured at preflight from active context",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example includes storyId + role/agentType",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "subagentId/threadId field",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no statement dropping null-storyId records",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts null-storyId + subagent",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Completeness guarantee: single writer choke-point + reconciliation",
       "context": "Add a section requiring all provider dispatch to flow through a single ledger-writing choke-point, plus a periodic reconciliation check (count of provider dispatch events vs count of ledger final records per ledgerCallId+attemptId) that surfaces gaps. Accuracy = completeness, not just per-record correctness; a bypassed writer silently under-counts.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:52:45.778Z",
+      "endTime": "2026-06-16T00:00:06.941Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc contains a section (or subsection) about single writer choke-point requiring all provider dispatch to flow through one ledger-writing path -> grep for choke-point or single writer; WHY: ensures completeness by construction",
+            "type": "cli"
+          },
+          {
+            "desc": "doc contains a reconciliation section/paragraph describing periodic check of dispatch events vs ledger records -> grep for reconciliation or reconcil; WHY: catch completeness gaps where dispatch bypasses the writer",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "reconciliation references ledgerCallId+attemptId as the correlation key -> grep reconciliation context for ledgerCallId; WHY: reconciliation without the right key is unimplementable",
+            "type": "cli"
+          },
+          {
+            "desc": "doc addresses the failure mode of a bypassed writer (silent under-count) -> grep for bypass or under-count or silent; WHY: motivates why the choke-point exists",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep Implementation Touchpoints for any new implementation slice that could bypass the choke-point (e.g., a second writer path) -> must not introduce contradictory multi-writer guidance; WHY: adversarial check for internal doc contradiction",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Validation/Smoke Plan for reconciliation or completeness assertion -> must be present; WHY: catch stale Validation that omits completeness testing",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "single writer choke-point",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "reconciliation of dispatch vs ledger",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "reconciliation keyed on ledgerCallId+attemptId",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "bypassed-writer under-count failure mode",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "touchpoints reinforce choke-point",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts reconciliation/completeness",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Streaming and failure usage capture",
       "context": "Clarify that for streaming responses, final usage must be read from the terminal stream event (message_delta / final message), not assumed from a non-streaming shape; and a call that errors/times out mid-stream still records the partial output usage it consumed. usage.source=unavailable only when truly no count exists.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:53:14.058Z",
+      "endTime": "2026-06-16T00:00:08.983Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc specifies streaming usage must be read from the terminal stream event (message_delta or final message) -> grep for terminal stream event or message_delta; WHY: streaming responses require reading usage from the last event, not assuming non-streaming shape",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies partial output usage on error/timeout mid-stream must still be recorded -> grep for partial or error or timeout in streaming context; WHY: errored calls still consume budget",
+            "type": "cli"
+          },
+          {
+            "desc": "doc clarifies usage.source=unavailable only when truly no count exists -> grep for unavailable and truly or no reliable; WHY: prevents lazy unavailable marking when partial counts are available",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "existing rule about failed requests writing ledger entries (line 81 area) is consistent with new streaming/failure guidance -> grep for failed request in both existing and new sections; WHY: catch contradiction between existing failure rule and new streaming failure rule",
+            "type": "cli"
+          },
+          {
+            "desc": "if streaming section references provider-reported source, it specifies that partial counts from a terminal event still qualify as provider-reported -> grep for provider-reported near streaming; WHY: partial real counts should not be downgraded to estimate",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep entire doc for any statement that sets unavailable usage to zero or treats missing as zero-cost -> must be absent or explicitly prohibited; WHY: adversarial check for the most dangerous accounting error",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Validation/Smoke Plan for streaming or partial or failure usage assertion -> must be present; WHY: catch stale Validation that omits streaming/failure test",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "streaming usage from terminal event",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "partial usage on error/timeout",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "unavailable only when truly no count",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "consistent with failed-request rule",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "partial counts tied to provider-reported",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prohibits treating missing as zero",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts streaming/partial/failure usage",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
       "title": "Multi-provider: raw fidelity + normalized canonical view",
       "context": "Resolve the tension between 'preserve provider-specific units' and 'cross-source summaries' by requiring BOTH: keep the raw provider units/payload digest AND a normalized canonical {input, output, cacheCreation, cacheRead} view, with explicit mapping rules for how each provider's cache/cached-token fields map to the canonical cache fields.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:53:36.094Z",
+      "endTime": "2026-06-16T00:00:09.579Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc requires BOTH raw provider units AND a normalized canonical view {input, output, cacheCreation, cacheRead} -> grep for canonical or normalized and raw or provider-specific; WHY: resolves the tension between fidelity and cross-source summaries",
+            "type": "cli"
+          },
+          {
+            "desc": "doc includes explicit mapping rules for how each providers cache/cached-token fields map to the canonical cache fields -> grep for mapping or map; WHY: without mapping rules, normalization is unimplementable",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "canonical view uses {input, output, cacheCreation, cacheRead} (four fields matching CHK-001) not a different set -> grep for canonical field names; WHY: catch inconsistency between CHK-001 four-field model and CHK-007 canonical names",
+            "type": "cli"
+          },
+          {
+            "desc": "provider adapter extraction touchpoint (existing section 2) is consistent with new dual-view requirement -> grep Implementation Touchpoints section 2 for canonical or raw; WHY: catch contradiction between existing touchpoint and new requirement",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for any statement that discards raw provider units in favor of only the canonical view -> must be absent; WHY: adversarial check that raw fidelity is not lost despite normalization",
+            "type": "cli"
+          },
+          {
+            "desc": "JSON example includes both raw provider units (e.g., billableUnits or provider-specific block) and canonical fields -> grep example for both; WHY: catch prose-updated-but-example-not showing only one view",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "both raw + canonical view required",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "explicit per-provider mapping rules",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "canonical uses four-field shape",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "adapter touchpoint consistent with dual view",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no statement discarding raw units",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "example includes both raw + canonical",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
       "title": "Cost derivability: price/pricingRef snapshot",
       "context": "Add that cost is derived only in a layer that pins model+date to a price table (per-model $/MTok + cache multipliers, which change over time). Record a pricingVersion/pricingRef (not a hardcoded price) on the record or specify the snapshot mechanism; do not bake absolute prices into the append-only record beyond a reference.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:54:07.428Z",
+      "endTime": "2026-06-16T00:00:10.201Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doc adds pricingRef or pricingVersion field for cost derivation -> grep for pricingRef or pricingVersion; WHY: cost must be derived from a pinned price table, not hardcoded",
+            "type": "cli"
+          },
+          {
+            "desc": "doc specifies snapshot mechanism or price table (per-model per-MTok + cache multipliers, which change over time) -> grep for snapshot or price table or multiplier; WHY: prices change, so records must reference a versioned table",
+            "type": "cli"
+          },
+          {
+            "desc": "doc explicitly prohibits absolute prices baked into append-only records -> grep for absolute price or hardcoded or baked; WHY: prevents per-record cost fields that become stale when prices change",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "JSON example record does NOT contain a cost or price field with a dollar amount -> grep JSON example for cost or price with numeric values; WHY: catch example contradicting the no-absolute-prices rule",
+            "type": "cli"
+          },
+          {
+            "desc": "doc addresses cache multipliers (cache reads cost less, cache writes cost more than base input) in pricing context -> grep for cache and multiplier or cost; WHY: cache tokens have different per-token costs, pricing must handle this",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep entire doc for any hardcoded dollar amount -> must be absent from record-level prose; WHY: adversarial check for accidentally baked-in prices",
+            "type": "cli"
+          },
+          {
+            "desc": "grep Acceptance Criteria for pricing or pricingRef -> must be mentioned; WHY: catch stale Acceptance Criteria that omits the pricing constraint",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "pricingRef/pricingVersion field",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-008:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "price table/snapshot + multipliers",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-008:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "prohibits absolute prices in record",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no dollar amount in JSON example",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "cache multipliers addressed",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no hardcoded dollar amounts (\\$<digit> count=0)",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance mentions pricing/pricingRef",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
       "title": "Update Validation/Smoke Plan, Acceptance Criteria, and Rollout to cover the new fields",
       "context": "Extend the Validation/Smoke Plan, Acceptance Criteria, and Rollout Phases sections so they assert: four-field cache-token recording, no stored totalTokens, estimator confidence + count_tokens preference, call-time attribution incl. null/subagent, completeness reconciliation, streaming/failure usage, canonical normalization, and pricingRef. Keep cross-references consistent throughout the doc.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-15T23:54:51.085Z",
+      "endTime": "2026-06-16T00:00:11.108Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validation/Smoke Plan section asserts four-field cache-token recording -> grep Validation section for cacheCreation or cacheRead or cache token; WHY: Validation must cover all CHK-001 through CHK-008 changes",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria section mentions no stored totalTokens or derived totals -> grep Acceptance Criteria for totalTokens or derived or summary; WHY: Acceptance must reflect CHK-002 change",
+            "type": "cli"
+          },
+          {
+            "desc": "Validation section mentions estimator confidence and count_tokens preference -> grep for confidence or count_tokens; WHY: must reflect CHK-003",
+            "type": "cli"
+          },
+          {
+            "desc": "Validation section mentions call-time attribution including null storyId and subagent -> grep for null or subagent in Validation; WHY: must reflect CHK-004",
+            "type": "cli"
+          },
+          {
+            "desc": "CMA expanded on first use in the document (Claude Managed Agents or similar) -> grep for first occurrence of CMA with expansion; WHY: acronym must be defined for readers",
+            "type": "cli"
+          },
+          {
+            "desc": "Rollout Phases section updated to reference new fields (cache tokens, reconciliation, pricing, streaming) -> grep Rollout for cache or reconciliation or pricing; WHY: Rollout must be consistent with the amended spec",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "internal cross-references are consistent: no section references a field name that was removed (e.g., totalTokens as required) -> grep for totalTokens in Required record constraints, Acceptance Criteria, Rollout -> must be absent or only in derived context; WHY: catch stale cross-references",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria includes reconciliation and completeness -> grep for reconciliation in Acceptance; WHY: CHK-005 requirement must appear in acceptance",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria includes streaming/failure usage -> grep for streaming or partial in Acceptance; WHY: CHK-006 requirement must appear in acceptance",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff --name-only main...HEAD shows ONLY docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md and .lattice/ metadata files changed; no .ts/.js/.json source files -> WHY: this is a doc-only story, any source code change is scope creep",
+            "type": "cli"
+          },
+          {
+            "desc": "doc contains no new CJK characters (stays English) -> grep for Unicode CJK range in the doc; WHY: background mentions Chinese user framing but doc must stay English",
+            "type": "cli"
+          },
+          {
+            "desc": "Validation/Smoke Plan does not still assert totalTokens presence (stale assertion) -> grep Validation for totalTokens -> must not assert its presence; WHY: catch stale validation that contradicts CHK-002",
+            "type": "cli"
+          },
+          {
+            "desc": "Acceptance Criteria includes canonical normalization (CHK-007) and pricingRef (CHK-008) -> grep Acceptance for canonical and pricing; WHY: catch incomplete Acceptance update that omits later CHK items",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation asserts cache-token recording",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance mentions no-stored-total/derived",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation mentions estimator confidence/count_tokens",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation mentions null + subagent attribution",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:4",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "CMA expanded on first use",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:5",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Rollout references new fields",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "cross-refs consistent: no removed field referenced as stored",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes reconciliation/completeness",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes streaming/failure",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "diff is only the doc (non-meta changed: docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md)",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "no CJK (count=0)",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Validation does not assert totalTokens presence",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node .lattice/story/actives/B-4bf8/evidence/verify-b-4bf8.mjs",
+          "result": "pass",
+          "note": "Acceptance includes canonical + pricingRef",
+          "headHash": "6c4cad3cd149509a1280f92dcab5eb0f36e506bc",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T00:25:45.084Z"
+        }
+      ]
     }
   ]
 }

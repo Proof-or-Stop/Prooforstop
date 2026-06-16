@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 50 个文件
+> 51 个文件
 
 ## decisions
 
@@ -19,6 +19,7 @@
 - [F-009 Layer 2 Engineering Proof Gap Execution Plan](decisions/f009-layer2-engineering-proof-gap-execution-plan.md)
 - [Resolve gap_analyze Three High Gaps Execution Plan](decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md)
 - [Host-Neutral Observability Console（CLI-backed read-only Dashboard 设计）](decisions/host-neutral-observability-console.md)
+- [Lattice Console Demo MVP Requirements Recommendation](decisions/lattice-console-demo-mvp-requirements.md)
 - [Lattice Host Overflow](decisions/host-overflow.md)
 - [Lattice Baseline Two-Host Multi-Agent Execution Plan](decisions/lattice-baseline-two-host-multi-agent-execution-plan.md)
 - [Lattice Authority Customer API Key Access](decisions/lattice-authority-customer-api-key-access.md)

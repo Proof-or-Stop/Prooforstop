@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define ledger record TypeScript types + schema validator",
+      "context": "In a new module under packages/main/src (e.g. core/usage-ledger/record.ts), define the JSONL record type and a validator matching the spec's 'JSON Ledger Record Shape' + 'Required record constraints': four-field usage (inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens; NO totalTokens), usage.source enum (provider-reported|prompt-size-estimate|unavailable), correlation (ledgerCallId, attemptId, sequence:int, supersedesRecordIds:string[]), recordId, schemaVersion, recordedAt, projectRootHash, storyId(nullable)/phase/agentType/optional subagentId/threadId, privacy flags, authority {mode, receiptId:null, receiptVerified:false}, integrity {previousRecordHash, recordHash}. Validator rejects stored totalTokens and encodes per-dimension cache absence as null (never 0). Unit-tested for valid + each rejection.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Append-only writer to .lattice/usage/llm-usage.jsonl with hash chain",
+      "context": "Add an append-only writer (e.g. core/usage-ledger/writer.ts): ensures .lattice/usage/ exists, validates each record, computes recordHash and chains previousRecordHash from the prior line, appends exactly one JSON line. Never rewrites/edits prior lines. Reads the last record's hash to chain. No-op when the opt-in flag (CHK-006) is off.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Correlation-id generation helpers (minted before dispatch)",
+      "context": "Provide helpers to mint ledgerCallId and attemptId locally BEFORE any provider request, a monotonic sequence within ledgerCallId+attemptId, and supersedesRecordIds wiring. Must NOT derive ids from provider.requestIdHash. Covered by a test asserting a preflight record and a later record for the same attempt share ledgerCallId+attemptId with increasing sequence, and that a final record can supersede an earlier one.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Runtime rejection of raw prompt/transcript/secret material",
+      "context": "The writer/validator must reject (throw or refuse to write) any record carrying raw prompt, raw completion, raw transcript, raw tool arguments, provider secrets, customer API keys, actor keys, or authorization headers — per the spec's Privacy Constraints. Allowed: hashes, model/provider names, usage counts, reason codes, redaction profile id. Tested with an injection attempt that must be rejected.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Register the ledger path in runtime-artifact-registry.ts",
+      "context": "Add an entry to packages/main/src/core/runtime-artifact-registry.ts for .lattice/usage/llm-usage.jsonl: id=llm-usage-ledger, matchers (exact path or prefix .lattice/usage/), ignorePatterns .lattice/usage/, materialHash=exclude, volatile=true, repairableTrackedArtifact=true, description = local LLM usage diagnostic ledger. Ensure gitignore/doctor/material-hash tooling treat it as a mutable runtime diagnostic. Tested: the path classifies as gitignored + materialHash-exclude + volatile + repairable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Opt-in flag gating + informational summary reader",
+      "context": "Gate the writer behind an opt-in flag (env var or config, default OFF) so it is fully inert by default (Rollout Phase 2). Add a summary reader that parses the JSONL and reports totals derived as total=inputTokens+outputTokens+cacheCreationInputTokens+cacheReadInputTokens, selects the latest non-superseded accounting record per ledgerCallId+attemptId, keeps estimates out of provider-reported totals, and reports unavailable/null as unknown (never zero). Summary is informational only — it must NOT feed any gate. Tested: flag OFF => writer no-ops; summary never double-counts superseded estimates and never treats unknown as 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Smoke/test suite wired into package.json",
+      "context": "Add a smoke test (packages/main/src/tasks/usage-ledger-smoke.ts, wired as an npm test script) covering: schema validation (valid + each rejection incl. stored totalTokens and raw-content), append + hash-chain continuity across multiple records, correlation-id stability + supersedes, opt-in flag OFF => no file written, runtime-artifact classification of the ledger path, and summary correctness (derived totals, no double-count, unknown!=0). Build green; run via npm.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

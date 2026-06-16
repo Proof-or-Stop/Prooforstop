@@ -1,0 +1,25 @@
+{
+  "task": "Amend docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md (B-1477's plan-only doc) to fix token-accuracy gaps before implementation: four-field cache-token usage model, drop stored totalTokens, count_tokens-preferred estimates, call-time story/phase attribution, completeness choke-point + reconciliation, streaming/failure usage capture, multi-provider raw+canonical view, pricingRef snapshot, and matching Validation/Acceptance/Rollout updates. Documentation-only; no source code.",
+  "outcome": "git diff main on the story branch shows the usage-ledger plan doc amended so that: (1) the 'JSON Ledger Record Shape' example AND prose record four token fields — inputTokens (uncached remainder), outputTokens, cacheCreationInputTokens, cacheReadInputTokens — instead of input/output/total, with a sentence that input_tokens is the uncached remainder and a reference that Managed Agents (CMA) span.model_request_end.model_usage already uses these four; (2) totalTokens is removed as a stored field and the identity total = input+output+cacheCreation+cacheRead is stated as summary-layer-derived; (3) the estimate path prefers the provider count_tokens endpoint with a confidence rank and model-ID binding; (4) new/updated sections cover call-time attribution (storyId=null + subagent + role), a single-writer choke-point + reconciliation, streaming/failure usage from the terminal event, raw+canonical multi-provider view, and a pricingRef snapshot; (5) the Required record constraints, Validation/Smoke Plan, Acceptance Criteria, and Rollout sections assert all of the above and the doc is internally consistent. A future implementer can build an accurate per-story token+cost ledger from the doc.",
+  "facts": [
+    "The target doc is plan-only (B-1477); no source code implements it (verified: no usage-ledger code in packages/main/src)",
+    "Current 'JSON Ledger Record Shape' uses inputTokens/outputTokens/totalTokens only",
+    "Anthropic Messages API usage returns four token counts: input_tokens (uncached remainder), output_tokens, cache_creation_input_tokens, cache_read_input_tokens; CMA span.model_request_end.model_usage uses all four",
+    "The doc's existing correlation (ledgerCallId/attemptId/sequence/supersedesRecordIds), source-discriminator, privacy, and authority sections are well-designed and must be preserved",
+    "The JSON example functions as the de-facto spec, so it must be corrected alongside the prose"
+  ],
+  "constraints": [
+    "Documentation-only: edit only the one decisions/ doc + B-4bf8 story metadata; no source, adapter, registry, or gate change",
+    "Edits must be additive/consistent with the existing correlation, supersedes, authority, and privacy sections (no contradictions)",
+    "Keep the doc English (it is on the open-source surface)",
+    "Do not implement the ledger; that is a separate future story"
+  ],
+  "unknowns": [
+    "Exact section/line anchors to edit (to confirm by reading the doc during DEV)",
+    "Whether cache fields should be required-always vs required-when-non-zero on provider-reported records (resolve in the Required record constraints update)"
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+  ],
+  "timestamp": "2026-06-15T23:43:13.854Z"
+}
