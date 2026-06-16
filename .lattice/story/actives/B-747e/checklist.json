@@ -7,7 +7,18 @@
       "userSees": "`git grep -w KoalaConfig -- packages` returns nothing; `npm run build` and `npm run test:e2e` pass with LatticeConfig as the project-config type.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/workflow-policy.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
