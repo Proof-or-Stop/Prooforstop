@@ -117,6 +117,17 @@
           "headHash": "f7e524275bcc1b60f7f83dbc38468c6657c8f85c",
           "materialHash": "c9f88ce1d656a4a2bf6aaa656202070dabf0dd5aedbd961c2dd2093be74bdd98",
           "timestamp": "2026-06-16T14:35:29.098Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "command": "node packages/main/dist/tasks/global-agents-unit-smoke.js",
+          "result": "pass",
+          "note": "adversarial 用例: mkdir 抛 EACCES 时 syncGlobalAgents 抛含 Cannot create global agents dir + will not fall back 的明确错误，不静默回退 project-local",
+          "headHash": "da782f177e6ed38536f4b133dd5f27273886605f",
+          "materialHash": "c9f88ce1d656a4a2bf6aaa656202070dabf0dd5aedbd961c2dd2093be74bdd98",
+          "timestamp": "2026-06-16T14:35:31.406Z"
         }
       ]
     },
