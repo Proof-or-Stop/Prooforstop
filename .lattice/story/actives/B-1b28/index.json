@@ -4,7 +4,7 @@
   "title": "LLM usage ledger rollout: flip the writer default to ON (LATTICE_USAGE_LEDGER unset => enabled), with =0 escape hatch restoring byte-identical legacy behavior",
   "description": "Final rollout slice (spec Rollout Phase 6). Flip isUsageLedgerEnabled() in core/usage-ledger/writer.ts so that when the env var is UNSET it defaults to ENABLED, while LATTICE_USAGE_LEDGER=0/false/off/no (and the KOALA_ alias) still fully DISABLE it. Blast radius (intended): with no env var, every Claude dispatch now (a) records ledger records and (b) runs the host with --output-format json + parses usage — both already made safe in B-0f7c (raw-text fallback on parse failure; all ledger work in try/catch; ledger errors never break dispatch). Default-on does NOT enable budget blocking (B-dd44 budget is separately gated on LATTICE_HARD_BUDGET_TOKENS, so no dispatch is blocked by default). SAFETY: setting LATTICE_USAGE_LEDGER=0 must restore the exact pre-rollout behavior — writer is a strict no-op, the Claude seam uses the original ['--print', promptFile] spawn + raw stdout, the budget guard is inert — byte-identical to the historical default-off. Scope: the one-line default flip in writer.ts + a smoke proving the escape hatch + no regression + updating any doc/comment that states the default. Out of scope: changing the seam/budget/authority logic, any new enforcement, codex/gemini.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "createdAt": "2026-06-16T22:04:12.391Z",
   "startedAt": "2026-06-16T22:04:12.391Z",
@@ -62,6 +62,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-16T22:36:19.529Z",
+      "branch": "story/B-1b28",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T22:40:44.032Z",
       "branch": "story/B-1b28",
       "user": "Harmonygo",
       "agent": "main"

@@ -1,0 +1,52 @@
+{
+  "storyId": "B-1b28",
+  "changes": "writer.ts: isUsageLedgerEnabled() unset default flipped false->true (LATTICE_USAGE_LEDGER unset => ledger ENABLED); 0/false/off/no still disable; doc-comments reworded to default-ON/opt-out. New tasks/usage-ledger-default-on-smoke.ts (30 checks). Existing usage-ledger/-budget/-dispatch smokes: explicit-OFF fixtures now pass LATTICE_USAGE_LEDGER=0. package.json: test:usage-ledger-default-on script. No dispatch/cli-engine/handlers production logic touched; usage-ledger keeps zero cross-module imports.",
+  "usage": "Ledger is now active by default — dispatch records LLM usage to .lattice/usage/llm-usage.jsonl automatically. To disable (restore byte-identical legacy behavior): set LATTICE_USAGE_LEDGER=0. Run the proof: npm --prefix packages/main run test:usage-ledger-default-on (expect 'smoke passed').",
+  "expectedOutcome": "With no env override, isUsageLedgerEnabled() returns true and a real Claude dispatch appends a usage record; with LATTICE_USAGE_LEDGER=0 the writer is a strict no-op, spawn args are byte-identical (no --output-format json), and the budget guard is inert. Full ledger suite (8 smokes) green under the new default; verifier prints TOTAL 63 | PASS 63 | FAIL 0.",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Default-on only flips the writer gate; provider real-usage parsing exists for the claude-code host seam only. codex/gemini remain scaffolded (no live subprocess), so they record no real usage yet. Budget enforcement still requires LATTICE_HARD_BUDGET_TOKENS to be set; the Authority receipt-backed path remains future work.",
+  "pitfalls": "An empty-string env value ('') counts as OFF (escape hatch), not unset. The flag is read every call (not memoized) — toggling mid-process takes effect immediately. Metadata-only .lattice commits do not stale review passes (materialHash excludes .lattice), but any source commit after a review round stales it and forces a fresh round.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 216382
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13993
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 372420
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 928938
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 659908
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 35450
+    }
+  },
+  "totalDurationMs": 2227091,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-16T22:41:19.482Z",
+  "updatedAt": "2026-06-16T22:41:19.482Z"
+}
