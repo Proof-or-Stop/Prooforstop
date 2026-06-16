@@ -141,7 +141,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "build exited 0 on the committed tree.",
+          "headHash": "230957f0d184738797afe50d8c74c459ca9ef732",
+          "materialHash": "7e9e5cde6258cc0954cb9942abd533252713fe6de0fbc3d6d88873622df21a51",
+          "timestamp": "2026-06-16T00:15:26.474Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
