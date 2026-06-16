@@ -604,6 +604,17 @@
           "headHash": "574c1c4c4fe3d633647d63623221c8df77c65955",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:03.961Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -f scripts/verify-omx-disabled.mjs",
+          "result": "pass",
+          "note": "File absent — script deleted.",
+          "headHash": "1c05bdf0cb666f0ab7afb6192adfd3f83680674c",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:04.492Z"
         }
       ]
     }
