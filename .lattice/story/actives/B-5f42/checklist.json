@@ -10,7 +10,43 @@
       "userSees": "After a commit or lattice-metadata command containing Chinese, the terminal shows a warning like: warn: artifact contains non-English (CJK) text; Lattice artifacts must be English. The command still proceeds.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/managed-assets.ts",
+          ".claude/settings.json"
+        ],
+        "create": [
+          ".claude/hooks/english-only-guard.cjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A git commit or lattice story-metadata Bash command containing CJK triggers the hook to print an english-only warning to stderr",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "English-only commands and non-matching Bash commands produce no warning and exit 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed/empty stdin or missing tool_input does not crash the hook; it exits 0 (never blocks)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

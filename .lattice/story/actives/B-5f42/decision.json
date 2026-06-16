@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Match the CLAUDE.md flow-fact double-layer contract: prompt/early guidance plus a hardcoded gate fallback",
+    "Edit the managed-asset generation source, never hand-edit generated .claude artifacts",
+    "Forward-looking and diff/story-scoped: never flag legacy Chinese",
+    "Single source of truth for CJK detection, with a self-contained hook copy kept in sync by a test"
+  ],
+  "drivers": [
+    "A memory-only rule was violated even when loaded, so enforcement must fire at the action point and at a hard gate",
+    "The repository is full of legacy Chinese, so any whole-repo scan would be unusable"
+  ],
+  "options": [
+    {
+      "name": "A: memory/prompt only (status quo)",
+      "pros": [
+        "zero code"
+      ],
+      "cons": [
+        "already proven to fail",
+        "no mechanical enforcement"
+      ]
+    },
+    {
+      "name": "B: warn hook plus validate gate",
+      "pros": [
+        "immediate signal at action point plus hard gate at REVIEW to TEST",
+        "low false-positive risk via warn-only layer 1 and narrow scope",
+        "matches double-layer contract"
+      ],
+      "cons": [
+        "touches generation source (init-assets plus managed-assets) and validate preflight",
+        "duplicates a tiny CJK regex into the self-contained hook"
+      ]
+    },
+    {
+      "name": "C: single blocking hook only",
+      "pros": [
+        "one place"
+      ],
+      "cons": [
+        "higher false-positive risk blocking legit Bash",
+        "no gate-layer coverage if settings not reloaded mid-session",
+        "hook can be bypassed"
+      ]
+    }
+  ],
+  "chosen": "B: warn hook plus validate gate",
+  "rationale": "Option B implements the double-layer contract: layer 1 warn-only hook gives an immediate signal where the B-4fd3 miss happened, and layer 2 validate gate is the mechanical hard stop before REVIEW to TEST. Narrow scope (commits plus author-controlled story metadata) and diff/story-scoping keep false positives near zero and never touch legacy files. A is already disproven; C lacks the hard gate and risks blocking legitimate Bash.",
+  "preMortem": [
+    {
+      "scenario": "Hook blocks legitimate work",
+      "trigger": "Agent legitimately greps or echoes Chinese in a Bash command",
+      "consequence": "Workflow stalls on false positives",
+      "mitigation": "Layer 1 is warn-only (exit 0) and only inspects git commit and lattice story-metadata commands, not arbitrary Bash"
+    },
+    {
+      "scenario": "Gate flags legacy Chinese repo-wide",
+      "trigger": "Validate scans the whole tree instead of the current story diff",
+      "consequence": "Every story fails and the gate is disabled in frustration",
+      "mitigation": "Scope strictly to git log main..HEAD commit messages and the current story author-controlled metadata; add a test asserting a legacy file outside the story is not flagged"
+    },
+    {
+      "scenario": "Hook regex drifts from the core detector",
+      "trigger": "CJK ranges updated in core but not in the self-contained hook copy",
+      "consequence": "Layer 1 and layer 2 disagree on what counts as CJK",
+      "mitigation": "A keep-in-sync test asserts the hook copy and the core detector cover the same ranges"
+    },
+    {
+      "scenario": "Generated .claude assets drift",
+      "trigger": "Hook added by hand-editing .claude/settings.json instead of the generator",
+      "consequence": "lattice check reports managed-asset drift and future init overwrites it",
+      "mitigation": "Add the hook to init-assets getClaudeHooks plus mergeClaudeHooks and verify lattice check reports settings in sync"
+    }
+  ],
+  "timestamp": "2026-06-16T22:35:52.658Z"
+}
