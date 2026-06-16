@@ -120,6 +120,17 @@
           "headHash": "330e487b8f06c6bff84567431c250ddbd26d67c9",
           "materialHash": "812a118e51a005d1a62e564f49b6dcea55ebd681d4790950048f8e168487c790",
           "timestamp": "2026-06-16T01:13:11.862Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-lint-change-scope-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Case (g) throwing reader WITH gitCwd set still resolves to undefined (full tsc, never skip-all; throw never converted into []). Adversarial revert proof: removing the rebase line made wrapper-root case (e) FAIL on the deepEqual (unrebased wrapper/backend != projectRoot-relative backend), proving the test catches the base-mismatch bug; rebase restored and smoke re-greened.",
+          "headHash": "d02f2d315a16f59d3ea4ea3a8a39e4a532fa5b1c",
+          "materialHash": "812a118e51a005d1a62e564f49b6dcea55ebd681d4790950048f8e168487c790",
+          "timestamp": "2026-06-16T01:13:59.549Z"
         }
       ]
     }
