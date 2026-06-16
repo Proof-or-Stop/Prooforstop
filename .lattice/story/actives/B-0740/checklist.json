@@ -42,6 +42,17 @@
           "headHash": "d9d5bf76606fb485d3b07fe2b90d600103387599",
           "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
           "timestamp": "2026-06-16T01:05:42.182Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "WRAPPER-ROOT second --repair is a no-op (repairWrote:false, repairError:null, gitRoot/.gitignore byte-for-byte unchanged). Real-machine RUN2 confirmed repairWrote:false. Plain-repo existing repair check (metadataRoot==gitRoot) preserved as byte-identical reference via gitCwd=root default.",
+          "headHash": "d72c3fd30aeb8a4f0e047b79cf079ed32c1ff140",
+          "materialHash": "7e6ade15b9bedd2a9604c23e39b44a4b7021cb5759167d05245014f770589357",
+          "timestamp": "2026-06-16T01:05:49.126Z"
         }
       ]
     },
