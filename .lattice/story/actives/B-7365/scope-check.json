@@ -1,0 +1,122 @@
+{
+  "storyId": "B-7365",
+  "checkedAt": "2026-06-16T02:00:17.606Z",
+  "features": [
+    {
+      "feature": "Reproduction test: a test that drives the INIT_CHECK reconcile against a divergent main (story-branch phase INIT, main phase INIT_CHECK) and asserts no conflict markers end up committed in index.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Test must fail before the fix (markers committed) and pass after (clean post-advance index.json)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Conflict-safe deterministic metadata resolution in commitInitCheckMetadataAndMergeMain: on a conflicted merge of story-metadata, resolve all conflicted paths to the post-advance (main) state — never commit markers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Alternative: if deterministic resolution is not used, detect the conflict, abort the merge (git merge --abort / reset), and surface a clear recovery command instead of leaving markers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Story metadata files must never have conflict markers left or committed after the reconcile",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wrap the main metadata commit + merge step in withReentrantMainWriteLock so a concurrent session cannot move main between the commit and the merge",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Main write lock must cover the whole critical section (main metadata commit + merge), not just the final write (session-ownership-and-write-leases.md Rule 3: lock scope must cover the whole critical section)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Lock acquisition failure is blocking — must not proceed optimistically (session-ownership-and-write-leases.md Rule 6)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Reentrant lock variant must be used (the reconcile may run within an already-locked context, e.g. inside a DONE flow)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lock must be released even if the reconcile throws (no stuck lock)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Scope strictly to INIT_CHECK reconcile; do not rework unrelated phase transitions",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Single-session reconcile (no main divergence) must produce byte-identical metadata to today — no regression",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Multi-file metadata conflict (multiple paths under storyDir conflicted simultaneously) must be fully resolved deterministically",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Concurrent story_advance INIT_CHECK from multiple sessions must be serialized (no corruption from race)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "doctor stuck-lock check must remain valid after this change (lock primitive behavior unchanged)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Description explicitly scopes only to INIT_CHECK reconcile merge conflict handling; doctor / stuck-lock check is pre-existing and not modified by this story",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 14,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "854c60cf23658c0462e206b39e529f3f5b27edf956c7e9b3c44e11e303de68c7",
+  "openQuestions": []
+}
