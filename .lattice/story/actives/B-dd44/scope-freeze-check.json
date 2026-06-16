@@ -1,112 +1,52 @@
 {
   "schemaVersion": "lattice.scope_freeze_check.v1",
   "storyId": "B-dd44",
-  "checkedAt": "2026-06-16T20:41:28.518Z",
+  "checkedAt": "2026-06-16T20:42:16.089Z",
   "mode": "feature",
-  "status": "fail",
-  "scopeBoundaryHash": "94d368cafd82b7ee407eda0d59237c02574d83d4a8136fb3397dac999f6ead5c",
+  "status": "pass",
+  "scopeBoundaryHash": "c56052e6d684164592797eeb08db1fd77bbc712b2a6f438538d6835ed29097aa",
   "executionBoundaryHash": "c412469df081dc113d7a360afa04856e880a0716baf10f2884748f43fe34c9e4",
-  "freshnessHash": "5baeb38484a984667eafef739090e7c9238f832ca5dd186db0a37230b3b9e38c",
+  "freshnessHash": "b4e87a46ee49fd2ce5bbea2ec0b191146fd51075d4b2b25df03a7139bcf7f264",
   "effectiveExcludedKeywords": [
-    "Any dispatch/cli-engine/handler logic beyond the single gated budget guard",
-    "Any non-claude host",
-    "Authority-required budget modes",
-    "Postflight overage handling beyond recording",
-    "Signed-receipt path",
-    "Turning the writer on by default"
+    "Budget enforcement for codex or gemini dispatches",
+    "Budget modes that require signed authority evidence",
+    "Flipping the ledger writer default to on",
+    "Promoting records to signed authority receipts",
+    "Remediation of provider overages discovered after a call"
   ],
   "keywordHits": [
     {
-      "keyword": "Any dispatch/cli-engine/handler logic beyond the single gated budget guard",
+      "keyword": "Budget enforcement for codex or gemini dispatches",
       "source": "scopeBoundary.excluded",
-      "text": "Any dispatch/cli-engine/handler logic beyond the single gated budget guard",
+      "text": "Budget enforcement for codex or gemini dispatches",
       "excluded": true
     },
     {
-      "keyword": "Any non-claude host",
-      "source": "story.description",
-      "text": "Budget slice (spec Touchpoint 4 'Fail-Closed Budget Behavior') of the LLM usage ledger. Add a pre-call hard-budget check to the existing Claude dispatch seam: when a configured hard budget is set and the preflight prompt-size estimate EXCEEDS it, BLOCK the request (skip the provider spawn) and write a decision.kind=blocked ledger record before any call. SAFETY: when no hard budget is configured (the default) OR the ledger flag is OFF, dispatch is BYTE-IDENTICAL to today (no block, decision proceeds with budgetPolicyId=null). The block alters control flow ONLY when an operator explicitly sets the hard-budget env var AND the estimate exceeds it. Per the spec: do not invent a budget when none is configured; fail closed only on an explicit configured hard budget. The pure block-record builder + budget-policy resolution live in the usage-ledger module (zero cross-module imports); the lattice-dispatch.ts edit is a minimal gated guard. Scope: packages/main/src/core/usage-ledger/dispatch-usage.ts + the single gated guard in core/lattice-dispatch.ts (runClaudeCodeRealLeafDispatch) + a smoke + package.json. Out of scope: postflight overage handling beyond recording, Authority-required budget modes, any non-claude host, default-on, signed-receipt path.",
-      "excluded": false
-    },
-    {
-      "keyword": "Any non-claude host",
+      "keyword": "Budget modes that require signed authority evidence",
       "source": "scopeBoundary.excluded",
-      "text": "Any non-claude host",
+      "text": "Budget modes that require signed authority evidence",
       "excluded": true
     },
     {
-      "keyword": "Authority-required budget modes",
-      "source": "story.description",
-      "text": "Budget slice (spec Touchpoint 4 'Fail-Closed Budget Behavior') of the LLM usage ledger. Add a pre-call hard-budget check to the existing Claude dispatch seam: when a configured hard budget is set and the preflight prompt-size estimate EXCEEDS it, BLOCK the request (skip the provider spawn) and write a decision.kind=blocked ledger record before any call. SAFETY: when no hard budget is configured (the default) OR the ledger flag is OFF, dispatch is BYTE-IDENTICAL to today (no block, decision proceeds with budgetPolicyId=null). The block alters control flow ONLY when an operator explicitly sets the hard-budget env var AND the estimate exceeds it. Per the spec: do not invent a budget when none is configured; fail closed only on an explicit configured hard budget. The pure block-record builder + budget-policy resolution live in the usage-ledger module (zero cross-module imports); the lattice-dispatch.ts edit is a minimal gated guard. Scope: packages/main/src/core/usage-ledger/dispatch-usage.ts + the single gated guard in core/lattice-dispatch.ts (runClaudeCodeRealLeafDispatch) + a smoke + package.json. Out of scope: postflight overage handling beyond recording, Authority-required budget modes, any non-claude host, default-on, signed-receipt path.",
-      "excluded": false
-    },
-    {
-      "keyword": "Authority-required budget modes",
+      "keyword": "Flipping the ledger writer default to on",
       "source": "scopeBoundary.excluded",
-      "text": "Authority-required budget modes",
+      "text": "Flipping the ledger writer default to on",
       "excluded": true
     },
     {
-      "keyword": "Postflight overage handling beyond recording",
-      "source": "story.description",
-      "text": "Budget slice (spec Touchpoint 4 'Fail-Closed Budget Behavior') of the LLM usage ledger. Add a pre-call hard-budget check to the existing Claude dispatch seam: when a configured hard budget is set and the preflight prompt-size estimate EXCEEDS it, BLOCK the request (skip the provider spawn) and write a decision.kind=blocked ledger record before any call. SAFETY: when no hard budget is configured (the default) OR the ledger flag is OFF, dispatch is BYTE-IDENTICAL to today (no block, decision proceeds with budgetPolicyId=null). The block alters control flow ONLY when an operator explicitly sets the hard-budget env var AND the estimate exceeds it. Per the spec: do not invent a budget when none is configured; fail closed only on an explicit configured hard budget. The pure block-record builder + budget-policy resolution live in the usage-ledger module (zero cross-module imports); the lattice-dispatch.ts edit is a minimal gated guard. Scope: packages/main/src/core/usage-ledger/dispatch-usage.ts + the single gated guard in core/lattice-dispatch.ts (runClaudeCodeRealLeafDispatch) + a smoke + package.json. Out of scope: postflight overage handling beyond recording, Authority-required budget modes, any non-claude host, default-on, signed-receipt path.",
-      "excluded": false
-    },
-    {
-      "keyword": "Postflight overage handling beyond recording",
+      "keyword": "Promoting records to signed authority receipts",
       "source": "scopeBoundary.excluded",
-      "text": "Postflight overage handling beyond recording",
+      "text": "Promoting records to signed authority receipts",
       "excluded": true
     },
     {
-      "keyword": "Signed-receipt path",
-      "source": "story.description",
-      "text": "Budget slice (spec Touchpoint 4 'Fail-Closed Budget Behavior') of the LLM usage ledger. Add a pre-call hard-budget check to the existing Claude dispatch seam: when a configured hard budget is set and the preflight prompt-size estimate EXCEEDS it, BLOCK the request (skip the provider spawn) and write a decision.kind=blocked ledger record before any call. SAFETY: when no hard budget is configured (the default) OR the ledger flag is OFF, dispatch is BYTE-IDENTICAL to today (no block, decision proceeds with budgetPolicyId=null). The block alters control flow ONLY when an operator explicitly sets the hard-budget env var AND the estimate exceeds it. Per the spec: do not invent a budget when none is configured; fail closed only on an explicit configured hard budget. The pure block-record builder + budget-policy resolution live in the usage-ledger module (zero cross-module imports); the lattice-dispatch.ts edit is a minimal gated guard. Scope: packages/main/src/core/usage-ledger/dispatch-usage.ts + the single gated guard in core/lattice-dispatch.ts (runClaudeCodeRealLeafDispatch) + a smoke + package.json. Out of scope: postflight overage handling beyond recording, Authority-required budget modes, any non-claude host, default-on, signed-receipt path.",
-      "excluded": false
-    },
-    {
-      "keyword": "Signed-receipt path",
+      "keyword": "Remediation of provider overages discovered after a call",
       "source": "scopeBoundary.excluded",
-      "text": "Signed-receipt path",
-      "excluded": true
-    },
-    {
-      "keyword": "Turning the writer on by default",
-      "source": "scopeBoundary.excluded",
-      "text": "Turning the writer on by default",
+      "text": "Remediation of provider overages discovered after a call",
       "excluded": true
     }
   ],
   "repeatDiscardOverlaps": [],
-  "issues": [
-    {
-      "code": "future_capability_keyword",
-      "severity": "hard",
-      "message": "Excluded scope keyword \"Any non-claude host\" appears in story.description.",
-      "keyword": "Any non-claude host",
-      "source": "story.description"
-    },
-    {
-      "code": "future_capability_keyword",
-      "severity": "hard",
-      "message": "Excluded scope keyword \"Authority-required budget modes\" appears in story.description.",
-      "keyword": "Authority-required budget modes",
-      "source": "story.description"
-    },
-    {
-      "code": "future_capability_keyword",
-      "severity": "hard",
-      "message": "Excluded scope keyword \"Postflight overage handling beyond recording\" appears in story.description.",
-      "keyword": "Postflight overage handling beyond recording",
-      "source": "story.description"
-    },
-    {
-      "code": "future_capability_keyword",
-      "severity": "hard",
-      "message": "Excluded scope keyword \"Signed-receipt path\" appears in story.description.",
-      "keyword": "Signed-receipt path",
-      "source": "story.description"
-    }
-  ],
-  "_hash": "6a02e695624b4ee3ab2763c1a2048ec1a99541707005212cc2e8f01f3562faa8"
+  "issues": [],
+  "_hash": "2b4d9a99abdaff7a0166a14db5d91228a6fa94a8243ca6dd7398286b3cab25d0"
 }
