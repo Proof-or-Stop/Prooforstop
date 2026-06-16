@@ -1,0 +1,64 @@
+{
+  "storyId": "B-35aa",
+  "name": "test-runner-consolidation-decision-doc",
+  "title": "A0: Test runner consolidation decision doc — adopt in-house parallel runner + manifest + c8 coverage (Path B)",
+  "description": "A0 (kickoff/decision-only) story for the test-runner consolidation sub-program (Proposal #2). Produce a permanent decision document at docs/requirements/decisions/test-runner-consolidation-plan.md that records the chosen architecture and decomposes the implementation into 3-4 follow-up Lattice stories. No code changes in this story — only the decision doc. Chosen path: B (in-house parallel runner + manifest + c8 coverage), rejecting A (vitest migration of the 151 spawn-CLI integration smokes). Out of scope: any test runner code, any smoke file edits, any package.json script consolidation, any c8 wiring — all moved to follow-up stories enumerated in the decision doc.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "test-infra",
+    "decision-doc",
+    "sub-program-kickoff",
+    "runner-consolidation",
+    "oss-prep"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "test runner"
+    }
+  ],
+  "createdAt": "2026-06-16T23:35:11.015Z",
+  "startedAt": "2026-06-16T23:35:11.015Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-16T23:35:11.038Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-16T23:43:57.146Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Data Migration/Destructive",
+      "reason": "False positive: keyword migration appears only as part of the rejected option name vitest migration in the path-A consideration. This story is a decision-doc-only artifact, performs zero data migration, file migration, or database migration. Chosen path B wraps existing smokes without rewriting them.",
+      "at": "2026-06-16T23:35:35.011Z"
+    },
+    {
+      "category": "Validation Framework",
+      "reason": "False positive: test runner is the subject of the decision doc but this A0 story performs zero code changes. It only writes a decision document. No validation framework code is modified. Follow-up B1-B4 stories will go through their own Lattice workflow when implemented.",
+      "at": "2026-06-16T23:35:35.720Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-35aa",
+    "branch": "story/B-35aa",
+    "createdAt": "2026-06-16T23:43:56.136Z"
+  }
+}
