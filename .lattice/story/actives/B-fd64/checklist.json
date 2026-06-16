@@ -6,7 +6,16 @@
       "context": "In a new core/usage-ledger/authority-evidence.ts (pure; imports only ./ siblings + node), define a PrivacyPreservingUsageEvidenceEnvelope type and buildUsageEvidenceEnvelope(record) that encodes a ledger record as digests (e.g. sha256 of the canonical record via canonical-json.ts) + non-secret fields (model, provider name, usage counts, source, correlation ids, decision) needed for a future Authority submission. MUST contain NO raw prompt/transcript/secret/key/auth-header (reuse the privacy denylist / reject if present). Unit-tested: envelope built from a record contains a recordDigest + allowed fields and zero forbidden material.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/authority-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
