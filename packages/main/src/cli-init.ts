@@ -560,7 +560,17 @@ const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
   if (existsSync(giSrc)) {
     cpSync(giSrc, giPath);
-    console.log('  ✓ .gitignore (copied from Lattice template)');
+    // The template .gitignore can lag the runtime-artifact registry (e.g. a new
+    // ignorePattern added after the template was last synced). Re-merge from the
+    // registry so the copy path is registry-synced just like the existing-file
+    // branch below — keeps the registry the single source of truth (B-4fd3).
+    const merged = mergeKoalaRuntimeIgnores(readFileSync(giPath, 'utf8'));
+    if (merged.changed) {
+      writeFileSync(giPath, merged.content);
+      console.log('  ✓ .gitignore (copied from Lattice template, runtime ignores synced)');
+    } else {
+      console.log('  ✓ .gitignore (copied from Lattice template)');
+    }
   } else {
     const minimalGitignore = [
       'node_modules',
