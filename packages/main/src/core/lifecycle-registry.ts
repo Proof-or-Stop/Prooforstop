@@ -720,7 +720,7 @@ export function classifyLifecycleArtifact(
   return null;
 }
 
-export function isKoalaLifecycleArtifactPath(
+export function isLatticeLifecycleArtifactPath(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
 ): boolean {
@@ -728,7 +728,7 @@ export function isKoalaLifecycleArtifactPath(
   return result?.kind === 'lifecycle';
 }
 
-export function isAnyKoalaStoryMetadataPath(
+export function isAnyLatticeStoryMetadataPath(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
 ): boolean {
