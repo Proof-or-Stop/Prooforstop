@@ -23,7 +23,16 @@
       "context": "Add a pure cost function that takes an injected price table (per-model rates for input/output/cacheRead/cacheCreation $/MTok, including the cache multipliers) and a group's token totals -> cost. NO hardcoded prices anywhere. When no price table is supplied, cost is null/omitted (not 0). Record a pricingRef/pricingVersion when a table is supplied. Unknown token dimensions -> cost unknown (never treated as 0). Tested: cost computed with a sample table; null when no table; unknown stays unknown.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/diagnostics.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
