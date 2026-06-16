@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T01:01:33.031Z",
       "userSees": "User sees heading text \"Prototype Assessment\" and a bullet saying the prototype hard-codes metrics while the current session_brief reports live counts.",
       "files": {
         "modify": [
@@ -40,7 +40,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"Prototype input: .*lattice-console-demo.html|Existing source-of-truth anchor: .*host-neutral-observability-console.md\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The document names the static prototype input and the host-neutral observability source-of-truth anchor in its header.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.082Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"does not replace the host-neutral observability console design|Host-neutral workflow first|host-neutral and agent-neutral\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The positioning statement and host-neutral principle keep this addendum from replacing or contradicting the adopted observability console design.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.117Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "command": "rg -n \"No arbitrary optimization|Only fix real correctness issues|hard-coded|stale data|missing recovery instructions|unsupported JSON assumptions\" docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "result": "pass",
+          "note": "The assessment and principles identify real productization gaps while rejecting arbitrary dashboard features and cosmetic-only work.",
+          "headHash": "78fee2884a978ceb5ce86a015dae5291f825c72b",
+          "materialHash": "25623ac1dc80726e995812d7ff21cbc7f14609233aaf94ce51dbb4700e9a86a2",
+          "timestamp": "2026-06-16T01:01:33.152Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
