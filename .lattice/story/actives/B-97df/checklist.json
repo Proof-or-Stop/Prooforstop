@@ -15,6 +15,50 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-diagnostics-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "aggregateByGroup with 3 records (2 stories, 2 models, 2 providers) -> returns groups keyed by storyId/phase/agentType/model/provider with correct per-group token sums; WHY: validates multi-dimensional rollup correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with provider-reported + prompt-size-estimate records -> estimate records appear in their own source bucket and are NOT mixed into provider-reported totals; WHY: validates source separation invariant",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "aggregateByGroup with record where source=unavailable -> group for that record shows unknown=true, total=null, NOT 0; WHY: unknown/unavailable must never silently become 0",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with a superseded record -> superseded record excluded from all group totals; WHY: validates summary.ts selectLatestRecords integration",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with record having one null dimension (e.g. cacheCreation=null) -> that records total is unknown/null, not partially summed; WHY: partial-null must not silently produce a numeric total",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with storyId=null (non-story call) -> groups by storyId=null as a distinct group key, not dropped; WHY: non-story calls are valid and must not be silently lost",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "aggregateByGroup with duplicate ledgerCallId+attemptId at different sequences -> only highest-sequence record selected per attempt, lower-sequence excluded from totals; WHY: validates dedup-by-sequence under data race",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with empty records array -> returns empty groups, no crash, no NaN; WHY: edge-of-empty must be safe",
+            "type": "cli"
+          },
+          {
+            "desc": "aggregateByGroup with 100+ records across 10 stories, 5 models, 3 providers -> groups partition correctly and sum to the same grand total as summarizeRecords; WHY: scale cross-check prevents off-by-one or double-count",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
