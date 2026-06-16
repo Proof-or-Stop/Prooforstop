@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-16T02:23:07.069Z",
       "reviewRunId": "B-7365:RR-002",
       "_hash": "8c72f7a2b18710267bff4f159b2da1b2f6e85bcbef268c26fdf44c705ff2e63c"
+    },
+    {
+      "id": "B-7365:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed git diff main...HEAD for dead code, type safety, and I/O shell isolation. No dead code or unused imports introduced. No shell-imports-fn.ts violations. Two medium findings registered: F-001 (production: missing merge --abort cleanup on gitCli throw inside resolution loop) and F-002 (test: dead no-op assert in smoke). All other scrutinized properties are sound: conflict-direction is correct (--theirs = incoming base/main version), the clean path is byte-identical to legacy bare merge, the lock wraps the full commit+merge critical section with proper reentrant variant, runGitNoThrow uses try/catch without swallowing real failures, and the abort calls on the three error paths (non-conflict failure, out-of-storyRel conflict, stillUnmerged defensive check) properly use runGitNoThrow to handle the case where no merge is in progress.",
+      "createdAt": "2026-06-16T02:28:04.936Z",
+      "reviewRound": "2026-06-16T02:23:07.069Z",
+      "reviewRunId": "B-7365:RR-003",
+      "_hash": "250536cd8dab050d8dc1a516985f45f35493749b478dbe2c828232c954ccd821"
     }
   ]
 }
