@@ -65,22 +65,29 @@ import {
 
 /** Auto-sync main into the current branch. Returns success/failure + message. */
 export function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
+  // B-db56: this parameter is the resolved gitCwd — the sole caller
+  // (transition-orchestrator.ts runStoryTransition DONE branch) routes ctx.root
+  // through resolveGitCwd ONCE at the entry of the DONE pre-check block and
+  // passes the resolved value here. In a wrapper-root layout that is the
+  // configured gitRoot subdir, not the metadataRoot. Plain-repo fallback is
+  // also handled by resolveGitCwd, so this stays byte-identical.
+  const gitCwd = projectRoot;
   // Try to fetch origin main first (fails silently for local-only repos)
   try {
     execSync('git fetch origin main:main', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
   } catch { /* local-only repo or no remote — skip fetch */ }
   try {
     execSync('git merge main --no-edit', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
     return { ok: true, message: 'main 已自动同步到当前分支' };
   } catch {
     // conflict — abort merge to keep branch clean
     try {
       execSync('git merge --abort', {
-        cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
       });
     } catch { /* abort failed — already clean */ }
     return { ok: false, message: 'merge main 有冲突（已 abort 保持分支干净）。\n→ 执�� git merge main，解决冲突后 git add + git commit，然后重跑 story_advance DONE' };

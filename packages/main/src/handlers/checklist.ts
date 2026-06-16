@@ -185,8 +185,9 @@ function assertChecklistScopeChangeAllowed(
 
 function evidenceHashes(root: string): { headHash?: string; materialHash?: string } {
   let headHash = '';
+  const gitCwd = root;
   try {
-    headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    headHash = execSync('git rev-parse HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch { /* PROBE: non-git or unavailable, omit freshness hash */ }
   const materialHash = currentMaterialHash(root);
   return {
@@ -965,8 +966,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
       let headHash = '';
+      const refreshGitCwd = root;
       try {
-        headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+        headHash = execSync('git rev-parse HEAD', { cwd: refreshGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
       } catch {
         throw new Error('verification_evidence_refresh_stale: cannot read git HEAD in current directory, unable to refresh freshness');
       }

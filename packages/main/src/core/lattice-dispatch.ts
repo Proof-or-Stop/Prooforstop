@@ -1182,8 +1182,9 @@ function assertCanonicalWorktreePath(worktreeAbs: string, candidatePath: string,
 }
 
 function listedGitWorktreeRoots(root: string): string[] {
+  const gitCwd = root;
   const output = execFileSync('git', ['worktree', 'list', '--porcelain'], {
-    cwd: root,
+    cwd: gitCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
     encoding: 'utf8',
   });
@@ -1247,9 +1248,10 @@ function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string,
   }
 
   let gitTopLevel: string;
+  const assertGitCwd = root;
   try {
     gitTopLevel = execFileSync('git', ['-C', worktreeAbs, 'rev-parse', '--show-toplevel'], {
-      cwd: root,
+      cwd: assertGitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     }).trim();
@@ -1296,6 +1298,7 @@ function normalizePackPaths(
 
 function ensureWorktree(root: string, worktreePath: string, branch: string, baseRef: string): string {
   const absPath = resolve(root, worktreePath);
+  const gitCwd = root;
   assertProjectedWorktreeAncestors(root, absPath, 'Dispatch worktree path');
   if (existsSync(absPath)) {
     assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
@@ -1305,7 +1308,7 @@ function ensureWorktree(root: string, worktreePath: string, branch: string, base
   assertProjectedWorktreeAncestors(root, absPath, 'Dispatch worktree path');
   try {
     execFileSync('git', ['worktree', 'add', absPath, '-b', branch, baseRef], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -1329,9 +1332,10 @@ function ensureWorktree(root: string, worktreePath: string, branch: string, base
 function cleanupCreatedWorktree(root: string, worktreePath: string, branch: string): string[] {
   const warnings: string[] = [];
   const absPath = resolve(root, worktreePath);
+  const gitCwd = root;
   try {
     execFileSync('git', ['worktree', 'remove', '--force', absPath], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -1349,7 +1353,7 @@ function cleanupCreatedWorktree(root: string, worktreePath: string, branch: stri
   }
   try {
     execFileSync('git', ['worktree', 'prune'], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -1358,7 +1362,7 @@ function cleanupCreatedWorktree(root: string, worktreePath: string, branch: stri
   }
   try {
     execFileSync('git', ['branch', '-D', branch], {
-      cwd: root,
+      cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });

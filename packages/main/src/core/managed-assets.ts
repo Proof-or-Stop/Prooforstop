@@ -325,10 +325,10 @@ function safeJsonParse(text: string): unknown {
   try { return JSON.parse(text); } catch { /* PROBE: malformed JSON means this asset cannot prove managed ownership. */ return null; }
 }
 
-function gitLines(root: string, args: string[]): string[] {
+function gitLines(gitCwd: string, args: string[]): string[] {
   try {
     return execFileSync('git', args, {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).split(/\r?\n/).map(line => line.trim()).filter(Boolean);

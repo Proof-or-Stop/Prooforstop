@@ -1,0 +1,31 @@
+{
+  "task": "Audit 193 git child-process call sites; reroute the unrouted through resolveGitCwd; add a grep-contract smoke that fails on bare-projectRoot git calls.",
+  "outcome": "After: `npm run test:gitroot-cwd-contract` exit 0 on HEAD; injecting a regression (e.g. `execFileSync('git',['status'],{cwd:projectRoot})`) into a probe file makes the smoke fail with a clear `<file>:<line> uses bare projectRoot; route through resolveGitCwd` message; the two existing smokes still pass; `npm run build` + `npm run test:e2e` exit 0.",
+  "facts": [
+    "193 (execFileSync|spawnSync|execSync)('git',...) call sites across 88 .ts files in packages/.",
+    "resolveGitCwd exported at packages/main/src/core/story-signed-workspace-resolution.ts:195.",
+    "3 ad-hoc git helpers: lab.ts:69 runGit, cli-engine.ts:3647 runGitNoThrow, declared-artifact-commit-check.ts:122 runGit — these are wrappers but their callers can still pass a bare projectRoot.",
+    "2 existing smokes (gitroot-cwd-routing-smoke from B-2856, bare-gate-gitroot-cwd-smoke from B-3990) assert SPECIFIC rerouted sites but do not prevent NEW unrouted sites.",
+    "Prior P1 fixes hit this defect class story-by-story: B-1637 (doctor probes), B-e791 (INIT git-readiness), B-0740 (doctor --repair + lint change-scoping), B-2856, B-3990 — exactly the whack-a-mole pattern this story stops."
+  ],
+  "constraints": [
+    "Do not change resolveGitCwd's signature or returned-value semantics.",
+    "Keep the 3 ad-hoc helpers (lab.ts/cli-engine.ts/declared-artifact-commit-check.ts); only ensure their callers feed resolved cwds.",
+    "Existing wrapper-root smokes (gitroot-cwd-routing, bare-gate-gitroot-cwd) must continue to pass byte-identically.",
+    "npm run build + npm run test:e2e must stay green throughout."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/core/declared-artifact-commit-check.ts",
+    "packages/main/src/core/cluster-sync.ts",
+    "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts",
+    "packages/main/src/tasks/bare-gate-gitroot-cwd-smoke.ts",
+    "packages/lab/src/handlers/lab.ts"
+  ],
+  "timestamp": "2026-06-16T22:11:05.093Z"
+}

@@ -41,8 +41,9 @@ function getMaxSnapshots(root: string): number {
 }
 
 function getCurrentCommit(root: string): string {
+  const gitCwd = root;
   try {
-    return execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf8' }).trim();
+    return execSync('git rev-parse HEAD', { cwd: gitCwd, encoding: 'utf8' }).trim();
   } catch {
     return 'unknown';
   }

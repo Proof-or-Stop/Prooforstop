@@ -117,12 +117,13 @@ function renderActivityLine(a: { timestamp: string; tool: string; status: string
 function readGitStatus(root: string): { porcelain: string[]; recentLog: string[] } {
   const porcelain: string[] = [];
   const recentLog: string[] = [];
+  const gitCwd = root;
   try {
-    const status = execSync('git status --porcelain', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const status = execSync('git status --porcelain', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     if (status) porcelain.push(...status.split('\n').slice(0, 20));
   } catch { /* not a git repo */ }
   try {
-    const log = execSync('git log -3 --oneline', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const log = execSync('git log -3 --oneline', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     if (log) recentLog.push(...log.split('\n'));
   } catch { /* no commits */ }
   return { porcelain, recentLog };

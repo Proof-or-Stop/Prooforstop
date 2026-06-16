@@ -48,9 +48,10 @@ import {
 
 /** Check how many commits main has that the current branch doesn't. */
 export function checkMainDivergence(projectRoot: string): { behind: number; needsSync: boolean } {
+  const gitCwd = projectRoot;
   try {
     const result = execSync('git rev-list --count HEAD..main', {
-      cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const behind = parseInt(result, 10) || 0;
     return { behind, needsSync: behind > 0 };
@@ -60,9 +61,10 @@ export function checkMainDivergence(projectRoot: string): { behind: number; need
 }
 
 function readGitStatusLines(projectRoot: string): { ok: true; lines: string[] } | { ok: false; error: string } {
+  const gitCwd = projectRoot;
   try {
     const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -118,9 +120,10 @@ function evaluateDirtyGitStatus(
 }
 
 function gitRefExists(projectRoot: string, ref: string): boolean {
+  const gitCwd = projectRoot;
   try {
     execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -131,8 +134,9 @@ function gitRefExists(projectRoot: string, ref: string): boolean {
 }
 
 function gitRefContainsMain(projectRoot: string, ref: string): boolean {
+  const gitCwd = projectRoot;
   execFileSync('git', ['merge-base', '--is-ancestor', 'main', ref], {
-    cwd: projectRoot,
+    cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -452,9 +456,10 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }
     if (allDocs.size > 0) {
       let changedFiles = new Set<string>();
+      const gitCwd = root;
       try {
         const out = execSync('git diff main...HEAD --name-only', {
-          cwd: root,
+          cwd: gitCwd,
           encoding: 'utf8',
           timeout: 5000,
           stdio: ['pipe', 'pipe', 'pipe'],
