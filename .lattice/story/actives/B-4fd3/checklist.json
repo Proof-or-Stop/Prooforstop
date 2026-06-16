@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "让 lattice init 的 .gitignore 复制路径以 registry 为真相源合并 runtime ignore 块，并 resync 主仓 .gitignore",
+      "context": "cli-init.ts:560-563 的 cpSync 复制分支 verbatim 拷贝主仓 .gitignore，不合并 registry runtime ignore。改为复制后同样调用 mergeKoalaRuntimeIgnores（与 581-588 已有文件分支一致），保证 fresh init 永远 registry-synced。同时 resync 主仓自身 .gitignore 的 managed 块补齐 .lattice/usage/。真相源：runtime-artifact-registry.ts 的 ignorePatterns。",
+      "relatedDocs": [
+        "CLAUDE.md#pre-push-hook--递归-tsc-gate"
+      ],
+      "userSees": "clean main 上 init 出来的 .gitignore managed 块含 .lattice/usage/；主仓 .gitignore 的 # lattice runtime artifacts (managed) 块新增 .lattice/usage/ 一行",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "回归保护：clean main 上 thin-init-assets-smoke 通过 + 防 registry→gitignore 再漂移的断言",
+      "context": "npm run test:thin-init-assets-smoke 在 clean main 通过（不再报 .lattice/usage/ STALE_SAFE）。补一条机械断言防止 registry 再加 ignorePattern 而 init/主仓 .gitignore 不同步：在 smoke 里 assert init 产物 .gitignore 覆盖 listRuntimeArtifactIgnorePatterns() 全集。",
+      "relatedDocs": [
+        "CLAUDE.md#pre-push-hook--递归-tsc-gate"
+      ],
+      "userSees": "npm run test:thin-init-assets-smoke 输出 ✓ global-thin init assets smoke passed；新增断言覆盖 registry→gitignore 一致性",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
