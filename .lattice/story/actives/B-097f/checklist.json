@@ -316,6 +316,16 @@
           "headHash": "d17e44b16519f0914f777581c8bb3f9e85092993",
           "materialHash": "6f1f5cd715270852e57133f6a1dec721b1599e0463c57838f822dad9c7e54538",
           "timestamp": "2026-06-16T18:51:26.868Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "result": "pass",
+          "note": "文档命令 lattice agent_prompt --role=X 与实测一致(16 role byte-equal,非法 role 列可用列表);doctor agentAssetMode runtime-owned 与实现一致",
+          "headHash": "0d134938a4966aba319dea8eac4d59a9486a3f01",
+          "materialHash": "6f1f5cd715270852e57133f6a1dec721b1599e0463c57838f822dad9c7e54538",
+          "timestamp": "2026-06-16T18:51:27.328Z"
         }
       ]
     },
