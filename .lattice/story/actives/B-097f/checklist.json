@@ -184,6 +184,17 @@
           "headHash": "065fc9a2c0f66322dbe65e468c06ac1b6bbb261d",
           "materialHash": "61101e0a93a79c17ef4124dafd04d41aafa86cde18183276ed55b604b1918f31",
           "timestamp": "2026-06-16T14:45:24.402Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=all",
+          "result": "pass",
+          "note": "真机: all profile (codex+claude) 项目 .claude/agents *.md=0; 全局 16 symlink; Codex 侧 global-thin 行为不变(未回归 B-4ee0)",
+          "headHash": "6b3357c1ff8f9f7b360d2a05547733ef5087784b",
+          "materialHash": "61101e0a93a79c17ef4124dafd04d41aafa86cde18183276ed55b604b1918f31",
+          "timestamp": "2026-06-16T14:45:25.313Z"
         }
       ]
     },
