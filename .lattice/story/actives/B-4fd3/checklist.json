@@ -71,12 +71,12 @@
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/cli-init.ts",
-          "command": "node --input-type=module -e (drift detection on registry-minus-usage)",
+          "command": "node -e drift-detection",
           "result": "pass",
-          "note": "复制路径调 mergeKoalaRuntimeIgnores→listRuntimeArtifactIgnorePatterns()(全 registry)；node 验证去掉任意 pattern 后 runtimeIgnoreMissing 能报出该 pattern，证明 registry 新增项会被复制路径纳入",
-          "headHash": "3cb20df0f636ef4bd5fdc276ec3a9bf405e0d94b",
-          "materialHash": "8d71094e896aeecdf9e153c25b1a5614636893c5650e95cfb313a83e35998016",
-          "timestamp": "2026-06-16T21:11:30.734Z"
+          "note": "re-recorded post-fix: 复制路径调 mergeKoalaRuntimeIgnores→listRuntimeArtifactIgnorePatterns()(全 registry)；node 验证去掉 pattern 后 runtimeIgnoreMissing 报出该项，registry 新增项必被纳入",
+          "headHash": "561a19f6dd072b27d7a4b1edadbc5437cc06d65b",
+          "materialHash": "e830da1e27673143e55e3c1129a4fc0540c537624b243e0c1cee55a56821abfa",
+          "timestamp": "2026-06-16T21:16:47.192Z"
         }
       ]
     },
