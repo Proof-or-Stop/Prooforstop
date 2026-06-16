@@ -23,7 +23,16 @@
       "context": "Add a pure parser (in dispatch-usage.ts or usage-ledger/host-output.ts): parseClaudeCliOutput(stdout) -> {resultText, anthropicUsage|null}. When stdout is the Claude Code CLI JSON envelope, extract the human result text (e.g. .result) and the usage object (input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens). When stdout is NOT valid JSON or lacks the expected shape, return {resultText: <raw stdout>, anthropicUsage: null} (graceful fallback — never throw). Tested with a sample JSON envelope (usage extracted), a plain-text stdout (raw fallback, usage null), and malformed JSON (raw fallback).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
