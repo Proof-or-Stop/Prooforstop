@@ -74,7 +74,18 @@
       "context": "Add packages/main/src/tasks/usage-ledger-dispatch-smoke.ts (follow existing *-smoke.ts pattern; print ✓/✗, non-zero exit; temp dir, no repo pollution), wired as npm test:usage-ledger-dispatch. Cover: orchestrator (preflight estimate appended; provider-reported final supersedes the estimate so summary counts only the final; unavailable final when no usage; flag off => nothing written); the JSON parser (usage extracted from a sample envelope; raw-text + malformed fallback to usage=null); end-to-end record-chain round-trip through the writer (opt-in ON, temp dir) re-validates. Assert the usage-ledger module STILL imports zero other modules (dispatch-usage.ts imports only ./ siblings + node). Build green; run the full ledger suite (usage-ledger / -adapter / -estimate / -diagnostics) with NO regression; `node bin/lattice.js validate` builds. The lattice-dispatch.ts seam itself is covered structurally (gated + minimal) since a live dispatch can't run in the smoke.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
+        ]
+      }
     }
   ]
 }
