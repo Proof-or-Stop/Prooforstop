@@ -736,6 +736,17 @@
           "headHash": "ae47b46b6389631329b3abbb5a002d4c02d7cd31",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:11.570Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep test:omx-disabled package.json",
+          "result": "pass",
+          "note": "Returns empty — script entry removed.",
+          "headHash": "653d5a279f27cc2bca7cdd50d488c682f00b805f",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:12.168Z"
         }
       ]
     }
