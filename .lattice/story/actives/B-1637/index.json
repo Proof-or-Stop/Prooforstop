@@ -4,7 +4,7 @@
   "title": "Route lattice doctor git probes through the resolved gitRoot",
   "description": "5th residual of the gitRoot resolution defect class (Bug 1 / B-2856). `lattice doctor` runs git with cwd=root (the metadataRoot) at several probe sites instead of the configured gitRoot, so on a wrapper-root project (metadataRoot != gitRoot, e.g. ClawCreek where gitRoot=clawcreek and the wrapper root is not a git repo) it prints two leading `fatal: not a git repository` lines. The failures are caught (each git call is in try/catch and degrades gracefully) so functionality is unaffected — this is cosmetic stderr noise only. Affected sites (cwd:root, no gitRoot resolution): doctor.ts:505 scanTrackedRuntimeArtifacts (git ls-files -z), doctor.ts:554 orphan-worktree scan (git rev-parse --show-toplevel), doctor.ts:760 + :773 the B-854c metadata-protection probe (git ls-files / git check-ignore). The one already-correct site is doctor.ts:93 evaluateStoryDirConfigInsideGitRoot (B-198c, never throws) — reuse that gitRoot resolution. Outcome: doctor's git probes resolve the configured gitRoot and run from it (falling back to root when no gitRoot resolves, preserving graceful catch behavior), so wrapper-root projects get a clean doctor report with no fatal noise. Scope: doctor.ts git-probe cwd resolution + quieting only; do not change what the probes check or any other gitRoot site already fixed by B-2856.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "low",
   "keywords": [
     "doctor",
@@ -65,6 +65,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-16T00:15:43.126Z",
+      "branch": "story/B-1637",
+      "user": "Harmonygo",
+      "sessionId": "lattice-doctor",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:17:40.111Z",
       "branch": "story/B-1637",
       "user": "Harmonygo",
       "sessionId": "lattice-doctor",
