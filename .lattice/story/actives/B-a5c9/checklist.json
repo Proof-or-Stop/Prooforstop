@@ -275,6 +275,50 @@
         "test": [
           "packages/main/src/tasks/usage-ledger-estimate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An estimate record (source=prompt-size-estimate, inputTokens=500) followed by a provider-reported final record (inputTokens=480, outputTokens=100) with supersedesRecordIds=[estimateRecordId] -> summarizeRecords().providerReportedTotal === 580 (480+100+0+0), estimateSubtotal === 0, estimate excluded from provider total; WHY: the superseded estimate must be dropped from all totals, provider-reported counts only the final",
+            "type": "cli"
+          },
+          {
+            "desc": "An estimate record that is NOT superseded (no final record follows) -> summarizeRecords().estimateSubtotal includes the estimate and providerReportedTotal === 0; WHY: an un-superseded estimate lives in estimateSubtotal, never in providerReportedTotal",
+            "type": "cli"
+          },
+          {
+            "desc": "buildSupersedes(estimateRecordId) returns [estimateRecordId]; WHY: confirms the helper correctly builds the supersedes array for the final record to reference the estimate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Multiple estimates for the same call+attempt, final supersedes ALL of them -> providerReportedTotal counts only the final, estimateSubtotal === 0; WHY: even if multiple estimates were recorded (e.g. re-estimation), all must be excluded once a final exists",
+            "type": "cli"
+          },
+          {
+            "desc": "Estimate with all-null token dimensions (unknown estimate) -> summary treats it as unknown, not as 0 contribution; WHY: a null-dimension estimate must not silently become 0 in any subtotal",
+            "type": "cli"
+          },
+          {
+            "desc": "buildSupersedes(null, undefined, estimateRecordId, estimateRecordId) deduplicates and filters falsy -> returns [estimateRecordId]; WHY: defensive filtering prevents duplicate or null ids in supersedes",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A prompt-size-estimate record is NEVER counted in providerReportedTotal even when it has non-null inputTokens and outputTokens is somehow set -- source discriminator alone determines bucket; WHY: the estimate-never-final invariant depends on source, not on which fields are populated",
+            "type": "cli"
+          },
+          {
+            "desc": "A provider-reported record that lists a nonexistent recordId in supersedesRecordIds does not crash summary and does not affect totals; WHY: stale or garbage supersedes references must be silently ignored, not cause exceptions",
+            "type": "cli"
+          },
+          {
+            "desc": "Two provider-reported final records for the same call+attempt with different sequences -> only the highest-sequence record is selected; WHY: prevents double-counting when a retry produces two finals for the same attempt",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
