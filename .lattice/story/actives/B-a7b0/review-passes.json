@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a7b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion/replacement completeness check complete. The diff is purely additive. The only symbol-level change is ManagedAssetDefinition promoted from private interface to export interface (no deletion, no rename, no residual dangling refs). All new exports (checkPathDrift, checkManagedAssetContradiction, DocsDriftGateOpts, DOCS_DRIFT_PATH_ALLOWLIST, DOCS_DRIFT_MANAGED_ASSET_ALLOWLIST, missingPaths/managedAssetContradictions fields on DocsDriftGateResult) are present in the code. Grep confirms: single definition of ManagedAssetDefinition (no duplicate), all call sites of runDocsDriftGate handle the extended result backward-compatibly (optional third arg, new fields as empty arrays on no-opts path), no dangling imports. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-06-16T21:30:48.387Z",
+      "reviewRound": "2026-06-16T21:28:15.259Z",
+      "reviewRunId": "B-a7b0:RR-001",
+      "_hash": "2bf1e62abc06a0e6d3d58a7ec9caff66ad1f21090f5cdc93ffe382ba12e47600"
+    }
+  ]
+}
