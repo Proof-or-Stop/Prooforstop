@@ -659,6 +659,17 @@
           "headHash": "850c05fa4b7d6eeec3b8c7147ad28fc5ff669a9e",
           "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
           "timestamp": "2026-06-16T21:08:06.657Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -inE 'omx' packages/main/src/core/baseline.ts",
+          "result": "pass",
+          "note": "Returns empty — baseline.ts omx-refuse logic removed.",
+          "headHash": "8d592cdece2ad5dd2da8a401e440883b02a7e4e9",
+          "materialHash": "ae6a12f0aebcbf54fcacc43c96dc7be7d31156acd55ff7693553aed43fe005f4",
+          "timestamp": "2026-06-16T21:08:07.143Z"
         }
       ]
     }
