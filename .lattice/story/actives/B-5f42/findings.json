@@ -43,7 +43,7 @@
       "desc": "All 9 verificationEvidence entries are stale (headHash mismatch after round-2 fix commits 71010e4/44e6c7c37/f262aff5). lattice validate --story=B-5f42 --json reports 0/9 covered (verificationCoverage.covered=0, missingRequired=9). The smoke test itself still passes (all 6 tests green) and the behavior under test is unchanged (round-2 fix was dead-code removal only). The main agent must re-run verification_evidence_add for all 9 intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0) against the current HEAD so the gate can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-16T23:20:22.521Z",
@@ -52,7 +52,9 @@
       "_hash": "d0a9db2c4d8d3a12b25b5caec941aaeb0c2126bcfd10c3b1f4a1a9d2242262c7",
       "files": [
         "packages/main/src/tasks/english-only-guards-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Refreshed all 9 verificationEvidence entries at current HEAD via verification_evidence_refresh_stale (commit 9e03071); the staleness was caused by the F-001/F-002 fix commit advancing HEAD, not by missing tests. lattice validate --story=B-5f42 --json now reports verificationCoverage 9/9 covered, 0 missing; the english-only-guards smoke is green.",
+      "resolvedAt": "2026-06-16T23:23:04.745Z"
     }
   ]
 }
