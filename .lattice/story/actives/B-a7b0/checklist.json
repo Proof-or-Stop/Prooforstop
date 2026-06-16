@@ -53,6 +53,17 @@
           "headHash": "d8a39eb5c5888707f5cce3a301408a55111f0a57",
           "materialHash": "54e2e3fe79e233a40ad7a3d5cd567edd134abc34d9742be983f57141f285c6a7",
           "timestamp": "2026-06-16T21:15:38.217Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/docs-drift-path-drift-smoke.ts",
+          "command": "node dist/tasks/docs-drift-path-drift-smoke.js",
+          "result": "pass",
+          "note": "Adversarial: docs/story/ path + uppercase-XXX placeholder + allowlisted path are NOT flagged; and command-name missing/stale result is byte-identical with vs without repoRoot (unregistered command still caught), proving the path check is purely additive.",
+          "headHash": "91cfaa55ae69149cd59d4403b4cb6c7fc39a01db",
+          "materialHash": "54e2e3fe79e233a40ad7a3d5cd567edd134abc34d9742be983f57141f285c6a7",
+          "timestamp": "2026-06-16T21:15:43.626Z"
         }
       ]
     },
