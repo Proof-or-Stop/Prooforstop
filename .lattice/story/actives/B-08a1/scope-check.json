@@ -1,0 +1,164 @@
+{
+  "storyId": "B-08a1",
+  "checkedAt": "2026-06-16T02:20:42.656Z",
+  "features": [
+    {
+      "feature": "Anthropic adapter: map native input_tokens/output_tokens/cache_creation_input_tokens/cache_read_input_tokens to provider-reported canonical shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "OpenAI adapter: map prompt_tokens->input, completion_tokens->output, prompt_tokens_details.cached_tokens->cacheRead, cacheCreation=null",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Gemini adapter: map usageMetadata.promptTokenCount->input, candidatesTokenCount->output, cachedContentTokenCount->cacheRead, cacheCreation=null",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Each adapter preserves raw provider units (providerUnits + payloadDigest) AND emits normalized canonical {input, output, cacheCreation, cacheRead} view",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Per-dimension null semantics: unreported cache dimension = null (never 0, never via usage.source) across all three providers",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Record assembler: provider response + locally-minted correlation ids (from ids.ts, never provider requestId) + attribution -> full validated ledger record passing B-253e validator",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Correlation ids (ledgerCallId, attemptId, sequence, supersedesRecordIds) generated locally, not derived from provider.requestIdHash",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Attribution fields (storyId nullable, phase, agentType) attached to assembled records at call time",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Streaming: read final usage from terminal stream event (message_delta/final message) per provider",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Mid-stream error/timeout: record partial usage consumed as provider-reported (not downgraded to unavailable/zero)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "No provider usage at all -> source=unavailable + unavailableReason (never zeros)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Privacy: no raw prompt, transcript, provider secrets, customer API keys, actor keys, or authorization headers in ledger records",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Smoke suite covering all three providers, assembler, streaming terminal-event and mid-stream-error, unavailable/null, and B-253e writer round-trip; wired as npm test:usage-ledger-adapter",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wiring adapters into live dispatch path (dispatch-runner / lattice-dispatch)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope per story description and execution-boundary.json (excludedPaths: dispatch-runner.ts, lattice-dispatch.ts)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Estimate path (preflight prompt-size estimates, count_tokens endpoint, fallback chain, estimator confidence)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred per story description (estimate path is spec Slice 3)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Budget policy (fail-closed preflight, decision.kind=blocked, over-budget enforcement)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred per story description (budget logic is spec Slice 4)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Signed-receipt / Authority integration path",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred per story description (receipt path is spec Slice 6)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Default-on local ledger enablement",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred per story description (rollout phase 6)",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Single ledger-writing choke-point and completeness/reconciliation check",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Belongs to Slice 1 (B-253e) and the future dispatch-wiring story; excluded from this pure-adapter slice",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Ledger schema/validator/writer (JSONL schema definition, .lattice/usage path, runtime artifact registry entry, gitignore)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Belongs to Slice 1 (B-253e foundation story already built); this story reuses B-253e validator, not rebuilds it",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    },
+    {
+      "feature": "Status/diagnostics layer (ledger summaries, pricingRef/cost derivability, totalTokens prohibition in summary)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Spec Slice 5; not part of the pure provider-adapter layer",
+      "source": "decisions:decisions/lattice-llm-usage-ledger-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "covered": 13,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "00207067853e4e5977cd9a6876e7f64c11d8aa15ba11675f2757e02829c9e5d0",
+  "openQuestions": []
+}

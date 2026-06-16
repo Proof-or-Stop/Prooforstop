@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Audit: enumerate CLI paths that commit to / mutate the main branch or worktree and flag any not under the main-write-lock",
+      "context": "Grep for git commit / merge / update-ref / branch ops and metadata-on-main writes across packages/main/src (handlers + cli-engine + core); cross-reference against withMainWriteLock/withReentrantMainWriteLock usage. Produce the list of main-mutating paths and which are NOT locked (B-7365's reconcile is now locked; find any others).",
+      "userSees": "The audit output lists every main-mutating CLI path and marks which hold the main-write-lock and which (if any) still do not.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Close the gaps: wrap any remaining unlocked main-mutating path in withReentrantMainWriteLock",
+      "context": "For each unlocked main-mutating path found in the audit, wrap its main commit/merge/ref-update critical section in withReentrantMainWriteLock (reentrant, since some run within already-locked contexts). If the audit finds none remaining, record that and proceed to the guard. Do not change command semantics; lock-only.",
+      "userSees": "Each previously-unlocked main-mutating path now acquires the main-write-lock; concurrent sessions are serialized on those paths (no race corruption).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regression guard + tests: mechanically flag any main-mutating commit path not under the lock",
+      "context": "Add a test/guard (e.g. a static scan or a runtime assertion test) that fails if a CLI path commits to main without holding the lock, so a future B-7365-class gap is caught mechanically rather than by convention. Cover the gaps found and a negative case.",
+      "userSees": "lattice validate green with a regression guard that turns red if a new main-mutating path is added without the main-write-lock.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

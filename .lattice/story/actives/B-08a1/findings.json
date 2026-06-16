@@ -1,0 +1,41 @@
+{
+  "findings": [
+    {
+      "id": "B-08a1:F-001",
+      "desc": "type-safety: shared.ts:72 `return value as TokenDimension` is an unsound cast — the return type declares TokenDimension (number|null) but can be any malformed value (string, float, negative, NaN). This silences the TS type checker on an unsafe path and creates a contract lie that callers cannot detect statically. Prefer `return value as unknown as TokenDimension` (explicit double-cast) or introduce an internal RawTokenDimension type so the unsoundness is visible at every call site.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T02:45:52.069Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-002",
+      "_hash": "4ff729c1f0825591bcf14fd1cc17b7ff1ca90cba78d26d67079bd0214ba1266c",
+      "files": [
+        "packages/main/src/core/usage-ledger/adapters/shared.ts"
+      ],
+      "resolvedReason": "fixed",
+      "resolvedAt": "2026-06-16T02:53:34.560Z"
+    },
+    {
+      "id": "B-08a1:F-002",
+      "desc": "dead-code-duplication: `canonicalJson` and `sortValue` are copied verbatim in adapters/shared.ts (lines 31-46) and writer.ts (lines 72-89). The shared.ts comment says \"Mirrors the writer's canonicalization\" acknowledging the copy. These implementations can diverge silently — if the canonicalization algorithm is ever changed in writer.ts, shared.ts payloadDigest hashes could become inconsistent. Extracting both to a shared internal utility (e.g. packages/main/src/core/usage-ledger/canonical-json.ts) would remove the duplication without violating the pure/I/O boundary.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-16T02:46:03.433Z",
+      "reviewRound": "2026-06-16T02:40:52.780Z",
+      "reviewRunId": "B-08a1:RR-002",
+      "_hash": "d25a0e1bee3bea869e054c3feaa5cdcf7572c31573080f76d82cac86051dfd13",
+      "files": [
+        "packages/main/src/core/usage-ledger/adapters/shared.ts",
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "resolvedReason": "fixed",
+      "resolvedAt": "2026-06-16T02:53:45.512Z"
+    }
+  ]
+}
