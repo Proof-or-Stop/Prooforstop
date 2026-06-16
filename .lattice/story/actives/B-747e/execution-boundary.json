@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-747e",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git grep*",
+    "git status*",
+    "grep *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/* run *",
+    "npm run build",
+    "npm run test:e2e"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/dirty-worktree.ts",
+    "packages/main/src/core/hooks.ts",
+    "packages/main/src/core/story-signed-workspace-resolution.ts",
+    "packages/main/src/core/workflow-policy.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "experiments",
+    "packages/lab"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Pure KoalaConfig->LatticeConfig identifier rename in 5 core files.",
+  "createdAt": "2026-06-16T02:42:29.845Z",
+  "updatedAt": "2026-06-16T02:42:29.845Z",
+  "_hash": "4b51e965669c8036d55b0506dd7b6d883a5ee979f8b4014ae30b9a374b43f584"
+}
