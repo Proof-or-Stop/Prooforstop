@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-16T02:40:52.780Z",
       "reviewRunId": "B-08a1:RR-002",
       "_hash": "75f42bbb420ae2b2fcc95ebef796de75cf02ee65bf0a5525e5e18e66b7daef6b"
+    },
+    {
+      "id": "B-08a1:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Four concept checks passed. (1) No duplicate canonicalJson/sortValue in usage-ledger: both writer.ts and adapters/shared.ts import from the single canonical-json.ts; the other canonicalJson definitions in authority-signing.ts, authority-contracts.ts, decision-doc-promotion.ts all pre-exist on main and are unrelated to this story. (2) Canonical four-field model (input/output/cacheCreation/cacheRead) is consistent throughout; totalTokenCount is explicitly ignored in gemini.ts and forbidden by the record.ts denylist. (3) Scope honored: only packages/main/** and .lattice story metadata changed; no dispatch/estimate/budget/receipt implementations introduced. (4) Unavailable semantics consistent: buildUnavailableUsage sets all four token fields to null never 0; per-dimension absence returns null never 0 in readReportedDimension; no zero-coercion patterns found in adapters. No dead/duplicate concepts found.",
+      "createdAt": "2026-06-16T02:53:17.336Z",
+      "reviewRound": "2026-06-16T02:50:56.734Z",
+      "reviewRunId": "B-08a1:RR-004",
+      "_hash": "1d4c6820f8bd9b3598db73ee751b684f205447a5cd38059c9af756b4e56cf80b"
     }
   ]
 }
