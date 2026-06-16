@@ -77,7 +77,7 @@ lattice story_advance --storyId=B-123 --phase=DEV --forceTakeover
 **硬边界（文件头第 9-26 行自述）**：
 > "This is LOCAL session coordination, NOT a strong-identity security mechanism."
 
-`sessionId` 来自 `KOALA_SESSION_ID` / `CLAUDE_CODE_SESSION_ID` env，否则 `deriveLocalSessionId = sha256(hostname + root + ppid)[:16]`——**非密码学身份，只防并发误写，不防恶意，不跨机器。**
+`sessionId` 来自 `LATTICE_SESSION_ID` / `CLAUDE_CODE_SESSION_ID` env，否则 `deriveLocalSessionId = sha256(hostname + root + ppid)[:16]`——**非密码学身份，只防并发误写，不防恶意，不跨机器。**
 
 ### 1.2 Handoff packs（跨 host，有界 "overflow"）
 

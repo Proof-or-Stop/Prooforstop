@@ -59,7 +59,7 @@ export function recomputeProcessMetrics(storyId: string, store: StoryStore, root
 /**
  * onPhaseChange hook — fires after the new phase is persisted, so the hook can
  * read the up-to-date story state. Failures are non-blocking. Uses the shared
- * buildHookEnv helper so KOALA_ARGS_JSON / KOALA_STORY_ID / KOALA_PHASE stay
+ * buildHookEnv helper so LATTICE_ARGS_JSON / LATTICE_STORY_ID / LATTICE_PHASE stay
  * consistent with the cli-engine code path.
  */
 export async function runPhaseChangeHooks(
@@ -82,8 +82,8 @@ export async function runPhaseChangeHooks(
       storyId,
       phase: newState,
       extra: {
-        KOALA_OLD_PHASE: oldPhase,
-        KOALA_NEW_PHASE: newState,
+        LATTICE_OLD_PHASE: oldPhase,
+        LATTICE_NEW_PHASE: newState,
       },
     });
     await runHooks('onPhaseChange', `${oldPhase}->${newState}`, env, cfg, root);

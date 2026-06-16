@@ -39,7 +39,7 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'lattice-scope-pretool.cjs');
 const codexHookPath = resolve(packageRoot, '..', '..', '..', '.codex', 'hooks', 'lattice-scope-pretool.cjs');
-const sessionEnv = { ...process.env, KOALA_SESSION_ID: 'pretool-scope-smoke', KOALA_AGENT: 'pretool-scope-smoke' };
+const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'pretool-scope-smoke', LATTICE_AGENT: 'pretool-scope-smoke' };
 
 function normalizeToRelativePaths(root: string, paths: readonly string[]): string[] {
   return paths

@@ -1112,7 +1112,7 @@ export interface InitCheckData {
     evidenceRefs?: string[];
     /** Operator identifier (git user.name or explicitly passed in), audit traceability only. */
     actor?: string;
-    /** Session identifier (KOALA_SESSION_ID / derived session id), audit traceability only. */
+    /** Session identifier (LATTICE_SESSION_ID / derived session id), audit traceability only. */
     session?: string;
     /** ISO 8601 attestation timestamp. */
     attestedAt: string;

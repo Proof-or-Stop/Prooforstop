@@ -15,8 +15,6 @@ export interface RuntimeArtifactRegistryEntry {
 
 export const LATTICE_RUNTIME_IGNORE_BLOCK_START = '# lattice runtime artifacts (managed)';
 export const LATTICE_RUNTIME_IGNORE_BLOCK_END = '# /lattice runtime artifacts (managed)';
-export const KOALA_RUNTIME_IGNORE_BLOCK_START = LATTICE_RUNTIME_IGNORE_BLOCK_START;
-export const KOALA_RUNTIME_IGNORE_BLOCK_END = LATTICE_RUNTIME_IGNORE_BLOCK_END;
 
 function rx(value: string): RegExp {
   return new RegExp(value);

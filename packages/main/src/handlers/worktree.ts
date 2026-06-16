@@ -790,9 +790,22 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         story.worktree = undefined;
       }
 
-      // Reject nesting when already inside a worktree
+      // Reject nesting when already inside a worktree.
+      //
+      // B-e791 CHK-002: keep this probe in the current cwd (process.cwd() =
+      // metadataRoot) so the rejection still reflects the directory the user is
+      // actually in — a genuine `worktree-*` checkout is still detected and
+      // thrown. The only change is `stdio: ['pipe','pipe','pipe']`, which routes
+      // git's stderr into the captured pipe instead of inheriting the terminal.
+      // On a wrapper-root metadataRoot (not itself a git repo) git exits with
+      // `fatal: not a git repository`; previously that line leaked to stderr even
+      // though the error was caught and bootstrap proceeded. Piping stderr
+      // silences the spurious fatal while preserving the catch + nesting throw.
       try {
-        const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
+        const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        }).trim();
         if (branch.startsWith('worktree-')) {
           throw new Error('Already in a worktree, do not nest. Just develop in the current directory');
         }

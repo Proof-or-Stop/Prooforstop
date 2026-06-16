@@ -356,7 +356,6 @@ function findProjectRootByMarker(startDir: string): string | null {
 /** Search upward from cwd for lattice.config.json, return the project root directory. */
 function resolveProjectRoot(): string {
   if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
-  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   return findProjectRootByMarker(process.cwd()) ?? process.cwd();
 }
 

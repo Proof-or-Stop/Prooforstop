@@ -32,8 +32,8 @@ import type { InitAssetMode, InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
 import { renderManagedAssetCheck, runManagedAssetCheck } from './core/managed-assets.js';
 import {
-  KOALA_RUNTIME_IGNORE_BLOCK_END,
-  KOALA_RUNTIME_IGNORE_BLOCK_START,
+  LATTICE_RUNTIME_IGNORE_BLOCK_END,
+  LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
 import { LATTICE_STORY_DIR } from './core/lattice-paths.js';
@@ -52,7 +52,7 @@ const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, 'session-b
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
 const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
-  `${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_END)}`,
+  `${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_END)}`,
 );
 
 function isSupportedInitProfile(value: string): value is InitProfile {
@@ -73,9 +73,9 @@ function normalizeGitignoreLine(line: string): string {
 
 function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   return [
-    KOALA_RUNTIME_IGNORE_BLOCK_START,
+    LATTICE_RUNTIME_IGNORE_BLOCK_START,
     ...lines,
-    KOALA_RUNTIME_IGNORE_BLOCK_END,
+    LATTICE_RUNTIME_IGNORE_BLOCK_END,
   ].join('\n');
 }
 
@@ -781,7 +781,7 @@ import { createApp } from './app.js';
 
 // const app = await devHost(createApp, GameMachine);
 
-// if (process.env.KOALA_SHELL === 'cli') {
+// if (process.env.LATTICE_SHELL === 'cli') {
 //   const { startCliShell } = await import('../shells/cli/main.js');
 //   startCliShell(app.bridge);
 // }

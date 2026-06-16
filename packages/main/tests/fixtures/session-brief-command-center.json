@@ -49,7 +49,7 @@
       "name": "CHK-002 happy: reviewer and intent activity influence next step",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import('node:child_process');\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' } });\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, KOALA_ACTIVITY_ROLE: 'intent' } });\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn {\n  mentionsRoleAware: out.includes('test-intent agent') || out.includes('reviewer'),\n  mentionsRecoveryCommand: out.includes('story_review')\n};",
+      "execute": "const { execFileSync } = await import('node:child_process');\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, LATTICE_ACTIVITY_ROLE: 'reviewer' } });\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, LATTICE_ACTIVITY_ROLE: 'intent' } });\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn {\n  mentionsRoleAware: out.includes('test-intent agent') || out.includes('reviewer'),\n  mentionsRecoveryCommand: out.includes('story_review')\n};",
       "expect": {
         "mentionsRoleAware": true,
         "mentionsRecoveryCommand": true
@@ -80,7 +80,7 @@
       "name": "CHK-002 adversarial: noisy recent activity does not erase actionable next step",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import(\"node:child_process\");\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"reviewer\" } });\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"intent\" } });\nconst out = execFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\" });\nreturn { choosesStoryReview: out.includes(\"story_review\"), avoidsGenericChecklistStep: !out.includes(\"checklist_update --storyId=B-6bee\"), avoidsReviewerCheckPath: !out.includes(\"testintent_check\") };",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, LATTICE_ACTIVITY_ROLE: \"reviewer\" } });\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, LATTICE_ACTIVITY_ROLE: \"intent\" } });\nconst out = execFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\" });\nreturn { choosesStoryReview: out.includes(\"story_review\"), avoidsGenericChecklistStep: !out.includes(\"checklist_update --storyId=B-6bee\"), avoidsReviewerCheckPath: !out.includes(\"testintent_check\") };",
       "expect": {
         "choosesStoryReview": true,
         "avoidsGenericChecklistStep": true,

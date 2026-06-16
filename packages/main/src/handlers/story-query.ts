@@ -157,7 +157,7 @@ function removeEmptyDir(path: string): boolean {
 function storyUpdateActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
-  return process.env.KOALA_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+  return process.env.LATTICE_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
 }
 
 function isInitReviewerStoryUpdateActor(actor: string): boolean {

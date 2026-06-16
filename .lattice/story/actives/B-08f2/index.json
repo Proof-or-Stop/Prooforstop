@@ -4,7 +4,7 @@
   "title": "Rename the KOALA_* runtime env-var contract to LATTICE_* (open-source ship-clean)",
   "description": "For the open-source launch, eliminate the KOALA_* environment-variable layer with NO koala fallback. The ~57 KOALA_* vars (~595 uses) split into 17 that already have a LATTICE_* dual-read twin (drop the `|| KOALA_X` fallback) and 38 KOALA-only vars (rename to LATTICE_X) across reads, setters, JSON configs, .Codex/.claude wrapper assets, hook-contract docs, and tests. This is an intentional breaking change (external shells/CI/Codex wrappers exporting KOALA_* must switch to LATTICE_*), acceptable pre-launch with no external users. First substantive story of the ship-clean koala-removal program. Also drops the docs/koala/legacy/ archive. Out of scope: .koala/ runtime dir + LEGACY_KOALA_* path constants, docs/koala/framework-audit (active), koala.config.json/marker parsing, experiments/ data, CHANGELOG/history rewrite.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "open-source-cleanup",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-15T23:38:39.155Z",
   "startedAt": "2026-06-15T23:38:39.155Z",
-  "endedAt": null,
+  "endedAt": "2026-06-16T01:13:05.798Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,79 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-15T23:46:40.324Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-15T23:58:49.156Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:16:54.496Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:32:27.321Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:36:43.708Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:43:08.619Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-16T00:47:50.642Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:00:26.502Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-16T01:13:05.798Z",
+      "branch": "story/B-08f2",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-08f2",
-    "branch": "story/B-08f2",
-    "createdAt": "2026-06-15T23:45:33.643Z"
-  }
+  "currentReviewRound": "2026-06-16T00:47:50.642Z"
 }

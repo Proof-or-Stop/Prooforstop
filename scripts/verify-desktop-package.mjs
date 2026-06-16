@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const binary = process.env.KOALA_DESKTOP_BINARY || process.argv[2] || defaultHostBinary();
+const binary = process.env.LATTICE_DESKTOP_BINARY || process.argv[2] || defaultHostBinary();
 
 function defaultHostBinary() {
   const platform = process.platform === 'darwin' ? 'macos' : process.platform;
@@ -42,14 +42,14 @@ function isolatedBinaryEnv() {
       TEMP: temp,
       TMP: temp,
       PATH: `${join(systemRoot, 'System32')};${systemRoot}`,
-      KOALA_ACTIVITY_RECORD_READONLY: '1',
+      LATTICE_ACTIVITY_RECORD_READONLY: '1',
     };
   }
   return {
     HOME: process.env.HOME || repoRoot,
     TMPDIR: process.env.TMPDIR || '/tmp',
     PATH: '/usr/bin:/bin',
-    KOALA_ACTIVITY_RECORD_READONLY: '1',
+    LATTICE_ACTIVITY_RECORD_READONLY: '1',
   };
 }
 
@@ -69,7 +69,7 @@ function runBinary(args, label) {
 }
 
 if (!existsSync(binary)) {
-  throw new Error(`Desktop Koala binary is missing: ${binary}\nRun npm run package:desktop:host first, or pass KOALA_DESKTOP_BINARY=/path/to/koala.`);
+  throw new Error(`Desktop Koala binary is missing: ${binary}\nRun npm run package:desktop:host first, or pass LATTICE_DESKTOP_BINARY=/path/to/koala.`);
 }
 
 const help = runBinary(['help'], 'core help');

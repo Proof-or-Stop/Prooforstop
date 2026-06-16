@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-e791:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff is purely additive — no concept deleted or replaced en masse. The four changed items in the diff are: (1) NextStepCtx changed from private to exported interface (same symbol name, no deletion); (2) computeNextStep changed from private to exported function (same symbol name, no deletion); (3) the two INIT/INIT_CHECK gitReady guard conditions extended with && !configuredGitRootResolved (additive guard, no deletion); (4) execSync stdio option added to the nesting probe in worktree.ts (additive option, no deletion). configuredGitRootResolved is a net-new field on NextStepCtx, used in session.ts (definition at line 425, assignment at line 1327, guards at lines 560/565) and the new smoke task (gitroot-init-guidance-quiet-nesting-smoke.ts). All references are consistent and form a closed set. The smoke task is registered in packages/main/package.json as test:gitroot-init-guidance-quiet-nesting. No dangling references, no concept residue, no doc-promise-undelivered patterns observed.",
+      "createdAt": "2026-06-16T00:40:08.583Z",
+      "reviewRound": "2026-06-16T00:38:44.682Z",
+      "reviewRunId": "B-e791:RR-003",
+      "_hash": "5ce538f515d6ad0715282b5ba9734dfb3b287f2bfab849f8755365aa92d14db4"
+    },
+    {
+      "id": "B-e791:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 9 must intents across 3 checklist items; all intents covered by concrete, non-hollow assertions in gitroot-init-guidance-quiet-nesting-smoke.ts; the smoke-not-in-default-validate-battery gap is systemic and already tracked by B-99b6, not B-e791-specific; no blocker.",
+      "createdAt": "2026-06-16T00:40:29.495Z",
+      "reviewRound": "2026-06-16T00:38:44.682Z",
+      "reviewRunId": "B-e791:RR-001",
+      "_hash": "0123dbd8ca07c0667b9956ac9b6392eb4ed96a00e7597005879cb162dd17f213"
+    },
+    {
+      "id": "B-e791:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed session.ts, worktree.ts, and the smoke task. Logic is clean: (1) configuredGitRootResolved is computed correctly as !gitReady && !!configuredGitRootStatus?.signedWorkspaceRoot with no second resolver; (2) INIT/INIT_CHECK branches correctly gate the git-init advisory on !gitReady && !configuredGitRootResolved, preserving byte-identical messages for plain no-git projects; (3) worktree.ts nesting probe retains encoding:utf-8 alongside the new stdio:pipe, so stdout branch-name capture is preserved and the worktree-* rejection still fires; (4) exports of NextStepCtx and computeNextStep are minimal and appropriate for the smoke seam; (5) no shell/fn isolation violations; (6) no unnecessary as-any or empty catches. One low finding filed: dead fixedRun variable at smoke:241.",
+      "createdAt": "2026-06-16T00:40:41.202Z",
+      "reviewRound": "2026-06-16T00:38:44.682Z",
+      "reviewRunId": "B-e791:RR-002",
+      "_hash": "50ffcf613ed901a47aa11f8969d1a6862a1806782da327d546f4679e4ac50378"
+    },
+    {
+      "id": "B-e791:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "R2 quality check: F-001 fix verified correct. `void execSync(...)` at smoke:241 properly discards the unused warm-up return value — the actual fixed-form assertion is performed by a separate re-run at lines 248-255 that captures stderr explicitly. The leak-control differential (pre-fix leaks `fatal: not a git repository`, fixed-form does not) is intact. No dead code, no empty catch, no shell-isolation violations introduced by the single-line change. Core changes (session.ts configuredGitRootResolved, worktree.ts stdio:pipe) unchanged from R1 where no blockers were found. No new issues in R2.",
+      "createdAt": "2026-06-16T00:47:14.524Z",
+      "reviewRound": "2026-06-16T00:46:13.454Z",
+      "reviewRunId": "B-e791:RR-005",
+      "_hash": "2eba55e7554af66dae035a9032e59bac87c0ff26f3a3387ee635be3ac2b70203"
+    },
+    {
+      "id": "B-e791:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (Round 2): all 9 must intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0) confirmed covered by gitroot-init-guidance-quiet-nesting-smoke.ts. The only change since Round 1 (ed2b3054d) is a 1-line cosmetic substitution of void for const fixedRun on line 241 — no assertion removed, all intent-evidence mappings intact. validate-battery gap remains owned by B-99b6 and is out of scope.",
+      "createdAt": "2026-06-16T00:47:20.151Z",
+      "reviewRound": "2026-06-16T00:46:13.454Z",
+      "reviewRunId": "B-e791:RR-004",
+      "_hash": "39e1eaa0417e4bc1c8c3e25ef587620d7dc0d993db2bdd48bf06d1274772a9be"
+    },
+    {
+      "id": "B-e791:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept residue check complete. The only Round 2 change is ed2b305: const fixedRun → void execSync (unused-var fix in smoke). Full deleted-symbol inventory across packages/: (1) interface NextStepCtx → export interface NextStepCtx (same name, export added); (2) function computeNextStep → export function computeNextStep (same name, export added); (3) two if(!c.gitReady) guards narrowed to if(!c.gitReady && !c.configuredGitRootResolved) (same field name, logic extended); (4) execSync single-arg options → multi-line with stdio added (same call). No symbol was deleted or renamed en masse. configuredGitRootResolved is a net-new field with zero residue of any prior name. No concept cleanup residue found. No blocker.",
+      "createdAt": "2026-06-16T00:47:21.167Z",
+      "reviewRound": "2026-06-16T00:46:13.454Z",
+      "reviewRunId": "B-e791:RR-006",
+      "_hash": "46d9ff9a5b8145a2175f4ab1b3889e4f03f63895fc7b9770b5660e2229a6f652"
+    }
+  ]
+}

@@ -6,17 +6,17 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { runManagedAssetCheck } from '../packages/main/dist/core/managed-assets.js';
 import {
-  KOALA_RUNTIME_IGNORE_BLOCK_END,
-  KOALA_RUNTIME_IGNORE_BLOCK_START,
+  LATTICE_RUNTIME_IGNORE_BLOCK_END,
+  LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from '../packages/main/dist/core/runtime-artifact-registry.js';
 
 const repoRoot = process.cwd();
-const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
+const GLOBAL_CODEX_FALLBACK = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice';
 const INIT_ENTRYPOINT = 'packages/main/dist/cli-init.js';
 const CORE_ENTRYPOINT = 'packages/main/dist/cli.js';
-const MANAGED_GITIGNORE_BLOCK_START = KOALA_RUNTIME_IGNORE_BLOCK_START;
-const MANAGED_GITIGNORE_BLOCK_END = KOALA_RUNTIME_IGNORE_BLOCK_END;
+const MANAGED_GITIGNORE_BLOCK_START = LATTICE_RUNTIME_IGNORE_BLOCK_START;
+const MANAGED_GITIGNORE_BLOCK_END = LATTICE_RUNTIME_IGNORE_BLOCK_END;
 const REQUIRED_RUNTIME_IGNORE_LINES = listRuntimeArtifactIgnorePatterns();
 
 function run(cmd, args, opts = {}) {
@@ -228,8 +228,8 @@ function assertCodexWrapperSessionFrom(envName) {
   const marker = `verify-entrypoints-${envName.toLowerCase()}-${Date.now()}`;
   const env = {
     ...process.env,
-    KOALA_ACTIVITY_SOURCE: 'not-codex',
-    KOALA_ACTIVITY_SESSION: '',
+    LATTICE_ACTIVITY_SOURCE: 'not-codex',
+    LATTICE_ACTIVITY_SESSION: '',
     CODEX_SESSION_ID: '',
     OPENAI_SESSION_ID: '',
     TERM_SESSION_ID: '',
@@ -327,9 +327,9 @@ checks.push(() => {
   const out = run('node', [CORE_ENTRYPOINT, 'session_brief'], {
     env: {
       ...process.env,
-      KOALA_ACTIVITY_SOURCE: 'codex',
-      KOALA_ACTIVITY_RECORD_READONLY: '1',
-      KOALA_ACTIVITY_SESSION: marker,
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      LATTICE_ACTIVITY_RECORD_READONLY: '1',
+      LATTICE_ACTIVITY_SESSION: marker,
     },
   });
   assert(
@@ -410,7 +410,7 @@ checks.push(() => {
         && codexManifest.sessionEnv.sessionCandidates.includes('TERM_SESSION_ID'),
       'adapter manifest should document Codex/OpenAI/terminal session env candidates',
     );
-    assert(codexManifest.sessionEnv.recordReadOnly === 'KOALA_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
+    assert(codexManifest.sessionEnv.recordReadOnly === 'LATTICE_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
     assert(!codexManifest.excludedRuntimeAssets.includes('.Codex/hooks'), 'adapter manifest should allow managed Codex native hooks');
     assert(codexManifest.excludedRuntimeAssets.includes('.Codex/settings.json'), 'adapter manifest should exclude .Codex/settings.json');
     assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
@@ -453,8 +453,8 @@ checks.push(() => {
     const minimalEnv = {
       ...process.env,
       PATH: `${staleBin}:/usr/bin:/bin`,
-      KOALA_ACTIVITY_SOURCE: 'not-codex',
-      KOALA_ACTIVITY_SESSION: `fresh-init-wrapper-${Date.now()}`,
+      LATTICE_ACTIVITY_SOURCE: 'not-codex',
+      LATTICE_ACTIVITY_SESSION: `fresh-init-wrapper-${Date.now()}`,
     };
     const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'lattice-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
     assertIncludes(freshWrapperOut, '# lattice session brief', 'fresh generated wrapper should run with stale global lattice on PATH');

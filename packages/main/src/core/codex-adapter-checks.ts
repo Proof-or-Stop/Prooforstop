@@ -53,7 +53,7 @@ export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/lattice-codex.js verify_code
 export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
 export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'lattice codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
-export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
+export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice';
 
 /**
  * Resolve the preferred verify_codex command from available local wrappers.
@@ -470,10 +470,10 @@ function runHeartbeat(
       timeout: timeoutMs,
       env: {
         ...process.env,
-        KOALA_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
-        KOALA_ACTIVITY_RECORD_READONLY: '1',
-        KOALA_ACTIVITY_SESSION: session,
-        KOALA_CODEX_ENTRYPOINT: expectedEntrypoint,
+        LATTICE_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
+        LATTICE_ACTIVITY_RECORD_READONLY: '1',
+        LATTICE_ACTIVITY_SESSION: session,
+        LATTICE_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });
   } catch (e: any) {
@@ -502,7 +502,7 @@ function runHeartbeat(
 }
 
 function isPackagedDesktopRuntime(): boolean {
-  return process.env.KOALA_DESKTOP_PACKAGED_RUNTIME === '1'
+  return process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME === '1'
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
@@ -553,7 +553,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
     return;
   }
   const text = readText(wrapper);
-  const required = ['KOALA_ACTIVITY_SOURCE', 'codex', 'KOALA_ACTIVITY_RECORD_READONLY', 'KOALA_CODEX_ENTRYPOINT'];
+  const required = ['LATTICE_ACTIVITY_SOURCE', 'codex', 'LATTICE_ACTIVITY_RECORD_READONLY', 'LATTICE_CODEX_ENTRYPOINT'];
   const missing = required.filter(piece => !text.includes(piece));
   if (missing.length > 0) {
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, `wrapper missing ${missing.join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);

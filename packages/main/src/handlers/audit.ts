@@ -84,7 +84,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
       if (!existsSync(join(root, '.git'))) {
         throw new Error(
           `audit must run from repo root (got: ${root}). ` +
-          `Set KOALA_PROJECT_ROOT or cd to the directory containing .git.`
+          `Set LATTICE_PROJECT_ROOT or cd to the directory containing .git.`
         );
       }
 

@@ -32,7 +32,7 @@ import type { HandlerContext } from '../handlers/context.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const sessionEnv = { ...process.env, KOALA_SESSION_ID: 'scope-contract-smoke', KOALA_AGENT: 'scope-contract-smoke' };
+const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'scope-contract-smoke', LATTICE_AGENT: 'scope-contract-smoke' };
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();

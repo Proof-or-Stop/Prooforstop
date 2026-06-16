@@ -1,0 +1,28 @@
+{
+  "storyId": "B-e791",
+  "checkedAt": "2026-06-16T00:51:12.458Z",
+  "reviewRound": "2026-06-16T00:46:13.454Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "gitroot-init-guidance-quiet-nesting-smoke.ts (7/7 pass): INIT/INIT_CHECK wrapper-root (gitReady=false, configuredGitRootResolved=true) yields no git-init advisory and points to INIT_CHECK/PLAN flow. Plain no-gitRoot (gitReady=false, configuredGitRootResolved=false) retains byte-identical git-init message. gitReady=true cross-check matches wrapper-root resolved guidance. All three CHK-001 verificationEvidence intents (happy/edge/adversarial) confirmed pass. Evidence at .lattice/story/actives/B-e791/evidence/transcript-diff.md."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "gitroot-init-guidance-quiet-nesting-smoke.ts (7/7 pass): wrapper-root nesting probe with stdio:[pipe,pipe,pipe] captures fatal: not a git repository inside the pipe, not leaked to terminal. Leak-control differential proves default execSync DOES leak the fatal while fixed piped form does NOT. Real worktree-* branch still triggers nesting rejection (preserved). Ordinary main branch not rejected (negative control). Evidence at .lattice/story/actives/B-e791/evidence/transcript-diff.md."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "gitroot-init-guidance-quiet-nesting-smoke.ts (7/7 pass): smoke covers wrapper-root guidance happy path, plain no-gitRoot unchanged edge case, nesting rejection preserved adversarial case, and ordinary branch negative control. All CHK-003 verificationEvidence intents (happy/edge/adversarial) confirmed pass. Note: smoke is not in default validate battery (systemic gap owned by backlog B-99b6); run via npm run test:gitroot-init-guidance-quiet-nesting."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "CLAUDE.md was not modified so zero docsPromises apply. All 3 checklist items have real machine tests (7/7 smoke passes): CHK-001 guidance fix verified via pure function calls to exported computeNextStep; CHK-002 nesting probe silence verified via leak-control differential proving stdio:pipe suppresses the fatal leak while preserving nesting rejection; CHK-003 test existence confirmed in diff. Edge cases covered: byte-identical plain-no-gitRoot message, real worktree-* rejection preserved, ordinary branch negative control. No unresolved TODOs found in changed files."
+  },
+  "_hash": "e6cf022414041baf215936c1657da5b0294846d122c3c5f14a64559de85d35ec"
+}

@@ -198,7 +198,7 @@ async function loadProof(args: AuthorityReceiptVerifyArgs): Promise<unknown> {
       authorityTimeoutMS: undefined,
     });
     if (!settings.baseURL) {
-      throw new Error('KOALA_AUTHORITY_URL is not set; proofPath fetch requires an authority server URL.');
+      throw new Error('LATTICE_AUTHORITY_URL is not set; proofPath fetch requires an authority server URL.');
     }
     const client = new AuthorityClient(settings.baseURL, args._fetchImpl, settings.timeoutMS);
     const outcome = await client.fetchGateReceiptProof(args.proofPath);

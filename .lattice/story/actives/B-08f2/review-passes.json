@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-08f2:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "All concept-deletion checks passed. (1) git grep -nE KOALA_[A-Z] -- packages scripts bin .Codex .claude docs/guide-hooks.md | grep -vE LEGACY_KOALA_|.koala|activity.legacy-koala is EMPTY — no orphaned KOALA_ env tokens in active code paths. (2) git grep -nE (|||-??)\\s*process.env.KOALA_ scoped to packages/scripts/bin/.Codex/.claude/docs/guide-hooks.md is EMPTY — no leftover shim fallbacks. (3) LEGACY_KOALA_DIR, LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, LEGACY_KOALA_REPAIR_IGNORE constants confirmed present in packages/main/src/core/lattice-paths.ts — over-reach guard confirmed, deferred .koala work was NOT deleted. (4) docs/koala/ contains framework-audit/ only; docs/koala/legacy/ is absent — correct: active audit path kept, only legacy/ removed. (5) No half-renames found: all 11 package files that reference KOALA_ only use the LEGACY_KOALA_ constants, zero active KOALA_X env reads/writes alongside LATTICE_X in the same files. KOALA_ env refs in docs/guide.md and docs/requirements/ are outside the mandated grep scope and appear to be historical/compatibility documentation that was not touched by this branch. No blocker found.",
+      "createdAt": "2026-06-16T00:18:15.162Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-001",
+      "_hash": "cbbb72c9227b80744861c9fa71321c6dc1425dd3f0d6890eea5f1af9d7dbebec"
+    },
+    {
+      "id": "B-08f2:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 36 verificationIntents across 3 checklist items have non-failing evidence. Live re-run confirms: residual gate (git grep KOALA_[A-Z] in scope) returns zero; no-shim scan returns zero; LEGACY_KOALA_ preserved (7 refs) in lattice-paths.ts; docs/koala/legacy gone and framework-audit kept; npm run build exits 0; npm run test:e2e exits 0. Two pre-existing failures (test:fail-fast-health: aux_sync unregistered command; test:role-telemetry: .koala activity-path deferred) confirmed pre-existing on main branch — not caused by this story. Evidence mapping for CHK-002:edge:0 uses an indirect command (git ls-files docs/koala/legacy) but the underlying fact (no test file sets process.env.KOALA_ at runtime) is substantiated by the broader residual gate scan over packages/main/src/tasks/ returning zero. No coverage blocker found.",
+      "createdAt": "2026-06-16T00:22:50.066Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-004",
+      "_hash": "835a5d3ca9fe8e09e7a7698e70fd2cc72a7f38be40ec427a1fbab2942f076fc5"
+    },
+    {
+      "id": "B-08f2:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all 98-file KOALA->LATTICE env var rename diff. Three code quality findings registered (F-002 high, F-003 medium, F-004 medium). No I/O isolation violations. No type-safety issues. KOALA_MD_TEMPLATE deletion verified unused. dispatch-runner.ts KOALA_ allowlist is unchanged file (pre-existing, not in diff scope). ALLOW_SESSION_TAKEOVER rename in fixtures targets DONE story B-e467 not in active test suite. Dead-code double-reads in authority twins and resolveProjectRoot are harmless but messy. resolveLegacyGlobalMemoryPath always-false branch (F-002) is behavioral dead code; production call path in resolveGlobalMemoryReadPaths short-circuits before calling it when LATTICE_GLOBAL_MEMORY_DIR is set, so real-world impact is zero but smoke test direct assertion would fail. No blockers preventing merge if team accepts these quality cleanup items.",
+      "createdAt": "2026-06-16T00:30:05.578Z",
+      "reviewRound": "2026-06-16T00:16:54.496Z",
+      "reviewRunId": "B-08f2:RR-005",
+      "_hash": "b6477fbf634a93db2c08af7fd4387f440675da1d0cbc74d48ab6b2621e206bf8"
+    },
+    {
+      "id": "B-08f2:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified for new round (RR-007). All three checks passed on source paths (packages, scripts, bin, .Codex, .claude, docs/guide-hooks.md): (1) no non-legacy KOALA_[A-Z] references; (2) no || or ?? process.env.KOALA_ fallback patterns; (3) LEGACY_KOALA_* not present in lattice-paths.ts (the only match for check 2 was inside .lattice/story transcript-diff evidence artifact, outside source scope). Concept residue check complete, no blocker.",
+      "createdAt": "2026-06-16T00:38:45.212Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-007",
+      "_hash": "3bbb80c3ea79bdb2e024a32037b111c394e1b558a2d016efccdf0eb873161d89"
+    },
+    {
+      "id": "B-08f2:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: re-verified all 36 verificationIntents against current HEAD a9bc886 — npm run build exits 0, npm run test:e2e ALL PASS, residual gate 0, no-shim gate 0, dev-memory-legacy-read-smoke passes. The dev-memory-legacy-read-smoke.ts change correctly removed the now-invalid KOALA_GLOBAL_MEMORY_DIR override assertion (env override dropped in CHK-001); remaining behaviors (writable path under ~/.lattice, legacy read fallback to ~/.koala, combined read-paths) are still covered and pass. No coverage gap.",
+      "createdAt": "2026-06-16T00:39:38.363Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-010",
+      "_hash": "a620e4da61800a0a9664734b73717ec0e9f12605802cc88a19f2bbe296da580d"
+    },
+    {
+      "id": "B-08f2:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "F-002 resolved: resolveLegacyGlobalMemoryPath() dead branch fully removed, smoke test passes. F-003 resolved: all three LATTICE_PROJECT_ROOT duplicate-read instances removed from dev-memory.ts, config.ts, cli-engine.ts. F-004 partially resolved: 4 of 5 instances fixed (trustEnvValue, authorityEnvValue, liveEnv, envValue); readAuthorityEnv in authority-mode.ts:65 remains with a dead double-read — registered as new finding B-08f2:F-006 (medium). No other new quality issues found in the fix diff.",
+      "createdAt": "2026-06-16T00:40:45.697Z",
+      "reviewRound": "2026-06-16T00:36:43.708Z",
+      "reviewRunId": "B-08f2:RR-013",
+      "_hash": "63786a88c9a4e9f44a8b716c940e09692d11b79b20100a87f6f42c6a7dae460f"
+    },
+    {
+      "id": "B-08f2:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 new symbols changed in this round (pure docs rename propagation diff). Step 2/3: Verified 5 active-doc files updated to LATTICE_* env-var names (README.md, CLAUDE.md, docs/guide.md, docs/audits/lattice-token-cost-and-takeover-audit.md, docs/guide-hooks.md). F-005 fix confirmed: CLAUDE.md line 77 reads LATTICE_SESSION_BRIEF_FRESH_MINUTES. Gate grep KOALA_[A-Z] on active docs returns empty. No doc-code drift blockers remaining.",
+      "createdAt": "2026-06-16T00:48:44.035Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-015",
+      "_hash": "3afddd800b510024427bc9a8cec1037b1d4deb6e65015207c98224b3517e9547"
+    },
+    {
+      "id": "B-08f2:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept residue check complete. (1) git grep -nE KOALA_[A-Z] -- packages scripts bin .Codex .claude docs/guide-hooks.md CLAUDE.md README.md docs/guide.md docs/audits | grep -vE LEGACY_KOALA_|.koala|activity.legacy-koala → EMPTY. No active KOALA_ env tokens in any doc or source scope. (2) git grep -nE (||??)\\ process.env.KOALA_ → single match only inside .lattice/story/actives/B-4a53/evidence/transcript-diff.md (frozen evidence artifact, outside source scope); zero matches in packages/scripts/bin/.Codex/.claude. (3) LEGACY_KOALA_* constants (LEGACY_KOALA_DIR, LEGACY_KOALA_STORY_DIR, LEGACY_KOALA_ACTIVITY_LOG, LEGACY_KOALA_REPAIR_IGNORE, LATTICE_LEGACY_KOALA_ACTIVITY_LOG) confirmed present in packages/main/src/core/lattice-paths.ts — 7+ refs, over-reach guard intact. (4) docs/koala/framework-audit kept; docs/koala/legacy absent. No concept residue blocker found.",
+      "createdAt": "2026-06-16T00:49:06.837Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-016",
+      "_hash": "585fe6aea68c86635f559e6719cfec94ccc231027b29dab02cde22fcc0b6b859"
+    },
+    {
+      "id": "B-08f2:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Re-verified on current HEAD (b0ffcb454): residual gate empty, no-shim empty, npm run build exit 0, npm run test:e2e ALL PASS, dev-memory smoke passes. All 36/36 verificationIntents retain valid evidence (result=pass, verdict=success). The two post-RR-015 fix commits (authority dead-read collapse + active-doc env-var name updates) touch only .lattice/ metadata and 3 source files; they do not regress any intent coverage. No new intents were added. No gaps found.",
+      "createdAt": "2026-06-16T00:49:56.582Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-017",
+      "_hash": "84e351c50e8a5fbf8505a1d5e87abd2bddef711c4de7f53b62fdc38d94cde631"
+    },
+    {
+      "id": "B-08f2:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review — verified fix for F-004 and F-006. readAuthorityEnv (authority-mode.ts:63-64) now reads LATTICE_AUTHORITY_${name} exactly once into const value; no duplicate or KOALA_ fallback read remains. trustEnvValue and authorityEnvBySuffix in authority-mode.ts similarly collapsed to single LATTICE_ reads. No KOALA_ references found in authority-client.ts, authority-job-loop-live.ts, or handlers/lattice-cli.ts. Fix diff introduces no new dead code, type-safety issues, or I/O shell isolation violations. No new findings.",
+      "createdAt": "2026-06-16T00:49:57.695Z",
+      "reviewRound": "2026-06-16T00:47:50.642Z",
+      "reviewRunId": "B-08f2:RR-014",
+      "_hash": "fef7b25164eb4b6225da6de747c24d0927cc7391b982e1713ec298c2957e5940"
+    }
+  ]
+}

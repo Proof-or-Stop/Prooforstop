@@ -16,14 +16,14 @@ node bin/lattice-codex.js aux_doc_list --format=json
 只有当前项目没有本地 wrapper 时，才使用全局 fallback：
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
+LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief
 ```
 
 fallback 说明：
 
-- `KOALA_ACTIVITY_SOURCE=codex` 会把本次调用标记为 `source=codex`
-- `KOALA_ACTIVITY_RECORD_READONLY=1` 会让 `session_brief` 这样的只读入口也记录 heartbeat
-- `KOALA_CODEX_ENTRYPOINT=global-fallback` 会防止本地 wrapper 子进程把 global fallback 误记成 `local-wrapper`
+- `LATTICE_ACTIVITY_SOURCE=codex` 会把本次调用标记为 `source=codex`
+- `LATTICE_ACTIVITY_RECORD_READONLY=1` 会让 `session_brief` 这样的只读入口也记录 heartbeat
+- `LATTICE_CODEX_ENTRYPOINT=global-fallback` 会防止本地 wrapper 子进程把 global fallback 误记成 `local-wrapper`
 - 全局 `lattice` 可能是 core-only，`aux_*` 命令不一定可用
 - 全局 `lattice` 也可能滞后于当前 worktree；有本地 wrapper 或 `node packages/main/dist/cli.js` 时，不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据
 - `.Codex/agents` 由 `.claude/agents` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 `.claude`
@@ -44,4 +44,4 @@ fallback 说明：
 
 - 不创建 `.Codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
 - Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理；大小写不敏感文件系统上可能显示为 `.Codex/hooks` alias
-- 需要观测 Codex 活动时，使用 `.Codex/lattice.json` 记录的 wrapper 或带 `KOALA_ACTIVITY_RECORD_READONLY=1` 的 fallback
+- 需要观测 Codex 活动时，使用 `.Codex/lattice.json` 记录的 wrapper 或带 `LATTICE_ACTIVITY_RECORD_READONLY=1` 的 fallback
