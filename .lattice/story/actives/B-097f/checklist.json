@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "定稿 global-agents 单一真相源资产契约",
       "context": "明确:全局 ~/.claude/agents 为唯一 agent prompt 源,symlink 指向运行中 CLI 包 templates/agents(解析方式对 npm -g 与本地 dev 都健壮);项目内零 agent 文件;与 B-4ee0 global-thin / runtime-owned-agent-assets 执行计划口径对齐",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T14:27:58.743Z",
       "userSees": "docs/requirements/decisions/lifecycle-artifact-scope.md 中可读到一段 global-agents 契约:全局 ~/.claude/agents 为唯一 agent prompt 源、项目内零 agent 文件、symlink target 从运行中 CLI 包解析、迁移只删 16 个管理 basename",
       "verificationIntent": {
         "happy": [
