@@ -6,7 +6,16 @@
       "context": "In core/usage-ledger/dispatch-usage.ts add a pure resolveHardBudget(env) that reads LATTICE_HARD_BUDGET_TOKENS (fallback KOALA_HARD_BUDGET_TOKENS), parses a positive integer, returns { hardBudgetTokens: number, budgetPolicyId: string } | null (null when unset/invalid -> no enforcement). Add a pure isOverHardBudget(estimatedInputTokens, hardBudgetTokens) -> boolean. Unit-tested: unset -> null (no enforcement); valid -> policy; estimate over/under the ceiling.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
