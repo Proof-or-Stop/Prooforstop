@@ -1,0 +1,115 @@
+{
+  "storyId": "B-e791",
+  "checkedAt": "2026-06-16T00:30:19.343Z",
+  "features": [
+    {
+      "feature": "session.ts INIT/INIT_CHECK next-step strings are gitRoot-aware: do not say git init the metadata root when a configured gitRoot resolves (~549/554)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "session.ts non-git advisories (~694/889/921) are gitRoot-aware: skip git-init guidance when configuredGitRootStatus resolves",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse existing configuredGitRootStatus / signed-workspace resolution — no second resolver added",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Plain non-git projects with no configured gitRoot keep the existing git-init guidance byte-identical",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "worktree.ts dev_start nesting-check runs in the resolved gitRoot — no spurious fatal: not a git repository on wrapper-root",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Nesting rejection behavior preserved on real worktree-* branch (not silently dropped by gitRoot guard)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "configured gitRoot present but unresolvable: safe fallback, no crash in guidance path",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Function-level tests for gitRoot-aware guidance: wrapper-root fixture asserts INIT_CHECK-ready message; plain no-gitRoot keeps git-init message",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Function-level tests for nesting-check: no spurious fatal on wrapper-root metadataRoot; real worktree-* branch still rejected",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "lattice doctor wrapper-root probes (B-1637 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Description explicitly excludes: Do NOT touch lattice doctor probes (B-1637 owns that)",
+      "source": "description"
+    },
+    {
+      "feature": "Bootstrap behavior / gate pass-fail semantics (INIT_CHECK worktree creation, branch ops, metadata store) — already delivered in B-4e06",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Description explicitly excludes bootstrap behavior, gate semantics; decisions doc Delivered (B-4e06) section marks these as already implemented",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Fail with signed-workspace reason vocabulary when gitRoot is invalid (P2.7 from decisions doc) — guidance-path adversarial",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "verification_intent_repair command (P1 from decisions doc) — already delivered in B-4e06",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decisions doc Delivered (B-4e06) section confirms this was already implemented; description scopes to guidance/cosmetic fixes only",
+      "source": "decisions:decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+    },
+    {
+      "feature": "Do not shell out to the global lattice binary in tests",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 11,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "af5783f9ba03efb81dbae28b4c0c2caeb9218291f517345f9fef3b085e5ae466",
+  "openQuestions": []
+}
