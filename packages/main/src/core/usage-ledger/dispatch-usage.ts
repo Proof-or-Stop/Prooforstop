@@ -41,6 +41,14 @@ import {
 import { SCHEMA_VERSION, type LedgerUsage, type UsageLedgerRecordInput } from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
 
+/**
+ * Re-export the opt-in gate so the dispatch seam imports ONLY this module from
+ * usage-ledger (the single thin import surface mandated by the one-way seam). The
+ * dispatch caller computes `const ledgerOn = isUsageLedgerEnabled();` from here,
+ * never reaching into writer.ts directly.
+ */
+export { isUsageLedgerEnabled } from './writer.js';
+
 // =============================================================================
 // CHK-002: pure Claude Code CLI output parser (with raw-text fallback)
 // =============================================================================
