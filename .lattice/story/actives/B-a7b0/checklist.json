@@ -139,9 +139,9 @@
       "title": "Add a regression smoke for the two new checks and wire it into the validate battery",
       "context": "Add a smoke task (dist/tasks + a test:* script in packages/main/package.json, following the existing smoke pattern) that asserts: (a) a fixture CLAUDE.md with a stale path reference fails; (b) a fixture with a managed-asset contradiction fails; (c) a clean fixture passes; (d) command-name behavior is unchanged. Wire the script into the validate battery so REVIEW->TEST runs it. Use dependency-injected fixtures rather than mutating the real CLAUDE.md.",
       "userSees": "`lattice validate` runs the new docs-drift smoke green, proving the gate flags stale paths and managed-asset contradictions while leaving clean docs and existing command-name checks unaffected.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-16T21:27:37.578Z",
       "verificationIntent": {
         "happy": [
           {
