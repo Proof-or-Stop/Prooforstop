@@ -57,8 +57,8 @@
       "id": "CHK-002",
       "title": "OpenAI/codex usage adapter (cacheCreation=null)",
       "context": "Add adapters/openai.ts mapping usage.prompt_tokens->canonical.input, completion_tokens->output, prompt_tokens_details.cached_tokens->cacheRead, and cacheCreation=null (OpenAI does not report cache writes — null never 0). raw{providerUnits:'openai-usage-v1', payloadDigest}. Tested: response with cached_tokens (cacheRead set, cacheCreation null), response without prompt_tokens_details (cacheRead null), and no-usage -> unavailable.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-16T02:29:28.816Z",
       "endTime": null,
       "files": {
         "modify": [],
