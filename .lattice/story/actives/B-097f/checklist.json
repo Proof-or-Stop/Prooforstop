@@ -161,7 +161,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "HOME=$(mktemp -d) node packages/main/dist/cli.js --root <tmp> init --yes --profile=claude",
+          "result": "pass",
+          "note": "真机: 项目 .claude/agents *.md=0 且目录未创建; [5/6] 输出 .claude/agents (resolved from global ~/.claude/agents; no per-project copies); 全局 ~/.claude/agents 含 16 个 symlink 指向 CLI 包 templates/agents",
+          "headHash": "811be7b6f92628b5d9b785416d87918c047b4cce",
+          "materialHash": "61101e0a93a79c17ef4124dafd04d41aafa86cde18183276ed55b604b1918f31",
+          "timestamp": "2026-06-16T14:45:22.127Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
